@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="logging">
+  <title>ログ出力</title>
+
+  <para>
+    PHPUnit は、テスト結果の出力書式として以下のようなものに対応しています。
+  </para>
+
+  <section id="logging.xml">
+    <title>XML 形式</title>
+
+    <para>
+      PHPUnit がサポートする XML のフォーマットは、
+      <ulink url="http://ant.apache.org/manual/OptionalTasks/junit.html">
+      Apache Ant の JUnit タスク</ulink>
+      が使用しているものを参考にしています。
+      以下の例は、<literal>ArrayTest</literal> のテストが生成した
+      XML ログファイルです。
+    </para>
+
+    <screen><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="ArrayTest"
+             file="/home/sb/ArrayTest.php"
+             tests="2"
+             failures="0"
+             errors="0"
+             time="0.016030">
+    <testcase name="testNewArrayIsEmpty"
+              class="ArrayTest"
+              file="/home/sb/ArrayTest.php"
+              line="6"
+              time="0.008044"/>
+    <testcase name="testArrayContainsAnElement"
+              class="ArrayTest"
+              file="/home/sb/ArrayTest.php"
+              line="15"
+              time="0.007986"/>
+  </testsuite>
+</testsuites>]]></screen>
+
+    <para>
+      次の XML ログファイルは、テストクラス
+      <literal>FailureErrorTest</literal> にある 2 つのテスト
+      <literal>testFailure</literal> および <literal>testError</literal>
+      が出力したものです。失敗やエラーがどのように表示されるのかを確認しましょう。
+    </para>
+
+    <screen><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="FailureErrorTest"
+             file="/home/sb/FailureErrorTest.php"
+             tests="2"
+             failures="1"
+             errors="1"
+             time="0.019744">
+    <testcase name="testFailure"
+              class="FailureErrorTest"
+              file="/home/sb/FailureErrorTest.php"
+              line="6"
+              time="0.011456">
+      <failure type="PHPUnit_Framework_ExpectationFailedException">
+testFailure(FailureErrorTest)
+Failed asserting that &lt;integer:2&gt; matches expected value &lt;integer:1&gt;.
+
+/home/sb/FailureErrorTest.php:8
+</failure>
+    </testcase>
+    <testcase name="testError"
+              class="FailureErrorTest"
+              file="/home/sb/FailureErrorTest.php"
+              line="11"
+              time="0.008288">
+      <error type="Exception">testError(FailureErrorTest)
+Exception: 
+
+/home/sb/FailureErrorTest.php:13
+</error>
+    </testcase>
+  </testsuite>
+</testsuites>
+]]></screen>
+  </section>
+
+  <section id="logging.json">
+    <title>JavaScript Object Notation (JSON)</title>
+
+    <para>
+      <ulink url="http://www.json.org/">JavaScript Object Notation (JSON)</ulink>
+      は、軽量なデータ交換用フォーマットです。次の例は、
+      <literal>ArrayTest</literal> のテストが作成した JSON メッセージです。
+    </para>
+
+    <screen>{"event":"suiteStart","suite":"ArrayTest","tests":2}
+{"event":"test","suite":"ArrayTest",
+ "test":"testNewArrayIsEmpty(ArrayTest)","status":"pass",
+ "time":0.000460147858,"trace":[],"message":""}
+{"event":"test","suite":"ArrayTest",
+ "test":"testArrayContainsAnElement(ArrayTest)","status":"pass",
+ "time":0.000422954559,"trace":[],"message":""}</screen>
+
+    <para>
+      次の JSON メッセージは、
+      <literal>FailureErrorTest</literal> にある 2 つのテスト
+      <literal>testFailure</literal> および <literal>testError</literal>
+      が出力したものです。失敗やエラーがどのように表示されるのかを確認しましょう。
+    </para>
+
+    <screen>{"event":"suiteStart","suite":"FailureErrorTest","tests":2}
+{"event":"test","suite":"FailureErrorTest",
+ "test":"testFailure(FailureErrorTest)","status":"fail",
+ "time":0.000483989716,"trace":[],"message":""}
+{"event":"test","suite":"FailureErrorTest",
+ "test":"testError(FailureErrorTest)","status":"error",
+ "time":0.000466108322,"trace":[],"message":""}</screen>
+  </section>
+
+  <section id="logging.tap">
+    <title>Test Anything Protocol (TAP)</title>
+
+    <para>
+      <ulink url="http://testanything.org/">Test Anything Protocol (TAP)</ulink>
+      は、Perl のモジュールをテストする際に使用する、
+      シンプルなテキストベースのインターフェイスです。
+      以下の例は、<literal>ArrayTest</literal> のテストが生成した
+      TAP ログファイルです。
+    </para>
+
+    <screen># TestSuite "ArrayTest" started.
+ok 1 - testNewArrayIsEmpty(ArrayTest)
+ok 2 - testArrayContainsAnElement(ArrayTest)
+# TestSuite "ArrayTest" ended.
+1..2</screen>
+
+    <para>
+      次の TAP ログファイルは、テストクラス
+      <literal>FailureErrorTest</literal> にあるメソッド
+      <literal>testFailure</literal> および <literal>testError</literal>
+      が出力したものです。失敗やエラーがどのように表示されるのかを確認しましょう。
+    </para>
+
+    <screen># TestSuite "FailureErrorTest" started.
+not ok 1 - Failure: testFailure(FailureErrorTest)
+not ok 2 - Error: testError(FailureErrorTest)
+# TestSuite "FailureErrorTest" ended.
+1..2</screen>
+  </section>
+
+  <section id="logging.graphviz">
+    <title>GraphViz マークアップ</title>
+
+    <para>
+      PHPUnit は、テスト結果を図示することができます。
+      <ulink url="http://www.graphviz.org/">GraphViz</ulink>
+      ツール群を使用すると、これを画像などの便利な形式に変換することができます。
+    </para>
+
+    <screen><userinput>phpunit --log-graphviz ArrayTest.dot ArrayTest</userinput>
+PHPUnit 3.0.0 by Sebastian Bergmann.
+
+..
+
+Time: 00:00
+
+OK (2 tests)</screen>
+
+    <para>
+      次の例は、<literal>ArrayTest</literal> のテストから生成された
+      (そしてカレントディレクトリの <literal>ArrayTest.dot</literal>
+      に保存された) GraphViz マークアップです。
+    </para>
+
+    <screen>digraph G {
+  graph [ overlap="scale", splines="true", sep=".1", fontsize="8" ];
+  "ArrayTest" [ color="green" ];
+  subgraph "cluster_ArrayTest" {
+    label="";
+    "testNewArrayIsEmpty" [ color="green" ];
+    "testArrayContainsAnElement" [ color="green" ];
+  }
+
+  "ArrayTest" -> "testNewArrayIsEmpty";
+  "ArrayTest" -> "testArrayContainsAnElement";
+}</screen>
+
+    <para>
+      GraphViz ソフトウェア群に含まれるコマンドラインツール
+      <literal>dot</literal> を使用すると、
+      このマークアップから図を作成することができます。
+    </para>
+
+    <screen><userinput>dot -T png -o ArrayTest.png ArrayTest.dot</userinput></screen>
+
+    <para>
+      <xref linkend="logging.graphviz.figures.ArrayTest.png" />
+      は、上の GraphViz マークアップをもとに作成したテスト結果の図です。
+    </para>
+
+    <figure id="logging.graphviz.figures.ArrayTest.png">
+      <title>テスト結果を図示したもの</title>
+
+      <graphic fileref="figures/ArrayTest.png" />
+    </figure>
+
+    <para>
+      成功したテストは緑の線で、失敗したりエラーが発生したものは赤い線で、
+      そして不完全だったり省略されたりしたテストは黄色い線で表示されます。
+      テストスイートなどの親ノードは、もしその子ノード (テスト)
+      が成功しなかった場合は緑の線になりません。
+    </para>
+  </section>
+</chapter>

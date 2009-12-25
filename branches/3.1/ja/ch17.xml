@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="selenium">
+  <title>PHPUnit と Selenium</title>
+
+  <section id="selenium.selenium-rc">
+    <title>Selenium RC</title>
+
+    <para>
+      <ulink url="http://www.openqa.org/selenium-rc/">Selenium RC</ulink>
+      はテストツールのひとつです。これを使用すると、
+      ウェブアプリケーションのユーザインターフェイスについてのテストを自動化することができます。
+      あらゆるプログラミング言語で稼動しているウェブサイトに対応しており、
+      現在主流のあらゆるブラウザで使用することができます。Selenium RC は
+      <ulink url="http://www.openqa.org/selenium/">Selenium Core</ulink>
+      を使用しています。これは、ブラウザ上でのタスクを自動的に実行する
+      JavaScript のライブラリです。Selenium でのテストは、
+      一般のユーザが使用するのと同じようにブラウザ上で直接実行されます。
+      主な使用例としては、<emphasis>受け入れテスト</emphasis>
+      (各システム単体のテストではなく、結合されたシステム全体に対するテスト)
+      や <emphasis>ブラウザの互換性のテスト</emphasis>
+      (ウェブアプリケーションを、さまざまなオペレーティングシステムやブラウザでテストする)
+      などがあります。
+    </para>
+
+    <para>
+      Selenium RC のインストール手順は、次のようになります。
+    </para>
+
+    <orderedlist>
+      <listitem><ulink url="http://www.openqa.org/selenium-rc/">Selenium RC</ulink> の配布アーカイブをダウンロードする。</listitem>
+      <listitem>アーカイブを展開し、<filename>server/selenium-server.jar</filename> を <filename>/usr/local/bin</filename> などにコピーする。</listitem>
+      <listitem><userinput>java -jar /usr/local/bin/selenium-server.jar</userinput> などのようにして Selenium RC サーバを起動する。</listitem>
+    </orderedlist>
+
+    <para>
+      これで、クライアント/サーバ プロトコルを用いて
+      Selenium RC サーバにコマンドを送信できるようになりました。
+    </para>
+  </section>
+
+  <section id="selenium.seleniumtestcase">
+    <title>PHPUnit_Extensions_SeleniumTestCase</title>
+
+    <para>
+      <literal>PHPUnit_Extensions_SeleniumTestCase</literal>
+      は、Selenium RC と通信するための クライアント/サーバ プロトコルを実装したものです。
+      また、ウェブのテスト用に特化したアサーションメソッドも提供します。
+    </para>
+
+    <para>
+      <xref linkend="selenium.seleniumtestcase.examples.WebTest.php" /> は、
+      ウェブサイト <systemitem role="URL">http://www.example.com/</systemitem>
+      の <literal><![CDATA[<title>]]></literal> 要素の内容をテストする方法を示したものです。
+    </para>
+
+    <example id="selenium.seleniumtestcase.examples.WebTest.php">
+      <title>PHPUnit_Extensions_SeleniumTestCase の使用例</title>
+      <programlisting><![CDATA[<?php
+require_once 'PHPUnit/Extensions/SeleniumTestCase.php';
+ 
+class WebTest extends PHPUnit_Extensions_SeleniumTestCase
+{
+    protected function setUp()
+    {
+        $this->setBrowser('*firefox');
+        $this->setBrowserUrl('http://www.example.com/');
+    }
+ 
+    public function testTitle()
+    {
+        $this->open('http://www.example.com/');
+        $this->assertTitleEquals('Example Web Page');
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      <literal>PHPUnit_Framework_TestCase</literal> クラスとは異なり、
+      <literal>PHPUnit_Extensions_SeleniumTestCase</literal> を継承したテストケースクラスは
+      <literal>setUp()</literal> メソッドが必須となります。
+      このメソッド内で、Selenium RC セッションの設定を行います。
+      ここで使用できるメソッドの一覧は
+      <xref linkend="selenium.seleniumtestcase.tables.seleniumrc-api.setup" />
+      を参照ください。
+    </para>
+
+    <table id="selenium.seleniumtestcase.tables.seleniumrc-api.setup">
+      <title>Selenium RC API: セットアップ</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>メソッド</entry>
+            <entry>意味</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>void setBrowser(string $browser)</literal></entry>
+            <entry>Selenium RC サーバが使用するブラウザを設定します。</entry>
+          </row>
+          <row>
+            <entry><literal>void setBrowserUrl(string $browserUrl)</literal></entry>
+            <entry>テストするベース URL を設定します。</entry>
+          </row>
+          <row>
+            <entry><literal>void setHost(string $host)</literal></entry>
+            <entry>Selenium RC サーバに接続する際のホスト名を設定します。</entry>
+          </row>
+          <row>
+            <entry><literal>void setPort(int $port)</literal></entry>
+            <entry>Selenium RC サーバに接続する際のポートを設定します。</entry>
+          </row>
+          <row>
+            <entry><literal>void setTimeout(int $timeout)</literal></entry>
+            <entry>Selenium RC サーバに接続する際のタイムアウト値を設定します。</entry>
+          </row>
+          <row>
+            <entry><literal>void setSleep(int $seconds)</literal></entry>
+            <entry>Selenium RC クライアントが、Selenium RC サーバにアクションコマンドを送信してから待機する秒数を設定します。</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <para>
+      <xref linkend="selenium.seleniumtestcase.tables.assertions" />
+      は、<literal>PHPUnit_Extensions_SeleniumTestCase</literal>
+      が提供するさまざまなアサーションメソッドの一覧です。
+    </para>
+
+    <table id="selenium.seleniumtestcase.tables.assertions">
+      <title>アサーション</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>アサーション</entry>
+            <entry>意味</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>void assertAlertPresent()</literal></entry>
+            <entry>alert が発生していない場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNoAlertPresent()</literal></entry>
+            <entry>alert が発生している場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertChecked(string $locator)</literal></entry>
+            <entry><literal>$locator</literal> で表される要素がチェックされていない場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNotChecked(string $locator)</literal></entry>
+            <entry><literal>$locator</literal> で表される要素がチェックされている場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertConfirmationPresent()</literal></entry>
+            <entry>確認ダイアログが表示されていない場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNoConfirmationPresent()</literal></entry>
+            <entry>確認ダイアログが表示されている場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertEditable(string $locator)</literal></entry>
+            <entry><literal>$locator</literal> で表される要素が編集可能でない場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNotEditable(string $locator)</literal></entry>
+            <entry><literal>$locator</literal> で表される要素が編集可能な場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertElementValueEquals(string $locator, string $text)</literal></entry>
+            <entry><literal>$locator</literal> で表される要素の値が <literal>$text</literal> と異なる場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertElementValueNotEquals(string $locator, string $text)</literal></entry>
+            <entry><literal>$locator</literal> で表される要素の値が <literal>$text</literal> と等しい場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertElementContainsText(string $locator, string $text)</literal></entry>
+            <entry><literal>$locator</literal> で表される要素が <literal>$text</literal> を含まない場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertElementNotContainsText(string $locator, string $text)</literal></entry>
+            <entry><literal>$locator</literal> で表される要素が <literal>$text</literal> を含む場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertElementPresent(string $locator)</literal></entry>
+            <entry><literal>$locator</literal> で表される要素が存在しない場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertElementNotPresent(string $locator)</literal></entry>
+            <entry><literal>$locator</literal> で表される要素が存在する場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertLocationEquals(string $location)</literal></entry>
+            <entry>現在の位置が <literal>$location</literal> と異なる場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertLocationNotEquals(string $location)</literal></entry>
+            <entry>現在の位置が <literal>$location</literal> と等しい場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertPromptPresent()</literal></entry>
+            <entry>プロンプトが表示されていない場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNoPromptPresent()</literal></entry>
+            <entry>プロンプトが表示されている場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertIsSelected(string $selectLocator, string $value)</literal></entry>
+            <entry>指定した値が選択されていない場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertIsNotSelected(string $selectLocator, string $value)</literal></entry>
+            <entry>指定した値が選択されている場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertSomethingSelected(string $selectLocator)</literal></entry>
+            <entry><literal>$selectLocator</literal> で表される項目が選択されていない場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNothingSelected(string $selectLocator)</literal></entry>
+            <entry><literal>$selectLocator</literal> で表される項目が選択されている場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertTextPresent(string $pattern)</literal></entry>
+            <entry>指定したパターン <literal>$pattern</literal> が存在しない場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertTextNotPresent(string $pattern)</literal></entry>
+            <entry>指定したパターン <literal>$pattern</literal> が存在する場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertTitleEquals(string $title)</literal></entry>
+            <entry>現在のタイトルが <literal>$title</literal> と異なる場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertTitleNotEquals(string $title)</literal></entry>
+            <entry>現在のタイトルが <literal>$title</literal> と等しい場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertVisible(string $locator)</literal></entry>
+            <entry><literal>$locator</literal> で表される要素が不可視な場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNotVisible(string $locator)</literal></entry>
+            <entry><literal>$locator</literal> で表される要素が可視の場合にエラーを報告します。</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <para>
+      <xref linkend="selenium.seleniumtestcase.tables.template-methods" /> は、
+      <literal>PHPUnit_Extensions_SeleniumTestCase</literal>
+      の 2 つのテンプレートメソッドをまとめたものです。
+    </para>
+
+    <table id="selenium.seleniumtestcase.tables.template-methods">
+      <title>テンプレートメソッド</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>メソッド</entry>
+            <entry>意味</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>void defaultAssertions()</literal></entry>
+            <entry>
+             テストケース内のすべてのテストで共有するアサーションを上書きします。
+             このメソッドは、Selenium RC サーバにコマンドが送信されるたびに (送信された後に) コールされます。
+            </entry>
+          </row>
+          <row>
+            <entry><literal>void sharedAssertions()</literal></entry>
+            <entry>
+             テストケース内のすべてのテストで共有するアサーションを上書きします。
+             このメソッドは、テストが終了する直前にコールされます。
+            </entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <para>
+      使用できるコマンドのリファレンスや実際の使用法については
+      <ulink url="http://www.openqa.org/selenium-core/reference.html">Selenium Core のドキュメント</ulink>
+      を参照ください。
+    </para>
+  </section>
+</chapter>

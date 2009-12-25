@@ -1,0 +1,2422 @@
+<chapter id="intro"><title>Introduction</title>
+
+<simplesect>
+
+<para>It's easy to get lost when talking about XML. It has grown into
+a huge topic, inspiring so many technologies and branching into new
+areas. Anywhere there is information, you'll find XML, or at least
+hear it scratching at the door. So priority number one is to get a
+broad view, ask the big questions, so that you can find your way
+through the dense jungle of standards and concepts.</para>
+
+<para>There are a few questions that come to mind. What is XML? We
+will attack this from different angles. It's more than the next
+generation of HTML. It's a general-purpose information storage
+system. It's a markup language toolkit. It's an open standard. It's a
+collection of standards. It's a lot of things, as you'll see.</para>
+
+<para>What can I do with XML? A practical question, again with several
+answers: store and retrieve data, ensure document integrity, format
+documents, and support many cultural localizations. And the following
+section answers the other question, what can't I do with XML? You need
+to know about the limitations, in case it isn't a good fit with your
+problem.</para>
+
+<para>Where did it come from? It's good to have a historical
+perspective. You'll see how XML evolved out of preceding efforts like
+SGML, HTML, and the earliest presentational markup.</para>
+
+<para>How do I get started? Without any hesitation, I hope. I'll
+describe the tools you need to get going with XML and test the
+examples in this book. From authoring, validating, checking
+well-formedness, transforming, formatting, and writing programs,
+you'll have a lot to play with.</para>
+
+<para>So now, let us dive into the big questions. At the end, you
+should know enough to decide where to go from here. Future chapters
+will describe topics in more detail, such as core markup, quality
+control, style and presentation, programming interfaces, and
+internationalization.</para> 
+
+</simplesect>
+
+
+<sect1><title>What is XML?</title>
+
+<para>I like to explain the purpose of XML with an analogy to the
+ubiquitous plastic containers of Tupperware&trade;. There really is no
+better way to keep your food fresh than with those colorful, airtight
+little boxes. They come in different sizes and shapes so you can choose
+the one that fits best. They lock tight so you know nothing is leaking
+out and germs can't get in. You can tell items apart based on the
+container's color, or even scribble on it with magic marker. They're
+stackable and can be nested in larger containers (in case you want to
+take it with you on a picnic). Now, if you think of information as a
+precious commodity like food, then you can see the need for a
+containment system like Tupperware&trade;.</para>
+
+<sect2><title>An Information Container</title>
+
+<para>XML contains, shapes, labels, structures, and protects
+information. It does this with symbols embedded in the text, called
+<firstterm>markup</firstterm>. Markup enhances the meaning of
+information in certain ways, identifying the parts and how they relate
+to each other. For example, when you read a newspaper, you can tell
+articles apart by their spacing and position on the page and the use
+of different fonts for titles and headings. Markup works in a similar
+way, except that instead of spaces and lines, it uses symbols.</para>
+
+<para>Markup is important to electronic documents because they are
+processed by computer programs. If a document has no labels or
+boundaries, then a program will not know how to treat a piece of text
+to distinguish it from any other piece. Essentially, the program would
+have to work with the entire document as a unit, severely limiting the
+interesting things you can do with the content. A newspaper with no
+space between articles and only one text style would be a huge,
+uninteresting blob of text. You could probably figure out where one
+article ends and another starts, but it would be a lot of work. A
+computer program wouldn't be able to do even that, since it lacks all
+but the most rudimentary pattern-matching skills.</para>
+
+<para>XML's markup divides a document into separate information
+containers called <firstterm>elements</firstterm>. Like
+Tupperware&trade; containers, they seal up the data completely, label
+it, and provide a convenient package for computer processing. Like
+boxes, elements nest inside other elements. One big element may
+contain a whole bunch of elements, which in turn contain other
+elements, and so on down to the data. This creates an unambiguous
+hierarchical structure that preserves all kinds of ancillary
+information: sequence, ownership, position, description,
+association. An XML <firstterm>document</firstterm> consists of one
+outermost element that contains all the other elements, plus some
+optional administrative information at the top.</para>
+
+<para><xref linkend="intro-ex-telegram"/> is a typical XML document
+containing a short telegram. Take a moment to dissect it with your
+eyes and then we'll walk through it together.</para>
+
+<example id="intro-ex-telegram"><title>An XML document</title>
+<programlisting><![CDATA[<?xml version="1.0"?>
+<telegram pri="important">
+  <to>Sarah Bellum</to>
+  <from>Colonel Timeslip</from>
+  <subject>Robot-sitting instructions</subject>
+  <graphic fileref="figs/me.jpg"/>
+  <message>Thanks for watching my robot pal 
+    <name>Zonky</name> while I'm away. 
+    He needs to be recharged <emphasis>twice a
+    day</emphasis> and if he starts to get cranky, 
+    give him a quart of oil. I'll be back soon, 
+    after I've tracked down that evil 
+    mastermind <villain>Dr. Indigo Riceway</villain>.
+  </message>
+</telegram>]]></programlisting>
+</example>
+
+<para>Can you tell the difference between markup and data? The markup
+symbols are delineated by angle brackets (&lt;&gt;).
+<sgmltag>to</sgmltag> and <sgmltag>/villain</sgmltag> are two such
+symbols, called <firstterm>tags</firstterm>. The data, or
+<firstterm>content</firstterm>, fills the space between these tags.
+As you get used to looking at XML, you'll use the tags as signposts to
+navigate visually through documents.</para>
+
+<para>At the top of the document is the tag <sgmltag>?xml
+version="1.0"?</sgmltag>. This is information for an XML processing
+program used to help it identify the version of XML, whether it has a
+special character set, and stuff like that.</para>
+
+<para>Following that is the tag <sgmltag>telegram</sgmltag>. This is
+the start of an element. We say that the element's name or type is
+"telegram"; or you could just call it a "telegram element". The end of
+the element is at the bottom, and is represented by the tag
+<sgmltag>/telegram</sgmltag> (note the slash at the beginning). So
+this element contains the whole document. No wonder, then, that we
+call it the <firstterm>document element</firstterm>. Inside, you'll
+see more elements with start tags and end tags following a similar
+pattern. There is one exception here, the tag
+<sgmltag>graphic.../</sgmltag>, which is an empty element. Rather than
+contain data, it merely marks a spot in the document where something
+should happen, in this case the display of a graphic.</para>
+
+<para>Every element that contains data has to have both a start tag
+and an end tag. Some elements that are empty, can get by with a single
+tag, but it has to follow a different form, with a slash at the end,
+like <sgmltag>graphic.../</sgmltag>. The names in start and end tags
+have to match exactly, even down to the case of letters. XML is very
+picky about the details like this. The pickiness ensures that the
+structure is unambiguous and the data is air-tight. If start tags or
+end tags were optional, it could lead to problems with parsing, where
+the computer wouldn't know where one element ended and another
+began.</para>
+
+<para>From this example, you can see a pattern: some tags function as
+bookends, marking the beginning and ending of regions, while others
+mark a place in the text. Even the simple document here contains quite
+a lot of information:</para>
+
+<variablelist>
+<varlistentry><term>Boundaries</term>
+<listitem><para>A piece of text starts in one place and ends in
+another. The tags <sgmltag>telegram</sgmltag> and
+<sgmltag>/telegram</sgmltag> define the start and end of a collection
+of text and markup, which is labeled <literal>telegram</literal>.
+</para></listitem>
+</varlistentry>
+
+<varlistentry><term>Roles</term> 
+<listitem><para>What is a region of text doing in the document? Here,
+the tags <sgmltag>paragraph</sgmltag> and
+<sgmltag>/paragraph</sgmltag> label some text as a paragraph, as
+opposed to a list, title, or limerick.</para></listitem>
+</varlistentry>
+
+<varlistentry><term>Positions</term>
+<listitem><para>Elements preserve the order of their contents, which
+is especially important in prose documents like this.</para></listitem>
+</varlistentry>
+
+<varlistentry><term>Containment</term>
+<listitem><para>The nesting of elements is taken into account by
+XML processing software, which may treat content
+differently depending on where it appears. For example, a title might
+have a different font size depending on whether it's the title of a 
+newspaper or an article.</para></listitem>
+</varlistentry>
+
+<varlistentry><term>Relationships</term>
+<listitem><para>A piece of text can be linked to a resource somewhere
+else. For instance, the tag <sgmltag>graphic.../</sgmltag> creates a
+relationship (link) between the XML fragment and a file named
+<filename>me.jpg</filename>. The intent is to import 
+the graphic data from the file and display it in this fragment.
+</para></listitem>
+</varlistentry>
+</variablelist>
+
+<para>An important XML term to understand is
+<wordasword>document</wordasword>. When you hear that word,
+probably think of a sequence of words partitioned into paragraphs,
+sections, and chapters, comprising a human-readable record such as a
+book, article, or essay. But in XML, a <firstterm>document</firstterm>
+is even more general: it's the basic unit of XML information, composed
+of elements and other markup in an orderly package. It can contain
+text such as a story or article, but it doesn't have to. Instead, it
+might consist of a database of numbers, or some abstract structure
+representing a molecule or equation. In fact, one of the most
+promising applications of XML is as a format for
+application-to-application data exchange. Keep in mind that an XML
+document can have a much wider definition than what you might think of
+as a traditional document.</para>
+
+<para>A document is composed of pieces called
+<firstterm>elements</firstterm>. The elements nest inside each other
+like small boxes inside larger boxes, shaping and labeling the content
+of the document. At the top level, a single element called the
+<firstterm>document element</firstterm> or <firstterm>root
+element</firstterm> contains other elements.  The following are short
+examples of documents.</para>
+
+<para>The Mathematics Markup Language (MathML) encodes equations. A
+well-known equation among physicists is Newton's Law of Gravitation:
+<command>F = GMm / r<superscript>2</superscript></command>. The
+document in <xref linkend="intro-ex-mathml"/> represents that
+equation.</para>
+
+<example id="intro-ex-mathml">
+<title>MathML document</title>
+<programlisting><![CDATA[<?xml version="1.0"?>
+<math xmlns="http://www.w3.org/TR/REC-MathML/">
+  <mi>F</mi>
+  <mo>=</mo>
+  <mi>G</mi>
+  <mo>&amp;InvisibleTimes;</mo>
+  <mfrac>
+    <mrow>
+      <mi>M</mi>
+      <mo>&InvisibleTimes;</mo>
+      <mi>m</mi>
+    </mrow>
+    <apply>
+      <power/>
+      <mi>r</mi>
+      <mn>2</mn>
+      </power>
+    </apply>
+  </mfrac>
+</math>]]></programlisting>
+</example>
+
+<para>Consider: while one application might use this input to display
+the equation, another might use it to solve the equation with a series
+of values. That's a sign of XML's power.</para>
+
+<para>You can also store graphics in XML documents. The Scalable
+Vector Graphics (SVG) language is used to draw resizable line art. The
+document in <xref linkend="intro-ex-svg"/> defines a picture with
+three shapes (a rectangle, a circle, and a polygon):</para>
+
+<example id="intro-ex-svg">
+<title>SVG Document</title>
+<programlisting><![CDATA[<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg 
+    PUBLIC "-//W3C//DTD SVG 20001102//EN" 
+    "http://www.w3.org/TR/2000/CR-SVG-20001102/DTD/svg-20001102.dtd">
+<svg>
+  <desc>Three shapes</desc>
+  <rect fill="green" x="1cm" y="1cm" width="3cm" height="3cm"/>
+  <circle fill="red" cx="3cm" cy="2cm" r="4cm"/>
+  <polygon fill="blue" points="110,160 50,300 180,290"/>
+</svg>]]></programlisting>
+</example>
+
+<para>A document is not the same as a file. A
+<firstterm>file</firstterm> is a package of data treated as a
+contiguous unit by the computer's operating system. This is called a
+<firstterm>physical</firstterm> structure. An XML document can exist
+in one file or in many files, some of which may be on another
+system. It may not be in a file at all, being generated in a stream
+from a program. XML uses special markup to integrate the contents of
+different files to create a single entity, which we describe as a
+<firstterm>logical</firstterm> structure. By keeping a document
+independent of the restrictions of a file, XML facilitates a linked
+web of document parts that can reside anywhere.</para>
+
+<para>That's XML markup in a nutshell. The whole of the next chapter
+is devoted to this topic. There, we'll go into deeper detail about the
+picky rules and describe some new tags you haven't seen yet. You'll
+then be able to tear apart any XML document and know what all the
+pieces are for, and put together documents of your own.</para>
+
+</sect2>
+
+<sect2><title>A markup language toolkit</title>
+
+<para>Strictly speaking, XML is not a markup language. A language has
+a fixed vocabulary and grammar, but XML doesn't actually define any
+elements. Instead, it lays down a foundation of syntactic constraints
+on which you can build your own language. So a more apt description
+might be to call XML a markup language toolkit. When you need a markup
+language, you can build one quickly using XML's rules, and you'll be
+comfortable knowing that it will automatically be compatible with all
+the generic XML tools out there.</para>
+
+<para>The telegram in <xref linkend="intro-ex-telegram"/> is marked up in
+a language I invented for fun. I chose a bunch of element names that I
+thought were important to represent a typical telegram, and a couple
+that were gratuitously silly, like <sgmltag>villain</sgmltag>. This is
+okay, because the language is for my use and I can do whatever I want
+with it. Perhaps I have something in mind for the
+<sgmltag>villain</sgmltag> element, like printing it in a different
+color to stand out. The point is, XML gives me the ability to tailor a
+markup language any way I want, which is a very powerful
+feature.</para>
+
+<para>Because XML doesn't have a predetermined vocabulary, it's
+possible to invent a markup language as you go along. Perhaps, in a
+future telegram, I might want to identify a new kind of thing with an
+element I've never used before. Say I wrote to a friend inviting her
+to a party, and I enclosed the date in an element called,
+appropriately, <sgmltag>date</sgmltag>. Free-form XML, as I like to
+call it, is perfectly legal as long as it's well-formed.  In other
+words, as long as you spell tags correctly, use both start tags and
+end tags, and obey all the other minimal rules, it's good XML.</para>
+
+<para>Documents that follow the syntax rules of XML are 
+<firstterm>well-formed</firstterm> XML documents. This piece of text
+would fail the test on three counts:</para>
+
+<programlisting>&lt;equation&lt;a &lt; b&lt;equation&gt;</programlisting>
+
+<para>Can you find all the problems? First, the start tag is spelled
+incorrectly, because it has two left brackets instead of a left and a
+right. Second, there is a left bracket in the content of the element,
+which is illegal. Third, the end tag of the element is missing a
+slash. This is not well-formed XML. Any program that parses it should
+stop at the first error and refuse to have anything more to do with
+it.</para>
+
+<para>So XML has a minimal "purity test" called well-formedness. What
+does this get us? Compatibility. It allows you to write a program or a
+library of routines that know nothing about the incoming data except
+that it will be well-formed XML. An XML editor could be
+used to edit any XML document, a browser to view any document, and so
+on. Programs are more robust and less complex when the data is more
+consistent.</para>
+
+<para>Some programs are not so general-purpose, however. They may
+perform complex operations on highly specific data. In this case, you
+may need to concretize your markup language so that a user doesn't
+slip in an unexpected element type and confuse the program. What you
+need is a formal <firstterm>document model</firstterm>. A document
+model is the blueprint for an <firstterm>instance</firstterm> of a markup
+language. It gives you an even stricter test than
+well-formedness, so you can say that Document X is not just
+well-formed XML, but it's also an instance of the Mathematics Markup
+Language, for example.</para>
+
+<para>When a document instance matches a document model, we say that
+it is <firstterm>valid</firstterm>. You may hear it phrased as, "this
+is valid XHTML" or "valid SVG". The markup languages (e.g. XHTML and
+SVG) are <firstterm>applications</firstterm> of XML. There are several
+ways to establish a markup language formally. The two most common are
+document type definitions (DTDs) and schemas. Each has its strong
+points and weak points.</para>
+
+<para>DTDs are built into the XML specification. They are usually
+separate documents that your document can refer to, although parts of
+DTDs can also reside inside your document. A DTD is just a big
+collection of rules, or <firstterm>declarations</firstterm>,
+describing elements and other markup objects. An element declaration
+adds a new element type to the vocabulary and defines a
+<firstterm>content model</firstterm>, what it can contain and in which
+order. Any element type that is not declared in the DTD is illegal. An
+element containing something other than the declaration prescribes is
+also illegal. The DTD doesn't have a lot to say about what kind of
+data can go inside elements which is the primary flaw about this kind
+of document model.</para>
+
+<para>Schemas are a later invention, offering more flexibility and a
+way to specify patterns for data which is absent from DTDs. For
+example, in a schema you could declare an element called
+<sgmltag>date</sgmltag> and then require that it contains data of the
+form MM/DD/YY. With DTDs the best you could do is say whether the
+element can contain characters or elements. Unfortunately, there is a
+lot of controversy around schema, because different groups have
+put forth competing proposals. Perhaps there will always be different
+types of schema, which is fine with me.</para>
+
+<para>Today, there are hundreds of XML applications
+for encoding everything from plays to chemical formulae. If you're
+in the market a markup language, chances are you'll find one that
+meets your needs. If not, you can always make your own. That's the
+power of XML.</para>
+
+</sect2>
+
+<sect2><title>An open standard</title>
+
+<para>As Andrew Tanenbaum, a famous networking researcher, once said,
+"the wonderful thing about standards is that there are so many of
+them." We've all felt a little bewildered by all the new standards
+that support the information infrastructure. But the truth is,
+standards work, and without them, the world would be a much more
+confusing place. From Eli Whitney's interchangeable gun parts to
+standard railroad gauges, the industrial revolution couldn't have
+happened without them.</para>
+
+<para>The best kind of standard is one that is open. An open standard
+is not owned by any single company or individual. It is designed and
+maintained based on input from the community to fit real needs, not to
+satisfy a marketing agenda. Therefore, it isn't subject to change
+without notice, nor is it tied to fortune of a company that could
+disappear in the next market downturn. There are no licensing fees,
+nondisclosure agreements, partnerships or intellectual property
+disputes. It's free, public, and completely transparent.</para>
+
+<para>The Internet was largely built upon open standards. IP, TCP,
+ASCII, email, HTML, Telnet, FTP&mdash;they are all open, even if they
+were funded by private and government agencies. Developers like open
+standards because they have a say in how they are designed. They are
+free to use what works for them, rather than be tied to a proprietary
+package. And history shows that they work remarkably well.</para>
+
+<para>XML is an open standard. It was designed by a group of
+companies, organizations, and individuals called the World Wide Web
+Consortium (W3C). The current recommendation was published in 1998,
+and is the same version in use today, although a new version (1.1) is
+currently in the draft stage. The specification is free to the public,
+on the web at <systemitem
+role="url">http://www.w3.org/TR/REC-xml</systemitem>. As a
+recommendation, it isn't strictly binding. There is no certification
+process, but developers are motiviated to comply as closely as
+possible to attract customers and community approval.</para>
+
+<para>In one sense, a loosely binding recommendation is useful, in
+that standards enforcement takes time and resources that no one in the
+consortium wants to spend. It also allows developers to create their
+own extensions, or to make partially working implementations that do
+most of the job pretty well. The downside, however, is that there's no
+guarantee anyone will do a good job. For example, the Cascading Style
+Sheets standard has languished for years because browser manufacturers
+couldn't be bothered to fully implement it. Nevertheless, the
+standards process is generally a democratic and public-focused
+process, which is a Good Thing.</para>
+
+<sidebar><title>W3C and the standards process</title>
+
+<para>The W3C has taken on the role of the unofficial smithy of the
+Web. Founded in 1994 by a number of organizations and companies around
+the world with a vested interest in the Web, their long-term goal is
+to research and foster accessible and superior web technology with
+responsible application. They help to banish the chaos of competing,
+half-baked technologies by issuing technical documents and
+recommendations to software vendors and end users alike.</para>
+
+<para>Every recommendation that goes up on the W3C's web site must
+endure a long, tortuous process of proposals and revisions before it's
+finally ratified by the organization's Advisory Committee. A
+recommendation begins as a project, or
+<firstterm>activity</firstterm>, when somebody sends the W3C Director
+a formal proposal called a <firstterm>briefing package</firstterm>. If
+approved, the activity gets its own working group with a charter to
+start development work. The group quickly nails down details such as
+filling leadership positions, creating the meeting schedule, and
+setting up necessary mailing lists and web pages.</para>
+
+<para>At regular intervals, the group issues reports of its progress,
+posted to a publicly accessible web page. Such a <firstterm>working
+draft</firstterm> does not necessarily represent a finished work or
+consensus among the members, but is rather a progress report on the
+project. Eventually, it reaches a point where it is ready to be
+submitted for public evaluation. The draft then becomes a
+<firstterm>candidate recommendation</firstterm>.</para>
+
+<para>When a candidate recommendation sees the light of day, the
+community is welcome to review it and make comments. Experts in the
+field weigh in with their insights. Developers implement parts of the
+proposed technology to test it out, finding problems in the
+process. Software vendors beg for more features. The deadline for
+comments finally arrives and the working group goes back to work,
+making revisions and changes.</para>
+
+<para>Satisfied that the group has something valuable to contribute to
+the world, the Director takes the candidate recommendation and blesses
+it into a <firstterm>proposed recommendation</firstterm>. It must then
+survive the scrutiny of the Advisory Council and perhaps be revised a
+little more before it finally graduates into a recommendation.</para>
+
+<para>The whole process can take years to complete, and until the
+final recommendation is released, you shouldn't accept anything as
+gospel.  Everything can change overnight as the next draft is posted,
+and many a developer has been burned by implementing the sketchy
+details in a working draft, only to find that the actual
+recommendation is a completely different beast. If you're an end user,
+you should also be careful. You may believe that the feature you need
+is coming, only to find it was cut from the feature list at the last
+minute.</para>
+
+<para>It's a good idea to visit the W3C's web site (<systemitem
+role="url">http://www.w3.org</systemitem>) every now and then. You'll
+find news and information about evolving standards, links to
+tutorials, and pointers to software tools. It's listed, along with
+some other favorite resources, in <xref linkend="taxonomy"/>.</para>
+
+</sidebar>
+
+</sect2>
+
+
+<sect2><title>A constellation of standards</title> 
+
+<para>I'm sure you'll agree that spending money is generally more fun
+than saving it. Sure, you can get a little thrill looking at your bank
+statement and seeing the dividend from the 3% interest on your savings
+account, but it isn't as exciting as buying a new plasma screen
+television. So it is with XML. It contains information like a safe
+holds money, but the real fun comes from using that
+information. Whether you're publishing an XHTML document to the web or
+generating an image from SVG, the results are quite a bit more
+gratifying than staring at markup.</para>
+
+<para>XML's extended family provides many ways to squeeze usefulness
+out of XML documents. They are extensions and applications of XML that
+build bridges to other formats or make it easier to work with
+data. With all the names and acronyms, you may be a little overwhelmed
+at first, but it's worth getting to know this growing family. <xref
+linkend="intro-fig-1"/> shows a handsome portrait.</para>
+
+<figure id="intro-fig-1"><title>XML's family portrait</title>
+<graphic fileref="figs/lx2_0101.jpg"/>
+</figure>
+
+<para>Let's look at these categories in more detail.</para>
+
+<variablelist>
+
+<varlistentry><term>Core syntax</term>
+<listitem><para>These are the minimal standards required to understand
+XML. They include the core recommendation and its extension, XML
+Namespaces. The latter piece allows you to classify markup in
+different groups. One use of this is to combine markup from different
+XML applications in the same document.</para></listitem>
+</varlistentry>
+
+<varlistentry><term>Modelling</term>
+<listitem><para>DTDs (part the core XML recommendation) and XML Schema
+create models of documents which formalize a markup language. This is
+valuable for testing documents' completeness and adherence to grammar
+rules.</para></listitem>
+</varlistentry>
+
+<varlistentry><term>Locating and Linking</term>
+<listitem><para>Data is only as useful as the ease with which you can
+access it. That's why there is a slew of protocols available for
+getting to data deep inside documents. XPath provides a language for
+specifying the path to a piece of data. XPointer and XLink use these paths to
+create a link from one document to another. XInclude imports files
+into a document. The XML Query Language
+(XQL) is an advanced way to interface to data, turning documents into
+virtual databases.</para></listitem>
+</varlistentry>
+
+<varlistentry><term>Presentation</term>
+<listitem><para>XML isn't very pretty to look at. If you want to make
+it presentable, you need to use a stylesheet. The two most popular are
+Cascading Stylesheets (CSS) and the Extensible Style Language
+(XSL). The former is very simple and fine for most online
+documents. The latter is highly detailed and better for print-quality
+documents.</para></listitem>
+</varlistentry>
+
+<varlistentry><term>Human documents</term>
+<listitem><para>This category has markup languages for documents you'll
+actually read, as opposed to raw data. XHTML, the XML-friendly upgrade
+to the Hypertext Markup Language, is used to encode web
+pages. DocBook is for technical manuals which are heavy in technical
+terms and complex structures like tables, lists and
+sidebars. The Wireless Markup Language (WML) is like XHTML but
+specializes in packaging documents for tiny screens on cellular
+phones.</para></listitem>
+</varlistentry>
+
+<varlistentry><term>Media</term>
+<listitem><para>Not all data is to be read. The Scalable Vector
+Graphics language (SVG) creates images and animations. The [EXPAND ACRONYM]
+Language (SMIL) scripts graphic, sound, and text events in a 
+timeline-based multimedia presentation. VoiceML describes how to turn
+text into speech.</para></listitem>
+</varlistentry>
+
+<varlistentry><term>Science</term>
+<listitem><para>Science applications are early-adopters of XML, not
+surprisingly. The Chemical Markup Language (CML) represents molecules
+in XML, while MathML builds equations. Software turns instances of
+these markup language into the nicely-rendered visual representations
+that scientists are accustomed to viewing.</para></listitem>
+</varlistentry>
+
+<varlistentry><term>Resource description</term>
+<listitem><para>With so many documents now online, we need ways to
+sort through them all to find just the information we need. Resource
+description is a way of summarizing and showing relationships between
+documents. The Resource Description Framework (RDF) is a language for
+describing resources. Public Identifiers and Uniform Resource
+Identifiers (URI) are universal names for resources, giving you a
+unique handle to a document anywhere in the world.</para></listitem>
+</varlistentry>
+
+<varlistentry><term>Communication</term>
+<listitem><para>XML is an excellent way for different systems to
+communicate with each other. The Remote Procedure Calling protocol
+(RPC) standardizes interhost system calls. XML Signatures ensures
+security in identification by encoding unique, verifiable signatures
+for documents of any kind. SyncML is a way to transfer data from a
+personal computer to a smaller device like a cellular phone, giving
+you a fast and dependable way to update address lists and
+calendars.</para></listitem> 
+</varlistentry>
+
+<varlistentry><term>Transformation</term>
+<listitem><para>Converting between one format and another is a
+necessary fact of life. If you've ever had to import a document from
+one software application into another, you know that it can sometimes
+be a messy task. The Extensible Style Language for Transformations
+(XSLT) automates the task for you. It turns one form of XML into
+another in a process called
+<firstterm>transformation</firstterm>. It can be a good alternative to
+programming, though it does have some limitations.</para></listitem>
+</varlistentry>
+
+<varlistentry><term>Development</term>
+<listitem><para>When all else fails, you can always fall back on
+programming. Most programming languages have support for parsing and
+navigating XML. They frequently make use of two standard
+interfaces. The Simple API for XML (SAX) is very popular for its
+simplicity and efficiency. The Document Object Model (DOM) outlines an
+interface for moving around an object tree of a document for more
+complex processing.</para></listitem> 
+</varlistentry>
+
+</variablelist>
+
+<para>This list is proof that XML works well as a basis for
+information exchange and application. Most of these topics will be
+covered in the book, with copious examples.</para>
+</sect2>
+</sect1>
+
+
+<sect1><title>What can I do with XML?</title>
+
+<sect2><title>Store and retrieve data</title>
+
+<para>Just about every software application needs to store some
+data. There are look-up tables, work files, preference settings, and
+so on. XML makes it very easy to do this. Say, for example, you've
+created a calendar program and you need a way to store holidays. You
+could hard-code it, of course, but that's kind of a hassle since you'd
+have to recompile it if you need to add to the list. So you decide to
+save this data in a separate file using XML. <xref
+linkend="intro-ex-caldata"/> shows how it might look.</para>
+
+<example id="intro-ex-caldata"><title>Calendar data file</title>
+<programlisting><![CDATA[<caldata>
+  <holiday type="international">
+    <name>New Year's Day</name>
+    <date><month>January</month><day>1</day></date>
+  </holiday>
+  <holiday type="personal">
+    <name>Erik's birthday</name>
+    <date><month>April</month><day>23</day></date>
+  </holiday>
+  <holiday type="national">
+    <name>Independance Day</name>
+    <date><month>July</month><day>4</day></date>
+  </holiday>
+  <holiday type="religious">
+    <name>Religious</name>
+    <date><month>December</month><day>25</day></date>
+  </holiday>
+</caldata>]]></programlisting>
+</example>
+
+<para>Now all your program needs to do is read in the XML file and
+convert the markup into some convenient data structure using an
+<firstterm>XML parser</firstterm>. This software component reads and
+digests XML into a more useable form. There are lots of libraries that
+will do this, as well as standalone programs. Outputting XML is just
+as easy as reading it. Again, there are modules and libraries people
+have written that you can incorporate in any program.</para>
+
+<para>XML is a very good choice for storing data in many cases. It's
+easy to parse and write, and it's open for users to edit
+themselves. Parsers have mechanisms to verify syntax and completeness
+so you can protect your program from corrupted data. It works best for
+small data files or for data that is not meant to be searched randomly
+(i.e. read straight through like a book).</para>
+
+<para>If you want to store huge amounts of data and need to retrieve
+it quickly, you probably don't want to use XML. It's a sequential
+storage medium, meaning that any search would have to go through most
+of the document. A database program like Oracle or mySQL would scale
+much better, caching frequently used data and using a hash table to
+zero in on records with lightning speed.</para>
+
+</sect2>
+
+<sect2><title>Format documents</title>
+
+<para>Traditional documents, the kind that humans read, have to be
+formatted in a way that is convenient and pleasing for eyes. Stripping
+out the tags and dumping to plain text is an option, but not very
+imaginative. You need spacing, typefaces, perhaps even color and
+lines. All of this is called
+<firstterm>presentation</firstterm> and is something that XML does not
+bother itself with directly.</para>
+
+<para>So how do you get style into your document? There are a couple
+of different ways. One is to apply a stylesheet to the document. A
+<firstterm>stylesheet</firstterm> is like a table where one column
+contains names of elements and the other has sets of style
+attributes. A stylesheet processor goes through the XML document,
+element by element, looks up its entry in the table, and formats the
+output based on the style settings it finds there. A simple and easy
+language is Cascading Stylesheets (CSS).<xref linkend="intro-ex-css"/>
+shows a typical example.</para>
+
+<example id="intro-ex-css"><title>A CSS stylesheet</title>
+<programlisting><![CDATA[telegram {
+  background-color: tan;
+  color: black;
+  font-family: monospace;
+}
+message {
+  display: block;
+  margin: .5em;
+  padding: .5em;
+  border: thin solid brown;
+  background-color: wheat;
+  whitespace: normal;
+}
+to:before {
+  color: black;
+  content: "To: ";
+}
+from:before {
+  color: black;
+  content: "From: ";
+}
+subject:before {
+  color: black;
+  content: "Subject: ";
+}
+to, from, subject {
+  display: block;
+  color: blue;
+  font-size: large;
+}
+emphasis {
+  font-style: italic;
+}
+name {
+  font-weight: bold;
+}
+villain {
+  color: red;
+  font-weight: bold;
+}]]></programlisting>
+</example>
+
+<para>To apply this stylesheet, you need to add a special
+instruction to the source document. It looks like this:</para>
+
+<programlisting>&lt;?xml-stylesheet type="text/css" href="ex2_memo.css"?&gt;</programlisting>
+
+<para>This is a <firstterm>processing instruction</firstterm>, not an
+element. It will be ignored by any XML processing software that
+doesn't handle CSS stylesheets.</para>
+
+<para>To see the result, you can open it up in a web browser that
+accepts XML documents and can format with CSS. Internet Explorer 6
+was my choice. <xref linkend="intro-fig-css"/> shows a screen
+shot. Note that not all of the CSS was processed correctly. I wanted
+the "from", "to", and "subject" fields to have headers, but they
+weren't generated. Web browsers do not completely support CSS, which
+is a bummer.</para> 
+
+<figure id="intro-fig-css">
+<title>Document formatted with CSS</title>
+<graphic fileref="figs/lx2_0102.jpg"/>
+</figure>
+
+<para>Another way to turn a dull XML document into something pretty is
+to transform the document into a format that specializes in
+presentation. I call them <firstterm>terminal formats</firstterm>
+because it's a one-way conversion. You throw out the descriptive
+markup for the more specialized presentational markup. Some examples
+are Postscript, Rich Text Format (RTF), and HTML. The route we use to
+turn an XML document into one of these formats is called
+<firstterm>transformation</firstterm>.</para>
+
+<para>Transformation is a process by which an XML document is changed,
+element by element, into another form. It may be another XML
+application, or it could be non-XML. It may use the whole document or
+just pieces of it. You could write a program to do transformation in a
+language like Perl or Java, but an even easier way is to use the
+Extensible Style Language for Transformation (XSLT). The process
+involves your source document, an XSLT script, and a transformation
+processor, as shown in <xref linkend="intro-fig-xslt"/>.</para>
+
+<figure id="intro-fig-xslt">
+<title>The transformation process</title>
+<graphic fileref="figs/lx2_0103.jpg"/>
+</figure>
+
+<para>XSLT is itself an XML application. It uses namespaces, an XML
+syntax for grouping elements by adding a name prefix, to distinguish
+between XSLT commands, and the names of elements you want it to
+output. For every element in the markup language you're transforming,
+there should be a corresponding rule in the XSLT transformation script
+that defines how it should be altered.</para>
+
+<para><xref linkend="intro-ex-xslt"/> shows a typical XSLT script. It
+changes a <sgmltag>telegram</sgmltag> document into HTML. The result
+of the transformation is a web page that you can display in any web
+browser.</para>
+
+<example id="intro-ex-xslt"><title>XSLT script for telegram
+documents</title>
+<programlisting><![CDATA[<xsl:transform
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  version="1.0">
+
+<xsl:template match="telegram">
+  <html>
+    <head><title>telegram</title></head>
+    <body><h1>telegram</h1>
+      <xsl:apply-templates/>
+    </body>
+  </html>
+</xsl:template>
+
+<xsl:template match="from">
+  <h2><xsl:text>from: </xsl:text><xsl:apply-templates/></h2>
+</xsl:template>
+
+<xsl:template match="to">
+  <h2><xsl:text>to: </xsl:text><xsl:apply-templates/></h2>
+</xsl:template>
+
+<xsl:template match="subject">
+  <h2><xsl:text>subj: </xsl:text><xsl:apply-templates/></h2>
+</xsl:template>
+
+<xsl:template match="message">
+  <blockquote><xsl:apply-templates/></blockquote>
+</xsl:template>
+
+<xsl:template match="emphasis">
+  <i><xsl:apply-templates/></i>
+</xsl:template>
+
+<xsl:template match="name">
+  <font color="blue"><xsl:apply-templates/></font>
+</xsl:template>
+
+<xsl:template match="villain">
+  <font color="red"><xsl:apply-templates/></font>
+</xsl:template>
+
+<xsl:template match="graphic">
+  <img>
+    <xsl:attribute name="src">
+      <xsl:value-of select="@fileref"/>
+    </xsl:attribute>
+  </img>
+</xsl:template>
+
+<xsl:transform>]]></programlisting>
+</example>
+
+<para>When applied against the document in <xref
+linkend="intro-ex-telegram"/>, this script produces an HTML document
+that looks like <xref linkend="intro-fig-xslttrans"/> in a
+browser.</para> 
+
+<figure id="intro-fig-xslttrans">
+<title>Transformation result</title>
+<graphic fileref="figs/lx2_0104.jpg"/>
+</figure>
+
+<para>Again, we're limited by what you can achieve with HTML and a web
+browser. We can achieve a lot more using the Extensible Style
+Language. It's kind of a hybrid between stylesheets and
+transformation, and in fact uses both technologies to achieve a very
+nicely formatted result. The process is illustrated in <xref
+linkend="intro-fig-xsl"/>.</para>
+
+<figure id="intro-fig-xsl">
+<title>How XSL works</title>
+<graphic fileref="figs/lx2_0105.jpg"/>
+</figure>
+
+<para>The source document on the left is first transformed into a
+formatting object tree using XSLT. This new document is encoded in a
+language called Extensible Style Language Formatting Objects
+(XSL-FO). Formatting objects are an amalgam of content from the source
+document and style instructions. In other words, it's what you get
+when you change the descriptive markup from XML into purely
+presentational markup&mdash;a terminal format. This document is fed
+into an XSL formatter which spits out another terminal document, like
+Postscript for example.</para>
+
+<para>It may seem like a rather convoluted process, but it's actually
+quite easy to work with. The only configuration you have to deal with
+is the XSLT script. XSL-FO formatting objects are generated behind the
+scenes. The level of control you have is far and above anything you
+could get from HTML or CSS.</para>
+
+</sect2>
+
+<sect2><title>Ensure data integrity</title>
+
+<para>Trust is important for data&mdash;trust that it hasn't been
+corrupted, truncated, mistyped or left incomplete. Broken documents
+can confuse software, format as jibberish, and result in erroneous
+calculations. Documents submitted for publishing need to be complete
+and use only the markup that you specify. Transmitting and converting
+documents always entails risk that some information may be
+lost.</para>
+
+<para>XML gives you the ability to guarantee a minimal level of trust
+in data. There are several mechanisms. First, there is
+well-formedness. Every XML parser is required to report syntax errors
+in markup. Missing tags, malformed tags, illegal characters, and other
+problems should be immediately reported to you. Consider this simple
+document with a few errors in it:</para>
+
+<programlisting><![CDATA[<announcement<
+  <TEXT>Hello, world! I'm using XML & it's a lot of fun.</Text>
+</anouncement>]]></programlisting>
+
+<para>When I run an XML well-formedness checker on it, here is what I
+get:</para> 
+
+<screen><![CDATA[> xwf t.xml
+t.xml:2: error: xmlParseEntityRef: no name
+  <TEXT>Hello, world! I'm using XML & it's a lot of fun.</Text>
+                                     ^
+t.xml:2: error: Opening and ending tag mismatch: TEXT and Text
+  <TEXT>Hello, world! I'm using XML & it's a lot of fun.</Text>
+                                                              ^
+t.xml:3: error: Opening and ending tag mismatch: announcement and
+anouncement
+</anouncement>
+             ^]]></screen>
+
+<para>It caught two misspelled tags and an illegal character. And not
+only did it tell me what was wrong, it showed me where the errors
+were, so I can go back and correct them more easily. Checking if a
+document is well-formed can pick up a lot of problems:</para>
+
+<itemizedlist>
+<listitem><para>Misspelled tags, a common occurance if you are typing
+in the XML by hand. The start- and end-tags have to match exactly in
+case and spelling.</para></listitem>
+<listitem><para>Truncated documents, which would be missing at least
+part of the outermost document (both start- and end-tag must be
+present).</para></listitem>
+<listitem><para>Illegal characters, including reserved markup
+delimiters like &lt;, &gt;, and &amp;. There is a special syntax for
+complex or reserved characters which looks like &amp;lt; for &lt;. If
+any part of that is missing, the parser will get suspicious. Parsers
+should also warn you if characters in a particular encoding are not
+correctly formed, which may indicate that the document was altered in
+a recent transmission. For example, transferring a file through FTP
+can sometimes strip out the high bit in characters.</para></listitem>
+</itemizedlist>
+
+<para>The well-formedness check has its limits. The parser doesn't
+know if you are using the right elements in the right places. For
+example, you might have an XHTML document with a <sgmltag>p</sgmltag>
+element inside the <sgmltag>head</sgmltag>, which is illegal. To catch
+this kind of problem, you need to test if the document is a valid
+instance of XHTML. The tool for this is a <firstterm>validating
+parser</firstterm>.</para>
+
+<para>A validating parser works by comparing a document against a
+set of rules called a <firstterm>document model</firstterm>. One kind
+of document model is a <firstterm>Document Type Definition</firstterm>
+(DTD). It declares all the elements that are allowed in a document and
+describes in detail what kind of elements they can contain. <xref
+linkend="intro-ex-dtd"/> is a small DTD for telegrams.</para>
+
+<example id="intro-ex-dtd"><title>Telegram DTD</title>
+<programlisting><![CDATA[<!ELEMENT telegram (from,to,subject,graphic?,message)>
+<!ATTLIST telegram pri CDATA #IMPLIED>
+<!ELEMENT from (#PCDATA)*>
+<!ELEMENT to (#PCDATA)*>
+<!ELEMENT subject (#PCDATA)*>
+<!ELEMENT graphic EMPTY>
+<!ATTLIST graphic fileref CDATA #REQUIRED>
+<!ELEMENT message (#PCDATA|emphasis|name|villain)*>
+<!ELEMENT emphasis (#PCDATA)*>
+<!ELEMENT name (#PCDATA)*>]]></programlisting>
+</example>
+
+<para>Before submitting the telegram document to a parser, I need to
+add this line to the top:</para>
+
+<programlisting>&lt;!DOCTYPE telegram SYSTEM "/location/of/dtd"&gt;</programlisting>
+
+<para>Where "/location..." is the path to the DTD file on my
+system. Now I can run a vaildating parser on the telegram
+document. Here's the output I get:</para>
+
+<screen><![CDATA[> xval ex1_memo.xml
+ex1_memo.xml:13: validity error: No declaration for element villain
+    mastermind <villain>Dr. Indigo Riceway</villain>.
+                                                    ^
+ex1_memo.xml:15: validity error: Element telegram content doesn't
+follow the DTD
+</telegram>
+          ^]]></screen>
+
+<para>Oops! I forgot to declare the element
+<sgmltag>villain</sgmltag>, so I'm not allowed to use it in a
+telegram. No problem; it's easy to add new elements. This shows how
+you can detect problems with structure and grammar in a
+document.</para>
+
+<para>The most important benefit to using a DTD is that it allows you
+to enforce and formalize a markup language. You can make your DTD
+public by posting it on the web, which is what organizations like the
+W3C do. For instance, you can look at the DTD for "strict" XHTML
+version 1.0 at <systemitem
+role="url">http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd</systemitem>.
+It's a compact and portable specification, though a little dense to
+read.</para>
+
+<para>A limitation of DTDs is that they don't do much checking of text
+content. You can declare an element to contain text (called PCDATA in
+XML), or not, and that's as far as you can go. You could not check
+whether an element that should be filled out is empty, or if it
+follows the wrong pattern. Say, for example, I wanted to make sure
+that the <sgmltag>to</sgmltag> element in the telegram isn't empty, so
+I have at least someone to give it to. With a DTD, there is no way to
+test that.</para>
+
+<para>An alternative document modelling scheme provides the
+solution. XML Schemas provide much more detailed control over a
+document, including the ability to compare text with a pattern you
+define. <xref linkend="intro-ex-schema"/> shows a schema that will
+test a telegram for completely-filled-out elements.</para>
+
+<example id="intro-ex-schema"><title>Schema for telegrams</title>
+<programlisting><![CDATA[<schema xmlns="http://www.w3.org/1999/XMLSchema">
+  <element name="telegram" type="telegramtype"/>
+  <complexType name="telegramtype">
+    <element name="to" type="string" minOccurs="1" maxOccurs="1"/>
+    <element name="from" type="string" minOccurs="1" maxOccurs="1"/>
+    <element name="subject" type="string" minOccurs="1" maxOccurs="1"/>
+    <element name="graphic" type=""/>
+    <element name="message" type="messagetype"/>
+  </complexType>
+  <complexType name="messagetype">
+    <element name="emphasis" type="string"/>
+    <element name="name" type="string"/>
+    <element name="villain" type="string"/>
+  </complexType>
+</schema>]]></programlisting>
+</example>
+
+<para>So there are several levels of quality assurance available in
+XML. You can rest assured that your data is in a good state.</para>
+
+</sect2>
+
+
+<sect2><title>Support multiple languages</title>
+
+<para>XML wants to be useful to the widest possible community. Things
+that have limited other markup langages from worldwide acceptance have
+been reworked. The character set, for starters, is Unicode, which
+supports hundreds of scripts: latin, nordic, arabic, cyrillic, hebrew,
+chinese, mongolian, and many more. It also has ample supplies of
+literary and scientific symbols. So you'd be hard-pressed to think of
+something you can't express in XML.</para>
+
+<para>To be flexible, XML also supports many character encodings. An
+encoding is a way to represent characters as bytes. Some are more
+efficient than others, depending on the range of characters you
+use. And some software will only accept certain encodings. You only
+have to specify the encoding at the top of the document in the XML
+declaration, like this:</para>
+
+<programlisting>&lt;?xml version="1.0" encoding="iso-lat1"?&gt;</programlisting>
+
+<para>Often, it is inconvenient to insert exotic characters from a
+common terminal. XML provides a shorthand, called <firstterm>character
+entitiy references</firstterm>. If you want a letter "C" with a
+cedilla (&ccedil;), you can express it numerically like this:
+&amp;#224; (decimal) or &amp;#x00e7; (hexadecimal), both of which
+use the position of the character in Unicode as an identifier.</para>
+
+<para>Often, there may be one or more translations of a document. You
+can keep them all together using XML's built-in support for language
+qualifiers. In this piece of XML, two versions of the same text are
+kept together for convenience, differentiated by labels:</para>
+
+<programlisting><![CDATA[<para xml:lang="en">There is an answer.</para>
+<para xml:lang="de">Es gibt ein Antwort.</para>]]></programlisting>
+
+<para>And this same system can even be used with dialects within a
+language. In this case, both are english, but from different
+locales:</para>
+
+<programlisting><![CDATA[<para xml:lang="en-US">Consult the program.</para>
+<para xml:lang="en-GB">Consult the programme.</para>]]></programlisting>
+
+</sect2>
+
+
+<sect2><title>Scenarios</title>
+
+<sect3><title>Web publishing</title>
+</sect3>
+
+<sect3><title>Printing</title>
+</sect3>
+
+<sect3><title>Archiving</title>
+</sect3>
+
+<sect3><title>Networking</title>
+</sect3>
+
+<sect3><title>Multimedia</title>
+</sect3>
+
+</sect2>
+</sect1>
+
+
+<sect1><title>What are the limitations of XML?</title>
+
+
+<sect2><title>Speed</title>
+</sect2>
+
+
+<sect2><title>Size</title>
+</sect2>
+
+
+<sect2><title>Optimization</title>
+</sect2>
+
+
+<sect2><title>Alternatives</title>
+</sect2>
+</sect1>
+
+
+<sect1><title>Where did XML come from?</title>
+
+<sect2><title>History</title>
+
+<para>Early electronic formats were more concerned with describing how
+things should look (presentation) than with document structure and
+meaning. troff and TeX, two early formatting languages, did a
+fantastic job of formatting printed documents, but lacked any sense of
+structure. Consequently, documents were limited to being viewed on
+screen or printed as hard copies. You couldn't easily write programs
+to search for and siphon out information, cross-reference it
+electronically, or repurpose documents for different
+applications.</para>
+
+<para><firstterm>Generic coding</firstterm>, which uses descriptive
+tags rather than formatting codes, eventually solved this problem.
+The first organization to seriously explore this idea was the Graphic
+Communications Association (GCA). In the late 1960s, the
+<quote>GenCode</quote> project developed ways to encode different
+document types with generic tags and to assemble documents from
+multiple pieces.</para>
+
+<para>The next major advance was Generalized Markup Language (GML), a
+project by IBM. GML's designers, Charles Goldfarb, Edward Mosher, and
+Raymond Lorie,<footnote>
+
+<para>Cute fact: the acronym GML also happens to be the initials of
+the three inventors.</para>
+
+</footnote> intended it as a solution to the problem of encoding
+documents for use with multiple information subsystems. Documents
+coded in this markup language could be edited, formatted, and searched
+by different programs because of its content-based tags. IBM, a huge
+publisher of technical manuals, has made extensive use of GML, proving
+the viability of generic coding.</para>
+
+<para>Inspired by the success of GML, the American National Standards
+Institute (ANSI) Committee on Information Processing assembled a team,
+with Goldfarb as project leader, to develop a standard
+text-description language based upon GML.  The GCA GenCode committee
+contributed their expertise as well. Throughout the late 1970s and
+early 1980s, the team published working drafts and eventually created
+a candidate for an industry standard (GCA 101-1983) called the
+Standard Generalized Markup Language (SGML). This was quickly adopted
+by both the U.S. Department of Defense and the U.S. Internal Revenue
+Service.</para>
+
+<para>In the years that followed, SGML really began to take off. The
+International SGML Users' Group started meeting in the United Kingdom
+in 1985. Together with the GCA, they spread the gospel of SGML around
+Europe and North America. Extending SGML into broader realms, the
+Electronic Manuscript Project of the Association of American
+Publishers (AAP) fostered the use of SGML to encode general-purpose
+documents such as books and journals. The U.S. Department of Defense
+developed applications for SGML in its Computer-Aided Acquisition and
+Logistic Support (CALS) group, including a popular table formatting
+document type called CALS Tables. And then, capping off this
+successful start, the International Standards Organization (ISO)
+ratified a standard for SGML (ISO 8879:1986).</para>
+
+<para>SGML was designed to be a flexible and all-encompassing coding
+scheme. Like XML, it is basically a toolkit for developing specialized
+markup languages. But SGML is much bigger than XML, with a looser
+syntax and lots of esoteric parameters.  It's so flexible that
+software built to process it is complex and expensive, and its
+usefulness is limited to large organizations that can afford both the
+software and the cost of maintaining complicated SGML
+environments.</para>
+
+<para>The public revolution in generic coding came about in the early
+1990s, when Hypertext Markup Language (HTML) was developed by Tim
+Berners-Lee and Anders Berglund, employees of the European particle
+physics lab CERN.  CERN had been involved in the SGML effort since the
+early 1980s, when Berglund developed a publishing system to test
+SGML. Berners-Lee and Berglund created an SGML document type for
+hypertext documents that was compact and efficient. It was easy to
+write software for this markup language, and even easier to encode
+documents. HTML escaped from the lab and went on to take over the
+world.</para>
+
+<para>However, HTML was in some ways a step backward. To achieve the
+simplicity necessary to be truly useful, some principles of generic
+coding had to be sacrificed.  For example, one document type was used
+for all purposes, forcing people to overload tags rather than define
+specific-purpose tags.  Second, many of the tags are purely
+presentational. The simplistic structure made it hard to tell where
+one section began and another ended. Many HTML-encoded documents today
+are so reliant on pure formatting that they can't be easily
+repurposed. Nevertheless, HTML was a brilliant step for the Web and a
+giant leap for markup languages, because it got the world interested
+in electronic documentation and linking.</para>
+
+<para>To return to the ideals of generic coding, some people tried to
+adapt SGML for the Web&mdash;or rather, to adapt the Web to SGML. This
+proved too difficult. SGML was too big to squeeze into a little web
+browser. A smaller language that still retained the generality of SGML
+was required, and thus was born the Extensible Markup Language
+(XML).</para>
+
+</sect2>
+
+
+<sect2><title>The Goals of XML</title>
+
+<para>Dissatisfied with the existing formats, a group of companies and
+organizations that called itself the World Wide Web Consortium (W3C)
+began work in the mid-1990s on a markup language that combined the
+flexibility of SGML with the simplicity of HTML. Their philosophy in
+creating XML is embodied by several important tenets:</para>
+
+<variablelist>
+
+<varlistentry><term>Form should follow function</term>
+
+<listitem><para>In other words, markup languages need to fit their
+data snugly. Rather than invent a single, generic language to cover
+all document types (badly), let there be many languages, each
+specific to its data. Users can choose element names and decide how
+they should be arranged in a document. The result will better
+labelling of data, richer formatting possibilities, and enhanced
+searching capability.</para></listitem>
+</varlistentry>
+
+<varlistentry><term>A document should be unambiguous</term>
+
+<listitem><para>A document should be marked up in such a way that
+there is only one way to interpret the names, order, and hierarchy of
+the elements. Consider this example from old-style HTML:</para>
+
+<programlisting><![CDATA[<html>
+  <body>
+    <p>Here is a paragraph.
+    <p>And here is another.
+  </body>
+</html>]]></programlisting>
+
+<para>Before XML, this was acceptible markup. Every browser knows that
+the beginning of a <sgmltag>p</sgmltag> signals the end of an open
+<sgmltag>p</sgmltag> element preceding it. This prior knowledge about
+a markup language is something we don't have in XML, where the number
+of possible elements is infinite. Therefore, it's an ambiguous
+situation. Look at this example; does the first element contain the
+other, or are adjacent?</para>
+
+<programlisting>&lt;flooby&gt;an element
+&lt;flooby&gt;another element</programlisting>
+
+<para>You can't possibly know, and neither can an XML parser. It could
+guess, but it might guess wrongly. That's why XML rules about syntax
+are so strict. It reduces errors by making it more obvious when a
+document has mis-coded markup. It also reduces the complexity of
+software, since programs won't have to make an educated guess or try
+to fix syntax mistakes to recover. It may make it harder to write XML,
+since the user has to pay attention to details, but this is a small
+price to pay for robust performance.</para></listitem>
+</varlistentry>
+
+<varlistentry><term>Separate markup from presentation</term>
+
+<listitem><para>For your document to have maximum flexibility for
+output format, you should strive to keep the style information out of
+the document and stored externally. Documents that rely on stylistic
+markup are difficult to repurpose or convert into new forms. For
+example, imagine a document that contains foreign phrases that are
+marked up to be italic, and emphatic phrases marked up the same way,
+like this:</para>
+
+<programlisting>&lt;example&gt;Goethe once said, &lt;i&gt;Lieben ist wie
+Sauerkraut&lt;/i&gt;. I &lt;i&gt;really&lt;/i&gt; agree with that
+statement.&lt;/example&gt;</programlisting>
+
+<para>Now, if you wanted to make all emphatic phrases bold but leave
+foreign phrases italic, you'd have to manually change all the
+<sgmltag>i</sgmltag> tags that represent emphatic text.  A better idea
+is to tag things based on their meaning, like this:</para>
+
+<programlisting>&lt;example&gt;Goethe once said, &lt;foreignphrase&gt;Lieben
+ist wie Sauerkraut&lt;/foreignphrase&gt;. I &lt;emphasis&gt;really&lt;/emphasis&gt; 
+agree with that statement.&lt;/example&gt;</programlisting>
+
+<para>Now, instead of being incorporated in the tag, the style
+information is defined in another place, a document
+called a <firstterm>stylesheet</firstterm>. Stylesheets map appearance
+settings to elements, acting as a look-up table for a formatting
+program. It makes things much easier for you. You can tinker with the
+presentation in one place rather than doing a global search &amp;
+replace operation in the XML. If you don't like the stylesheet, you
+can swap it for another. And you can use one stylesheet for multiple
+documents.</para>
+
+<para>Keeping style out of the document enhances your presentation
+possibilities, since you are not tied to a single style
+vocabulary. Because you can apply any number of stylesheets to your
+document, you can create different versions on the fly. The same
+document can be viewed on a desktop computer, printed, viewed on a
+handheld device, or even read aloud by a speech synthesizer, and you
+never have to touch the original document source&mdash;simply apply a
+different stylesheet.</para></listitem>
+</varlistentry>
+
+<varlistentry><term>Keep It Simple</term>
+
+<listitem><para>For XML to gain widespread acceptance, it has to be
+simple. People don't want to learn a complicated system just to author
+a document. XML is intuitive, easy to read, and elegant. It allows you
+to devise your own markup language that conforms to some logical
+rules. It's a narrow subset of SGML, throwing out a lot of stuff that
+most people don't need.</para>
+
+<para>Simplicity also benefits application development. If it's easy
+to write programs that process XML files, there will more and cheaper
+programs available to the public. XML's rules are strict, but they
+make the burden of parsing and processing files more predictable and
+therefore much easier.</para></listitem>
+</varlistentry>
+
+<varlistentry><term>Maximum Error Checking</term>
+
+<listitem><para>Some markup languages are so lenient about syntax that
+errors go undiscovered. When errors build up in a file, it no longer
+behaves the way you want it to: its appearance in a browser is
+unpredictable, information may be lost, and programs may act strangely
+and possibly crash when trying to open the file.</para>
+
+<para>The XML specification says that a file is not well-formed unless
+it meets a set of minimum syntax requirements. Your XML parser is a
+faithful guard dog, keeping out errors that will affect your
+document. It checks the spelling of element names, makes sure the
+boundaries are air-tight, tells you when an object is out of place,
+and reports broken links. You may carp about the strictness, and
+perhaps struggle to bring your document up to standard, but it will be
+worth it when you're done. The document's durability and usefulness
+will be assured.</para></listitem>
+</varlistentry>
+
+<varlistentry><term>It should be culture-agnostic</term>
+<listitem><para>There's no good reason to confine markup in a narrow
+cultural space such as the latin alphabet and english language. And
+yet, earlier markup languages do just that. Irked by this limitation,
+XML's designers selected Unicode as the character set, opening it up
+to thousands of letters, ideographs, and symbols.</para></listitem>
+</varlistentry>
+</variablelist>
+
+</sect2>
+</sect1>
+
+
+<sect1><title>How do I get started?</title>
+
+<sect2><title>Authoring documents</title>
+
+<para>The most important item in your XML toolbox is the XML
+editor. This program lets you read and compose XML, and often comes
+with services to prevent mistakes and clarify the view of your
+document. There is a wide spectrum of quality and expense in editors,
+which makes choosing one that's right for you a little tricky. In this
+section, I'll take you on a tour of different kinds.</para>
+
+<para>Even the lowliest plain-text editor is sufficient to work with
+XML. You can use TextEdit on the Mac, NotePad on Windows, or vi on
+Unix. The only limitation is whether it supports the character set
+used by the document. In most cases, it will be UTF-8, which is
+backwards-compatible with even the oldest editors. Some of these text
+editors support an XML "mode" which can hilight markup and assist in
+inserting tags. Some popular free editors include vim, elvis, and,
+my personal favorite, emacs.</para>
+
+<para><application>emacs</application> is a powerful text editor with
+macros and scripted functions. Lennart Stafflin has written an XML
+plug-in for it called psgml, available at <systemitem
+role="url">http://www.lysator.liu.se/~lenst/</systemitem>.  It adds
+menus and commands for inserting tags and showing information about a
+DTD. It even comes with an XML parser that can detect structural
+mistakes while you're editing a document. Using psgml and a feature
+called "font-lock", you can set up <application>xemacs</application>,
+an X Window version of <application>emacs</application>, to hilight
+markup in color.  <xref linkend="intro-fig-xemacs"/> is a snapshot of
+<application>xemacs</application> with an XML document open.</para>
+
+<figure id="intro-fig-xemacs">
+<title>Hilighted markup in xemacs with psgml</title>
+<graphic fileref="figs/lx2_0106.jpg"/>
+</figure>
+
+<para>Morphon Technologies' XMLEditor is a fine example of a graphical
+user interface. As you can see in <xref linkend="intro-fig-morphon"/>,
+the window sports several panes. On the left is an outline view of the
+book, in which you can quickly zoom in on a particular element,
+open it, collapse it, and move it around. On the right is a
+view of the text without markup. And below these panes is an attribute
+editing pane. The layout is highly customizeable and easy to use. Note
+the formatting in the text view, achieved by applying a CSS stylesheet
+to the document. Morphon's editor sells for $150 and you can download
+a 30-day demo at <systemitem
+role="url">http://www.morphon.com</systemitem>. It's written in Java,
+so it supports all computer platforms.</para>
+
+<figure id="intro-fig-morphon">
+<title>Morphon Technologies' XMLEditor</title>
+<graphic fileref="figs/lx2_0107.jpg"/>
+</figure>
+
+<para>Arbortext's Epic Editor is a very polished editor that can be
+integrated with digital asset management systems and high-end
+compositing systems. A screen shot is shown in <xref
+linkend="intro-fig-arbortext"/>. Like Morphon's editor, it uses CSS to
+format the text displayed. There are add-ons to extend functionality
+such as multiple author collaboration, importing from and exporting to
+Microsoft Word, formatting for print using a highly detailed
+stylesheet language called FOSI, and a powerful scripting
+language. The quality of output using FOSI is good enough for printing
+books, and you can view how it will look on screen. At around $700 a
+license, you pay more, but you get your money's worth with
+Epic.</para>
+
+<figure id="intro-fig-arbortext">
+<title>Epic Editor from ArborText</title>
+<graphic fileref="figs/lx2_0108.jpg"/>
+</figure>
+
+<para>These are just a few of the many XML editors available. <xref
+linkend="intro-tbl-editors"/> lists a few more, along with their
+features and prices.</para>
+
+<table id="intro-tbl-editors">
+<title>Comparison of XML editor features</title>
+<tgroup cols="3">
+<thead>
+<row>
+<entry>editor</entry>
+<entry>tag highlighting</entry>
+<entry>structure checking</entry>
+<entry>validity checking</entry>
+<entry>element menus</entry>
+<entry>macros</entry>
+<entry>unicode support</entry>
+<entry>outline view</entry>
+<entry>formatted display</entry>
+<entry>cost</entry>
+</row>
+</thead>
+<tbody>
+<row>
+<entry>Adobe FrameMaker 7.0</entry>
+<entry>yes</entry>
+<entry>yes</entry>
+<entry>yes</entry>
+<entry>yes</entry>
+<entry>yes</entry>
+<entry>no</entry>
+<entry>yes</entry>
+<entry>yes</entry>
+<entry>$800 Mac and Windows, $1300 Unix</entry>
+</row>
+<row>
+<entry>Arbortext Adept</entry>
+<entry>yes</entry>
+<entry>yes</entry>
+<entry>yes</entry>
+<entry>yes</entry>
+<entry>yes</entry>
+<entry>yes</entry>
+<entry>yes</entry>
+<entry>yes</entry>
+<entry>$700</entry>
+</row>
+<row>
+<entry>Corel XMetal</entry>
+<entry>yes</entry>
+<entry>yes</entry>
+<entry>yes</entry>
+<entry>yes</entry>
+<entry>yes</entry>
+<entry>yes</entry>
+<entry>yes</entry>
+<entry>yes</entry>
+<entry>$500</entry>
+</row>
+<row>
+<entry>emacs/psgml</entry>
+<entry>yes</entry>
+<entry>yes</entry>
+<entry>yes</entry>
+<entry>yes</entry>
+<entry>yes</entry>
+<entry>no</entry>
+<entry>no</entry>
+<entry>no</entry>
+<entry>free</entry>
+</row>
+<row>
+<entry>Morphon XMLEditor</entry>
+<entry>yes</entry>
+<entry>yes</entry>
+<entry>yes</entry>
+<entry>yes</entry>
+<entry>yes</entry>
+<entry>no</entry>
+<entry>yes</entry>
+<entry>yes</entry>
+<entry>$150</entry>
+</row>
+<row>
+<entry>XML Spy</entry>
+<entry>yes</entry>
+<entry>yes</entry>
+<entry>yes</entry>
+<entry>yes</entry>
+<entry></entry>
+<entry></entry>
+<entry></entry>
+<entry>yes</entry>
+<entry>$200</entry>
+</row>
+</tbody>
+</tgroup>
+</table>
+
+<para>The features of structure- and validity-checking can be taken
+too far. All XML editors will warn you when there are structural
+errors or improper element placement (validity errors). A few, like
+Corel's XMetal, prevent you from even <emphasis>temporarily</emphasis>
+making the document invalid. A user who is cutting and pasting
+sections around may temporarily have to break the validity rules. The
+editor rejects this, forcing the user to stop and figure out what is
+going wrong. It's rather awkward to have your creativity interrupted
+that way. When choosing an editor, you'll have to weigh the benefits
+of enforced structure against the interruptions in the creative
+process.</para>
+
+<para>A high-quality XML authoring environment is configurable. If you
+have designed a document type, you should be able to customize the
+editor to enforce the structure, check validity, and present a
+selection of valid elements to choose from. You should be able to
+create macros to automate frequent editing steps, and map keys on the
+keyboard to these macros. The interface should be ergonomic and
+convenient, providing keyboard shortcuts instead of many mouse clicks
+for every task. The authoring tool should let you define your own
+display properties, whether you prefer large type with colors or small
+type with tags displayed.</para>
+
+<para>Configurability is sometimes at odds with another important
+feature: ease of maintenance. Having an editor that formats content
+nicely (for example, making titles large and bold to stand out from
+paragraphs) means that someone must write and maintain a
+stylesheet. Some editors have a reasonably good stylesheet-editing
+interface that lets you play around with element styles almost as
+easily as creating a template in a word processor. Structure
+enforcement can be another headache, since you may have to create a
+document type definition (DTD) from scratch. Like a stylesheet, the
+DTD tells the editor how to handle elements and whether they are
+allowed in various contexts. You may decide that the extra work is
+worth it if it saves error-checking and complaints from users down the
+line.</para>
+
+<para>Editors often come with interfaces for specific types of
+markup. XML Spy includes many such extenstions. It will allow you to
+create and position graphics, write XSLT stylesheets, create
+electronic forms, create tables in a special table builder, and create
+XML Schema. Tables, found in XML applications like HTML and DocBook,
+are complex structures, and believe me when I tell you they are not
+fun to work with in markup. To have a specialized table editor is a
+godsend.</para>
+
+<para>Another nicety many editors provide is automatic conversion to
+terminal formats. FrameMaker, Epic, and others, can all generate PDF
+from XML. This high-quality formatting is difficult to achieve,
+however, and you will spend a lot of time tweaking difficult
+stylesheets to get just the appearance you're looking for. There is a
+lot of variation among editors in how these are achieved. XML Spy uses
+XSLT, while Epic uses FOSI, and FrameMaker uses its own proprietary
+mapping tables. Generating HTML is generally a lot easier than PDF,
+due to the lower standards for documents viewed on computer
+displays, so you will see more editors that can convert to HTML than
+to PDF.</para>
+
+<para>Database integration is another feature to consider. In an
+environment where data comes from many sources, such as multiple authors
+in collaboration, or records from databases, an editor that can
+communicate with a database can be a big deal. Databases can be used
+as a repository for documents, giving the ability to log changes,
+mark ownership, and store older versions. Databases are also used to
+store raw data, such as personnel records and inventory, and you may
+need to import that information into a document, such as a
+catalog. Editors like Epic and XML Spy support database input and
+collaboration. They can update documents in many places when data
+sources have changed, and they can branch document source text into
+multiple simultaneous versions. There are many exciting
+possibilities.</para>
+
+<para>Whichever editor you use will depend a lot on your budget. You
+can spend nothing and get a very decent editor like emacs. It doesn't
+have much of a graphical interface, and there is a learning curve, but
+it's worked quite well for me. Or, for just a couple hundred dollars,
+you can get a nice editor with a GUI and parsing ability like Morphon
+XMLEdit. You probably wouldn't need to spend more unless you're in a
+corporate environment where the needs for high-quality formatting and
+collaboration justify the cost and maintentance requirements. Then you
+might buy into a suite of high-end editing systems like Epic or
+FrameMaker. With XML, there is no shortage of choices.</para>
+</sect2>
+
+
+<sect2><title>View documents</title>
+
+<para>If the ultimate purpose of your XML is to give someone something
+to look at, then you may be interested in checking out some document
+viewers. You've already seen examples of editors displaying XML
+documents. You can display XML in web browsers too. Of course, all web
+browsers support XHTML. But Internet Explorer can handle any
+well-formed XML.</para>
+
+<para>Since version 5.0 on Macintosh and 5.1 on Windows, Internet
+Explorer has had the ability to read and display XML. It has a
+built-in validating XML parser. If you specify a DTD in the document,
+IE will check it for validity. If there are errors, it will tell you
+so and hilight the affected areas. Viewing a document in IE looks like
+<xref linkend="intro-fig-ie"/>. The pane on the left is how it would
+look without any stylesheet applied. The other pane is how the
+document looks with a CSS stylesheet.</para>
+
+<figure id="intro-fig-ie">
+<title>Internet Explorer's XML outline view</title>
+<graphic fileref="figs/lx2_0109.jpg"/>
+</figure>
+
+<para>You may have noticed that the outline view in IE looks a lot
+like the outline view in Morphon XMLEdit. It works the
+same way. The whole document is the root of a tree, with branches for
+elements. Click on on one of the minus icons and it will collapse the
+element, hiding all of its contents. The icon will become a plus
+symbol which you can click on to open up the element again. It's a
+very useful tool for navigating a document quickly.</para>
+
+<para>For displaying formatted documents on computer monitors, the
+best technology is CSS. <xref linkend="intro-fig-browsercss"/> shows
+how this works. CSS has a rich set of style attributes for setting
+colors, typefaces, rules, and margins. There is considerable variation
+among browser about how much of the CSS standard is implemented,
+however. There are three separate recommendations, with the first
+being quite widely implemented, the second and more advanced less so,
+and the third rarely.</para>
+
+<figure id="intro-fig-browsercss">
+<title>CSS in a browser</title>
+<graphic fileref="figs/lx2_0110.jpg"/>
+</figure>
+
+<para>IE also contains an XSLT transformation engine. This gives yet
+another way to format an XML document. The XSLT script pointed to by
+your document transforms it into XHTML which IE already knows how to
+display, as shown in <xref linkend="intro-fig-browserxslt"/>. So you
+have two ways inside IE to generate decent presentation, making it an
+invaluable development tool. Since not all browsers implement CSS and
+XSLT for XML documents, it's risky to serve XML documents and expect
+end user clients to format them correctly. This may change soon, as
+more browsers catch up to IE, but at the moment it's safer to do the
+transformation on the server side and just serve HTML.</para>
+
+<figure id="intro-fig-browserxslt">
+<title>XSLT in a browser</title>
+<graphic fileref="figs/lx2_0111.jpg"/>
+</figure>
+
+<para>There are a bunch of browsers capable of working with XML in
+full or limited fashion. The following list describes a few of the
+more popular and interesting ones. Some technologies, like DOM and CSS
+are broken up into three levels representing the relative
+sophistication of features. Most browser completely implement the
+first level of CSS (CSS1), a few CSS2, and hardly any completely do
+the third tier of CSS.</para>
+
+<variablelist>
+
+<varlistentry><term>Amaya</term>
+<listitem><para>Amaya is a project by the W3C to demonstrate
+technologies working together. It's both a browser and an editor with
+built in XML parsing and validating. It
+supports XHTML 1.1, CSS1 and parts of CSS2, MathML, and much of
+SVG. It is not able to format other kinds of XML,
+however.</para></listitem></varlistentry>
+
+<varlistentry><term>Konquerer</term> 
+<listitem><para>Available for Unixen, this browser has lovely HTML
+formatting, but only limited support for XML. Its standards set
+includes HTML 4, most of CSS1 and part of CSS2, DOM1, DOM2, and part
+of DOM3.</para></listitem></varlistentry>
+
+<varlistentry><term>Microsoft Internet Explorer</term>
+<listitem><para>Microsoft has tried very hard to play ball with the
+open standards community and it shows with this browser. XML parsing
+is excellent, along with strong support for DTDs, XSLT, CSS1, CSS2,
+SVG (with plug-in) and DOM.</para>
+
+<para>Strangely, Internet Explorer is split into two completely
+different code bases, with versions for Windows and Macintosh
+independant from each other. This has led to wacky situations such as
+the Mac version being for a time more advanced than its Windows
+cousin. The best versions available are 6.0 on Windows and 5.1 for
+Macintosh.</para></listitem></varlistentry>
+
+<varlistentry><term>Mozilla 1.0</term>
+<listitem><para>Mozilla is an open source project to develop an
+excellent free browser that supports all the major standards. It has
+been under development for a long time and has finally reached 1.0. At
+the heart of it is a rendering engine, code-named Gecko, that parses
+markup and churns out formatted pages. It's also the foundation for
+Netscape Navigator and IBM's Web Browser for OS/2.</para>
+
+<para>How is it for compliance? Mozilla fully supports XML using James
+Clark's Expat parser, a free and high quality tool. Other standards it
+implements include HTML 4, XHTML, CSS1, CSS2, SVG (with plug-in),
+XSLT, XLink, XPath, MathML (with plug-in), RDF, and Unicode. Some
+standards are only partially supported, such as XBase, XLink, and
+CSS3. For more information about XML in Mozilla, go to the web at
+<systemitem
+role="url">http://mozilla.org/newlayout/xml</systemitem>.</para></listitem>
+</varlistentry>
+
+<varlistentry><term>Netscape Navigator</term>
+<listitem><para>As of version 6, Navigator has been based on the
+Mozilla browsers internal workings. Therefore, it supports all the
+same standards.</para></listitem></varlistentry>
+
+<varlistentry><term>Opera</term>
+<listitem><para>Opera is a fast and efficient browser whose lead
+designer was a codeveloper of CSS1. Standard support varies with
+platform, the Windows version being strongest. It implements XML
+parsing, CSS up to level 2, WAP and WML (media for wireless devices
+such as cell phones), and Unicode. An exciting new joint venture with
+IBM has formed recently to develop a multimodal browser that will
+handle speech as well as keyboard/mouse control. Opera's weakest point
+is DOM, with only limited support.</para></listitem></varlistentry>
+
+<varlistentry><term>X-Smiles</term>
+<listitem><para>This fascinating tool describes itself as "an open XML
+browser for exotic devices". It supports some standards no other
+browsers have touched yet, including SMIL, XForms, X3D (3-dimensional
+graphics) and XML Signature. Using a Java-based plug-in, it can parse
+XML and do transformations with XSLT.</para></listitem></varlistentry>
+</variablelist>
+
+<para>So you can see there is considerable variation among browsers in
+their support for standards. CSS implementation is particularly
+spotty, as you can see in Eric Meyer's Master Compatibility Chart at
+<systemitem
+role="url">http://www.webreview.com/style/css1/charts/mastergrid.shtml</systemitem>.
+People aren't taking the situation lying down, however.  The Web
+Standards Project (<systemitem
+role="url">http://www.webstandards.org/</systemitem> is a coalition that
+monitors browser vendors and advocates greater compliance with
+standards.</para>
+
+<para>Things get really interesting when you mix together different
+XML applications in one document. <xref linkend="intro-ex-mix"/> is a
+document that combines three applications in one: XHTML which forms
+the shell and handles basic text processing, SVG for a vector graphic,
+and MathML to include an equation at the end. <xref
+linkend="intro-fig-amaya"/> is how it looks in the Amaya
+browser.</para>
+
+<example id="intro-ex-mix">
+  <title>A document composed of XHTML, SVG, and MathML</title>
+<programlisting><![CDATA[<?xml version="1.0"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>T E L E G R A M</title>
+    <!-- CSS stylesheet -->
+    <style>
+body      { background-color: tan; font-family: sans-serif; }
+.telegram { border: thick solid wheat; }
+.message  { color: maroon; }
+.head     { color: blue; }
+.name     { font-weight: bold; color: green; }
+.villain  { font-weight: bold; color: red; }
+    </style>
+  </head>
+  <body>
+    <div class="telegram">
+      <h1>Telegram</h1>
+      <h2><span class="head">To:</span> Sarah Bellum</h2>
+      <h2><span class="head">From:</span> Colonel Timeslip</h2>
+      <h2><span class="head">Subj:</span> Robot-sitting instructions</h2>
+
+      <!-- SVG Picture of Zonky -->
+      <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">
+        <rect x="5" y="5" width="90" height="95" fill="none"
+          stroke="black" stroke-width="1"/>
+        <rect x="25" y="75" width="50" height="25" fill="gray"
+          stroke="black" stroke-width="2"/>
+        <rect x="30" y="70" width="40" height="30" fill="blue"
+          stroke="black" stroke-width="2"/>
+        <circle cx="50" cy="50" r="20" fill="blue" stroke="black"
+          stroke-width="2"/> 
+        <circle cx="43" cy="50" r="5" fill="yellow" stroke="brown"/> 
+        <circle cx="57" cy="50" r="5" fill="yellow" stroke="brown"/> 
+        <text x="25%" y="25%" fill="purple" font-size="18pt"
+          font-weight="bold" font-style="italic">Zonky</text> 
+        <text x="40" y="85" fill="white" font-family="sans-serif">Z-1</text> 
+      </svg> 
+
+      <!-- Message -->
+      <div class="message">
+        <p>Thanks for watching my robot pal 
+          <span class="name">Zonky</span> while I'm away. 
+          He needs to be recharged <em>twice a
+          day</em> and if he starts to get cranky, 
+          give him a quart of oil. I'll be back soon, 
+          after I've tracked down that evil 
+          mastermind <span class="villain">Dr. Indigo 
+          Riceway</span>.</p>
+
+        <p>P.S. Your homework for this week is to prove 
+          Newton's theory of gravitation:
+
+          <!-- MathML Equation -->
+          <math xmlns="http://www.w3.org/1998/Math/MathML" >
+            <mrow>
+              <mi>F</mi>
+              <mo>=</mo>
+              <mi>G</mi>
+              <mo>&InvisibleTimes;</mo>
+              <mfrac>
+                <mrow>
+                  <mi>M</mi>
+                  <mo>&InvisibleTimes;</mo>
+                  <mi>m</mi>
+                </mrow>
+                <mrow>
+                  <msup>
+                    <mi>r</mi>
+                    <mn>2</mn>
+                  </msup>
+                </mrow>
+              </mfrac>
+            </mrow>
+          </math>
+        </p>
+      </div>
+    </div>
+  </body>
+</html>]]></programlisting>
+</example>
+
+<figure id="intro-fig-amaya">
+<title>Amaya showing a document with XHTML, SVG, and MathML</title>
+<graphic fileref="figs/lx2_0112.jpg"/>
+</figure>
+</sect2>
+
+
+<sect2><title>Parsers</title>
+
+<para>If you're going to be using XML from error-prone sources such as
+human authors, you will probably want to have a parser in your XML
+toolkit. XML's strict rules protect programs from unpredictible input
+that can cause them to crash or produce strange results. So you need
+to make sure that your data is clean and syntactically correct. But
+before I talk about these tools, let me first explain how parsing
+works. With a little theoretical grounding, you'll be in better shape
+for understanding the need for parsers and knowing how to use
+them.</para>
+
+<para>Every program that works with XML first has to parse
+it. <firstterm>Parsing</firstterm> is a process where XML text is
+collected and broken down into separate, manageable parts. As <xref
+linkend="intro-fig-parsing"/> shows, there are several levels. At the
+lowest level are characters in the input stream. Certain characters
+are special, like &lt;, &gt; and &amp;. They tell the parser when it
+is reading a tag, character data, or some other markup symbol.</para>
+
+<figure id="intro-fig-parsing">
+<title>XML Parsing</title>
+<graphic fileref="figs/lx2_0113.jpg"/>
+</figure>
+
+<para>The next level of parsing is when the tags and symbols have been
+identified and now affect the internal checking mechanisms of the
+parser. The well-formedness rules now direct the parser in how to
+handle tokens. For example, an element start tag tells the parser to
+store the name of the element in a memory structure called a
+stack. When an element end tag comes along, it's checked against the
+name in the stack. If they match, the element is popped out of the
+stack and parsing resumes. Otherwise, something must have gone wrong,
+and the parser needs to report the error.</para>
+
+<para>One kind of symbol, called an <firstterm>entity
+reference</firstterm>, is a placeholder for content from another
+source. It may be a single character, or it could be a huge file. The
+parser looks up the source and pops it into the document for
+parsing. If there are entity references inside that new piece of
+content, they have to be resolved too. XML can come from many sources,
+including files, databases, program output, and places online.</para>
+
+<para>Above this level is the structure checking, also called
+<firstterm>validation</firstterm>. This is optional, and not all
+parsers can do it, but it is a very useful capability. Say, for
+example, you are writing a book in XML and you want to make sure that
+every section has a title. If the DTD requires a title element at the
+beginning of the section element, then the parser will expect to find
+it in the document. If there is a <sgmltag>section</sgmltag> element
+start tag followed by something other than a <sgmltag>title</sgmltag>
+element start tag, the parser knows something is wrong and will report
+it.</para>
+
+<para>Parsers are often used in conjunction with some other
+processing, feeding a stream of tokens and representative data objects
+to be further manipulated. But at the moment, we're interested in
+parsing tools that check syntax in a document. Instead of passing on
+digested XML to another program, stand-alone parsers, also called
+well-formedness checkers, tell you when markup is good or bad, and
+usually give you hints about what went wrong. Let's look at an
+example. I've written a test document with a bunch of syntax errors,
+guaranteed to annoy any XML parser:</para>
+
+<example id="intro-ex-notwf"><title>A document that is not well-formed
+XML</title>
+<programlisting>
+<![CDATA[<!-- This document is not well-formed and will invoke an error
+     condition from an XML parser. -->
+<testdoc>
+  <e1>overlapping <e2> elements </e1> here </e2>
+  <e3>missing end tag
+  <e4>illegal character (<) </e4>
+</testdoc>]]></programlisting>
+</example>
+
+<para>Any parser worth its salt should complain noisily about the
+errors in this example. You should expect to see a stream of error
+messages something like this:</para>
+
+<screen><![CDATA[$ xwf ex4_noparse.xml
+
+ex4_noparse.xml:5: error: Opening and ending tag mismatch: e2 and e1
+  <e1>overlapping <e2> elements </e1> here </e2>
+                                     ^
+ex4_noparse.xml:5: error: Opening and ending tag mismatch: e1 and e2
+  <e1>overlapping <e2> elements </e1> here </e2>
+                                               ^
+ex4_noparse.xml:7: error: xmlParseStartTag: invalid element name
+  <e4>illegal character (<) </e4>
+                          ^
+ex4_noparse.xml:8: error: Opening and ending tag mismatch: e3 and
+testdoc
+</testdoc>
+         ^]]></screen>
+
+<para>The tool helpfully points out all the places where it thinks the
+XML is broken and needs to be fixed, along with a short message
+indicating what's wrong. "Ending tag mismatch", for example, means
+that the end tag the parser is looking at doesn't match the most
+recently found element start tag, which is a violation. Many parsing
+tools will also do validation if you supply a DTD for them to check
+against.</para>
+
+<para>Where can you get a tool like this? The easiest way is to get a
+browser like Internet Explorer 6 and open up an XML file with it. It
+will point out well-formedness errors for you and can also validate
+against a DTD. If you prefer a command line tool, like I do, you can
+find one online. James Clark's nsgmls at <systemitem
+role="url">http://www.jclark.com/sp/</systemitem>, originally written
+for SGML but works fine with XML too, has served me well for many
+years.</para>
+
+<para>Alternatively, you can write your own without
+much trouble. <xref linkend="intro-ex-xval"/> is a parser I
+wrote in Perl.</para>
+
+<example id="intro-ex-xval">
+<title>A validating parser in Perl</title>
+<programlisting><![CDATA[#!/usr/bin/perl
+use XML::LibXML;                               # import parser library
+my $parser = new XML::LibXML;                  # create a parser object
+$parser->validation(1);                        # turn on validation
+$parser->load_ext_dtd(1);                      # read the external DTD
+my $doc = $parser->parse_file( shift @ARGV );  # parse the file
+if( $@ ) {                                     # test for errors
+    print STDERR "PARSE ERRORS\n", $@;
+} else {
+    print "The document '$file' is valid.\n";
+}]]></programlisting>
+</example>
+
+<para>To use it, you need to install the perl module XML::LibXML, an
+API to a C library called libxml2. The real parsing is done by the
+libxml2 library, with XML::LibXML providing an interface in Perl, and
+my program merely feeding the data to it. This is how most developers
+work with XML. Rather than write your own parser, which would be a
+lot of work, you would borrow someone else's implementation in a
+library. There are XML libraries for Java, C, Python, and almost any
+other programming language you can think of.</para>
+
+<para>The parser in the above example goes beyond just well-formedness
+checking. It's called a <firstterm>validating parser</firstterm>
+because it checks the grammar (types and order of elements) of the
+document to make sure it is a valid instance of a document type. For
+example, I could have it check a document to make sure it conforms to
+the DTD for XHTML 1.0. To do this, I need to place a line in the XML
+document that looks like this:</para>
+
+<programlisting>&lt;!DOCTYPE html PUBLIC "..." "...">&gt;</programlisting>
+
+<para>This tells the parser that it needs to find a DTD, read its
+declarations, and then be mindful of element types and usage as it
+parses the document. The location of the DTD is specified in two
+ways. The first is the <firstterm>public identifier</firstterm>,
+inside the first set of quotes above. This is like saying, "go and
+read the Magna Carta", which an unambiguous description, but still
+requires you to hunt around for a copy of it. In this case, the parser
+has to look up the actual location in a concordance called a
+<firstterm>catalog</firstterm>. You have to tell the parser where to
+find a catalog. The other way to specify a DTD is to give a
+<firstterm>system identifier</firstterm>. This is a plain ordinary URL
+or filesystem path.</para>
+
+<para>A well-kept secret is that XML-compliant web browsers have
+built-in parsers that will report well-formedness and sometimes
+validity errors. <xref linkend="intro-fig-error"/> shows the result of
+trying to load a badly-formed XML document in Mozilla. So XML parsing
+tools are quite readily available, and there is never a good excuse
+not use them!</para>
+
+<figure id="intro-fig-error">
+<title>Browser showing XML syntax error</title>
+<graphic fileref="figs/lx2_0114.jpg"/>
+</figure>
+</sect2>
+
+
+<sect2><title>Transformation</title>
+
+<para>The act of changing XML from one form to another is called
+transformation. This is a very powerful technique, employed in such
+processes as print formatting and conversion to HTML. Although most
+often used to add presentation to a document, it can often just be
+used to alter a document for special purposes. For example, you can
+use a transformation to generate a table of contents, construct an
+excerpt, or tabulate a column of numbers.</para>
+
+<para>Transformation requires two things: the source document and a
+transformation stylesheet. The stylesheet is a recipe for how to
+"cook" the XML and arrive at a desired result. The oven in this
+metaphor is a transformation program that reads the stylesheet and
+input document and outputs a result document. Several languages have
+been developed for transformations. The Document Style and Semantics
+Language (DSSSL) uses the programming language Lisp to describe
+transformations functionally. However, because DSSSL is rather complex
+and difficult to work with, a simpler language has appeared:
+the very popular XSLT.</para>
+
+<para>XSLT didn't start off as a general-purpose transformation
+language. A few years ago, there was a project in the W3C, led by
+James Clark, to develop a high quality style description language. The
+XML Style Language (XSL) quickly evolved into two components. The
+first, XSL-T, concentrated on transforming any XML instrance into a
+presentational format. The latter format, XSL-FO (the FO stands for
+Formatting Objects), is the other component of XSL.</para>
+
+<para>It soon became obvious that XSLT was useful in a wider context
+than just formatting documents. It can be used to turn an XML document
+into just about any form you can imagine. The language is generic,
+using rules and templates to describe what to output for various
+element types. Mr. Clark has expressed surprise that XSLT is being
+used in so many other applications, but it is testiment to the
+excellent design of this standard that such is the case.</para>
+
+<para>XSLT is an application of XML. This means you can easily write
+XSLT in any non-validating XML editor. You cannot validate XSLT
+because there is no DTD for it. An XSLT script contains many elements
+that you define yourself, and DTDs do not allow that kind of
+flexibility. However, you could use an XML Schema. I usually just
+check well-formedness and rely on the XSLT transformer to tell me when
+it thinks the grammar is wrong.</para>
+
+<para>An XSLT transformer is a program that takes an XML document and
+an XSLT stylesheet as input, and outputs a transformed document. 
+Thanks to the enthusiasm for XSLT, there are many implementations
+available. Several have been written in Java. Xalan, produced by the
+Apache XML Group (<systemitem
+role="url">http://xml.apache.org</systemitem>), is a favorite for
+many. A very fast C library, a recent addition to the GNOME Project,
+is called libxslt. It comes with a command called xsltproc that can
+run transformations on the command line. There are several APIs to
+this library including my favorite, the Perl module
+XML::LibXSLT.</para>
+
+<para>Besides using a programming library or command line tool, you
+could also use a web browser for its built-in XSLT transformer. Simply
+add a line like this to the XML document to tell the browser to
+transform it:</para>
+
+<programlisting>&lt;?xml-stylesheet type="text/xslt" href="/path/to/script"?&gt;</programlisting>
+
+<para>Replace "/path/to/script" with a URL for the actual location of
+the XSLT stylesheet. This method is frequently used to transform more
+complex XML languages into simpler, presentational HTML.</para>
+</sect2>
+
+
+<sect2><title>Formatting for Print</title>
+
+<para>Technology pundits have been predicting for a long time the
+coming of the paperless office. All data would be stored on computer,
+read on monitors and passed around through the network. But the truth
+is, people use paper now more than ever. For reading a long document,
+there is still no substitute for paper. Therefore, XML has to embrace
+print or it will disappear.</para>
+
+<para>Formatting for print begins with a transformation. Your XML
+document, which is marked up for describing structure and information,
+says nothing about the appearance. It needs to be converted into a
+presentational format that describes how things should look:
+typefaces, colors, positions on the page, and so on. There are many
+such formats, like TeX, PostScript and PDF. The trick is how to get
+from your XML to one of these formats.</para>
+
+<para>You could, theoretically, write a transformation stylesheet to
+mutate your XML into PostScript, but this will give you nightmares and
+a head full of gray hairs. Postscript is UGLY. So are most other
+presentational formats like troff, RTF, MIF. The fact that they are
+text (not binary) doesn't make them any easier to understand. Any
+transformation stylesheet you write will require such intimate
+knowledge of byzantine rules and obscure syntactic conventions that it
+will quickly lead to madness. Believe me, I've done it.</para>
+
+<para>Fortunately, somebody has had the brilliant idea to develop a
+formatting language based on plain english, and using XML for its
+structural markup. XSL-FO, the cousin of XSLT, 
+uses the same terminology as CSS to describe typefaces, inline
+styles, blocks, margins, and all the concepts you need to create a
+nice looking page. You can look as an XSL-FO document and easily see
+the details for how it will be rendered. You can edit it directly and
+it won't blow up in your face. Best of all, it works wonderfully with
+XSLT.</para>
+
+<para><xref linkend="intro-fig-xslfo"/> shows how the XSL process
+goes. You give the XSLT transformer a stylesheet and an input
+document. It spits out an XSL-FO document that contains the data plus
+style information. A formatter takes the XSL-FO instance and converts
+that into a terminal format like PDF which you can print or view on
+a computer screen. Although you could edit the XSL-FO directly, it's
+unlikely you would want to do that. Much better would be to edit the
+original XML source or the XSLT stylesheet and treat the XSL-FO as a
+temporary intermediate file. In fact, some implementations won't even
+output the XSL-FO unless you request it.</para>
+
+<figure id="intro-fig-xslfo">
+<title>How XSL works</title>
+<graphic fileref="figs/lx2_0115.jpg"/>
+</figure>
+
+<para>At the time of this writing, I know of only one good
+implementation of an XSL-FO formatter. It's called FOP (Formatting
+Object Processor) and it's a project of the prodigious Apache XML
+Project (<systemitem
+role="url">http://www.apache.org/fop/</systemitem>). FOP is written
+all in Java and comes bundled with a Java-based parser (Xerces) and a
+Java-based XSLT transformer (Xalan). The whole thing runs as a
+pipeline, very smooth and clean.</para>
+
+<para>As an example, I wrote the XSLT script in <xref
+linkend="intro-ex-xslt2"/>. Unlike <xref linkend="intro-ex-xslt"/>,
+which transforms its source into HTML, this transforms into
+XSL-FO. Notice the use of "namespace qualifiers" (the element name
+parts to the left of colons) to distinguish between XSLT instructions
+and XSL-FO style directives. The elements that start with
+<literal>xsl:</literal> are XSLT commands and element that start with
+<literal>fo:</literal> are formatting object tags.</para>
+
+<example id="intro-ex-xslt2">
+<title>XSLT stylesheet for telegram bound for FO</title>
+<programlisting><![CDATA[<?xml version="1.0" encoding="utf-8"?>
+<xsl:stylesheet version="1.0"
+                xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+                xmlns:fo="http://www.w3.org/1999/XSL/Format">
+
+  <xsl:template match="/">
+    <fo:root>
+      <fo:layout-master-set>
+        <fo:simple-page-master master-name="only">
+          <fo:region-body region-name="xsl-region-body"
+                          margin="1.0in"
+                          padding="10pt"/>
+          <fo:region-before region-name="xsl-region-before"
+                          extent="1.0in"
+                          display-align="before"/>
+          <fo:region-after region-name="xsl-region-after"
+                          extent="1.0in"
+                          display-align="after"/>
+        </fo:simple-page-master>
+      </fo:layout-master-set>
+      <fo:page-sequence master-reference="only">
+        <fo:flow flow-name="xsl-region-body">
+          <xsl:apply-templates/>
+        </fo:flow>
+      </fo:page-sequence>
+    </fo:root>
+  </xsl:template>
+
+  <xsl:template match="telegram">
+    <fo:block font-size="18pt" 
+              font-family="monospace" 
+              line-height="24pt"
+              space-after.optimum="15pt"
+              background-color="blue"
+              color="white"
+              text-align="center"
+              padding-top="0pt">
+      <xsl:text>TELEGRAM</xsl:text>
+    </fo:block>
+    <xsl:apply-templates/>
+  </xsl:template>
+
+  <xsl:template match="to">
+    <fo:block font-family="sans-serif" font-size="14pt">
+      <xsl:text>To: </xsl:text>
+      <xsl:apply-templates/>
+    </fo:block>
+  </xsl:template>
+
+  <xsl:template match="from">
+    <fo:block font-family="sans-serif" font-size="14pt">
+      <xsl:text>From: </xsl:text>
+      <xsl:apply-templates/>
+    </fo:block>
+  </xsl:template>
+
+  <xsl:template match="subject">
+    <fo:block font-family="sans-serif" font-size="14pt">
+      <xsl:text>Subj: </xsl:text>
+      <xsl:apply-templates/>
+    </fo:block>
+  </xsl:template>
+
+  <xsl:template match="message">
+    <fo:block font-family="monospace"
+              font-size="10pt"
+              text-align="justify">
+      <xsl:apply-templates/>
+    </fo:block>
+  </xsl:template>
+
+  <xsl:template match="emphasis">
+    <fo:inline font-style="italic">
+      <xsl:apply-templates/>
+    </fo:inline>
+  </xsl:template>
+
+  <xsl:template match="name">
+    <fo:inline color="green">
+      <xsl:apply-templates/>
+    </fo:inline>
+  </xsl:template>
+
+  <xsl:template match="villain">
+    <fo:inline color="red">
+      <xsl:apply-templates/>
+    </fo:inline>
+  </xsl:template>
+
+</xsl:stylesheet>]]></programlisting>
+</example>
+
+<para>After running the telegram example through FOP with this
+stylesheet, <xref linkend="intro-ex-pdf"/> is the result. FOP outputs
+PDF by default, but other formats will be available soon. There is
+work right now to add MIF and Postscript as formats.</para>
+
+<figure id="intro-ex-pdf">
+<title>A PDF document generated by FOP</title>
+<graphic fileref="figs/lx2_0116.jpg"/>
+</figure>
+
+</sect2>
+
+
+<sect2><title>Programming</title>
+
+<para>When all else fails, you can write a program to do it.</para>
+
+<para>Parsers are the front line for any program that works with
+XML. There are several strategies available, depending on how you want
+to use the XML. The "push" technique, where data drives your program,
+is like a one-way tape drive. The parser reads the XML and calls on
+your program to handle each new item in the stream, hence the name
+<firstterm>stream processing</firstterm>. Though fast and efficient,
+stream processing is limited by the fact that the parser can't stop
+and go back to retrieve information from earlier in the stream. If you
+need to access information out of order, you have to save it in
+memory.</para>
+
+<para>The "pull" technique allows the program to access parts of the
+document in any order. The parser reads in a document and stores it in
+a data structure. The structure resembles a tree, with the outermost
+element as the root, and its contents branching out to the innermost
+text which are like leaves, as you can see in <xref
+linkend="intro-fig-tree"/>. <firstterm>tree-processing</firstterm>, as
+we call it, gives you a long-lasting representation of the document's
+data and markup. It requires more memory and computation, but is often
+the most convenient way to accomplish a task.</para>
+
+<figure id="intro-fig-tree">
+<title>A document viewed as a tree-like data structure</title>
+<graphic fileref="figs/lx2_0117.jpg"/>
+</figure>
+
+<para>Developers have come up with standard programming interfaces for
+each of these techniques. The Simple API for XML (SAX) specifies how a
+parser should interact with a program for stream processing. This
+allows programs to use interchangeable modules, greatly enhancing
+flexibility. It's possible to write <firstterm>drivers</firstterm>,
+programs that simulate parsers but which get their input data from
+databases or non-XML formats, and know that any SAX-enabled program
+will be able to handle it. This is illustrated in <xref
+linkend="intro-fig-driver"/>.</para>
+
+<figure id="intro-fig-driver">
+<title>SAX makes programs modular and interchangeable</title>
+<graphic fileref="figs/lx2_0118.jpg"/>
+</figure>
+
+<para>What SAX does for stream processing, the Document Object Model
+(DOM) does for tree processing. It describes a wide variety of
+accessor methods for objects containing parts of an XML document. With
+DOM, you can crawl over all the elements in a document in any order,
+rearrange them, add or subtract parts, and extract any data you
+want. Many web browsers have built-in support for DOM, allowing you to
+select and repackage information from a server. <xref
+linkend="intro-ex-soap"/> is a Javascript program uses DOM to select
+the temperature from a SOAP query to a weather information database on
+the Web.</para>
+
+<example id="intro-ex-soap">
+<title>Using DOM to get a temperature datum from a SOAP query</title>
+<programlisting><![CDATA[WRITE THIS PROGRAM!]]></programlisting>
+</example>
+
+<para>SOAP, by the way, stands for the Simple Object Access
+Protocol. It's a way that browsers can request complex data packages
+from servers. Unlike HTML, which marks up data based on appearance,
+SOAP describes its contents as data objects with types, names, and
+values, which is much more handy for computer processing.</para>
+
+<para>Extracting data from deep inside a document is a common
+task for developers. DOM and SAX are often too complex for a simple
+query like this. So the W3C have developed a shorthand for reaching
+across the Web and into files to pull out specific chunks of
+data. XPointer is a syntax for specifying the location of a document
+anywhere on the Internet, extending the notion of URLs you see in
+<sgmltag>a</sgmltag> element in HTML. XPath is a shorthand for locating a point
+inside an XML document. It is used in XPointers and also in places
+like XSLT and some DOM implementations to provide a quick way to move
+around a document.</para>
+
+</sect2>
+</sect1>
+</chapter>

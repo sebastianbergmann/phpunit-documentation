@@ -1,0 +1,2609 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="api">
+  <title>PHPUnit API</title>
+
+  <para>
+    For most uses, PHPUnit has a simple API: subclass
+    <literal>PHPUnit_Framework_TestCase</literal> for your test cases and
+    call <literal>assertTrue()</literal> or <literal>assertEquals()</literal>.
+    However, for those of you who would like to look deeper into PHPUnit,
+    here are all of its published methods and classes.
+  </para>
+
+  <section id="api.overview">
+    <title>Overview</title>
+
+    <para>
+      Most of the time, you will encounter five classes or interfaces when you
+      are using PHPUnit:
+    </para>
+
+    <variablelist>
+      <varlistentry>
+        <term><literal>PHPUnit_Framework_Assert</literal></term>
+        <listitem>
+          <para>
+          A collection of static methods for checking actual values against
+          expected values.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>PHPUnit_Framework_Test</literal></term>
+        <listitem>
+          <para>
+            The interface of all objects that act like tests.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>PHPUnit_Framework_TestCase</literal></term>
+        <listitem>
+          <para>
+            A single test.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>PHPUnit_Framework_TestSuite</literal></term>
+        <listitem>
+          <para>
+            A collection of tests.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>PHPUnit_Framework_TestResult</literal></term>
+        <listitem>
+          <para>
+            A summary of the results of running one or more tests.
+          </para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+
+    <para>
+      <xref linkend="api.overview.figures.PHPUnit_Framework.png" />
+      shows the relationship of the five basic classes and interfaces
+      in PHPUnit: <literal>PHPUnit_Framework_Assert</literal>,
+      <literal>PHPUnit_Framework_Test</literal>,
+      <literal>PHPUnit_Framework_TestCase</literal>,
+      <literal>PHPUnit_Framework_TestSuite</literal>, and
+      <literal>PHPUnit_Framework_TestResult</literal>.
+    </para>
+
+    <figure id="api.overview.figures.PHPUnit_Framework.png">
+      <title>The five basic classes and interfaces in PHPUnit</title>
+
+      <graphic fileref="figures/PHPUnit_Framework.png" />
+    </figure>
+  </section>
+
+  <section id="api.assert">
+    <title>PHPUnit_Framework_Assert</title>
+    <indexterm><primary>PHPUnit_Framework_Assert</primary></indexterm>
+
+    <para>
+      <indexterm><primary>Assertions</primary></indexterm>
+      <indexterm><primary>Design-by-Contract</primary></indexterm>
+
+      Most test cases written for PHPUnit are derived indirectly from the class
+      <literal>PHPUnit_Framework_Assert</literal>, which contains methods for
+      automatically checking values and reporting discrepancies. The methods
+      are declared static, so you can write design-by-contract style
+      assertions in your methods and have them reported through PHPUnit
+      (<xref linkend="api.assert.examples.Sample.php" />).
+    </para>
+
+    <example id="api.assert.examples.Sample.php">
+      <title>Design-by-Contract Style Assertions</title>
+      <programlisting><![CDATA[<?php
+require_once 'PHPUnit/Framework.php';
+
+class Sample
+{
+    public function aSampleMethod($object)
+    {
+        PHPUnit_Framework_Assert::assertNotNull($object);
+    }
+}
+
+$sample = new Sample;
+$sample->aSampleMethod(NULL);
+?>]]></programlisting>
+
+<screen><![CDATA[Fatal error: Uncaught exception 'PHPUnit_Framework_ExpectationFailedException'
+with message 'Failed asserting that <null> is not identical to <null>.']]></screen>
+    </example>
+
+    <para>
+      Most of the time, though, you'll be checking the assertions inside of
+      tests.
+    </para>
+
+    <para>
+      There are two variants of each of the assertion methods: one takes a
+      message to be displayed with the error as a parameter, and one does not.
+      The optional message is typically displayed when a failure is displayed,
+      which can make debugging easier.
+    </para>
+
+    <example id="api.assert.examples.MessageTest.php">
+      <title>Using assertions with messages</title>
+      <programlisting><![CDATA[<?php
+require_once 'PHPUnit/Framework.php';
+
+class MessageTest extends PHPUnit_Framework_TestCase
+{
+    public function testMessage()
+    {
+        $this->assertTrue(FALSE, 'This is a custom message.');
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      The following example shows the output you get when you run the
+      <literal>testMessage()</literal> test from
+      <xref linkend="api.assert.examples.MessageTest.php" />, using
+      assertions with messages:
+    </para>
+
+    <screen><userinput>phpunit MessageTest</userinput><![CDATA[
+PHPUnit 3.5.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds
+
+There was 1 failure:
+
+1) testMessage(MessageTest)
+This is a custom message.
+Failed asserting that <boolean:false> is true.
+/home/sb/MessageTest.php:8
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+
+    <para>
+      Below are all the varieties of assertions.
+    </para>
+
+    <section id="api.assert.assertArrayHasKey">
+      <title><literal>assertArrayHasKey()</literal></title>
+      <indexterm><primary>assertArrayHasKey()</primary></indexterm>
+      <indexterm><primary>assertArrayNotHasKey()</primary></indexterm>
+      <para><literal>assertArrayHasKey(mixed $key, array $array[, string $message = ''])</literal></para>
+      <para>Reports an error identified by <literal>$message</literal> if <literal>$array</literal> does not have the <literal>$key</literal>.</para>
+      <para><literal>assertArrayNotHasKey()</literal> is the inverse of this assertion and takes the same arguments.</para>
+      <example id="api.assert.assertArrayHasKey.example">
+        <title>Usage of assertArrayHasKey()</title>
+        <programlisting><![CDATA[<?php
+class ArrayHasKeyTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertArrayHasKey('foo', array('bar' => 'baz'));
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit ArrayHasKeyTest</userinput><![CDATA[
+PHPUnit 3.5.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds
+
+There was 1 failure:
+
+1) ArrayHasKeyTest::testFailure
+Failed asserting that an array has the key <string:foo>.
+/home/sb/ArrayHasKeyTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+      </example>
+    </section>
+
+    <section id="api.assert.assertClassHasAttribute">
+      <title><literal>assertClassHasAttribute()</literal></title>
+      <indexterm><primary>assertClassHasAttribute()</primary></indexterm>
+      <indexterm><primary>assertClassNotHasAttribute()</primary></indexterm>
+      <para><literal>assertClassHasAttribute(string $attributeName, string $className[, string $message = ''])</literal></para>
+      <para>Reports an error identified by <literal>$message</literal> if <literal>$className::attributeName</literal> does not exist.</para>
+      <para><literal>assertClassNotHasAttribute()</literal> is the inverse of this assertion and takes the same arguments.</para>
+      <example id="api.assert.assertClassHasAttribute.example">
+        <title>Usage of assertClassHasAttribute()</title>
+        <programlisting><![CDATA[<?php
+class ClassHasAttributeTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertClassHasAttribute('foo', 'stdClass');
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit ClassHasAttributeTest</userinput><![CDATA[
+PHPUnit 3.5.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds
+
+There was 1 failure:
+
+1) ClassHasAttributeTest::testFailure
+Failed asserting that class "stdClass" has attribute "foo".
+/home/sb/ClassHasAttributeTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+      </example>
+    </section>
+
+    <section id="api.assert.assertClassHasStaticAttribute">
+      <title><literal>assertClassHasStaticAttribute()</literal></title>
+      <indexterm><primary>assertClassHasStaticAttribute()</primary></indexterm>
+      <indexterm><primary>assertClassNotHasStaticAttribute()</primary></indexterm>
+      <para><literal>assertClassHasStaticAttribute(string $attributeName, string $className[, string $message = ''])</literal></para>
+      <para>Reports an error identified by <literal>$message</literal> if <literal>$className::attributeName</literal> does not exist.</para>
+      <para><literal>assertClassNotHasStaticAttribute()</literal> is the inverse of this assertion and takes the same arguments.</para>
+      <example id="api.assert.assertClassHasStaticAttribute.example">
+        <title>Usage of assertClassHasStaticAttribute()</title>
+        <programlisting><![CDATA[<?php
+class ClassHasStaticAttributeTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertClassHasStaticAttribute('foo', 'stdClass');
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit ClassHasStaticAttributeTest</userinput><![CDATA[
+PHPUnit 3.5.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds
+
+There was 1 failure:
+
+1) ClassHasStaticAttributeTest::testFailure
+Failed asserting that class "stdClass" has static attribute "foo".
+/home/sb/ClassHasStaticAttributeTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+      </example>
+    </section>
+
+    <section id="api.assert.assertContains">
+      <title><literal>assertContains()</literal></title>
+      <indexterm><primary>assertContains()</primary></indexterm>
+      <indexterm><primary>assertNotContains()</primary></indexterm>
+      <indexterm><primary>assertAttributeContains()</primary></indexterm>
+      <indexterm><primary>assertAttributeNotContains()</primary></indexterm>
+      <para><literal>assertContains(mixed $needle, Iterator|array $haystack[, string $message = ''])</literal></para>
+      <para>Reports an error identified by <literal>$message</literal> if <literal>$needle</literal> is not an element of <literal>$haystack</literal>.</para>
+      <para><literal>assertNotContains()</literal> is the inverse of this assertion and takes the same arguments.</para>
+      <para><literal>assertAttributeContains()</literal> and <literal>assertAttributeNotContains()</literal> are convenience wrappers that use a <literal>public</literal>, <literal>protected</literal>, or <literal>private</literal> attribute of a class or object as the haystack.</para>
+      <example id="api.assert.assertContains.example">
+        <title>Usage of assertContains()</title>
+        <programlisting><![CDATA[<?php
+class ContainsTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertContains(4, array(1, 2, 3));
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit ContainsTest</userinput><![CDATA[
+PHPUnit 3.5.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds
+
+There was 1 failure:
+
+1) ContainsTest::testFailure
+Failed asserting that an array contains <integer:4>.
+/home/sb/ContainsTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+      </example>
+
+      <para><literal>assertContains(string $needle, string $haystack[, string $message = ''])</literal></para>
+      <para>Reports an error identified by <literal>$message</literal> if <literal>$needle</literal> is not a substring of <literal>$haystack</literal>.</para>
+      <example id="api.assert.assertContains.example2">
+        <title>Usage of assertContains()</title>
+        <programlisting><![CDATA[<?php
+class ContainsTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertContains('baz', 'foobar');
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit ContainsTest</userinput><![CDATA[
+PHPUnit 3.5.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds
+
+There was 1 failure:
+
+1) ContainsTest::testFailure
+Failed asserting that <string:foobar> contains "baz".
+/home/sb/ContainsTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+      </example>
+    </section>
+
+    <section id="api.assert.assertContainsOnly">
+      <title><literal>assertContainsOnly()</literal></title>
+      <indexterm><primary>assertContainsOnly()</primary></indexterm>
+      <indexterm><primary>assertNotContainsOnly()</primary></indexterm>
+      <indexterm><primary>assertAttributeContainsOnly()</primary></indexterm>
+      <indexterm><primary>assertAttributeNotContainsOnly()</primary></indexterm>
+      <para><literal>assertContainsOnly(string $type, Iterator|array $haystack[, boolean $isNativeType = NULL, string $message = ''])</literal></para>
+      <para>Reports an error identified by <literal>$message</literal> if <literal>$haystack</literal> does not contain only variables of type <literal>$type</literal>.</para>
+      <para><literal>$isNativeType</literal> is a flag used to indicate whether <literal>$type</literal> is a native PHP type or not.</para>
+      <para><literal>assertNotContainsOnly()</literal> is the inverse of this assertion and takes the same arguments.</para>
+      <para><literal>assertAttributeContainsOnly()</literal> and <literal>assertAttributeNotContainsOnly()</literal> are convenience wrappers that use a <literal>public</literal>, <literal>protected</literal>, or <literal>private</literal> attribute of a class or object as the actual value.</para>
+      <example id="api.assert.assertContainsOnly.example">
+        <title>Usage of assertContainsOnly()</title>
+        <programlisting><![CDATA[<?php
+class ContainsOnlyTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertContainsOnly('string', array('1', '2', 3));
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit ContainsOnlyTest</userinput><![CDATA[
+PHPUnit 3.5.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds
+
+There was 1 failure:
+
+1) ContainsOnlyTest::testFailure
+Failed asserting that 
+Array
+(
+    [0] => 1
+    [1] => 2
+    [2] => 3
+)
+ contains only values of type "string".
+/home/sb/ContainsOnlyTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+      </example>
+    </section>
+
+    <section id="api.assert.assertEqualXMLStructure">
+      <title><literal>assertEqualXMLStructure()</literal></title>
+      <indexterm><primary>assertEqualXMLStructure()</primary></indexterm>
+      <para><literal>assertEqualXMLStructure(DOMNode $expectedNode, DOMNode $actualNode[, boolean $checkAttributes = FALSE, string $message = ''])</literal></para>
+      <para>XXX</para>
+      <example id="api.assert.assertEqualXMLStructure.example">
+        <title>Usage of assertEqualXMLStructure()</title>
+        <programlisting><![CDATA[<?php
+?>]]></programlisting>
+        <screen><userinput>phpunit EqualXMLStructureTest</userinput><![CDATA[
+]]></screen>
+      </example>
+    </section>
+
+    <section id="api.assert.assertEquals">
+      <title><literal>assertEquals()</literal></title>
+      <indexterm><primary>assertEquals()</primary></indexterm>
+      <indexterm><primary>assertNotEquals()</primary></indexterm>
+      <indexterm><primary>assertAttributeEquals()</primary></indexterm>
+      <indexterm><primary>assertAttributeNotEquals()</primary></indexterm>
+      <para><literal>assertEquals(mixed $expected, mixed $actual[, string $message = ''])</literal></para>
+      <para>Reports an error identified by <literal>$message</literal> if the two variables <literal>$expected</literal> and <literal>$actual</literal> are not equal.</para>
+      <para><literal>assertNotEquals()</literal> is the inverse of this assertion and takes the same arguments.</para>
+      <para><literal>assertAttributeEquals()</literal> and <literal>assertAttributeNotEquals()</literal> are convenience wrappers that use a <literal>public</literal>, <literal>protected</literal>, or <literal>private</literal> attribute of a class or object as the actual value.</para>
+      <example id="api.assert.assertEquals.example">
+        <title>Usage of assertEquals()</title>
+        <programlisting><![CDATA[<?php
+class EqualsTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertEquals(1, 0);
+    }
+
+    public function testFailure2()
+    {
+        $this->assertEquals('bar', 'baz');
+    }
+
+    public function testFailure3()
+    {
+        $this->assertEquals("foo\nbar\nbaz\n", "foo\nbah\nbaz\n");
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit EqualsTest</userinput><![CDATA[
+PHPUnit 3.5.0 by Sebastian Bergmann.
+
+FFF
+
+Time: 0 seconds
+
+There were 3 failures:
+
+1) EqualsTest::testFailure
+Failed asserting that <integer:0> matches expected value <integer:1>.
+/home/sb/EqualsTest.php:11
+
+2) EqualsTest::testFailure2
+Failed asserting that two strings are equal.
+expected string <bar>
+difference      <  x>
+got string      <baz>
+/home/sb/EqualsTest.php:16
+
+3) EqualsTest::testFailure3
+Failed asserting that two strings are equal.
+--- Expected
++++ Actual
+@@ -1,3 +1,3 @@
+ foo
+-bar
++bah
+ baz
+
+/home/sb/EqualsTest.php:21
+
+FAILURES!
+Tests: 3, Assertions: 3, Failures: 3.]]></screen>
+      </example>
+
+      <para>More specialized comparisons are used for specific argument types for <literal>$expected</literal> and <literal>$actual</literal>, see below.</para>
+
+      <para><literal>assertEquals(float $expected, float $actual[, string $message = '', float $delta = 0])</literal></para>
+      <para>Reports an error identified by <literal>$message</literal> if the two floats <literal>$expected</literal> and <literal>$actual</literal> are not within <literal>$delta</literal> of each other.</para>
+      <para>Please read about <ulink url="http://en.wikipedia.org/wiki/IEEE_754#Comparing_floating-point_numbers">comparing floating-point numbers</ulink> to understand why <literal>$delta</literal> is neccessary.</para>
+      <example id="api.assert.assertEquals.example2">
+        <title>Usage of assertEquals() with floats</title>
+        <programlisting><![CDATA[<?php
+class EqualsTest extends PHPUnit_Framework_TestCase
+{
+    public function testSuccess()
+    {
+        $this->assertEquals(1.0, 1.1, '', 0.2);
+    }
+
+    public function testFailure()
+    {
+        $this->assertEquals(1.0, 1.1);
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit EqualsTest</userinput><![CDATA[
+PHPUnit 3.5.0 by Sebastian Bergmann.
+
+.F
+
+Time: 0 seconds
+
+There was 1 failure:
+
+1) EqualsTest::testFailure
+Failed asserting that <double:1.1> matches expected value <double:1>.
+/home/sb/EqualsTest.php:11
+
+FAILURES!
+Tests: 2, Assertions: 2, Failures: 1.]]></screen>
+      </example>
+
+      <para><literal>assertEquals(DOMDocument $expected, DOMDocument $actual[, string $message = ''])</literal></para>
+      <para>Reports an error identified by <literal>$message</literal> if the XML documents represented by the two DOMDocument objects <literal>$expected</literal> and <literal>$actual</literal> are not equal.</para>
+      <example id="api.assert.assertEquals.example3">
+        <title>Usage of assertEquals() with DOMDocument objects</title>
+        <programlisting><![CDATA[<?php
+class EqualsTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $expected = new DOMDocument;
+        $expected->loadXML('<foo><bar/></foo>');
+
+        $actual = new DOMDocument;
+        $actual->loadXML('<bar><foo/></bar>');
+
+        $this->assertEquals($expected, $actual);
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit EqualsTest</userinput><![CDATA[
+PHPUnit 3.5.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds
+
+There was 1 failure:
+
+1) EqualsTest::testFailure
+Failed asserting that two strings are equal.
+--- Expected
++++ Actual
+@@ -1,4 +1,4 @@
+ <?xml version="1.0"?>
+-<foo>
+-  <bar/>
+-</foo>
++<bar>
++  <foo/>
++</bar>
+
+/home/sb/EqualsTest.php:12
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+      </example>
+
+      <para><literal>assertEquals(object $expected, object $actual[, string $message = ''])</literal></para>
+      <para>Reports an error identified by <literal>$message</literal> if the two objects <literal>$expected</literal> and <literal>$actual</literal> do not have equal attribute values.</para>
+      <example id="api.assert.assertEquals.example4">
+        <title>Usage of assertEquals() with objects</title>
+        <programlisting><![CDATA[<?php
+class EqualsTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $expected = new stdClass;
+        $expected->foo = 'foo';
+        $expected->bar = 'bar';
+
+        $actual = new stdClass;
+        $actual->foo = 'bar';
+        $actual->baz = 'bar';
+
+        $this->assertEquals($expected, $actual);
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit EqualsTest</userinput><![CDATA[
+PHPUnit 3.5.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds
+
+There was 1 failure:
+
+1) EqualsTest::testFailure
+Failed asserting that two objects are equal.
+--- Expected
++++ Actual
+@@ -1,5 +1,5 @@
+ stdClass Object
+ (
+-    [foo] => foo
+-    [bar] => bar
++    [foo] => bar
++    [baz] => bar
+ )
+
+/home/sb/EqualsTest.php:14
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+      </example>
+
+      <para><literal>assertEquals(array $expected, array $actual[, string $message = ''])</literal></para>
+      <para>Reports an error identified by <literal>$message</literal> if the two arrays <literal>$expected</literal> and <literal>$actual</literal> are not equal.</para>
+
+      <example id="api.assert.assertEquals.example5">
+        <title>Usage of assertEquals() with arrays</title>
+        <programlisting><![CDATA[<?php
+class EqualsTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertEquals(array('a', 'b', 'c'), array('a', 'c', 'd'));
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit EqualsTest</userinput><![CDATA[
+PHPUnit 3.5.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds
+
+There was 1 failure:
+
+1) EqualsTest::testFailure
+Failed asserting that two arrays are equal.
+--- Expected
++++ Actual
+@@ -1,6 +1,6 @@
+ Array
+ (
+     [0] => a
+-    [1] => b
+-    [2] => c
++    [1] => c
++    [2] => d
+ )
+
+/home/sb/EqualsTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+      </example>
+    </section>
+
+    <section id="api.assert.assertFalse">
+      <title><literal>assertFalse()</literal></title>
+      <indexterm><primary>assertFalse()</primary></indexterm>
+      <para><literal>assertFalse(bool $condition[, string $message = ''])</literal></para>
+      <para>Reports an error identified by <literal>$message</literal> if <literal>$condition</literal> is <literal>TRUE</literal>.</para>
+      <example id="api.assert.assertFalse.example">
+        <title>Usage of assertFalse()</title>
+        <programlisting><![CDATA[<?php
+class FalseTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertFalse(TRUE);
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit FalseTest</userinput><![CDATA[
+PHPUnit 3.5.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds
+
+There was 1 failure:
+
+1) FalseTest::testFailure
+Failed asserting that <boolean:true> is false.
+/home/sb/FalseTest.php:11
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+      </example>
+    </section>
+
+    <section id="api.assert.assertFileEquals">
+      <title><literal>assertFileEquals()</literal></title>
+      <indexterm><primary>assertFileEquals()</primary></indexterm>
+      <indexterm><primary>assertFileNotEquals()</primary></indexterm>
+      <para><literal>assertFileEquals(string $expected, string $actual[, string $message = ''])</literal></para>
+      <para>Reports an error identified by <literal>$message</literal>  if the file specified by <literal>$expected</literal> does not have the same contents as the file specified by <literal>$actual</literal>.</para>
+      <para><literal>assertFileNotEquals()</literal> is the inverse of this assertion and takes the same arguments.</para>
+      <example id="api.assert.assertFileEquals.example">
+        <title>Usage of assertFileEquals()</title>
+        <programlisting><![CDATA[<?php
+class FileEqualsTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertFileEquals('/home/sb/expected', '/home/sb/actual');
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit FileEqualsTest</userinput><![CDATA[
+PHPUnit 3.5.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds
+
+There was 1 failure:
+
+1) FileEqualsTest::testFailure
+Failed asserting that two strings are equal.
+--- Expected
++++ Actual
+@@ -1,2 +1,2 @@
+-expected
++actual
+ 
+
+/home/sb/FileEqualsTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 3, Failures: 1.]]></screen>
+      </example>
+    </section>
+
+    <section id="api.assert.assertFileExists">
+      <title><literal>assertFileExists()</literal></title>
+      <indexterm><primary>assertFileExists()</primary></indexterm>
+      <indexterm><primary>assertFileNotExists()</primary></indexterm>
+      <para><literal>assertFileExists(string $filename[, string $message = ''])</literal></para>
+      <para>Reports an error identified by <literal>$message</literal> if the file specified by <literal>$filename</literal> does not exist.</para>
+      <para><literal>assertFileNotExists()</literal> is the inverse of this assertion and takes the same arguments.</para>
+      <example id="api.assert.assertFileExists.example">
+        <title>Usage of assertFileExists()</title>
+        <programlisting><![CDATA[<?php
+class FileExistsTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertFileExists('/path/to/file');
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit FileExistsTest</userinput><![CDATA[
+PHPUnit 3.5.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds
+
+There was 1 failure:
+
+1) FileExistsTest::testFailure
+Failed asserting that file "/path/to/file" exists.
+/home/sb/FileExistsTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+      </example>
+    </section>
+
+    <section id="api.assert.assertGreaterThan">
+      <title><literal>assertGreaterThan()</literal></title>
+      <indexterm><primary>assertGreaterThan()</primary></indexterm>
+      <indexterm><primary>assertAttributeGreaterThan()</primary></indexterm>
+      <para><literal>assertGreaterThan(mixed $expected, mixed $actual[, string $message = ''])</literal></para>
+      <para>Reports an error identified by <literal>$message</literal> if the value of <literal>$actual</literal> is not greater than the value of <literal>$expected</literal>.</para>
+      <para><literal>assertAttributeGreaterThan()</literal> is a convenience wrapper that uses a <literal>public</literal>, <literal>protected</literal>, or <literal>private</literal> attribute of a class or object as the actual value.</para>
+      <example id="api.assert.assertGreaterThan.example">
+        <title>Usage of assertGreaterThan()</title>
+        <programlisting><![CDATA[<?php
+class GreaterThanTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertGreaterThan(2, 1);
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit GreaterThanTest</userinput><![CDATA[
+PHPUnit 3.5.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds
+
+There was 1 failure:
+
+1) GreaterThanTest::testFailure
+Failed asserting that <integer:1> is greater than <integer:2>.
+/home/sb/GreaterThanTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+      </example>
+    </section>
+
+    <section id="api.assert.assertGreaterThanOrEqual">
+      <title><literal>assertGreaterThanOrEqual()</literal></title>
+      <indexterm><primary>assertGreaterThanOrEqual()</primary></indexterm>
+      <indexterm><primary>assertAttributeGreaterThanOrEqual()</primary></indexterm>
+      <para><literal>assertGreaterThanOrEqual(mixed $expected, mixed $actual[, string $message = ''])</literal></para>
+      <para>Reports an error identified by <literal>$message</literal> if the value of <literal>$actual</literal> is not greater than or equal to the value of <literal>$expected</literal>.</para>
+      <para><literal>assertAttributeGreaterThanOrEqual()</literal> is a convenience wrapper that uses a <literal>public</literal>, <literal>protected</literal>, or <literal>private</literal> attribute of a class or object as the actual value.</para>
+      <example id="api.assert.assertGreaterThanOrEqual.example">
+        <title>Usage of assertGreaterThanOrEqual()</title>
+        <programlisting><![CDATA[<?php
+class GreatThanOrEqualTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertGreaterThanOrEqual(2, 1);
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit GreaterThanOrEqualTest</userinput><![CDATA[
+PHPUnit 3.5.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds
+
+There was 1 failure:
+
+1) GreatThanOrEqualTest::testFailure
+Failed asserting that <integer:1> is equal to <integer:2> or is greater than <integer:2>.
+/home/sb/GreaterThanOrEqualTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+      </example>
+    </section>
+
+    <section id="api.assert.assertLessThan">
+      <title><literal>assertLessThan()</literal></title>
+      <indexterm><primary>assertLessThan()</primary></indexterm>
+      <indexterm><primary>assertAttributeLessThan()</primary></indexterm>
+      <para><literal>assertLessThan(mixed $expected, mixed $actual[, string $message = ''])</literal></para>
+      <para>Reports an error identified by <literal>$message</literal> if the value of <literal>$actual</literal> is not less than the value of <literal>$expected</literal>.</para>
+      <para><literal>assertAttributeLessThan()</literal> is a convenience wrapper that uses a <literal>public</literal>, <literal>protected</literal>, or <literal>private</literal> attribute of a class or object as the actual value.</para>
+      <example id="api.assert.assertLessThan.example">
+        <title>Usage of assertLessThan()</title>
+        <programlisting><![CDATA[<?php
+class LessThanTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertLessThan(1, 2);
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit LessThanTest</userinput><![CDATA[
+PHPUnit 3.5.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds
+
+There was 1 failure:
+
+1) LessThanTest::testFailure
+Failed asserting that <integer:2> is less than <integer:1>.
+/home/sb/LessThanTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+      </example>
+    </section>
+
+    <section id="api.assert.assertLessThanOrEqual">
+      <title><literal>assertLessThanOrEqual()</literal></title>
+      <indexterm><primary>assertLessThanOrEqual()</primary></indexterm>
+      <indexterm><primary>assertAttributeLessThanOrEqual()</primary></indexterm>
+      <para><literal>assertLessThanOrEqual(mixed $expected, mixed $actual[, string $message = ''])</literal></para>
+      <para>Reports an error identified by <literal>$message</literal> if the value of <literal>$actual</literal> is not less than or equal to the value of <literal>$expected</literal>.</para>
+      <para><literal>assertAttributeLessThanOrEqual()</literal> is a convenience wrapper that uses a <literal>public</literal>, <literal>protected</literal>, or <literal>private</literal> attribute of a class or object as the actual value.</para>
+      <example id="api.assert.assertLessThanOrEqual.example">
+        <title>Usage of assertLessThanOrEqual()</title>
+        <programlisting><![CDATA[<?php
+class LessThanOrEqualTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertLessThanOrEqual(1, 2);
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit LessThanOrEqualTest</userinput><![CDATA[
+PHPUnit 3.5.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds
+
+There was 1 failure:
+
+1) LessThanOrEqualTest::testFailure
+Failed asserting that <integer:2> is equal to <integer:1> or is less than <integer:1>.
+/home/sb/LessThanOrEqualTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+      </example>
+    </section>
+
+    <section id="api.assert.assertNull">
+      <title><literal>assertNull()</literal></title>
+      <indexterm><primary>assertNull()</primary></indexterm>
+      <indexterm><primary>assertNotNull()</primary></indexterm>
+      <para><literal>assertNull(mixed $variable[, string $message = ''])</literal></para>
+      <para>Reports an error identified by <literal>$message</literal> if <literal>$variable</literal> is not <literal>NULL</literal>.</para>
+      <para><literal>assertNotNull()</literal> is the inverse of this assertion and takes the same arguments.</para>
+      <example id="api.assert.assertNull.example">
+        <title>Usage of assertNull()</title>
+        <programlisting><![CDATA[<?php
+class NullTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertNull('foo');
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit NotNullTest</userinput><![CDATA[
+PHPUnit 3.5.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds
+
+There was 1 failure:
+
+1) NullTest::testFailure
+Failed asserting that <string:foo> is null.
+/home/sb/NullTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+      </example>
+    </section>
+
+    <section id="api.assert.assertObjectHasAttribute">
+      <title><literal>assertObjectHasAttribute()</literal></title>
+      <indexterm><primary>assertObjectHasAttribute()</primary></indexterm>
+      <indexterm><primary>assertObjectNotHasAttribute()</primary></indexterm>
+      <para><literal>assertObjectHasAttribute(string $attributeName, object $object[, string $message = ''])</literal></para>
+      <para>Reports an error identified by <literal>$message</literal> if <literal>$object->attributeName</literal> does not exist.</para>
+      <para><literal>assertObjectNotHasAttribute()</literal> is the inverse of this assertion and takes the same arguments.</para>
+      <example id="api.assert.assertObjectHasAttribute.example">
+        <title>Usage of assertObjectHasAttribute()</title>
+        <programlisting><![CDATA[<?php
+class ObjectHasAttributeTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertObjectHasAttribute('foo', new stdClass);
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit ObjectHasAttributeTest</userinput><![CDATA[
+PHPUnit 3.5.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds
+
+There was 1 failure:
+
+1) ObjectHasAttributeTest::testFailure
+Failed asserting that object of class "stdClass" has attribute "foo".
+/home/sb/ObjectHasAttributeTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+      </example>
+    </section>
+
+    <section id="api.assert.assertRegExp">
+      <title><literal>assertRegExp()</literal></title>
+      <indexterm><primary>assertRegExp()</primary></indexterm>
+      <indexterm><primary>assertNotRegExp()</primary></indexterm>
+      <para><literal>assertRegExp(string $pattern, string $string[, string $message = ''])</literal></para>
+      <para>Reports an error identified by <literal>$message</literal> if <literal>$string</literal> does not match the regular expression <literal>$pattern</literal>.</para>
+      <para><literal>assertNotRegExp()</literal> is the inverse of this assertion and takes the same arguments.</para>
+      <example id="api.assert.assertRegExp.example">
+        <title>Usage of assertRegExp()</title>
+        <programlisting><![CDATA[<?php
+class RegExpTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertRegExp('/foo/', 'bar');
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit RegExpTest</userinput><![CDATA[
+PHPUnit 3.5.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds
+
+There was 1 failure:
+
+1) RegExpTest::testFailure
+Failed asserting that <string:bar> matches PCRE pattern "/foo/".
+/home/sb/RegExpTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+      </example>
+    </section>
+
+    <section id="api.assert.assertStringMatchesFormat">
+      <title><literal>assertStringMatchesFormat()</literal></title>
+      <indexterm><primary>assertStringMatchesFormat()</primary></indexterm>
+      <indexterm><primary>assertStringNotMatchesFormat()</primary></indexterm>
+      <para><literal>assertStringMatchesFormat(string $format, string $string[, string $message = ''])</literal></para>
+      <para>Reports an error identified by <literal>$message</literal> if the <literal>$string</literal> does not match the <literal>$format</literal> string.</para>
+      <para><literal>assertStringNotMatchesFormat()</literal> is the inverse of this assertion and takes the same arguments.</para>
+      <example id="api.assert.assertStringMatchesFormat.example">
+        <title>Usage of assertStringMatchesFormat()</title>
+        <programlisting><![CDATA[<?php
+class StringMatchesFormatTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertStringMatchesFormat('%i', 'foo');
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit StringMatchesFormatTest</userinput><![CDATA[
+PHPUnit 3.5.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds
+
+There was 1 failure:
+
+1) StringMatchesFormatTest::testFailure
+Failed asserting that two strings are equal.
+--- Expected
++++ Actual
+@@ @@
+-%i
++foo
+
+/home/sb/StringMatchesFormatTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+      </example>
+      <para>The format string may contain the following placeholders:</para>
+      <itemizedlist>
+        <listitem><para><literal>%e</literal>: Represents a directory separator, for example <literal>/</literal> on Linux. </para></listitem>
+        <listitem><para><literal>%s</literal>: One or more of anything (character or white space) except the end of line character.</para></listitem>
+        <listitem><para><literal>%S</literal>: Zero or more of anything (character or white space) except the end of line character.</para></listitem>
+        <listitem><para><literal>%a</literal>: One or more of anything (character or white space) including the end of line character.</para></listitem>
+        <listitem><para><literal>%A</literal>: Zero or more of anything (character or white space) including the end of line character.</para></listitem>
+        <listitem><para><literal>%w</literal>: Zero or more white space characters.</para></listitem>
+        <listitem><para><literal>%i</literal>: A signed integer value, for example <literal>+3142</literal>, <literal>-3142</literal>.</para></listitem>
+        <listitem><para><literal>%d</literal>: An unsigned integer value, for example <literal>123456</literal>.</para></listitem>
+        <listitem><para><literal>%x</literal>: One or more hexadecimal character. That is, characters in the range <literal>0-9</literal>, <literal>a-f</literal>, <literal>A-F</literal>.</para></listitem>
+        <listitem><para><literal>%f</literal>: A floating point number, for example: <literal>3.142</literal>, <literal>-3.142</literal>, <literal>3.142E-10</literal>, <literal>3.142e+10</literal>.</para></listitem>
+        <listitem><para><literal>%c</literal>: A single character of any sort.</para></listitem>
+      </itemizedlist>
+    </section>
+
+    <section id="api.assert.assertStringMatchesFormatFile">
+      <title><literal>assertStringMatchesFormatFile()</literal></title>
+      <indexterm><primary>assertStringMatchesFormatFile()</primary></indexterm>
+      <indexterm><primary>assertStringNotMatchesFormatFile()</primary></indexterm>
+      <para><literal>assertStringMatchesFormatFile(string $formatFile, string $string[, string $message = ''])</literal></para>
+      <para>Reports an error identified by <literal>$message</literal> if the <literal>$string</literal> does not match the contents of the <literal>$formatFile</literal>.</para>
+      <para><literal>assertStringNotMatchesFormatFile()</literal> is the inverse of this assertion and takes the same arguments.</para>
+      <example id="api.assert.assertStringMatchesFormatFile.example">
+        <title>Usage of assertStringMatchesFormatFile()</title>
+        <programlisting><![CDATA[<?php
+class StringMatchesFormatFileTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertStringMatchesFormatFile('/path/to/expected.txt', 'foo');
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit StringMatchesFormatFileTest</userinput><![CDATA[
+PHPUnit 3.5.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds
+
+There was 1 failure:
+
+1) StringMatchesFormatFileTest::testFailure
+Failed asserting that two strings are equal.
+--- Expected
++++ Actual
+@@ @@
+-%i
++foo
+
+/home/sb/StringMatchesFormatFileTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+      </example>
+    </section>
+
+    <section id="api.assert.assertSame">
+      <title><literal>assertSame()</literal></title>
+      <indexterm><primary>assertSame()</primary></indexterm>
+      <indexterm><primary>assertNotSame()</primary></indexterm>
+      <indexterm><primary>assertAttributeSame()</primary></indexterm>
+      <indexterm><primary>assertAttributeNotSame()</primary></indexterm>
+      <para><literal>assertSame(mixed $expected, mixed $actual[, string $message = ''])</literal></para>
+      <para>Reports an error identified by <literal>$message</literal> if the two variables <literal>$expected</literal> and <literal>$actual</literal> do not have the same type and value.</para>
+      <para><literal>assertNotSame()</literal> is the inverse of this assertion and takes the same arguments.</para>
+      <para><literal>assertAttributeSame()</literal> and <literal>assertAttributeNotSame()</literal> are convenience wrappers that use a <literal>public</literal>, <literal>protected</literal>, or <literal>private</literal> attribute of a class or object as the actual value.</para>
+      <example id="api.assert.assertSame.example">
+        <title>Usage of assertSame()</title>
+        <programlisting><![CDATA[<?php
+class SameTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertSame('2204', 2204);
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit SameTest</userinput><![CDATA[
+PHPUnit 3.5.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds
+
+There was 1 failure:
+
+1) SameTest::testFailure
+<integer:2204> does not match expected type "string".
+/home/sb/SameTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+      </example>
+
+      <para><literal>assertSame(object $expected, object $actual[, string $message = ''])</literal></para>
+      <para>Reports an error identified by <literal>$message</literal> if the two variables <literal>$expected</literal> and <literal>$actual</literal> do not reference the same object.</para>
+
+      <example id="api.assert.assertSame.example2">
+        <title>Usage of assertSame() with objects</title>
+        <programlisting><![CDATA[<?php
+class SameTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertSame(new stdClass, new stdClass);
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit SameTest</userinput><![CDATA[
+PHPUnit 3.5.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds
+
+There was 1 failure:
+
+1) SameTest::testFailure
+Failed asserting that two variables reference the same object.
+/home/sb/SameTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+      </example>
+    </section>
+
+    <section id="api.assert.assertSelectCount">
+      <title><literal>assertSelectCount()</literal></title>
+      <indexterm><primary>assertSelectCount()</primary></indexterm>
+      <para><literal>assertSelectCount(array $selector, integer $count, mixed $actual[, string $message = '', boolean $isHtml = TRUE])</literal></para>
+      <para>XXX</para>
+      <example id="api.assert.assertSelectCount.example">
+        <title>Usage of assertSelectCount()</title>
+        <programlisting><![CDATA[<?php
+?>]]></programlisting>
+        <screen><userinput>phpunit SelectCountTest</userinput><![CDATA[
+]]></screen>
+      </example>
+    </section>
+
+    <section id="api.assert.assertSelectEquals">
+      <title><literal>assertSelectEquals()</literal></title>
+      <indexterm><primary>assertSelectEquals()</primary></indexterm>
+      <para><literal>assertSelectEquals(array $selector, string $content, integer $count, mixed $actual[, string $message = '', boolean $isHtml = TRUE])</literal></para>
+      <para>XXX</para>
+      <example id="api.assert.assertSelectEquals.example">
+        <title>Usage of assertSelectEquals()</title>
+        <programlisting><![CDATA[<?php
+?>]]></programlisting>
+        <screen><userinput>phpunit SelectEqualsTest</userinput><![CDATA[
+]]></screen>
+      </example>
+    </section>
+
+    <section id="api.assert.assertSelectRegExp">
+      <title><literal>assertSelectRegExp()</literal></title>
+      <indexterm><primary>assertSelectRegExp()</primary></indexterm>
+      <para><literal>assertSelectRegExp(array $selector, string $pattern, integer $count, mixed $actual[, string $message = '', boolean $isHtml = TRUE])</literal></para>
+      <para>XXX</para>
+      <example id="api.assert.assertSelectRegExp.example">
+        <title>Usage of assertSelectRegExp()</title>
+        <programlisting><![CDATA[<?php
+?>]]></programlisting>
+        <screen><userinput>phpunit SelectRegExpTest</userinput><![CDATA[
+]]></screen>
+      </example>
+    </section>
+
+    <section id="api.assert.assertStringEndsWith">
+      <title><literal>assertStringEndsWith()</literal></title>
+      <indexterm><primary>assertStringEndsWith()</primary></indexterm>
+      <indexterm><primary>assertStringEndsNotWith()</primary></indexterm>
+      <para><literal>assertStringEndsWith(string $suffix, string $string[, string $message = ''])</literal></para>
+      <para>Reports an error identified by <literal>$message</literal> if the <literal>$string</literal> does not end with <literal>$suffix</literal>.</para>
+      <para><literal>assertStringEndsNotWith()</literal> is the inverse of this assertion and takes the same arguments.</para>
+      <example id="api.assert.assertStringEndsWith.example">
+        <title>Usage of assertStringEndsWith()</title>
+        <programlisting><![CDATA[<?php
+class StringEndsWithTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertStringEndsWith('suffix', 'foo');
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit StringEndsWithTest</userinput><![CDATA[
+PHPUnit 3.5.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds
+
+There was 1 failure:
+
+1) StringEndsWithTest::testFailure
+Failed asserting that <string:foo> ends with "suffix".
+/home/sb/StringEndsWithTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+      </example>
+    </section>
+
+    <section id="api.assert.assertStringEqualsFile">
+      <title><literal>assertStringEqualsFile()</literal></title>
+      <indexterm><primary>assertStringEqualsFile()</primary></indexterm>
+      <indexterm><primary>assertStringNotEqualsFile()</primary></indexterm>
+      <para><literal>assertStringEqualsFile(string $expectedFile, string $actualString[, string $message = ''])</literal></para>
+      <para>Reports an error identified by <literal>$message</literal>  if the file specified by <literal>$expectedFile</literal> does not have <literal>$actualString</literal> as its contents.</para>
+      <para><literal>assertStringNotEqualsFile()</literal> is the inverse of this assertion and takes the same arguments.</para>
+      <example id="api.assert.assertStringEqualsFile.example">
+        <title>Usage of assertStringEqualsFile()</title>
+        <programlisting><![CDATA[<?php
+class StringEqualsFileTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertStringEqualsFile('/home/sb/expected', 'actual');
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit StringEqualsFileTest</userinput><![CDATA[
+PHPUnit 3.5.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds
+
+There was 1 failure:
+
+1) StringEqualsFileTest::testFailure
+Failed asserting that two strings are equal.
+--- Expected
++++ Actual
+@@ -1,2 +1 @@
+-expected
+-
++actual
+\ No newline at end of file
+
+/home/sb/StringEqualsFileTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 2, Failures: 1.]]></screen>
+      </example>
+    </section>
+
+    <section id="api.assert.assertStringStartsWith">
+      <title><literal>assertStringStartsWith()</literal></title>
+      <indexterm><primary>assertStringStartsWith()</primary></indexterm>
+      <indexterm><primary>assertStringStartsNotWith()</primary></indexterm>
+      <para><literal>assertStringStartsWith(string $prefix, string $string[, string $message = ''])</literal></para>
+      <para>Reports an error identified by <literal>$message</literal> if the <literal>$string</literal> does not start with <literal>$prefix</literal>.</para>
+      <para><literal>assertStringStartsNotWith()</literal> is the inverse of this assertion and takes the same arguments.</para>
+      <example id="api.assert.assertStringStartsWith.example">
+        <title>Usage of assertStringStartsWith()</title>
+        <programlisting><![CDATA[<?php
+class StringStartsWithTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertStringStartsWith('prefix', 'foo');
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit StringStartsWithTest</userinput><![CDATA[
+PHPUnit 3.5.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds
+
+There was 1 failure:
+
+1) StringStartsWithTest::testFailure
+Failed asserting that <string:foo> starts with "prefix".
+/home/sb/StringStartsWithTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+      </example>
+    </section>
+
+    <section id="api.assert.assertTag">
+      <title><literal>assertTag()</literal></title>
+      <indexterm><primary>assertTag()</primary></indexterm>
+      <indexterm><primary>assertNotTag()</primary></indexterm>
+      <para><literal>assertTag(array $matcher, string $actual[, string $message = '', boolean $isHtml = TRUE])</literal></para>
+      <para>Reports an error identified by <literal>$message</literal> if <literal>$actual</literal> is not matched by the <literal>$matcher</literal>.</para>
+      <para><literal>$matcher</literal> is an associative array that specifies the match criteria for the assertion:</para>
+      <itemizedlist>
+        <listitem><literal>id</literal>: The node with the given <literal>id</literal> attribute must match the corresponsing value.</listitem>
+        <listitem><literal>tags</literal>: The node type must match the corresponding value.</listitem>
+        <listitem><literal>attributes</literal>: The node's attributes must match the corresponsing values in the <literal>$attributes</literal> associative array.</listitem>
+        <listitem><literal>content</literal>: The text content must match the given value.</listitem>
+        <listitem><literal>parent</literal>: The node's parent must match the <literal>$parent</literal> associative array.</listitem>
+        <listitem><literal>child</literal>: At least one of the node's immediate children must meet the criteria described by the <literal>$child</literal> associative array.</listitem>
+        <listitem><literal>ancestor</literal>: At least one of the node's ancestors must meet the criteria described by the <literal>$ancestor</literal> associative array.</listitem>
+        <listitem><literal>descendant</literal>: At least one of the node's descendants must meet the criteria described by the <literal>$descendant</literal> associative array.</listitem>
+        <listitem><literal>children</literal>: Associative array for counting children of a node.
+          <itemizedlist>
+            <listitem><literal>count</literal>: The number of matching children must be equal to this number.</listitem>
+            <listitem><literal>less_than</literal>: The number of matching children must be less than this number.</listitem>
+            <listitem><literal>greater_than</literal>: The number of matching children must be greater than this number.</listitem>
+            <listitem><literal>only</literal>: Another associative array consisting of the keys to use to match on the children, and only matching children will be counted.</listitem>
+          </itemizedlist>
+        </listitem>
+      </itemizedlist>
+      <para><literal>assertNotTag()</literal> is the inverse of this assertion and takes the same arguments.</para>
+      <example id="api.assert.assertTag.example">
+        <title>Usage of assertTag()</title>
+        <programlisting><![CDATA[<?php
+// Matcher that asserts that there is an element with an id="my_id".
+$matcher = array('id' => 'my_id');
+
+// Matcher that asserts that there is a "span" tag.
+$matcher = array('tag' => 'span');
+
+// Matcher that asserts that there is a "span" tag with the content
+// "Hello World".
+$matcher = array('tag' => 'span', 'content' => 'Hello World');
+
+// Matcher that asserts that there is a "span" tag with content matching the
+// regular expression pattern.
+$matcher = array('tag' => 'span', 'content' => '/Try P(HP|ython)/');
+
+// Matcher that asserts that there is a "span" with an "list" class attribute.
+$matcher = array(
+  'tag'        => 'span',
+  'attributes' => array('class' => 'list')
+);
+
+// Matcher that asserts that there is a "span" inside of a "div".
+$matcher = array(
+  'tag'    => 'span',
+  'parent' => array('tag' => 'div')
+);
+
+// Matcher that asserts that there is a "span" somewhere inside a "table".
+$matcher = array(
+  'tag'      => 'span',
+  'ancestor' => array('tag' => 'table')
+);
+
+// Matcher that asserts that there is a "span" with at least one "em" child.
+$matcher = array(
+  'tag'   => 'span',
+  'child' => array('tag' => 'em')
+);
+
+// Matcher that asserts that there is a "span" containing a (possibly nested)
+// "strong" tag.
+$matcher = array(
+  'tag'        => 'span',
+  'descendant' => array('tag' => 'strong')
+);
+
+// Matcher that asserts that there is a "span" containing 5-10 "em" tags as
+// immediate children.
+$matcher = array(
+  'tag'      => 'span',
+  'children' => array(
+    'less_than'    => 11,
+    'greater_than' => 4,
+    'only'         => array('tag' => 'em')
+  )
+);
+
+// Matcher that asserts that there is a "div", with an "ul" ancestor and a "li"
+// parent (with class="enum"), and containing a "span" descendant that contains
+// an element with id="my_test" and the text "Hello World".
+$matcher = array(
+  'tag'        => 'div',
+  'ancestor'   => array('tag' => 'ul'),
+  'parent'     => array(
+    'tag'        => 'li',
+    'attributes' => array('class' => 'enum')
+  ),
+  'descendant' => array(
+    'tag'   => 'span',
+    'child' => array(
+      'id'      => 'my_test',
+      'content' => 'Hello World'
+    )
+  )
+);
+
+// Use assertTag() to apply a $matcher to a piece of $html.
+$this->assertTag($matcher, $html);
+
+// Use assertTag() to apply a $matcher to a piece of $xml.
+$this->assertTag($matcher, $xml, '', FALSE);
+?>]]></programlisting>
+      </example>
+    </section>
+
+    <section id="api.assert.assertThat">
+      <title><literal>assertThat()</literal></title>
+      <indexterm><primary>assertThat()</primary></indexterm>
+
+      <para>
+        More complex assertions can be formulated using the
+        <literal>PHPUnit_Framework_Constraint</literal> classes. They can be
+        evaluated using the <literal>assertThat()</literal> method.
+        <xref linkend="api.assert.assertThat.example"/> shows how the
+        <literal>logicalNot()</literal> and <literal>equalTo()</literal>
+        constraints can be used to express the same assertion as
+        <literal>assertNotEquals()</literal>.
+      </para>
+
+      <para><literal>assertThat(mixed $value, PHPUnit_Framework_Constraint $constraint[, $message = ''])</literal></para>
+      <para>Reports an error identified by <literal>$message</literal> if the <literal>$value</literal> does not match the <literal>$constraint</literal>.</para>
+      <example id="api.assert.assertThat.example">
+        <title>Usage of assertThat()</title>
+        <programlisting><![CDATA[<?php
+class BiscuitTest extends PHPUnit_Framework_TestCase
+{
+    public function testEquals()
+    {
+        $theBiscuit = new Biscuit('Ginger');
+        $myBiscuit  = new Biscuit('Ginger');
+
+        $this->assertThat(
+          $theBiscuit,
+          $this->logicalNot(
+            $this->equalTo($myBiscuit)
+          )
+        );
+    }
+}
+?>]]></programlisting>
+      </example>
+
+      <para>
+        <xref linkend="api.assert.assertThat.tables.constraints" /> shows the
+        available <literal>PHPUnit_Framework_Constraint</literal> classes.
+      </para>
+
+      <table id="api.assert.assertThat.tables.constraints">
+        <title>Constraints</title>
+
+        <tgroup cols="2" align="left" colsep="1" rowsep="1">
+          <thead>
+            <row>
+              <entry>Constraint</entry>
+              <entry>Meaning</entry>
+            </row>
+          </thead>
+          <tbody>
+            <row>
+              <indexterm><primary>attribute()</primary></indexterm>
+              <entry><literal>PHPUnit_Framework_Constraint_Attribute attribute(PHPUnit_Framework_Constraint $constraint, $attributeName)</literal></entry>
+              <entry>Constraint that applies another constraint to an attribute of a class or an object.</entry>
+            </row>
+            <row>
+              <indexterm><primary>anything()</primary></indexterm>
+              <entry><literal>PHPUnit_Framework_Constraint_IsAnything anything()</literal></entry>
+              <entry>Constraint that accepts any input value.</entry>
+            </row>
+            <row>
+              <indexterm><primary>arrayHasKey()</primary></indexterm>
+              <entry><literal>PHPUnit_Framework_Constraint_ArrayHasKey arrayHasKey(mixed $key)</literal></entry>
+              <entry>Constraint that asserts that the array it is evaluated for has a given key.</entry>
+            </row>
+            <row>
+              <indexterm><primary>contains()</primary></indexterm>
+              <entry><literal>PHPUnit_Framework_Constraint_TraversableContains contains(mixed $value)</literal></entry>
+              <entry>Constraint that asserts that the <literal>array</literal> or object that implements the <literal>Iterator</literal> interface it is evaluated for contains a given value.</entry>
+            </row>
+            <row>
+              <indexterm><primary>equalTo()</primary></indexterm>
+              <entry><literal>PHPUnit_Framework_Constraint_IsEqual equalTo($value, $delta = 0, $maxDepth = 10)</literal></entry>
+              <entry>Constraint that checks if one value is equal to another.</entry>
+            </row>
+            <row>
+              <indexterm><primary>attributeEqualTo()</primary></indexterm>
+              <entry><literal>PHPUnit_Framework_Constraint_Attribute attributeEqualTo($attributeName, $value, $delta = 0, $maxDepth = 10)</literal></entry>
+              <entry>Constraint that checks if a value is equal to an attribute of a class or of an object.</entry>
+            </row>
+            <row>
+              <indexterm><primary>fileExists()</primary></indexterm>
+              <entry><literal>PHPUnit_Framework_Constraint_FileExists fileExists()</literal></entry>
+              <entry>Constraint that checks if the file(name) that it is evaluated for exists.</entry>
+            </row>
+            <row>
+              <indexterm><primary>greaterThan()</primary></indexterm>
+              <entry><literal>PHPUnit_Framework_Constraint_GreaterThan greaterThan(mixed $value)</literal></entry>
+              <entry>Constraint that asserts that the value it is evaluated for is greater than a given value.</entry>
+            </row>
+            <row>
+              <indexterm><primary>greaterThanOrEqual()</primary></indexterm>
+              <entry><literal>PHPUnit_Framework_Constraint_Or greaterThanOrEqual(mixed $value)</literal></entry>
+              <entry>Constraint that asserts that the value it is evaluated for is greater than or equal to a given value.</entry>
+            </row>
+            <row>
+              <indexterm><primary>classHasAttribute()</primary></indexterm>
+              <entry><literal>PHPUnit_Framework_Constraint_ClassHasAttribute classHasAttribute(string $attributeName)</literal></entry>
+              <entry>Constraint that asserts that the class it is evaluated for has a given attribute.</entry>
+            </row>
+            <row>
+              <indexterm><primary>classHasStaticAttribute()</primary></indexterm>
+              <entry><literal>PHPUnit_Framework_Constraint_ClassHasStaticAttribute classHasStaticAttribute(string $attributeName)</literal></entry>
+              <entry>Constraint that asserts that the class it is evaluated for has a given static attribute.</entry>
+            </row>
+            <row>
+              <indexterm><primary>hasAttribute()</primary></indexterm>
+              <entry><literal>PHPUnit_Framework_Constraint_ObjectHasAttribute hasAttribute(string $attributeName)</literal></entry>
+              <entry>Constraint that asserts that the object it is evaluated for has a given attribute.</entry>
+            </row>
+            <row>
+              <indexterm><primary>identicalTo()</primary></indexterm>
+              <entry><literal>PHPUnit_Framework_Constraint_IsIdentical identicalTo(mixed $value)</literal></entry>
+              <entry>Constraint that asserts that one value is identical to another.</entry>
+            </row>
+            <row>
+              <indexterm><primary>isFalse()</primary></indexterm>
+              <entry><literal>PHPUnit_Framework_Constraint_IsFalse isFalse()</literal></entry>
+              <entry>Constraint that asserts that the value it is evaluated is <literal>FALSE</literal>.</entry>
+            </row>
+            <row>
+              <indexterm><primary>isInstanceOf()</primary></indexterm>
+              <entry><literal>PHPUnit_Framework_Constraint_IsInstanceOf isInstanceOf(string $className)</literal></entry>
+              <entry>Constraint that asserts that the object it is evaluated for is an instance of a given class.</entry>
+            </row>
+            <row>
+              <indexterm><primary>isNull()</primary></indexterm>
+              <entry><literal>PHPUnit_Framework_Constraint_IsNull isNull()</literal></entry>
+              <entry>Constraint that asserts that the value it is evaluated is <literal>NULL</literal>.</entry>
+            </row>
+            <row>
+              <indexterm><primary>isTrue()</primary></indexterm>
+              <entry><literal>PHPUnit_Framework_Constraint_IsTrue isTrue()</literal></entry>
+              <entry>Constraint that asserts that the value it is evaluated is <literal>TRUE</literal>.</entry>
+            </row>
+            <row>
+              <indexterm><primary>isType()</primary></indexterm>
+              <entry><literal>PHPUnit_Framework_Constraint_IsType isType(string $type)</literal></entry>
+              <entry>Constraint that asserts that the value it is evaluated for is of a specified type.</entry>
+            </row>
+            <row>
+              <indexterm><primary>lessThan()</primary></indexterm>
+              <entry><literal>PHPUnit_Framework_Constraint_LessThan lessThan(mixed $value)</literal></entry>
+              <entry>Constraint that asserts that the value it is evaluated for is smaller than a given value.</entry>
+            </row>
+            <row>
+              <indexterm><primary>lessThanOrEqual()</primary></indexterm>
+              <entry><literal>PHPUnit_Framework_Constraint_Or lessThanOrEqual(mixed $value)</literal></entry>
+              <entry>Constraint that asserts that the value it is evaluated for is smaller than or equal to a given value.</entry>
+            </row>
+            <row>
+              <indexterm><primary>logicalAnd()</primary></indexterm>
+              <entry><literal>logicalAnd()</literal></entry>
+              <entry>Logical AND.</entry>
+            </row>
+            <row>
+              <indexterm><primary>logicalNot()</primary></indexterm>
+              <entry><literal>logicalNot(PHPUnit_Framework_Constraint $constraint)</literal></entry>
+              <entry>Logical NOT.</entry>
+            </row>
+            <row>
+              <indexterm><primary>logicalOr()</primary></indexterm>
+              <entry><literal>logicalOr()</literal></entry>
+              <entry>Logical OR.</entry>
+            </row>
+            <row>
+              <indexterm><primary>logicalXor()</primary></indexterm>
+              <entry><literal>logicalXor()</literal></entry>
+              <entry>Logical XOR.</entry>
+            </row>
+            <row>
+              <indexterm><primary>matchesRegularExpression()</primary></indexterm>
+              <entry><literal>PHPUnit_Framework_Constraint_PCREMatch matchesRegularExpression(string $pattern)</literal></entry>
+              <entry>Constraint that asserts that the string it is evaluated for matches a regular expression.</entry>
+            </row>
+            <row>
+              <indexterm><primary>stringContains()</primary></indexterm>
+              <entry><literal>PHPUnit_Framework_Constraint_StringContains stringContains(string $string, bool $case)</literal></entry>
+              <entry>Constraint that asserts that the string it is evaluated for contains a given string.</entry>
+            </row>
+            <row>
+              <indexterm><primary>stringEndsWith()</primary></indexterm>
+              <entry><literal>PHPUnit_Framework_Constraint_StringEndsWith stringEndsWith(string $suffix)</literal></entry>
+              <entry>Constraint that asserts that the string it is evaluated for ends with a given suffix.</entry>
+            </row>
+            <row>
+              <indexterm><primary>stringStartsWith()</primary></indexterm>
+              <entry><literal>PHPUnit_Framework_Constraint_StringStartsWith stringStartsWith(string $prefix)</literal></entry>
+              <entry>Constraint that asserts that the string it is evaluated for starts with a given prefix.</entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+    </section>
+
+    <section id="api.assert.assertTrue">
+      <title><literal>assertTrue()</literal></title>
+      <indexterm><primary>assertTrue()</primary></indexterm>
+      <para><literal>assertTrue(bool $condition[, string $message = ''])</literal></para>
+      <para>Reports an error identified by <literal>$message</literal> if <literal>$condition</literal> is <literal>FALSE</literal>.</para>
+      <example id="api.assert.assertTrue.example">
+        <title>Usage of assertTrue()</title>
+        <programlisting><![CDATA[<?php
+class TrueTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertTrue(FALSE);
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit TrueTest</userinput><![CDATA[
+PHPUnit 3.5.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds
+
+There was 1 failure:
+
+1) TrueTest::testFailure
+Failed asserting that <boolean:false> is true.
+/home/sb/TrueTest.php:11
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+      </example>
+    </section>
+
+    <section id="api.assert.assertType">
+      <title><literal>assertType()</literal></title>
+      <indexterm><primary>assertType()</primary></indexterm>
+      <indexterm><primary>assertAttributeType()</primary></indexterm>
+      <indexterm><primary>assertNotType()</primary></indexterm>
+      <indexterm><primary>assertAttributeNotType()</primary></indexterm>
+      <para><literal>assertType(string $expected, mixed $actual[, string $message = ''])</literal></para>
+      <para>Reports an error identified by <literal>$message</literal> if the variable <literal>$actual</literal> is not of type <literal>$expected</literal>.</para>
+      <para><literal>$expected</literal> can be one of these constants:</para>
+      <itemizedlist>
+        <listitem><literal>PHPUnit_Framework_Constraint_IsType::TYPE_ARRAY</literal> (<literal>"array"</literal>)</listitem>
+        <listitem><literal>PHPUnit_Framework_Constraint_IsType::TYPE_BOOL</literal> (<literal>"bool"</literal>)</listitem>
+        <listitem><literal>PHPUnit_Framework_Constraint_IsType::TYPE_FLOAT</literal> (<literal>"float"</literal>)</listitem>
+        <listitem><literal>PHPUnit_Framework_Constraint_IsType::TYPE_INT</literal> (<literal>"int"</literal>)</listitem>
+        <listitem><literal>PHPUnit_Framework_Constraint_IsType::TYPE_NULL</literal> (<literal>"null"</literal>)</listitem>
+        <listitem><literal>PHPUnit_Framework_Constraint_IsType::TYPE_NUMERIC</literal> (<literal>"numeric"</literal>)</listitem>
+        <listitem><literal>PHPUnit_Framework_Constraint_IsType::TYPE_OBJECT</literal> (<literal>"object"</literal>)</listitem>
+        <listitem><literal>PHPUnit_Framework_Constraint_IsType::TYPE_RESOURCE</literal> (<literal>"resource"</literal>)</listitem>
+        <listitem><literal>PHPUnit_Framework_Constraint_IsType::TYPE_STRING</literal> (<literal>"string"</literal>)</listitem>
+      </itemizedlist>
+      <para><literal>assertNotType()</literal> is the inverse of this assertion and takes the same arguments.</para>
+      <para><literal>assertAttributeType()</literal> and <literal>assertAttributeNotType()</literal> are convenience wrappers that use a <literal>public</literal>, <literal>protected</literal>, or <literal>private</literal> attribute of a class or object as the actual value.</para>
+      <example id="api.assert.assertType.example">
+        <title>Usage of assertType()</title>
+        <programlisting><![CDATA[<?php
+class TypeTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertType(PHPUnit_Framework_Constraint_IsType::TYPE_STRING, 2204);
+    }
+
+    public function testFailure2()
+    {
+        $this->assertType('string', 2204);
+    }
+
+    public function testFailure3()
+    {
+        $this->assertType('Exception', new stdClass);
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit TypeTest</userinput><![CDATA[
+PHPUnit 3.5.0 by Sebastian Bergmann.
+
+FFF
+
+Time: 0 seconds
+
+There were 3 failures:
+
+1) TypeTest::testFailure
+Failed asserting that <integer:2204> is of type "string".
+/home/sb/TypeTest.php:6
+
+2) TypeTest::testFailure2
+Failed asserting that <integer:2204> is of type "string".
+/home/sb/TypeTest.php:11
+
+3) TypeTest::testFailure3
+Failed asserting that <stdClass> is an instance of class "Exception".
+/home/sb/TypeTest.php:16
+
+FAILURES!
+Tests: 3, Assertions: 3, Failures: 3.]]></screen>
+      </example>
+    </section>
+
+    <section id="api.assert.assertXmlFileEqualsXmlFile">
+      <title><literal>assertXmlFileEqualsXmlFile()</literal></title>
+      <indexterm><primary>assertXmlFileEqualsXmlFile()</primary></indexterm>
+      <indexterm><primary>assertXmlFileNotEqualsXmlFile()</primary></indexterm>
+      <para><literal>assertXmlFileEqualsXmlFile(string $expectedFile, string $actualFile[, string $message = ''])</literal></para>
+      <para>Reports an error identified by <literal>$message</literal> if the XML document in <literal>$actualFile</literal> is not equal to the XML document in <literal>$expectedFile</literal>.</para>
+      <para><literal>assertXmlFileNotEqualsXmlFile()</literal> is the inverse of this assertion and takes the same arguments.</para>
+      <example id="api.assert.assertXmlFileEqualsXmlFile.example">
+        <title>Usage of assertXmlFileEqualsXmlFile()</title>
+        <programlisting><![CDATA[<?php
+class XmlFileEqualsXmlFileTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertXmlFileEqualsXmlFile(
+          '/home/sb/expected.xml', '/home/sb/actual.xml');
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit XmlFileEqualsXmlFileTest</userinput><![CDATA[
+PHPUnit 3.5.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds
+
+There was 1 failure:
+
+1) XmlFileEqualsXmlFileTest::testFailure
+Failed asserting that two strings are equal.
+--- Expected
++++ Actual
+@@ -1,4 +1,4 @@
+ <?xml version="1.0"?>
+ <foo>
+-  <bar/>
++  <baz/>
+ </foo>
+
+/home/sb/XmlFileEqualsXmlFileTest.php:7
+
+FAILURES!
+Tests: 1, Assertions: 3, Failures: 1.]]></screen>
+      </example>
+    </section>
+
+    <section id="api.assert.assertXmlStringEqualsXmlFile">
+      <title><literal>assertXmlStringEqualsXmlFile()</literal></title>
+      <indexterm><primary>assertXmlStringEqualsXmlFile()</primary></indexterm>
+      <indexterm><primary>assertXmlStringNotEqualsXmlFile()</primary></indexterm>
+      <para><literal>assertXmlStringEqualsXmlFile(string $expectedFile, string $actualXml[, string $message = ''])</literal></para>
+      <para>Reports an error identified by <literal>$message</literal> if the XML document in <literal>$actualXml</literal> is not equal to the XML document in <literal>$expectedFile</literal>.</para>
+      <para><literal>assertXmlStringNotEqualsXmlFile()</literal> is the inverse of this assertion and takes the same arguments.</para>
+      <example id="api.assert.assertXmlStringEqualsXmlFile.example">
+        <title>Usage of assertXmlStringEqualsXmlFile()</title>
+        <programlisting><![CDATA[<?php
+class XmlStringEqualsXmlFileTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertXmlStringEqualsXmlFile(
+          '/home/sb/expected.xml', '<foo><baz/></foo>');
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit XmlStringEqualsXmlFileTest</userinput><![CDATA[
+PHPUnit 3.5.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds
+
+There was 1 failure:
+
+1) XmlStringEqualsXmlFileTest::testFailure
+Failed asserting that two strings are equal.
+--- Expected
++++ Actual
+@@ -1,4 +1,4 @@
+ <?xml version="1.0"?>
+ <foo>
+-  <bar/>
++  <baz/>
+ </foo>
+
+/home/sb/XmlStringEqualsXmlFileTest.php:7
+
+FAILURES!
+Tests: 1, Assertions: 2, Failures: 1.]]></screen>
+      </example>
+    </section>
+
+    <section id="api.assert.assertXmlStringEqualsXmlString">
+      <title><literal>assertXmlStringEqualsXmlString()</literal></title>
+      <indexterm><primary>assertXmlStringEqualsXmlString()</primary></indexterm>
+      <indexterm><primary>assertXmlStringNotEqualsXmlString()</primary></indexterm>
+      <para><literal>assertXmlStringEqualsXmlString(string $expectedXml, string $actualXml[, string $message = ''])</literal></para>
+      <para>Reports an error identified by <literal>$message</literal> if the XML document in <literal>$actualXml</literal> is not equal to the XML document in <literal>$expectedXml</literal>.</para>
+      <para><literal>assertXmlStringNotEqualsXmlString()</literal> is the inverse of this assertion and takes the same arguments.</para>
+      <example id="api.assert.assertXmlStringEqualsXmlString.example">
+        <title>Usage of assertXmlStringEqualsXmlString()</title>
+        <programlisting><![CDATA[<?php
+class XmlStringEqualsXmlStringTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertXmlStringEqualsXmlString(
+          '<foo><bar/></foo>', '<foo><baz/></foo>');
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit XmlStringEqualsXmlStringTest</userinput><![CDATA[
+PHPUnit 3.5.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds
+
+There was 1 failure:
+
+1) XmlStringEqualsXmlStringTest::testFailure
+Failed asserting that two strings are equal.
+--- Expected
++++ Actual
+@@ -1,4 +1,4 @@
+ <?xml version="1.0"?>
+ <foo>
+-  <bar/>
++  <baz/>
+ </foo>
+
+/home/sb/XmlStringEqualsXmlStringTest.php:7
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+      </example>
+    </section>
+
+    <para>
+      You may find that you need other assertions than these to compare
+      objects specific to your project. Create your own <literal>Assert</literal>
+      class to contain these assertions to simplify your tests.
+    </para>
+
+    <para>
+      Failing assertions all call a single bottleneck method,
+      <literal>fail(string $message)</literal>, which throws an
+      <literal>PHPUnit_Framework_AssertionFailedError</literal>. There is
+      also a variant which takes no parameters. Call <literal>fail()</literal>
+      explicitly when your test encounters an error. The test for an expected
+      exception is an example.
+      <xref linkend="api.assert.tables.bottleneck-methods" /> lists the
+      bottlenext methods in PHPUnit.
+    </para>
+
+    <table id="api.assert.tables.bottleneck-methods">
+      <title>Bottleneck Methods</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>Method</entry>
+            <entry>Meaning</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <indexterm><primary>fail()</primary></indexterm>
+            <entry><literal>void fail()</literal></entry>
+            <entry>Reports an error.</entry>
+          </row>
+          <row>
+            <entry><literal>void fail(string $message)</literal></entry>
+            <entry>Reports an error identified by <literal>$message</literal>.</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <para>
+      <indexterm><primary>Incomplete Test</primary></indexterm>
+      <indexterm><primary>Skipped Test</primary></indexterm>
+
+      <literal>markTestIncomplete()</literal> and <literal>markTestSkipped()</literal>
+      are convenience methods for marking a test as being incomplete or skipped.
+    </para>
+
+    <table id="api.assert.tables.incomplete-skipped">
+      <title>Marking a test as being incomplete or skipped</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>Method</entry>
+            <entry>Meaning</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <indexterm><primary>markTestIncomplete()</primary></indexterm>
+            <entry><literal>void markTestIncomplete(string $message)</literal></entry>
+            <entry>Marks the current test as being incomplete, <literal>$message</literal> is optional.</entry>
+          </row>
+          <row>
+            <indexterm><primary>markTestSkipped()</primary></indexterm>
+            <entry><literal>void markTestSkipped(string $message)</literal></entry>
+            <entry>Marks the current test as being skipped, <literal>$message</literal> is optional.</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <para>
+      Although unit tests are about testing the public interface of a class, you
+      may sometimes want to test the values of non-public attributes. The
+      <literal>readAttribute()</literal> method enables you to do this and
+      returns the value of a given (static) attribute from a given class or
+      object.
+    </para>
+
+    <table id="api.assert.tables.readAttribute">
+      <title>Accessing non-public attributes</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>Method</entry>
+            <entry>Meaning</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <indexterm><primary>readAttribute()</primary></indexterm>
+            <entry><literal>Mixed readAttribute($classOrObject, $attributeName)</literal></entry>
+            <entry>Returns the value of a given (static) attribute (<literal>$attributeName</literal>) of a class or of an object. This also works for attributes that are declared <literal>protected</literal> or <literal>private</literal>.</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+  </section>
+
+  <section id="api.test">
+    <title>PHPUnit_Framework_Test</title>
+    <indexterm><primary>PHPUnit_Framework_Test</primary></indexterm>
+
+    <para>
+      <literal>PHPUnit_Framework_Test</literal> is the generic interface
+      used by all objects that can act as tests. Implementors may represent
+      one or more tests. The two methods are shown in
+      <xref linkend="api.test.tables.implementor-methods" />.
+    </para>
+
+    <table id="api.test.tables.implementor-methods">
+      <title>Implementor Methods</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>Method</entry>
+            <entry>Meaning</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>int count()</literal></entry>
+            <entry>Return the number of tests.</entry>
+          </row>
+          <row>
+            <entry><literal>void run(PHPUnit_Framework_TestResult $result)</literal></entry>
+            <entry>Run the tests and report the results on <literal>$result</literal>.</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <para>
+      <literal>PHPUnit_Framework_TestCase</literal> and
+      <literal>PHPUnit_Framework_TestSuite</literal> are the two most
+      prominent implementors of <literal>PHPUnit_Framework_Test</literal>.
+      You can implement <literal>PHPUnit_Framework_Test</literal> yourself.
+      The interface is kept small intentionally so it will be easy to
+      implement.
+    </para>
+  </section>
+
+  <section id="api.testcase">
+    <title>PHPUnit_Framework_TestCase</title>
+    <indexterm><primary>PHPUnit_Framework_TestCase</primary></indexterm>
+
+    <para>
+      Your test case classes will inherit from
+      <literal>PHPUnit_Framework_TestCase</literal>. Most of the time, you
+      will run tests from automatically created test suites. In this case,
+      each of your tests should be represented by a method named
+      <literal>test*</literal> (by convention).
+    </para>
+
+    <para>
+      <literal>PHPUnit_Framework_TestCase</literal> implements
+      <literal>PHPUnit_Framework_Test::count()</literal> so that it
+      always returns <literal>1</literal>. The implementation of
+      <literal>PHPUnit_Framework_Test::run(PHPUnit_Framework_TestResult $result)</literal>
+      in this class runs <literal>setUp()</literal>, runs the test method,
+      and then runs <literal>tearDown()</literal>, reporting any exceptions
+      to the <literal>PHPUnit_Framework_TestResult</literal>.
+    </para>
+
+    <para>
+      <xref linkend="api.testcase.tables.api" /> shows the
+      methods provided by <literal>PHPUnit_Framework_TestCase</literal>.
+    </para>
+
+    <table id="api.testcase.tables.api">
+      <title>TestCase</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>Method</entry>
+            <entry>Meaning</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>__construct()</literal></entry>
+            <entry>Creates a test case.</entry>
+          </row>
+          <row>
+            <entry><literal>__construct(string $name)</literal></entry>
+            <entry>Creates a named test case. Names are used to print the test case and often as the name of the test method to be run by reflection.</entry>
+          </row>
+          <row>
+            <entry><literal>string getName()</literal></entry>
+            <entry>Return the name of the test case.</entry>
+          </row>
+          <row>
+            <entry><literal>void setName($name)</literal></entry>
+            <entry>Set the name of the test case.</entry>
+          </row>
+          <row>
+            <entry><literal>PHPUnit_Framework_TestResult run(PHPUnit_Framework_TestResult $result)</literal></entry>
+            <entry>Convenience method to run the test case and report it in <literal>$result</literal>.</entry>
+          </row>
+          <row>
+            <entry><literal>void runTest()</literal></entry>
+            <entry>Override with a testing method if you do not want the testing method to be invoked by reflection.</entry>
+          </row>
+          <row>
+            <entry><literal>object getMock($originalClassName, [array $methods, [array $arguments, [string $mockClassName, [boolean $callOriginalConstructor, [boolean $callOriginalClone, [boolean $callAutoload]]]]]])</literal></entry>
+            <entry>Returns a mock object (see <xref linkend="test-doubles" />) for the class specified by <literal>$originalClassName</literal>. By default, all methods of the given class are mocked. When the second (optional) parameter is provided, only the methods whose names are in the array are mocked. The third (optional) parameter may hold a parameter array that is passed to the mock object's constructor. The fourth (optional) parameter can be used to specify a class name for the mock object. The fifth (optional) parameter can be used to disable the call to the original object's <literal>__construct()</literal> method. The sixth (optional) parameter can be used to disable the call to the original object's <literal>__clone()</literal> method. The seventh (optional) parameter can be used to disable <literal>__autoload()</literal> during mock object creation.</entry>
+          </row>
+          <row>
+            <entry><literal>object getMockForAbstractClass($originalClassName, [array $arguments, [string $mockClassName, [boolean $callOriginalConstructor, [boolean $callOriginalClone, [boolean $callAutoload]]]]])</literal></entry>
+            <entry>Returns a mock object (see <xref linkend="test-doubles" />) for the abstract class specified by <literal>$originalClassName</literal>. All abstract methods of the given abstract class are mocked. This allows for testing the concrete methods of an abstract class.</entry>
+          </row>
+          <row>
+            <entry><literal>object getMockFromWsdl($wsdlFile, [string $originalClassName, [string $mockClassName, [array $methods, [boolean $callOriginalConstructor)</literal></entry>
+            <entry>Returns a mock object (see <xref linkend="test-doubles" />) for the SOAP web services described in <literal>$wsdlFile</literal>.</entry>
+          </row>
+          <row>
+            <entry><literal>void iniSet(string $varName, mixed $newValue)</literal></entry>
+            <entry>This method is a wrapper for the <ulink url="http://www.php.net/ini_set"><literal>ini_set()</literal></ulink> function that automatically resets the modified <filename>php.ini</filename> setting to its original value after the test is run.</entry>
+          </row>
+          <row>
+            <entry><literal>void setLocale(integer $category, string $locale, ...)</literal></entry>
+            <entry>This method is a wrapper for the <ulink url="http://www.php.net/setlocale"><literal>setlocale()</literal></ulink> function that automatically resets the locale to its original value after the test is run.</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <para>
+      There are two template methods -- <literal>setUp()</literal> and
+      <literal>tearDown()</literal> -- you can override to create and
+      dispose of the objects against which you are going to test.
+      <xref linkend="api.testcase.tables.template-methods" /> shows
+      these methods. The template methods <literal>assertPreConditions()</literal>
+      and <literal>assertPostConditions()</literal> can be used to define
+      assertions that should be performed by all tests of a test case class.
+    </para>
+
+    <table id="api.testcase.tables.template-methods">
+      <title>Template Methods</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>Method</entry>
+            <entry>Meaning</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <indexterm><primary>setUp()</primary></indexterm>
+            <entry><literal>void setUp()</literal></entry>
+            <entry>Override to set up the fixture, for example create an object graph.</entry>
+          </row>
+          <row>
+            <indexterm><primary>assertPreConditions()</primary></indexterm>
+            <entry><literal>void assertPreConditions()</literal></entry>
+            <entry>Override to perform assertions shared by all tests of a test case class. This method is called before the execution of a test starts and after setUp() is called.</entry>
+          </row>
+          <row>
+            <indexterm><primary>assertPostConditions()</primary></indexterm>
+            <entry><literal>void assertPostConditions()</literal></entry>
+            <entry>Override to perform assertions shared by all tests of a test case class. This method is called before the execution of a test ends and before tearDown() is called.</entry>
+          </row>
+          <row>
+            <indexterm><primary>tearDown()</primary></indexterm>
+            <entry><literal>void tearDown()</literal></entry>
+            <entry>Override to tear down the fixture, for example clean up an object graph.</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+  </section>
+
+  <section id="api.testsuite">
+    <title>PHPUnit_Framework_TestSuite</title>
+    <indexterm><primary>PHPUnit_Framework_TestSuite</primary></indexterm>
+
+    <para>
+      A <literal>PHPUnit_Framework_TestSuite</literal> is a composite of
+      <literal>PHPUnit_Framework_Test</literal>s. At its simplest, it
+      contains a bunch of test cases, all of which are run when the suite is
+      run. Since it is a composite, however, a suite can contain suites which
+      can contain suites and so on, making it easy to combine tests from
+      various sources and run them together.
+    </para>
+
+    <para>
+      In addition to the <literal>PHPUnit_Framework_Test</literal> methods --
+      <literal>run(PHPUnit_Framework_TestResult $result)</literal> and
+      <literal>count()</literal> -- <literal>PHPUnit_Framework_TestSuite</literal>
+      provides methods to create named or unnamed instances.
+      <xref linkend="api.testsuite.tables.creating-instances" /> shows the
+      methods to create <literal>PHPUnit_Framework_TestSuite</literal>
+      instances.
+    </para>
+
+    <table id="api.testsuite.tables.creating-instances">
+      <title>Creating named or unnamed instances</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>Method</entry>
+            <entry>Meaning</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>__construct()</literal></entry>
+            <entry>Return an empty test suite.</entry>
+          </row>
+          <row>
+            <entry><literal>__construct(string $theClass)</literal></entry>
+            <entry>Return a test suite containing an instance of the class named <literal>$theClass</literal> for each method in the class named <literal>test*</literal>. If no class of name <literal>$theClass</literal> exists an empty test suite named <literal>$theClass</literal> is returned.</entry>
+          </row>
+          <row>
+            <entry><literal>__construct(string $theClass, string $name)</literal></entry>
+            <entry>Return a test suite named <literal>$name</literal> containing an instance of the class named <literal>$theClass</literal> for each method in the class named <literal>test*</literal>.</entry>
+          </row>
+          <row>
+            <entry><literal>__construct(ReflectionClass $theClass)</literal></entry>
+            <entry>Return a test suite containing an instance of the class represented by <literal>$theClass</literal> for each method in the class named <literal>test*</literal>.</entry>
+          </row>
+          <row>
+            <entry><literal>__construct(ReflectionClass $theClass, $name)</literal></entry>
+            <entry>Return a test suite named <literal>$name</literal> containing an instance of the class represented by <literal>$theClass</literal> for each method in the class named <literal>test*</literal>.</entry>
+          </row>
+          <row>
+            <entry><literal>string getName()</literal></entry>
+            <entry>Return the name of the test suite.</entry>
+          </row>
+          <row>
+            <entry><literal>void setName(string $name)</literal></entry>
+            <entry>Set the name of the test suite.</entry>
+          </row>
+          <row>
+            <entry><literal>void markTestSuiteSkipped(string $message)</literal></entry>
+            <entry>Marks the current test suite as being skipped, <literal>$message</literal> is optional.</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <para>
+      <literal>PHPUnit_Framework_TestSuite</literal> also provides methods
+      for adding and retrieving <literal>PHPUnit_Framework_Test</literal>s,
+      as shown in <xref linkend="api.testsuite.tables.api" />.
+    </para>
+
+    <table id="api.testsuite.tables.api">
+      <title>Adding and retrieving tests</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>Method</entry>
+            <entry>Meaning</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <indexterm><primary>addTestSuite()</primary></indexterm>
+            <entry><literal>void addTestSuite(PHPUnit_Framework_TestSuite $suite)</literal></entry>
+            <entry>Add another test suite to the test suite.</entry>
+          </row>
+          <row>
+            <entry><literal>void addTestSuite(string $theClass)</literal></entry>
+            <entry>Add a test suite containing an instance of the class named <literal>$theClass</literal> for each method in the class named <literal>test*</literal> to the test suite.</entry>
+          </row>
+          <row>
+            <entry><literal>void addTestSuite(ReflectionClass $theClass)</literal></entry>
+            <entry>Add a test suite containing an instance of the class represented by <literal>$theClass</literal> for each method in the class named <literal>test*</literal> to the test suite.</entry>
+          </row>
+          <row>
+            <indexterm><primary>addTest()</primary></indexterm>
+            <entry><literal>void addTest(PHPUnit_Framework_Test $test)</literal></entry>
+            <entry>Add <literal>$test</literal> to the suite.</entry>
+          </row>
+          <row>
+            <indexterm><primary>addTestFile()</primary></indexterm>
+            <entry><literal>void addTestFile(string $filename)</literal></entry>
+            <entry>Add the tests that are defined in the class(es) of a given sourcefile to the suite.</entry>
+          </row>
+          <row>
+            <indexterm><primary>addTestFiles()</primary></indexterm>
+            <entry><literal>void addTestFiles(array $filenames)</literal></entry>
+            <entry>Add the tests that are defined in the classes of the given sourcefiles to the suite.</entry>
+          </row>
+          <row>
+            <entry><literal>int testCount()</literal></entry>
+            <entry>Return the number of tests directly (not recursively) in this suite.</entry>
+          </row>
+          <row>
+            <entry><literal>PHPUnit_Framework_Test[] tests()</literal></entry>
+            <entry>Return the tests directly in this suite.</entry>
+          </row>
+          <row>
+            <entry><literal>PHPUnit_Framework_Test testAt(int $index)</literal></entry>
+            <entry>Return the test at the <literal>$index</literal>.</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <para>
+      <xref linkend="api.testsuite.examples.TestSuite-example.php" /> shows
+      how to create and run a test suite.
+    </para>
+
+    <example id="api.testsuite.examples.TestSuite-example.php">
+      <title>Creating and running a test suite</title>
+      <programlisting><![CDATA[<?php
+require_once 'PHPUnit/Framework.php';
+
+require_once 'ArrayTest.php';
+
+// Create a test suite that contains the tests
+// from the ArrayTest class.
+$suite = new PHPUnit_Framework_TestSuite('ArrayTest');
+
+// Run the tests.
+$suite->run();
+?>]]></programlisting>
+    </example>
+
+    <para>
+      <xref linkend="organizing-tests" /> shows how to use the
+      <literal>PHPUnit_Framework_TestSuite</literal> class to
+      organize test suites by hierarchically composing test cases.
+    </para>
+
+    <para>
+      The <literal>PHPUnit_Framework_TestSuite</literal> class provides two
+      template methods -- <literal>setUp()</literal> and
+      <literal>tearDown()</literal> -- that are called before and after the
+      tests of a test suite are run, respectively.
+    </para>
+
+    <table id="api.testsuite.tables.template-methods">
+      <title>Template Methods</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>Method</entry>
+            <entry>Meaning</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <indexterm><primary>setUp()</primary></indexterm>
+            <entry><literal>void setUp()</literal></entry>
+            <entry>Called before the first test of the test suite is run.</entry>
+          </row>
+          <row>
+            <indexterm><primary>tearDown()</primary></indexterm>
+            <entry><literal>void tearDown()</literal></entry>
+            <entry>Called after the last test of the test suite has been run.</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+  </section>
+
+  <section id="api.testresult">
+    <title>PHPUnit_Framework_TestResult</title>
+    <indexterm><primary>PHPUnit_Framework_TestResult</primary></indexterm>
+
+    <para>
+      While you are running all these tests, you need somewhere to store all
+      the results: how many tests ran, which failed, and how long they took.
+      <literal>PHPUnit_Framework_TestResult</literal> collects these results.
+      A single <literal>PHPUnit_Framework_TestResult</literal> is passed
+      around the whole tree of tests; when a test runs or fails, the fact is
+      noted in the <literal>PHPUnit_Framework_TestResult</literal>. At the
+      end of the run, <literal>PHPUnit_Framework_TestResult</literal>
+      contains a summary of all the tests.
+    </para>
+
+    <para>
+      <literal>PHPUnit_Framework_TestResult</literal> is also a subject than
+      can be observed by other objects wanting to report test progress. For
+      example, a graphical test runner might observe the
+      <literal>PHPUnit_Framework_TestResult</literal> and update a progress
+      bar every time a test starts.
+    </para>
+
+    <para>
+      <xref linkend="api.testresult.tables.api" /> summarizes
+      the API of <literal>PHPUnit_Framework_TestResult</literal>.
+    </para>
+
+    <table id="api.testresult.tables.api">
+      <title>TestResult</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>Method</entry>
+            <entry>Meaning</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>void addError(PHPUnit_Framework_Test $test, Exception $e)</literal></entry>
+            <entry>Record that running <literal>$test</literal> caused <literal>$e</literal> to be thrown unexpectedly.</entry>
+          </row>
+          <row>
+            <entry><literal>void addFailure(PHPUnit_Framework_Test $test, PHPUnit_Framework_AssertionFailedError $e)</literal></entry>
+            <entry>Record that running <literal>$test</literal> caused <literal>$e</literal> to be thrown unexpectedly.</entry>
+          </row>
+          <row>
+            <entry><literal>PHPUnit_Framework_TestFailure[] errors()</literal></entry>
+            <entry>Return the errors recorded.</entry>
+          </row>
+          <row>
+            <entry><literal>PHPUnit_Framework_TestFailure[] failures()</literal></entry>
+            <entry>Return the failures recorded.</entry>
+          </row>
+          <row>
+            <entry><literal>PHPUnit_Framework_TestFailure[] notImplemented()</literal></entry>
+            <entry>Return the incomplete test cases recorded.</entry>
+          </row>
+          <row>
+            <entry><literal>int errorCount()</literal></entry>
+            <entry>Return the number of errors.</entry>
+          </row>
+          <row>
+            <entry><literal>int failureCount()</literal></entry>
+            <entry>Return the number of failures.</entry>
+          </row>
+          <row>
+            <entry><literal>int notImplementedCount()</literal></entry>
+            <entry>Return the number of incomplete test cases.</entry>
+          </row>
+          <row>
+            <entry><literal>int count()</literal></entry>
+            <entry>Return the total number of test cases run.</entry>
+          </row>
+          <row>
+            <entry><literal>boolean wasSuccessful()</literal></entry>
+            <entry>Return whether or not all tests ran successfully.</entry>
+          </row>
+          <row>
+            <entry><literal>boolean allCompletlyImplemented()</literal></entry>
+            <entry>Return whether or not all tests were completely implemented.</entry>
+          </row>
+          <row>
+            <entry><literal>void collectCodeCoverageInformation(bool $flag)</literal></entry>
+            <entry>Enables or disables the collection of Code Coverage information.</entry>
+          </row>
+          <row>
+            <entry><literal>array getCodeCoverageInformation()</literal></entry>
+            <entry>Return the code coverage information collected.</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <para>
+      <indexterm><primary>Observer Pattern</primary></indexterm>
+      <indexterm><primary>PHPUnit_Framework_TestListener</primary></indexterm>
+
+      If you want to register as an observer of a
+      <literal>PHPUnit_Framework_TestResult</literal>, you need to implement
+      <literal>PHPUnit_Framework_TestListener</literal>. To register, call
+      <literal>addListener()</literal>, as shown in
+      <xref linkend="api.testresult.tables.testresult-testlistener" />.
+    </para>
+
+    <table id="api.testresult.tables.testresult-testlistener">
+      <title>TestResult and TestListener</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>Method</entry>
+            <entry>Meaning</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>void addListener(PHPUnit_Framework_TestListener $listener)</literal></entry>
+            <entry>Register <literal>$listener</literal> to receive updates as results are recorded in the test result.</entry>
+          </row>
+          <row>
+            <entry><literal>void removeListener(PHPUnit_Framework_TestListener $listener)</literal></entry>
+            <entry>Unregister <literal>$listener</literal> from receiving updates.</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <para>
+      <xref linkend="api.testresult.tables.testlistener" /> shows the methods
+      that test listeners implement; also see
+      <xref linkend="extending-phpunit.examples.SimpleTestListener.php" />.
+    </para>
+
+    <table id="api.testresult.tables.testlistener">
+      <title>TestListener Callbacks</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>Method</entry>
+            <entry>Meaning</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>void addError(PHPUnit_Framework_Test $test, Exception $e)</literal></entry>
+            <entry><literal>$test</literal> has thrown <literal>$e</literal>.</entry>
+          </row>
+          <row>
+            <entry><literal>void addFailure(PHPUnit_Framework_Test $test, PHPUnit_Framework_AssertionFailedError $e)</literal></entry>
+            <entry><literal>$test</literal> has failed an assertion, throwing a kind of <literal>PHPUnit_Framework_AssertionFailedError</literal>.</entry>
+          </row>
+          <row>
+            <entry><literal>void addIncompleteTest(PHPUnit_Framework_Test $test, Exception $e)</literal></entry>
+            <entry><literal>$test</literal> is an incomplete test.</entry>
+          </row>
+          <row>
+            <entry><literal>void addSkippedTest(PHPUnit_Framework_Test $test, Exception $e)</literal></entry>
+            <entry><literal>$test</literal> is a test that has been skipped.</entry>
+          </row>
+          <row>
+            <entry><literal>void startTestSuite(PHPUnit_Framework_TestSuite $suite)</literal></entry>
+            <entry><literal>$suite</literal> is about to be run.</entry>
+          </row>
+          <row>
+            <entry><literal>void endTestSuite(PHPUnit_Framework_TestSuite $suite)</literal></entry>
+            <entry><literal>$suite</literal> has finished running.</entry>
+          </row>
+          <row>
+            <entry><literal>void startTest(PHPUnit_Framework_Test $test)</literal></entry>
+            <entry><literal>$test</literal> is about to be run.</entry>
+          </row>
+          <row>
+            <entry><literal>void endTest(PHPUnit_Framework_Test $test)</literal></entry>
+            <entry><literal>$test</literal> has finished running.</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+  </section>
+
+  <section id="api.package-structure">
+    <title>Package Structure</title>
+
+    <para>
+      Many of the classes mentioned so far in this book come from
+      <literal>PHPUnit/Framework</literal>. Here are all the packages in
+      PHPUnit:
+    </para>
+
+    <itemizedlist>
+      <listitem>
+        <para><literal>PHPUnit/Framework</literal></para>
+
+        <para>
+          The basic classes in PHPUnit.
+        </para>
+      </listitem>
+
+      <listitem>
+        <para><literal>PHPUnit/Extensions</literal></para>
+
+        <para>
+          Extensions to the PHPUnit framework.
+        </para>
+      </listitem>
+
+      <listitem>
+        <para><literal>PHPUnit/Runner</literal></para>
+
+        <para>
+          Abstract support for running tests.
+        </para>
+      </listitem>
+
+      <listitem>
+        <para><literal>PHPUnit/TextUI</literal></para>
+
+        <para>
+          The text-based test runner.
+        </para>
+      </listitem>
+
+      <listitem>
+        <para><literal>PHPUnit/Util</literal></para>
+
+        <para>
+          Utility classes used by the other packages.
+        </para>
+      </listitem>
+    </itemizedlist>
+  </section>
+</chapter>

@@ -1,0 +1,1332 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="api">
+  <title>PHPUnit API</title>
+
+  <para>
+    たいていの場合は、PHPUnit の API は単純なものです。単に
+    <literal>PHPUnit_Framework_TestCase</literal> を継承したテストケースを作成し、
+    <literal>assertTrue()</literal> あるいは <literal>assertEquals()</literal>
+    をコールすればよいのです。しかし、PHPUnit をより深く知りたい方のために、
+    ここではすべてのクラスおよび公開メソッドを説明します。
+  </para>
+
+  <section id="api.overview">
+    <title>概要</title>
+
+    <para>
+      ほとんどの場合、PHPUnit を使用する際には以下の
+      5 つのクラスやインターフェイスに出会うことになるでしょう。
+    </para>
+
+    <variablelist>
+      <varlistentry>
+        <term><literal>PHPUnit_Framework_Assert</literal></term>
+        <listitem>
+          <para>
+          実際の値が想定した値どおりかどうかを調べるための静的メソッドを集めたもの。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>PHPUnit_Framework_Test</literal></term>
+        <listitem>
+          <para>
+            テストケースとして動作するすべてのオブジェクトのインターフェイス。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>PHPUnit_Framework_TestCase</literal></term>
+        <listitem>
+          <para>
+            ひとつのテスト。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>PHPUnit_Framework_TestSuite</literal></term>
+        <listitem>
+          <para>
+            テストの集まり。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>PHPUnit_Framework_TestResult</literal></term>
+        <listitem>
+          <para>
+           ひとつあるいは複数のテストの実行結果をまとめたもの。
+          </para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+
+    <para>
+      PHPUnit の、5 つの基本クラス/インターフェイスである
+      <literal>PHPUnit_Framework_Assert</literal>、
+      <literal>PHPUnit_Framework_Test</literal>、
+      <literal>PHPUnit_Framework_TestCase</literal>、
+      <literal>PHPUnit_Framework_TestSuite</literal> およびand
+      <literal>PHPUnit_Framework_TestResult</literal> の関係を
+      <xref linkend="api.overview.figures.PHPUnit_Framework.png" />
+      に示します。
+    </para>
+
+    <figure id="api.overview.figures.PHPUnit_Framework.png">
+      <title>PHPUnit の 5 つの基本クラス/インターフェイス</title>
+
+      <graphic fileref="figures/PHPUnit_Framework.png" />
+    </figure>
+  </section>
+
+  <section id="api.assert">
+    <title>PHPUnit_Framework_Assert</title>
+    <indexterm><primary>PHPUnit_Framework_Assert</primary></indexterm>
+
+    <para>
+      <indexterm><primary>Assertions</primary></indexterm>
+      <indexterm><primary>Design-by-Contract (規約による設計)</primary></indexterm>
+
+      PHPUnit 用に書かれたテストケースのほとんどは、間接的に
+      <literal>PHPUnit_Framework_Assert</literal>
+      を継承しています。ここには、
+      値を自動的にチェックして矛盾を報告するためのメソッドが含まれています。
+      これらのメソッドは静的に宣言されているので、
+      あなたが作成したメソッドの中で「規約による設計」方式のアサーションを使用し、
+      PHPUnit に結果を報告させることができます
+      (<xref linkend="api.assert.examples.Sample.php" /> を参照ください)。
+    </para>
+
+    <example id="api.assert.examples.Sample.php">
+      <title>「規約による設計」方式のアサーション</title>
+      <programlisting><![CDATA[<?php
+require_once 'PHPUnit/Framework.php';
+
+class Sample
+{
+    public function aSampleMethod($object)
+    {
+        PHPUnit_Framework_Assert::assertNotNull($object);
+    }
+}
+
+$sample = new Sample;
+$sample->aSampleMethod(NULL);
+?>]]></programlisting>
+
+<screen><![CDATA[Fatal error: Uncaught exception 'PHPUnit_Framework_ExpectationFailedException'
+with message 'Failed asserting that <null> is not identical to <null>'.]]></screen>
+    </example>
+
+    <para>
+      しかし、ほとんどの場合はこれらのアサーションはテストの中で行います。
+    </para>
+
+    <para>
+      各アサーションメソッドには 2 種類の方式があります。
+      エラー時に表示されるメッセージをパラメータとして指定する方法としない方法です。
+      オプションで指定したメッセージは、通常はテストが失敗したことが報告される場面で
+      表示されます。これにより、デバッグが楽になります。
+    </para>
+
+    <example id="api.assert.examples.MessageTest.php">
+      <title>メッセージつきのアサーション</title>
+      <programlisting><![CDATA[<?php
+require_once 'PHPUnit/Framework.php';
+
+class MessageTest extends PHPUnit_Framework_TestCase
+{
+    public function testMessage()
+    {
+        $this->assertTrue(FALSE, 'これは独自のメッセージです。');
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      以下の例は、
+      <xref linkend="api.assert.examples.MessageTest.php" /> のテスト
+      <literal>testMessage()</literal>
+      でメッセージつきのアサーションを使用した場合の出力結果です。
+    </para>
+
+    <screen><userinput>phpunit MessageTest.php</userinput><![CDATA[
+PHPUnit 3.0.0 by Sebastian Bergmann.
+
+F
+
+Time: 00:00
+There was 1 failure:
+1) testMessage(MessageTest)
+これは独自のメッセージです。
+Failed asserting that <boolean:false> is identical to <boolean:true>.
+/home/sb/MessageTest.php:8
+
+FAILURES!
+Tests: 1, Failures: 1.]]></screen>
+
+    <para>
+      <xref linkend="api.assert.tables.assertions" />
+      に、すべてのアサーションをまとめます。
+    </para>
+
+    <table id="api.assert.tables.assertions">
+      <title>アサーション</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>アサーション</entry>
+            <entry>意味</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>void assertTrue(bool $condition)</literal></entry>
+            <entry><literal>$condition</literal> が <literal>FALSE</literal> の場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertTrue(bool $condition, string $message)</literal></entry>
+            <entry><literal>$condition</literal> が <literal>FALSE</literal> の場合にエラー <literal>$message</literal> を報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertFalse(bool $condition)</literal></entry>
+            <entry><literal>$condition</literal> が <literal>TRUE</literal> の場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertFalse(bool $condition, string $message)</literal></entry>
+            <entry><literal>$condition</literal> が <literal>TRUE</literal> の場合にエラー <literal>$message</literal> を報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNull(mixed $variable)</literal></entry>
+            <entry><literal>$variable</literal> が <literal>NULL</literal> でないときにエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNull(mixed $variable, string $message)</literal></entry>
+            <entry><literal>$variable</literal> が <literal>NULL</literal> でないときにエラー <literal>$message</literal> を報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNotNull(mixed $variable)</literal></entry>
+            <entry><literal>$variable</literal> が <literal>NULL</literal> の場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNotNull(mixed $variable, string $message)</literal></entry>
+            <entry><literal>$variable</literal> が <literal>NULL</literal> の場合にエラー <literal>$message</literal> を報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertSame(object $expected, object $actual)</literal></entry>
+            <entry>2 つの変数 <literal>$expected</literal> と <literal>$actual</literal> が同じオブジェクトを参照していない場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertSame(object $expected, object $actual, string $message)</literal></entry>
+            <entry>2 つの変数 <literal>$expected</literal> と <literal>$actual</literal> が同じオブジェクトを参照していない場合にエラー <literal>$message</literal> を報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertSame(mixed $expected, mixed $actual)</literal></entry>
+            <entry>2 つの変数 <literal>$expected</literal> と <literal>$actual</literal> が同じ型・同じ値でない場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertSame(mixed $expected, mixed $actual, string $message)</literal></entry>
+            <entry>2 つの変数 <literal>$expected</literal> と <literal>$actual</literal> が同じ型・同じ値でない場合にエラー <literal>$message</literal> を報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNotSame(object $expected, object $actual)</literal></entry>
+            <entry>2 つの変数 <literal>$expected</literal> と <literal>$actual</literal> が同じオブジェクトを参照している場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNotSame(object $expected, object $actual, string $message)</literal></entry>
+            <entry>2 つの変数 <literal>$expected</literal> と <literal>$actual</literal> が同じオブジェクトを参照している場合にエラー <literal>$message</literal> を報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNotSame(mixed $expected, mixed $actual)</literal></entry>
+            <entry>2 つの変数 <literal>$expected</literal> と <literal>$actual</literal> が同じ型・同じ値である場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNotSame(mixed $expected, mixed $actual, string $message)</literal></entry>
+            <entry>2 つの変数 <literal>$expected</literal> と <literal>$actual</literal> が同じ型・同じ値である場合にエラー <literal>$message</literal> を報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertAttributeSame(object $expected, string $actualAttributeName, object $actualObject)</literal></entry>
+            <entry><literal>$actualObject->actualAttributeName</literal> と <literal>$actual</literal> が同じオブジェクトを参照していない場合にエラーを報告します。 <literal>$actualObject->actualAttributeName</literal> 属性は <literal>public</literal>、<literal>protected</literal> あるいは <literal>private</literal> のいずれかとなります。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertAttributeSame(object $expected, string $actualAttributeName, object $actualObject, string $message)</literal></entry>
+            <entry><literal>$actualObject->actualAttributeName</literal> と <literal>$actual</literal> が同じオブジェクトを参照していない場合にエラー <literal>$message</literal> を報告します。 <literal>$actualObject->actualAttributeName</literal> 属性は <literal>public</literal>、<literal>protected</literal> あるいは <literal>private</literal> のいずれかとなります。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertAttributeSame(mixed $expected, string $actualAttributeName, object $actualObject)</literal></entry>
+            <entry><literal>$actualObject->actualAttributeName</literal> と <literal>$actual</literal> が同じ型、同じ値でない場合にエラーを報告します。<literal>$actualObject->actualAttributeName</literal> 属性は <literal>public</literal>、<literal>protected</literal> あるいは <literal>private</literal> のいずれかとなります。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertAttributeSame(mixed $expected, string $actualAttributeName, object $actualObject, string $message)</literal></entry>
+            <entry><literal>$actualObject->actualAttributeName</literal> と <literal>$actual</literal> が同じ型、同じ値でない場合にエラー <literal>$message</literal> を報告します。<literal>$actualObject->actualAttributeName</literal> 属性は <literal>public</literal>、<literal>protected</literal> あるいは <literal>private</literal> のいずれかとなります。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertAttributeNotSame(object $expected, string $actualAttributeName, object $actualObject)</literal></entry>
+            <entry><literal>$actualObject->actualAttributeName</literal> と <literal>$actual</literal> が同じオブジェクトを参照している場合にエラーを報告します。 <literal>$actualObject->actualAttributeName</literal> 属性は <literal>public</literal>、<literal>protected</literal> あるいは <literal>private</literal> のいずれかとなります。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertAttributeNotSame(object $expected, string $actualAttributeName, object $actualObject, string $message)</literal></entry>
+            <entry><literal>$actualObject->actualAttributeName</literal> と <literal>$actual</literal> が同じオブジェクトを参照している場合にエラー <literal>$message</literal> を報告します。 <literal>$actualObject->actualAttributeName</literal> 属性は <literal>public</literal>、<literal>protected</literal> あるいは <literal>private</literal> のいずれかとなります。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertAttributeNotSame(mixed $expected, string $actualAttributeName, object $actualObject)</literal></entry>
+            <entry><literal>$actualObject->actualAttributeName</literal> と <literal>$actual</literal> が同じ型、同じ値である場合にエラーを報告します。<literal>$actualObject->actualAttributeName</literal> 属性は <literal>public</literal>、<literal>protected</literal> あるいは <literal>private</literal> のいずれかとなります。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertAttributeNotSame(mixed $expected, string $actualAttributeName, object $actualObject, string $message)</literal></entry>
+            <entry><literal>$actualObject->actualAttributeName</literal> と <literal>$actual</literal> が同じ型、同じ値である場合にエラー <literal>$message</literal> を報告します。<literal>$actualObject->actualAttributeName</literal> 属性は <literal>public</literal>、<literal>protected</literal> あるいは <literal>private</literal> のいずれかとなります。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertEquals(array $expected, array $actual)</literal></entry>
+            <entry>2 つの配列 <literal>$expected</literal> と <literal>$actual</literal> が等しくない場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertEquals(array $expected, array $actual, string $message)</literal></entry>
+            <entry>2 つの配列 <literal>$expected</literal> と <literal>$actual</literal> が等しくない場合にエラー <literal>$message</literal> を報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNotEquals(array $expected, array $actual)</literal></entry>
+            <entry>2 つの配列 <literal>$expected</literal> と <literal>$actual</literal> が等しい場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNotEquals(array $expected, array $actual, string $message)</literal></entry>
+            <entry>2 つの配列 <literal>$expected</literal> と <literal>$actual</literal> が等しい場合にエラー <literal>$message</literal> を報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertEquals(float $expected, float $actual, '', float $delta = 0)</literal></entry>
+            <entry>2 つの float 値 <literal>$expected</literal> と <literal>$actual</literal> の誤差が <literal>$delta</literal> より大きい場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertEquals(float $expected, float $actual, string $message, float $delta = 0)</literal></entry>
+            <entry>2 つの float 値 <literal>$expected</literal> と <literal>$actual</literal> の誤差が <literal>$delta</literal> より大きい場合にエラー <literal>$message</literal> を報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNotEquals(float $expected, float $actual, '', float $delta = 0)</literal></entry>
+            <entry>2 つの float 値 <literal>$expected</literal> と <literal>$actual</literal> の誤差が <literal>$delta</literal> 以下のにエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNotEquals(float $expected, float $actual, string $message, float $delta = 0)</literal></entry>
+            <entry>2 つの float 値 <literal>$expected</literal> と <literal>$actual</literal> の誤差が <literal>$delta</literal> 以下の場合にエラー <literal>$message</literal> を報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertEquals(string $expected, string $actual)</literal></entry>
+            <entry>2 つの文字列 <literal>$expected</literal> と <literal>$actual</literal> が等しくない場合にエラーを報告します。エラーは、2 つの文字列の差分で報告されます。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertEquals(string $expected, string $actual, string $message)</literal></entry>
+            <entry>2 つの文字列 <literal>$expected</literal> と <literal>$actual</literal> が等しくない場合にエラー <literal>$message</literal> を報告します。エラーは、2 つの文字列の差分で報告されます。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNotEquals(string $expected, string $actual)</literal></entry>
+            <entry>2 つの文字列 <literal>$expected</literal> と <literal>$actual</literal> が等しい場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNotEquals(string $expected, string $actual, string $message)</literal></entry>
+            <entry>2 つの文字列 <literal>$expected</literal> と <literal>$actual</literal> が等しい場合にエラー <literal>$message</literal> を報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertEquals(mixed $expected, mixed $actual)</literal></entry>
+            <entry>2 つの変数 <literal>$expected</literal> と <literal>$actual</literal> が等しくない場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertEquals(mixed $expected, mixed $actual, string $message)</literal></entry>
+            <entry>2 つの変数 <literal>$expected</literal> と <literal>$actual</literal> が等しくない場合にエラー <literal>$message</literal> を報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNotEquals(mixed $expected, mixed $actual)</literal></entry>
+            <entry>2 つの変数 <literal>$expected</literal> と <literal>$actual</literal> が等しい場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNotEquals(mixed $expected, mixed $actual, string $message)</literal></entry>
+            <entry>2 つの変数 <literal>$expected</literal> と <literal>$actual</literal> が等しい場合にエラー <literal>$message</literal> を報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertAttributeEquals(array $expected, string $actualAttributeName, object $actualObject)</literal></entry>
+            <entry>2 つの配列 <literal>$expected</literal> と <literal>$actualObject->actualAttributeName</literal> が等しくない場合にエラーを報告します。<literal>$actualObject->actualAttributeName</literal> 属性は <literal>public</literal>、<literal>protected</literal> あるいは <literal>private</literal> のいずれかとなります。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertAttributeEquals(array $expected, string $actualAttributeName, object $actualObject, string $message)</literal></entry>
+            <entry>2 つの配列 <literal>$expected</literal> と <literal>$actualObject->actualAttributeName</literal> が等しくない場合にエラーを <literal>$message</literal> 報告します。<literal>$actualObject->actualAttributeName</literal> 属性は <literal>public</literal>、<literal>protected</literal> あるいは <literal>private</literal> のいずれかとなります。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertAttributeNotEquals(array $expected, string $actualAttributeName, object $actualObject)</literal></entry>
+            <entry>2 つの配列 <literal>$expected</literal> と <literal>$actualObject->actualAttributeName</literal> が等しい場合にエラーを報告します。<literal>$actualObject->actualAttributeName</literal> 属性は <literal>public</literal>、<literal>protected</literal> あるいは <literal>private</literal> のいずれかとなります。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertAttributeNotEquals(array $expected, string $actualAttributeName, object $actualObject, string $message)</literal></entry>
+            <entry>2 つの配列 <literal>$expected</literal> と <literal>$actualObject->actualAttributeName</literal> が等しい場合にエラーを <literal>$message</literal> 報告します。<literal>$actualObject->actualAttributeName</literal> 属性は <literal>public</literal>、<literal>protected</literal> あるいは <literal>private</literal> のいずれかとなります。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertAttributeEquals(float $expected, string $actualAttributeName, object $actualObject, '', float $delta = 0)</literal></entry>
+            <entry>2 つの float 値 <literal>$expected</literal> と <literal>$actualObject->actualAttributeName</literal> の誤差が <literal>$delta</literal> より大きい場合にエラーを報告します。<literal>$actualObject->actualAttributeName</literal> 属性は <literal>public</literal>、<literal>protected</literal> あるいは <literal>private</literal> のいずれかとなります。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertAttributeEquals(float $expected, string $actualAttributeName, object $actualObject, string $message, float $delta = 0)</literal></entry>
+            <entry>2 つの float 値 <literal>$expected</literal> と <literal>$actualObject->actualAttributeName</literal> の誤差が <literal>$delta</literal> より大きい場合にエラー <literal>$message</literal> を報告します。<literal>$actualObject->actualAttributeName</literal> 属性は <literal>public</literal>、<literal>protected</literal> あるいは <literal>private</literal> のいずれかとなります。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertAttributeNotEquals(float $expected, string $actualAttributeName, object $actualObject, '', float $delta = 0)</literal></entry>
+            <entry>2 つの float 値 <literal>$expected</literal> と <literal>$actualObject->actualAttributeName</literal> の誤差が <literal>$delta</literal> 以下の場合にエラーを報告します。<literal>$actualObject->actualAttributeName</literal> 属性は <literal>public</literal>、<literal>protected</literal> あるいは <literal>private</literal> のいずれかとなります。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertAttributeNotEquals(float $expected, string $actualAttributeName, object $actualObject, string $message, float $delta = 0)</literal></entry>
+            <entry>2 つの float 値 <literal>$expected</literal> と <literal>$actualObject->actualAttributeName</literal> の誤差が <literal>$delta</literal> 以下の場合にエラー <literal>$message</literal> を報告します。<literal>$actualObject->actualAttributeName</literal> 属性は <literal>public</literal>、<literal>protected</literal> あるいは <literal>private</literal> のいずれかとなります。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertAttributeEquals(string $expected, string $actualAttributeName, object $actualObject)</literal></entry>
+            <entry>2 つの文字列 <literal>$expected</literal> と <literal>$actualObject->actualAttributeName</literal> が等しくない場合にエラーを報告します。エラーは、2 つの文字列の差分で報告されます。<literal>$actualObject->actualAttributeName</literal> 属性は <literal>public</literal>、<literal>protected</literal> あるいは <literal>private</literal> のいずれかとなります。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertAttributeEquals(string $expected, string $actualAttributeName, object $actualObject, string $message)</literal></entry>
+            <entry>2 つの文字列 <literal>$expected</literal> と <literal>$actualObject->actualAttributeName</literal> が等しくない場合にエラー <literal>$message</literal> を報告します。エラーは、2 つの文字列の差分で報告されます。<literal>$actualObject->actualAttributeName</literal> 属性は <literal>public</literal>、<literal>protected</literal> あるいは <literal>private</literal> のいずれかとなります。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertAttributeNotEquals(string $expected, string $actualAttributeName, object $actualObject)</literal></entry>
+            <entry>2 つの文字列 <literal>$expected</literal> と <literal>$actualObject->actualAttributeName</literal> が等しい場合にエラーを報告します。<literal>$actualObject->actualAttributeName</literal> 属性は <literal>public</literal>、<literal>protected</literal> あるいは <literal>private</literal> のいずれかとなります。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertAttributeNotEquals(string $expected, string $actualAttributeName, object $actualObject, string $message)</literal></entry>
+            <entry>2 つの文字列 <literal>$expected</literal> と <literal>$actualObject->actualAttributeName</literal> が等しい場合にエラー <literal>$message</literal> を報告します。<literal>$actualObject->actualAttributeName</literal> 属性は <literal>public</literal>、<literal>protected</literal> あるいは <literal>private</literal> のいずれかとなります。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertAttributeEquals(mixed $expected, string $actualAttributeName, object $actualObject)</literal></entry>
+            <entry>2 つの変数 <literal>$expected</literal> と <literal>$actualObject->actualAttributeName</literal> が等しくない場合にエラーを報告します。<literal>$actualObject->actualAttributeName</literal> 属性は <literal>public</literal>、<literal>protected</literal> あるいは <literal>private</literal> のいずれかとなります。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertAttributeEquals(mixed $expected, string $actualAttributeName, object $actualObject, string $message)</literal></entry>
+            <entry>2 つの変数 <literal>$expected</literal> と <literal>$actualObject->actualAttributeName</literal> が等しくない場合にエラー <literal>$message</literal> を報告します。<literal>$actualObject->actualAttributeName</literal> 属性は <literal>public</literal>、<literal>protected</literal> あるいは <literal>private</literal> のいずれかとなります。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertAttributeNotEquals(mixed $expected, string $actualAttributeName, object $actualObject)</literal></entry>
+            <entry>2 つの変数 <literal>$expected</literal> と <literal>$actualObject->actualAttributeName</literal> が等しい場合にエラーを報告します。<literal>$actualObject->actualAttributeName</literal> 属性は <literal>public</literal>、<literal>protected</literal> あるいは <literal>private</literal> のいずれかとなります。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertAttributeNotEquals(mixed $expected, string $actualAttributeName, object $actualObject, string $message)</literal></entry>
+            <entry>2 つの変数 <literal>$expected</literal> と <literal>$actualObject->actualAttributeName</literal> が等しい場合にエラー <literal>$message</literal> を報告します。<literal>$actualObject->actualAttributeName</literal> 属性は <literal>public</literal>、<literal>protected</literal> あるいは <literal>private</literal> のいずれかとなります。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertContains(mixed $needle, array $haystack)</literal></entry>
+            <entry><literal>$needle</literal> が <literal>$haystack</literal> の要素でない場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertContains(mixed $needle, array $haystack, string $message)</literal></entry>
+            <entry><literal>$needle</literal> が <literal>$haystack</literal> の要素でない場合にエラー <literal>$message</literal> を報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNotContains(mixed $needle, array $haystack)</literal></entry>
+            <entry><literal>$needle</literal> が <literal>$haystack</literal> の要素である場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNotContains(mixed $needle, array $haystack, string $message)</literal></entry>
+            <entry><literal>$needle</literal> が <literal>$haystack</literal> の要素である場合にエラー <literal>$message</literal> を報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertContains(mixed $needle, Iterator $haystack)</literal></entry>
+            <entry><literal>$needle</literal> が <literal>$haystack</literal> の要素でない場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertContains(mixed $needle, Iterator $haystack, string $message)</literal></entry>
+            <entry><literal>$needle</literal> が <literal>$haystack</literal> の要素でない場合にエラー <literal>$message</literal> を報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNotContains(mixed $needle, Iterator $haystack)</literal></entry>
+            <entry><literal>$needle</literal> が <literal>$haystack</literal> の要素である場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNotContains(mixed $needle, Iterator $haystack, string $message)</literal></entry>
+            <entry><literal>$needle</literal> が <literal>$haystack</literal> の要素である場合にエラー <literal>$message</literal> を報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertContains(string $needle, string $haystack)</literal></entry>
+            <entry><literal>$needle</literal> が <literal>$haystack</literal> の一部でない場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertContains(string $needle, string $haystack, string $message)</literal></entry>
+            <entry><literal>$needle</literal> が <literal>$haystack</literal> の一部でない場合にエラー <literal>$message</literal> を報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNotContains(string $needle, string $haystack)</literal></entry>
+            <entry><literal>$needle</literal> が <literal>$haystack</literal> の一部である場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNotContains(string $needle, string $haystack, string $message)</literal></entry>
+            <entry><literal>$needle</literal> が <literal>$haystack</literal> の一部である場合にエラー <literal>$message</literal> を報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertAttributeContains(mixed $needle, string $actualAttributeName, object $actualObject)</literal></entry>
+            <entry><literal>$needle</literal> が <literal>$actualObject->actualAttributeName</literal> の要素でない場合にエラーを報告します。<literal>$actualObject->actualAttributeName</literal> は配列、文字列あるいは <literal>Iterator</literal> インターフェイスを実装するオブジェクトのいずれかです。<literal>$actualObject->actualAttributeName</literal> 属性は <literal>public</literal>、<literal>protected</literal> あるいは <literal>private</literal> のいずれかとなります。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertAttributeContains(mixed $needle, string $actualAttributeName, object $actualObject, string $message)</literal></entry>
+            <entry><literal>$needle</literal> が <literal>$actualObject->actualAttributeName</literal> の要素でない場合にエラー <literal>$message</literal> を報告します。<literal>$actualObject->actualAttributeName</literal> は配列、文字列あるいは <literal>Iterator</literal> インターフェイスを実装するオブジェクトのいずれかです。<literal>$actualObject->actualAttributeName</literal> 属性は <literal>public</literal>、<literal>protected</literal> あるいは <literal>private</literal> のいずれかとなります。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertAttributeNotContains(mixed $needle, string $actualAttributeName, object $actualObject)</literal></entry>
+            <entry><literal>$needle</literal> が <literal>$actualObject->actualAttributeName</literal> の要素である場合にエラーを報告します。<literal>$actualObject->actualAttributeName</literal> は配列、文字列あるいは <literal>Iterator</literal> インターフェイスを実装するオブジェクトのいずれかです。<literal>$actualObject->actualAttributeName</literal> 属性は <literal>public</literal>、<literal>protected</literal> あるいは <literal>private</literal> のいずれかとなります。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertAttributeNotContains(mixed $needle, string $actualAttributeName, object $actualObject, string $message)</literal></entry>
+            <entry><literal>$needle</literal> が <literal>$actualObject->actualAttributeName</literal> の要素である場合にエラー <literal>$message</literal> を報告します。<literal>$actualObject->actualAttributeName</literal> は配列、文字列あるいは <literal>Iterator</literal> インターフェイスを実装するオブジェクトのいずれかです。<literal>$actualObject->actualAttributeName</literal> 属性は <literal>public</literal>、<literal>protected</literal> あるいは <literal>private</literal> のいずれかとなります。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertRegExp(string $pattern, string $string)</literal></entry>
+            <entry><literal>$string</literal> が正規表現 <literal>$pattern</literal> にマッチしない場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertRegExp(string $pattern, string $string, string $message)</literal></entry>
+            <entry><literal>$string</literal> が正規表現 <literal>$pattern</literal> にマッチしない場合にエラー <literal>$message</literal> を報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNotRegExp(string $pattern, string $string)</literal></entry>
+            <entry><literal>$string</literal> が正規表現 <literal>$pattern</literal> にマッチする場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNotRegExp(string $pattern, string $string, string $message)</literal></entry>
+            <entry><literal>$string</literal> が正規表現 <literal>$pattern</literal> にマッチする場合にエラー <literal>$message</literal> を報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertType(string $expected, mixed $actual)</literal></entry>
+            <entry>変数 <literal>$actual</literal> の型が <literal>$expected</literal> でない場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertType(string $expected, mixed $actual, string $message)</literal></entry>
+            <entry>変数 <literal>$actual</literal> の型が <literal>$expected</literal> でない場合にエラー <literal>$message</literal>を報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNotType(string $expected, mixed $actual)</literal></entry>
+            <entry>変数 <literal>$actual</literal> の型が <literal>$expected</literal> である場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNotType(string $expected, mixed $actual, string $message)</literal></entry>
+            <entry>変数 <literal>$actual</literal> の型が <literal>$expected</literal> である場合にエラー <literal>$message</literal>を報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertFileExists(string $filename)</literal></entry>
+            <entry>ファイル <literal>$filename</literal> が存在しない場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertFileExists(string $filename, string $message)</literal></entry>
+            <entry>ファイル <literal>$filename</literal> が存在しない場合にエラー <literal>$message</literal> を報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertFileNotExists(string $filename)</literal></entry>
+            <entry>ファイル <literal>$filename</literal> が存在する場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertFileNotExists(string $filename, string $message)</literal></entry>
+            <entry>ファイル <literal>$filename</literal> が存在する場合にエラー <literal>$message</literal> を報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertObjectHasAttribute(string $attributeName, object $object)</literal></entry>
+            <entry><literal>$object->attributeName</literal> が存在しない場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertObjectHasAttribute(string $attributeName, object $object, string $message)</literal></entry>
+            <entry><literal>$object->attributeName</literal> が存在しない場合にエラー <literal>$message</literal> を報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertObjectNotHasAttribute(string $attributeName, object $object)</literal></entry>
+            <entry><literal>$object->attributeName</literal> が存在する場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertObjectNotHasAttribute(string $attributeName, object $object, string $message)</literal></entry>
+            <entry><literal>$object->attributeName</literal> が存在する場合にエラー <literal>$message</literal> を報告します。</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <para>
+      もっと複雑なアサーションを行う場合には、
+      <literal>PHPUnit_Framework_Constraint</literal> クラスを使用します。
+      これらは、<literal>assertThat()</literal> メソッドを使用して
+      <xref linkend="api.assert.examples.IsNotEqual.php" />
+      のように評価されます。
+    </para>
+
+    <example id="api.assert.examples.IsNotEqual.php">
+      <title>assertThat() での制約オブジェクトの使用</title>
+      <programlisting><![CDATA[<?php
+require_once 'PHPUnit/Framework.php';
+
+class ConstraintTest extends PHPUnit_Framework_TestCase
+{
+    public function testNotEquals()
+    {
+        $constraint = $this->logicalNot(
+          $this->equalTo('foo')
+        );
+
+        $this->assertThat('foo', $constraint);
+    }
+}
+?>]]></programlisting>
+
+<screen><![CDATA[<userinput>phpunit ConstraintTest</userinput>
+PHPUnit 3.0.0 by Sebastian Bergmann.
+
+F
+
+Time: 00:00
+
+There was 1 failure:
+
+1) testNotEquals(ConstraintTest)
+Failed asserting that <string:foo> is not equal to <string:foo>.
+/home/sb/ConstraintTest.php:12
+
+FAILURES!
+Tests: 1, Failures: 1.]]></screen>
+    </example>
+
+    <para>
+      <xref linkend="api.assert.tables.constraints" /> に、
+      使用できる <literal>PHPUnit_Framework_Constraint</literal>
+      の実装をまとめます。
+    </para>
+
+    <table id="api.assert.tables.constraints">
+      <title>制約</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>制約</entry>
+            <entry>意味</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>PHPUnit_Framework_Constraint_IsAnything anything()</literal></entry>
+            <entry>あらゆる入力値を受け入れる制約。</entry>
+          </row>
+          <row>
+            <entry><literal>PHPUnit_Framework_Constraint_ArrayHasKey arrayHasKey(mixed $key)</literal></entry>
+            <entry>配列が指定したキーを保持していることを保証する制約。</entry>
+          </row>
+          <row>
+            <entry><literal>PHPUnit_Framework_Constraint_TraversableContains contains(mixed $value)</literal></entry>
+            <entry><literal>Iterator</literal> インターフェイスを実装している <literal>array</literal> やオブジェクトが、指定した値を保持していることを保証する制約。</entry>
+          </row>
+          <row>
+            <entry><literal>PHPUnit_Framework_Constraint_IsEqual equalTo($value, $delta = 0, $maxDepth = 10)</literal></entry>
+            <entry>ある値が別の値と等しいかどうかを調べる制約。</entry>
+          </row>
+          <row>
+            <entry><literal>PHPUnit_Framework_Constraint_FileExists fileExists()</literal></entry>
+            <entry>指定した名前のファイルが存在するかどうかを調べる制約。</entry>
+          </row>
+          <row>
+            <entry><literal>PHPUnit_Framework_Constraint_GreaterThan greaterThan(mixed $value)</literal></entry>
+            <entry>評価される値が、指定した値より大きいことを保証する制約。</entry>
+          </row>
+          <row>
+            <entry><literal>PHPUnit_Framework_Constraint_ObjectHasAttribute hasAttribute(string $attributeName)</literal></entry>
+            <entry>評価されるオブジェクトが、指定した属性を保持していることを保証する制約。</entry>
+          </row>
+          <row>
+            <entry><literal>PHPUnit_Framework_Constraint_IsIdentical identicalTo(mixed $value)</literal></entry>
+            <entry>ある値が別の値と同一であることを保証する制約。</entry>
+          </row>
+          <row>
+            <entry><literal>PHPUnit_Framework_Constraint_IsInstanceOf isInstanceOf(string $className)</literal></entry>
+            <entry>評価されるオブジェクトが、指定したクラスのインスタンスであることを保証する制約。</entry>
+          </row>
+          <row>
+            <entry><literal>PHPUnit_Framework_Constraint_IsType isType(string $type)</literal></entry>
+            <entry>評価される値が、指定した型であることを保証する制約。</entry>
+          </row>
+          <row>
+            <entry><literal>PHPUnit_Framework_Constraint_LessThan lessThan(mixed $value)</literal></entry>
+            <entry>評価される値が、指定した値より小さいことを保証する制約。</entry>
+          </row>
+          <row>
+            <entry><literal>logicalAnd()</literal></entry>
+            <entry>論理積 (AND)。</entry>
+          </row>
+          <row>
+            <entry><literal>logicalNot(PHPUnit_Framework_Constraint $constraint)</literal></entry>
+            <entry>論理否定 (NOT)。</entry>
+          </row>
+          <row>
+            <entry><literal>logicalOr()</literal></entry>
+            <entry>論理和 (OR)。</entry>
+          </row>
+          <row>
+            <entry><literal>logicalXor()</literal></entry>
+            <entry>排他的論理和 (XOR)。</entry>
+          </row>
+          <row>
+            <entry><literal>PHPUnit_Framework_Constraint_PCREMatch matchesRegularExpression(string $pattern)</literal></entry>
+            <entry>評価される文字列が、正規表現にマッチすることを保証する制約。</entry>
+          </row>
+          <row>
+            <entry><literal>PHPUnit_Framework_Constraint_StringContains stringContains(string $string, bool $case)</literal></entry>
+            <entry>評価される文字列が、指定した文字列を含むことを保証する制約。</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <para>
+      これら以外に、プロジェクトで使用している
+      オブジェクト固有のアサーションが必要になることもあるでしょう。独自の
+      <literal>Assert</literal> クラスを作成し、
+      そこに独自のアサーションを含めてテストに使用することができます。
+    </para>
+
+    <para>
+      アサーションに失敗すると、ボトルネックメソッド
+      <literal>fail(string $message)</literal> がコールされ、これは
+      <literal>PHPUnit_Framework_AssertionFailedError</literal> をスローします。
+      このメソッドにもパラメータなしのものがあります。テストでエラーが発生した際に、
+      <literal>fail()</literal> を明示的にコールします。
+      例外が発生することが期待されるテストなどがその例になります。
+      <xref linkend="api.assert.tables.bottleneck-methods" />
+      に、PHPUnit のボトルネックメソッドをまとめます。
+    </para>
+
+    <table id="api.assert.tables.bottleneck-methods">
+      <title>ボトルネックメソッド</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>メソッド</entry>
+            <entry>意味</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>void fail()</literal></entry>
+            <entry>エラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void fail(string $message)</literal></entry>
+            <entry>エラー <literal>$message</literal> を報告します。</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <para>
+      <indexterm><primary>Incomplete Test</primary></indexterm>
+      <indexterm><primary>Skipped Test</primary></indexterm>
+
+      <literal>markTestIncomplete()</literal> および <literal>markTestSkipped()</literal>
+      は、テストに対して「未完了」あるいは「省略」の印をつけるために便利なメソッドです。
+    </para>
+
+    <table id="api.assert.tables.incomplete-skipped">
+      <title>テストに対して「未完了」あるいは「省略」の印をつける</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>メソッド</entry>
+            <entry>意味</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>void markTestIncomplete(string $message)</literal></entry>
+            <entry>現在のテストに「未完了」の印をつけます。<literal>$message</literal> はオプションです。</entry>
+          </row>
+          <row>
+            <entry><literal>void markTestSkipped(string $message)</literal></entry>
+            <entry>現在のテストに「省略」の印をつけます。<literal>$message</literal> はオプションです。</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <para>
+      単体テストとは、もともとクラスの公開インターフェイスをテストするものです。
+      しかし、時には非公開の属性の内容をテストしたいこともあるでしょう。
+      <literal>getAttribute()</literal> メソッドを使用すると、
+      指定したオブジェクトの属性の値を取得することができます。
+    </para>
+
+    <table id="api.assert.tables.getAttribute">
+      <title>非公開属性へのアクセス</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>メソッド</entry>
+            <entry>意味</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>Mixed getAttribute($object, $attributeName)</literal></entry>
+            <entry>オブジェクトの指定した属性 (<literal>$attributeName</literal>) の値を返します。<literal>protected</literal> あるいは <literal>private</literal> である属性についても動作します。</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+  </section>
+
+  <section id="api.test">
+    <title>PHPUnit_Framework_Test</title>
+    <indexterm><primary>PHPUnit_Framework_Test</primary></indexterm>
+
+    <para>
+      <literal>PHPUnit_Framework_Test</literal> は、
+      テストとして働くすべてのオブジェクトが使用する、
+      一般的なインターフェイスです。これを実装したオブジェクトは、
+      ひとつあるいは複数のテストを表すことになります。
+      <xref linkend="api.test.tables.implementor-methods" />
+      に示す 2 つのメソッドが定義されています。
+    </para>
+
+    <table id="api.test.tables.implementor-methods">
+      <title>実装することになるメソッド</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>メソッド</entry>
+            <entry>意味</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>int count()</literal></entry>
+            <entry>テストの数を返します。</entry>
+          </row>
+          <row>
+            <entry><literal>void run(PHPUnit_Framework_TestResult $result)</literal></entry>
+            <entry>テストを実行し、結果を <literal>$result</literal> で報告します。</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <para>
+      <literal>PHPUnit_Framework_Test</literal> の実装クラスとして有名なのは、
+      <literal>PHPUnit_Framework_TestCase</literal> および
+      <literal>PHPUnit_Framework_TestSuite</literal> の 2 つです。
+      <literal>PHPUnit_Framework_Test</literal> を実装したクラスを独自に作成することも可能です。
+      このインターフェイスはあえて小規模に設計されているので、実装するのは簡単でしょう。
+    </para>
+  </section>
+
+  <section id="api.testcase">
+    <title>PHPUnit_Framework_TestCase</title>
+    <indexterm><primary>PHPUnit_Framework_TestCase</primary></indexterm>
+
+    <para>
+      テストケースクラスは <literal>PHPUnit_Framework_TestCase</literal>
+      クラスを継承して作成します。たいていの場合は、
+      テストスイートから自動的にテストを実行させることになるでしょう。
+      この場合、(規約により) 各テストは <literal>test*</literal>
+      という名前のメソッドにしておかなければなりません。
+    </para>
+
+    <para>
+      <literal>PHPUnit_Framework_TestCase</literal> は
+      <literal>PHPUnit_Framework_Test::countTestCases()</literal> を実装しており、
+      これは常に <literal>1</literal> を返します。このクラスで実装されている
+      <literal>PHPUnit_Framework_Test::run(PHPUnit_Framework_TestResult $result)</literal>
+      は、まず <literal>setUp()</literal> を実行し、テストメソッドを実行し、
+      それから <literal>tearDown()</literal> を実行し、その結果を
+      <literal>PHPUnit_Framework_TestResult</literal> に報告します。
+    </para>
+
+    <para>
+      <literal>PHPUnit_Framework_TestCase</literal> によって実装されているメソッドを
+      <xref linkend="api.testcase.tables.api" /> にまとめます。
+    </para>
+
+    <table id="api.testcase.tables.api">
+      <title>TestCase</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>メソッド</entry>
+            <entry>意味</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>__construct()</literal></entry>
+            <entry>テストケースを作成します。</entry>
+          </row>
+          <row>
+            <entry><literal>__construct(string $name)</literal></entry>
+            <entry>指定した名前のテストケースを作成します。この名前はテストケースを表示する際に使用されます。また、リフレクションで取得するテストメソッドの名前としても使用されます。</entry>
+          </row>
+          <row>
+            <entry><literal>string getName()</literal></entry>
+            <entry>テストケースの名前を返します。</entry>
+          </row>
+          <row>
+            <entry><literal>void setName($name)</literal></entry>
+            <entry>テストケースの名前を設定します。</entry>
+          </row>
+          <row>
+            <entry><literal>PHPUnit_Framework_TestResult run(PHPUnit_Framework_TestResult $result)</literal></entry>
+            <entry>テストケースを実行し、結果を <literal>$result</literal> に格納するための便利なメソッドです。</entry>
+          </row>
+          <row>
+            <entry><literal>void runTest()</literal></entry>
+            <entry>リフレクションによってテストメソッドを実行されたくない場合に、テストメソッドをオーバーライドします。</entry>
+          </row>
+          <row>
+            <entry><literal>object getMock($className, [array $methods, [array $arguments, [string $mockClassName]]])</literal></entry>
+            <entry>
+             指定した <literal>$className</literal> 用のモックオブジェクト
+             (<xref linkend="mock-objects" /> を参照ください) を返します。
+             デフォルトでは、していしたクラスの全メソッドのモックが作成されます。
+             二番目の (オプションの) パラメータを指定すると、
+             その配列の要素と一致する名前のメソッドについてのみモックが作成されます。
+             三番目の (オプションの) パラメータには、
+             モックオブジェクトのコンストラクタに渡すパラメータを配列で指定します。
+             四番目の (オプションの) パラメータを使用すると、
+             モックオブジェクトのクラス名を指定することができます。
+            </entry>
+          </row>
+          <row>
+            <entry><literal>void iniSet(string $varName, mixed $newValue)</literal></entry>
+            <entry>
+             このメソッドは <ulink url="http://www.php.net/ini_set"><literal>ini_set()</literal></ulink>
+             関数のラッパーです。テストが終了すると、<filename>php.ini</filename>
+             の設定を自動的にもとの値に戻します。
+            </entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <para>
+      このクラスには 2 つのテンプレートメソッド <literal>setUp()</literal>
+      および <literal>tearDown()</literal> が存在します。これをオーバーライドすると、
+      実行しようとしているテストに関する前処理や後始末を行うことができます。
+      <xref linkend="api.testcase.tables.template-methods" />
+      にこれらのメソッドをまとめます。
+    </para>
+
+    <table id="api.testcase.tables.template-methods">
+      <title>テンプレートメソッド</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>メソッド</entry>
+            <entry>意味</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>void setUp()</literal></entry>
+            <entry>これをオーバーライドして、実行するテストに関連するオブジェクトの作成を行います。テストケース内で各テストが実行されるたびに、<literal>setUp()</literal> が毎回コールされます。</entry>
+          </row>
+          <row>
+            <entry><literal>void tearDown()</literal></entry>
+            <entry>これをオーバーライドして、実行するテストに関連する、もう必要なくなったオブジェクトの後始末を行います。テストケース内で各テストが実行されるたびに、<literal>setUp()</literal> が毎回コールされます。一般に、<literal>tearDown()</literal> で明示的に後始末する必要があるのは外部リソース (例えばファイルやソケットなど) だけです。</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+  </section>
+
+  <section id="api.testsuite">
+    <title>PHPUnit_Framework_TestSuite</title>
+    <indexterm><primary>PHPUnit_Framework_TestSuite</primary></indexterm>
+
+    <para>
+      <literal>PHPUnit_Framework_TestSuite</literal> は複数の
+      <literal>PHPUnit_Framework_Test</literal> を組み合わせたものです。
+      簡単に言うと、このクラスには複数のテストケースが含まれており、
+      テストスイートを実行するとそれらの全てのテストが実行されます。
+      テストスイートは composite なので、テストスイートの中に別のテストスイートを含め、
+      さらにそのテストスイートの中には別のテストスイートが含まれており……
+      といったことも可能です。これにより、
+      いろいろなところから集めたテストをひとまとめにすることが簡単になります。
+    </para>
+
+    <para>
+      <literal>run(PHPUnit_Framework_TestResult $result)</literal> および
+      <literal>countTestCases()</literal> の 2 つに加え、
+      <literal>PHPUnit_Framework_TestSuite</literal> は名前つきインスタンス、
+      名前なしインスタンスを作成するためのメソッドも用意しています。
+      <literal>PHPUnit_Framework_TestSuite</literal>
+      のインスタンスを作成するためのメソッドを
+      <xref linkend="api.testsuite.tables.creating-instances" />
+      に示します。
+    </para>
+
+    <table id="api.testsuite.tables.creating-instances">
+      <title>名前つき、あるいは名前なしインスタンスの作成</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>メソッド</entry>
+            <entry>意味</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>__construct()</literal></entry>
+            <entry>空のテストスイートを返します。</entry>
+          </row>
+          <row>
+            <entry><literal>__construct(string $theClass)</literal></entry>
+            <entry><literal>test*</literal> という名前のメソッドを持つ、<literal>$theClass</literal> という名前のクラスのインスタンスを含むテストスイートを返します。<literal>$theClass</literal> という名前のクラスが存在しない場合は、<literal>$theClass</literal> という名前の空のテストスイートが返されます。</entry>
+          </row>
+          <row>
+            <entry><literal>__construct(string $theClass, string $name)</literal></entry>
+            <entry><literal>test*</literal> という名前のメソッドを持つ <literal>$theClass</literal> という名前のクラスのインスタンスを含む、<literal>$name</literal> という名前のテストスイートを返します。</entry>
+          </row>
+          <row>
+            <entry><literal>__construct(ReflectionClass $theClass)</literal></entry>
+            <entry><literal>test*</literal> という名前のメソッドを持つ、<literal>$theClass</literal> が指すクラスのインスタンスを含むテストスイートを返します。</entry>
+          </row>
+          <row>
+            <entry><literal>__construct(ReflectionClass $theClass, $name)</literal></entry>
+            <entry><literal>test*</literal> という名前のメソッドを持つ <literal>$theClass</literal> が指すクラスのインスタンスを含む、<literal>$name</literal> という名前のテストスイートを返します。</entry>
+          </row>
+          <row>
+            <entry><literal>string getName()</literal></entry>
+            <entry>テストスイートの名前を返します。</entry>
+          </row>
+          <row>
+            <entry><literal>void setName(string $name)</literal></entry>
+            <entry>テストスイートの名前を設定します。</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <para>
+      <literal>PHPUnit_Framework_TestSuite</literal> には、
+      <literal>PHPUnit_Framework_Test</literal> 
+      を追加したり取得したりするためのメソッドも用意されています。これを
+      <xref linkend="api.testsuite.tables.api" />
+      にまとめます。
+    </para>
+
+    <table id="api.testsuite.tables.api">
+      <title>テストの追加、取得</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>メソッド</entry>
+            <entry>意味</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>void addTestSuite(PHPUnit_Framework_TestSuite $suite)</literal></entry>
+            <entry>別のテストスイートを、このテストスイートに追加します。</entry>
+          </row>
+          <row>
+            <entry><literal>void addTestSuite(string $theClass)</literal></entry>
+            <entry><literal>test*</literal> という名前のテストメソッドを持つ <literal>$theClass</literal> という名前のクラスのインスタンスを含むテストスイートを、このテストスイートに追加します。</entry>
+          </row>
+          <row>
+            <entry><literal>void addTestSuite(ReflectionClass $theClass)</literal></entry>
+            <entry><literal>test*</literal> という名前のテストメソッドを持つ <literal>$theClass</literal> で表されるクラスのインスタンスを含むテストスイートを、このテストスイートに追加します。</entry>
+          </row>
+          <row>
+            <entry><literal>void addTest(PHPUnit_Framework_Test $test)</literal></entry>
+            <entry>テストスイートに <literal>$test</literal> を追加します。</entry>
+          </row>
+          <row>
+            <entry><literal>void addTestFile(string $filename)</literal></entry>
+            <entry>指定したソースファイルで定義されているクラスをテストスイートに追加します。</entry>
+          </row>
+          <row>
+            <entry><literal>void addTestFiles(array $filenames)</literal></entry>
+            <entry>指定したソースファイルで定義されているクラスをテストスイートに追加します。</entry>
+          </row>
+          <row>
+            <entry><literal>int testCount()</literal></entry>
+            <entry>このテストスイートに直接登録されているテストの数を返します (再帰的には検索しません)。</entry>
+          </row>
+          <row>
+            <entry><literal>PHPUnit_Framework_Test[] tests()</literal></entry>
+            <entry>このテストスイートに直接登録されているテストを返します。</entry>
+          </row>
+          <row>
+            <entry><literal>PHPUnit_Framework_Test testAt(int $index)</literal></entry>
+            <entry><literal>$index</literal> 番目のテストを返します。</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <para>
+      <xref linkend="api.testsuite.examples.TestSuite-example.php" />
+      に、テストスイートを作成して実行する方法を示します。
+    </para>
+
+    <example id="api.testsuite.examples.TestSuite-example.php">
+      <title>テストスイートの作成および実行</title>
+      <programlisting><![CDATA[<?php
+require_once 'PHPUnit/Framework.php';
+
+require_once 'ArrayTest.php';
+
+// ArrayTest クラスのテストを含む
+// テストスイートを作成します。
+$suite = new PHPUnit_Framework_TestSuite('ArrayTest');
+
+// テストを実行します。
+$suite->run();
+?>]]></programlisting>
+    </example>
+
+    <para>
+      <xref linkend="organizing-test-suites" /> では、
+      <literal>PHPUnit_Framework_TestSuite</literal> クラスを使用して
+      階層化されたテストケースを組み合わせる例を示します。
+    </para>
+  </section>
+
+  <section id="api.testresult">
+    <title>PHPUnit_Framework_TestResult</title>
+    <indexterm><primary>PHPUnit_Framework_TestResult</primary></indexterm>
+
+    <para>
+      これらのテストを実行している間は、実行したテストの数・失敗したテスト・
+      テストの所要時間などをどこかに保存しておかなければなりません。
+      これらの結果を収集するのが <literal>PHPUnit_Framework_TestResult</literal>
+      です。ひとつの <literal>PHPUnit_Framework_TestResult</literal> が、
+      テスト全体で使いまわされます。テストの実行結果や失敗の内容は
+      <literal>PHPUnit_Framework_TestResult</literal> に記録されていき、
+      実行が終了すると、<literal>PHPUnit_Framework_TestResult</literal>
+      には全てのテストの概要が含まれるようになります。
+    </para>
+
+    <para>
+      <literal>PHPUnit_Framework_TestResult</literal> は、
+      テストの進行状況を知りたい他のオブジェクトから参照されることもあります。
+      例えば、グラフィカルなテストランナーは <literal>PHPUnit_Framework_TestResult</literal>
+      を監視し、各テストの開始時にプログレスバーを更新するでしょう。
+    </para>
+
+    <para>
+      <xref linkend="api.testresult.tables.api" /> は、
+      <literal>PHPUnit_Framework_TestResult</literal>
+      の API をまとめたものです。
+    </para>
+
+    <table id="api.testresult.tables.api">
+      <title>TestResult</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>メソッド</entry>
+            <entry>意味</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>void addError(PHPUnit_Framework_Test $test, Exception $e)</literal></entry>
+            <entry>実行中の <literal>$test</literal> から予期せぬ <literal>$e</literal> がスローされたことを記録します。</entry>
+          </row>
+          <row>
+            <entry><literal>void addFailure(PHPUnit_Framework_Test $test, PHPUnit_Framework_AssertionFailedError $e)</literal></entry>
+            <entry>実行中の <literal>$test</literal> から予期せぬ <literal>$e</literal> がスローされたことを記録します。</entry>
+          </row>
+          <row>
+            <entry><literal>PHPUnit_Framework_TestFailure[] errors()</literal></entry>
+            <entry>記録されたエラーを返します。</entry>
+          </row>
+          <row>
+            <entry><literal>PHPUnit_Framework_TestFailure[] failures()</literal></entry>
+            <entry>記録された失敗を返します。</entry>
+          </row>
+          <row>
+            <entry><literal>PHPUnit_Framework_TestFailure[] notImplemented()</literal></entry>
+            <entry>記録された未完了テストを返します。</entry>
+          </row>
+          <row>
+            <entry><literal>int errorCount()</literal></entry>
+            <entry>記録されたエラーの数を返します。</entry>
+          </row>
+          <row>
+            <entry><literal>int failureCount()</literal></entry>
+            <entry>記録された失敗の数を返します。</entry>
+          </row>
+          <row>
+            <entry><literal>int notImplementedCount()</literal></entry>
+            <entry>未完了のテストケースの数を返します。</entry>
+          </row>
+          <row>
+            <entry><literal>int count()</literal></entry>
+            <entry>実行したテストケースの総数を返します。</entry>
+          </row>
+          <row>
+            <entry><literal>boolean wasSuccessful()</literal></entry>
+            <entry>すべてのテストの実行に成功したかどうかを返します。</entry>
+          </row>
+          <row>
+            <entry><literal>boolean allCompletlyImplemented()</literal></entry>
+            <entry>すべてのテストが完全に実装されているかどうかを返します。</entry>
+          </row>
+          <row>
+            <entry><literal>void collectCodeCoverageInformation(bool $flag)</literal></entry>
+            <entry>コードカバレッジ情報の収集を有効あるいは無効にします。</entry>
+          </row>
+          <row>
+            <entry><literal>array getCodeCoverageInformation()</literal></entry>
+            <entry>収集したコードカバレッジ情報を返します。</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <para>
+      <indexterm><primary>Observer Pattern (オブザーバパターン)</primary></indexterm>
+      <indexterm><primary>PHPUnit_Framework_TestListener</primary></indexterm>
+
+      <literal>PHPUnit_Framework_TestResult</literal>
+      のオブザーバを登録したい場合は、<literal>PHPUnit_Framework_TestListener</literal>
+      を実装する必要があります。これを登録するには、
+      <xref linkend="api.testresult.tables.testresult-testlistener" />
+      に示した <literal>addListener()</literal> を使用します。
+    </para>
+
+    <table id="api.testresult.tables.testresult-testlistener">
+      <title>TestResult および TestListener</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>メソッド</entry>
+            <entry>意味</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>void addListener(PHPUnit_Framework_TestListener $listener)</literal></entry>
+            <entry><literal>$listener</literal> を登録し、テスト結果の内容が更新された場合にその内容を受け取るようにします。</entry>
+          </row>
+          <row>
+            <entry><literal>void removeListener(PHPUnit_Framework_TestListener $listener)</literal></entry>
+            <entry>更新を受け取る <literal>$listener</literal> の登録を解除します。</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <para>
+      <xref linkend="api.testresult.tables.testlistener" />
+      に、テストリスナーが実装するメソッドを示します。
+      <xref linkend="extending-phpunit.examples.SimpleTestListener.php" />
+      も参照ください。
+    </para>
+
+    <table id="api.testresult.tables.testlistener">
+      <title>TestListener のコールバック</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>メソッド</entry>
+            <entry>意味</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>void addError(PHPUnit_Framework_Test $test, Exception $e)</literal></entry>
+            <entry><literal>$test</literal> が <literal>$e</literal> をスローしました。</entry>
+          </row>
+          <row>
+            <entry><literal>void addFailure(PHPUnit_Framework_Test $test, PHPUnit_Framework_AssertionFailedError $e)</literal></entry>
+            <entry><literal>$test</literal> がアサーションに失敗し、<literal>PHPUnit_Framework_AssertionFailedError</literal> 系がスローされました。</entry>
+          </row>
+          <row>
+            <entry><literal>void addIncompleteTest(PHPUnit_Framework_Test $test, Exception $e)</literal></entry>
+            <entry><literal>$test</literal> は完了しませんでした。</entry>
+          </row>
+          <row>
+            <entry><literal>void addSkippedTest(PHPUnit_Framework_Test $test, Exception $e)</literal></entry>
+            <entry><literal>$test</literal> は実行されませんでした。</entry>
+          </row>
+          <row>
+            <entry><literal>void startTestSuite(PHPUnit_Framework_TestSuite $suite)</literal></entry>
+            <entry><literal>$suite</literal> の実行が始まります。</entry>
+          </row>
+          <row>
+            <entry><literal>void endTestSuite(PHPUnit_Framework_TestSuite $suite)</literal></entry>
+            <entry><literal>$suite</literal> の実行が終了しました。</entry>
+          </row>
+          <row>
+            <entry><literal>void startTest(PHPUnit_Framework_Test $test)</literal></entry>
+            <entry><literal>$test</literal> の実行が始まります。</entry>
+          </row>
+          <row>
+            <entry><literal>void endTest(PHPUnit_Framework_Test $test)</literal></entry>
+            <entry><literal>$test</literal> の実行が終了しました。</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+  </section>
+
+  <section id="api.package-structure">
+    <title>パッケージの構成</title>
+
+    <para>
+      この本で取り上げたクラスの多くは <literal>PHPUnit/Framework</literal>
+      にあるものです。ここには PHPUnit のすべてのパッケージが含まれています。
+    </para>
+
+    <itemizedlist>
+      <listitem>
+        <para><literal>PHPUnit/Framework</literal></para>
+
+        <para>
+          PHPUnit の基本クラス。
+        </para>
+      </listitem>
+
+      <listitem>
+        <para><literal>PHPUnit/Extensions</literal></para>
+
+        <para>
+          PHPUnit フレームワークの拡張。
+        </para>
+      </listitem>
+
+      <listitem>
+        <para><literal>PHPUnit/Runner</literal></para>
+
+        <para>
+          テストの実行を抽象化したクラス。
+        </para>
+      </listitem>
+
+      <listitem>
+        <para><literal>PHPUnit/TextUI</literal></para>
+
+        <para>
+          テキストベースのテストランナー。
+        </para>
+      </listitem>
+
+      <listitem>
+        <para><literal>PHPUnit/Util</literal></para>
+
+        <para>
+          他のパッケージから使用するユーティリティクラス群。
+        </para>
+      </listitem>
+    </itemizedlist>
+  </section>
+</chapter>

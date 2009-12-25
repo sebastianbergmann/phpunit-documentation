@@ -1,0 +1,107 @@
+#!/usr/bin/perl -w
+# $Id: xtrans,v 1.3 2002/11/01 19:58:11 eray Exp $
+
+
+use strict;
+use XML::LibXML;
+use XML::LibXSLT;
+
+
+# process command line options and arguments, run main loop
+#
+use Getopt::Std;
+my %opts;
+getopts('o:s:', \%opts);
+&die_usage() unless( @ARGV );
+my $parser = new XML::LibXML;
+my $trans_maker = new XML::LibXSLT;
+foreach my $file ( @ARGV ) {
+    process_file( $file );
+}
+
+
+# for each file, get script and run transformation
+#
+sub process_file {
+    my $file = shift;
+
+    if( -r $file ) {
+	print "Processing '$file'...\n";
+	my $script = get_script( $file );
+
+	if( -r $script ) {
+	    my $resultfile = "$file.out";
+	    $resultfile = $opts{'o'} if( exists( $opts{o} ));
+
+	    if( open( OUT, ">$resultfile" )) {
+		my $transdoc = $parser->parse_file( $script );
+		my $transformer = $trans_maker->parse_stylesheet( $transdoc );
+		my $sourcedoc = $parser->parse_file( $file );
+		my $resultdoc = $transformer->transform( $sourcedoc );
+		print OUT $resultdoc->toString;
+
+	    } else {
+		print STDERR 
+		    "WARNING: Can't write '$resultfile'; skipping...\n";
+	    }
+
+	} else {
+	    if( $script ) {
+		print STDERR "WARNING: Can't read '$script'; skipping...\n";
+	    } else {
+		print STDERR 
+		    "WARNING: XSLT script not specified; skipping...\n";
+	    }
+	}
+
+    } else {
+	print STDERR "WARNING: Can't read '$file'; skipping...\n";
+    }
+}
+
+
+# get the XSLT script filename, either from command line or from
+# a processing instruction in the document
+#
+sub get_script {
+    my $file = shift;
+
+    # specified on command line
+    if( exists( $opts{s} )) {
+	return $opts{s};
+
+    # specified in document, maybe
+    } elsif( open( F, $file )) {
+	my $line;
+	while( $line = <F> ) {
+	    if( $line =~ /<\?xml-stylesheet/ ) {
+		while( $line !~ /href\s*=\s*\"[^\"]+\"/     # href attribute
+		       && $line !~ /\?>/                    # end of PI
+		       && ($line = <F>)) {
+		}
+		if( $line =~ /href\s*=\s*\"([^\"]+)\"/ ) {
+		    return $1;
+		}
+	    }
+	}
+	close F;
+    }
+    return '';   # couldn't find it
+}
+
+
+sub die_usage {
+    my $name = $0;
+    $name = $1 if( $name =~ /([^\/]+)$/ );
+    print <<END;
+
+Usage: $name [options] <xml-files>
+
+Options:
+           -o <output-file>    specify name of output file
+           -s <script>         specify an XSLT script
+
+END
+    exit(1);
+}
+

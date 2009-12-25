@@ -1,0 +1,446 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+
+<chapter id="phing">
+  <title>PHPUnit und Phing</title>
+
+  <para>
+    <indexterm><primary>Phing</primary></indexterm>
+
+    <ulink url="http://www.phing.info/">Phing (PHing Is Not GNU make)</ulink>
+    ist eine Portierung von <ulink url="http://ant.apache.org/">Apache Ant</ulink>,
+    dem automatischen Build-Werkzeug der Java-Welt. Im Kontext von PHP, wo
+    Sie Ihr Projekt nicht bauen und ihre Quelltexte nicht kompilieren müssen,
+    ist die Intention von Phing eine andere als die des Vorbilds. Mit Phing
+    können Sie Arbeiten wie Packaging, Deployment und Testen Ihrer Anwendung
+    automatisieren und vereinfachen. Hierfür stellt Phing eine Reihe von
+    Modulen, so genannte <emphasis>Tasks</emphasis>, zur Verfügung.
+  </para>
+
+  <para>
+    Phing wird mit dem PEAR Installer installiert, wie in dieser
+    Befehlszeile zu sehen:
+  </para>
+
+  <screen><userinput>pear channel-discover pear.phing.info
+pear install phing/phing</userinput></screen>
+
+  <para>
+    Phing benutzt einfache XML-Dateien, die einen Baum so genannter
+    <emphasis>Targets</emphasis> definieren, die ihrerseits verschiedene
+    Tasks ausführen. Einer der von Phing zur Verfügung gestellten Tasks ist
+    der <literal><![CDATA[<phpunit2>]]></literal>-Task. Dieser stellt eine
+    Portierung des JUnit-Tasks von Apache Ant dar.
+  </para>
+
+  <para>
+    <xref linkend="phing.examples.build.xml" /> zeigt eine
+    <filename>build.xml</filename>-Datei für Phing, die ein
+    <literal><![CDATA[<project>]]></literal> mit dem Namen "BankAccount"
+    spezifiziert. Das Standard-<literal><![CDATA[<target>]]></literal>
+    dieses Projekts ist "test". Dieses Target führt, unter Verwendung des
+    <literal><![CDATA[<phpunit2>]]></literal>-Tasks, alle Testfälle aus, die
+    in Quelltext-Dateien gefunden werden, auf die die <literal>*Test.php</literal>
+    Bedingung zutrifft. Hierzu wird ein <literal><![CDATA[<batchtest>]]></literal>-Element
+    verwendet, das die Dateien von einem oder mehreren <literal><![CDATA[<fileset>]]></literal>-Elementen
+    aufnimmt. In unserem Beispiel werden die Tests der Klasse
+    <literal>BankAccountTest</literal> aus <filename>BankAccountTest.php</filename>
+    ausgeführt.
+  </para>
+
+  <example id="phing.examples.build.xml">
+    <title>Phing build.xml Datei für die Tests der BankAccount-Klasse</title>
+    <programlisting><![CDATA[<?xml version="1.0"?>
+
+<project name="BankAccount" basedir="." default="test">
+  <target name="test">
+    <phpunit2 haltonfailure="true" printsummary="true">
+      <batchtest>
+        <fileset dir=".">
+          <include name="*Test.php"/>
+        </fileset>
+      </batchtest>
+    </phpunit2>
+  </target>
+</project>]]></programlisting>
+  </example>
+
+  <para>
+    Der Aufruf von Phing in dem Verzeichnis mit der
+    <filename>build.xml</filename>-Datei
+    (<xref linkend="phing.examples.build.xml" />) sowie den
+    Quelltext-Dateien <filename>BankAccount.php</filename>
+    (<xref linkend="test-first-programming.bankaccount-example.examples.BankAccount2.php" />)
+    und <filename>BankAccountTest.php</filename>
+    (<xref linkend="test-first-programming.bankaccount-example.examples.BankAccountTest.php" />)
+    wird die Tests ausführen:
+  </para>
+
+  <screen><userinput>phing</userinput>
+Buildfile: /home/sb/build.xml
+
+BankAccount > test:
+ [phpunit2] Tests run: 4, Failures: 0, Errors: 0, Time elapsed: 0.00067 sec
+
+BUILD FINISHED
+
+Total time: 0.0960 seconds</screen>
+
+  <para>
+    <xref linkend="phing.tables.phpunit2" /> zeigt die Parameter für den
+    <literal><![CDATA[<phpunit2>]]></literal>-Task.
+  </para>
+
+  <table id="phing.tables.phpunit2">
+    <title>Attribute für das <![CDATA[<phpunit2>]]>-Element</title>
+
+    <tgroup cols="4" align="left" colsep="1" rowsep="1">
+      <thead>
+        <row>
+          <entry>Name</entry>
+          <entry>Typ</entry>
+          <entry>Beschreibung</entry>
+          <entry>Standardwert</entry>
+        </row>
+      </thead>
+      <tbody>
+        <row>
+          <entry><literal>codecoverage</literal></entry>
+          <entry><literal>Boolean</literal></entry>
+          <entry>Sammelt Code-Coverage-Informationen.</entry>
+          <entry><literal>false</literal></entry>
+        </row>
+        <row>
+          <entry><literal>haltonerror</literal></entry>
+          <entry><literal>Boolean</literal></entry>
+          <entry>Hält den Phing-Prozess an, wenn bei der Ausführung der Tests ein Fehler auftritt.</entry>
+          <entry><literal>false</literal></entry>
+        </row>
+        <row>
+          <entry><literal>haltonfailure</literal></entry>
+          <entry><literal>Boolean</literal></entry>
+          <entry>Hält den Phing-Prozess an, wenn bei der Ausführung der Tests ein Versager auftritt. Fehler führen ebenfalls zum Abbruch.</entry>
+          <entry><literal>false</literal></entry>
+        </row>
+        <row>
+          <entry><literal>printsummary</literal></entry>
+          <entry><literal>Boolean</literal></entry>
+          <entry>Gibt einzeilige Statistiken für jeden Testfall aus.</entry>
+          <entry><literal>false</literal></entry>
+        </row>
+      </tbody>
+    </tgroup>
+  </table>
+
+  <para>
+    Das folgende Beispiel zeigt die Ausgabe des
+    <literal><![CDATA[<phpunit2>]]></literal>-Tasks für einen fehlschlagenden
+    Test:
+  </para>
+
+  <screen><userinput>phing</userinput>
+Buildfile: /home/sb/build.xml
+
+BankAccount > test:
+ [phpunit2] Tests run: 4, Failures: 1, Errors: 0, Time elapsed: 0.00067 sec
+Execution of target "test" failed for the following reason:
+/home/sb/build.xml:5:37: One or more tests failed
+
+BUILD FAILED
+/home/sb/build.xml:5:37: One or more tests failed
+Total time: 0.0968 seconds</screen>
+
+  <section id="phing.formatting-feedback">
+    <title>Die Rückmeldungen formatieren</title>
+
+    <para>
+      Neben dem notwendigen <literal><![CDATA[<batchtest>]]></literal>-Element
+      erlaubt das <literal><![CDATA[<phpunit2>]]></literal>-Element auch
+      <literal><![CDATA[<formatter>]]></literal> als Kindelement. Mit diesem
+      Element kann die Ausgabe der Testergebnisse in unterschiedlichen
+      Formaten gesteuert werden. Die Ausgabe erfolgt dabei grundsätzlich in
+      eine Datei, es sei denn, Sie setzen das Attribut <literal>usefile</literal>
+      auf <literal>false</literal>. Der Name der Ausgabedatei wird durch den
+      gewählten Formatierer bestimmt und kann durch das Attribut
+      <literal>outfile</literal> angepasst werden. Es gibt drei vorgefertigte
+      Formatierer:
+    </para>
+
+    <variablelist>
+      <varlistentry>
+        <term><literal>brief</literal></term>
+        <listitem>
+          <para>
+            Gibt detailierte Informationen nur für fehlgeschlagene Tests aus.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>plain</literal></term>
+        <listitem>
+          <para>
+            Gibt einzeilige Statistiken für jeden Testfall aus.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>xml</literal></term>
+        <listitem>
+          <para>
+            Gibt die Testergebnisse im XML-Format aus.
+          </para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+
+    <para>
+      <xref linkend="phing.formatting-feedback.tables.formatter" /> zeigt die
+      Parameter für den <literal><![CDATA[<formatter>]]></literal>-Task.
+    </para>
+
+    <table id="phing.formatting-feedback.tables.formatter">
+      <title>Attribute für das <![CDATA[<formatter>]]>-Element</title>
+
+      <tgroup cols="4" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+          <entry>Name</entry>
+          <entry>Typ</entry>
+          <entry>Beschreibung</entry>
+          <entry>Standardwert</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>type</literal></entry>
+            <entry><literal>String</literal></entry>
+            <entry>Wählt einen vorgefertigten Formatierer (xml, plain, oder brief).</entry>
+            <entry/>
+          </row>
+          <row>
+            <entry><literal>classname</literal></entry>
+            <entry><literal>String</literal></entry>
+            <entry>Name einer eigenen Formatierer-Klasse.</entry>
+            <entry/>
+          </row>
+          <row>
+            <entry><literal>usefile</literal></entry>
+            <entry><literal>Boolean</literal></entry>
+            <entry>Legt fest, ob die Ausgabe in eine Datei erfolgen soll.</entry>
+            <entry><literal>true</literal></entry>
+          </row>
+          <row>
+            <entry><literal>todir</literal></entry>
+            <entry><literal>String</literal></entry>
+            <entry>Verzeichnis, in das die Datei geschrieben werden soll.</entry>
+            <entry/>
+          </row>
+          <row>
+            <entry><literal>outfile</literal></entry>
+            <entry><literal>String</literal></entry>
+            <entry>Name der Ausgabedatei.</entry>
+            <entry><literal>Hängt vom gewählten Formatierer ab.</literal></entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <para>
+      <indexterm><primary>Test-Report</primary></indexterm>
+
+      Um einen Test-Report im HTML-Format zu erstellen, können Sie den
+      <literal><![CDATA[<phpunit2report>]]></literal>-Task verwenden. Dieser
+      wendet ein XSLT-Stylesheet auf die durch den
+      <literal><![CDATA[<formatter>]]></literal>-Task erzeugte XML-Datei an.
+      Phing wird mit zwei vorgefertigten XSLT-Stylesheets für die Erstellung
+      von HTML-Reports (mit oder ohne Frames) ausgeliefert,
+      <filename>phpunit2-frames.xsl</filename> und
+      <filename>phpunit2-noframes.xsl</filename>.
+    </para>
+
+    <para>
+      <xref linkend="phing.formatting-feedback.examples.build2.xml" /> zeigt
+      eine <filename>build.xml</filename>-Datei für Phing, die die Tests der
+      Klasse <literal>BankAccountTest</literal> ausführt und mit Hilfe des
+      XSLT-Stylesheets <filename>phpunit2-frames.xsl</filename> einen
+      Test-Report im HTML-Format erstellt. Die HTML-Dateien werden in das
+      Verzeichnis <filename>report/</filename> geschrieben, das durch das
+      prepare-<literal><![CDATA[<target>]]></literal> erzeugt wird und
+      über das clean-<literal><![CDATA[<target>]]></literal> wieder gelöscht
+      werden kann.
+    </para>
+
+    <example id="phing.formatting-feedback.examples.build2.xml">
+      <title>Erzeugen eines Test-Reports durch Anwenden eines XSLT-Stylesheets</title>
+      <programlisting><![CDATA[<?xml version="1.0"?>
+
+<project name="BankAccount" basedir="." default="report">
+  <target name="prepare">
+    <mkdir dir="report"/>
+  </target>
+
+  <target name="clean"> 
+    <delete dir="report"/>
+  </target>
+
+  <target name="report" depends="prepare">
+    <phpunit2>
+      <batchtest>
+        <fileset dir=".">
+          <include name="*Test.php"/>
+        </fileset>
+      </batchtest>
+
+      <formatter type="xml" todir="report" outfile="logfile.xml"/>
+    </phpunit2>
+
+    <phpunit2report infile="report/logfile.xml"
+                    styledir="/usr/lib/php/data/phing/etc"
+                    format="frames"
+                    todir="report"/>
+  </target>
+</project>]]></programlisting>
+    </example>
+
+    <para>
+      Das folgende Beispiel zeigt die Ausgabe des Befehls
+      <userinput>phing</userinput>:
+    </para>
+
+    <screen><userinput>phing</userinput>
+Buildfile: /home/sb/build.xml
+
+BankAccount > prepare:
+    [mkdir] Created dir: /home/sb/report
+
+BankAccount > report:
+
+BUILD FINISHED
+
+Total time: 0.1112 seconds</screen>
+
+    <para>
+      <xref linkend="phing.formatting-feedback.figures.Report.png" /> zeigt
+      die Startseite des erstellten Test-Reports.
+    </para>
+
+    <figure id="phing.formatting-feedback.figures.Report.png">
+      <title>Die Startseite des erstellten Test-Reports</title>
+
+      <graphic fileref="figures/Report.png" />
+    </figure>
+
+    <para>
+      <xref linkend="phing.formatting-feedback.tables.phpunit2report" /> zeigt
+      die Parameter des <literal><![CDATA[<phpunit2report>]]></literal>-Tasks.
+    </para>
+
+    <table id="phing.formatting-feedback.tables.phpunit2report">
+      <title>Attribute für das <![CDATA[<phpunit2report>]]>-Element</title>
+
+      <tgroup cols="4" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+          <entry>Name</entry>
+          <entry>Typ</entry>
+          <entry>Beschreibung</entry>
+          <entry>Standardwert</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>infile</literal></entry>
+            <entry><literal>String</literal></entry>
+            <entry>Pfad und Name der XML-Datei mit den Testergebnissen.</entry>
+            <entry><literal>testsuites.xml</literal></entry>
+          </row>
+          <row>
+            <entry><literal>format</literal></entry>
+            <entry><literal>String</literal></entry>
+            <entry>Format des zu erstellenden Reports, <literal>frames</literal> oder <literal>noframes</literal>.</entry>
+            <entry><literal>noframes</literal></entry>
+          </row>
+          <row>
+            <entry><literal>styledir</literal></entry>
+            <entry><literal>String</literal></entry>
+            <entry>Verzeichnis, in dem die XSLT-Stylesheets liegen. Der Stylesheet für das <literal>frames</literal>-Format muss <filename>phpunit2-frames.xsl</filename> heissen, der Stylesheet für das <literal>noframes</literal>-Format muss <filename>phpunit2-noframes.xsl</filename> heissen.</entry>
+            <entry/>
+          </row>
+          <row>
+            <entry><literal>todir</literal></entry>
+            <entry><literal>String</literal></entry>
+            <entry>Verzeichnis, in das die Dateien geschrieben werden sollen.</entry>
+            <entry/>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <para>
+      <indexterm><primary>Code-Coverage</primary></indexterm>
+
+      Analog kann Phing auch Coverage-Reports erstellen. Hierfür benutzen Sie
+      die <literal><![CDATA[<coverage-setup>]]></literal>- und
+      <literal><![CDATA[<coverage-report>]]></literal>-Tasks. Der erste
+      bereitet eine Datenbank mit den Code-Coverage-Informationen vor. Der
+      zweite nutzt diese Datenbank und erstellt, wiederum durch Anwendung von
+      XSLT-Stylesheets, einen Report im HTML-Format.
+    </para>
+
+    <para>
+      <xref linkend="phing.formatting-feedback.examples.build3.xml" /> zeigt
+      eine <filename>build.xml</filename>-Datei für Phing, die die Tests der
+      Klasse <literal>BankAccountTest</literal> ausführt und einen
+      Coverage-Report im HTML-Format erstellt.
+    </para>
+
+    <example id="phing.formatting-feedback.examples.build3.xml">
+      <title>Erzeugen eines Coverage-Reports durch Anwenden eines XSLT-Stylesheets</title>
+      <programlisting><![CDATA[<?xml version="1.0"?>
+
+<project name="BankAccount" basedir="." default="coverage-report">
+  <target name="prepare">
+    <mkdir dir="coverage-report"/>
+  </target>
+
+  <target name="clean"> 
+    <delete dir="coverage-report"/>
+  </target>
+
+  <target name="coverage-report" depends="prepare">
+    <coverage-setup database="./coverage-report/database">
+      <fileset dir=".">
+        <include name="*.php"/>
+        <exclude name="*Test.php"/>
+      </fileset>
+    </coverage-setup>
+
+    <phpunit2 codecoverage="true">
+      <batchtest>
+        <fileset dir=".">
+          <include name="*Test.php"/>
+        </fileset>
+      </batchtest>
+    </phpunit2>
+
+    <coverage-report outfile="coverage-report/coverage.xml">
+      <report styledir="/usr/lib/php/data/phing/etc"
+              todir="coverage-report"/>
+    </coverage-report>
+  </target>
+</project>]]></programlisting>
+    </example>
+
+    <para>
+      <xref linkend="phing.formatting-feedback.figures.CoverageReport.png" />
+      zeigt die Startseite des erstellten Coverage-Reports.
+    </para>
+
+    <figure id="phing.formatting-feedback.figures.CoverageReport.png">
+      <title>Die Startseite des erstellten Coverage-Reports</title>
+
+      <graphic fileref="figures/CoverageReport.png" />
+    </figure>
+  </section>
+</chapter>

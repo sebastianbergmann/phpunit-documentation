@@ -1,0 +1,94 @@
+#!/usr/bin/perl -w
+
+
+use strict;
+use XML::LibXML;
+
+
+my $dtd = '/usr/local/prod/sgml/dblite/dblite.dtd';
+
+
+# configure parser
+my $parser = new XML::LibXML;
+$parser->validation(1);
+$parser->load_ext_dtd(1);
+$parser->pedantic_parser(1);
+$parser->expand_entities(1);
+
+# loop over files
+foreach my $file ( @ARGV ) {
+    process_file( $file );
+}
+
+
+sub process_file {
+#
+# Run parser on the file.
+#
+    my $file = shift;
+    print "File: '$file'\n";
+    if( open( F, $file )) {
+	my $text = '';
+	while( <F> ) { $text .= $_; }
+	close F;
+	my $xdecl = '';
+	$xdecl = $1 if( $text =~ s/^\s*(<\?xml\s[^>]+>)// );
+	my $doc;
+	if( $text =~ /^\s*<!DOCTYPE/ ) {
+	    eval{ $doc = $parser->parse_file( $file ); };
+	} else {
+	    my $roottag = 'chapter';
+	    $roottag = $1 if( $text =~ /<([^!\s<>\?]+)/ );
+	    my $ddecl = doctype_decl( $roottag );
+	    $text = "$xdecl\n$ddecl\n$text";
+	    eval{ $doc = $parser->parse_string( $text ); };
+	}
+	my $errs = cleanup_errors( $@ );
+	if( $errs ) {
+	    print "There are parse errors:\n$errs\n";
+	} else {
+	    print "The document is valid.\n";
+	}
+    } else {
+	print STDERR "ERROR: Could not read '$file'.\n";
+    }
+}
+
+
+sub doctype_decl {
+#
+# generate a doctype declaration from book.xml file
+#
+    my $roottag = shift;
+
+    # get prolog out of the book file: copy everything up to,
+    # but not including, the <book> start tag.
+    my $decl = '';
+    if( open( BOOK, "book.xml" )) {
+	while( my $line = <BOOK> ) {
+	    next if( $line =~ /<\?/ );
+	    last if( $line =~ /<book/ );
+	    $decl .= $line unless( $line =~ /<book/ );
+	}
+	close BOOK;
+    } else {
+	$decl .= "<!DOCTYPE book SYSTEM \"$dtd\">\n\n";
+    }
+
+    $decl =~ s/\bbook\b/$roottag/;     # replace "book" with root element type
+    return $decl;
+}
+
+
+sub cleanup_errors {
+#
+# Clean up error message string and output it. Remove some erroneous errs.
+#
+    my $msg = shift;
+    $msg =~ s/\n[^\n]+LibXML.pm line [^\n]+//;
+    $msg =~ s/\n[^\n]+xval line [^\n]+//;
+    $msg = "\n$msg";
+    $msg =~ s/\n[^\n]+already defined in the external subset\n[^\n]+\n[^\n]+//g;
+    $msg =~ s/^\s+//;
+    return $msg;
+}

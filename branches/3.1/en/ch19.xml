@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+
+<chapter id="implementation">
+  <title>PHPUnit's Implementation</title>
+
+  <para>
+    The implementation of PHPUnit is a bit unusual, using techniques
+    that are difficult to maintain in ordinary application code.
+    Understanding how PHPUnit runs your tests can help you write
+    them.
+  </para>
+
+  <para>
+    <indexterm><primary>Collecting Parameter</primary></indexterm>
+    <indexterm><primary>PHPUnit_Framework_Test</primary></indexterm>
+    <indexterm><primary>PHPUnit_Framework_TestResult</primary></indexterm>
+
+    A single test is represented by a <literal>PHPUnit_Framework_Test</literal>
+    object and requires a <literal>PHPUnit_Framework_TestResult</literal>
+    object to be run. The <literal>PHPUnit_Framework_TestResult</literal>
+    object is passed to the <literal>PHPUnit_Framework_Test</literal>
+    object's <literal>run()</literal> method, which runs the actual test
+    method and reports any exceptions to the
+    <literal>PHPUnit_Framework_TestResult</literal> object. This is an
+    idiom from the Smalltalk world called <emphasis>Collecting Parameter</emphasis>.
+    It suggests that when you need to collect results over several methods
+    (in our case the result of the serveral invocations of the
+    <literal>run()</literal> method for the various tests), you should add a
+    parameter to the method and pass an object that will collect the results
+    for you. See the article "JUnit: A
+    Cook's Tour" by Erich Gamma and Kent Beck <xref linkend="GammaBeck1999" />
+    and "Smalltalk Best Practice Patterns" by Kent Beck <xref linkend="Beck1997" />.
+  </para>
+
+  <para>
+    To further understand how PHPUnit runs your tests, consider the test-case
+    class in <xref linkend="implementation.examples.EmptyTest.php" />.
+  </para>
+
+  <example id="implementation.examples.EmptyTest.php">
+    <title>The EmptyTest class</title>
+    <programlisting><![CDATA[<?php
+require_once 'PHPUnit/Framework.php';
+
+class EmptyTest extends PHPUnit_Framework_TestCase
+{
+    private $emptyArray = array();
+
+    public function testSize()
+    {
+        $this->assertEquals(0, sizeof($this->emptyArray));
+    }
+
+    public function testIsEmpty()
+    {
+        $this->assertTrue(empty($this->emptyArray));
+    }
+}
+?>]]></programlisting>
+  </example>
+
+  <para>
+    <indexterm><primary>PHPUnit_Framework_Test</primary></indexterm>
+    <indexterm><primary>PHPUnit_Framework_TestSuite</primary></indexterm>
+
+    When the test is run, the first thing PHPUnit does is convert the
+    test class into a <literal>PHPUnit_Framework_Test</literal> object --
+    here, a <literal>PHPUnit_Framework_TestSuite</literal> containing
+    two instances of <literal>EmptyTest</literal>, as shown in
+    <xref linkend="implementation.figures.EmptyTest-before.png" />.
+  </para>
+
+  <figure id="implementation.figures.EmptyTest-before.png">
+    <title>Tests about to be run</title>
+
+    <graphic fileref="figures/EmptyTest-before.png" />
+  </figure>
+
+  <para>
+    <indexterm><primary>Test Isolation</primary></indexterm>
+    <indexterm><primary>setUp()</primary></indexterm>
+
+    When the <literal>PHPUnit_Framework_TestSuite</literal> is run, it runs
+    each of the <literal>EmptyTest</literal>s in turn. Each runs its own
+    <literal>setUp()</literal> method, creating a fresh
+    <literal>$emptyArray</literal> for each test, as shown in
+    <xref linkend="implementation.figures.EmptyTest-after.png" />. This way,
+    if one test modifies the array, the other test will not be affected. Even
+    changes to global and super-global variables (such as
+    <literal>$GLOBALS</literal>) do not affect other tests.
+  </para>
+
+  <note>
+    <para>
+      <indexterm><primary>Test Isolation</primary></indexterm>
+      <indexterm><primary><literal>$GLOBALS</literal></primary></indexterm>
+
+      The implementation of the backup and restore operations for the
+      global and super-global variables uses <literal>serialize()</literal> and
+      <literal>unserialize()</literal>. Objects of some classes that are
+      provided by PHP itself, such as <literal>PDO</literal>, cannot be
+      serialized and the backup operation will break when such an object is
+      stored in the <literal>$GLOBALS</literal> array, for instance.
+    </para>
+
+    <para>
+      <indexterm><primary><literal>$backupGlobals</literal></primary></indexterm>
+
+      The backup and restore operations for the global and super-global variables
+      can be disabled like this <programlisting>class MyTest extends PHPUnit_Framework_TestCase
+{
+    protected $backupGlobals = FALSE;
+
+    // ...
+}</programlisting>
+
+      Please note that setting the <literal>$backupGlobals</literal> attribute
+      inside the <literal>setUp()</literal> method, for instance, has no effect.
+    </para>
+  </note>
+
+  <figure id="implementation.figures.EmptyTest-after.png">
+    <title>Tests after running, each with its own fixture</title>
+
+    <graphic fileref="figures/EmptyTest-after.png" />
+  </figure>
+
+  <para>
+    In short, one test-case class results in a two-level tree of objects
+    when the tests are run. Each test method works with its own copy of the
+    objects created by <literal>setUp()</literal>. The result is tests that
+    can run completely independently.
+  </para>
+
+  <para>
+    <indexterm><primary>Pluggable Selector</primary></indexterm>
+
+    To run the test method itself, PHPUnit uses reflection to find the
+    method name in the instance variable <literal>$name</literal> and invokes
+    it. This is another idiom, called <emphasis>Pluggable Selector</emphasis>,
+    that is commonly used in the Smalltalk world. Using a Pluggable Selector
+    makes the writing of tests simpler, but there is a tradeoff: you cannot
+    look at the code to decide whether a method is invoked, you have to look
+    at the data values at runtime.
+  </para>
+</chapter>

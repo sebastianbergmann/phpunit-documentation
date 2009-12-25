@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+
+<chapter id="code-coverage-analysis">
+  <title>Code-Coverage-Analyse</title>
+
+  <para>
+    Sie haben gelernt, wie Sie mit Unit-Tests Ihren Code testen können. Aber
+    wie testen Sie Ihre Tests? Wie finden Sie Codeabschnitte, für die Sie
+    noch keine Tests haben -- oder, anders ausgedrückt, die noch nicht durch
+    einen Test <emphasis>abgedeckt</emphasis> (englisch:
+    <emphasis>covered</emphasis>) sind? Wie messen Sie die Vollständigkeit
+    der Tests? All diese Fragen werden durch die Code-Coverage-Analyse
+    beantwortet. Diese gibt Ihnen Aufschluss darüber, welche Teile des
+    Produktionscodes ausgeführt werden, wenn die Tests laufen.
+  </para>
+
+  <para>
+    <indexterm><primary>Code-Coverage</primary></indexterm>
+
+    Die Code-Coverage-Analyse von PHPUnit stützt sich auf die
+    Statement-Coverage-Funktionalität der
+    <ulink url="http://www.xdebug.org/">Xdebug</ulink>-Erweiterung. Unter
+    Statement-Coverage verstehen wir, dass eine Methode, die 100 Code-Zeilen
+    umfasst, von denen nur 75 während der Ausführung der Tests ausgeführt
+    werden, eine Code-Coverage von 75 Prozent aufweist.
+  </para>
+
+  <para>
+    <xref linkend="code-coverage-analysis.figures.CodeCoverage.png" /> zeigt
+    einen Code-Coverage-Report im HTML-Format für die
+    <literal>BankAccount</literal>-Klasse aus
+    <xref linkend="test-first-programming.bankaccount-example.examples.BankAccount2.php" />,
+    der mit dem textbasierten Testrunner und der Kommandozeilenoption
+    <literal>--coverage-html</literal> erzeugt wurde. Ausführbare
+    Code-Zeilen sind schwarz, nicht ausführbare Code-Zeilen sind grau.
+    Tatsächlich ausgeführte Code-Zeilen sind hervorgehoben.
+  </para>
+
+  <figure id="code-coverage-analysis.figures.CodeCoverage.png">
+    <title>Die BankAccount-Klasse, nicht vollständig durch Tests abgedeckt</title>
+
+    <graphic fileref="figures/CodeCoverage.png" />
+  </figure>
+
+  <para>
+    Dem Code-Coverage-Report können wir entnehmen, dass wir Tests schreiben
+    müssen, die <literal>setBalance()</literal>, <literal>depositMoney()</literal>
+    und <literal>withdrawMoney()</literal> mit zulässigen Parametern aufrufen,
+    damit die <literal>BankAccount</literal>-Klasse vollständig durch Tests
+    abgedeckt ist.
+    <xref linkend="code-coverage-analysis.examples.BankAccountTest.php" />
+    zeigt die fehlenden Tests, die wir in <literal>BankAccountTest</literal>
+    hinzufügen müssen.
+  </para>
+
+  <example id="code-coverage-analysis.examples.BankAccountTest.php">
+    <title>Die BankAccount-Klasse, vollständig durch Tests abgedeckt</title>
+    <programlisting><![CDATA[<?php
+require_once 'PHPUnit2/Framework/TestCase.php';
+require_once 'BankAccount.php';
+
+class BankAccountTest extends PHPUnit2_Framework_TestCase {
+    // ...
+
+    public function testSetBalance() {
+        $this->ba->setBalance(1);
+        $this->assertEquals(1, $this->ba->getBalance());
+    }
+
+    public function testDepositAndWidthdrawMoney() {
+        $this->ba->depositMoney(1);
+        $this->assertEquals(1, $this->ba->getBalance());
+
+        $this->ba->withdrawMoney(1);
+        $this->assertEquals(0, $this->ba->getBalance());
+    }
+}
+?>]]></programlisting>
+  </example>
+
+  <para>
+    In <xref linkend="code-coverage-analysis.figures.CodeCoverage2.png" />
+    sehen wir, dass die <literal>BankAccount</literal>-Klasse nun
+    vollständig durch Tests abgedeckt ist.
+  </para>
+
+  <figure id="code-coverage-analysis.figures.CodeCoverage2.png">
+    <title>Die BankAccount-Klasse, vollständig durch Tests abgedeckt</title>
+
+    <graphic fileref="figures/CodeCoverage2.png" />
+  </figure>
+
+  <para>
+    In <xref linkend="phing" /> werden Sie lernen, wie Sie mit Phing
+    ausführlichere Code-Coverage-Reports erstellen können.
+  </para>
+</chapter>

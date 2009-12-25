@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+
+<chapter id="testing-exceptions-and-performance-regressions">
+  <title>Ausnahmen und Geschwindigkeit testen</title>
+
+  <para>
+    PHPUnit bietet zwei Erweiterungen der Standard-Basisklasse für
+    Testfall-Klassen, <literal>PHPUnit2_Framework_TestCase</literal>,
+    die beim Schreiben von Tests für Ausnahmen und
+    Ausführungsgeschwindigkeit helfen.
+  </para>
+
+  <section id="testing-exceptions-and-performance-regressions.exceptions">
+    <title>Ausnahmen testen</title>
+
+    <para>
+      Wie werden Ausnahmen getestet? Es lässt sich keine Zusicherung
+      (Assertion) formulieren, die prüft, ob eine Ausnahme ausgelöst worden
+      ist. Stattdessen müssen Sie beim Schreiben des Tests die durch PHP
+      gegebenen Möglichkeiten zur Ausnahmenbehandlung nutzen.
+    </para>
+
+    <programlisting><![CDATA[<?php
+require_once 'PHPUnit2/Framework/TestCase.php';
+
+class ExceptionTest extends PHPUnit2_Framework_TestCase {
+    public function testException() {
+        try {
+            // ... Code, von dem wir das Auslösen einer Ausnahme erwarten ...
+        }
+
+        catch (Exception $expected) {
+            return;
+        }
+
+        $this->fail('Eine erwartete Ausnahme wurde nicht ausgelöst.');
+    }
+}
+?>]]></programlisting>
+
+    <para>
+      Wenn der Code, von dem wir das Auslösen einer Ausnahme erwarten,
+      keine Ausnahme auslöst, stoppt der nachfolgende Aufruf von
+      <literal>fail()</literal>
+      (siehe <xref linkend="api.assert.tables.bottleneck-methods" />)
+      den Test und signalisiert das Problem. Wird dagegen die Ausnahme
+      wie erwartet ausgelöst, so kommt der <literal>catch</literal>-Block
+      zur Ausführung und der Testlauf wird erfolgreich beendet.
+    </para>
+
+    <para>
+      <indexterm><primary>PHPUnit2_Extensions_ExceptionTestCase</primary></indexterm>
+
+      Alternativ können Sie Ihre Testfall-Klasse von
+      <literal>PHPUnit2_Extensions_ExceptionTestCase</literal> ableiten um
+      zu testen, ob eine erwartete Ausnahme vom getesteten Code ausgelöst
+      wird.
+      <xref linkend="testing-exceptions-and-performance-regressions.exceptions.examples.ExceptionTest2.php" />
+      zeigt, wie Sie mit der Methode <literal>setExpectedException()</literal>
+      die erwartete Ausnahme setzen. Wird diese Ausnahme während der
+      Ausführung der Testmethode nicht ausgelöst, so wird der Test als
+      Failure gewertet.
+    </para>
+
+    <example id="testing-exceptions-and-performance-regressions.exceptions.examples.ExceptionTest2.php">
+      <title>PHPUnit2_Extensions_ExceptionTestCase verwenden</title>
+      <programlisting><![CDATA[<?php
+require_once 'PHPUnit2/Extensions/ExceptionTestCase.php';
+
+class ExceptionTest extends PHPUnit2_Extensions_ExceptionTestCase {
+    public function testException() {
+        $this->setExpectedException('Exception');
+    }
+}
+?>]]></programlisting>
+      <screen><userinput>phpunit ExceptionTest</userinput>
+PHPUnit 2.3.0 by Sebastian Bergmann.
+
+F
+
+Time: 0.006798
+There was 1 failure:
+1) testException(ExceptionTest)
+Expected exception Exception
+
+FAILURES!!!
+Tests run: 1, Failures: 1, Errors: 0, Incomplete Tests: 0.</screen>
+    </example>
+
+    <para>
+      <xref linkend="testing-exceptions-and-performance-regressions.exceptions.tables.external-protocols" />
+      führt das externe Protokoll von
+      <literal>PHPUnit2_Extensions_ExceptionTestCase</literal> auf.
+    </para>
+
+    <table id="testing-exceptions-and-performance-regressions.exceptions.tables.external-protocols">
+      <title>Das externe Protokoll von PHPUnit2_Extensions_ExceptionTestCase</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>Methode</entry>
+            <entry>Aktion</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>void setExpectedException(string $exceptionName)</literal></entry>
+            <entry>Setzt den Namen der erwarteten Ausnahme.</entry>
+          </row>
+          <row>
+            <entry><literal>String getExpectedException()</literal></entry>
+            <entry>Liefert den Namen der erwarteten Ausnahme.</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+  </section>
+
+  <section id="testing-exceptions-and-performance-regressions.performance-regressions">
+    <title>Geschwindigkeit testen</title>
+
+    <para>
+      <indexterm><primary>PHPUnit2_Extensions_PerformanceTestCase</primary></indexterm>
+
+      Sie können Ihre Testfall-Klasse von
+      <literal>PHPUnit2_Extensions_PerformanceTestCase</literal> ableiten, um
+      zu testen, ob ein Funktions- oder Methodenaufruf innerhalb eines
+      angegebenen Zeitlimits ausgeführt wird.
+    </para>
+
+    <para>
+      <xref linkend="testing-exceptions-and-performance-regressions.performance-regressions.examples.PerformanceTest.php" />
+      zeigt, wie Sie mit der Methode <literal>setMaxRunningTime()</literal>
+      ein Zeitlimit für die Ausführung der Testmethode festlegen können. Wird
+      die Ausführung der Testmethode nicht innerhalb dieses Zeitlimits
+      abgeschlossen, so wird der Test als Failure gewertet.
+    </para>
+
+    <example id="testing-exceptions-and-performance-regressions.performance-regressions.examples.PerformanceTest.php">
+      <title>PHPUnit2_Extensions_PerformanceTestCase verwenden</title>
+      <programlisting><![CDATA[<?php
+require_once 'PHPUnit2/Extensions/PerformanceTestCase.php';
+
+class PerformanceTest extends PHPUnit2_Extensions_PerformanceTestCase {
+    public function testPerformance() {
+        $this->setMaxRunningTime(2);
+        sleep(1);
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      <xref linkend="testing-exceptions-and-performance-regressions.performance-regressions.tables.external-protocols" />
+      führt das externe Protokoll von
+      <literal>PHPUnit2_Extensions_PerformanceTestCase</literal> auf.
+    </para>
+
+    <table id="testing-exceptions-and-performance-regressions.performance-regressions.tables.external-protocols">
+      <title>Das externe Protokoll von PHPUnit2_Extensions_PerformanceTestCase</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>Methode</entry>
+            <entry>Aktion</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>void setMaxRunningTime(int $maxRunningTime)</literal></entry>
+            <entry>Setzt die maximale Ausführungszeit des Tests auf <literal>$maxRunningTime</literal> (in Sekunden).</entry>
+          </row>
+          <row>
+            <entry><literal>integer getMaxRunningTime()</literal></entry>
+            <entry>Liefert die maximale Ausführungszeit des Tests.</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+  </section>
+</chapter>

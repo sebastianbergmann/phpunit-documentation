@@ -1,0 +1,222 @@
+#!/usr/bin/perl -w
+#
+# $Id: xwf,v 1.7 2002/11/01 19:58:12 eray Exp $
+
+use strict;
+use XML::LibXML;
+
+my $parser = new XML::LibXML;
+$parser->validation(0);
+$parser->load_ext_dtd(0);
+$parser->expand_entities(0);
+my %explan;
+my %explan_used;
+
+
+if( @ARGV ) {
+    init_explans();
+    foreach my $file ( @ARGV ) {
+        process_file( $file );
+    }
+} else {
+    exit_usage();
+}
+
+
+sub process_file {
+    my $file = shift;
+    my $buf = '';
+    if( open( F, $file )) {
+	while( <F> ) { $buf .= $_; }
+	close F;
+    } else {
+	die( "Can't read '$file'" );
+    }
+    # hide ampersands so parser doesn't try to resolve entities
+    $buf =~ s/&/__XWF_AMPERSAND__/g;  
+    eval{ $parser->parse_string( $buf )};
+    if( $@ ) {
+	my @errs = split( /Entity:/, $@ );
+	print "WARNING: '$file' is NOT well-formed.\n";
+	my $count = 0;
+	shift @errs;
+	foreach my $err ( @errs ) {
+	    $count ++;
+	    my $line = 0;
+	    my $type = 'other';
+	    my $desc = $err;
+	    my $sample = '';
+	    #print "*****\n$err\n*****\n";
+	    if( $err =~ /^\s*line (\d+):\s*error:\s*/ ) {
+		$line = $1;
+		$err = $';
+		if( $err =~ /^([^:]+):\s*([^\n]+)/ ) {
+		    $type = $1;
+		    $desc = $2;
+		    $sample = $';
+		} elsif( $err =~ /Entity \'([^\']+)\' not defined/ ) {
+		    $desc = $1;
+		    $type = 'Undefined entity';
+		    $sample = $';
+		} elsif( $err =~ /^([^\n]+)/ ) {
+		    $type = '';
+		    $desc = $1;
+		    $sample = $';
+		} else {
+		    print "GRUNT\n";
+		}
+	    }
+	    $sample =~ s/\^\n\s*at.*/^/;
+	    handle_error( $count, $line, $file, $type, $desc, $sample );
+	}
+	print "----------\nTOTAL ERRORS LISTED: ",
+	  ($#errs + 1), "\n\n";
+    } else {
+	print "'$file' is well-formed.\n";
+    }
+}
+
+
+sub handle_error {
+    my( $count, $line, $file, $type, $desc, $sample ) = @_;
+    print "----------\n[$count] ON LINE $line OF '$file', ";
+    if( $type ) {
+	print better_type( $type ), " ($desc).\n";
+    } else {
+	print "$desc.\n";
+    }
+    print "\n  EXCERPT$sample\n";
+    my $key = "$type:$desc";
+    if( exists( $explan{$key} )) {
+	unless( exists( $explan_used{$key} )) {
+	    print "  EXPLANATION\n", $explan{$key}, "\n";
+	    $explan_used{$key} ++;
+	}
+    } elsif( exists( $explan{$type} )) {
+	unless( exists( $explan_used{$type} )) {
+	    print "  EXPLANATION\n", $explan{$type}, "\n";
+	    $explan_used{$type} ++;
+	}
+    } else {
+	print "No explanation available for this error type.\n";
+    }
+}
+
+
+sub better_type {
+    my $type = shift;
+    return "bad processing instruction" if( $type eq 'xmlParsePI' );
+    return "bad attribute form" if( $type eq 'AttValue' );
+    return "bad entity reference" if( $type eq 'xmlParseEntityRef' );
+    return "bad element start tag" if( $type eq 'xmlParseStartTag' );
+    return $type;
+}
+
+
+sub init_explans{
+    $explan{ "xmlParsePI" } = <<END;
+A processing instruction (PI) contains special instructions meant for 
+a particular type of parser. It has the form "<?TARGET DATA?>". The
+inside of a PI can contain anything except the characters "?>" which
+signify the end of the PI. Make sure there are no illegal characters
+inside and that the end of the PI (two characters: "?>") is present.
+END
+
+    $explan{ ":Comment not terminated " } = <<END;
+A comment is used to remove text from view of the parser. It takes the
+form "<!--TEXT-->". The text inside the comment can be anything except a 
+double hyphen. Find out where the comment is supposed to end and add
+the characters "-->" at that point.
+END
+
+    $explan{ ":Comment must not contain '--' (double-hyphen)\`" } = <<END;
+A comment is used to remove text from view of the parser. It takes the
+form "<!--TEXT-->". The text inside the comment can be anything except a 
+double hyphen. It's possible that the comment is not terminated properly 
+because the author left out a greater-than character (>).
+END
+
+    $explan{ ':CData section not finished' } = <<END;
+A CDATA section marks a region of XML that should not be parsed to
+protect text containing special characters like less-than (<) and 
+ampersand (&) which would otherwise cause an error. It takes the form
+"<![CDATA[...]]>". In this case, the parser could not find the end of 
+the CDATA section. You should find where the CDATA section is supposed
+to terminate and add the characters "]]>" at that point. This will 
+close the CDATA section so parsing can continue.
+END
+
+    $explan{ AttValue } = <<END;
+An attribute is a name-value pair within an element tag, which has 
+this form: "NAME='VALUE'". The value must be quoted with either single 
+quotes ('...') or double quotes ("..."). It can contain quote
+characters if they are different from the quotes around the value, 
+like this: att='"' or this: att="'". Entity references and elements
+are also allowed: "att='&quot;'" and "att='<foo/>'" are okay.
+END
+
+    $explan{ 'Undefined entity' } = <<END;
+There is an entity called "NAME" referenced in the document but is not
+defined. You might try these suggestions: (1) if the entity is
+declared in a DTD, make sure the DTD is visible to the parser; (2) if
+the DTD is readable, make sure the document has a reference to it at
+the top of the document in a structure that begins with
+"<!DOCTYPE...". if the entity is local to the document, then make sure
+it is declared inside a "<!DOCTYPE..." structure. If you still can't
+make it work, contact us at "tools\@oreilly.com".
+END
+
+    $explan{ ':Extra content at the end of the document' } = <<END;
+In every XML document, a single element (the root element) contains
+all the other elements and character data. Here, it looks like there
+are multiple tags at the root element level, or maybe character data
+following the root element. 
+END
+
+    $explan{ 'Opening and ending tag mismatch' } = <<END;
+This end tag was not expected by the parser. In XML, every 
+non-empty element requires both a start tag and an end tag like
+"<NAME>...</NAME>". Elements cannot overlap, meaning that both tags
+have to be inside the same element. To fix this problem, go to the
+point mentioned above and search backwards for an element that is
+missing either a start or an end tag.
+END
+
+    $explan{ xmlParseStartTag } = <<END;
+An XML element tag takes one of three forms: "<NAME>" for a start
+tag, "</NAME>" for an end tag, and "<NAME/>" for an empty element.
+These tags may also contain a space-separated name-value pairs,
+called attributes, following the name like this: 
+"<NAME ATT1='VALUE' ATT2='VALUE'>". An element name must start with 
+a letter or one of these characters: '-', '_'. The rest of the name 
+can contain any character except '<', '>', '&', or ';'. It is
+possible that the author intended to write a less-than symbol (<)
+here; if so, it should be replaced with the entity reference "&lt;".
+END
+
+    $explan{ xmlParseEntityRef } = <<END;
+An entity reference is written as an ampersand, then a name,
+followed by a semicolon, like this: "&NAME;". The name must begin
+with a letter (a-z or A-Z) or one of these characters: '-', '_'.
+The rest of the name can contain any character except '<', '>', '&',
+or ';'.
+END
+
+    $explan{ "xmlParseEntityRef:expecting ';'" } = <<END;
+Ampersand is a special character used in XML to signal an
+entity reference. If you actually want an ampersand, then it
+should be coded as "&amp;". If it's supposed to be an entity
+reference, you need to add a semicolon so it looks like this:
+"&NAME;".
+END
+}
+
+
+sub exit_usage {
+    print <<END;
+
+  usage: $0 <files>
+
+END
+}
+

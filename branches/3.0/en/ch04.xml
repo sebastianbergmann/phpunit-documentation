@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+
+<chapter id="writing-tests-for-phpunit">
+  <title>Writing Tests for PHPUnit</title>
+
+  <para>
+    <xref linkend="writing-tests-for-phpunit.examples.ArrayTest.php" /> shows how we have to
+    rewrite our two tests from
+    <xref linkend="automating-tests.examples.array-test4.php" /> so that we
+    can use them with PHPUnit.
+  </para>
+
+  <example id="writing-tests-for-phpunit.examples.ArrayTest.php">
+    <title>Testing Array and sizeof() with PHPUnit</title>
+    <programlisting><![CDATA[<?php
+require_once 'PHPUnit/Framework.php';
+
+class ArrayTest extends PHPUnit_Framework_TestCase
+{
+    public function testNewArrayIsEmpty()
+    {
+        // Create the Array fixture.
+        $fixture = array();
+
+        // Assert that the size of the Array fixture is 0.
+        $this->assertEquals(0, sizeof($fixture));
+    }
+
+    public function testArrayContainsAnElement()
+    {
+        // Create the Array fixture.
+        $fixture = array();
+
+        // Add an element to the Array fixture.
+        $fixture[] = 'Element';
+
+        // Assert that the size of the Array fixture is 1.
+        $this->assertEquals(1, sizeof($fixture));
+    }
+}
+?>]]></programlisting>
+  </example>
+
+  <blockquote>
+    <attribution>Martin Fowler</attribution>
+    <para>
+      Whenever you are tempted to type something into a
+      <literal>print</literal> statement or a debugger expression, write it
+      as a test instead.
+    </para>
+  </blockquote>
+
+  <para>
+    <indexterm><primary>PHPUnit_Framework_TestCase</primary></indexterm>
+
+    <xref linkend="writing-tests-for-phpunit.examples.ArrayTest.php" /> shows the basic steps
+    for writing tests with PHPUnit:
+  </para>
+
+  <orderedlist>
+    <listitem><para>The tests for a class <literal>Class</literal> go into a class <literal>ClassTest</literal>.</para></listitem>
+    <listitem><para><literal>ClassTest</literal> inherits (most of the time) from <literal>PHPUnit_Framework_TestCase</literal>.</para></listitem>
+    <listitem><para>The tests are public methods that expect no parameters and are named <literal>test*</literal>.</para><para><indexterm><primary>Annotation</primary></indexterm>Alternatively, you can use the <literal>@test</literal> annotation in a method's docblock to mark it as a test method.</para></listitem>
+    <listitem><para>Inside the test methods, assertion methods such as <literal>assertEquals()</literal> (see <xref linkend="api.assert.tables.assertions" />) are used to assert that an actual value matches an expected value.</para></listitem>
+  </orderedlist>
+
+  <note>
+    <para>
+      Please note that in PHPUnit versions 2.0-2.3 the class names were
+      prefixed with <literal>PHPUnit2_</literal> instead of
+      <literal>PHPUnit_</literal>. Existing test cases will still work with
+      PHPUnit version 3.0, but it is highly recommended to update them to
+      use the new class names.
+    </para>
+  </note>
+</chapter>

@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="testing-exceptions-and-performance-regressions">
+  <title>例外やパフォーマンス低下をテストする</title>
+
+  <para>
+    テストクラスの基底クラスである <literal>PHPUnit2_Framework_TestCase</literal>
+    を拡張するための方法を、PHPUnit では二通り提供しています。これにより、
+    例外やパフォーマンス低下のテストができるようになります。
+  </para>
+
+  <section id="testing-exceptions-and-performance-regressions.exceptions">
+    <title>例外</title>
+
+    <para>
+      例外をテストするにはどうすればいいのでしょう? 
+      例外が発生したかどうかを直接検出することはできないので、その代わりに
+      PHP の例外処理機能を使用してテストを書きましょう。
+      例外をテストするための例を以下に示します。
+    </para>
+
+    <programlisting><![CDATA[<?php
+require_once 'PHPUnit2/Framework/TestCase.php';
+
+class ExceptionTest extends PHPUnit2_Framework_TestCase {
+    public function testException() {
+        try {
+            // ... 例外が発生するはずのコード ...
+        }
+
+        catch (Exception $expected) {
+            return;
+        }
+
+        $this->fail('期待通りの例外が発生しませんでした。');
+    }
+}
+?>]]></programlisting>
+
+    <para>
+      例外が発生するはずのコードで例外が発生しなかった場合、その後の
+      <literal>fail()</literal> (<xref linkend="api.assert.tables.bottleneck-methods" />
+      を参照ください) のコールでテストが中断され、テストで問題が発生したことを通知します。
+      期待通りに例外が発生した場合は <literal>catch</literal>
+      ブロックが実行され、テストは正常に終了します。
+    </para>
+
+    <para>
+      <indexterm><primary>PHPUnit2_Extensions_ExceptionTestCase</primary></indexterm>
+
+      別の方法としては、<literal>PHPUnit2_Extensions_ExceptionTestCase</literal>
+      を継承したテストクラスを作成し、
+      テストコードの内部で例外がスローされたかどうかを調べることもできます。
+      <xref linkend="testing-exceptions-and-performance-regressions.exceptions.examples.ExceptionTest2.php" />
+      では、<literal>PHPUnit2_Extensions_ExceptionTestCase</literal>
+      のサブクラスを作成し、テストしたい例外をその <literal>setExpectedException()</literal>
+      メソッドに設定する方法を示します。期待した例外がスローされなかった場合は、
+      そのテストは失敗という扱いになります。
+    </para>
+
+    <example id="testing-exceptions-and-performance-regressions.exceptions.examples.ExceptionTest2.php">
+      <title>PHPUnit2_Extensions_ExceptionTestCase の使用法</title>
+      <programlisting><![CDATA[<?php
+require_once 'PHPUnit2/Extensions/ExceptionTestCase.php';
+
+class ExceptionTest extends PHPUnit2_Extensions_ExceptionTestCase {
+    public function testException() {
+        $this->setExpectedException('Exception');
+    }
+}
+?>]]></programlisting>
+      <screen><userinput>phpunit ExceptionTest</userinput>
+PHPUnit 2.3.0 by Sebastian Bergmann.
+
+F
+
+Time: 0.006798
+There was 1 failure:
+1) testException(ExceptionTest)
+Expected exception Exception
+
+FAILURES!!!
+Tests run: 1, Failures: 1, Errors: 0, Incomplete Tests: 0.</screen>
+    </example>
+
+    <para>
+      <xref linkend="testing-exceptions-and-performance-regressions.exceptions.tables.external-protocols" />
+      は、<literal>PHPUnit2_Extensions_ExceptionTestCase</literal>
+      が実装している外部プロトコルをまとめたものです。
+    </para>
+
+    <table id="testing-exceptions-and-performance-regressions.exceptions.tables.external-protocols">
+      <title>ExceptionTestCase の外部プロトコル</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>メソッド</entry>
+            <entry>意味</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>void setExpectedException(string $exceptionName)</literal></entry>
+            <entry>発生することを期待する例外の名前を <literal>$exceptionName</literal> に設定します。</entry>
+          </row>
+          <row>
+            <entry><literal>String getExpectedException()</literal></entry>
+            <entry>発生することを期待する例外の名前を返します。</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+  </section>
+
+  <section id="testing-exceptions-and-performance-regressions.performance-regressions">
+    <title>パフォーマンス低下</title>
+
+    <para>
+      <indexterm><primary>PHPUnit2_Extensions_PerformanceTestCase</primary></indexterm>
+
+      <literal>PHPUnit2_Extensions_PerformanceTestCase</literal>
+      を継承したテストクラスを使用すると、
+      関数やメソッドの実行が制限時間内に終わったかどうかなどをテストすることができます。
+    </para>
+
+    <para>
+      <literal>PHPUnit2_Extensions_PerformanceTestCase</literal> 
+      のサブクラスを作成してその <literal>setMaxRunningTime()</literal>
+      メソッドを使用し、実行時間の最大値を制限する方法を 
+      <xref linkend="testing-exceptions-and-performance-regressions.performance-regressions.examples.PerformanceTest.php" />
+      で示します。
+      もしテストが制限時間内に終了しなければ、そのテストは失敗という扱いになります。
+    </para>
+
+    <example id="testing-exceptions-and-performance-regressions.performance-regressions.examples.PerformanceTest.php">
+      <title>PHPUnit2_Extensions_PerformanceTestCase の使用法</title>
+      <programlisting><![CDATA[<?php
+require_once 'PHPUnit2/Extensions/PerformanceTestCase.php';
+
+class PerformanceTest extends PHPUnit2_Extensions_PerformanceTestCase {
+    public function testPerformance() {
+        $this->setMaxRunningTime(2);
+        sleep(1);
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      <xref linkend="testing-exceptions-and-performance-regressions.performance-regressions.tables.external-protocols" />
+      は、<literal>PHPUnit2_Extensions_PerformanceTestCase</literal>.
+      が実装している外部プロトコルをまとめたものです。
+    </para>
+
+    <table id="testing-exceptions-and-performance-regressions.performance-regressions.tables.external-protocols">
+      <title>PerformanceTestCase の外部プロトコル</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>メソッド</entry>
+            <entry>意味</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>void setMaxRunningTime(int $maxRunningTime)</literal></entry>
+            <entry>テストの所要時間の最大値を (秒単位で) <literal>$maxRunningTime</literal> に設定します。</entry>
+          </row>
+          <row>
+            <entry><literal>integer getMaxRunningTime()</literal></entry>
+            <entry>このテストの最大所要時間を返します。</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+  </section>
+</chapter>

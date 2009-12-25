@@ -1,0 +1,403 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="textui">
+  <title>コマンドラインのテストランナー</title>
+
+  <para>
+    <filename>phpunit</filename> コマンドを実行すると、PHPUnit
+    のコマンドライン版テストランナーが起動します。
+    コマンドラインのテストランナーを使用したテストの様子を以下に示します。
+  </para>
+
+  <screen><userinput>phpunit ArrayTest</userinput>
+PHPUnit 3.1.9 by Sebastian Bergmann.
+
+..
+
+Time: 0 seconds
+
+
+OK (2 tests)</screen>
+
+  <para>
+    テストがひとつ実行されるたびに、PHPUnit
+    コマンドラインツールはその経過を示す文字を出力します。
+  </para>
+
+  <variablelist>
+    <varlistentry>
+      <term><literal>.</literal></term>
+      <listitem>
+        <para>
+          テストが成功した際に表示されます。
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><literal>F</literal></term>
+      <listitem>
+        <para>
+          テストメソッドの実行中、アサーションに失敗した際に表示されます。
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><literal>E</literal></term>
+      <listitem>
+        <para>
+          テストメソッドの実行中、エラーが発生した際に表示されます。
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><literal>S</literal></term>
+      <listitem>
+        <para>
+          テストが飛ばされた場合に表示されます
+          (<xref linkend="incomplete-and-skipped-tests" /> を参照ください)。
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><literal>I</literal></term>
+      <listitem>
+        <para>
+          テストが「不完全」あるいは「未実装」とマークされている場合に表示されます
+          (<xref linkend="incomplete-and-skipped-tests" /> を参照ください)。
+        </para>
+      </listitem>
+    </varlistentry>
+  </variablelist>
+
+  <para>
+    <indexterm><primary>Error (エラー)</primary></indexterm>
+    <indexterm><primary>Failure (失敗)</primary></indexterm>
+
+    PHPUnit は、<emphasis>失敗 (failures)</emphasis> と
+    <emphasis>エラー (errors)</emphasis> を区別します。
+    「失敗」は PHPUnit のアサーションに違反した場合、つまり例えば
+    <literal>assertEquals()</literal> のコールに失敗した場合などで、
+    「エラー」は予期せぬ例外や PHP のエラーが発生した場合となります。
+    この区別は、時に有用です。というのは「エラー」は一般的に「失敗」
+    より修正しやすい傾向があるからです。
+    もし大量の問題が発生した場合は、まず「エラー」を最初に片付け、
+    その後で「失敗」を修正していくのが最良の方法です。
+  </para>
+
+  <para>
+    以下のコードで、コマンドライン版テストランナーのスイッチの一覧を見てみましょう。
+  </para>
+
+  <screen><userinput>phpunit --help</userinput>
+<![CDATA[PHPUnit 3.1.9 by Sebastian Bergmann.
+
+Usage: phpunit [switches] UnitTest [UnitTest.php]
+
+  --log-graphviz <file>  Log test execution in GraphViz markup.
+  --log-json <file>      Log test execution in JSON format.
+  --log-tap <file>       Log test execution in TAP format to file.
+  --log-xml <file>       Log test execution in XML format to file.
+
+  --coverage-xml <file>  Write code coverage information in XML format.
+  --report <dir>         Generate combined test/coverage report in HTML format.
+
+  --test-db-dsn <dsn>    DSN for the test database.
+  --test-db-log-rev <r>  Revision information for database logging.
+  --test-db-log-info ... Additional information for database logging.
+
+  --testdox-html <file>  Write agile documentation in HTML format to file.
+  --testdox-text <file>  Write agile documentation in Text format to file.
+
+  --filter <pattern>     Filter which tests to run.
+  --loader <loader>      TestSuiteLoader implementation to use.
+  --repeat <times>       Runs the test(s) repeatedly.
+
+  --tap                  Report test execution progress in TAP format.
+  --testdox              Report test execution progress in TestDox format.
+
+  --no-syntax-check      Disable syntax check of test source files.
+  --stop-on-failure      Stop execution upon first error or failure.
+  --verbose              Output more verbose information.
+  --wait                 Waits for a keystroke after each test.
+
+  --skeleton             Generate skeleton UnitTest class for Unit in Unit.php.
+
+  --help                 Prints this usage information.
+  --version              Prints the version and exits.
+
+  -d key[=value]         Sets a php.ini value.]]></screen>
+
+  <variablelist>
+    <varlistentry>
+      <term><literal>phpunit UnitTest</literal></term>
+      <listitem>
+        <para>
+          <literal>UnitTest</literal> という名前のクラスで定義されている
+          テストを実行します。このクラスは、<filename>UnitTest.php</filename>
+          という名前のファイルの中に定義されているものとします。
+        </para>
+
+        <para>
+          <literal>UnitTest</literal> は、<literal>PHPUnit_Framework_TestCase</literal>
+          を継承したクラスであるか、あるいは <literal>PHPUnit_Framework_Test</literal>
+          オブジェクト、例えば <literal>PHPUnit_Framework_TestSuite</literal>
+          のインスタンスを返す <literal>public static suite()</literal>
+          というメソッドを保持するクラスでなければなりません。
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><literal>phpunit UnitTest UnitTest.php</literal></term>
+      <listitem>
+        <para>
+          <literal>UnitTest</literal> という名前のクラスで定義されているテストを実行します。
+          このクラスは、指定したファイルの中で定義されているものとします。
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <indexterm><primary>Logfile</primary></indexterm>
+      <term><literal>--log-graphviz</literal></term>
+      <listitem>
+        <para>
+          <ulink url="http://www.graphviz.org/">GraphViz</ulink>
+          のマークアップを使用して、テストの実行結果のログを作成します。
+          生成されたログファイルは、例えば
+          <literal>dot</literal> などを使用して表示することが可能です。
+          詳細は <xref linkend="logging" /> を参照ください。
+        </para>
+        <para>
+          このパラメータは、PEAR パッケージ <literal>Image_GraphViz</literal>
+          がインストールされている場合にのみ使用可能となることに注意しましょう。
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <indexterm><primary>JSON</primary></indexterm>
+      <term><literal>--log-json</literal></term>
+      <listitem>
+        <para>
+          <ulink url="http://www.json.org/">JSON</ulink>
+          フォーマットを使用して、ログファイルを作成します。
+          詳細は <xref linkend="logging" /> を参照ください。
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <indexterm><primary>Logfile</primary></indexterm>
+      <term><literal>--log-tap</literal></term>
+      <listitem>
+        <para>
+          <ulink url="http://search.cpan.org/dist/Test-Harness/lib/Test/Harness/TAP.pod">Test Anything Protocol (TAP)</ulink>
+          フォーマットを使用して、テストの実行結果のログを作成します。
+          詳細は <xref linkend="logging" /> を参照ください。
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <indexterm><primary>Logfile</primary></indexterm>
+      <term><literal>--log-xml</literal></term>
+      <listitem>
+        <para>
+          テストの実行結果を XML 形式のログファイルに出力します。
+          詳細は <xref linkend="logging" /> を参照ください。
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <indexterm><primary>Code Coverage</primary></indexterm>
+      <term><literal>--coverage-xml</literal></term>
+      <listitem>
+        <para>
+          テスト結果から XML 形式のログファイルを作成し、
+          コードカバレッジ情報もそこに含めます。
+          詳細は <xref linkend="logging" /> を参照ください。
+        </para>
+        <para>
+          このパラメータは、Xdebug
+          拡張モジュールがインストールされている場合にのみ使用可能となることに注意しましょう。
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <indexterm><primary>Code Coverage</primary></indexterm>
+      <term><literal>--report</literal></term>
+      <listitem>
+        <para>
+          レポートを作成します。
+          PHP の Xdebug 拡張モジュールが使用可能な場合は、
+          テスト結果とコードカバレッジを組み合わせたレポートとなります。
+          詳細は <xref linkend="code-coverage-analysis" /> を参照ください。
+        </para>
+        <para>
+          このパラメータは、Xdebug
+          拡張モジュールがインストールされている場合にのみ使用可能となることに注意しましょう。
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <indexterm><primary>Test Database</primary></indexterm>
+      <term><literal>--test-db-*</literal></term>
+      <listitem>
+        <para>
+          テストの結果やコードカバレッジデータをデータベースに書き込みます。
+          詳細は <xref linkend="logging" /> を参照ください。
+        </para>
+        <para>
+          このパラメータは、PDO
+          拡張モジュールがインストールされている場合にのみ使用可能となることに注意しましょう。
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <indexterm><primary>Agile Documentation (アジャイルな文書作成)</primary></indexterm>
+      <term><literal>--testdox-html</literal> および <literal>--testdox-text</literal></term>
+      <listitem>
+        <para>
+          実行したテストについて、HTML あるいはプレーンテキスト形式のドキュメントを生成します
+          詳細は <xref linkend="other-uses-for-tests" /> を参照ください。
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><literal>--filter</literal></term>
+      <listitem>
+        <para>
+          指定したパターンにマッチする名前のテストのみを実行します。
+          パターンとして指定できるのは、単一のテスト名か、
+          あるいは複数のテスト名にマッチする
+          <ulink url="http://www.php.net/pcre">正規表現</ulink>
+          です。
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <indexterm><primary>PHPUnit_Runner_TestSuiteLoader</primary></indexterm>
+      <term><literal>--loader</literal></term>
+      <listitem>
+        <para>
+          <literal>PHPUnit_Runner_TestSuiteLoader</literal> を実装したクラスのうち、
+          実際に使用するものを指定します。
+        </para>
+
+        <para>
+          標準のテストスイートローダーは、現在の作業ディレクトリおよび PHP
+          の設定項目 <literal>include_path</literal>
+          で指定されているディレクトリからソースファイルを探します。
+          PEAR の命名規則に従い、<literal>Project_Package_Class</literal>
+          クラスがソースファイル <filename>Project/Package/Class.php</filename>
+          に対応します。
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><literal>--repeat</literal></term>
+      <listitem>
+        <para>
+          指定された回数だけ、繰り返しテストを実行します。
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><literal>--no-syntax-check</literal></term>
+      <listitem>
+        <para>
+          テストのソースファイルの構文チェックを無効にします。
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><literal>--tap</literal></term>
+      <listitem>
+        <para>
+          <ulink url="http://search.cpan.org/dist/Test-Harness/lib/Test/Harness/TAP.pod">Test Anything Protocol (TAP)</ulink>
+          を使用して、テストの進行状況を報告します。
+          詳細は <xref linkend="logging" /> を参照ください。
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <indexterm><primary>Agile Documentation (アジャイルな文書作成)</primary></indexterm>
+      <term><literal>--testdox</literal></term>
+      <listitem>
+        <para>
+          テストの進行状況を、アジャイルな文書として報告します。
+          詳細は <xref linkend="other-uses-for-tests" /> を参照ください。
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><literal>--verbose</literal></term>
+      <listitem>
+        <para>
+          より詳細な情報を出力します。例えば、
+          未完成のテストや省略したテストの名前が表示されます。
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><literal>--wait</literal></term>
+      <listitem>
+        <para>
+          各テストが終了するたびにキー入力待ちの状態になります。これは、
+          テストランナーが終了すると同時にウィンドウが閉じてしまうような場合に便利です。
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <indexterm><primary>Skeleton Generator (雛形ジェネレータ)</primary></indexterm>
+      <term><literal>--skeleton</literal></term>
+      <listitem>
+        <para>
+          (<filename>UnitTest.php</filename> に記述された) <literal>Unit</literal>
+          クラスに対して、テストケースクラス <literal>UnitTest</literal>
+          の雛形を記述したファイル <filename>UnitTest.php</filename> を作成します。
+          詳細は <xref linkend="skeleton-generator" /> を参照ください。
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><literal>-d</literal></term>
+      <listitem>
+        <para>
+          指定した PHP 設定オプションの値を設定します。
+        </para>
+      </listitem>
+    </varlistentry>
+  </variablelist>
+
+  <note>
+    <para>
+      <indexterm><primary>Syntax Check (構文チェック)</primary></indexterm>
+
+      テストしようとしているコードに PHP の文法エラーがあった場合は、
+      コマンドラインのテストランナーは何もエラー情報を表示せずに終了します。
+      標準のテストスイートローダーは、テストスイート自体のソースファイルについては
+      PHP の文法チェックをしますが、テストスイートが include
+      しているその他のファイルについてはチェックしません。
+    </para>
+  </note>
+</chapter>

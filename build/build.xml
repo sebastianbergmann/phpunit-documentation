@@ -1,0 +1,151 @@
+<project name="phpunit-manual" default="build-current" basedir=".">
+  <target name="build-current" depends="build-en-3.5,build-en-3.4,build-ja-3.5,build-ja-3.4"/>
+
+  <target name="build">
+    <delete dir="output/${version}/${language}"/>
+    <mkdir dir="output/${version}/${language}"/>
+    <mkdir dir="figures"/>
+
+    <copy file="docbook.css" todir="output/${version}/${language}"/>
+
+    <exec dir="${basedir}" executable="xsltproc" failonerror="true">
+      <arg line="--stringparam base.dir output/${version}/${language}/ --stringparam l10n.gentext.language ${language} html-chunked.xsl ../branches/${version}/${language}/book.xml"/>
+    </exec>
+
+    <exec dir="${basedir}" executable="xsltproc" failonerror="true">
+      <arg line="--stringparam l10n.gentext.language ${language} --output output/${version}/${language}/phpunit-book.html html.xsl ../branches/${version}/${language}/book.xml"/>
+    </exec>
+
+    <exec dir="${basedir}" executable="xsltproc" failonerror="true">
+      <arg line="--stringparam fop1.extensions 1 --stringparam l10n.gentext.language ${language} --output output/${version}/${language}/phpunit-book.fo fo.xsl ../branches/${version}/${language}/book.xml"/>
+    </exec>
+
+    <copy todir="figures">
+      <fileset dir="../branches/${version}/${language}/figures">
+        <include name="*.png"/>
+      </fileset>
+    </copy>
+
+    <exec dir="${basedir}" executable="./fop/fop">
+      <arg line="-fo output/${version}/${language}/phpunit-book.fo -pdf output/${version}/${language}/phpunit-book.pdf"/>
+    </exec>
+
+    <delete file="output/${version}/${language}/phpunit-book.fo"/>
+    <move file="figures" todir="output/${version}/${language}"/>
+
+    <exec dir="${basedir}" executable="./scripts/highlight.php">
+      <arg line="output/${version}/${language}"/>
+    </exec>
+
+    <exec dir="${basedir}" executable="./scripts/webify.php">
+      <arg line="output/${version}/${language} ${language}-${version}"/>
+    </exec>
+
+    <tar destfile="output/${version}/${language}/download.tar.bz2" basedir="output/${version}/${language}" compression="bzip2"/>
+  </target>
+
+  <target name="build-en-2.3">
+    <antcall target="build">
+      <param name="language" value="en"/>
+      <param name="version" value="2.3"/>
+    </antcall>
+  </target>
+
+  <target name="build-en-3.0">
+    <antcall target="build">
+      <param name="language" value="en"/>
+      <param name="version" value="3.0"/>
+    </antcall>
+  </target>
+
+  <target name="build-en-3.1">
+    <antcall target="build">
+      <param name="language" value="en"/>
+      <param name="version" value="3.1"/>
+    </antcall>
+  </target>
+
+  <target name="build-en-3.2">
+    <antcall target="build">
+      <param name="language" value="en"/>
+      <param name="version" value="3.2"/>
+    </antcall>
+  </target>
+
+  <target name="build-en-3.3">
+    <antcall target="build">
+      <param name="language" value="en"/>
+      <param name="version" value="3.3"/>
+    </antcall>
+  </target>
+
+  <target name="build-en-3.4">
+    <antcall target="build">
+      <param name="language" value="en"/>
+      <param name="version" value="3.4"/>
+    </antcall>
+  </target>
+
+  <target name="build-en-3.5">
+    <antcall target="build">
+      <param name="language" value="en"/>
+      <param name="version" value="3.5"/>
+    </antcall>
+  </target>
+
+  <target name="build-ja-2.3">
+    <antcall target="build">
+      <param name="language" value="ja"/>
+      <param name="version" value="2.3"/>
+    </antcall>
+  </target>
+
+  <target name="build-ja-3.0">
+    <antcall target="build">
+      <param name="language" value="ja"/>
+      <param name="version" value="3.0"/>
+    </antcall>
+  </target>
+
+  <target name="build-ja-3.1">
+    <antcall target="build">
+      <param name="language" value="ja"/>
+      <param name="version" value="3.1"/>
+    </antcall>
+  </target>
+
+  <target name="build-ja-3.2">
+    <antcall target="build">
+      <param name="language" value="ja"/>
+      <param name="version" value="3.2"/>
+    </antcall>
+  </target>
+
+  <target name="build-ja-3.3">
+    <antcall target="build">
+      <param name="language" value="ja"/>
+      <param name="version" value="3.3"/>
+    </antcall>
+  </target>
+
+  <target name="build-ja-3.4">
+    <antcall target="build">
+      <param name="language" value="ja"/>
+      <param name="version" value="3.4"/>
+    </antcall>
+  </target>
+
+  <target name="build-ja-3.5">
+    <antcall target="build">
+      <param name="language" value="ja"/>
+      <param name="version" value="3.5"/>
+    </antcall>
+  </target>
+
+  <target name="build-de-2.3">
+    <antcall target="build">
+      <param name="language" value="de"/>
+      <param name="version" value="2.3"/>
+    </antcall>
+  </target>
+</project>

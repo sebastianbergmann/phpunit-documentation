@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+
+<chapter id="textui">
+  <title>Der textbasierte Testrunner</title>
+
+  <para>
+    Der textbasierte Testrunner wird über das Kommando
+    <filename>phpunit</filename> aufgerufen. Der folgende Code zeigt, wie Sie
+    mit dem textbasierten Testrunner ausführen.
+  </para>
+
+  <screen><userinput>phpunit ArrayTest</userinput>
+PHPUnit 2.3.0 by Sebastian Bergmann.
+
+..
+
+Time: 0.067288
+
+OK (2 tests)</screen>
+
+  <para>
+    Für jeden ausgeführten Test gibt der textbasierte Testrunner ein
+    Zeichen aus, um den Fortschritt des Testvorgangs anzuzeigen:
+  </para>
+
+  <variablelist>
+    <varlistentry>
+      <term><literal>.</literal></term>
+      <listitem>
+        <para>
+          Wird ausgegeben, wenn der Test erfolgreich ausgeführt wurde.
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><literal>F</literal></term>
+      <listitem>
+        <para>
+          Wird ausgegeben, wenn bei der Ausführung des Tests eine Zusicherung
+          verletzt wurde.
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><literal>E</literal></term>
+      <listitem>
+        <para>
+          Wird ausgegeben, wenn bei der Ausführung des Tests ein Fehler
+          aufgetreten ist.
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><literal>I</literal></term>
+      <listitem>
+        <para>
+          Wird ausgegeben, wenn der Test als unvollständig oder noch nicht
+          implementiert (siehe <xref linkend="incomplete-tests" />) markiert
+          wurde.
+        </para>
+      </listitem>
+    </varlistentry>
+  </variablelist>
+
+  <para>
+    <indexterm><primary>Error</primary></indexterm>
+    <indexterm><primary>Fehler</primary></indexterm>
+    <indexterm><primary>Failure</primary></indexterm>
+    <indexterm><primary>Versager</primary></indexterm>
+
+    PHPUnit unterscheidet zwischen <emphasis>Versagern</emphasis>
+    (<emphasis>Failures</emphasis>) und <emphasis>Fehlern</emphasis>
+    (<emphasis>Errors</emphasis>). Ein Versager repräsentiert die
+    Verletzung einer PHPUnit-Zusicherung. Ein Fehler ist dagegen eine
+    unerwartete Ausnahme oder ein PHP-Fehler. Diese Unterscheidung
+    erweist sich zuweilen als nützlich, weil Fehler im Allgemeinen
+    leichter behoben werden können, während Versager generell schwerer
+    auszumerzen sind. Wenn Sie eine lange Liste von Problemen haben,
+    gehen Sie am besten zuerst die Fehler an und schauen dann nach,
+    ob nach deren Behebung noch irgendwelche Versager übrig geblieben
+    sind.
+  </para>
+
+  <para>
+    Werfen wir einen Blick auf die Kommandozeilenparameter des
+    textbasierten Testrunners:
+  </para>
+
+  <screen><userinput>phpunit --help</userinput>
+<![CDATA[PHPUnit 2.3.0 by Sebastian Bergmann.
+
+Usage: phpunit [switches] UnitTest [UnitTest.php]
+  --coverage-data <file> Write Code Coverage data in raw format to file.
+  --coverage-html <file> Write Code Coverage data in HTML format to file.
+  --coverage-text <file> Write Code Coverage data in text format to file.
+
+  --testdox-html <file>  Write agile documentation in HTML format to file.
+  --testdox-text <file>  Write agile documentation in Text format to file.
+  --log-xml <file>       Log test progress in XML format to file.
+
+  --loader <loader>      TestSuiteLoader implementation to use.
+
+  --skeleton             Generate skeleton UnitTest class for Unit in Unit.php.
+
+  --wait                 Waits for a keystroke after each test.
+
+  --help                 Prints this usage information.
+  --version              Prints the version and exits.]]></screen>
+
+  <variablelist>
+    <varlistentry>
+      <term><literal>phpunit UnitTest</literal></term>
+      <listitem>
+        <para>
+          Führt die Tests der Testfall-Klasse <literal>UnitTest</literal>
+          aus. Die Deklaration dieser Klasse wird in der Quelltext-Datei
+          <filename>UnitTest.php</filename> erwartet.
+        </para>
+
+        <para>
+          Die Klasse <literal>UnitTest</literal> muss entweder
+          <literal>PHPUnit2_Framework_TestCase</literal> als Elternklasse
+          haben oder eine <literal>public static suite()</literal> Methode zur
+          Verfügung stellen, die ein Objekt vom Typ
+          <literal>PHPUnit2_Framework_Test</literal> zurückliefert. Dies kann
+          beispielsweise ein Objekt der Klasse
+          <literal>PHPUnit2_Framework_TestSuite</literal> sein.
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><literal>phpunit UnitTest UnitTest.php</literal></term>
+      <listitem>
+        <para>
+          Führt die Tests der Testfall-Klasse <literal>UnitTest</literal>
+          aus. Die Deklaration dieser Klasse wird in der angegebenen
+          Quelltext-Datei erwartet.
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <indexterm><primary>Code-Coverage</primary></indexterm>
+      <term><literal>--coverage-data</literal>, <literal>--coverage-html</literal></term>
+      <listitem>
+        <para>
+          Kontrollieren die Sammlung und Auswertung von
+          Code-Coverage-Informationen für die ausgeführten Tests, die Thema
+          von <xref linkend="code-coverage-analysis" /> sind.
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <indexterm><primary>Agile Dokumentation</primary></indexterm>
+      <term><literal>--testdox-html</literal> und <literal>--testdox-text</literal></term>
+      <listitem>
+        <para>
+          Erzeugen agile Dokumentation in HTML- oder Text-Format für die
+          ausgeführten Tests. Weitere Informationen hierzu finden Sie in
+          <xref linkend="other-uses-for-tests" />.
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <indexterm><primary>XML-Protokoll</primary></indexterm>
+      <term><literal>--log-xml</literal></term>
+      <listitem>
+        <para>
+          Erzeugt ein XML-Protokoll für die ausgeführten Tests.
+        </para>
+
+        <para>
+          Das folgende Beispiel zeigt das XML-Protokoll für die Tests der
+          Klasse <literal>ArrayTest</literal>:
+        </para>
+
+        <screen><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="ArrayTest" tests="2" failures="0" errors="0" time="0.020026">
+    <testcase name="testNewArrayIsEmpty" class="ArrayTest" time="0.014449"/>
+    <testcase name="testArrayContainsAnElement" class="ArrayTest" time="0.005577"/>
+  </testsuite>
+</testsuites>]]></screen>
+
+      <para>
+        Dieses XML-Protokoll wurde für zwei Tests -- <literal>testFailure</literal>
+        und <literal>testError</literal> -- einer Testfallklasse
+        <literal>FailureErrorTest</literal> erzeugt. Es zeigt, wie Versager
+        und Fehler protokolliert werden:
+      </para>
+
+      <screen><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="FailureErrorTest" tests="2" failures="1" errors="1" time="0.013603">
+    <testcase name="testFailure" class="FailureErrorTest" time="0.011872">
+      <failure message="" type="PHPUnit2_Framework_AssertionFailedError"></failure>
+    </testcase>
+    <testcase name="testError" class="FailureErrorTest" time="0.001731">
+      <error message="" type="Exception"></error>
+    </testcase>
+  </testsuite>
+</testsuites>
+]]></screen>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <indexterm><primary>PHPUnit2_Runner_TestSuiteLoader</primary></indexterm>
+      <term><literal>--loader</literal></term>
+      <listitem>
+        <para>
+          Gibt die zu verwendende Implementierung von
+          <literal>PHPUnit2_Runner_TestSuiteLoader</literal> an.
+        </para>
+
+        <para>
+          Der Standard-Testsuite-Lader sucht nach der Quelltext-Datei im
+          aktuellen Verzeichnis sowie in jedem Verzeichnis, das über die
+          PHP-Konfigurationsdirektive <literal>include_path</literal>
+          angegeben ist. Den PEAR-Konventionen folgend wird die
+          Klasse <literal>Project_Package_Class</literal> in der
+          Quelltext-Datei <filename>Project/Package/Class.php</filename>
+          erwartet.
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <indexterm><primary>Testfall-Klassenskelett</primary></indexterm>
+      <indexterm><primary>Unvollständiger Test</primary></indexterm>
+      <term><literal>--skeleton</literal></term>
+      <listitem>
+        <para>
+          Erzeugt ein Skelett einer Testfall-Klasse <literal>UnitTest</literal>
+          (in <filename>UnitTest.php</filename>) für eine Klasse
+          <literal>Unit</literal> (in <filename>Unit.php</filename>). Für
+          jede Methode der Klasse <literal>Unit</literal> wird ein
+          unvollständiger Test (siehe <xref linkend="incomplete-tests" />) in
+          <literal>UnitTest</literal> erzeugt.
+        </para>
+
+        <para>
+          Das folgende Beispiel zeigt, wie ein Testfall-Klassenskelett für
+          eine Klasse mit Namen <literal>Sample</literal> erzeugt wird.
+        </para>
+
+        <screen><userinput>phpunit --skeleton Sample</userinput>
+PHPUnit 2.3.0 by Sebastian Bergmann.
+
+Wrote test class skeleton for Sample to SampleTest.php.
+
+<userinput>phpunit SampleTest</userinput>
+PHPUnit 2.3.0 by Sebastian Bergmann.
+
+I
+
+Time: 0.007268
+There was 1 incomplete test case:
+1) testSampleMethod(SampleTest)
+
+
+OK, but incomplete test cases!!!
+Tests run: 1, incomplete test cases: 1.</screen>
+
+        <para>
+          Wenn Sie Tests für existierenden Code schreiben, müssen Sie immer
+          wieder die gleichen Codefragmente wie <programlisting>public function testSampleMethod() {
+}</programlisting> schreiben. PHPUnit kann Ihnen bei dieser Arbeit helfen,
+          indem es den zu testenden Code analysiert und ein entsprechendes
+          Testfall-Klassenskelett generiert.
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><literal>--wait</literal></term>
+      <listitem>
+        <para>
+          Veranlasst den Testrunner dazu, das Programm erst dann zu beenden,
+          wenn Sie ein Zeichen an der Konsole eingeben. Dies ist dann
+          hilfreich, wenn Sie die Tests in einem Fenster starten, das nur so
+          lange offen bleibt, wie der Testrunner aktiv ist.
+        </para>
+      </listitem>
+    </varlistentry>
+  </variablelist>
+
+  <note>
+    <para>
+      Wenn der getestete Code PHP-Syntaxfehler enthält kann es vorkommen,
+      dass der textbasierte Testrunner die Ausführung abbricht, ohne das
+      eine Fehlermeldung ausgegeben wird. Der Standard-Testsuite-Lader prüft
+      die Quelltext-Datei der Testsuite auf PHP-Syntaxfehler, nicht aber
+      weitere, von dieser inkludierte Quelltext-Dateien. Zukünftige Versionen
+      von PHPUnit werden dieses Problem durch Verwendung eines
+      Sandbox-PHP-Interpreters lösen.
+    </para>
+  </note>
+</chapter>

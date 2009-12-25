@@ -1,0 +1,693 @@
+#!/usr/bin/perl -w
+#
+# $Id: db2htmlindexproc,v 1.2 2002/11/01 19:58:10 eray Exp $
+#
+# -*- Perl -*-
+#
+# Takes a list of <indexterms> and generate HTML index files
+#
+# Usage: db2htmlindexproc <indexfile>
+# (Used in conjunction with db2htmlindex
+#
+
+
+# MODULES
+
+use strict;
+no strict "refs";
+
+
+# GLOBALS
+
+my %index_data = ();        # database of index info
+
+# %index_data structure:
+#
+#         { term -> [linkends, titles, sortas, see, seealso, secs] }
+#                       |         |                            |
+#                       |       [title, title, ...]            |
+#                       |                                      |
+#                    [linkend, linkend, ...]                   |
+#                                                              |
+#                +---------------------------------------------+
+#                |
+#             { term -> [linkends, title, sortas, see, seealso, tris] }
+#                           |        |                            |
+#                           |       [title, title, ...]           |
+#                           |                                     |
+#                        [linkend, linkend, ...]                  |
+#                                                                 |
+#                      +------------------------------------------+
+#                      |
+#                   { term -> [linkends, titles, sortas, see, seealso] }
+#                                 |        |
+#                                 |       [title, title, ...]
+#                                 |
+#                              [linkend, linkend, ...]
+#
+
+my @raw_terms = ();         # strings containing XML-coded index entries
+my @sorted_terms = ();      # sorted list of terms
+my @formatted_terms = ();   # list of lists of strings containing 
+                            # HTML-formatted entries, categorized by letter
+
+# Useful labels
+
+my $PRIMARY     = 1;
+my $SECONDARY   = 2;
+my $TERTIARY    = 3;
+my $LINKENDS    = 0;
+my $TITLES      = 1;
+my $SORTAS      = 2;
+my $SEE         = 3;
+my $SEEALSO     = 4;
+my $CHLD        = 5;
+
+
+# ============ MAIN LOOP ===============
+&generate_index_files( "tmpindex.xml" );
+# ======================================
+
+
+# SUBROUTINES
+
+# generate_index_files
+# ====================
+# 1. read data from file, split into list of entries: @raw_terms.
+# 2. build index_data data structure: %index_data.
+# 3. sort terms into list: @sorted_terms.
+# 4. format each entry and save in list of strings: @formatted_terms.
+# 5. divide buffer and output to files, one per letter.
+#
+sub generate_index_files {
+    my( $infile ) = @_;
+
+    # 1. read data from file, split into list of entries: @raw_terms.
+    my $data = &input_file( $infile );
+    $data =~ s/^<\?[^\?]+\?>\s+//;       # remove XML declaration
+    $data =~ s/<\/indexterm>\s+/@@@@@/g;
+    @raw_terms = split( /@@@@@/, $data );
+    
+    # 2. build index_data data structure: %index_data.
+    my $term;
+    foreach $term (@raw_terms) { &process_term( $term ); }
+    
+    # 3. sort indexterms into list: @sorted_terms.
+    @sorted_terms = &sort_terms( \%index_data );
+
+    # 4. format each entry and save in list of lists 
+    # of strings: @formatted_terms.
+    my $term;
+    my @formatted_terms;
+    my @alpha = ('0','a','b','c','d','e','f','g','h',
+		 'i','j','k','l','m','n','o','p','q',
+		 'r','s','t','u','v','w','x','y','z');
+
+    foreach $term (@sorted_terms) {
+	my $sortas = $index_data{$term}->[$SORTAS] || $term;
+	$sortas =~ s/^(.).*/\L$1/;
+	my $lettercount = 0;
+	while( $sortas =~ /^[a-z]/ && 
+	   $sortas ne $alpha[$lettercount] ) {
+	    $lettercount ++;
+	}
+	unless( $formatted_terms[ $lettercount ]) {
+	    $formatted_terms[ $lettercount ] = ();
+	}
+	push( @{ $formatted_terms[ $lettercount ]},
+	     &format_term( $term, $index_data{$term}, 1 ));
+    }
+    
+    # 5. divide buffer and output into files, one per letter.
+    my $letter;
+    my $lettercount = 0;
+    foreach $letter (@alpha) {
+	my $buf = "";
+	my $fterm;
+	foreach $fterm (@{$formatted_terms[$lettercount]}) {
+	    $buf .= $fterm;
+	}
+	&output_file( $letter, $buf );
+	$lettercount ++;
+    }
+}
+
+
+# process_term
+# ============
+# Parse an XML-coded index entry and save data in table %index_data.
+#
+sub process_term {
+    my( $term ) = @_;
+
+    # remove linebreaks
+    $term =~ s/\s+/ /g;
+    $term =~ s/> </>\n</g;
+
+    # indexterm element
+    my $id = "NONE";
+    $id = $1 if( $term =~ /<indexterm[^>]*\s+id=\"([^\"]*)/ );
+    my $file = "NONE";
+    $file = $1 if( $term =~ /<indexterm[^>]*\s+file=\"([^\"]*)/ );
+    my $linkend = $file . "#" . $id;
+    my $title = "NONE";
+    $title =  $1 if( $term =~ /<indexterm[^>]*\s+sect=\"([^\"]*)/ );
+    
+    # primary element
+    $term =~ s/<\/primary>/@@@@@/;
+    my $priterm = "";
+    $priterm = $1 if( $term =~ /<primary[^>]*>(.*)@@@@@/ );
+    $priterm =~ s/\s+/ /g;
+    $priterm =~ s/\s+$//;
+    my $prisort = "";
+    $prisort = $1 if( $term =~ /<primary[^>]*\s+sortas=\"([^\"]+)/ );
+    
+    # secondary element
+    $term =~ s/<\/secondary>/@@@@@/;
+    my $secterm = "";
+    $secterm = $1 if( $term =~ /<secondary[^>]*>(.*)@@@@@/ );
+    $secterm =~ s/\s+/ /g;
+    $secterm =~ s/\s+$//;
+    my $secsort = "";
+    $secsort = $1 if( $term =~ /<secondary[^>]*\s+sortas=\"([^\"]+)/ );
+    
+    # tertiary element
+    $term =~ s/<\/tertiary>/@@@@@/;
+    my $terterm = "";
+    $terterm = $1 if( $term =~ /<tertiary[^>]*>(.*)@@@@@/ );
+    $terterm =~ s/\s+/ /g;
+    $terterm =~ s/\s+$//;
+    my $tersort = "";
+    $tersort = $1 if( $term =~ /<tertiary[^>]*\s+sortas=\"([^\"]+)/ );
+    
+    # see element
+    $term =~ s/<\/see>/@@@@@/;
+    my $see = "";
+    $see = $1 if( $term =~ /<see[^>]*>([^@]+)@@@@@/ );
+    $see =~ s/\s+/ /g;
+    $see =~ s/\s+$//;
+    
+    # seealso element
+    $term =~ s/<\/seealso>/@@@@@/;
+    my $seealso = "";
+    $seealso = $1 if( $term =~ /<seealso[^>]*>([^@]+)@@@@@/ );
+    $seealso =~ s/\s+/ /g;
+    $seealso =~ s/\s+$//;
+    
+    # add term to the database
+    &store_term( $priterm, $prisort, $secterm, $secsort, $terterm, $tersort, 
+		 $see, $seealso, $linkend, $title );
+
+#    print "priterm: $priterm\nprisort: $prisort\nsecterm: $secterm\nsecsort: $secsort\nterterm: $terterm\ntersort: $tersort\nsee: $see\nseealso: $seealso\nlinkend: $linkend\ntitle: $title\n==============\n";
+}
+
+
+# store_term
+# ==========
+# Add an entry to the %index_data table.
+#
+sub store_term {
+    my( $pri, $prisort, $sec, $secsort, $ter, $tersort, 
+        $see, $seealso, $linkend, $title ) = @_;
+
+    # handle primary term
+    if( $pri ) {
+
+	# create new entry if not already set up
+	unless( defined( $index_data{ $pri })) {
+	    $index_data{ $pri } = ();
+	    $index_data{ $pri }->[$LINKENDS] = ();
+	    $index_data{ $pri }->[$TITLES] = ();
+	    $index_data{ $pri }->[$CHLD] = ();
+	}
+
+	# add linkend and title if only a primary
+	unless( $sec ) {
+	    push( @{$index_data{ $pri }->[$LINKENDS]}, $linkend );
+	    push( @{$index_data{ $pri }->[$TITLES]}, $title );
+	}
+
+	# add sortas if not already defined
+	unless( defined( $index_data{ $pri }->[$SORTAS] )) {
+	    $index_data{ $pri }->[$SORTAS] = $prisort;
+	}
+
+	# add see and see also if they are specified
+	unless( $sec ) {
+	    $index_data{ $pri }->[$SEE] = $see;
+	    $index_data{ $pri }->[$SEEALSO] = $seealso;
+	}
+
+    } 
+
+    # handle secondary term
+    if( $sec ) {
+
+	# create new entry if not already set up
+	unless( defined( $index_data{ $pri }->[$CHLD]->{ $sec })) {
+	    $index_data{ $pri }->[$CHLD]->{ $sec } = ();
+	    $index_data{ $pri }->[$CHLD]->{ $sec }->[$LINKENDS] = ();
+	    $index_data{ $pri }->[$CHLD]->{ $sec }->[$TITLES] = ();
+	    $index_data{ $pri }->[$CHLD]->{ $sec }->[$CHLD] = ();
+	}
+
+	# add linkend if only a secondary
+	unless( $ter ) {
+	    push( @{$index_data{$pri}->[$CHLD]->{$sec}->[$LINKENDS]}, 
+		 $linkend );
+	    push( @{$index_data{$pri}->[$CHLD]->{$sec}->[$TITLES]}, $title );
+	}
+
+	# add sortas if not already defined
+	unless( defined( $index_data{ $pri }->[$CHLD]->{ $sec }->[$SORTAS])) {
+	    $index_data{ $pri }->[$CHLD]->{ $sec }->[$SORTAS] = $secsort;
+	}
+
+	# add see and see also if they are specified
+	unless( $ter ) {
+	    $index_data{ $pri }->[$CHLD]->{ $sec }->[$SEE] = $see;
+	    $index_data{ $pri }->[$CHLD]->{ $sec }->[$SEEALSO] = $seealso;
+	}
+    } 
+
+    # handle tertiary term
+    if( $ter ) {
+
+	# create new entry if not already set up
+	unless( defined($index_data{$pri}->[$CHLD]->{$sec}->[$CHLD]->{$ter})) {
+	    $index_data{$pri}->[$CHLD]->{$sec}->[$CHLD]->{$ter} = ();
+	    $index_data{$pri}->[$CHLD]->{$sec}->[$CHLD]->{$ter}->[$LINKENDS]
+		= ();
+	    $index_data{$pri}->[$CHLD]->{$sec}->[$CHLD]->{$ter}->[$TITLES] =();
+	}
+
+	# add linkend and title
+	push( 
+          @{$index_data{$pri}->[$CHLD]->{$sec}->[$CHLD]->{$ter}->[$LINKENDS]},
+	     $linkend );
+	push(
+	  @{$index_data{$pri}->[$CHLD]->{$sec}->[$CHLD]->{$ter}->[$TITLES]},
+	     $title );
+
+	# add sortas if not already defined
+	unless( defined( 
+	    $index_data{$pri}->[$CHLD]->{$sec}->[$CHLD]->{$ter}->[$SORTAS])) {
+	    $index_data{$pri}->[$CHLD]->{$sec}->[$CHLD]->{$ter}->[$SORTAS] 
+	       = $tersort;
+	}
+
+	# add see and see also if they are specified
+	$index_data{$pri}->[$CHLD]->{$sec}->[$CHLD]->{$ter}->[$SEE] = $see;
+	$index_data{$pri}->[$CHLD]->{$sec}->[$CHLD]->{$ter}->[$SEEALSO] 
+	    = $seealso;
+    }
+}
+
+
+# sort_terms
+# ==========
+# Return list of terms (without entries) to index data, 
+# sorted by term and sort-as.
+#
+sub sort_terms {
+    my( $ptr ) = @_;
+
+    # create a table of keys and terms to do the sorting
+    my %tmp_sort = ();
+    my $sortas;
+    my $term;
+    foreach $term (keys %{$ptr}) {
+	$sortas = $ptr->{$term}->[$SORTAS] || $term;
+	$sortas =~ s/(.*)/\U$1/;
+	$sortas =~ s/\s+/-/g;
+	$sortas =~ s/[^A-Z\-]//g;
+	$tmp_sort{ $sortas } = $term;
+    }
+
+    # perform the sort operation, storing the result in @sorted_terms.
+    # multiple terms with same name should be merged.
+    my @sorted = ();
+    foreach $sortas (sort keys %tmp_sort) {
+	push( @sorted, $tmp_sort{ $sortas } );
+    }
+
+    return @sorted;
+}
+
+
+# format_term
+# ===========
+# Given a term and a level, and using the global %index_data table, 
+# return an HTML-formatted index entry.
+#
+# Usage: &format_term( $term, $ptr, $level )
+#
+# HTML code form:
+#
+# <a name="Primary Term"></a>
+# <dt>Primary Term: <a href="file1.htm#aaa">first occurance</a></dt>
+# <dd><dl>
+#   <dt><a href="file2.html#bbb">second occurance</a></dt>
+#   <dt>Secondary Term (see <a href="file3.htm#ccc">Another Term</a>)</dt>
+#   <dt>Another Term: <a href="file4.htm#ddd">first occurance</a></dt>
+#   <dd><dl>
+#     <dt>Tertiary Term: <a href="file5.htm#eee">first occurance</a></dt>
+#   </dl></dd>
+# </dl></dd>
+#
+sub format_term {
+    my( $term, $ptr, $lvl ) = @_;
+    my $buf = "";
+
+    # wrap the index term in a div
+    $buf .= "\n<!-- ========================== -->\n\n" if( $lvl == 1 );
+    $buf .= &print_indent( $lvl ) . "<div class=\"indexterm$lvl\">\n";
+
+    # output a label for <see>s and <seealso>s to link to
+    my $label = &make_label( $term );
+    $buf .= &print_indent( $lvl ) . "<a name=\"$label\">\n";
+
+    # start the <dt> element
+    $buf .= &print_indent( $lvl ) . "<dt>$term";
+
+    # if there's a "see" term, don't bother with the children or 
+    # the main term's link
+    if( $ptr->[$SEE] ) {
+	my $letter = $ptr->[$SEE];
+	$letter = substr( $letter, 0, 1 );
+	$letter =~ s/(.*)/\L$1/;
+	$buf .= " (see <a href=\"idx_$letter.htm#" . 
+	    &make_label( $ptr->[$SEE] ) . "\">" .
+		$ptr->[$SEE] . "</a>)\n";
+	
+    # format term's first link
+    } elsif( defined( $ptr->[$LINKENDS]->[0] )) {
+	$buf .= ": <a href=\"../" . $ptr->[$LINKENDS]->[0] . "\">" .
+	    $ptr->[$TITLES]->[0] . "</a>";
+    }
+
+    # end the <dt> element and start the <dd>
+    $buf .= "</dt><dd><dl>\n";
+
+    # format the rest of the links
+    my $term;
+    my $i = 0;
+    foreach $term (@{$ptr->[$LINKENDS]}) {
+	unless( $i == 0 ) {
+	    $buf .= &print_indent( $lvl+1 ) . "<dt><a href=\"../" .
+		$ptr->[$LINKENDS]->[$i] . "\">" . 
+		    $ptr->[$TITLES]->[$i] . "</a></dt>\n";
+	}
+	$i++;
+    }
+    
+    # handle <seealso>s
+    if( $ptr->[$SEEALSO] ) {
+	my $letter = $ptr->[$SEEALSO];
+	$letter = substr( $letter, 0, 1 );
+	$letter =~ s/(.*)/\L$1/;
+	$buf .= &print_indent( $lvl+1 ) . 
+	    "<dt>(see also <a href=\"idx_$letter.htm#" . 
+		&make_label( $ptr->[$SEEALSO] ) . "\">" .
+		    $ptr->[$SEEALSO] . "</a>)</dt>\n";
+    }
+
+    # format the children
+    if( defined( $ptr->[$CHLD] )) {
+	my $subterm;
+	my @sorted = &sort_terms( $ptr->[$CHLD] );
+	foreach $subterm (@sorted) {
+	    $buf .= &format_term( $subterm,
+ 				  $ptr->[$CHLD]->{$subterm}, 
+				  $lvl+1 );
+	}
+    }
+    
+    # close the <dd>
+    $buf .= &print_indent( $lvl ) . "</dl></dd>\n";
+    $buf .= &print_indent( $lvl ) . "</div>\n";
+
+    # remove empty <dd> and <dl> elements
+    $buf =~ s/<dl>\s*<\/dl>//;
+    $buf =~ s/<dd>\s*<\/dd>//;
+
+    return $buf;
+}
+
+
+# make_label
+# ==========
+# Process name so it's a proper label for an HTML anchor.
+#
+sub make_label {
+    my( $term ) = @_;
+    $term =~ s/\s+/-/g;       # turn spaces into dashes
+    $term =~ s/[\/\\]/-/g;    # turn slashes into dashes
+    $term =~ s/[\(\),]//g;    # remove parentheses
+    return $term;
+}
+
+
+# print_indent
+# ============
+# Return string with indent whose width is determined by $level.
+#
+sub print_indent {
+    my( $level ) = @_;
+    my $i;
+    my $buf = "";
+    for( $i=1; $i<$level; $i++ ) {
+	$buf .= "  ";
+    }
+    return $buf;
+}
+
+
+# alpha_compare
+# =============
+# Compare a letter and a formatted term, return true if
+# first letter of term equals reference letter.
+#
+sub alpha_compare {
+    my( $letter, $fterm ) = @_;
+    if( $fterm =~ /<a name=\"(.)/ ) {
+	my $ftletter = $1;
+	$ftletter =~ s/(.)/\L$1/;
+	if( $ftletter =~ /[a-z]/ ) {
+	    return( $ftletter eq $letter );
+	} elsif( $letter eq "0" ) {
+	    return 1;
+	}
+    }
+    return 0;
+}
+
+
+# input_file
+# ==========
+# Open file and return data in string.
+#
+sub input_file {
+    my( $infile ) = @_;
+    my $data = "";
+
+    if( open( IF, $infile )) {
+	while(<IF>) { $data .= $_; }
+	close IF;
+    } else {
+	print STDERR "Cannot open temporary indexfile \"$infile\";\n";
+	print STDERR "index cannot be generated without it.\n";
+    }
+
+    return $data;
+}
+
+
+# output_file
+# ===========
+# Write buffer $buf to file based on $letter.
+#
+sub output_file {
+    my( $letter, $buf ) = @_;
+    my $outfile = "html/index/idx_$letter.htm";
+    if( open( OF, ">$outfile" )) {
+	print OF &format_header( $letter );
+	if( $buf ) {
+	    print OF &translate_chars( $buf );
+	} else {
+	    print OF "<p>There are no index entries for this letter.</p>\n";
+	}
+	print OF &format_footer( $letter );
+	close OF;
+    } else {
+	print STDERR "Warning: can't open \"$outfile\" for writing.\n";
+    }
+}
+
+
+# translate_chars
+# ===============
+#
+# Change UTF codes into HTML entities.
+sub translate_chars {
+    my( $buf ) = @_;
+
+    $buf =~ s/ //g;             # thinspace character
+    $buf =~ s/’/\'/g;           # right single quote
+    $buf =~ s/“/\`\`/g;         # left double quote
+    $buf =~ s/”/\'\'/g;         # right double quote
+
+    return $buf;
+}
+
+
+# format_header
+# =============
+#
+sub format_header {
+    my( $letter ) = @_;
+    $letter =~ s/(.)/\U$1/;
+
+    return <<TERMINUS;
+<html>
+<head>
+<title>Index: $letter</title>
+</head>
+<body bgcolor="#FFFFFF" text="#000000">
+
+<!-- START OF BODY -->
+
+<!-- TOP BANNER -->
+
+<p>
+<a href="../index.htm">
+<img 
+  src="../gifs/smbanns.gif" 
+  usemap="#banner-map"
+  border=0 
+  alt="Book Home" 
+></a>
+</p>
+<map name="banner-map">
+<!-- **REPLACE WITH BANNER-MAP** -->
+</map>
+
+<!-- TOP INDEX LINKS -->
+
+<p>
+<font size="-1">
+<a href="idx_0.htm">Symbols</a>
+| <a href="idx_a.htm">A</a>
+| <a href="idx_b.htm">B</a>
+| <a href="idx_c.htm">C</a>
+| <a href="idx_d.htm">D</a>
+| <a href="idx_e.htm">E</a>
+| <a href="idx_f.htm">F</a>
+| <a href="idx_g.htm">G</a>
+| <a href="idx_h.htm">H</a>
+| <a href="idx_i.htm">I</a>
+| <a href="idx_j.htm">J</a>
+| <a href="idx_k.htm">K</a>
+| <a href="idx_l.htm">L</a>
+| <a href="idx_m.htm">M</a>
+| <a href="idx_n.htm">N</a>
+| <a href="idx_o.htm">O</a>
+| <a href="idx_p.htm">P</a>
+| <a href="idx_q.htm">Q</a>
+| <a href="idx_r.htm">R</a>
+| <a href="idx_s.htm">S</a>
+| <a href="idx_t.htm">T</a>
+| <a href="idx_u.htm">U</a>
+| <a href="idx_v.htm">V</a>
+| <a href="idx_w.htm">W</a>
+| <a href="idx_x.htm">X</a>
+| <a href="idx_y.htm">Y</a>
+| <a href="idx_z.htm">Z</a>
+</FONT>
+
+<!-- INDEX SECTION BODY -->
+
+<H1>Index: $letter</H1>
+
+<DL>
+TERMINUS
+}
+
+
+# format_footer
+# =============
+#
+sub format_footer {
+    my( $letter ) = @_;
+    $letter =~ s/(.)/\U$1/;
+
+    return <<TERMINUS;
+</dl>
+
+<!-- BOTTOM INDEX LINKS -->
+
+<p>
+<hr width="515" align="LEFT">
+</p>
+
+<p>
+<font size="-1">
+<a href="idx_0.htm">Symbols</a>
+| <a href="idx_a.htm">A</a>
+| <a href="idx_b.htm">B</a>
+| <a href="idx_c.htm">C</a>
+| <a href="idx_d.htm">D</a>
+| <a href="idx_e.htm">E</a>
+| <a href="idx_f.htm">F</a>
+| <a href="idx_g.htm">G</a>
+| <a href="idx_h.htm">H</a>
+| <a href="idx_i.htm">I</a>
+| <a href="idx_j.htm">J</a>
+| <a href="idx_k.htm">K</a>
+| <a href="idx_l.htm">L</a>
+| <a href="idx_m.htm">M</a>
+| <a href="idx_n.htm">N</a>
+| <a href="idx_o.htm">O</a>
+| <a href="idx_p.htm">P</a>
+| <a href="idx_q.htm">Q</a>
+| <a href="idx_r.htm">R</a>
+| <a href="idx_s.htm">S</a>
+| <a href="idx_t.htm">T</a>
+| <a href="idx_u.htm">U</a>
+| <a href="idx_v.htm">V</a>
+| <a href="idx_w.htm">W</a>
+| <a href="idx_x.htm">X</a>
+| <a href="idx_y.htm">Y</a>
+| <a href="idx_z.htm">Z</a>
+</font>
+
+<!-- LIBRARY NAV BAR -->
+
+<p><hr width="515" align="left"></p>
+<img 
+  src="../../gifs/smnavbar.gif"
+  usemap="#library-map"
+  border="0"
+  alt="Library Navigation Links"
+>
+
+<p>
+<font size="-1">
+<a href="../../copyrght.htm">Copyright &copy; 2000</a>
+O\'Reilly &amp; Associates, Inc.
+All Rights Reserved.
+</font>
+</p>
+
+<map name="library-map">
+<!-- **REPLACE WITH LIBRARY-MAP** -->
+</map>
+
+<!-- END OF BODY -->
+
+</body>
+</html>
+TERMINUS
+}
+
+

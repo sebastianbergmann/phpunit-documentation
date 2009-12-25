@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="stubs">
+  <title>スタブ</title>
+
+  <para>
+    <indexterm><primary>Stubs (スタブ)</primary></indexterm>
+
+    いろいろな要因で失敗する可能性があるテストよりも、
+    単一の事項のみをテストするテストのほうが情報を得やすくなります。では、
+    できるだけ外部からの影響を受けないようなテストを作成するには
+    どうすればいいのでしょうか? 単純なことです。
+    高価で面倒で頼りなくて遅くて複雑なリソースを、シンプルな PHP
+    オブジェクトで作成したスタブに置き換えればいいのです。たとえば、
+    複雑な計算をする代わりに単に定数を返すだけのものを、テスト用に作成すればいいのです。
+  </para>
+
+  <para>
+    <indexterm><primary>PHPUnit2_Extensions_TestSetup</primary></indexterm>
+
+    スタブを使用すると、高価な外部リソースを使用することによる問題を解決できます。
+    たとえばデータベース接続のようなリソースをテスト間で共有するには
+    <literal>PHPUnit2_Extensions_TestSetup</literal> デコレータを使用すればいいのですが、
+    テストの目的を考えると、データベースを使用せずにすむのならばそのほうがずっとよいでしょう。
+  </para>
+
+  <para>
+    スタブを使用するもうひとつの利点は、よりよい設計になることです。
+    あちこちで使用されているリソースを単一の窓口 (façade : ファサード)
+    経由でアクセスするようにすることで、
+    それを簡単にスタブに置き換えられるようになります。例えば、
+    データベースへのアクセスのコードをそこらじゅうにちりばめるのではなく、
+    その代わりに <literal>IDatabase</literal> インターフェイスを実装した単一の
+    <literal>Database</literal> オブジェクトを使用するようにします。すると、
+    <literal>IDatabase</literal> を実装したスタブを作成することで、
+    それをテストに使用できるようになるのです。同時に、
+    テストを行う際にスタブデータベースを使用するか
+    本物のデータベースを使用するかを選択できるようになります。
+    つまり開発時にはローカル環境でテストし、
+    統合テスト時には実際のデータベースでテストするといったことができるようになるのです。
+  </para>
+
+  <para>
+    スタブ化しなければならない機能は、たいてい同一オブジェクト内で密結合しています。
+    この機能ををひとつの結合したインターフェイスにまとめることで、
+    システムのそれ以外の部分との結合を緩やかにすることができます。
+  </para>
+
+  <section id="stubs.self-shunting">
+    <title>自己シャント</title>
+
+    <para>
+      <indexterm><primary>Self Shunt Pattern (自己シャントパターン)</primary></indexterm>
+
+      オブジェクトが正しくコールされたかどうかを確かめなければならないこともあるでしょう。
+      コールされるオブジェクトの完全なスタブを作ることはできますが、
+      正確な結果を返しているかどうかを確かめるのは不便です。もっと簡単な方法は、
+      <emphasis>自己シャント (Self Shunt) パターン</emphasis>を使用して、
+      テストケース自身をスタブとして使用することです。自己シャントというのは医学用語で、
+      薬を注入する場所を確保するため、
+      チューブを挿入して動脈からとった血液を静脈にもどすことを意味します。
+    </para>
+
+    <para>
+      <indexterm><primary>Observer Pattern (オブザーバパターン)</primary></indexterm>
+
+      ここに例を示します。別のオブジェクトを観察 (observe) しているオブジェクト上で、
+      正しいメソッドがコールされたかどうかをテストしたいとします。まず、
+      <literal>Observer</literal> を実装したテストケースクラスを作成します。
+<programlisting>class ObserverTest extends PHPUnit2_Framework_TestCase implements Observer {
+}</programlisting>
+    </para>
+
+    <para>
+      次に、<literal>Observer</literal> のメソッドである <literal>update()</literal>
+      を実装します。そして、観察対象のオブジェクトである <literal>Subject</literal>
+      の状態が変化した場合にそのメソッドが正しくコールされるかどうかを調べます。
+<programlisting>public $wasCalled = FALSE;
+
+public function update(Subject $subject) {
+    $this->wasCalled = TRUE;
+}</programlisting>
+    </para>
+
+    <para>
+      さあ、それではテストを書いてみましょう。まず新しい <literal>Subject</literal>
+      オブジェクトを作成し、テストオブジェクトをオブザーバとしてアタッチします。
+      <literal>Subject</literal> の状態が変化すると (例えば <literal>doSomething()</literal>
+      メソッドがコールされるなど)、<literal>Subject</literal>
+      オブジェクトは全オブザーバの <literal>update()</literal>
+      メソッドをコールしなければなりません。ここではインスタンス変数
+      <literal>$wasCalled</literal> を使用し、<literal>update()</literal>
+      の中でその値を設定します。これにより、<literal>Subject</literal>
+      オブジェクトが期待通りの動作をしているかどうかを確かめます。
+
+<programlisting>public function testUpdate() {
+    $subject = new Subject;
+    $subject->attach($this);
+    $subject->doSomething();
+
+    $this->assertTrue($this->wasCalled);
+}</programlisting>
+    </para>
+
+    <para>
+      グローバルなインスタンスではなく、新しい <literal>Subject</literal>
+      オブジェクトを作成したことに注意してください。スタブを利用する際には、
+      このような設計をお勧めします。こうすると、
+      オブジェクト間の結合度が緩やかになり、再利用性が高まります。
+    </para>
+
+    <para>
+      自己シャントパターンになじみのない方には、このテストはわかりにくいかもしれません。
+      いったいここで何が起こっているんだ? テストケース自身がオブザーバになるだって?
+      でも、お決まりのパターンをいったん身につけてしまえば、
+      これらのテストは簡単に理解できるようになります。
+      テストの内容をつかむために必要なことは、
+      すべてひとつのクラスの中に含まれているのですから。
+    </para>
+  </section>
+</chapter>

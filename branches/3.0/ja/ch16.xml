@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="skeleton-generator">
+  <title>雛形ジェネレータ</title>
+
+  <para>
+    <indexterm><primary>Skeleton Generator (雛形ジェネレータ)</primary></indexterm>
+
+    既存のコードのテストを記述する際は、
+    以下のようなコードを何度となく繰り返し記述することになるでしょう。
+    <programlisting>public function testMethod()
+{
+}</programlisting>
+    PHPUnit は、既存のクラスのコードを解析して
+    テストケースクラスの雛形を作成することができます。
+  </para>
+
+  <example id="skeleton-generator.examples.Calculator.php">
+    <title>Calculator クラス</title>
+    <programlisting><![CDATA[<?php
+class Calculator
+{
+    public function add($a, $b)
+    {
+        return $a + $b;
+    }
+}
+?>]]></programlisting>
+  </example>
+
+  <para>
+    次の例は、<literal>Calculator</literal> という名前のクラス
+    (<xref linkend="skeleton-generator.examples.Calculator.php" /> を参照ください)
+    用のテストクラスの雛形を作成する手順を示すものです。
+  </para>
+
+  <screen><userinput>phpunit --skeleton Calculator</userinput>
+PHPUnit 3.0.0 by Sebastian Bergmann.
+
+Wrote test class skeleton for Calculator to CalculatorTest.php.</screen>
+
+  <para>
+    <indexterm><primary>Incomplete Test (不完全なテスト)</primary></indexterm>
+
+    もとのクラスの各メソッドについて、
+    出来上がったテストケースクラスのテストケースは不完全な状態
+    (<xref linkend="incomplete-and-skipped-tests" /> を参照ください) です。
+  </para>
+
+  <para>
+    作成されたテストケースクラスを実行した結果を以下に示します。
+  </para>
+
+  <screen><userinput>phpunit --verbose CalculatorTest</userinput>
+PHPUnit 3.0.0 by Sebastian Bergmann.
+
+I
+
+Time: 00:00
+
+There was 1 incomplete test:
+
+1) testAdd(CalculatorTest)
+This test has not been implemented yet.
+/home/sb/CalculatorTest.php:55
+
+OK, but incomplete or skipped tests!
+Tests: 1, Incomplete: 1.</screen>
+
+  <section id="skeleton-generator.annotations">
+    <title>アノテーション</title>
+
+    <para>
+      <indexterm><primary>Annotation (アノテーション)</primary></indexterm>
+
+      <literal>@assert</literal> アノテーションを
+      メソッドのコメント部で使用すると、
+      シンプルではあるけれど意味のあるテストを自動的に生成することができます。
+      これは不完全なテストケースではありません。
+      <xref linkend="skeleton-generator.annotations.examples.Calculator.php" />
+      に例を示します。
+    </para>
+
+    <example id="skeleton-generator.annotations.examples.Calculator.php">
+      <title>@assert アノテーションをつけた Calculator クラス</title>
+      <programlisting><![CDATA[<?php
+class Calculator
+{
+    /**
+     * @assert (0, 0) == 0
+     * @assert (0, 1) == 1
+     * @assert (1, 0) == 1
+     * @assert (1, 1) == 2
+     */
+    public function add($a, $b)
+    {
+        return $a + $b;
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      もとのクラスの各メソッドについて、
+      <literal>@assert</literal> アノテーションの内容をチェックします。
+      これらは、以下のようなテストコードに変換されます。
+      <programlisting>    /**
+     * Generated from @assert (0, 0) == 0.
+     */
+    public function testAdd() {
+        $o = new Calculator;
+        $this->assertEquals(0, $o->add(0, 0));
+    }</programlisting>
+    </para>
+
+    <para>
+      作成されたテストケースクラスを実行した結果を以下に示します。
+    </para>
+
+    <screen><userinput>phpunit CalculatorTest</userinput>
+PHPUnit 3.0.0 by Sebastian Bergmann.
+
+....
+
+Time: 00:00
+
+
+OK (4 tests)</screen>
+
+    <para>
+      <xref linkend="skeleton-generator.annotations.tables.assert-annotations" />
+      に、サポートされる <literal>@assert</literal>
+      の種類と、それがどのようなテストコードに変換されるかをまとめました。
+    </para>
+
+    <table id="skeleton-generator.annotations.tables.assert-annotations">
+      <title>サポートされる @assert アノテーション</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>アノテーション</entry>
+            <entry>変換後の内容</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>@assert (...) == X</literal></entry>
+            <entry><literal>assertEquals(X, method(...))</literal></entry>
+          </row>
+          <row>
+            <entry><literal>@assert (...) != X</literal></entry>
+            <entry><literal>assertNotEquals(X, method(...))</literal></entry>
+          </row>
+          <row>
+            <entry><literal>@assert (...) === X</literal></entry>
+            <entry><literal>assertSame(X, method(...))</literal></entry>
+          </row>
+          <row>
+            <entry><literal>@assert (...) !== X</literal></entry>
+            <entry><literal>assertNotSame(X, method(...))</literal></entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+  </section>
+</chapter>

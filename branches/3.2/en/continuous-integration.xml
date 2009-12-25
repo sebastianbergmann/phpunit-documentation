@@ -1,0 +1,341 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="continuous-integration">
+  <title>Continuous Integration</title>
+
+  <blockquote>
+    <attribution>Martin Fowler</attribution>
+    <para>
+      <ulink url="http://www.martinfowler.com/articles/continuousIntegration.html">Continuous Integration</ulink>
+      is a software development practice where members of a team integrate
+      their work frequently, usually each person integrates at least daily,
+      leading to multiple integrations per day. Each integration is verified
+      by an automated build (including test) to detect integration errors as
+      quickly as possible. Many teams find that this approach leads to
+      significantly reduced integration problems and allows a team to develop
+      cohesive software more rapidly.
+    </para>
+  </blockquote>
+
+  <para>
+    This chapter provides an overview of Continuous Integration summarizing
+    the technique and its application with PHPUnit.
+  </para>
+
+  <section id="continuous-integration.cruisecontrol">
+    <title>CruiseControl</title>
+
+    <para>
+      Continuous Integration demands a fully automated and reproducible build,
+      including testing, that runs many times a day. This allows each developer
+      to integrate daily thus reducing integration problems. While this can
+      be achieved by setting up a
+      <ulink url="http://en.wikipedia.org/wiki/Crontab">cronjob</ulink> that
+      makes a fresh checkout from the project's
+      <ulink url="http://en.wikipedia.org/wiki/Source_code_repository">source
+      code repository</ulink> at regular intervals, runs the tests, and
+      publishes the results a more comfortable solution may be desired.
+    </para>
+
+    <para>
+      <indexterm><primary>Apache Ant</primary></indexterm>
+      <indexterm><primary>CruiseControl</primary></indexterm>
+
+      This is where a framework for continuous build processes such as
+      <ulink url="http://cruisecontrol.sourceforge.net/">CruiseControl</ulink>
+      comes into play. It includes, but is not limited to, plugins for email
+      notification, <ulink url="http://ant.apache.org/">Apache Ant</ulink>,
+      and various source control tools. A web interface is provided to view
+      the details of the current and previous builds.
+    </para>
+
+    <para>
+      The following example assumes that CruiseControl has been installed into
+      <filename>/usr/local/cruisecontrol</filename>.
+    </para>
+
+    <orderedlist>
+      <listitem><screen><userinput>cd /usr/local/cruisecontrol</userinput></screen></listitem>
+      <listitem><screen><userinput>mkdir -p projects/BankAccount/build/logs</userinput></screen></listitem>
+      <listitem><screen><userinput>cd projects/BankAccount</userinput></screen></listitem>
+      <listitem><screen><userinput>svn co svn://svn.phpunit.de/phpunit/phpunit/branches/release/3.2/PHPUnit/Samples/BankAccount source</userinput></screen></listitem>
+      <listitem>Edit the <filename>build.xml</filename> file.</listitem>
+    </orderedlist>
+
+    <example id="continuous-integration.cruisecontrol.examples.build.xml">
+      <title>projects/BankAccount/build.xml</title>
+      <programlisting><![CDATA[<project name="BankAccount" default="build" basedir=".">
+ <target name="checkout">
+  <exec dir="${basedir}/source/" executable="svn">
+   <arg line="up"/>
+  </exec>
+ </target>
+
+ <target name="test">
+  <exec dir="${basedir}/source" executable="phpunit" failonerror="true">
+   <arg line="--log-xml ${basedir}/build/logs/bankaccount.xml BankAccountTest"/>
+  </exec>
+ </target>
+
+ <target name="build" depends="checkout,test"/>
+</project>]]></programlisting>
+    </example>
+
+    <orderedlist continuation="continues">
+      <listitem><screen><userinput>cd /usr/local/cruisecontrol</userinput></screen></listitem>
+      <listitem>Edit the <filename>config.xml</filename> file.</listitem>
+    </orderedlist>
+
+    <example id="continuous-integration.cruisecontrol.examples.config.xml">
+      <title>config.xml</title>
+      <programlisting><![CDATA[<cruisecontrol>
+  <project name="BankAccount" buildafterfailed="false">
+    <plugin
+    name="svnbootstrapper"
+    classname="net.sourceforge.cruisecontrol.bootstrappers.SVNBootstrapper"/>
+    <plugin
+    name="svn"
+    classname="net.sourceforge.cruisecontrol.sourcecontrols.SVN"/>
+
+    <listeners>
+      <currentbuildstatuslistener file="logs/${project.name}/status.txt"/>
+    </listeners>
+
+    <bootstrappers>
+      <svnbootstrapper localWorkingCopy="projects/${project.name}/source/"/>
+    </bootstrappers>
+
+    <modificationset>
+      <svn localWorkingCopy="projects/${project.name}/source/"/>
+    </modificationset>
+
+    <schedule interval="300">
+      <ant
+      anthome="apache-ant-1.7.0"
+      buildfile="projects/${project.name}/build.xml"/>
+    </schedule>
+
+    <log dir="logs/${project.name}">
+      <merge dir="projects/${project.name}/build/logs/"/>
+    </log>
+
+    <publishers>
+      <currentbuildstatuspublisher
+      file="logs/${project.name}/buildstatus.txt"/>
+
+      <email
+      mailhost="localhost"
+      buildresultsurl="http://cruise.example.com/buildresults/${project.name}"
+      skipusers="true"
+      spamwhilebroken="true"
+      returnaddress="project@example.com">
+        <failure address="dev@lists.example.com" reportWhenFixed="true"/>
+      </email>
+    </publishers>
+  </project>
+</cruisecontrol>]]></programlisting>
+    </example>
+
+    <para>
+      Now we can (re)start the CruiseControl server.
+    </para>
+
+    <orderedlist continuation="continues">
+      <listitem><screen><userinput>./cruisecontrol.sh</userinput></screen></listitem>
+      <listitem>Open <filename>http://localhost:8080/</filename> in your webbrowser.</listitem>
+    </orderedlist>
+  </section>
+
+  <section id="continuous-integration.phpUnderControl">
+    <title>phpUnderControl</title>
+
+    <para>
+      <indexterm><primary>phpUnderControl</primary></indexterm>
+
+      <ulink url="http://www.phpundercontrol.org/">phpUnderControl</ulink> is an
+      extension for CruiseControl that integrates several PHP development tools,
+      such as PHPUnit for testing,
+      <ulink url="http://pear.php.net/package/PHP_CodeSniffer">PHP_CodeSniffer</ulink>
+      for <ulink url="http://en.wikipedia.org/wiki/Static_code_analysis">static
+      code analysis</ulink>, and <ulink url="http://www.phpdoc.org/">PHPDocumentor</ulink>
+      for <ulink url="http://en.wikipedia.org/wiki/Documentation_generator">API
+      documentation generation</ulink>. It comes with a powerful command-line
+      tool that can, among other things, automatically create CruiseControl's
+      XML configuration files for your project. The following example assumes
+      that CruiseControl has been installed into
+      <filename>/usr/local/cruisecontrol</filename>.
+    </para>
+
+    <orderedlist>
+      <listitem><screen><userinput>pear install --alldeps phpunit/phpUnderControl</userinput></screen></listitem>
+      <listitem><screen><userinput>phpuc install /usr/local/cruisecontrol</userinput></screen></listitem>
+      <listitem><screen><userinput>phpuc project --version-control svn
+              --version-control-url svn://svn.phpunit.de/phpunit/phpunit/branches/release/3.3/PHPUnit/Samples/BankAccount
+              --test-case BankAccountTest
+              --test-file BankAccountTest.php
+              --test-dir .
+              --project-name BankAccount
+              /usr/local/cruisecontrol</userinput></screen></listitem>
+    </orderedlist>
+
+    <para>
+      The above command creates the project directory and the project's
+      <filename>build.xml</filename> configuration file, performs the initial
+      checkout from the source repository, and adds the new project to the
+      global <filename>config.xml</filename> configuration file. Now we can
+      (re)start the CruiseControl server.
+    </para>
+
+    <orderedlist continuation="continues">
+      <listitem><screen><userinput>cd /usr/local/cruisecontrol</userinput></screen></listitem>
+      <listitem><screen><userinput>./cruisecontrol.sh</userinput></screen></listitem>
+      <listitem>Open <filename>http://localhost:8080/</filename> in your webbrowser.</listitem>
+    </orderedlist>
+  </section>
+
+  <section id="continuous-integration.maven">
+    <title>Apache Maven</title>
+
+    <para>
+      <indexterm><primary>Apache Maven</primary></indexterm>
+
+      <ulink url="http://maven.apache.org/">Apache Maven</ulink> is a software
+      project management and comprehension tool. Based on the concept of a
+      Project Object Model (POM), Apache Maven can manage a project's build,
+      reporting and documentation from a central place of information.
+    </para>
+
+    <para>
+      The single XML logfile that PHPUnit's XML logging facility (see <xref
+      linkend="logging.xml"/>) generates needs to be split into separate XML
+      logfiles, one for each test suite, before it can be processed by Apache
+      Maven's <ulink url="http://maven.apache.org/plugins/maven-surefire-plugin/">surefire plugin</ulink>.
+      This plugin is used during the test phase of the build lifecycle to
+      execute the unit tests of an application. <xref
+      linkend="continuous-integration.maven.examples.phpunit_to_surefire.xsl"/>
+      shows an XSLT stylesheet that performs this splitting. <xref
+      linkend="continuous-integration.maven.examples.pom.xml"/> shows an
+      example <filename>pom.xml</filename> configuration file.
+    </para>
+
+    <example id="continuous-integration.maven.examples.pom.xml">
+      <title>pom.xml</title>
+      <programlisting><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+  http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <!-- ... -->
+  <prerequisites>
+    <maven>2.0.7</maven>
+  </prerequisites>    
+  <!-- ... -->
+  <build>
+  <!-- ... -->
+    <plugins>
+      <plugin>
+      <dependencies>
+        <dependency>
+          <groupId>org.apache.ant</groupId>
+          <artifactId>ant-trax</artifactId>
+          <version>1.7.0</version>
+        </dependency>
+        <dependency>
+          <groupId>net.sf.saxon</groupId>
+          <artifactId>saxon</artifactId>
+          <version>8.7</version>
+        </dependency>
+      </dependencies>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-antrun-plugin</artifactId>
+      <version>1.2-SNAPSHOT</version>
+      <executions>
+        <execution>
+          <id>codecoverage</id>
+          <phase>pre-site</phase>
+          <goals>
+            <goal>run</goal>
+          </goals>
+          <configuration>
+            <tasks>
+              <property name="phpunit.codecoverage"
+                        location="${project.reporting.outputDirectory}/phpunit/codecoverage" />
+              <property name="surefire.reports"
+                        location="${project.build.directory}/surefire-reports" />
+
+              <mkdir dir="${phpunit.codecoverage}"/>
+              <mkdir dir="${surefire.reports}"/>
+
+              <!-- ${ant.phpunit} path to PHPUnit executable -->
+              <!-- ${ant.pear};... this is the include path for your test execution -->
+              <!-- ${test.AllTests} PHPUnit cmd line args like 'AllTests de/dmc/dashboard/AllTests.php' -->
+              <exec executable="${ant.phpunit}" dir="${basedir}">
+                <arg line="-d include_path=${ant.pear};${project.build.sourceDirectory};${project.build.testSourceDirectory}
+                           --report ${phpunit.codecoverage} ${test.AllTests}" />
+              </exec>
+
+              <xslt in="${phpunit.codecoverage}/logfile.xml"
+                    out="${surefire.reports}/xslt.info"
+                    style="src/test/config/phpunit_to_surefire.xslt"
+                    processor="trax">
+                <!-- this is the output folder for surefire like XML Reports -->
+                <param name="outputDir" expression="${surefire.reports}"/>
+              </xslt>
+            </tasks>
+          </configuration>
+        </execution>
+      </executions>
+      </plugin>
+    </plugins>
+  </build>
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-report-plugin</artifactId>
+        <version>2.4-SNAPSHOT</version>
+        <reportSets>
+          <reportSet>
+            <reports>
+              <report>report-only</report>
+            </reports>
+          </reportSet>
+        </reportSets>
+      </plugin>
+    </plugins>
+  </reporting>
+</project>]]></programlisting>
+    </example>
+
+    <example id="continuous-integration.maven.examples.phpunit_to_surefire.xsl">
+      <title>phpunit_to_surefire.xsl</title>
+      <programlisting><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+
+<xsl:stylesheet version="2.0"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:fn="http://www.w3.org/2005/xpath-functions">
+  <xsl:output method="xml" version="1.0" encoding="UTF-8" indent="yes"/>
+  <xsl:param name="outputDir">.</xsl:param>
+
+  <xsl:template match="testsuites">
+    <xsl:apply-templates select="testsuite"/>
+  </xsl:template>
+
+  <xsl:template match="testsuite">
+    <xsl:if test="testcase">
+      <xsl:variable name="outputName" select="./@name"/>
+      <xsl:result-document href="file:///{$outputDir}/{$outputName}.xml" method="xml">
+        <xsl:copy-of select="."/>
+      </xsl:result-document>
+    </xsl:if>
+
+    <xsl:apply-templates select="testsuite"/>
+  </xsl:template>
+</xsl:stylesheet>
+]]></programlisting>
+    </example>
+  </section>
+</chapter>

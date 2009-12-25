@@ -1,0 +1,1646 @@
+<chapter id="mod"><title>Modelling Information</title>
+<simplesect>
+
+<para>Designing a markup language is a task similar to designing a
+building. First, you have to ask some questions: Who am I building it
+for? How will it be constructed? How will it be used? Do I give it
+many small rooms or a few large ones? Will the rooms be generic and
+interchangeable or specialized? Is there are role for the building,
+like storage, office space, or factory work? It takes a lot of
+planning to do it right.</para>
+
+<para>When designing a markup language, there are many questions to
+answer: What constitutes a document? How detailed do you need it to
+be? How will it be generated? Is it flexible enough to handle every
+expected situation? Is it generic enough to support different
+formatting options and modes? Your decisions will help answer the most
+basic question which is how can you represent a piece information as
+XML?  This problem is part of the important topic of data
+modelling.</para>
+
+<para>In this chapter, we look at the ways in which different kinds of
+data are modelled using XML. First, I'll show you the most basic kinds
+of documents, simple collections of preferences for software
+applications. The next category covers narrative documents with
+characteristics such as text flows, block and inline elements, and
+titled sections. Lastly, under the broad umbrella of "complex" data, I
+talk about the myriad specialized markup languages for everything from
+vector graphics to remote procedure calls.</para>
+
+</simplesect>
+
+
+<sect1><title>Simple Data Storage</title>
+
+<para>In its most basic way, XML can be used like a database. Since
+the early days of computer operating systems, data was stored in files
+as tables, like the venerable /etc/passwd file:</para>
+
+<programlisting>nobody:*:-2:-2:Unprivileged User:/nohome:/noshell
+root:*:0:0:System Administrator:/var/root:/bin/tcsh
+daemon:*:1:1:System Services:/var/root:/noshell
+smmsp:*:25:25:Sendmail User:/private/etc/mail:/noshell</programlisting>
+
+<para>It isn't too hard to parse data like this, but it has problems,
+too. Certain characters aren't allowed. Each record lives on a
+separate line, so data can't span lines. A syntax error is easy to
+create and may be difficult to locate. XML has natural immunity to
+these types of problems.</para>
+
+<para>If you are writing a program that reads or saves data to a file,
+there are good reasons to go with XML. Parsers have been written to
+parse it already, so all you need to do is link to a library and use
+one of several easy interfaces: SAX, DOM, XPath. Syntax errors are
+easy to catch, and that too is automated by the parser. Technologies
+like DTDs and Schema even check the structure and contents of elements
+for you, to ensure completeness and ordering.</para>
+
+
+<sect2><title>Dictionaries</title>
+
+<para>A dictionary is a simple one-to-one mapping of properties to
+values. A property has a name, or <firstterm>key</firstterm>, which is
+a unique identifier. This is kind of like a table with two
+columns. It's a simple but very effective way to serialize data.</para>
+
+<para>In the Macintosh OSX operating system, Apple selected XML as its
+format for preference files (called property lists). For the Chess program,
+the property list is in a file called
+<filename>com.apple.Chess.plist</filename>, listed here:</para>
+
+<programlisting><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist SYSTEM "file://localhost/System/Library/DTDs/PropertyList.dtd">
+<plist version="0.9">
+  <dict>
+    <!--    KEY                       VALUE    -->
+    <key>BothSides</key>            <false/>
+    <key>Level</key>                <integer>1</integer>
+    <key>PlayerHasWhite</key>       <true/>
+    <key>SpeechRecognition</key>    <false/>
+  </dict>
+</plist>]]></programlisting>
+
+<para>Here the data is stored in a tabular form within a
+<sgmltag>dict</sgmltag> (dictionary) element. Each "row" is a pair of
+elements, the first a <sgmltag>key</sgmltag> (the name of a property),
+and the second a value. Values come in different types, such as the
+boolean (true or false) and integer values you see here. The property
+<literal>SpeechRecognition</literal> is assigned the boolean value FALSE,
+which means that this feature is turned off in the program. The
+property <literal>Level</literal> (difficulty level) is set to 1
+because I'm a lousy chess player.</para>
+
+<para>Here's a more complex example. It's the property list for system
+sounds, <filename>com.apple.soundpref.plist</filename>:</para>
+
+<programlisting><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+    <key>AlertsUseMainDevice</key>  <integer>1</integer>
+    <key>Devices</key>
+    <dict>
+      <key>InputDevices</key>
+      <dict>
+        <key>AppleDBDMAAudioDMAEngine:0</key>
+        <dict>
+          <key>Balance</key>        <real>0.0</real>
+          <key>DeviceLevels</key>   <array>
+                                      <real>0.5</real>
+                                      <real>0.5</real>
+                                    </array>
+          <key>Level</key>          <real>0.5</real>
+        </dict>
+      </dict>
+      <key>OutputDevices</key>
+      <dict>
+        <key>AppleDBDMAAudioDMAEngine:0</key>
+        <dict>
+          <key>Balance</key>        <real>0.0</real>
+          <key>DeviceLevels</key>   <array>
+                                      <real>1</real>
+                                      <real>1</real>
+                                    </array>
+          <key>Level</key>          <real>1</real>
+        </dict>
+      </dict>
+    </dict>
+  </dict>
+</plist>
+]]></programlisting>
+
+<para>In this example, the structure is recursive. A
+<sgmltag>dict</sgmltag> can be avalue, allowing you to associate a key
+with a whole set of settings. This allows for better organization by
+creating categories like <literal>Devices</literal> and, under that,
+subcategories like <literal>InputDevices</literal> and
+<literal>OutputDevices</literal>. Notice also the
+<sgmltag>array</sgmltag> type, which associates multiple values to one
+key. Here, arrays are used to set the left and right volume
+levels.</para> 
+
+<para>I really like this way of storing preferences because it gives
+me two ways to access the data. I can fiddle with settings in the
+program's preferences window. The program would then update this XML
+file the moment I click on the "OK" button. Alternatively, I can edit
+the file myself. This may be an easier way to affect changes,
+especially if some features aren't addressed in the GUI. I can edit it
+in a text editor, or in the special application included with the
+Macintosh OS called <application>Property List Editor</application>,
+whose interface is very easy to use, as shown in <xref
+linkend="mod-fig-ple"/>.</para>
+
+<figure id="mod-fig-ple">
+<title>Apple's Property List Editor</title>
+<graphic fileref="figs/lx2_0301.jpg"/>
+</figure>
+
+</sect2>
+
+
+<sect2><title>Records</title>
+
+<para>A database typically stores information in
+<firstterm>records</firstterm>, packages of data that follow the same
+pattern. There are lots of records, each with the same set of data
+fields, sometimes accessed by a unique identifier. For example, a
+personnel database would have a record for each employee. <xref
+linkend="model-ex-checkbook"/> is a simple record-style XML document
+used for expense tracking.</para>
+
+<example id="model-ex-checkbook">
+<title>A Checkbook Document</title>
+<programlisting><![CDATA[<?xml version="1.0"?>
+<checkbook balance-start="2460.62">
+<title>expenses: january 2002</title>
+
+  <debit category="clothes">
+    <amount>31.19</amount>
+    <date><year>2002</year><month>1</month><day>3</day></date>
+    <payto>Walking Store</payto>
+    <description>shoes</description>
+  </debit>
+
+  <deposit category="salary">
+    <amount>1549.58</amount>
+    <date><year>2002</year><month>1</month><day>7</day></date>
+    <payor>Bob's Bolts</payor>
+  </deposit>
+
+  <debit category="withdrawal">
+    <amount>40</amount>
+    <date><year>2002</year><month>1</month><day>8</day></date>
+    <description>pocket money</description>
+  </debit>
+
+  <debit category="savings">
+    <amount>25</amount>
+    <date><year>2002</year><month>1</month><day>8</day></date>
+  </debit>
+
+  <debit category="medical" check="855" >
+    <amount>188.20</amount>
+    <date><year>2002</year><month>1</month><day>8</day></date>
+    <payto>Boston Endodontics</payto>
+    <description>cavity</description>
+  </debit>
+
+  <debit category="supplies">
+    <amount>10.58</amount>
+    <date><year>2002</year><month>1</month><day>10</day></date>
+    <payto>Exxon Saugus</payto>
+    <description>gasoline</description>
+  </debit>
+
+  <debit category="car">
+    <amount>909.56</amount>
+    <date><year>2002</year><month>1</month><day>14</day></date>
+    <payto>Honda North</payto>
+    <description>car repairs</description>
+  </debit>
+
+  <debit category="food">
+    <amount>24.30</amount>
+    <date><year>2002</year><month>1</month><day>15</day></date>
+    <payto>Johnny Rockets</payto>
+    <description>lunch</description>
+  </debit>
+</checkbook>]]></programlisting>
+</example>
+
+<para>Each record is either a <sgmltag>debit</sgmltag> (expense) or a
+<sgmltag>deposit</sgmltag> (income). It contains information about the
+expense/income category, to whom I paid money (or received money
+from), the date it happened, and a brief description. I have used
+documents like this to balance my checkbook and summarize expenses in
+tables so I can figure out where all my money goes.</para>
+
+<para>How can you do this? I'll show you a quick program you can write
+in Perl to calculate the ending balance in the previous example. <xref
+linkend="model-ex-tabulate"/> shows a program that spits out a number
+on the command line.</para>
+
+<example id="model-ex-tabulate">
+<title>Tabulate program</title>
+<programlisting><![CDATA[#!/usr/bin/perl
+use XML::LibXML;
+my $parser = new XML::LibXML;
+my $doc = $parser->parse_file( shift @ARGV );
+my $balance = $doc->findvalue( '/checkbook/@balance-start' );
+foreach my $record ( $doc->findnodes( '//debit' )) {
+    $balance -= $record->findvalue( 'amount' );
+}
+foreach my $record ( $doc->findnodes( '//deposit' )) {
+    $balance += $record->findvalue( 'amount' );
+}
+print "Current balance: $balance\n";]]></programlisting>
+</example>
+
+<para>The library XML::LibXML parses the document and stores it in an
+object tree called <literal>$doc</literal>. This object supports two
+interfaces: DOM and XPath. I used XPath queries as arguments to
+the methods <function>findnodes()</function> and
+<function>findvalue()</function> to reach into parts of the document
+and pull out elements and character data. What could be easier?</para>
+
+<para>Run the above program on the data file and you'll get:</para>
+
+<screen>$ <userinput>tab data</userinput>
+Current balance: 2781.37</screen>
+
+<para>This example shows how XML makes reading and accessing data easy
+for the programmer. What's more, the XML is flexible enough to allow
+you to restructure the data without rewriting the program. If I were
+to add new fields, such as an <literal>ID</literal> attribute or a
+<sgmltag>time</sgmltag> element, it wouldn't effect the program a
+bit. With an <foreignphrase>ad hoc</foreignphrase> solution like the
+colon-delimited <filename>/usr/passwd</filename> file, you would not
+have that kind of flexibility.</para>
+
+</sect2>
+
+
+<sect2><title>Good and Bad</title>
+
+<para>XML is very good at modelling simple data structures like
+the examples you've seen so far. We've seen all kinds of data types
+represented: strings, integers, real numbers, arrays, dictionaries,
+records. It's easier to modify than flat files, with minimal impact on
+processing software, so you can add or remove fields as you
+like. Writing programs to process the data is easy, since much of the
+parsing work has been abstracted out, and plenty of interfaces are
+available. Since XML support is ubiquitous, there are many ways to
+modify the data.</para>
+
+<para>The downside is that XML is not optimized for rapid, repetitive
+access. An XML parser has to read the entire document to pick out even
+a single detail, a huge overhead for one lookup. As the document
+grows, the access time gets longer. Even storing it in memory isn't
+much better, since searches are not optimized for finding records by
+unique identifier. It's not as bad as doing an exhaustive search
+through many files, but not as good as a true database.</para>
+
+<para>Dedicated databases are designed to store data in a way that is
+independant of the size and number of records. They are fast, but lack
+the flexibility and ease of access of XML. A data processing program
+must access the data indirectly, through an interface like SQL. This
+can be cumbersome because data is stored in separate rows of a table,
+and it make take several queries to reach the right data
+point. Even worse, no two databases work the same way. Each has its
+quirks and refinements that make it difficult or impossible to write
+universal software without some kind of middleware adapter.</para>
+
+<para>It comes down to a trade-off between convenience and
+performance. XML maximizes flexibility and access, but is not ideally
+suited for heavy, repetitive access. Databases are optimized for speed
+and efficiency, but are harder to configure and write programs
+for. And while XML is an open, universal format that is accessible by
+all XML-compliant tools, there are no such guarantees with
+databases.</para> 
+
+</sect2>
+</sect1>
+
+
+<sect1><title>Narrative Documents</title>
+
+<para>Now let's look at an important specific category of XML.  A
+<firstterm>narrative document</firstterm> is one that contains text
+meant to be read by people rather than machines. It includes web
+pages, books, journals, articles, and essays. These documents have
+some common traits. First, order of elements is inviolate. Try
+reading a book backwards and you'll agree it's much less interesting
+that way (and it gives away the ending). The text runs in a single
+path called a <firstterm>flow</firstterm>, which the reader follows
+from beginning to end.</para>
+
+<para>Another key feature is that there are specialised element
+groups, including sections, blocks, and inlines. Sections are
+how you would imagine them: elements that break up the document into
+parts like chapters, subsections, and so on. Blocks are rectangular
+regions such as titles and paragraphs. Inlines are specially marked
+strings inside those blocks for special formatting. <xref
+linkend="mod-fig-flow"/> shows how a typical formatted document would
+render these elements.</para>
+
+<figure id="mod-fig-flow">
+<title>Flows, blocks, inlines</title>
+<graphic fileref="figs/lx2_0302.jpg"/>
+</figure>
+
+<sect2><title>Flows and sections</title>
+
+<para>A narrative document contains at least one 
+<firstterm>flow</firstterm>, a stream of text to be read continuously
+from start to finish. It there are multiple flows, one will be the
+dominant one, branching occasionally into short tangential flows like
+sidebars, notes, tips, warnings, footnotes, and so on. The main flow
+is typically formatted as a column, while other flows are often in
+boxes interrupting the main flow, or moved to the side or the very
+end, with some kind of link pointing to it (e.g. a footnote
+symbol).</para>
+
+<para>Markup for flows are varied. Some XML applications like
+XHTML do not support more than one flow. Others, like DocBook, have
+rich support for flows, encapsulating them as elements inside the main
+flow. The best representation allows flows to be moved around, floated
+within the confines of the formatted page.</para>
+
+<para>The main flow is broken up into <firstterm>sections</firstterm>,
+hierarchical divisions that organize the document by topics, usually
+with titles or <firstterm>heads</firstterm>. For example, a book is
+divided into chapters, which are subdivided by sections and
+subsections and subsubsections. It is often convenient to treat these
+divisions as separate entities which can be stored in their own files,
+imported using the external entity mechanism. This is useful if
+sections are being worked on in parallel by different people, such as
+with articles of a journal.</para>
+
+<para>There are common two ways in which sections are coded. The
+first, and less flexible, scheme is where the section head is tagged,
+but there is no element to denote the boundary of the section, like
+this:</para>
+
+<programlisting>&lt;bighead&gt;A major section&lt;/bighead&gt;
+&lt;head&gt;A cute little section&lt;/head&gt;
+&lt;paragraph&gt;Some text...&lt;/paragraph&gt;
+&lt;head&gt;Another cute little section&lt;/head&gt;
+&lt;paragraph&gt;Some text...&lt;/paragraph&gt;</programlisting>
+
+<para>The other, better scheme is where the section has definite
+boundaries created by a container element:</para>
+
+<programlisting>&lt;section&gt;
+  &lt;head&gt;A major section&lt;/head&gt;
+  &lt;subsection&gt;
+    &lt;head&gt;A cute little section&lt;/head&gt;
+    &lt;paragraph&gt;Some text...&lt;/paragraph&gt;
+  &lt;/subsection&gt;
+  &lt;subsection&gt;
+    &lt;head&gt;Another cute little section&lt;/head&gt;
+    &lt;paragraph&gt;Some text...&lt;/paragraph&gt;
+  &lt;/subsection&gt;
+&lt;/section&gt;</programlisting>
+
+<para>The first is called a <firstterm>flat</firstterm> structure and
+is less desireable because it relies on presentational details to
+devine where parts of the document begin and end. In this case, a
+bigger head means a larger section is beginning, and a small head
+indicates a subsection is starting. It's harder to write software to
+recognize these details than the other kind, the
+<firstterm>hierarchical</firstterm> structure. XHTML, for example, is
+typically flat. In contrast, the markup language DocBook is
+hierarchical. We'll see examples of these shortly.</para>
+
+</sect2>
+
+
+<sect2><title>Blocks and inlines</title>
+
+<para>A <firstterm>block</firstterm> is a type of element that
+contains a segment of a flow and typically formats as a rectangular
+region, separated from other blocks by vertical space above and
+below. Unlike sections, blocks hold mixed content, both character 
+data and elements. Examples of blocks are paragraphs, section heads,
+and list items.</para>
+
+<para>Elements inside blocks are called <firstterm>inline
+elements</firstterm> because they follow the line of text. They begin
+and end within the lines scanning from left to right (or right to
+left, if we're reading Arabic). Inlines are used to mark words and
+phrases for emphasis or special formatting from the surrounding text
+in the block. Examples include emphasis, glossary terms, and important
+names.</para>
+
+<para>Here is an example of a block with inlines:</para>
+
+<programlisting><![CDATA[<para><person>R. Buckminster Fuller</person> once 
+said, <quote>When people learned to do <emphasis>more</emphasis> with
+<emphasis>less</emphasis>, it was their lever to industrial
+success.</quote></para>]]></programlisting>
+
+<para>The element <sgmltag>para</sgmltag> is a block, containing
+a whole paragraph of text. Inside it are three inline element types:
+<sgmltag>person</sgmltag>, <sgmltag>quote</sgmltag>, and
+<sgmltag>emphasis</sgmltag>. The <sgmltag>quote</sgmltag> element
+actually contains elements itself (the two <sgmltag>emphasis</sgmltag>
+elements), but is still considered an inline, since it begins and ends
+within the text line of the block.</para>
+
+<para>There are different reasons to use inlines. One is to control
+how the text formats. In this case, a formatter will probably replace
+the start and end tags with quote characters. For
+<sgmltag>emphasis</sgmltag> elements, it might render the contents in
+italic, underline, or bold.</para>
+
+<para>Another role for inlines is to mark text for special
+processing. The <sgmltag>person</sgmltag> element may have no special
+treatment by the formatter, but could be useful in other ways.
+Marking items as "person", "place", "definition", or whatever,
+makes it possible to mine data from the document for generating
+indexes, glossaries, search tables, and much more.</para>
+
+</sect2>
+
+
+<sect2><title>Complex Structures</title>
+
+<para>Not all structures found in narrative documents can be so
+readily classified as blocks or inlines. A table is not really a
+block, but an array of blocks. An illustration has no character data
+so it can't be considered a block. Lists also have their own rules,
+with indentation, autonumbering or bullets, and nesting. Objects like
+these are necessary complications for the narrative model.</para>
+
+<para>How to handle these structures is a tricky subject, but there
+are some assumptions you can make. For one thing, they usually remain
+inside the flow, interrupting the surrounding text briefly. It is as
+if the XML is broken up with little islands of complex markup within
+an ocean of narrative-style markup.</para>
+
+<para>Structures like figures and tables may
+<firstterm>float</firstterm> within the flow, meaning that the
+formatter has some leeway in where to place the objects to produce the
+best page layout. If a figure would cross a pagebreak in one place,
+the formatter may be able to reposition it elsewhere. For this reason,
+such objects usually have captions with references in the text that
+sound like "the data is summarized in table 5". A simple attribute
+like <literal>float="yes"</literal> may be sufficient to represent
+this capability in the markup.</para>
+
+<para>Complex objects behave a little like blocks in that they are
+usually separated vertically from each other and surrounding
+text. They may have some of the spacing and padding properties as
+well. But these details are usually settled in a stylesheet. XML
+doesn't (or shouldn't) tangle with presentational aspects any more
+than it has to.</para>
+
+</sect2>
+
+
+<sect2><title>Metadata</title>
+
+<para><firstterm>Metadata</firstterm> is information about the
+document that is not part of the flow. It's useful to keep with the
+rest of the document, but is not formatted, or else is formatted in a
+special way, such as on a title page in an arbitrary order. Examples
+include author name, copyright date, publisher, revision history,
+ISBN, catalog number.</para>
+
+<para>In XHTML, for example, there is a whole part of the document,
+the <sgmltag>head</sgmltag> element, to hold metadata like the title,
+descriptive terms for search engines, links to stylesheets, and so
+on. In DocBook, metadata can be associated with individual sections,
+which is useful to associate authors with invidual articals, for
+example.</para> 
+
+</sect2>
+
+
+<sect2><title>Linked Objects</title>
+
+<para>The last bunch of oddball elements often found in narrative
+documents can be classified as <firstterm>linked
+objects</firstterm>. These are elements which act as bookmarks in a
+document. The way you might stick a paperclip on a page or bend over
+the corner to mark the page is how they work.</para>
+
+<para>First, there is the <firstterm>cross reference</firstterm>, an
+element that refers to a section or object somewhere else in the
+document. When formatted, it may be replaced with generated text, such
+as the section number or title of the referred object. It may be
+turned into a hyperlink, which when clicked transports the user
+directly to the object.</para>
+
+<para>Another kind of linkend object is an invisible marker. It has
+no overt function in the flow other than to mark a location so that
+later, when generating an index, you can calculate a page number or
+create a hyperlink. Index items often span a range of pages, so you
+might want to capture the range with two markers, one at the beginning
+and one at the end.</para>
+
+</sect2>
+
+
+<sect2><title>XHTML</title>
+
+<para>Good old HTML is the markup language we are all familiar
+with. Simple, pretty, easy to learn, it has turned the Internet from
+an obscure plaything of a few academics to a must-have utility for
+everyone. Its success can be attributed to the "good enough" principle
+of web design. It's good enough to model almost any simple document as
+long as you don't mind its limitations: single column format, flat
+structure, and lack of page-oriented features.</para>
+
+<para>The simplicity that made HTML so popular with novice publishers
+is frustrating to professionals. Graphic designers crave better page
+layout capability and stylesheet granularity. Web developers want
+better structure and navigation. Librarians and researchers want more
+detailed metadata and searchability. Users with special needs want
+more localization and customization. Poor HTML has been pushed to do
+far more than it was ever designed to do.</para>
+
+<para>None of this makes HTML a bad markup language. It will not go
+away anytime soon, because it does a job well. It is a basic markup
+language for electronic display and cross-document linking. However,
+it is now just one star in a constellation of XML languages. If you
+need to do more, you will be able to select other kinds of narrative
+markup languages such as DocBook, which we will discuss later in the
+chapter.</para>
+
+<para>First, let me clear up something which may be confusing to
+you. I use the terms HTML and XHTML interchangeably. HTML is older
+than XML, so its earlier incarnations do not follow all the rules of
+well-formed XML documents. But XML was designed to make it as easy as
+possible to get HTML documents into good XML form. HTML that is
+well-formed XML is simply called XHTML. From now on, when I use the
+term <wordasword>HTML</wordasword>, I mean
+<wordasword>XHTML</wordasword>.</para>
+
+<para>The best feature of HTML&mdash;so great it's responsible for
+1/4th of the acronym&mdash;is hypertext: text that spans
+documents. Where the Web concerned, the boundaries of documents are
+quite blurred. As a result, documents are typically small and 
+with many nonlinear flows. It's easy to get lost, so navigation aids,
+such as links at the top, bottom, or margin are required. But the
+basics, blocks and inlines, are the same.</para>
+
+<para><xref linkend="mod-ex-xhtml"/> is a short XHTML
+document. I've taken the content of a manual page for the Unix command
+"cat" and reformatted it (from troff) as HTML. In this example, pay
+attention to what are blocks, inlines, and complex objects like
+lists.</para> 
+
+<example id="mod-ex-xhtml">
+<title>An XHTML document</title>
+<programlisting><![CDATA[<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+  <head>
+    <title>CAT(1) System General Commands Manual</title>
+  </head>
+  <body>
+    <h1>CAT(1) System General Commands Manual</h1>
+    <h2>NAME</h2>
+    <p>cat - concatenate and print files</p>
+    <h2>SYNOPSIS</h2>
+    <p>cat [-benstuv] [-] [<em>file</em>...]</p>
+    <h2>DESCRIPTION</h2>
+    <p>
+The <i>cat</i> utility reads files sequentially, writing them to the
+standard output. The file operands are processed in command line
+order. A single dash represents the standard input.
+    </p>
+    <p>
+The options are as follows:
+    </p>
+    <dl>
+      <dt>-b</dt>
+      <dd>
+Implies the <tt>-n</tt> option but doesn't number blank lines.
+      </dd>
+      <dt>-e</dt>
+      <dd>
+Implies the <tt>-v</tt> option, and displays a dollar sign ($) at
+the end of each line as well.
+      </dd>
+      <dt>-n</dt>
+      <dd>Number the output lines, starting at 1.</dd>
+      <dt>-s</dt>
+      <dd>
+Squeeze multiple adjacent empty lines, causing the output to be single
+spaced.
+      </dd>
+      <dt>-t</dt>
+      <dd>
+Implies the <tt>-v</tt> option, and displays tab characters as
+<tt>^I</tt> as well.
+      </dd>
+      <dt>-u</dt>
+      <dd>
+The <tt>-u</tt> option guarantees that the output is unbuffered.
+      </dd>
+      <dt>-v</dt> 
+      <dd>
+Displays non-printing characters so they are visible. Control
+characters print as <tt>^X</tt> for control-X; the delete character
+(octal 0177) prints as <tt>^?</tt> Non-ascii characters (with the high
+bit set) are printed as <tt>M-</tt> (for meta) followed by the
+character for the low 7 bits.
+      </dd>
+    </dl>
+    <p>
+The <i>cat</i> utility exits 0 on success, and &gt;0 if an error occurs.
+    </p>
+    <h2>BUGS</h2>
+    <p>
+Because of the shell language mechanism used to perform output
+redirection, the command <tt>cat file1 file2 &gt; file1</tt> will cause
+the original data in file1 to be destroyed!
+    </p>
+    <h2>SEE ALSO</h2>
+    <ul>
+      <li><a href="head.html">head(1)</a></li>
+      <li><a href="more.html">more(1)</a></li>
+      <li><a href="pr.html">pr(1)</a></li>
+      <li><a href="tail.html">tail(1)</a></li>
+      <li><a href="vis.html">vis(1)</a></li>
+    </ul>
+    <p>
+Rob Pike, <i>UNIX Style, or cat -v Considered Harmful</i>, USENIX Summer
+Conference Proceedings, 1983.
+    </p>
+    <h3>HISTORY</h3>
+    <p>
+A <i>cat</i> utility appeared in Version 6 AT&T UNIX.
+    </p>
+    <p>3rd Berkeley Distribution, May 2, 1995</p>
+  </body>
+</html>]]></programlisting>
+</example>
+
+<para>This is a flat document structure. No elements were used to
+contain and divide sections. Actually, HTML does have an element
+called <sgmltag>div</sgmltag> which can be used as a section
+container. However, it is not specifically designed as such, nor is it
+used often in HTML documents. It is more usual to see
+<sgmltag>div</sgmltag> used to divide regions for special
+formatting. So I stand by my assertion that HTML is essentially a
+flat-structured language.</para> 
+
+<para>Now direct your attention to the inlines in the example,
+<sgmltag>tt</sgmltag> and <sgmltag>i</sgmltag>. The names are
+abbreviations for presentational terms, "teletype" and "italic". Right
+there, you know there's something wrong. HTML has few element types,
+but is meant to be used for many different types of document. So the
+inventors picked elements that are generic and style-oriented. The
+result is that we're forced to mark up terms the way we want them to
+look rather than what they are.</para>
+
+<para>HTML does supply an inline element called
+<sgmltag>span</sgmltag>, which can be supplemented with an attribute
+to fit all kinds of roles. For example, I could have used
+<sgmltag>span class="command"</sgmltag> for the "cat" command and
+<sgmltag>span class="citation"</sgmltag> for the reference to "UNIX
+Style...". This would allow some flexibility in designing a
+stylesheet. But it's really not using the full power of XML, since
+it's just one element being stretched into many different
+roles.</para> 
+
+<para>Even some of the blocks have been forced into generic roles. The
+paragraph under the head "SYNOPSIS" isn't really a paragraph, is it?
+It's really something different, and I would prefer to use an element
+strictly for synopses or code listings. But HTML has very few types of
+block elements available and I am obligated to use whatever is
+available.</para>
+
+<para>There are good and bad points about using HTML in this
+example. The good side is that HTML is easy to use, so I was able to
+mark up the manual page in only a few minutes. With only a few 
+element types to remember, I don't have to look in a book to know
+which one to use and how it will look when formatted. The downside is
+that now I have a document that is fit only for one purpose:
+displaying in a web browser. A printout is likely to look
+primitive. And for other purposes, like search engines and index
+generators, the lack of granularity is likely to prevent me from doing
+anything truly useful.</para>
+
+<para>Until I need the extra functionality, I'm happy with HTML. But
+if I ever plan to use a document in more than one way, I'll need to
+explore other options. Something more specific to my brand of data
+will fit better and give me more options. What I will show you next
+is a markup language specifically designed for the information in the
+last example.</para>
+
+</sect2>
+
+
+<sect2><title>DocBook</title>
+
+<para>DocBook is a markup language designed specifically for technical
+documentation, modelling everything from one-page user manuals to
+thousand-page tomes. Like HTML, it predates XML and was first an SGML
+application. Also like HTML, it has migrated to XML and works very
+well in that framework.</para>
+
+<para>Unlike HTML, DocBook is very large and comes with a steep
+learning curve. Its elements are very specialized. There are blocks
+for different kinds of code listings, scores of inlines for technical
+terms, and many kinds of sections. Some users of DocBook even think
+that it may be too big. Others feel it's too loose, allowing for so
+many kinds of documents (within the technical documentation realm) it
+suffers from the ambiguity that hinders HTML. But despite these
+complaints, DocBook is and always has been the best markup language
+for technical documentation.</para>
+
+<para>It's not hard to find tools and support for DocBook. Many XML
+editors (XMetaL and Adept, for example) come with DocBook packages
+already configured. There are lots of stylesheets, schema, DTDs, and
+other aids available. This support is likely to continue as various
+groups from publishers to the Linux Documentation Project adopt it as
+their default standard.</para>
+
+<para>The first incarnation I'll show is a reformulation of the
+previous example, shown below in <xref linkend="mod-ex-db"/>. You'll
+see that the markup is a better fit for this type of data, and the
+element types are much more specific. Also note the introduction of
+section elements.</para>
+
+<example id="mod-ex-db">
+<title>A DocBook Reference Page</title>
+<programlisting><![CDATA[<?xml version="1.0"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.1//EN"
+    "/usr/local/dtds/docbook41/docbookx.dtd">
+<refentry>
+  <refnamediv>
+    <refname>cat</refname>
+    <manvolnum>1</manvolnum>
+    <refmeta role="edition">
+3rd Berkeley Distribution, May 2, 1995
+    </refmeta>
+    <refpurpose>concatenate and print files</refpurpose>
+  </refnamediv>
+  <refsynopsisdiv>
+    <synopsis>cat [-benstuv] [-] 
+  [<replaceable>file</replaceable>...]</synopsis>
+  </refsynopsisdiv>
+  <refsect1><title>Description</title>
+    <para>
+The <command>cat</command> utility reads files sequentially, writing
+them to the standard output. The file operands are processed in
+command line order. A single dash represents the standard input.
+    </para>
+    <para>
+The options are as follows:
+    </para>
+    <variablelist>
+      <varlistentry><term><option>-b</option></term>
+        <listitem><para>
+Implies the <option>-n</option> option but doesn't number blank lines.
+        </para></listitem>
+      </varlistentry>
+      <varlistentry><term><option>-e</option></term>
+        <listitem><para>
+Implies the <option>-v</option> option, and displays a dollar sign ($)
+at the end of each line as well.
+        </para></listitem>
+      </varlistentry>
+      <varlistentry><term><option>-n</option></term>
+        <listitem><para>
+Number the output lines, starting at 1.
+        </para></listitem>
+      </varlistentry>
+      <varlistentry><term><option>-s</option></term>
+        <listitem><para>
+Squeeze multiple adjacent empty lines, causing the output to be single
+spaced.
+        </para></listitem>
+      </varlistentry>
+      <varlistentry><term><option>-t</option></term>
+        <listitem><para>
+Implies the <option>-v</option> option, and displays tab characters as
+<keysym>^I</keysym> as well.
+        </para></listitem>
+      </varlistentry>
+      <varlistentry><term><option>-u</option></term>
+        <listitem><para>
+The <option>-u</option> option guarantees that the output is unbuffered.
+        </para></listitem>
+      </varlistentry>
+      <varlistentry><term><option>-v</option></term> 
+        <listitem><para>
+Displays non-printing characters so they are visible. Control
+characters print as <keysym>^X</keysym> for control-X; the delete
+character (octal 0177) prints as <keysym>^?</keysym> Non-ascii
+characters (with the high bit set) are printed as
+<literal>M-</literal> (for meta) followed by the character for the low
+7 bits.
+        </para></listitem>
+      </varlistentry>
+    </variablelist>
+    <para>
+The <command>cat</command> utility exits 0 on success, and &gt;0 if an
+error occurs.
+    </para>
+  </refsect1>
+  <refsect1><title>Bugs</title>
+    <para>
+Because of the shell language mechanism used to perform output
+redirection, the command <command>cat file1 file2 &gt; file1</command>
+will cause the original data in file1 to be destroyed!
+    </para>
+  </refsect1>
+  <refsect1><title>See also</title>
+    <simplelist>
+      <member><link href="head.xml">head(1)</link></member>
+      <member><link href="more.xml">more(1)</link></member>
+      <member><link href="pr.xml">pr(1)</link></member>
+      <member><link href="tail.xml">tail(1)</link></member>
+      <member><link href="vis.xml">vis(1)</link></member>
+    </simplelist>
+    <para>
+Rob Pike, <citetitle>UNIX Style, or cat -v Considered
+Harmful</citetitle>, USENIX Summer Conference Proceedings, 1983.
+    </para>
+  </refsect1>
+  <refsect1><title>History</title>
+    <para>
+A <command>cat</command> utility appeared in Version 6 AT&amp;T UNIX.
+    </para>
+  </refsect1>
+</refentry>]]></programlisting>
+</example>
+
+<para>The first thing you'll notice is that DocBook is a lot more
+verbose than HTML. The <sgmltag>variablelist</sgmltag> cousin to
+HTML's definition list is a chore to type out. But there certainly is
+no doubt about what an element stands for, which is necessary in a
+markup language with so many elements. If every tag name was an
+abbreviation of two letters, there'd be no hope of ever memorizing a
+fraction of the langauge.</para>
+
+<para>The structure of the document element,
+<sgmltag>refentry</sgmltag> is highly specialized. Whereas HTML adopts
+a strategy where every document has the same overall structure,
+DocBook is very closely bound to the type of document you're
+authoring. If this were a book, for example, it would look completely
+different. The metadata is specific to reference pages, and even the
+sections are called <sgmltag>refsect1</sgmltag>, meaning that they are
+specific to a reference entry.</para>
+
+<para>The types of inlines are much more numerous than in
+HTML, with highly specific names like <sgmltag>option</sgmltag>,
+<sgmltag>command</sgmltag> and <sgmltag>citetitle</sgmltag>. The
+blocks, too, are more differentiated. Notice that we now have a
+<sgmltag>synopsis</sgmltag> element to address a complaint I made
+about the HTML example.</para>
+
+<para>The tradeoffs of HTML are reversed here. DocBook is much more
+complex and intricate than HTML, making it harder to learn and
+use. But the more specific vocabulary of this markup language makes it
+much more flexible in terms of formatting and processing. With
+flexibility may come more work, however, since someone will have to
+set up a big stylesheet to handle all the elements. If you purchase a
+package solution, as is possible with many high-end XML editors, much
+of this work may be done for you.</para>
+
+<para>This example only shows a small part of DocBook. I'd like to
+give you another taste, so that you can see the breadth of its
+capabilities. <xref linkend="mod-ex-db2"/> shows a more traditional
+narrative document, a book. Here you will see a wide variety of
+section elements (chapters, sections) and complex structures (table,
+figure, list). Throughout the example, I've interspersed comments to
+explain some of the elements.</para>
+
+<example id="mod-ex-db2">
+<title>A DocBook Document</title>
+<programlisting><![CDATA[<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE book SYSTEM "/xmlstuff/dtds/barebonesdb.dtd"
+[
+  <!ENTITY companyname "Cybertronix">              <!-- SEE NOTE 1 -->
+  <!ENTITY productname "Sonic Screwdriver 9000">
+]>
+
+<book>
+  <title>&productname; User Manual</title>     <!-- SEE NOTE 2 -->
+  <author>Indigo Riceway</author>
+
+  <preface id="preface">
+    <title>Preface</title>
+
+    <sect1 id="about">
+      <title>Availability</title>
+      <para>
+The information in this manual is available in the following forms:
+      </para>
+
+      <orderedlist>                               <!-- SEE NOTE 3 -->
+        <listitem><para>
+Instant telepathic injection
+        </para></listitem><listitem><para>
+Lumino-goggle display
+        </para></listitem><listitem><para>
+Ink on compressed, dead, arboreal matter
+        </para></listitem><listitem><para>
+Cuneiform etched in clay tablets
+        </para></listitem>
+      </orderedlist>
+
+      <para>
+The &productname; is sold in galactic pamphlet boutiques or wherever 
+&companyname; equipment can be purchased. For more information, or 
+to order a copy by hyperspacial courier, please visit our universe-wide 
+Web page at <systemitem
+role="url">http://www.cybertronix.com/sonic_screwdrivers.html</systemitem>.
+      </para>
+    </sect1>                      <!-- SEE NOTE 4 -->
+  </preface>
+
+  <chapter id="intro">            <!-- SEE NOTE 5 -->
+    <title>Introduction</title>
+    <para>
+Congratulations on your purchase of one of the most valuable tools in
+the universe! The &companyname; &productname; is
+equipment no hyperspace traveller should be without. Some of the
+myriad tasks you can achieve with this device are:
+    </para>
+
+    <itemizedlist>
+      <listitem><para>
+Pick locks in seconds. Never be locked out of your tardis
+again. Good for all makes and models including Yale, Dalek, and
+Xngfzz.
+      </para></listitem>
+      <listitem><para>
+Spot-weld metal, alloys, plastic, skin lesions, and virtually any
+other material.
+      </para></listitem>
+      <listitem><para>
+Rid your dwelling of vermin. Banish insects, rodents, and computer
+viruses from your time machine or spaceship.
+      </para></listitem>
+      <listitem><para>
+Slice and process foodstuffs from tomatoes to brine-worms. Unlike a
+knife, there is no blade to go dull.
+      </para></listitem>
+    </itemizedlist>
+
+    <para>
+Here is what satisfied customers are saying about their &companyname;
+&productname;:
+    </para>
+
+    <comment>                          <!-- SEE NOTE 6 -->
+Should we name the people who spoke these quotes?  --Ed.
+    </comment>
+
+    <blockquote>
+      <para>
+"It helped me escape from the prison planet Garboplactor VI. I
+wouldn't be alive today if it weren't for my Cybertronix 9000."
+      </para>
+    </blockquote>
+
+    <blockquote>
+      <para>
+"As a bartender, I have to mix martinis <emphasis>just
+right</emphasis>. Some of my customers get pretty cranky if I slip
+up. Luckily, my new sonic screwdriver from Cybertronix is so accurate,
+it gets the mixture right every time. No more looking down the barrel
+of a kill-o-zap gun for this bartender!"
+      </para>
+    </blockquote>
+
+  </chapter>
+
+  <chapter id="controls">
+    <title>Mastering the Controls</title>
+    <sect1>
+      <title>Overview</title>
+      <para>
+<xref linkend="controls-diagram"/> is a diagram of the parts of your
+&productname;.
+      </para>
+
+      <figure id="controls-diagram">     <!-- SEE NOTE 7 -->
+        <title>Exploded Parts Diagram</title>
+        <graphic fileref="parts.png"/>
+      </figure>
+
+      <para>
+<xref linkend="controls-table"/>         <!-- SEE NOTE 8 -->
+lists the function of the parts labeled in the diagram.
+      </para>
+
+      <table id="controls-table">        <!-- SEE NOTE 9 -->
+        <title>Control Descriptions</title>
+        <tgroup cols="2">
+          <thead>
+            <row>
+              <entry>Control</entry>
+              <entry>Purpose</entry>
+            </row>
+          </thead>
+          <tbody>
+            <row>
+              <entry>Decoy Power Switch</entry>
+              <entry><para>
+Looks just like an on-off toggle button, but only turns on a small
+flashlight when pressed. Very handy when your &productname; is misplaced
+and discovered by primitive aliens who might otherwise accidentally
+injure themselves.
+              </para></entry>
+            </row>
+            <row>
+              <entry><emphasis>Real</emphasis> Power Switch</entry>
+              <entry><para>
+An invisible fingerprint-scanning capacitance-sensitive on/off switch.
+              </para></entry>
+            </row>
+            &vellip;
+            <row>
+              <entry>The "Z" Twiddle Switch</entry>
+              <entry><para>
+We're not entirely sure what this does. Our lab testers have had
+various results from teleportation to spontaneous
+liquification. <emphasis role="bold">Use at your own risk!</emphasis>
+              </para></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+
+      <note>                            <!-- SEE NOTE 10 -->
+        <para>
+A note to arthropods: Stop forcing your inflexible appendages to adopt
+un-ergonomic positions. Our new claw-friendly control template is
+available. 
+        </para>
+      </note>
+    </sect1>
+
+    <sect1>
+      <title>The View Screen</title>
+      <para>
+The view screen displays error messages and warnings, such as a
+<errorcode>LOW-BATT</errorcode> (low battery) message.
+
+        <footnote>                     <!-- SEE NOTE 11 -->
+          <para>
+The advanced model now uses a direct psychic link to the user's
+visual cortex, but it should appear approximately the same as the more
+primitive liquid crystal display.
+          </para>
+        </footnote> 
+
+When your &productname; starts up, it should
+show a status display like this: 
+      </para>
+
+      <screen>STATUS DISPLAY           <!-- SEE NOTE 12 -->
+BATT: 1.782E8 V
+TEMP: 284 K
+FREQ: 9.32E3 Hz
+WARRANTY: ACTIVE</screen>
+    </sect1>
+
+    <sect1>
+      <title>The Battery</title>
+      <para>
+Your &productname; is capable of generating tremendous amounts of
+energy. For that reason, any old battery won't do. The power source is
+a tiny nuclear reactor containing a piece of ultra-condensed plutonium
+that provides up to 10 megawatts of power to your device. With a
+half-life of over 20 years, it will be a long time before a
+replacement is necessary.
+      </para>
+    </sect1>
+  </chapter>
+</book>]]></programlisting>
+</example>
+
+<orderedlist>
+<listitem><para>
+I'm taking the opportunity to declare some entities in the internal
+subset. This will save me some typing later.
+</para></listitem>
+<listitem><para>
+Notice that all the major components (preface, chapter, sections)
+start with a <sgmltag>title</sgmltag> element. This is an example of
+how an element can be used in different contexts. In a formatted copy
+of this document, the titles in different levels will be rendered
+differently, some large and others small. A stylesheet will use the
+hierarchical information (i.e., what is the ancestor of this
+<sgmltag>title</sgmltag>) to determine how to format it.
+</para></listitem>
+<listitem><para>
+<sgmltag>orderedlist</sgmltag> is one of many types of lists
+available in DocBook. It produces the equivalent of HTML's
+<sgmltag>ol</sgmltag> element which formats with numbers. The
+formatter will generate numbers automatically, so you don't need to
+know how to count.
+</para></listitem>
+<listitem><para>
+The <sgmltag>systemitem</sgmltag> inline element is rather generic,
+allowing for several types of "system" item, including computer domain
+names, URLs, FTP sites, and more.
+</para></listitem>
+<listitem><para>
+It's a good idea to give sections ID attributes. Later, you may want
+to make a cross reference to one of them. Remember that each ID
+attribute must have a unique value.
+</para></listitem>
+<listitem><para>
+A <sgmltag>comment</sgmltag> element allows you to insert a message
+that is not part of the narrative, and will be removed before the
+final revision of the document is formatted. It's better than an
+actual XML comment object because it can be included in formatting for
+a draft printout.
+</para></listitem>
+<listitem><para>
+This element constructs a figure, consisting of a title and an empty
+element that imports a graphic file.
+</para></listitem>
+<listitem><para>
+The <sgmltag>xref</sgmltag> element is a cross reference to another
+element in the document. The formatter will decide, based on the type
+of element being referenced, what to put in its place. In this case,
+the object is a table, so we might expect to see something like "Table
+1".
+</para></listitem>
+<listitem><para>
+Here is another complex object, a table. DocBook's DTD doesn't define this
+element directly, but instead imports the definition from another DTD,
+an XML application called CALS (Continuous Acquisition and Life-Cycle
+Support). CALS was a Department of Defense project that made early use
+of SGML to improve its documentation. The CALS table model is very
+flexible and robust, so the DocBook framers felt it easier just to
+borrow it than try to reinvent the wheel.
+</para></listitem>
+<listitem><para>
+A <sgmltag>note</sgmltag> is a new flow, similar to a sidebar. A
+formatter may or may not move it from this location, with no damage to
+the narrative, but it should stay relatively close to its origin.
+</para></listitem>
+<listitem><para>
+This is how to code a footnote, another new flow. Footnotes are
+usually moved to the bottom of the page, although that notion is not
+clear when talking about web pages.
+</para></listitem>
+<listitem><para>
+This element contains significant extra whitespace that needs to be
+preserved. The DTD has specified this for us, so we don't need to
+insert an <literal>xml:space</literal> attribute.
+</para></listitem>
+</orderedlist>
+
+<para>FINAL NOTES ABOUT DB
+DTD, schema, stylesheets available at OASIS
+Cadillac of narrative markup langs
+Options: FOP, DB->HTML</para>
+
+</sect2>
+</sect1>
+
+
+<sect1><title>Complex Data</title>
+
+<para>XML really shines when data is complex. It turns the most
+abstract concepts into concrete databases ready for processing by
+software. Multimedia formats like Scaleable Vector Graphics (SVG) and
+Syncronized Multimedia Integration Language (SMIL) map pictures and
+movies into XML markup. Complex ideas in the scientific realm are just
+as readily coded as XML, as proven by MathML (equations), the Chemical
+Markup Language (chemical formulae), and the Molecular Dynamics
+Language (molecule interactions).</para>
+
+
+<sect2><title>Elements as Objects</title>
+
+<para>The reason XML is so good at modelling complex data is that the
+same building blocks for narrative documents&mdash;elements and
+attributes&mdash; can apply to any composition of objects and
+properties. Just as a book breaks down into chapters, sections,
+blocks, and inlines, many abstract ideas can be deconstructed into
+discrete and hierarchical components. Vector graphics, for
+example, are composed of a finite set of shapes with associated
+properties. You can represent each shape as an element and use
+attributes to hammer down the details.</para>
+
+<para>SVG is a good example of how to represent objects as
+elements. Take a gander at the simple SVG document in <xref
+linkend="mod-ex-svg"/>. Here we have three different shapes
+represented by as many elements: a common rectangle, an ordinary
+circle, and an exciting polygon. Attributes in each element customize
+the shape, setting color and spatial dimensions.</para>
+
+<example id="mod-ex-svg">
+<title>SVG document</title>
+<programlisting><![CDATA[<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg 
+    PUBLIC "-//W3C//DTD SVG 20001102//EN" 
+    "http://www.w3.org/TR/2000/CR-SVG-20001102/DTD/svg-20001102.dtd">
+<svg>
+  <desc>Three shapes</desc>
+  <rect fill="green" x="1cm" y="1cm" width="3cm" height="3cm"/>
+  <circle fill="red" cx="3cm" cy="2cm" r="4cm"/>
+  <polygon fill="blue" points="110,160 50,300 180,290"/>
+</svg>]]></programlisting>
+</example>
+
+<para>Vector graphics are scaleable, meaning you can stretch the image
+vertically or lengthwise without any loss of sharpness. The image
+processor just recalculates the coordinates for you, leaving you to
+concentrate on higher concepts like composition, color, and
+grouping.</para>
+
+<para>SVG adds other benefits too. Being an XML application, it can be
+tested for corruption (i.e. it's not well-formed), can be edited in
+any generic XML editor, and is easy to write software for. DTDs and
+Schema are available to check for missing information, and provide an
+easy way to distinguish between versions.</para>
+
+<para>Are there limitations? Of course. XML is not so good when it
+comes to raster graphics. This other category of graphics formats
+including TIFF, GIF and JPEG, renders an image based on pixel
+data. Instead of a conceptual representation based on shapes, it's a
+big, fat array of numbers. You could store this in XML, certainly, but
+the benefits of markup are irrelevent since elements would only
+increase the document's size without organizing the data
+well. Furthermore, these formats typically use compression to force
+the huge amount of data into more manageable sizes, something for
+which markup would just be in the way.</para>
+
+<para>What other concepts are ideally suited to XML representation?
+How about chemicals? Every molecule has a unique blueprint consisting
+of some combination of atoms and bonds. (Bonds are necessary because
+there can be strong ionic bonds, weak bonds, double bonds, and so on.)
+Languages like the Chemical Markup Language (CML) and Molecular
+Dynamics Language (MoDL) follow a similar strategy to encode
+molecules.</para>
+
+<para><xref linkend="mod-ex-modl"/> shows how an imaginary molecule (a
+triangle of three carbon atoms) would be coded in MoDL. Notice the
+separation of <sgmltag>head</sgmltag> and <sgmltag>body</sgmltag> that
+is reminiscent of HTML. The head is where we define atomic types,
+giving them size and color properties for rendering. The body is where
+we assemble the molecule using definitions from the head.</para>
+
+<example id="mod-ex-modl">
+<title>A molecule definition in MoDL</title>
+<programlisting><![CDATA[<?xml version="1.0"?>
+<modl>
+   <head>
+     <meta name="title" content="3 Carbon Atoms" />
+     <DEFINE name="Carbon">
+     <atom radius="0.2" color="1 1 0" />
+     </DEFINE>
+   </head>
+   <body>
+      <atom id="C0" type="Carbon" position="1 0 0" />
+      <atom id="C1" type="Carbon" position="0 1 0" />
+      <atom id="C2" type="Carbon" position="0 0 1" />
+      <bond atom1="C0" atom2="C1" color="0 0 1" />
+      <bond atom1="C1" atom2="C2" color="0 0 1" />
+      <bond atom1="C2" atom2="C0" color="0 0 1" />
+   </body>
+</modl>]]></programlisting>
+</example>
+
+<para>For each atom instance, there is an element describing its type,
+position, and a unique identifier (e.g. "C0" for the first carbon
+atom). Each bond between atoms also has its own element, specifying
+color and the two atoms it joins together. Notice the interplay
+between <sgmltag>atom</sgmltag>s and <sgmltag>bond</sgmltag>s. The
+unique identifers in the first group are the "hooks" for the second
+group, which use attributes that refer to them. Unique identifiers are
+another invaluable technique in expressing relationships between
+concepts.</para>
+
+<para>MoDL is a fascinating project by Dr. Swami Manohar Prof., Vijay
+Chandru, and others at (UNIVERSITY NAME). The goal is not just to
+model molecules, but to model their interactions. The language
+contains elements to express motion as well as the static initial
+positions. Elements represent actions applied to molecules, including
+<sgmltag>translate</sgmltag> and <sgmltag>rotate</sgmltag>.</para>
+
+<para>Software developed for this purpose converts MoDL documents into
+a temporal-spatial format called Virtual Reality Markup Language
+(VRML). When viewed in a VRML reader, you can watch as molecules dance
+around and bump into each other! Read more about MoDL at <systemitem
+role="url">http://violet.csa.iisc.ernet.in/~modl/</systemitem> and
+VRML at (URL HERE).</para>
+
+<para>Again, there are limitations. Movies, just like graphics, can be
+vector-based or rastorized. Formats like MPEG and MOV are compressed
+sequences of bitmaps, a huge amount of pixel information that XML
+would not be good at organizing. Simple shapes bouncing around in
+space are one thing, but complex scenes involving faces and puppy dogs
+are probably never going to involve XML.</para>
+
+</sect2>
+
+
+<sect2><title>Presentation vs. Conceptual Encoding</title>
+
+<para>Moving up in complexity is mathematics. The Math Markup Language
+(MathML) attacks this difficult area with two different modes of
+markup: presentational and conceptual. If we were talking about an
+equation, there are two ways we could do it. I could say "the product
+of A and B" or I could write on a chalkboard the more compact 
+"A &times; B", both conveying the same idea to you. MathML allows you
+to use either style and mix them together in a document.</para>
+
+<para>As an example, consider the mathematical expression in <xref
+linkend="mod-fig-frac"/>. This was generated with MathML and displayed
+with Mozilla, which recognizes MathML as of version 1.1.</para>
+
+<figure id="mod-fig-frac">
+<title>A complex fraction</title>
+<graphic fileref="figs/lx2_0303.jpg"/>
+</figure>
+
+<para><xref linkend="mod-ex-mathmlp"/> is the MathML document used to
+generate this figure.</para>
+
+<example id="mod-ex-mathmlp">
+<title>Presentation encoding in MathML</title>
+<programlisting><![CDATA[<?xml version="1.0"?>
+<math xmlns="http://www.w3.org/1998/Math/MathML" >
+  <mn>1</mn><mo>-</mo>
+  <mfrac><mrow><mn>1</mn></mrow>
+    <mrow><mn>1</mn><mo>-</mo>
+      <mfrac><mrow><mn>1</mn></mrow>
+        <mrow><mn>1</mn><mo>-</mo>
+          <mfrac><mrow><mn>1</mn></mrow>
+            <mrow><mi>x</mi></mrow>
+          </mfrac>
+        </mrow>
+      </mfrac>
+    </mrow>
+  </mfrac>
+</math>]]></programlisting>
+</example>
+
+<para><sgmltag>mfrac</sgmltag>, as you may have guessed, sets up a
+fraction. It contains two elements called <sgmltag>mrow</sgmltag>, one
+each for the top and bottom. Notice how the denomenator can itself
+contain a fraction. Take this recursively as far as you wish and it's
+perfectly legal in MathML. At the atomic level of expression are
+numbers, variables and operators, which are marked up with simple
+elements<sgmltag>mn</sgmltag> (number), <sgmltag>mi</sgmltag>
+(identifier), and <sgmltag>mo</sgmltag> (operator).</para>
+
+<para>Conceptual encoding (also known as <firstterm>Content
+encoding</firstterm>) is the name given for the other mode of
+MathML. It resembles functional programming, noteably LISP, in that
+every sum, fraction, and product is represented as an operator
+followed by arguments all wrapped up in an
+<firstterm>apply</firstterm> element. <xref linkend="mod-ex-mathmlc"/>
+shows how the equation (2a + b)<superscript>3</superscript> looks in
+MathML's content mode.</para>
+
+<example id="mod-ex-mathmlc">
+<title>MathML Content Encoding</title>
+<programlisting><![CDATA[<?xml version="1.0"?>
+<math xmlns="http://www.w3.org/1998/Math/MathML" >
+  <apply><power/>
+    <apply><plus/>
+      <apply><times/>
+        <cn>2</cn>
+        <ci>a</ci>
+      </apply>
+      <ci>b</ci>
+    </apply>
+    <cn>3</cn>
+  </apply>
+</math>]]></programlisting>
+</example>
+
+<para>Why the two modes of MathML? One reason is flexibility of
+authoring. But a more important reason is that each lends itself to a
+different means of processing. Presentational encoding is easier to
+render visually, and so is better supported in browsers and
+such. Content encoding, because it's more regular and closer to the
+meaning of the expression, is easier to process by a calculator-type
+program.</para>
+
+<para>With more support coming out for MathML in browsers and other
+programs, its popularity is growing. For more information, read
+<citetitle>A Gentle Introduction to MathML</citetitle> by Robert Miner
+and Jeff Schaeffer at <systemitem
+role="url">http://www.dessci.com/support/tutorials/mathml/default.stm</systemitem>.</para>
+
+</sect2>
+</sect1>
+
+
+<sect1><title>Documents Describing Documents</title>
+
+<para>Many XML documents contain metadata, information about
+themselves that help search engines to categorize them. But not
+everyone takes advantage of the possibilities of metadata, making it
+an unreliable prospect. And, unless you're using an exhaustive program
+that spiders through an entire document collection, it's difficult to
+summarize the set and choose a particular article from it. Making
+matters worse, not all documents have the capability to describe
+themselves, such as sound and graphics files. To address these
+problems, a class of documents evolved that specialize in describing
+other documents.</para>
+
+<para>To fully describe different kinds of documents, these markup
+languages have some interesting features in common. They list the time
+documents have been updated using standard time formats. They label
+the content type, be it text, image, sound, or something else. They
+may contain text descriptions for a user to peruse. For international
+documents, they may track the language encodings. Also interesting is
+the way documents are uniquely identified: using a physical address or
+some non-physical identifier.</para>
+
+
+<sect2><title>Describing Media</title>
+
+<para>Rich Site Summary (or Really Simple Syndication, depending on
+whom you talk to) was created by Netscape Corp. to describe content on
+websites. They wanted to make a portal that was customizeable,
+allowing readers to subscribe to particular subject areas or
+<firstterm>channels</firstterm>. Each time they returned to the site,
+they would see updates on their favorite topics, saving them the
+trouble of hunting around for this news on their own. Thus was born
+the service known as <firstterm>content aggregation</firstterm>.</para>
+
+<para>Since the time when there were a few, big content aggregators
+like Netscape and Userland, the landscape has shifted to include
+hundreds of smaller, more granular services. Instead of subscribing to
+channels that mix together lots of different sources, you can
+subscribe to individual sites for an even higher level of
+customization. Everything from the BBC to a swarm of one-person
+weblogs are at your disposal. Publishing has never been easier.</para>
+
+<para>RSS works like the cover of a magazine, beckoning to you from
+the newsstand. Splashed all over the cover graphic are the titles of
+articles, like "Lose Weight with the Ice Cream Diet" and "Ten Things
+the Government Doesn't Want You to Know About UFOs." At a glance, you
+can decide whether you must have this issue, or if you can pass on it
+and reach for <citetitle>National Geographic</citetitle>
+instead. It saves you time and keeps the newsstand owner from yelling
+at you for reading without buying.</para>
+
+<para>There are models of publishing with RSS. The
+<firstterm>pull</firstterm> model is where a content aggregator checks
+an RSS file periodically to see if anything has been updated, pulling
+in new articles as they appear. In the <firstterm>push</firstterm>
+model, also called <firstterm>publish and subscribe</firstterm>, the
+information source informs the content aggregator when it has
+something new to offer. In both cases, RSS serves as a menu for the
+aggregator (or the user logged into it) to decide whether the articles
+are of interest.</para>
+
+<para><xref linkend="mod-ex-rss"/> shows a sample of RSS describing a
+fictional website. A file containing RSS typically will have the file
+extension ".rdf" which stands for "resource description file". The
+owner of a website will register this file with all the aggregators it
+wants to be listed under and hope that people will be convinced by the
+descriptions that it's interesting enough to subscribe to.</para>
+
+<example id="mod-ex-rss">
+<title>RSS describing a website</title>
+<programlisting><![CDATA[<?xml version="1.0" encoding="ISO-8859-1" standalone="yes"?>
+<rss version="2.0">
+  <channel>
+    <title>Lifestyles of the Foolhardy</title>
+    <link>http://www.foolhardy.org/</link>
+    <description>
+Incredibly bold or just plain stupid? Tips and tricks for folks who
+just don't have time to think about safety.
+    </description>
+    <language>en-us</language>
+    <copyright>Copyright 2002 Liv Dangerously</copyright>
+    <lastBuildDate>Fri, 20 Sep 2002 11:05:02 GMT</lastBuildDate>
+    <managingEditor>liv@foolhardy.org (Liv Dangerously)</managingEditor>
+    <item>
+      <title>Using a Hairdryer in the Bathtub.</title>
+      <pubDate>Fri, 20 Sep 2002 11:05:02 GMT</pubDate>
+      <link>http://www.foolhardy.org/art/tub.html</link>
+      <description>
+Don't wait till bathtime is over to dry your hair. Save time and do
+both at once.
+      </description>
+    </item>
+    <item>
+      <description>
+Sounds of someone falling down the stairs; a brave soul proving that 
+rollerskates aren't just for flat surfaces.
+      </description>
+      <pubDate>Fri, 20 Sep 2002 10:28:19 GMT</pubDate>
+      <enclosure url="http://www.foolhardy.org/sounds/stairs.mp3"
+                 length="44456" type="audio/mpeg"/>
+    </item>
+  </channel>
+</rss>]]></programlisting>
+</example>
+
+<para>The first thing inside the document element
+<sgmltag>rss</sgmltag> is a <sgmltag>channel</sgmltag> element giving
+a general overview of the site. In it, we find:</para>
+
+<itemizedlist>
+<listitem><para>Descriptive text including a short title and longer
+paragraph.</para></listitem>
+<listitem><para>Administrative details: contact information, link to
+the main page, copyright.</para></listitem> 
+<listitem><para>Language identifier "en-us", which means that it's the
+american variant of english (more about language encodings in <xref
+linkend="int"/>).</para></listitem>
+<listitem><para>Time of last update, using a standard time format (RFC
+822) recognized all over the Internet.</para></listitem>
+</itemizedlist>
+
+<para>After the <sgmltag>channel</sgmltag> come a series of elements
+describing each item in the site. This example has two: a text
+document and a sound file. Each has a corresponding
+<sgmltag>item</sgmltag> element containing a text description, link to
+the resource, and the date when it was posted.</para>
+
+<para>For the sound file, there is an additional element,
+<sgmltag>enclosure</sgmltag>, which provides some details about the
+format. The <literal>type</literal> attribute gives the
+<firstterm>content type</firstterm>, "audio/mp3". The format of this
+description comes from the Multipurpose Internet Mail Extensions
+standard (RFC 2046).</para>
+
+</sect2>
+
+
+<sect2><title>Templates</title>
+
+<para>Describing documents is also the job of the transformation
+language XSLT. But in this case, we're talking about documents in the
+<emphasis>future</emphasis>. XSLT generates new documents from old
+ones, following rules in a transformation stylesheet. For each element
+in the source document, there will be a rule dictating what to do with
+it and its content. The rule can be explicit (defined by you), or
+implicit (not finding a specific rule, the processor falls back on a
+default one).</para>
+
+<para>The way these rules are encoded in an XSLT document uses an
+ingenious mechanism called a
+<firstterm>template</firstterm>, which is a sample of a piece of the
+result document. Some blanks need to be filled into the template, but
+otherwise, you can see by looking at the template how the future
+document will look.</para>
+
+<para>Here is a typical XSLT stylesheet with a couple templates:</para>
+
+<programlisting><![CDATA[<xsl:stylesheet
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  version="1.0">
+
+  <!-- first template: how to process a <para> element -->
+  <xsl:template match="para">
+    <p>
+      <xsl:apply-templates/>
+    </p>
+  </xsl:template>
+
+  <!-- second template: how to process a <note> element -->
+  <xsl:template match="note">
+    <div class="note">
+      <h3>NOTE</h3>
+      <xsl:apply-templates/>
+    </div>
+  </xsl:template>
+</xsl:stylesheet>]]></programlisting>
+
+<para>The first template tells the XSLT processor what to output when it
+comes across a <sgmltag>para</sgmltag> element in the source
+document. The second is a rule for <sgmltag>note</sgmltag>
+elements. In each case, the <sgmltag>template</sgmltag> element's
+contents mirror a piece of the document to be created.</para>
+
+<para>Notice the use of namespace prefix "xsl:" in some of the
+elements. This is how the XSLT processor can tell the difference
+between markup to be obeyed as instructions and markup to be
+output. In other words, if there is no "xsl:" prefix, the markup is
+treated as data and carried to the output document as-is. Some of the
+instruction elements, like <sgmltag>xsl:apply-templates/</sgmltag>,
+control the flow of processing, making the XSLT processor recurse
+through the source document looking for more elements to
+transform.</para>
+
+<para>Similar to XSLT are XML Schemas. They use templates to describe
+parts of documents as they <emphasis>should</emphasis> be, instead of
+as they will be. In other words, a schema is a test to determine
+whether a document can be labelled a valid instance of a
+language.</para>
+
+<para>Templates are a good design mechanism for documents describing
+documents because they are modular and easy to understand. Instead of
+looking at the whole document, you only have to imagine one element at
+a time. Templates can be imported from other files and mixed to add
+more flexibility.</para>
+
+</sect2>
+</sect1>
+</chapter>

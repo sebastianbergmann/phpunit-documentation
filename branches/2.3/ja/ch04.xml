@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="textui">
+  <title>コマンドラインのテストランナー</title>
+
+  <para>
+    <filename>phpunit</filename> コマンドを実行すると、PHPUnit
+    のコマンドライン版テストランナーが起動します。
+    コマンドラインのテストランナーを使用したテストの様子を以下に示します。
+  </para>
+
+  <screen><userinput>phpunit ArrayTest</userinput>
+PHPUnit 2.3.0 by Sebastian Bergmann.
+
+..
+
+Time: 0.067288
+
+OK (2 tests)</screen>
+
+  <para>
+    テストがひとつ実行されるたびに、PHPUnit
+    コマンドラインツールはその経過を示す文字を出力します。
+  </para>
+
+  <variablelist>
+    <varlistentry>
+      <term><literal>.</literal></term>
+      <listitem>
+        <para>
+          テストが成功した際に表示されます。
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><literal>F</literal></term>
+      <listitem>
+        <para>
+          テストメソッドの実行中、アサーションに失敗した際に表示されます。
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><literal>E</literal></term>
+      <listitem>
+        <para>
+          テストメソッドの実行中、エラーが発生した際に表示されます。
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><literal>I</literal></term>
+      <listitem>
+        <para>
+          テストが「不完全」あるいは「未実装」とマークされている場合に表示されます
+          (<xref linkend="incomplete-tests" /> を参照ください)。
+        </para>
+      </listitem>
+    </varlistentry>
+  </variablelist>
+
+  <para>
+    <indexterm><primary>Error (エラー)</primary></indexterm>
+    <indexterm><primary>Failure (失敗)</primary></indexterm>
+
+    PHPUnit は、<emphasis>失敗 (failures)</emphasis> と
+    <emphasis>エラー (errors)</emphasis> を区別します。
+    「失敗」は PHPUnit のアサーションに違反した場合で、
+    「エラー」は予期せぬ例外や PHP のエラーが発生した場合となります。
+    この区別は、時に有用です。というのは、「エラー」は一般的に「失敗」
+    より修正しやすい傾向があるからです。
+    もし大量の問題が発生した場合は、まず「エラー」を最初に片付け、
+    その後で「失敗」を修正していくのが最良の方法です。
+  </para>
+
+  <para>
+    以下のコードで、コマンドライン版テストランナーのスイッチの一覧を見てみましょう。
+  </para>
+
+  <screen><userinput>phpunit --help</userinput>
+<![CDATA[PHPUnit 2.3.0 by Sebastian Bergmann.
+
+Usage: phpunit [switches] UnitTest [UnitTest.php]
+  --coverage-data <file> Write Code Coverage data in raw format to file.
+  --coverage-html <file> Write Code Coverage data in HTML format to file.
+  --coverage-text <file> Write Code Coverage data in text format to file.
+
+  --testdox-html <file>  Write agile documentation in HTML format to file.
+  --testdox-text <file>  Write agile documentation in Text format to file.
+  --log-xml <file>       Log test progress in XML format to file.
+
+  --loader <loader>      TestSuiteLoader implementation to use.
+
+  --skeleton             Generate skeleton UnitTest class for Unit in Unit.php.
+
+  --wait                 Waits for a keystroke after each test.
+
+  --help                 Prints this usage information.
+  --version              Prints the version and exits.]]></screen>
+
+  <variablelist>
+    <varlistentry>
+      <term><literal>phpunit UnitTest</literal></term>
+      <listitem>
+        <para>
+          <literal>UnitTest</literal> という名前のクラスで定義されている
+          テストを実行します。このクラスは、<filename>UnitTest.php</filename>
+          という名前のファイルの中に定義されているものとします。
+        </para>
+
+        <para>
+          <literal>UnitTest</literal> は、<literal>PHPUnit2_Framework_TestCase</literal>
+          を継承したクラスであるか、あるいは <literal>PHPUnit2_Framework_Test</literal>
+          オブジェクト、例えば <literal>PHPUnit2_Framework_TestSuite</literal>
+          のインスタンスを返す <literal>public static suite()</literal>
+          というメソッドを保持するクラスでなければなりません。
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><literal>phpunit UnitTest UnitTest.php</literal></term>
+      <listitem>
+        <para>
+          <literal>UnitTest</literal> という名前のクラスで定義されているテストを実行します。
+          このクラスは、指定したファイルの中で定義されているものとします。
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <indexterm><primary>Code-Coverage (コードカバレッジ)</primary></indexterm>
+      <term><literal>--coverage-data</literal>、<literal>--coverage-html</literal> および <literal>--coverage-text</literal></term>
+      <listitem>
+        <para>
+          実行したテストについてのコードカバレッジ情報の収集・解析を制御します
+          (<xref linkend="code-coverage-analysis" /> を参照ください)。
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <indexterm><primary>Agile Documentation (アジャイルな文書作成)</primary></indexterm>
+      <term><literal>--testdox-html</literal> および <literal>--testdox-text</literal></term>
+      <listitem>
+        <para>
+          実行したテストについて、HTML あるいはプレーンテキスト形式のドキュメントを生成します
+          (<xref linkend="other-uses-for-tests" /> を参照ください)。
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <indexterm><primary>Logfile</primary></indexterm>
+      <term><literal>--log-xml</literal></term>
+      <listitem>
+        <para>
+          テストの実行結果を XML 形式のログファイルに出力します。
+        </para>
+
+        <para>
+          以下に、<literal>ArrayTest</literal> のテストによって生成された
+          XML ログファイルの例を示します。
+        </para>
+
+        <screen><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="ArrayTest" tests="2" failures="0" errors="0" time="0.020026">
+    <testcase name="testNewArrayIsEmpty" class="ArrayTest" time="0.014449"/>
+    <testcase name="testArrayContainsAnElement" class="ArrayTest" time="0.005577"/>
+  </testsuite>
+</testsuites>]]></screen>
+
+        <para>
+          この XML ログファイルは、テストケースクラス <literal>FailureErrorTest</literal>
+          の <literal>testFailure</literal> および <literal>testError</literal>
+          という 2 つのテストによって生成されたもので、
+          失敗とエラーが発生したことを示しています。
+        </para>
+
+        <screen><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="FailureErrorTest" tests="2" failures="1" errors="1" time="0.013603">
+    <testcase name="testFailure" class="FailureErrorTest" time="0.011872">
+      <failure message="" type="PHPUnit2_Framework_AssertionFailedError"></failure>
+    </testcase>
+    <testcase name="testError" class="FailureErrorTest" time="0.001731">
+      <error message="" type="Exception"></error>
+    </testcase>
+  </testsuite>
+</testsuites>
+]]></screen>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <indexterm><primary>PHPUnit2_Runner_TestSuiteLoader</primary></indexterm>
+      <term><literal>--loader</literal></term>
+      <listitem>
+        <para>
+          <literal>PHPUnit2_Runner_TestSuiteLoader</literal> を実装したクラスのうち、
+          実際に使用するものを指定します。
+        </para>
+
+        <para>
+          標準のテストスイートローダーは、現在の作業ディレクトリおよび PHP
+          の設定項目 <literal>include_path</literal>
+          で指定されているディレクトリからソースファイルを探します。
+          PEAR の命名規則に従い、<literal>Project_Package_Class</literal>
+          クラスがソースファイル <filename>Project/Package/Class.php</filename>
+          に対応します。
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <indexterm><primary>Skeleton Generator (雛形ジェネレータ)</primary></indexterm>
+      <indexterm><primary>Incomplete Test (不完全なテスト)</primary></indexterm>
+      <term><literal>--skeleton</literal></term>
+      <listitem>
+        <para>
+          (<filename>UnitTest.php</filename> に記述された) <literal>Unit</literal>
+          クラスに対して、テストケースクラス <literal>UnitTest</literal>
+          の雛形を記述したファイル <filename>UnitTest.php</filename> を作成します。
+          作成されたテストケースクラスの中のテストケースは、不完全な状態です
+          (<xref linkend="incomplete-tests" /> を参照ください)。
+        </para>
+
+        <para>
+          以下に、<literal>Sample</literal>
+          クラスをテストするクラスの雛形を作成する例を示します。
+        </para>
+
+        <screen><userinput>phpunit --skeleton Sample</userinput>
+PHPUnit 2.3.0 by Sebastian Bergmann.
+
+Wrote test class skeleton for Sample to SampleTest.php.
+
+<userinput>phpunit SampleTest</userinput>
+PHPUnit 2.3.0 by Sebastian Bergmann.
+
+I
+
+Time: 0.007268
+There was 1 incomplete test case:
+1) testSampleMethod(SampleTest)
+
+
+OK, but incomplete test cases!!!
+Tests run: 1, incomplete test cases: 1.</screen>
+
+        <para>
+          既存のコードのテストを記述する際は、
+          以下のようなコードを何度となく繰り返し記述することになるでしょう。
+          <programlisting>public function testSampleMethod() {
+}</programlisting>
+          PHPUnit は、既存のコードを解析して
+          テストケースクラスの雛形にそれらを記述します。
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><literal>--wait</literal></term>
+      <listitem>
+        <para>
+          各テストが終了するたびにキー入力待ちの状態になります。これは、
+          テストランナーが終了すると同時にウィンドウが閉じてしまうような場合に便利です。
+        </para>
+      </listitem>
+    </varlistentry>
+  </variablelist>
+
+  <note>
+    <para>
+      テストしようとしているコードに PHP の文法エラーがあった場合は、
+      コマンドラインのテストランナーは何もエラー情報を表示せずに終了します。
+      標準のテストスイートローダーは、テストスイート自体のソースファイルについては
+      PHP の文法チェックをしますが、テストスイートが include
+      しているその他のファイルについてはチェックしません。将来のバージョンでは、
+      PHP インタプリタのサンドボックス環境を使用することでこの問題を解決する予定です。
+    </para>
+  </note>
+</chapter>

@@ -1,0 +1,122 @@
+#!/usr/bin/perl -w
+#
+# dbnormspace: normalize space in dblite document
+#
+
+use strict;
+
+my %space_after_start = # how many newlines to go after start tag
+                             (
+			      'authorgroup' => 1,
+			      'blockquote' => 1,
+			      'book' => 1,
+			      'bookinfo' => 2,
+			      'chapter' => 1,
+			      'example' => 1,
+			      'footnote' =>2,
+			      'listitem' => 0,
+			      'note' => 1,
+			      'programlisting' => 0,
+			      'row' => 1,
+			      'sect1' => 1,
+			      'sect2' => 1,
+			      'sect3' => 1,
+			      'sect4' => 1,
+			      'simplelist' => 1,
+			      'simplesect' => 2,
+			      'table' => 1,
+			      'tbody' => 1,
+			      'tgroup' => 1,
+			      'thead' => 1,
+			      'varlistentry' => 0,
+			      'variablelist' => 1,
+			      'pi:xml' => 2,
+			      'decl:DOCTYPE' => 2,
+			      );
+my %space_before_end =  # how many newlines to go before end tag
+                             (
+			      'blockquote' => 1,
+			      'book' => 1,
+			      'chapter' => 1,
+			      'entry' => 0,
+			      'example' => 1,
+			      'listitem' => 0,
+			      'literallayout' => 0,
+			      'note' => 1,
+			      'para' => 0,
+			      'programlisting' => 0,
+			      'screen' => 0,
+			      'sect1' => 1,
+			      'sect2' => 1,
+			      'sect3' => 1,
+			      'sect4' => 1,
+			      'simplesect' => 2,
+			      'varlistentry' => 1,
+			      'variablelist' => 1,
+			      );
+my %space_after_end =   # how many newlines to go after end tag
+                             (
+			      'author' => 1,
+			      'authorgroup' => 2,
+			      'blockquote' => 2,
+			      'book' => 1,
+			      'bookinfo' => 2,
+			      'chapter' => 1,
+			      'edition' => 1,
+			      'entry' => 1,
+			      'example' => 2,
+			      'firstname' => 1,
+			      'isbn' => 2,
+			      'member' =>1,
+			      'note' => 2,
+                              'para' => 2,
+			      'programlisting' => 2,
+			      'row' => 2,
+			      'screen' => 2,
+			      'simplelist' => 2,
+			      'sect1' => 9,
+			      'sect2' => 5,
+			      'sect3' => 3,
+			      'sect4' => 2,
+			      'simplesect' => 9,
+			      'surname' => 1,
+			      'table' => 2,
+			      'tbody' => 1,
+			      'tgroup' => 1,
+			      'thead' => 2,
+			      'title' => 2,
+			      'varlistentry' => 2,
+			      'variablelist' => 2,
+			      );
+
+my $text = "";
+while( <STDIN> ) { $text .= $_ };
+
+my $key;
+foreach $key ( keys %space_after_start ) {
+    my $sp = "";
+    for( my $i=0; $i < $space_after_start{ $key }; $i++ ) {
+	$sp .= "\n";
+    }
+    $text =~ s/(<$key>)\s*/$1$sp/g;
+    $text =~ s/(<$key [^>]+>)\s*/$1$sp/g;
+}
+
+foreach $key ( keys %space_before_end ) {
+    my $sp = "";
+    for( my $i=0; $i < $space_before_end{ $key }; $i++ ) {
+	$sp .= "\n";
+    }
+    $text =~ s|\s*(</$key>)|$sp$1|g;
+}
+
+foreach $key ( keys %space_after_end ) {
+    my $sp = "";
+    for( my $i=0; $i < $space_after_end{ $key }; $i++ ) {
+	$sp .= "\n";
+    }
+    $text =~ s|(</$key>)\s*|$1$sp|g;
+}
+
+print $text;
+

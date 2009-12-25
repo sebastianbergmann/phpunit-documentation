@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+
+<chapter id="automating-tests">
+  <title>Tests automatisieren</title>
+
+  <para>
+    Selbst gute Programmierer machen Fehler. Der Unterschied zwischen einem
+    guten Programmierer und einem schlechten Programmierer besteht darin,
+    dass der gute Programmierer Tests benutzt, um festzustellen, ob er
+    einen Fehler gemacht hat. Je früher Sie dies testen, desto größer ist
+    die Chance, den Fehler zu finden, und desto geringer sind die Kosten
+    seiner Behebung. Dies erklärt, warum es so teuer und fehlerträchtig ist,
+    die Tests auf die Zeit unmittelbar vor der Veröffentlichung der Software
+    zu verschieben. Die meisten Fehler werden zu dieser Zeit überhaupt nicht
+    mehr gefunden. Dazu sind die Kosten für das Auffinden und Beseitigen der
+    dann noch erkannten Fehler so hoch, dass man es sich kaum leisten kann,
+    alle zu beheben.
+  </para>
+
+  <para>
+    <indexterm><primary>Unit Test</primary></indexterm>
+
+    Testen mit PHPUnit unterscheidet sich nicht wesentlich von dem, was
+    Sie bereits tun sollten, es ist lediglich eine andere Methode. Der
+    Unterschied besteht darin, dass Sie nicht einfach nur
+    <emphasis>testen</emphasis>, sondern eine
+    <emphasis>Reihe von Tests anwenden</emphasis>, nämlich Codefragmente,
+    die eine Anwendung automatisch überprüfen und sicherstellen, dass sie
+    sich den Erwartungen entsprechend verhält. Diese Codefragmente nennt
+    man auch <emphasis>Unit Tests</emphasis>.
+  </para>
+
+  <para>
+    In diesem Kapitel werden wir uns damit beschäftigen, wie Sie das
+    <literal>print</literal>-basierte Testen durch vollautomatisierte
+    Tests ersetzen können. Stellen Sie sich vor, Sie wollen die von
+    PHP bereitgestellte Datenstruktur <literal>array</literal> sowie die
+    Funktion <literal>sizeof()</literal> testen. Für ein neu erzeugtes
+    <literal>array</literal> muss <literal>sizeof()</literal> den Wert
+    <literal>0</literal> liefern, für ein <literal>array</literal> mit
+    einem Element muss <literal>sizeof()</literal> den Wert
+    <literal>1</literal> liefern.
+    <xref linkend="automating-tests.examples.array-test.php" /> zeigt,
+    was wir testen wollen.
+  </para>
+
+  <example id="automating-tests.examples.array-test.php">
+    <title>Testen von Array und sizeof()</title>
+    <programlisting><![CDATA[<?php
+$fixture = array();
+// Wir erwarten, dass $fixture leer ist.
+
+$fixture[] = 'element';
+// Wir erwarten, dass $fixture ein Element enthält.
+?>]]></programlisting>
+  </example>
+
+  <para>
+    Ob Sie die erwarteten Ergebnisse erhalten, können Sie auf sehr
+    einfache Weise überprüfen, indem Sie den Rückgabewert von
+    <literal>sizeof()</literal> vor und nach dem Hinzufügen eines
+    Elementes ausgeben lassen
+    (<xref linkend="automating-tests.examples.array-test2.php" />).
+    <literal>array</literal> und <literal>sizeof()</literal> verhalten
+    sich erwartungskonform, wenn dabei erst <literal>0</literal> und dann
+    <literal>1</literal> erscheint.
+  </para>
+
+  <example id="automating-tests.examples.array-test2.php">
+    <title>Testen von Array und sizeof() mit print</title>
+    <programlisting><![CDATA[<?php
+$fixture = array();
+print sizeof($fixture) . "\n";
+
+$fixture[] = "element";
+print sizeof($fixture) . "\n";
+?>]]></programlisting>
+    <screen>0
+1</screen>
+  </example>
+
+  <para>
+    Nun wollen wir von einem Test, der eine manuelle Interpretation
+    erfordert, zu einem automatisch ablaufenden Test übergehen. In
+    <xref linkend="automating-tests.examples.array-test3.php" /> werden
+    die berechneten mit den von uns erwarteten Werten verglichen. Ausgegeben
+    wird <literal>ok</literal> oder <literal>nicht ok</literal>, je nachdem,
+    ob der Test erfolgreich war oder nicht. Dabei brauchen Sie beim
+    Betrachten der Ausgabe nur darauf zu achten, dass in allen Zeilen
+    <literal>ok</literal> steht. Sobald Sie <literal>nicht ok</literal>
+    sehen, wissen Sie, dass irgendetwas schief gegangen ist.
+  </para>
+
+  <example id="automating-tests.examples.array-test3.php">
+    <title>Vergleichen von berechneten und erwarteten Werten</title>
+    <programlisting><![CDATA[<?php
+$fixture = array();
+print sizeof($fixture) == 0 ? "ok\n" : "nicht ok\n";
+
+$fixture[] = 'element';
+print sizeof($fixture) == 1 ? "ok\n" : "nicht ok\n";
+?>]]></programlisting>
+    <screen>ok
+ok</screen>
+  </example>
+
+  <para>
+    <indexterm><primary>Assertion</primary></indexterm>
+    <indexterm><primary>Zusicherung</primary></indexterm>
+
+    Ziehen Sie nun den Vergleich von erwarteten und berechneten Werten aus
+    den Tests heraus in eine Funktion, die einen Booleschen Wert als Eingabe
+    annimmt und nichts weiter tut, als eine Ausnahme auszulösen, wenn dieser
+    Wert <literal>FALSE</literal> ist
+    (<xref linkend="automating-tests.examples.array-test4.php" />).
+    Jetzt sieht die Ausgabe schon viel übersichtlicher aus. Solange der Test
+    erfolgreich durchläuft, wird gar nichts angezeigt. An dem Erscheinen einer
+    unbehandelten Ausnahme erkennen Sie, dass etwas schief gegangen ist.
+  </para>
+
+  <example id="automating-tests.examples.array-test4.php">
+    <title>Testen von Array und sizeof() mit einer Zusicherung</title>
+    <programlisting><![CDATA[<?php
+$fixture = array();
+assertTrue(sizeof($fixture) == 0);
+
+$fixture[] = 'element';
+assertTrue(sizeof($fixture) == 1);
+
+function assertTrue($condition)
+{
+    if (!$condition) {
+        throw new Exception('Zusicherung fehlgeschlagen.');
+    }
+}
+?>]]></programlisting>
+  </example>
+
+  <para>
+    <indexterm><primary>Automatisierter Test</primary></indexterm>
+
+    Der Test ist nun vollständig automatisiert. Anstatt lediglich zu testen
+    und das Ergebnis dann manuell zu interpretieren, wie wir es in der ersten
+    Fassung des Tests getan haben, stellt diese Fassung einen automatisierten
+    Test dar, der nicht mehr manuell ausgewertet werden muss.
+  </para>
+
+  <para>
+    Man wird nie alle Mängel in einem Programm erkennen können. Häufigeres
+    Testen reduziert aber die Zahl der Fehler, die zum Schluss noch übrig
+    bleiben. Das Ziel der automatisierten Tests ist ein begründetes Vertrauen
+    in den von Ihnen geschriebenen Code. Diesen Vertrauensgewinn können Sie
+    nutzen, um Ihre Designs innovativer zu gestalten (Refactoring), besser mit
+    Ihren Team-Kollegen auszukommen (Teamübergreifende Tests), die
+    Beziehungen zu Ihren Kunden zu verbessern -- und jeden Tag mit der
+    Gewissheit nach Hause zu gehen, dass das System jetzt aufgrund Ihrer
+    Bemühungen besser läuft als noch am Morgen.
+  </para>
+</chapter>

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<appendix id="appendixes.phpunit1">
+  <title>PHPUnit for PHP 4</title>
+
+  <para>
+    There is a release series of PHPUnit that works with PHP 4 and does not
+    require PHP 5. Due to PHP 4's limited object model, PHPUnit for PHP 4 is
+    not a complete port of JUnit as PHPUnit for PHP 5 is. It also lacks
+    certain features of PHPUnit for PHP 5, such as code-coverage analysis.
+  </para>
+
+  <para>
+    The following command line shows how to install PHPUnit for PHP 4 using
+    the PEAR Installer:
+  </para>
+
+  <screen><userinput>pear install -f http://pear.phpunit.de/get/PHPUnit-1.3.3.tgz</userinput></screen>
+
+  <para>
+    A test-case class that is used with PHPUnit for PHP 4 is similar
+    to one that is used with PHPUnit for PHP 5. The essential difference is
+    that such a class extends <literal>PHPUnit_TestCase</literal>
+    (which itself extends <literal>PHPUnit_Assert</literal>, the class that
+    provides the assertion methods).
+  </para>
+
+  <para>
+    <xref linkend="appendixes.phpunit1.examples.ArrayTest.php" />
+    shows a version of the <literal>ArrayTest</literal> test case that can
+    be used with PHPUnit for PHP 4.
+  </para>
+
+  <example id="appendixes.phpunit1.examples.ArrayTest.php">
+    <title>Writing a test case for PHPUnit 1.x</title>
+    <programlisting><![CDATA[<?php
+require_once 'PHPUnit/TestCase.php';
+
+class ArrayTest extends PHPUnit_TestCase
+{
+    var $_fixture;
+
+    function setUp()
+    {
+        $this->_fixture = array();
+    }
+
+    function testNewArrayIsEmpty()
+    {
+        $this->assertEquals(0, sizeof($this->_fixture));
+    }
+
+    function testArrayContainsAnElement()
+    {
+        $this->_fixture[] = 'Element';
+        $this->assertEquals(1, sizeof($this->_fixture));
+    }
+}
+?>]]></programlisting>
+  </example>
+
+  <para>
+    PHPUnit for PHP 4 does not provide a TextUI test runner. The most
+    commonly used way to run tests with PHPUnit for PHP 4 is to write a
+    test suite and run it manually, as shown in
+    <xref linkend="appendixes.phpunit1.examples.suite.php" />.
+  </para>
+
+  <example id="appendixes.phpunit1.examples.suite.php">
+    <title>Running a test case with PHPUnit 1.x</title>
+    <programlisting><![CDATA[<?php
+require_once 'ArrayTest.php';
+require_once 'PHPUnit.php';
+
+$suite  = new PHPUnit_TestSuite('ArrayTest');
+$result = PHPUnit::run($suite);
+
+print $result->toString();
+?>]]></programlisting>
+
+<screen>TestCase arraytest->testnewarrayisempty() passed
+TestCase arraytest->testarraycontainsanelement() passed</screen>
+  </example>
+
+  <para>
+    <xref linkend="appendixes.phpunit1.figures.PHPUnit-Gtk.png" /> shows the
+    one feature that PHPUnit for PHP 4 has that PHPUnit for PHP 5 does not
+    yet have: a test runner with a graphical user interface based on
+    PHP-GTK.
+  </para>
+
+  <figure id="appendixes.phpunit1.figures.PHPUnit-Gtk.png">
+    <title>The PHP-GTK Test Runner</title>
+
+    <graphic fileref="figures/PHPUnit-Gtk.png" />
+  </figure>
+</appendix>

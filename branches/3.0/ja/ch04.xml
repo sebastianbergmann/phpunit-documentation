@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="writing-tests-for-phpunit">
+  <title>PHPUnit 用のテストの書き方</title>
+
+  <para>
+    <xref linkend="writing-tests-for-phpunit.examples.ArrayTest.php" /> は、PHPUnit を使用する形式で
+    <xref linkend="automating-tests.examples.array-test4.php" />
+    の 2 つのテストを書き直したものです。
+  </para>
+
+  <example id="writing-tests-for-phpunit.examples.ArrayTest.php">
+    <title>PHPUnit を使用した Array および sizeof() のテスト</title>
+    <programlisting><![CDATA[<?php
+require_once 'PHPUnit/Framework.php';
+
+class ArrayTest extends PHPUnit_Framework_TestCase
+{
+    public function testNewArrayIsEmpty()
+    {
+        // 配列を作成します。
+        $fixture = array();
+
+        // 配列のサイズは 0 です。
+        $this->assertEquals(0, sizeof($fixture));
+    }
+
+    public function testArrayContainsAnElement()
+    {
+        // 配列を作成します。
+        $fixture = array();
+
+        // 配列にひとつの要素を追加します。
+        $fixture[] = 'Element';
+
+        // 配列のサイズは 1 です。
+        $this->assertEquals(1, sizeof($fixture));
+    }
+}
+?>]]></programlisting>
+  </example>
+
+  <blockquote>
+    <attribution>Martin Fowler</attribution>
+    <para>
+      Whenever you are tempted to type something into a
+      <literal>print</literal> statement or a debugger expression, write it
+      as a test instead.
+    </para>
+    <para>
+      何かを <literal>print</literal> 文やデバッガの式に書きたくなったときは、
+      代わりにその内容をテストに書くようにするんだ。
+    </para>
+  </blockquote>
+
+  <para>
+    <indexterm><primary>PHPUnit_Framework_TestCase</primary></indexterm>
+
+    <xref linkend="writing-tests-for-phpunit.examples.ArrayTest.php" /> では、
+    PHPUnit を使用してテストを記述する基本手順を説明しています。
+  </para>
+
+  <orderedlist>
+    <listitem><para><literal>Class</literal> という名前のクラスのテストは、<literal>ClassTest</literal> という名前のクラスに記述します。</para></listitem>
+    <listitem><para><literal>ClassTest</literal> は、(ほとんどの場合) <literal>PHPUnit_Framework_TestCase</literal> を継承します。</para></listitem>
+    <listitem><para>テストは、引数をとらないパブリックメソッドとして <literal>test*</literal> という名前で記述します。</para><para><indexterm><primary>Annotation</primary></indexterm>また、<literal>@test</literal> アノテーションをメソッドのコメント部で使用することで、それがテストメソッドであることを示すことができます。</para></listitem>
+    <listitem><para>テストメソッドの中で <literal>assertEquals()</literal> のようなアサーションメソッド (<xref linkend="api.assert.tables.assertions" /> を参照ください) を使用して、期待される値と実際の値が等しいことを確かめます。</para></listitem>
+  </orderedlist>
+
+  <note>
+    <para>
+      PHPUnit バージョン 2.0-2.3 では、クラス名が
+      <literal>PHPUnit_</literal> ではなく <literal>PHPUnit2_</literal>
+      で始まっていたことに注意しましょう。既存のテストケースは
+      そのままでも PHPUnit バージョン 3.0 で動作しますが、
+      新しいクラス名に変更することを強く推奨します。
+    </para>
+  </note>
+</chapter>

@@ -1,0 +1,376 @@
+<html>
+<head>
+<title>DBLite - Frequently Asked Questions</title>
+<style>
+body {
+             background-color: tan; 
+             color: black;
+             font-family: sans-serif; 
+             font-size: 11pt; 
+}
+.s {
+             background-color: wheat; 
+             margin: 1em; 
+	     padding: .5em; 
+}
+.ss {
+             margin-top: 2em; 
+             margin-bottom: 2em; 
+	     padding-left: .5em; 
+	     padding-right: .5em; 
+	     border: thin dotted brown;
+}
+h1 {         color: black; font-size: 20pt; font-family: sans-serif; }
+h2 {         color: brown; font-size: 18pt; font-family: sans-serif; }
+h3 {         color: black; font-size: 12pt; font-family: sans-serif; }
+.q {         color: black; font-size: 12pt; font-family: sans-serif; }
+.a {         color: black; font-size: 11pt; font-family: sans-serif; }
+.c {         font-family: monospace; font-weight: bold; }
+:link {      color: maroon; text-decoration: none; }
+:visited {   color: gray; text-decoration: none; }
+</style>
+</head>
+<body>
+<h1>DBLite - Frequently Asked Questions</h1>
+<div class="s">
+<h2>1. Installation and Getting Started</h2>
+
+<div class="ss">
+<div class="q">
+<p>1.1. The Perl library XML::LibXML has a lot of dependancies like
+XML::SAX and so on. Should I install them all, or can I skip them?</p>
+</div>
+<div class="a">
+<p>DBLite tools are written in Perl and have some dependancies not
+included in this package. Those dependancies are Perl modules which
+themselves have dependancies. We recommend you install everything the
+modules call for. Read the documentation on installing perl modules
+with the command <span class="c">perldoc perlmodinstall</span>. You
+can determine what modules are already install on your system with the
+command <span class="c">perldoc perllocal</span>.</p>
+</div>
+</div>
+
+<div class="ss">
+<div class="q">
+<p>1.2. There are a lot of tools here. Is there documentation for
+them?</p>
+</div>
+<div class="a">
+<p>Yes. For an overview of the tools, read the file <i>README</i>. For
+more specific information about each tool, go into the <i>bin</i>
+directory and type <span class="c">perldoc sometool</span>, where
+<i>sometool</i> is the name of the tool you want to know more
+about.</p>
+</div>
+</div>
+
+<div class="ss">
+<div class="q">
+<p>1.3. Is there an example book coded in DocBook I can look at?</p>
+</div>
+<div class="a">
+<p>Yes. It's in the <i>test/lx</i> subdirectory of the install
+package.</p>
+</div>
+</div>
+</div>
+
+
+<div class="s">
+<h2>2. Authoring</h2>
+
+<div class="ss">
+<div class="q">
+<p>2.1. How can I edit XML files with Emacs?</p>
+</div>
+<div class="a">
+<p>Emacs supports XML as long as you stay within the ISO Latin-1
+character set. It does not support UTF-8 or other encodings
+yet. You will have to use character entity references for special
+symbols and exotic characters (described below).</p>
+<p>There is a special major mode called <i>psgmls</i> designed to make
+working with XML much easier. It provides an automatic syntax checking
+mechanism that reads the DTD and then scans your file while you
+type. It will also automatically indent elements to make your file
+easier to read. I will include detailed instructions for setting it up
+soon.</p>
+</div>
+</div>
+
+<div class="ss">
+<div class="q">
+<p>2.2. How can I use a special character from inside a text-only
+editor?</p>
+</div>
+<div class="a">
+<p>Text-only editors like Emacs are stuck in the ISO Latin-1 character
+set. Any special characters you want to use such as mathematical
+symbols or accented letters or Japanese ideographs will have to be
+imported using a special entity reference. There are many defined
+entity references declared in the dblite DTD which you can locate in
+the <i>docbook41/ent</i> subdirectory. For example, to find the name
+of the entity for trademark (from the <i>dblite</i> directory:</p>
+<blockquote><pre>$ grep TRADE docbook41/ent/*
+docbook41/ent/iso-num.ent:&lt;!ENTITY reg "&amp;#x00AE;"> &lt;!-- REG TRADE MARK SIGN -->
+docbook41/ent/iso-num.ent:&lt;!ENTITY trade "&amp;#x2122;"> &lt;!-- TRADE MARK SIGN --></pre></blockquote>
+<p>So, to use the trademark character in your document, you can type
+either &amp;trade; or &amp;#x2122;. The latter one will be understood
+by all XML parsers even without a doctype declaration, but has the
+disadvantage of being hard to remember.</p>
+</div>
+</div>
+
+<div class="ss">
+<div class="q">
+<p>2.2. Are there graphical editors that will work with DBLite?</p>
+</div>
+<div class="a">
+<p>There are many graphical editors for authoring XML. They come with
+a range of features and prices. Many such editors will read the DTD
+and check the elements in your document to make sure it's structured
+correctly. They usually include options to hide markup to make the
+text easier to read.</p>
+
+<p>Some graphical editors rely on CSS stylesheets to format the text
+so that it looks nice on screen. I've included a CSS stylesheet in the
+DBLite install package that an author created for use with XMetaL.</p>
+
+<p>Here are a few editors we have used:</p>
+
+<table border="1" cellpadding="5" cellspacing="0">
+<tr><th>Company</th><th>Name</th><th>Platform</th><th>Cost</th></tr>
+<tr><td>Morphon</td><td>XML Editor</td><td>MacOS, Windows, Unix</td><td>$100</td></tr>
+<tr><td>SoftQuad</td><td>XMetaL</td><td>Windows</td><td>$200</td></tr>
+<tr><td>Arbortext</td><td>Adept</td><td>Windows, Solaris</td><td>$1000</td></tr>
+</table>
+
+<p>If you have experience with any others, please let us know so we
+can recommend them to other authors.</p>
+
+</div>
+</div>
+
+<div class="ss">
+<div class="q">
+<p>2.3. Does dblite include the equivalent of a &lt;br/&gt; element to
+force a newline in prose (for instance if I want a URL to be on a
+line by itself)?</p>
+</div>
+<div class="a">
+<p>No, there is nothing like that in DocBook. However, since we
+convert the book to FrameMaker in production, we can force a linebreak
+then. So if you want to let the production editor know your intention
+to have a linebreak at some point, you can just insert a little
+comment to that effect. The &lt;remark&gt; element is for putting in
+such comments.</p>
+<p>In general, you don't need to worry about linebreaks or
+pagebreaks. That will all be done by the production editor. However,
+in certain cases you need the linebreaks for semantic reasons, such as
+in a code block or a poem. &lt;programlisting&gt; and &lt;screen&gt;
+are elements for code blocks and representing screen output,
+respectively. &lt;literallayout&gt; is for anything else that needs to
+retain spacing, such as poems.</p>
+</div>
+</div>
+
+<div class="ss">
+<div class="q">
+<p>2.4. How do I insert a comment that the production editor will see?
+Can I use a regular XML comment?</p>
+</div>
+<div class="a">
+<p>Production editors don't look at the XML markup, so any comment
+constructs you create will be ignored. If you want a comment to be
+seen, use the &lt;remark&gt; element like this:</p>
+<blockquote>
+<pre>&lt;remark&gt;Please check the spelling of the word
+"farfignoogin" in the next para.&lt;/remark&gt;
+&lt;para&gt;The Germans call it "farfignoogin"&lt;/para&gt;</pre>
+</blockquote>
+</div>
+</div>
+
+<div class="ss">
+<div class="q">
+<p>2.5. Are the production tools smart enough to discard filler
+whitespace?</p>
+</div>
+<div class="a">
+<p>The rules for whitespace in XML are kind of tricky, but they
+<em>generally</em> do what you want.</p>
+<p>In block-type elements (e.g. paragraphs, titles), leading and
+trailing space will be thrown away. All other space will be collapsed
+into one single space character. So this:</p>
+<blockquote>
+<pre>&lt;para&gt;     Hey     there.      &lt;/para&gt;</pre>
+</blockquote>
+<p>will "normalize" to this:</p>
+<blockquote>
+<pre>&lt;para&gt;Hey there.&lt;/para&gt;</pre>
+</blockquote>
+<p>There are a few exceptions, noteably &lt;screen&gt;,
+&lt;programlisting&gt;, and &lt;literallayout&gt; which preserve all
+whitespace. (Technically, in these elements, we throw out any leading
+blank lines and all trailing space, but otherwise keep all space
+characters intact.)</p>
+<p>In non-block (inline) elements, the leading and trailing space are
+treated the same as space in the middle of content. So this:</p>
+<blockquote>
+<pre>&lt;para&gt;   I am   &lt;emphasis&gt;   very hungry
+&lt;/emphasis&gt;   today.   &lt;/para&gt;</pre>
+</blockquote>
+<p>normalizes to this:</p>
+<blockquote>
+<pre>&lt;para&gt;I am &lt;emphasis&gt; very hungry &lt;/emphasis&gt; today.&lt;/para&gt;</pre>
+</blockquote>
+<p>This is not what we want, however, because there are effectively
+two spaces between the words "am" and "very". So we usually do some
+pre-processing on the XML to squeeze out space inside of inline tags
+and then do the normalization step. The result is this:</p>
+<blockquote>
+<pre>&lt;para&gt;I am &lt;emphasis&gt;very hungry&lt;/emphasis&gt; today.&lt;/para&gt;</pre>
+</blockquote>
+</div>
+</div>
+
+</div>
+
+
+<div class="s">
+<h2>3. Generating HTML</h2>
+
+<div class="ss">
+<div class="q">
+<p>3.1. How can I generate HTML from my XML files?</p>
+</div>
+<div class="a">
+<p>This package contains a tool for authors to generate HTML easily
+from their XML files. The command is <span class="c">db2h</span> and
+it takes an XML filename as its argument. The files it generates
+include an index called <i>book.html</i> and a file for each chapter
+or appendix.</p>
+</div>
+</div>
+
+<div class="ss">
+<div class="q">
+<p>3.2. When I run <span class="c">db2h</span> on a file, I get a lot
+of error messages and no HTML file is generated. What happened?</p>
+</div>
+<div class="a">
+<p>The most common reason is that the XML file is not
+well-formed. This simply means that there is a syntax error in the XML
+and the parser in <span class="c">db2h</span> has given up trying to
+work with it. You need to find out where the error is located and fix
+it.</p>
+<p>To locate the error, run the command <span class="c">xwf</span> on
+each file you want to check (not <i>book.xml</i>, but each individual
+chapter and appendix file). You'll see a series of error messages like
+this:</p>
+<blockquote><pre>$ xwf test.xml
+WARNING: 'test.xml' is NOT well-formed.
+----------
+[1] ON LINE 9 OF 'test.xml', Opening and ending tag mismatch (bar and
+baz).
+
+  EXCERPT
+  &lt;bar>Hello there&lt;/baz>
+                       ^</pre></blockquote>
+<p>This message tells you that in the file <i>test.xml</i> on line 9,
+there is an error located where the caret character is pointing. In
+this case, the problem is a misspelled element end tag. For more
+information about creating well-formed XML, read chapter 2 of my book
+<a href="http://www.oreilly.com/catalog/learnxml/"><i>Learning
+XML</i></a>.</p>
+</div>
+</div>
+
+<div class="ss">
+<div class="q">
+<p>3.3. I tried running <span class="c">db2h</span> on the file
+<i>ch03.xml</i> and got an error telling me "Entity 'foo' not
+defined." It's well-formed XML, so what am I doing wrong?</p>
+</div>
+<div class="a">
+<p>The file contains entity references but no declarations for the
+entities. It's like forgetting to initialize a variable. You need to
+include some information in the document to tell db2h what to do with
+the entity references. The way to do this is with a <i>doctype
+declaration</i>. It looks like this:</p>
+<blockquote><pre>&lt;!DOCTYPE book SYSTEM "/usr/local/prod/sgml/dblite/dblite.dtd"
+[
+  &lt;!ENTITY foo "some replacement text here">
+]></pre></blockquote>
+<p>If you want to put this in a chapter file, change "book" to
+"chapter" (or whatever is the type of the root element) above. The
+path to <i>dblite.dtd</i> may be different, depending on where you
+installed it.</p>
+<p>The downside to this is that the chapter becomes an independant
+document and you can't validate the whole book at once. If you want to
+be able to validate the whole book, then create a file called
+<i>book.xml</i> and put the doctype declaration in there. Then add
+entities to import each of the chapter files like this:</p>
+<blockquote><pre>&lt;!DOCTYPE book SYSTEM "/usr/local/prod/sgml/dblite/dblite.dtd"
+[
+  &lt;!ENTITY preface "ch00.xml">
+  &lt;!ENTITY ch01 "ch01.xml">
+  &lt;!ENTITY ch02 "ch02.xml">
+  &lt;!ENTITY appa "appa.xml">
+]>
+&lt;book>&lt;title>My Excellent Book&lt;/title>
+&preface;
+&ch00;
+&ch01;
+&appa;
+&lt;/book></pre></blockquote>
+</div>
+</div>
+
+<div class="ss">
+<div class="q">
+<p>3.4. I am running <span class="c">db2h</span> on the file
+<i>ch03.xml</i> and it saves the result in <i>ch01.html</i>. Why
+doesn't it save it in <i>ch03.html</i>?</p>
+</div>
+<div class="a">
+<p>This is a bug that will be fixed soon. If you want to have correct
+numbering, create a <i>book.xml</i> as described in section 3.3 above,
+and run <span class="c">db2h book.xml</span>. It will separate all the
+chapter files with correct numbering automatically.</p>
+</div>
+</div>
+
+<div class="ss">
+<div class="q">
+<p>3.5. The graphics in my book are in the PNG format. Can <span
+class="c">db2h</span> handle that?</p>
+</div>
+<div class="a">
+<p><span class="c">db2h</span> doesn't care about the graphic
+format. It will simply transmit the file name into the HTML file
+as-is. The real limitation here is what kind of browser you're
+using. If it supports PNG format files, then you're fine.</p>
+</div>
+</div>
+
+<div class="ss">
+<div class="q">
+<p>3.6. The character entity references resolve into a form my browser 
+doesn't recognise. For example, &amp;copy; becomes &amp;#x00A9; which
+doesn't display in Netscape Navigator. It should remain &amp;copy;.</p>
+</div>
+<div class="a">
+<p>The default character entity values are numeric unicode character
+entity references, which only work for browsers that support
+Unicode. If you want to fall back on more traditional HTML entity
+definitions, change the DTD declaration in your document to be
+<i>dblite_htmlents.dtd</i> instead of <i>dblite.dtd</i>. Some entity
+references like &amp;copy; will be retained as an entity reference for
+compatibility with older web browsers.</p>
+</div>
+</div>
+
+</div>
+</body>
+</html>

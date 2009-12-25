@@ -1,0 +1,94 @@
+#!/usr/bin/perl
+
+use strict;
+
+my $xslt = '/usr/local/prod/sgml/dblite/xsl/db2h.xsl';
+my $xsltproc = '/usr/local/bin/xsltproc --timing';
+my $tmpfile = 'db2h.tmp';
+
+foreach my $file ( @ARGV ) {
+    if( -r $file ) {
+	if( $file eq 'book.xml' ) {
+	    my $cmd = "$xsltproc $xslt $file > $tmpfile";
+	    system( $cmd );
+	    separate( $tmpfile );
+	} else {
+	    open( F, ">$tmpfile" );
+	    system( "cat $file >> $tmpfile" );
+	    my $outfile = $file;
+	    $outfile =~ s/\.xml$/.html/;
+	    my $cmd = "$xsltproc $xslt $tmpfile > $outfile";
+	    system( $cmd );
+	}
+    } else {
+	print STDERR "Can't read file '$file'\n"
+    }
+}
+unlink $tmpfile;
+
+
+sub separate {
+    my $file = shift;
+    if( open( F, $file )) {
+	my $text = '';
+	while( <F> ) { $text .= $_; }
+	close F;
+	$text =~ s/^<\?xml[^>]+>//;
+	$text =~ s/<\/?allfiles>//;
+	while( $text =~ /(<\/html>)/ ) {
+	    my $file = $` . $1;
+	    $text = $';
+	    gen_file( $file );
+	}
+    } else {
+	print STDERR "Can't read temporary file '$file'\n";
+    }
+}
+
+
+sub gen_file {
+    my $text = shift;
+    $text =~ s/<td\/>/<td>&nbsp;<\/td>/g;
+    if( $text =~ /<html file=\"([^\"]+)\">/ ) {
+	$text = "<html>" . $';
+	my $file = $1;
+	if( open( F, ">$file" )) {
+	    print F $text;
+	    close F;
+	} else {
+	    print STDERR "Can't write '$file'\n";
+	}
+    }
+}
+
+
+=pod
+
+=head1 NAME
+
+db2h - convert DocBook document into HTML
+
+=head1 SYNOPSIS
+
+  $ db2h book.xml
+
+=head1 DESCRIPTION
+
+This tool is similar to db2html, converting a DocBook document into
+HTML. However, it is much more compact and easier to use. The output
+is hardwired with no configuration files. Just run it on a book and
+the script will generate HTML files in the same directory. It will
+create one file per chapter. You can set up a cascading stylesheet to
+customize the appearance somewhat.
+
+=head1 AUTHOR
+
+Erik Ray <tools@oreilly.com>.
+
+=head1 COPYRIGHT
+
+Copyright 2002 O'Reilly and Associates.
+
+=cut
+
+

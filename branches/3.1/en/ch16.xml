@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+
+<chapter id="skeleton-generator">
+  <title>Skeleton Generator</title>
+
+  <para>
+    <indexterm><primary>Skeleton Generator</primary></indexterm>
+
+    When you are writing tests for existing code, you have to write the
+    same code fragments such as <programlisting>public function testMethod()
+{
+}</programlisting> over and over again. PHPUnit can help you by analyzing the
+    code of the existing class and generating a skeleton test-case class for
+    it.
+  </para>
+
+  <example id="skeleton-generator.examples.Calculator.php">
+    <title>The Calculator class</title>
+    <programlisting><![CDATA[<?php
+class Calculator
+{
+    public function add($a, $b)
+    {
+        return $a + $b;
+    }
+}
+?>]]></programlisting>
+  </example>
+
+  <para>
+    The following example shows how to generate a skeleton test class
+    for a class named <literal>Calculator</literal>
+    (see <xref linkend="skeleton-generator.examples.Calculator.php" />).
+  </para>
+
+  <screen><userinput>phpunit --skeleton Calculator</userinput>
+PHPUnit 3.1.9 by Sebastian Bergmann.
+
+Wrote test class skeleton for Calculator to CalculatorTest.php.</screen>
+
+  <para>
+    <indexterm><primary>Incomplete Test</primary></indexterm>
+
+    For each method in the original class, there will be an incomplete
+    test-case (see <xref linkend="incomplete-and-skipped-tests" />) in
+    the generated test-case class.
+  </para>
+
+  <para>
+    Below is the output of running the generated test-case class.
+  </para>
+
+  <screen><userinput>phpunit --verbose CalculatorTest</userinput>
+PHPUnit 3.1.9 by Sebastian Bergmann.
+
+CalculatorTest
+I
+
+
+Time: 0 seconds
+
+There was 1 incomplete test:
+
+1) testAdd(CalculatorTest)
+This test has not been implemented yet.
+/home/sb/CalculatorTest.php:54
+
+OK, but incomplete or skipped tests!
+Tests: 1, Incomplete: 1.</screen>
+
+  <section id="skeleton-generator.annotations">
+    <title>Annotations</title>
+
+    <para>
+      <indexterm><primary>Annotation</primary></indexterm>
+
+      You can use <literal>@assert</literal> annotation in the
+      documentation block of a method to automatically generate simple,
+      yet meaningful tests instead of incomplete test-cases.
+      <xref linkend="skeleton-generator.annotations.examples.Calculator.php" />
+      shows an example.
+    </para>
+
+    <example id="skeleton-generator.annotations.examples.Calculator.php">
+      <title>The Calculator class with @assert annotations</title>
+      <programlisting><![CDATA[<?php
+class Calculator
+{
+    /**
+     * @assert (0, 0) == 0
+     * @assert (0, 1) == 1
+     * @assert (1, 0) == 1
+     * @assert (1, 1) == 2
+     */
+    public function add($a, $b)
+    {
+        return $a + $b;
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      Each method in the original class is checked for <literal>@assert</literal>
+      annotations. These are transformed into test code such as
+      <programlisting>    /**
+     * Generated from @assert (0, 0) == 0.
+     */
+    public function testAdd() {
+        $o = new Calculator;
+        $this->assertEquals(0, $o->add(0, 0));
+    }</programlisting>
+    </para>
+
+    <para>
+      Below is the output of running the generated test-case class.
+    </para>
+
+    <screen><userinput>phpunit CalculatorTest</userinput>
+PHPUnit 3.1.9 by Sebastian Bergmann.
+
+....
+
+Time: 0 seconds
+
+
+OK (4 tests)</screen>
+
+    <para>
+      <xref linkend="skeleton-generator.annotations.tables.assert-annotations" />
+      shows the supported variations of the <literal>@assert</literal>
+      annotation and how they are transformed into test code.
+    </para>
+
+    <table id="skeleton-generator.annotations.tables.assert-annotations">
+      <title>Supported variations of the @assert annotation</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>Annotation</entry>
+            <entry>Transformed to</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>@assert (...) == X</literal></entry>
+            <entry><literal>assertEquals(X, method(...))</literal></entry>
+          </row>
+          <row>
+            <entry><literal>@assert (...) != X</literal></entry>
+            <entry><literal>assertNotEquals(X, method(...))</literal></entry>
+          </row>
+          <row>
+            <entry><literal>@assert (...) === X</literal></entry>
+            <entry><literal>assertSame(X, method(...))</literal></entry>
+          </row>
+          <row>
+            <entry><literal>@assert (...) !== X</literal></entry>
+            <entry><literal>assertNotSame(X, method(...))</literal></entry>
+          </row>
+          <row>
+            <entry><literal>@assert (...) &gt; X</literal></entry>
+            <entry><literal>assertThat(method(...), greaterThan(X))</literal></entry>
+          </row>
+          <row>
+            <entry><literal>@assert (...) &gt;= X</literal></entry>
+            <entry><literal>assertThat(method(...), greaterThanOrEqual(X))</literal></entry>
+          </row>
+          <row>
+            <entry><literal>@assert (...) &lt; X</literal></entry>
+            <entry><literal>assertThat(method(...), lessThan(X))</literal></entry>
+          </row>
+          <row>
+            <entry><literal>@assert (...) &lt;= X</literal></entry>
+            <entry><literal>assertThat(method(...), lessThanOrEqual(X))</literal></entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+  </section>
+</chapter>

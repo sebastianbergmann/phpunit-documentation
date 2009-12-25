@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+
+<chapter id="organizing-test-suites">
+  <title>Organizing Test Suites</title>
+
+  <para>
+    One of the goals of PHPUnit (see <xref linkend="goals" />) is that tests
+    should be composable: we want to be able to run any number or combination
+    of tests together, for instance all tests for the whole project, or the
+    tests for all classes of a component that is part of the project, or just
+    the tests for a single class.
+  </para>
+
+  <para>
+    The <literal>PHPUnit_Framework_TestSuite</literal> class of the PHPUnit
+    framework allows us to organize tests into a hierarchy of test suites. Let
+    us look at PHPUnit's own test suite as an example.
+  </para>
+
+  <para>
+    <xref linkend="organizing-test-suites.examples.AllTests.php" /> shows a cut-down
+    version of <filename>Tests/AllTests.php</filename>,
+    <xref linkend="organizing-test-suites.examples.Framework_AllTests.php" /> a
+    cut-down version of <filename>Tests/Framework/AllTests.php</filename>.
+  </para>
+
+  <example id="organizing-test-suites.examples.AllTests.php">
+    <title>The AllTests class</title>
+    <programlisting><![CDATA[<?php
+require_once 'PHPUnit/Framework.php';
+
+require_once 'Framework/AllTests.php';
+// ...
+
+class AllTests
+{
+    public static function suite()
+    {
+        $suite = new PHPUnit_Framework_TestSuite('PHPUnit');
+
+        $suite->addTest(Framework_AllTests::suite());
+        // ...
+
+        return $suite;
+    }
+}
+?>]]></programlisting>
+  </example>
+
+  <example id="organizing-test-suites.examples.Framework_AllTests.php">
+    <title>The Framework_AllTests class</title>
+    <programlisting><![CDATA[<?php
+require_once 'PHPUnit/Framework.php';
+
+require_once 'Framework/AssertTest.php';
+// ...
+
+class Framework_AllTests
+{
+    public static function suite()
+    {
+        $suite = new PHPUnit_Framework_TestSuite('PHPUnit Framework');
+
+        $suite->addTestSuite('Framework_AssertTest');
+        // ...
+
+        return $suite;
+    }
+}
+?>]]></programlisting>
+  </example>
+
+  <para>
+    The <literal>Framework_AssertTest</literal> class is a normal test case
+    class that extends the <literal>PHPUnit_Framework_TestCase</literal> base
+    class.
+  </para>
+
+  <itemizedlist>
+    <listitem>
+      <para>
+        Executing <literal>phpunit AllTests</literal> in the
+        <filename>Tests</filename> directory will run all tests.
+      </para>
+    </listitem>
+    <listitem>
+      <para>
+        Executing <literal>phpunit Framework_AllTests AllTests.php</literal>
+        in the <filename>Tests/Framework</filename> directory will run only the
+        tests for the <literal>PHPUnit_Framework_*</literal> classes.
+      </para>
+    </listitem>
+    <listitem>
+      <para>
+        Executing <literal>phpunit Framework_AssertTest AssertTest.php</literal>
+        in the <filename>Tests/Framework</filename> directory will run only the
+        tests for the <literal>PHPUnit_Framework_Assert</literal> class.
+      </para>
+    </listitem>
+    <listitem>
+      <para>
+        Executing <literal>phpunit --filter testFail Framework_AssertTest AssertTest.php</literal>
+        in the <filename>Tests/Framework</filename> directory will run only the
+        test named <literal>testFail</literal> from the
+        <literal>Framework_AssertTest</literal> class.
+      </para>
+    </listitem>
+  </itemizedlist>
+</chapter>

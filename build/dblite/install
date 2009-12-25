@@ -1,0 +1,172 @@
+#!/usr/bin/perl -w
+
+use strict;
+
+
+$| = 1;
+
+# executibles as dependencies
+my @exes = qw( perl xsltproc );
+
+# paths to things
+my $basedir = '/usr/local/prod/sgml/dblite';
+my %paths = ( 
+	      basedir   => $basedir,
+	      manifest  => 'MANIFEST',
+	      perl      => '/usr/bin/perl',
+	      xsltproc  => '/usr/local/bin/xsltproc',
+              execdir   => "$basedir/bin",
+	      );
+
+# paths to be substituted
+my %subs;
+
+
+print <<END;
+
+DBLITE INSTALLER
+
+This program will ask you some questions and install all the files in
+the package wherever you want them.
+END
+
+$basedir = askpath( 'basedir', 'where do you want to install the package?');
+foreach my $item ( @exes ) {
+    my $path = `which $item`;
+    $path =~ s/\s+//g;
+    print "found $item at $path\n";
+    if( $path ) {
+	if( $path ne $paths{ $item }) {
+	    print "this is different from default: " . $paths{ $item } . "\n";
+	    $subs{ $paths{ $item }} = $path;
+	}
+    } else {
+	askpath( $item, "Where is $item?" );
+    }
+    sleep( 1 );
+}
+
+
+my $installer = new Installer( paths => \%paths, subs => \%subs );
+$installer->install();
+
+print "installation complete.\n";
+
+
+sub askpath {
+    my( $item, $question ) = @_;
+    my $default = $paths{ $item };
+    print "\n$question\n\n[$default] ";
+    my $answer = <STDIN>;
+    $answer =~ s/\s+//g;
+    if( $answer ) {
+	$paths{ $item } = $answer;
+	$subs{ $default } = $answer;
+	return $answer;
+    }
+    return $default;
+}    
+
+
+#####################################
+package Installer;
+
+
+my @install_files;
+
+
+sub new {
+#
+# Constructor.
+#
+    my $class = shift;
+    my $obj = {@_};
+    my $self = bless( $obj, $class );
+    @install_files = ();
+    return $self;
+}
+
+
+sub install {
+#
+# Start installing files from the manifest file.
+#
+    my $self = shift;
+    foreach my $file ( $self->read_manifest() ) {
+	$self->install_file( $file );
+    }
+}
+
+
+sub install_file {
+#
+# Install a file, creating new directories as necessary.
+#
+    my( $self, $file ) = @_;
+    my $fullpath = $self->{ paths }->{ basedir } . "/$file";
+    my @dirs = split( m|/|, $fullpath );
+    pop @dirs;
+    my $dir = '';
+    foreach my $dirpart ( @dirs ) {
+	next unless( $dirpart );
+	$dir .= "/$dirpart";
+	unless( -d "$dir" ) {
+	    print "creating directory '$dir'\n";
+	    my $cmd = "mkdir $dir";
+	    system( $cmd );
+	}
+    }
+    $self->write_file( $file, $fullpath );
+}
+
+
+sub write_file {
+#
+# Prepare and write a file.
+#
+    my( $self, $source, $dest ) = @_;
+    my $buf = '';
+    if( open( F, $source )) {
+	while( <F> ) { $buf .= $_; }
+	close F;
+	foreach my $path ( keys( %{ $self->{ subs }})) {
+	    my $changeto = $self->{ subs }->{ $path };
+	    $buf =~ s/$path/$changeto/g;
+	}
+    } else {
+	print STDERR "WARNING: Can't read '$source'\n";
+    }
+    if( open( F, ">$dest" )) {
+	print F $buf;
+	close F;
+	print "writing file '$dest'\n";
+	my $execdir = $paths{ execdir };
+	if( $dest =~ /^$execdir/ ) {
+	    print "setting executible bit\n";
+	    system( "chmod 755 $dest" );
+	}
+    } else {
+	print STDERR "WARNING: Can't write '$dest'\n";
+    }
+}
+
+
+sub read_manifest {
+#
+# Read the manifest file and return a list of paths.
+#
+    my $self = shift;
+    my @files;
+    if( open( M, $self->{ paths }->{ manifest })) {
+	while( my $file = <M> ) {
+	    $file =~ s/#.*//;   # strip out comments
+	    $file =~ s/\s+$//;  # strip out trailing space
+	    push( @files, $file ) if( $file );
+	}
+	close M;
+    } else {
+	print STDERR "Can't read manifest file\n";
+	exit(1);
+    }
+    return @files;
+}

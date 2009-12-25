@@ -1,0 +1,2476 @@
+<!-- ====================================================================== -->
+<!-- ====================================================================== -->
+<!--
+     DocBook Lite XML       PubID: "-//ORA//DTD DBLite XML//EN")
+
+     Derived from DocBook by the OASIS group
+     This version copyright 2001 O'Reilly and Associates
+
+     Please direct all questions, bug reports, or suggestions for
+     changes to <tools@ora.com>.
+
+     $Id: sdblite.dtd,v 1.1.1.1 2002/03/26 20:08:21 eray Exp $
+
+-->
+
+
+<!-- ====================================================================== -->
+<!--                       ATTRIBUTE GROUPS                                 -->
+<!--              Common attributes grouped by purpose.                     -->
+<!-- ====================================================================== -->
+
+
+<!ENTITY % common.atts "
+                               format    CDATA     #IMPLIED
+                               id        ID        #IMPLIED
+                               role      CDATA     #IMPLIED
+">
+
+<!ENTITY % numbered.item.atts "
+                               format    CDATA     #IMPLIED
+                               icon      CDATA     #IMPLIED
+                               id        ID        #IMPLIED
+                               number    CDATA     #IMPLIED
+                               renderas  NMTOKEN   #IMPLIED
+                               role      CDATA     #IMPLIED
+">
+
+
+<!-- ====================================================================== -->
+<!--                        ELEMENT GROUPS                                  - O -->
+<!--        Categories of elements for content type definitions.            -->
+<!-- ====================================================================== -->
+
+
+<!ENTITY % admon.group "
+                                 caution
+                               | important
+                               | note
+                               | tip
+                               | warning
+">
+
+<!ENTITY % block.group "
+                                 abstract
+                               | address
+                               | blockquote
+                               | classsynopsis
+                               | cmdsynopsis
+			       | endnote
+                               | epigraph
+                               | equation
+                               | example
+                               | figure
+                               | funcsynopsis
+                               | informalexample
+                               | informalfigure
+                               | informaltable
+                               | para
+                               | qandaset                               
+                               | sidebar
+                               | synopsis
+                               | table
+">
+
+<!ENTITY % bookinfo.group "
+                                 abbrev
+                               | address
+                               | author
+                               | authorgroup
+                               | authorinitials
+                               | bibliomisc
+                               | biblioset
+			       | bookbiblio
+                               | copyright
+                               | date
+                               | edition
+                               | editor
+                               | graphic
+                               | indexterm
+                               | isbn
+                               | issn
+                               | pagenums
+                               | printhistory
+                               | productname
+                               | pubdate
+                               | publisher
+                               | releaseinfo
+                               | subtitle
+                               | title
+                               | volumenum
+">
+
+<!ENTITY % chaplevel.group "
+                                 appendix
+                               | bibliography
+                               | chapter
+                               | glossary
+                               | preface
+">
+
+<!ENTITY % inline.group "
+                                 abbrev
+                               | acronym
+                               | citation
+                               | citetitle
+                               | emphasis
+                               | firstterm
+                               | foreignphrase
+                               | glossterm
+                               | quote
+                               | subscript
+                               | superscript
+                               | wordasword
+">
+
+<!ENTITY % keepspace.group "
+                                 literallayout
+                               | programlisting
+                               | screen
+">
+
+<!ENTITY % link.group "
+                                 classref
+                               | link
+                               | xref
+">
+
+<!ENTITY % list.group "
+                                 calloutlist
+                               | glosslist
+                               | itemizedlist
+                               | nutlist
+                               | orderedlist
+                               | simplelist
+                               | variablelist
+">
+
+<!ENTITY % tech.inline.group "
+                                 accel
+                               | action
+                               | application
+                               | classname
+                               | command
+                               | computeroutput
+			       | constant
+                               | email
+                               | envar
+                               | filename
+                               | function
+                               | guibutton
+                               | guilabel
+                               | guimenu
+                               | guimenuitem
+                               | keycap
+                               | keycode
+                               | keysym
+                               | literal
+                               | option
+                               | optional
+                               | parameter
+                               | prompt
+                               | replaceable
+                               | returnvalue
+                               | sgmltag
+                               | structfield
+                               | structname
+                               | symbol
+                               | systemitem
+                               | type
+                               | userinput
+                               | varname
+">
+
+<!ENTITY % ubiq.group "
+                                 indexterm
+                               | comment
+">
+
+
+<!-- ====================================================================== -->
+<!--                          CONTENT TYPES                                 -->
+<!--        Definitions for content in various element categories.          -->
+<!-- ====================================================================== -->
+
+
+<!ENTITY % biblio.content "
+                                 %bookinfo.group;
+                               | abstract
+                               | keywordset
+                               | subjectset
+">
+
+<!ENTITY % component.title.content "
+                               (
+                                   indexterm
+                                 | docinfo
+                               )*,
+                               title,
+                               subtitle?
+">
+
+<!ENTITY % component.content "
+                                 %admon.group;
+                               | %block.group;
+                               | %keepspace.group;
+                               | %list.group;
+                               | %ubiq.group;
+                               | graphic
+                               | refentry
+			       | simplesect
+">
+
+<!ENTITY % indexterm.content "
+                                 #PCDATA
+                               | %inline.group;
+                               | %tech.inline.group;
+">
+
+<!ENTITY % para.content "
+                                 #PCDATA
+                               | footnote
+                               | footnoteref
+                               | graphic
+                               | icon
+                               | glosssee
+                               | glossseealso
+                               | %inline.group;
+                               | %keepspace.group;
+                               | %link.group;
+                               | %tech.inline.group;
+                               | %ubiq.group;
+">
+
+<!ENTITY % programlisting.content "
+                                 #PCDATA
+                               | co
+                               | command
+                               | computeroutput
+                               | emphasis
+                               | footnote
+                               | footnoteref
+                               | graphic
+                               | keycap
+                               | lineannotation
+                               | prompt
+                               | replaceable
+                               | returnvalue
+                               | sgmltag
+                               | subscript
+                               | superscript
+                               | userinput
+                               | %link.group;
+                               | %ubiq.group;
+">
+
+<!ENTITY % synop.content "
+                                 #PCDATA
+                               | arg
+                               | group
+                               | option
+                               | replaceable
+">
+
+<!ENTITY % title.content "
+                                 #PCDATA
+                               | %inline.group;
+                               | %link.group;
+                               | %tech.inline.group;
+                               | comment
+                               | footnote
+                               | graphic
+                               | screen
+">
+
+<!ENTITY % toplevel.content "
+                                 %admon.group;
+                               | %block.group;
+                               | %keepspace.group;
+                               | %list.group;
+                               | %ubiq.group;
+                               | graphic
+                               | refentry
+                               | bibliography
+                               | glossary
+                               | index
+                               | reference
+                               | sect1
+                               | section
+                               | simplesect
+">
+
+<!ENTITY % simple.toplevel.content "
+                                 simplesect
+                               | sect1
+                               | section
+">
+
+<!-- ====================================================================== -->
+<!--                       HIERARCHICAL ELEMENTS                            -->
+<!-- ====================================================================== -->
+
+
+<!ELEMENT appendix - O (
+                               %component.title.content;,
+                               (%toplevel.content;)*
+)>
+<!ATTLIST appendix
+                               %numbered.item.atts;
+>
+
+<!ELEMENT book - O (
+                               title?, subtitle*, bookinfo?, toc?,
+                               (
+                                   copyrightpg
+                                 | dedication
+                               )*,
+                               (
+                                   %chaplevel.group;
+                                 | part
+                               )*,
+                               (
+                                   colophon
+                                 | index
+                               )*
+)>
+<!ATTLIST book
+                               %common.atts;
+>
+
+<!ELEMENT chapter - O (
+                               %component.title.content;,
+                               (%toplevel.content;)*
+)>
+<!ATTLIST chapter
+                               %numbered.item.atts;
+>
+
+<!ELEMENT colophon - O (
+                               %component.title.content;,
+                               (%simple.toplevel.content;)*
+)>
+<!ATTLIST colophon
+                               %common.atts;
+>
+
+<!ELEMENT copyrightpg - O (
+                               (%simple.toplevel.content;)*
+)>
+<!ATTLIST copyrightpg
+                               %common.atts;
+>
+
+<!ELEMENT docinfo - O (
+                               (%biblio.content;)*
+)>
+<!ATTLIST docinfo
+                               %common.atts;
+>
+
+<!ELEMENT part - O (
+                               %component.title.content;,
+                               partintro*,
+                               (%chaplevel.group;)*
+)>
+<!ATTLIST part
+                               %numbered.item.atts;
+>
+
+<!ELEMENT partintro - O (
+			       title?,
+                               (
+                                   %component.content;
+                                 | sect1
+                               )*
+)>
+<!ATTLIST partintro
+                               %common.atts;
+>
+
+<!ELEMENT preface - O (
+                               %component.title.content;,
+                               (%toplevel.content;)*
+)>
+<!ATTLIST preface
+                               %numbered.item.atts;
+>
+
+<!ELEMENT section - O (
+                               %component.title.content;,
+                               (
+                                   %component.content;
+                                 | section
+                               )*
+)>
+<!ATTLIST section
+                               %numbered.item.atts;
+>
+
+<!ELEMENT sect1 - O (
+                               %component.title.content;,
+                               (
+                                   %component.content;
+                                 | sect2
+                               )*
+)>
+<!ATTLIST sect1
+                               %numbered.item.atts;
+>
+
+<!ELEMENT sect2 - O (
+                               %component.title.content;,
+                               (
+                                   %component.content;
+                                 | sect3
+                               )*
+)>
+<!ATTLIST sect2
+                               %numbered.item.atts;
+>
+
+<!ELEMENT sect3 - O (
+                               %component.title.content;,
+                               (
+                                   %component.content;
+                                 | sect4
+                               )*
+)>
+<!ATTLIST sect3
+                               %numbered.item.atts;
+>
+
+<!ELEMENT sect4 - O (
+                               %component.title.content;,
+                               (%component.content;)*
+)>
+<!ATTLIST sect4
+                               %numbered.item.atts;
+>
+
+<!ELEMENT set - O (
+                               %component.title.content;,
+                               book*
+)>
+<!ATTLIST set
+                               %common.atts;
+>
+
+<!ELEMENT simplesect - O (
+                               title?,
+                               (%component.content;)*
+)>
+<!ATTLIST simplesect
+                               %numbered.item.atts;
+>
+
+<!ELEMENT toc
+- O                                EMPTY
+>
+<!ATTLIST toc
+                               %common.atts;
+>
+
+
+<!-- ====================================================================== -->
+<!--                          BLOCK ELEMENTS                                -->
+<!-- ====================================================================== -->
+
+
+<!ELEMENT attribution 
+- O                                (%para.content;)*
+>
+<!ATTLIST attribution
+                               %common.atts;
+>
+
+<!ELEMENT blockquote - O (
+                               title?, attribution?,
+                               (
+                                   %block.group;
+                                 | %keepspace.group;
+                                 | %list.group;
+                                 | %ubiq.group;
+                               )+
+)>
+<!ATTLIST blockquote
+                               %common.atts;
+>
+
+<!ELEMENT abstract - O (
+                               title?,
+                               para+
+)>
+<!ATTLIST abstract
+                               %common.atts;
+>
+
+<!ELEMENT caution - O (
+                               title?,
+                               (
+                                   %block.group;
+                                 | %keepspace.group;
+                                 | %list.group;
+                                 | %ubiq.group;
+                               )*
+)>
+<!ATTLIST caution
+                               %common.atts;
+>
+
+<!ELEMENT comment 
+- O                                (%para.content;)*
+>
+<!ATTLIST comment
+                               %common.atts;
+>
+
+
+<!ELEMENT endnote - O (
+                               attribution?,
+                               (
+                                   %block.group;
+                                 | %list.group;
+                               )+
+)>
+<!ATTLIST endnote
+                               %numbered.item.atts;
+>
+
+<!ELEMENT epigraph - O (
+                               attribution?,
+                               para+
+)>
+<!ATTLIST epigraph
+                               %common.atts;
+>
+
+<!ELEMENT equation
+- O                                (%para.content;)*
+>
+<!ATTLIST equation
+                               %numbered.item.atts;
+>
+
+
+<!ELEMENT example - O (
+                               (%ubiq.group;)*,
+                               title, subtitle*,
+                               (
+                                   %block.group;
+                                 | %keepspace.group;
+                                 | %ubiq.group;
+                                 | nutlist
+                                 | refentry
+                               )+
+)>
+<!ATTLIST example
+                               %numbered.item.atts;
+>
+
+<!ELEMENT figure - O (
+                               (%ubiq.group;)*,
+                               title, subtitle*,
+                               (%ubiq.group;)*,
+                               graphic+
+)>
+<!ATTLIST figure
+                               %numbered.item.atts;
+>
+
+<!ELEMENT footnote - O (
+                               (
+                                   para
+                                 | programlisting
+                                 | %list.group;
+                               )+
+)>
+<!ATTLIST footnote
+                               label     CDATA     #IMPLIED
+                               %numbered.item.atts;
+>
+
+<!ELEMENT icon - O (
+                               title, subtitle*,
+                               graphic
+)>
+<!ATTLIST icon
+                               %numbered.item.atts;
+>
+
+<!ELEMENT important - O (
+                               title?,
+                               (
+                                   %block.group;
+                                 | %keepspace.group;
+                                 | %list.group;
+                                 | %ubiq.group;
+                               )*
+)>
+<!ATTLIST important
+                               %common.atts;
+>
+
+<!ELEMENT informalexample - O (
+                               (
+                                   %block.group;
+                                 | %keepspace.group;
+                                 | %ubiq.group;
+                               )+
+)>
+<!ATTLIST informalexample
+                               %numbered.item.atts;
+>
+
+<!ELEMENT informalfigure - O (
+                               graphic
+)>
+<!ATTLIST informalfigure
+                               %numbered.item.atts;
+>
+
+<!ELEMENT literallayout 
+- O                                (%para.content;)*
+>
+<!ATTLIST literallayout
+                               space (default|preserve) 'preserve'
+                               %common.atts;
+>
+
+<!ELEMENT note - O (
+                               title?,
+                               (
+                                   %block.group;
+                                 | %keepspace.group;
+                                 | %list.group;
+                                 | %ubiq.group;
+                               )*
+)>
+<!ATTLIST note
+                               %common.atts;
+>
+
+<!ELEMENT para 
+- O                                (%para.content;)*
+>
+<!ATTLIST para
+                               flag      CDATA     #IMPLIED
+                               %common.atts;
+>
+
+<!ELEMENT programlisting
+- O                                (%programlisting.content;)*
+>
+<!ATTLIST programlisting
+                               space (default|preserve) 'preserve'
+                               %common.atts;
+>
+
+<!ELEMENT screen
+- O                                (%programlisting.content;)*
+>
+<!ATTLIST screen
+                               space (default|preserve) 'preserve'
+                               %common.atts;
+>
+
+<!ELEMENT sidebar - O (
+                               title?,
+                               (%component.content;)*
+)>
+<!ATTLIST sidebar
+                               %numbered.item.atts;
+>
+
+<!ELEMENT subtitle 
+- O                                (%title.content;)*
+>
+<!ATTLIST subtitle
+                               %common.atts;
+>
+
+<!ELEMENT synopsis 
+- O                                (
+                                   %para.content;
+                                 | lineannotation
+                               )*
+>
+
+<!ATTLIST synopsis
+                               %common.atts;
+>
+
+<!ELEMENT tip - O (
+                               title?,
+                               (
+                                   %block.group;
+                                 | %keepspace.group;
+                                 | %list.group;
+                                 | %ubiq.group;
+                               )*
+)>
+<!ATTLIST tip
+                               %common.atts;
+>
+
+<!ELEMENT title
+- O                                (%title.content;)*
+>
+<!ATTLIST title
+                               %common.atts;
+>
+
+<!ELEMENT warning - O (
+                               title?,
+                               (
+                                   %block.group;
+                                 | %keepspace.group;
+                                 | %list.group;
+                                 | %ubiq.group;
+                               )*
+)>
+<!ATTLIST warning
+                               %common.atts;
+>
+
+
+<!-- ====================================================================== -->
+<!--                          LIST ELEMENTS                                 -->
+<!-- ====================================================================== -->
+
+
+<!ELEMENT calloutlist - O (
+                               title?,
+                               callout+
+)>
+<!ATTLIST calloutlist
+                               %common.atts;
+>
+
+<!ELEMENT callout - O (
+                               (
+                                   %admon.group;
+                                 | %block.group;
+                                 | %keepspace.group;
+                                 | %list.group;
+                                 | %ubiq.group;
+                               )+
+)>
+<!ATTLIST callout
+                               idref     IDREF     #IMPLIED
+                               arearefs  IDREFS    #IMPLIED
+                               %common.atts;
+>
+
+<!ELEMENT itemizedlist - O (
+                               title?,
+                               (
+                                   %ubiq.group;
+                                 | listitem
+                               )+
+)>
+<!ATTLIST itemizedlist
+                               %common.atts;
+>
+
+<!ELEMENT listitem - O (
+                               (
+                                   %admon.group;
+                                 | %block.group;
+                                 | %keepspace.group;
+                                 | %list.group;
+                                 | %ubiq.group;
+                               )+
+)>
+<!ATTLIST listitem
+                               %common.atts;
+>
+
+<!ELEMENT member
+- O                                (%para.content;)*
+>
+<!ATTLIST member
+                               %common.atts;
+>
+
+<!ELEMENT orderedlist - O (
+                               title?,
+                               (
+                                   %ubiq.group;
+                                 | listitem
+                               )+
+)>
+<!ATTLIST orderedlist
+                               inheritnum   CDATA    #IMPLIED
+                               continuation CDATA    #IMPLIED
+                               numeration   CDATA    #IMPLIED
+                               %common.atts;
+>
+
+<!ELEMENT simplelist - O (
+                               title?,
+                               member+
+)>
+<!ATTLIST simplelist
+                               arearefs  IDREFS    #IMPLIED
+                               columns   CDATA     #IMPLIED
+                               type (inline|vert|horiz) "vert"
+                               %common.atts;
+>
+
+<!ELEMENT term 
+- O                                (
+                                   %para.content;
+                                 | funcsynopsis
+                               )*
+>
+<!ATTLIST term
+                               %numbered.item.atts;
+>
+
+<!ELEMENT variablelist - O (
+                               title?,
+                               (
+                                   %ubiq.group;
+                                 | varlistentry
+                               )+
+)>
+<!ATTLIST variablelist
+                               %common.atts;
+>
+
+<!ELEMENT varlistentry - O (
+                               (%ubiq.group;)*,
+                               term+,
+                               (%ubiq.group;)*,
+                               listitem,
+                               (%ubiq.group;)*
+)>
+<!ATTLIST varlistentry
+                               %common.atts;
+>
+
+
+<!-- ====================================================================== -->
+<!--                          TABLE ELEMENTS                                -->
+<!-- ====================================================================== -->
+
+
+<!ELEMENT colspec
+- O                                EMPTY
+>
+<!ATTLIST colspec
+                               colnum    CDATA     #IMPLIED
+                               colname   CDATA     #IMPLIED
+                               colwidth  CDATA     #IMPLIED
+                               colsep    CDATA     #IMPLIED
+                               rowsep    CDATA     #IMPLIED
+                               align (left|right|center|justify|char) #IMPLIED
+>
+
+<!ELEMENT spanspec
+- O                                EMPTY
+>
+<!ATTLIST spanspec
+                               namest    CDATA     #REQUIRED
+                               nameend   CDATA     #REQUIRED
+                               spanname  CDATA     #REQUIRED
+                               colsep    CDATA     #IMPLIED
+                               rowsep    CDATA     #IMPLIED
+                               align (left|right|center|justify|char) #IMPLIED
+>
+
+<!ELEMENT entry
+- O                                (
+                                   %para.content;
+                                 | %block.group;
+                                 | %list.group;
+                               )*
+>
+<!ATTLIST entry
+                               colname   CDATA     #IMPLIED
+                               namest    CDATA     #IMPLIED
+                               nameend   CDATA     #IMPLIED
+                               spanname  CDATA     #IMPLIED
+                               morerows  CDATA     #IMPLIED
+                               colsep    CDATA     #IMPLIED
+                               rowsep    CDATA     #IMPLIED
+                               align (left|right|center|justify|char) #IMPLIED
+                               valign (top|middle|bottom) #IMPLIED
+                               %common.atts;
+>
+
+<!ELEMENT informaltable - O (
+                               tgroup+
+)>
+<!ATTLIST informaltable
+                               cols      CDATA     #IMPLIED
+                               colsep    CDATA     #IMPLIED
+                               rowsep    CDATA     #IMPLIED
+                               frame     CDATA     #IMPLIED
+                               %numbered.item.atts;
+>
+
+<!ELEMENT row - O (
+                               (%ubiq.group;)*,
+                               entry+,
+                               (%ubiq.group;)*
+)>
+<!ATTLIST row
+                               rowsep    CDATA     #IMPLIED
+                               valign (top|middle|bottom) #IMPLIED
+                               %common.atts;
+>
+
+<!ELEMENT table - O (
+                               (%ubiq.group;)*,
+                               title, subtitle*,
+                               (%ubiq.group;)*,
+                               (tgroup+ | graphic)
+)>
+<!ATTLIST table
+                               cols      CDATA     #IMPLIED
+                               colsep    CDATA     #IMPLIED
+                               rowsep    CDATA     #IMPLIED
+                               frame     CDATA     #IMPLIED
+                               %numbered.item.atts;
+>
+
+<!ELEMENT tbody - O (
+                               (
+                                   row
+                                 | %ubiq.group;
+                               )+
+)>
+<!ATTLIST tbody
+                               %common.atts;
+>
+
+<!ELEMENT tfoot - O (
+                               row+
+)>
+<!ATTLIST tfoot
+                               %common.atts;
+>
+
+<!ELEMENT tgroup - O (
+                               (
+                                   colspec
+                                 | spanspec
+                               )*,
+                               thead?, 
+                               tfoot?,
+                               tbody+,
+                               tfoot?
+)>
+<!ATTLIST tgroup
+                               align     CDATA     #IMPLIED
+                               cols      CDATA     #IMPLIED
+                               colsep    CDATA     #IMPLIED
+                               frame     CDATA     #IMPLIED
+                               rowsep    CDATA     #IMPLIED
+                               %common.atts;
+>
+
+<!ELEMENT thead - O (
+                               row+
+)>
+<!ATTLIST thead
+                               %common.atts;
+>
+
+
+<!-- ====================================================================== -->
+<!--                          INLINE ELEMENTS                               -->
+<!-- ====================================================================== -->
+
+
+<!ELEMENT abbrev 
+- O                                (%para.content;)*
+>
+<!ATTLIST abbrev
+                               %common.atts;
+>
+
+<!ELEMENT accel 
+- O                                (%para.content;)*
+>
+<!ATTLIST accel
+                               %common.atts;
+>
+
+<!ELEMENT acronym 
+- O                                (%para.content;)*
+>
+<!ATTLIST acronym
+                               %common.atts;
+>
+
+<!ELEMENT action 
+- O                                (%para.content;)*
+>
+<!ATTLIST action
+                               %common.atts;
+>
+
+<!ELEMENT application 
+- O                                (%para.content;)*
+>
+<!ATTLIST application
+                               %common.atts;
+>
+
+<!ELEMENT classname 
+- O                                (%para.content;)*
+>
+<!ATTLIST classname
+                               %common.atts;
+>
+
+<!ELEMENT citation 
+- O                                (%para.content;)*
+>
+<!ATTLIST citation
+                               %common.atts;
+>
+
+<!ELEMENT citetitle 
+- O                                (%para.content;)*
+>
+<!ATTLIST citetitle
+                               url1      CDATA     #IMPLIED
+                               url2      CDATA     #IMPLIED
+                               %common.atts;
+>
+
+<!ELEMENT co
+- O                                (
+                                   #PCDATA
+                                 | emphasis
+                               )*
+>
+<!ATTLIST co
+                               %common.atts;
+                               label     CDATA     #IMPLIED
+                               linkend   IDREF     #IMPLIED
+                               linkends  IDREFS    #IMPLIED
+>
+
+<!ELEMENT command 
+- O                                (%para.content;)*
+>
+<!ATTLIST command
+                               %common.atts;
+>
+
+<!ELEMENT computeroutput 
+- O                                (%para.content;)*
+>
+<!ATTLIST computeroutput
+                               %common.atts;
+>
+
+<!ELEMENT constant
+- O                                (%para.content;)*
+>
+<!ATTLIST constant
+                               %common.atts;
+>
+<!ELEMENT email 
+- O                                (%para.content;)*
+>
+<!ATTLIST email
+                               %common.atts;
+>
+
+<!ELEMENT emphasis 
+- O                                (%para.content;)*
+>
+<!ATTLIST emphasis
+                               %common.atts;
+>
+
+<!ELEMENT envar 
+- O                                (%para.content;)*
+>
+<!ATTLIST envar
+                               %common.atts;
+>
+
+<!ELEMENT filename 
+- O                                (%para.content;)*
+>
+<!ATTLIST filename
+                               %common.atts;
+>
+
+<!ELEMENT firstterm 
+- O                                (%para.content;)*
+>
+<!ATTLIST firstterm
+                               %common.atts;
+>
+
+<!ELEMENT foreignphrase 
+- O                                (%para.content;)*
+>
+<!ATTLIST foreignphrase
+                               %common.atts;
+>
+
+<!ELEMENT function 
+- O                                (%para.content;)*
+>
+<!ATTLIST function
+                               moreinfo  CDATA     #IMPLIED
+                               prefix    CDATA     #IMPLIED
+                               %common.atts;
+>
+
+<!ELEMENT guibutton
+- O                                (%para.content;)*
+>
+<!ATTLIST guibutton
+                               %common.atts;
+>
+
+<!ELEMENT guilabel
+- O                                (%para.content;)*
+>
+<!ATTLIST guilabel
+                               %common.atts;
+>
+
+<!ELEMENT guimenu
+- O                                (%para.content;)*
+>
+<!ATTLIST guimenu
+                               %common.atts;
+>
+
+<!ELEMENT guimenuitem
+- O                                (%para.content;)*
+>
+<!ATTLIST guimenuitem
+                               %common.atts;
+>
+
+<!ELEMENT keycap
+- O                                (%para.content;)*
+>
+<!ATTLIST keycap
+                               %common.atts;
+>
+
+<!ELEMENT keycode
+- O                                (%para.content;)*
+>
+<!ATTLIST keycode
+                               %common.atts;
+>
+
+<!ELEMENT keysym
+- O                                (%para.content;)*
+>
+<!ATTLIST keysym
+                               %common.atts;
+>
+
+<!ELEMENT lineannotation
+- O                                (%para.content;)*
+>
+<!ATTLIST lineannotation
+                               %common.atts;
+>
+
+<!ELEMENT literal
+- O                                (%para.content;)*
+>
+<!ATTLIST literal
+                               class     CDATA     #IMPLIED
+                               %common.atts;
+>
+
+<!ELEMENT option
+- O                                (%para.content;)*
+>
+<!ATTLIST option
+                               %common.atts;
+>
+
+<!ELEMENT optional
+- O                                (%para.content;)*
+>
+<!ATTLIST optional
+                               %common.atts;
+>
+
+<!ELEMENT parameter
+- O                                (%para.content;)*
+>
+<!ATTLIST parameter
+                               moreinfo  CDATA     #IMPLIED
+                               %common.atts;
+>
+
+<!ELEMENT prompt
+- O                                (%para.content;)*
+>
+<!ATTLIST prompt
+                               %common.atts;
+>
+
+<!ELEMENT quote
+- O                                (%para.content;)*
+>
+<!ATTLIST quote
+                               %common.atts;
+>
+
+<!ELEMENT replaceable
+- O                                (%para.content;)*
+>
+<!ATTLIST replaceable
+                               %common.atts;
+>
+
+<!ELEMENT returnvalue
+- O                                (%para.content;)*
+>
+<!ATTLIST returnvalue
+                               %common.atts;
+>
+
+<!ELEMENT sgmltag
+- O                                (%para.content;)*
+>
+<!ATTLIST sgmltag
+                               class     CDATA     #IMPLIED
+                               %common.atts;
+>
+
+<!ELEMENT structfield
+- O                                (%para.content;)*
+>
+<!ATTLIST structfield
+                               %common.atts;
+>
+
+<!ELEMENT structname
+- O                                (%para.content;)*
+>
+<!ATTLIST structname
+                               %common.atts;
+>
+
+<!ELEMENT subscript
+- O                                (%para.content;)*
+>
+<!ATTLIST subscript
+                               %common.atts;
+>
+
+<!ELEMENT superscript
+- O                                (%para.content;)*
+>
+<!ATTLIST superscript
+                               %common.atts;
+>
+
+<!ELEMENT symbol
+- O                                (%para.content;)*
+>
+<!ATTLIST symbol
+                               %common.atts;
+>
+
+<!ELEMENT systemitem
+- O                                (%para.content;)*
+>
+<!ATTLIST systemitem
+                               class     CDATA     #IMPLIED
+                               prefix    CDATA     #IMPLIED
+                               %common.atts;
+>
+
+<!ELEMENT type
+- O                                (%para.content;)*
+>
+<!ATTLIST type
+                               %common.atts;
+>
+
+<!ELEMENT userinput
+- O                                (%para.content;)*
+>
+<!ATTLIST userinput
+                               %common.atts;
+>
+
+<!ELEMENT varname
+- O                                (%para.content;)*
+>
+<!ATTLIST varname
+                               %common.atts;
+>
+
+<!ELEMENT wordasword
+- O                                (%para.content;)*
+>
+<!ATTLIST wordasword
+                               %common.atts;
+>
+
+
+<!-- ====================================================================== -->
+<!--                           LINK ELEMENTS                                -->
+<!-- ====================================================================== -->
+
+
+<!ELEMENT classref
+- O                                EMPTY
+>
+<!ATTLIST classref
+                               class     CDATA     #IMPLIED
+                               package   CDATA     #IMPLIED
+                               %common.atts;
+>
+
+<!ELEMENT footnoteref
+- O                                EMPTY
+>
+<!ATTLIST footnoteref
+                               linkend   IDREF     #REQUIRED
+                               label     CDATA     #IMPLIED
+                               %common.atts;
+>
+
+<!ELEMENT graphic
+- O                                EMPTY
+>
+<!ATTLIST graphic
+                               fileref   CDATA     #REQUIRED
+                               height    CDATA     #IMPLIED
+                               width     CDATA     #IMPLIED
+                               align     CDATA     #IMPLIED
+                               %common.atts;
+>
+
+<!ELEMENT link
+- O                                (
+                                   #PCDATA
+                                 | %inline.group;
+                                 | %tech.inline.group;
+                                 | %ubiq.group;
+                                 | classref
+                               )*
+>
+<!ATTLIST link
+                               linkend   IDREF     #IMPLIED
+                               linkends  IDREFS    #IMPLIED
+                               %common.atts;
+>
+
+<!ELEMENT xref
+- O                                EMPTY
+>
+<!ATTLIST xref
+                               linkend   IDREF     #REQUIRED
+                               quotes (left|right|both) "both"
+                               %common.atts;
+>
+
+
+<!-- ====================================================================== -->
+<!--                      BIBLIOGRAPHIC ELEMENTS                            -->
+<!-- ====================================================================== -->
+
+
+<!ELEMENT ackno
+- O                                (%para.content;)*
+>
+<!ATTLIST ackno
+                               %common.atts;
+>
+
+<!ELEMENT address
+- O                                (   %para.content;
+			         | city 
+			       )*
+>
+<!ATTLIST address
+                               %common.atts;
+>
+
+<!ELEMENT affiliation
+- O                                (%para.content;)*
+>
+
+<!ATTLIST affiliation
+                               %common.atts;
+>
+
+<!ELEMENT author - O (
+                               (
+                                   honorific
+                                 | firstname
+                                 | othername
+                                 | affiliation
+                                 | surname
+                                 | lineage
+                                 | authorblurb
+                               )+
+)>
+<!ATTLIST author
+                               %common.atts;
+>
+
+<!ELEMENT authorblurb - O (
+                               title?,
+                               para+
+)>
+<!ATTLIST authorblurb
+                               %common.atts;
+>
+
+<!ELEMENT authorgroup - O (
+                               author+
+)>
+<!ATTLIST authorgroup
+                               %common.atts;
+>
+
+<!ELEMENT authorinitials
+- O                                (#PCDATA)*
+>
+<!ATTLIST authorinitials
+                               %common.atts;
+>
+
+<!ELEMENT bibliodiv - O (
+                               %component.title.content;,
+                               (%component.content;)*,
+                               (
+                                   biblioentry
+                                 | bibliomixed
+                               )*
+)>
+<!ATTLIST bibliodiv
+                               %numbered.item.atts;
+>
+
+<!ELEMENT biblioentry - O (
+                               (%biblio.content;)*
+)>
+<!ATTLIST biblioentry
+                               %numbered.item.atts;
+>
+
+<!ELEMENT bibliography - O (
+                               %component.title.content;,
+                               (
+                                   %component.content;
+                                 | bibliodiv
+                                 | biblioentry
+                                 | bibliomixed
+                                 | sect1
+                               )*
+)>
+<!ATTLIST bibliography
+                               %numbered.item.atts;
+>
+
+<!ELEMENT bibliomisc
+- O                                (
+                                   %para.content;
+                                 | para
+                               )*
+>
+<!ATTLIST bibliomisc
+                               url     CDATA    #IMPLIED
+                               %common.atts;
+>
+
+<!ELEMENT bibliomixed
+- O                                (
+                                   #PCDATA
+                                 | %biblio.content;
+                               )*
+>
+<!ATTLIST bibliomixed
+                               %common.atts;
+>
+
+<!ELEMENT biblioset - O (
+                               (%biblio.content;)*
+)>
+<!ATTLIST biblioset
+                               %common.atts;
+>
+
+<!ELEMENT bookbiblio - O (
+                               (%biblio.content;)*
+)>
+<!ATTLIST bookbiblio
+                               %common.atts;
+>
+
+<!ELEMENT bookinfo - O (
+                               (%biblio.content;)*
+)>
+<!ATTLIST bookinfo
+                               %common.atts;
+>
+
+<!ELEMENT copyright - O (
+                               year+,
+                               holder*
+)>
+<!ATTLIST copyright
+                               %common.atts;
+>
+
+<!ELEMENT city
+- O                                (#PCDATA)*
+>
+<!ATTLIST city
+                               %common.atts;
+>
+
+<!ELEMENT date
+- O                                (#PCDATA)*
+>
+<!ATTLIST date
+                               %common.atts;
+>
+
+<!ELEMENT dedication - O (
+                               %component.title.content;,
+                               (%toplevel.content;)*
+)>
+<!ATTLIST dedication
+                               %common.atts;
+>
+
+<!ELEMENT edition
+- O                                (#PCDATA)*
+>
+<!ATTLIST edition
+                               %common.atts;
+>
+
+<!ELEMENT editor - O (
+                               (
+                                   honorific
+                                 | affiliation
+                                 | firstname
+                                 | surname
+                                 | lineage
+                               )+
+)>
+<!ATTLIST editor
+                               %common.atts;
+>
+
+<!ELEMENT firstname
+- O                                (#PCDATA)*
+>
+<!ATTLIST firstname
+                               %common.atts;
+>
+
+<!ELEMENT holder
+- O                                (#PCDATA)*
+>
+<!ATTLIST holder
+                               %common.atts;
+>
+
+<!ELEMENT honorific
+- O                                (#PCDATA)*
+>
+<!ATTLIST honorific
+                               %common.atts;
+>
+
+<!ELEMENT isbn
+- O                                (#PCDATA)*
+>
+<!ATTLIST isbn
+                               %common.atts;
+>
+
+<!ELEMENT issn
+- O                                (#PCDATA)*
+>
+<!ATTLIST issn
+                               %common.atts;
+>
+
+<!ELEMENT keyword
+- O                                (#PCDATA)*
+>
+<!ATTLIST keyword
+                               %common.atts;
+>
+
+<!ELEMENT keywordset - O (
+                               keyword+
+)>
+<!ATTLIST keywordset
+                               %common.atts;
+>
+
+<!ELEMENT lineage
+- O                                (#PCDATA)*
+>
+<!ATTLIST lineage
+                               %common.atts;
+>
+
+<!ELEMENT othername
+- O                                (#PCDATA)*
+>
+<!ATTLIST othername
+                               %common.atts;
+>
+
+<!ELEMENT pagenums
+- O                                (#PCDATA)*
+>
+<!ATTLIST pagenums
+                               %common.atts;
+>
+
+<!ELEMENT printhistory - O (
+                               para+
+)>
+<!ATTLIST printhistory
+                               %common.atts;
+>
+
+<!ELEMENT productname
+- O                                (#PCDATA)*
+>
+<!ATTLIST productname
+                               %common.atts;
+>
+
+<!ELEMENT pubdate
+- O                                (#PCDATA)*
+>
+<!ATTLIST pubdate
+                               %common.atts;
+>
+
+<!ELEMENT publisher - O (
+                               publishername,
+                               address*
+)>
+<!ATTLIST publisher
+                               %common.atts;
+>
+
+<!ELEMENT publishername
+- O                                (#PCDATA)*
+>
+<!ATTLIST publishername
+                               %common.atts;
+>
+
+<!ELEMENT releaseinfo
+- O                                (#PCDATA)*
+>
+<!ATTLIST releaseinfo
+                               %common.atts;
+>
+
+<!ELEMENT subject
+- O                                (
+                                   #PCDATA
+                                 | subjectterm
+                               )*
+>
+<!ATTLIST subject
+                               %common.atts;
+>
+
+<!ELEMENT subjectset - O (
+                               (
+                                   subject
+                                 | subjectterm
+                     )+
+)>
+<!ATTLIST subjectset
+                               %common.atts;
+>
+
+<!ELEMENT subjectterm
+- O                                (#PCDATA)*
+>
+<!ATTLIST subjectterm
+                               %common.atts;
+>
+
+<!ELEMENT surname
+- O                                (#PCDATA)*
+>
+<!ATTLIST surname
+                               %common.atts;
+>
+
+<!ELEMENT volumenum
+- O                                (#PCDATA)*
+>
+<!ATTLIST volumenum
+                               %common.atts;
+>
+
+<!ELEMENT year
+- O                                (#PCDATA)*
+>
+<!ATTLIST year
+                               %common.atts;
+>
+
+
+<!-- ====================================================================== -->
+<!--                         REFERENCE ELEMENTS                             -->
+<!-- ====================================================================== -->
+
+
+<!ELEMENT arg
+- O                                (%synop.content;)*
+>
+<!ATTLIST arg
+                               choice (opt|req|plain) 'opt'
+                               rep (norepeat|repeat) 'norepeat'
+                               %common.atts;
+>
+
+<!ELEMENT group
+- O                                (%synop.content;)*
+>
+
+<!ATTLIST group
+                               choice (opt|req|plain|optmult|reqmult) 'opt'
+                               rep (norepeat|repeat) 'norepeat'
+                               %common.atts;
+>
+
+<!ELEMENT classsynopsis - O (
+                               (
+                                   modifiers
+                                 | classname
+                                 | extends
+                                 | implements
+                                 | throws
+                                 | type
+                                 | members
+                                 | indexterm
+                               )+
+)>
+<!ATTLIST classsynopsis
+                               keyword   CDATA     #IMPLIED
+                               %common.atts;
+>
+
+<!ELEMENT cmdsynopsis - O (
+                               (
+                                   command
+                                 | arg
+                                 | group
+                               )+
+)>
+<!ATTLIST cmdsynopsis
+                               sepchar   CDATA     " "
+                               %common.atts;
+>
+
+<!ELEMENT extends - O (
+                               (
+                                   link
+                                 | classref
+                               )*
+)>
+<!ATTLIST extends
+                               %common.atts;
+>
+
+
+<!ELEMENT funcdef
+- O                                (   #PCDATA
+                                 | accessors
+                                 | modifiers
+                                 | function
+                                 | type
+                               )*
+>
+<!ATTLIST funcdef
+                               %common.atts;
+>
+
+<!ELEMENT funcparams 
+- O                                (%para.content;)*
+>
+<!ATTLIST funcparams
+                               %common.atts;
+>
+
+<!ELEMENT funcprototype - O (
+                               (
+                                   funcdef
+                                 | paramdef
+                                 | classsynopsis
+                                 | extends
+                                 | implements
+                                 | throws
+                                 | accessors
+                               )+
+)>
+<!ATTLIST funcprototype
+                               flags     CDATA    #IMPLIED
+                               revision  CDATA    #IMPLIED
+                               %common.atts;
+>
+
+<!ELEMENT funcsynopsis - O (
+                               (
+                                   funcprototype
+                                 | funcdef
+                                 | varargs
+                                 | paramdef
+                               )+
+)>
+<!ATTLIST funcsynopsis
+                               %common.atts;
+>
+
+<!ELEMENT implements - O (
+                               (
+                                   link
+                                 | classref
+                               )*
+)>
+<!ATTLIST implements
+                               %common.atts;
+>
+
+<!ELEMENT membergroup - O (
+                               (funcprototype
+                               | structfield)+
+)>
+<!ATTLIST membergroup
+                               %common.atts;
+>
+
+<!ELEMENT members - O (
+                               title,
+                               membergroup*
+)>
+<!ATTLIST members
+                               %common.atts;
+>
+
+<!ELEMENT modifiers
+- O                                (#PCDATA)*
+>
+<!ATTLIST modifiers
+                               %common.atts;
+>
+
+<!ELEMENT accessors - O (
+                               accessor*
+)>
+<!ATTLIST accessors
+                               %common.atts;
+>
+
+<!ELEMENT accessor
+- O                                (#PCDATA)*
+>
+<!ATTLIST accessor
+                               %common.atts;
+>
+
+<!ELEMENT varargs
+- O                                (#PCDATA)*
+>
+<!ATTLIST varargs
+                               %common.atts;
+>
+
+<!ELEMENT paramdef
+- O                                (
+                                   #PCDATA
+                                 | replaceable
+                                 | parameter
+                                 | modifiers
+                                 | type
+                                 | funcparams
+                               )*
+>
+<!ATTLIST paramdef
+                               %common.atts;
+>
+
+<!ELEMENT refentry - O (
+                               (   refmeta
+                                 | %ubiq.group;
+                                 | refnamediv
+                                 | refsect1
+                                 | refsynopsisdiv
+                                 | refentry
+                               )*
+)>
+<!ATTLIST refentry
+                               %numbered.item.atts;
+>
+
+<!ELEMENT refentrytitle
+- O                                (%title.content;)*
+>
+<!ATTLIST refentrytitle
+                               %common.atts;
+>
+
+
+<!ELEMENT reference - O (
+                               %component.title.content;,
+                               refentry*
+)>
+<!ATTLIST reference
+                               %numbered.item.atts;
+>
+
+
+<!ELEMENT refmeta
+- O                                (
+                                   refentrytitle
+                                 | refmiscinfo
+                                 | %ubiq.group;
+                               )*
+>
+<!ATTLIST refmeta
+                               %common.atts;
+>
+
+<!ELEMENT refmiscinfo
+- O                                (%title.content;)*
+>
+<!ATTLIST refmiscinfo
+                               class     CDATA    #IMPLIED
+                               property  CDATA    #IMPLIED
+                               %common.atts;
+>
+
+<!ELEMENT refclass
+- O                                (%title.content;)*
+>
+<!ATTLIST refclass
+                               %common.atts;
+>
+
+<!ELEMENT refdescriptor
+- O                                (%title.content;)*
+>
+<!ATTLIST refdescriptor
+                               %common.atts;
+>
+
+<!ELEMENT refname 
+- O                                (%title.content;)*
+>
+<!ATTLIST refname
+                               %common.atts;
+>
+
+<!ELEMENT refnamediv - O (
+                               (
+                                   %ubiq.group;
+                                 | refdescriptor
+                                 | refname
+                                 | refpurpose
+                                 | refclass
+                               )+
+)>
+<!ATTLIST refnamediv
+                               %common.atts;
+>
+
+<!ELEMENT refpurpose
+- O                                (%para.content;)*
+>
+<!ATTLIST refpurpose
+                               %common.atts;
+>
+
+<!ELEMENT refsect1 - O (
+                               title?,
+                               subtitle?,
+                               (
+                                   %admon.group;
+                                 | %block.group;
+                                 | %keepspace.group;
+                                 | %list.group;
+                                 | %ubiq.group;
+                                 | refsect2
+                               )*
+)>
+<!ATTLIST refsect1
+                               %numbered.item.atts;
+>
+
+
+<!ELEMENT refsect2 - O (
+                               title?,
+                               subtitle?,
+                               (
+                                   %admon.group;
+                                 | %block.group;
+                                 | %keepspace.group;
+                                 | %list.group;
+                                 | %ubiq.group;
+                                 | refsect3
+                                )*
+)>
+<!ATTLIST refsect2
+                               %numbered.item.atts;
+>
+
+
+<!ELEMENT refsect3 - O (
+                               title?,
+                               subtitle?,
+                               (
+                                   %admon.group;
+                                 | %block.group;
+                                 | %keepspace.group;
+                                 | %list.group;
+                                 | %ubiq.group;
+                                )*
+)>
+<!ATTLIST refsect3
+                               %numbered.item.atts;
+>
+
+<!ELEMENT refsynopsisdiv - O (
+                               title?,
+                               (
+                                   %component.content;
+                                 | refsect2
+                               )+
+)>
+<!ATTLIST refsynopsisdiv
+                               %common.atts;
+>
+
+<!ELEMENT throws - O (
+                               (
+                                   link
+                                 | classref
+                               )*
+)>
+<!ATTLIST throws
+                               %common.atts;
+>
+
+
+<!-- ====================================================================== -->
+<!--                          GLOSSARY ELEMENTS                             -->
+<!-- ====================================================================== -->
+
+<!ELEMENT glossary - O (
+                               title?,
+                               subtitle?,
+                               (
+                                   %component.content;
+                                 | sect1
+                                 | glossdiv
+                                 | glossentry
+                               )*
+)>
+<!ATTLIST glossary
+                               %numbered.item.atts;
+>
+
+<!ELEMENT glossdef - O (
+                               (
+                                   %block.group;
+                                 | %keepspace.group;
+                                 | %list.group;
+                                 | %ubiq.group;
+                               )+
+)>
+<!ATTLIST glossdef
+                               %common.atts;
+>
+
+<!ELEMENT glossdiv - O (
+                               %component.title.content;,
+                               (%component.content;)*,
+                               glossentry*
+)>
+<!ATTLIST glossdiv
+                               %numbered.item.atts;
+>
+
+<!ELEMENT glossentry - O (
+                               (
+                                   glossterm
+                                 | glosssee
+                                 | glossseealso
+                                 | glossdef
+                                 | %ubiq.group;
+                               )+
+)>
+<!ATTLIST glossentry
+                               sortas    CDATA     #IMPLIED
+                               %common.atts;
+>
+
+
+<!ELEMENT glosssee
+- O                                (%indexterm.content;)*
+>
+<!ATTLIST glosssee
+                               %common.atts;
+>
+
+<!ELEMENT glossseealso
+- O                                (%indexterm.content;)*
+>
+<!ATTLIST glossseealso
+                               %common.atts;
+>
+
+<!ELEMENT glosslist - O (
+                               glossentry+
+)>
+<!ATTLIST glosslist
+                               %common.atts;
+>
+
+<!ELEMENT glossterm
+- O                                (%para.content;)*
+>
+<!ATTLIST glossterm
+                               sortas    CDATA     #IMPLIED
+                               %common.atts;
+>
+
+
+<!-- ====================================================================== -->
+<!--                          INDEX ELEMENTS                                -->
+<!-- ====================================================================== -->
+
+
+<!ELEMENT index - O (
+                               title?,
+                               (
+                                   simplesect
+                                 | %ubiq.group;
+                                 | indexentry
+                                 | indexdiv
+                               )*
+)>
+<!ATTLIST index
+                               %numbered.item.atts;
+>
+
+<!ELEMENT indexdiv - O (
+                               %component.title.content;,
+                               (%component.content;)*,
+                               indexentry*
+)>
+<!ATTLIST indexdiv
+                               %numbered.item.atts;
+>
+
+<!ELEMENT indexentry - O (
+                               (
+                                   primary
+                                 | secondary
+                                 | see
+                                 | seealso
+                                 | tertiary
+                               )*
+)>
+<!ATTLIST indexentry
+                               %common.atts;
+>
+
+<!ELEMENT indexterm - O (
+                               (
+                                   primary
+                                 | secondary
+                                 | see
+                                 | seealso
+                                 | tertiary
+                               )*
+)>
+<!ATTLIST indexterm
+                               class ( singular | startofrange
+                                       | endofrange ) "singular"
+                               significance ( preferred | normal ) "normal"
+                               startref  CDATA     #IMPLIED
+                               %numbered.item.atts;
+>
+
+<!ELEMENT primary
+- O                                (%indexterm.content;)*
+>
+<!ATTLIST primary
+                               sortas    CDATA     #IMPLIED
+                               %common.atts;
+>
+
+<!ELEMENT secondary
+- O                                (%indexterm.content;)*
+>
+<!ATTLIST secondary
+                               sortas    CDATA     #IMPLIED
+                               %common.atts;
+>
+
+<!ELEMENT see
+- O                                (%indexterm.content;)*
+>
+<!ATTLIST see
+                               sortas    CDATA     #IMPLIED
+                               %common.atts;
+>
+
+<!ELEMENT seealso
+- O                                (%indexterm.content;)*
+>
+<!ATTLIST seealso
+                               sortas    CDATA     #IMPLIED
+                               %common.atts;
+>
+
+<!ELEMENT tertiary
+- O                                (%indexterm.content;)*
+>
+<!ATTLIST tertiary
+                               sortas    CDATA     #IMPLIED
+                               %common.atts;
+>
+
+
+<!-- ====================================================================== -->
+<!--                          Q and A ELEMENTS                              -->
+<!-- ====================================================================== -->
+
+
+<!ELEMENT answer - O (
+                               (
+                                   %admon.group;
+                                 | %block.group;
+                                 | %keepspace.group;
+                                 | %list.group;
+                                 | %ubiq.group;
+                               )*
+)>
+<!ATTLIST answer
+                               %common.atts;
+>
+
+<!ELEMENT qandaset - O (
+                               title?,
+                               (
+                                   qandadiv
+                                 | qandaentry
+                                 | %ubiq.group;
+                               )*
+)>
+<!ATTLIST qandaset
+                               %numbered.item.atts;
+>
+
+<!ELEMENT qandadiv - O (
+                               title?,
+                               (
+                                   qandadiv
+                                 | qandaentry
+                                 | %ubiq.group;
+                               )*
+)>
+<!ATTLIST qandadiv
+                               %numbered.item.atts;
+>
+
+<!ELEMENT qandaentry - O (
+                               question+,
+                               answer+
+)>
+<!ATTLIST qandaentry
+                               %common.atts;
+>
+
+<!ELEMENT question - O (
+                               (
+                                   %admon.group;
+                                 | %block.group;
+                                 | %keepspace.group;
+                                 | %list.group;
+                                 | %ubiq.group;
+                               )*
+)>
+<!ATTLIST question
+                               %common.atts;
+>
+
+
+<!-- ====================================================================== -->
+<!--                         NUTSHELL ELEMENTS                              -->
+<!-- ====================================================================== -->
+
+
+<!ELEMENT nutlist - O (
+                               title?,
+                               nutentry+
+)>
+<!ATTLIST nutlist
+                               longestterm  CDATA  #IMPLIED
+                               %common.atts;
+>
+
+<!ELEMENT nutentry - O (
+                               term*,
+                               nutsynopsis*,
+                               nutlisttitle?,
+                               (
+                                   listitem
+                                 | %ubiq.group;
+                                 | nutentrybody
+                               )+
+)>
+<!ATTLIST nutentry
+                               %common.atts;
+>
+
+<!ELEMENT nutsynopsis
+- O                                (
+                                   %para.content;
+                                 | lineannotation
+                               )*
+>
+<!ATTLIST nutsynopsis
+                               %common.atts;
+>
+
+<!ELEMENT nutentrybody - O (
+                               (
+                                   %admon.group;
+                                 | %block.group;
+                                 | %keepspace.group;
+                                 | %list.group;
+                                 | %ubiq.group;
+                                 | sect2
+                                 | refsect2
+                               )*
+)>
+<!ATTLIST nutentrybody
+                               %common.atts;
+>
+
+<!ELEMENT nutlisttitle 
+- O                                (%title.content;)*
+>
+<!ATTLIST nutlisttitle
+                               %common.atts;
+>
+
+
+
+<!-- ====================================================================== -->
+<!--                  ISO-8879 Entity modules                               -->
+<!-- ====================================================================== -->
+
+<!ENTITY % ISOamsa PUBLIC
+    "ISO 8879:1986//ENTITIES Added Math Symbols: Arrow Relations//EN"
+>
+<!ENTITY % ISOamsb PUBLIC
+    "ISO 8879:1986//ENTITIES Added Math Symbols: Binary Operators//EN"
+>
+<!ENTITY % ISOamsc
+    PUBLIC "ISO 8879:1986//ENTITIES Added Math Symbols: Delimiters//EN"
+>
+<!ENTITY % ISOamsn PUBLIC
+    "ISO 8879:1986//ENTITIES Added Math Symbols: Negated Relations//EN"
+>
+<!ENTITY % ISOamso
+    PUBLIC "ISO 8879:1986//ENTITIES Added Math Symbols: Ordinary//EN"
+>
+<!ENTITY % ISOamsr
+    PUBLIC "ISO 8879:1986//ENTITIES Added Math Symbols: Relations//EN"
+>
+<!ENTITY % ISObox
+    PUBLIC "ISO 8879:1986//ENTITIES Box and Line Drawing//EN"
+>
+<!ENTITY % ISOcyr1
+    PUBLIC "ISO 8879:1986//ENTITIES Russian Cyrillic//EN"
+>
+<!ENTITY % ISOcyr2
+    PUBLIC "ISO 8879:1986//ENTITIES Non-Russian Cyrillic//EN"
+>
+<!ENTITY % ISOdia
+    PUBLIC "ISO 8879:1986//ENTITIES Diacritical Marks//EN"
+>
+<!ENTITY % ISOgrk1
+    PUBLIC "ISO 8879:1986//ENTITIES Greek Letters//EN"
+>
+<!ENTITY % ISOgrk2
+    PUBLIC "ISO 8879:1986//ENTITIES Monotoniko Greek//EN"
+>
+<!ENTITY % ISOgrk3
+    PUBLIC "ISO 8879:1986//ENTITIES Greek Symbols//EN"
+>
+<!ENTITY % ISOgrk4
+    PUBLIC "ISO 8879:1986//ENTITIES Alternative Greek Symbols//EN"
+>
+<!ENTITY % ISOlat1
+    PUBLIC "ISO 8879:1986//ENTITIES Added Latin 1//EN"
+>
+<!ENTITY % ISOlat2
+    PUBLIC "ISO 8879:1986//ENTITIES Added Latin 2//EN"
+>
+<!ENTITY % ISOnum
+    PUBLIC "ISO 8879:1986//ENTITIES Numeric and Special Graphic//EN"
+>
+<!ENTITY % ISOpub
+    PUBLIC "ISO 8879:1986//ENTITIES Publishing//EN"
+>
+<!ENTITY % ISOtech
+    PUBLIC "ISO 8879:1986//ENTITIES General Technical//EN"
+>
+
+%ISOamsa;
+%ISOamsb;
+%ISOamsc;
+%ISOamsn;
+%ISOamso;
+%ISOamsr;
+%ISObox;
+%ISOcyr1;
+%ISOcyr2;
+%ISOdia;
+%ISOgrk1;
+%ISOgrk2;
+%ISOgrk3;
+%ISOgrk4;
+%ISOlat1;
+%ISOlat2;
+%ISOnum;
+%ISOpub;
+%ISOtech;
+
+<!ENTITY % orachars
+    PUBLIC "-//ORA//ENTITIES orachars//EN"
+>
+%orachars;
+
+
+<!-- ====================================================================== -->
+<!--                          END OF FILE                                   -->
+<!-- ====================================================================== -->

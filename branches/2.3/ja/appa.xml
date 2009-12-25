@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<appendix id="appendixes.phpunit1">
+  <title>PHP 4 用の PHPUnit</title>
+
+  <para>
+    PHP 5 でなくても動作する、PHP 4 用の PHPUnit もあります。
+    PHP 4 のオブジェクトモデルには制限があるので、PHP 4 用の PHPUnit は
+    (PHP 5 版とは異なり) JUnit の完全な移植ではありません。また、PHP 5
+    版の機能のうち、コードカバレッジ機能などはありません。
+  </para>
+
+  <para>
+    PEAR インストーラで PHP 4 用の PHPUnit をインストールするには、
+    次のコマンドを実行します。
+  </para>
+
+  <screen><userinput>pear install -f http://pear.phpunit.de/get/PHPUnit-1.3.3.tgz</userinput></screen>
+
+  <para>
+    PHP 4 用の PHPUnit で使われるテストケースクラスは、PHP 5 用の PHPUnit
+    で使われるものと似ています。本質的な違いは、こちらのクラスは
+    <literal>PHPUnit_TestCase</literal> (このクラス自身は
+    <literal>PHPUnit_Assert</literal> を継承しており、
+    ここでアサーションメソッドが定義されています) を継承しているということです。
+  </para>
+
+  <para>
+    <literal>ArrayTest</literal> テストケースを、PHP 4 用の PHPUnit
+    で使用できるように書き直したものが
+    <xref linkend="appendixes.phpunit1.examples.ArrayTest.php" />
+    です。
+  </para>
+
+  <example id="appendixes.phpunit1.examples.ArrayTest.php">
+    <title>PHPUnit 1.x 用のテストを書く</title>
+    <programlisting><![CDATA[<?php
+require_once 'PHPUnit/TestCase.php';
+
+class ArrayTest extends PHPUnit_TestCase
+{
+    var $_fixture;
+
+    function setUp()
+    {
+        $this->_fixture = array();
+    }
+
+    function testNewArrayIsEmpty()
+    {
+        $this->assertEquals(0, sizeof($this->_fixture));
+    }
+
+    function testArrayContainsAnElement()
+    {
+        $this->_fixture[] = 'Element';
+        $this->assertEquals(1, sizeof($this->_fixture));
+    }
+}
+?>]]></programlisting>
+  </example>
+
+  <para>
+    PHP 4 用の PHPUnit には、TextUI テストランナーがありません。
+    PHP 4 用の PHPUnit でテストを実行する際の一般的な方法は、
+    テストスイートを書いた後で、それを
+    <xref linkend="appendixes.phpunit1.examples.suite.php" />
+    のように手動で実行することです。
+  </para>
+
+  <example id="appendixes.phpunit1.examples.suite.php">
+    <title>PHPUnit 1.x のテストケースを実行する</title>
+    <programlisting><![CDATA[<?php
+require_once 'ArrayTest.php';
+require_once 'PHPUnit.php';
+
+$suite  = new PHPUnit_TestSuite('ArrayTest');
+$result = PHPUnit::run($suite);
+
+print $result->toString();
+?>]]></programlisting>
+
+<screen>TestCase arraytest->testnewarrayisempty() passed
+TestCase arraytest->testarraycontainsanelement() passed</screen>
+  </example>
+
+  <para>
+    PHP 4 用の PHPUnit にはあって PHP 5 用の PHPUnit にはまだ存在しない機能のひとつに、
+    <xref linkend="appendixes.phpunit1.figures.PHPUnit-Gtk.png" />
+    のようなグラフィカルなテストランナーがあります。
+    これは PHP-GTK で作成されています。
+  </para>
+
+  <figure id="appendixes.phpunit1.figures.PHPUnit-Gtk.png">
+    <title>PHP-GTK のテストランナー</title>
+
+    <graphic fileref="figures/PHPUnit-Gtk.png" />
+  </figure>
+</appendix>

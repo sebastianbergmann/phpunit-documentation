@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+
+<chapter id="goals">
+  <title>Die Ziele von PHPUnit</title>
+
+  <para>
+    Bislang haben wir erst zwei Tests für den Datentyp <literal>array</literal>
+    und die Funktion <literal>sizeof()</literal>. Wenn wir die Vielzahl an
+    <literal>array_*()</literal> Funktionen, die PHP anbietet, testen wollen,
+    so müssen wir für jede dieser Funktionen mindestens einen Test schreiben.
+    Für alle diese Tests könnten wir uns eine von Grund auf neue Infrastruktur
+    aufbauen. Allerdings wünschen wir uns eine wiederverwendbare Infrastruktur,
+    für die wir nur noch die für jeden Test spezifischen Teile schreiben
+    müssen. Genau solch eine Infrastruktur ist PHPUnit.
+  </para>
+
+  <para>
+    <xref linkend="goals.examples.ArrayTest.php" /> zeigt, wie die beiden
+    Tests aus <xref linkend="automating-tests.examples.array-test4.php" /> zu
+    formulieren sind, damit wir sie mit PHPUnit verwenden können.
+  </para>
+
+  <example id="goals.examples.ArrayTest.php">
+    <title>Testen von Array und sizeof() mit PHPUnit</title>
+    <programlisting><![CDATA[<?php
+require_once 'PHPUnit2/Framework/TestCase.php';
+
+class ArrayTest extends PHPUnit2_Framework_TestCase {
+    public function testNewArrayIsEmpty() {
+        // Array-Fixture erzeugen.
+        $fixture = array();
+
+        // Der erwartete Wert von sizeof($fixture) ist 0.
+        $this->assertEquals(0, sizeof($fixture));
+    }
+
+    public function testArrayContainsAnElement() {
+        // Array-Fixture erzeugen.
+        $fixture = array();
+
+        // Ein Element dem Array hinzufügen.
+        $fixture[] = 'Element';
+
+        // Der erwartete Wert von sizeof($fixture) ist 1.
+        $this->assertEquals(1, sizeof($fixture));
+    }
+}
+?>]]></programlisting>
+  </example>
+
+  <para>
+    <indexterm><primary>PHPUnit2_Framework_TestCase</primary></indexterm>
+
+    <xref linkend="goals.examples.ArrayTest.php" /> zeigt die grundlegenden
+    Schritte für das Schreiben von PHPUnit-Tests:
+  </para>
+
+  <orderedlist>
+    <listitem><para>Die Tests für eine Klasse <literal>Class</literal> werden in einer Klasse <literal>ClassTest</literal> geschrieben.</para></listitem>
+    <listitem><para><literal>ClassTest</literal> erbt (in den meisten Fällen) von <literal>PHPUnit2_Framework_TestCase</literal>.</para></listitem>
+    <listitem><para>Die Tests sind öffentliche Methoden, die keine Parameter erwarten und <literal>test*</literal> heißen.</para></listitem>
+    <listitem><para>Innerhalb der Testmethoden werden Zusicherungsmethoden wie <literal>assertEquals()</literal> (siehe <xref linkend="api.assert.tables.assertions" />) verwendet, um tatsächliche Werte mit erwarteten Werten zu vergleichen.</para></listitem>
+  </orderedlist>
+
+  <para>
+    Jedes Framework muss eine Reihe von Anforderungen erfüllen, von denen
+    immer einige miteinander in Konflikt zu stehen scheinen. PHPUnit ist da
+    keine Ausnahme, denn Tests sollen all dies zugleich sein:
+  </para>
+
+  <variablelist>
+    <varlistentry>
+      <term><emphasis>Leicht zu erlernen.</emphasis></term>
+      <listitem>
+        <para>
+          Die Zielgruppe für PHPUnit sind Programmierer und nicht professionelle
+          Tester, daher müssen die Barrieren für das Schreiben von Tests
+          minimal sein.
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><emphasis>Leicht zu schreiben.</emphasis></term>
+      <listitem>
+        <para>
+          Tests, die nicht leicht zu schreiben sind, werden die Programmierer
+          nicht schreiben.
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><emphasis>Leicht zu lesen.</emphasis></term>
+      <listitem>
+        <para>
+          Der Testcode sollte keinen Overhead enthalten, der vom Kern des Tests
+          ablenkt.
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><emphasis>Leicht auszuführen.</emphasis></term>
+      <listitem>
+        <para>
+          Die Tests sollten auf einen Button-Klick hin starten und ihre
+          Ergebnisse in einem klaren und eindeutigen Format präsentieren.
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><emphasis>Schnell auszuführen.</emphasis></term>
+      <listitem>
+        <para>
+          Die Tests sollten so schnell ablaufen, dass wir sie hundert- oder
+          tausendmal am Tag ausführen können.
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><emphasis>Isoliert.</emphasis></term>
+      <listitem>
+        <para>
+          Die Tests sollen sich nicht gegenseitig beeinflussen. Auch wenn sich
+          die Reihenfolge der Testläufe verändert, sollten die Ergebnisse gleich
+          bleiben.
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><emphasis>Kombinierbar.</emphasis></term>
+      <listitem>
+        <para>
+          Jede beliebige Anzahl und Folge von Tests sollten zusammen ausgeführt
+          werden können. Dies ist eine logische Konsequenz aus der Isolation.
+        </para>
+      </listitem>
+    </varlistentry>
+  </variablelist>
+
+  <para>
+    Zwischen diesen Bedingungen gibt es zwei wesentliche Kollisionen:
+  </para>
+
+  <variablelist>
+    <varlistentry>
+      <term><emphasis>Leicht zu schreiben versus leicht zu erlernen.</emphasis></term>
+      <listitem>
+        <para>
+          Im Allgemeinen erfordern Tests nicht die gesamte Flexibilität einer
+          Programmiersprache, insbesondere nicht die einer objektorientierten
+          Sprache. Viele Testwerkzeuge bieten eigene Skriptsprachen, die nur
+          das Wenige an Möglichkeiten umfassen, das für das Schreiben von
+          Tests erforderlich ist. Dann sind die Tests leicht zu lesen und zu
+          schreiben, denn sie enthalten nichts, was von dem Inhalt des Tests
+          ablenkt. Andererseits ist das Erlernen einer weiteren
+          Programmiersprache und der zugehörigen Programmierwerkzeuge
+          unbequem und verwirrend.
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><emphasis>Isoliert versus schnell auszuführen.</emphasis></term>
+      <listitem>
+        <para>
+          Wenn die Ergebnisse eines Tests keine Auswirkungen auf die
+          Ergebnisse eines anderen Tests haben sollen, muss jeder Test vor
+          dem Beginn seiner Ausführung den Zustand der Welt komplett
+          herstellen und sie nach seiner Beendigung wieder in ihren
+          Ursprungszustand zurückversetzen. Dieses Aufbauen der Welt kann
+          allerdings eine beträchtliche Zeit in Anspruch nehmen, zum Beispiel
+          wenn die Verbindung zu einer Datenbank hergestellt und die Datenbank
+          mittels realistischer Daten in einen definierten Zustand gebracht
+          werden muss.
+        </para>
+      </listitem>
+    </varlistentry>
+  </variablelist>
+
+  <para>
+    PHPUnit löst diese Konflikte, in dem es zunächst mal das uns vertraute
+    PHP als Testsprache verwendet. Die Möglichkeiten dieser Sprache dürften
+    manchmal des Guten zuviel sein, wenn es um das Schreiben kleiner,
+    gradliniger Tests geht. Aber indem wir PHP verwenden, können wir die
+    Erfahrung und die Werkzeuge nutzen, die den Programmierern ohnehin zur
+    Verfügung stehen. Wenn wir versuchen wollen, skeptische Tester zu
+    überzeugen, ist das Absenken der Schwelle zum Schreiben jener ersten
+    Tests besonders wichtig.
+  </para>
+
+  <para>
+    Außerdem gewichtet PHPUnit die Isolation stärker als die
+    Ausführungsgeschwindigkeit. Isolierte Tests sind wichtig, weil sie uns
+    ein Feedback von hoher Qualität liefern. Es gibt keine Reports mit
+    reihenweise gescheiterten Tests, die in Wirklichkeit nur deswegen
+    fehlgeschlagen sind, weil ein Test am Anfang der Testreihe gescheitert
+    ist und für die übrigen Tests alles durcheinander gebracht hat. Dieser
+    Fokus auf isolierte Tests ermutigt Entwürfe mit einer großen
+    Zahl einfach gehaltener Objekte. In der Isolierung kann jedes Objekt
+    schnell getestet werden. Das Ergebnis sind also bessere Entwürfe
+    <emphasis>und</emphasis> schnellere Tests.
+  </para>
+
+  <para>
+    Als weitere systematische Besonderheit geht PHPUnit davon aus, dass
+    Tests im Normalfall erfolgreich durchlaufen. Nur wenn ein Test
+    fehlschlägt, muss dies festgehalten und gemeldet werden. Die große
+    Mehrzahl der Tests sollte aber erfolgreich sein und außer der jeweiligen
+    Anzahl von Durchläufen keiner weiteren Kommentare bedürfen. Tatsächlich
+    ist diese Annahme in die Auswertungsklassen eingebaut und nicht in das
+    PHPUnit-Kernsystem. Wenn die Ergebnisse eines Testlaufs gemeldet werden,
+    sehen Sie die Anzahl der insgesamt ausgeführten Tests, Details werden
+    aber nur zu den fehlgeschlagenen Tests gemeldet.
+  </para>
+
+  <para>
+    Von den Tests wird erwartet, dass sie feinkörnig sind und jeweils nur
+    einen Aspekt eines Objekts prüfen. Dementsprechend brechen Tests ab,
+    sobald sie zum ersten Mal fehlschlagen, und PHPUnit meldet dies. Das
+    Aufgliedern in viele kleine Tests ist eine Kunst, und es ist hilfreich,
+    bereits beim Entwurf des Softwaresystems an die fein granulierten Tests
+    zu denken.
+  </para>
+
+  <para>
+    Wenn Sie Objekte mit PHPUnit testen, so greifen Sie dabei nur auf die
+    öffentliche Schnittstelle des Objekts zu. Tests auf der Basis des
+    öffentlich sichtbaren Verhaltens helfen Ihnen, schwierige Designprobleme
+    frühzeitig anzugehen und zu lösen, bevor die Folgen eines mangelhaften
+    Entwurfs größere Teile des Softwaresystems infizieren können.
+  </para>
+</chapter>

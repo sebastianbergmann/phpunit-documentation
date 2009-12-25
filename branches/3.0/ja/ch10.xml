@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="mock-objects">
+  <title>モックオブジェクト</title>
+
+  <para>
+    オブジェクトに対するコールが正しく行われたかどうかを調べたいこともあるでしょう。
+    その方法をここで説明します。ここでは、別のオブジェクトを観察している
+    あるオブジェクトの特定のメソッド (この例では <literal>update()</literal>)
+    が正しくコールされたかどうかを調べるものとします。
+  </para>
+
+  <para>
+    <xref linkend="mock-objects.examples.ObserverTest.php" /> では、まず
+    <literal>PHPUnit_Framework_TestCase</literal> クラスの
+    <literal>getMock()</literal> メソッド (<xref
+    linkend="api.testcase.tables.api" /> を参照ください)
+    を使用して <literal>Observer</literal> のモックオブジェクトを作成します。
+    <literal>getMock()</literal> メソッドの二番目の (オプションの)
+    パラメータに配列を指定しているので、<literal>Observer</literal>
+    クラスの中の <literal>update()</literal> メソッドについてのみモック実装が作成されます。
+  </para>
+
+  <para>
+    次に、PHPUnit が提供する、いわゆる
+    <ulink url="http://martinfowler.com/bliki/FluentInterface.html">Fluent Interface</ulink>
+    (<ulink url="http://capsctrl.que.jp/kdmsnr/wiki/bliki/?FluentInterface">流れるようなインターフェイス</ulink>)
+    を用いてモックの振る舞いや期待する動作を指定します。簡単に言うと、
+    いくつもの一時オブジェクト (例えば「<literal>update()</literal>
+    がコールされることを期待するオブジェクト」と「パラメータに
+    ○○が指定されることを期待するオブジェクト」) を作成して、
+    期待値を設定したあとにそれらを連結するといった操作は必要ないということです。
+    その代わりに、例にあるようにメソッドの呼び出しを連結します。
+    このほうが、より読みやすく "流れるような" コードとなります。
+  </para>
+
+  <example id="mock-objects.examples.ObserverTest.php">
+    <title>あるメソッドが、指定したパラメータで一度だけコールされることを確かめるテスト</title>
+    <programlisting><![CDATA[<?php
+require_once 'PHPUnit/Framework.php';
+
+class ObserverTest extends PHPUnit_Framework_TestCase
+{
+    public function testUpdateIsCalledOnce()
+    {
+        // Observer クラスのモックオブジェクトを作成します。
+        // 対象とするのは update() メソッドのみです。
+        $observer = $this->getMock('Observer', array('update'));
+
+        // update() メソッドが一度だけコールされ、その際の
+        // パラメータは文字列 'something' となる、
+        // ということを期待しています。
+        $observer->expects($this->once())
+                 ->method('update')
+                 ->with($this->equalTo('something'));
+
+        // Subject オブジェクトを作成し、Observer オブジェクトの
+        // モックをアタッチします。
+        $subject = new Subject;
+        $subject->attach($observer);
+
+        // $subject オブジェクトの doSomething() メソッドをコールします。
+        // これは、Observer オブジェクトのモックの update() メソッドを、
+        // 文字列 'something' を引数としてコールすることを期待されています。
+        $subject->doSomething();
+    }
+}
+?>]]></programlisting>
+  </example>
+
+  <para>
+    <xref linkend="mock-objects.tables.matchers" />
+    は、モックメソッドの予定実行回数を表すために使用できる matcher の一覧です。
+  </para>
+
+  <table id="mock-objects.tables.matchers">
+    <title>Matchers</title>
+
+    <tgroup cols="2" align="left" colsep="1" rowsep="1">
+      <thead>
+        <row>
+          <entry>Matcher</entry>
+          <entry>意味</entry>
+        </row>
+      </thead>
+      <tbody>
+        <row>
+          <entry><literal>PHPUnit_Framework_MockObject_Matcher_AnyInvokedCount any()</literal></entry>
+          <entry>評価対象のメソッドがゼロ回以上実行された際にマッチするオブジェクトを返します。</entry>
+        </row>
+        <row>
+          <entry><literal>PHPUnit_Framework_MockObject_Matcher_InvokedCount never()</literal></entry>
+          <entry>評価対象のメソッドが実行されなかった際にマッチするオブジェクトを返します。</entry>
+        </row>
+        <row>
+          <entry><literal>PHPUnit_Framework_MockObject_Matcher_InvokedAtLeastOnce atLeastOnce()</literal></entry>
+          <entry>評価対象のメソッドが最低一回以上実行された際にマッチするオブジェクトを返します。</entry>
+        </row>
+        <row>
+          <entry><literal>PHPUnit_Framework_MockObject_Matcher_InvokedCount once()</literal></entry>
+          <entry>評価対象のメソッドが一度だけ実行された際にマッチするオブジェクトを返します。</entry>
+        </row>
+        <row>
+          <entry><literal>PHPUnit_Framework_MockObject_Matcher_InvokedCount exactly(int $count)</literal></entry>
+          <entry>評価対象のメソッドが指定した回数だけ実行された際にマッチするオブジェクトを返します。</entry>
+        </row>
+        <row>
+          <entry><literal>PHPUnit_Framework_MockObject_Matcher_InvokedAtIndex at(int $index)</literal></entry>
+          <entry>評価対象のメソッドが <literal>$index</literal> 回目に実行された際にマッチするオブジェクトを返します。</entry>
+        </row>
+      </tbody>
+    </tgroup>
+  </table>
+
+  <para>
+    これらの matcher とともに使用する制約については、
+    <xref linkend="api.assert.tables.constraints" />
+    で説明しています。
+  </para>
+
+  <section id="mock-objects.self-shunting">
+    <title>自己シャント</title>
+
+    <para>
+      <indexterm><primary>Self Shunt Pattern (自己シャントパターン)</primary></indexterm>
+
+      あるいは、<literal>Subject</literal> の実装をテストする際に
+      モックオブジェクトを使用せずに <emphasis>自己シャント (Self Shunt) パターン</emphasis>
+      を適用する方法もあります。
+      これは、テストケース自身をスタブとして使用します。
+      自己シャントというのは医学用語で、薬を注入する場所を確保するため、
+      チューブを挿入して動脈からとった血液を静脈にもどすことを意味します。
+    </para>
+
+    <para>
+      まず、<literal>Observer</literal> を実装したテストケースクラスを作成します。
+      <literal>Observer</literal> は、<literal>Subject</literal> 
+      を観察したいオブジェクトが実装しなければならないインターフェイスです。
+<programlisting>class ObserverTest extends PHPUnit_Framework_TestCase implements Observer
+{
+}</programlisting>
+    </para>
+
+    <para>
+      次に、<literal>Observer</literal> のメソッドである <literal>update()</literal>
+      を実装します。そして、観察対象のオブジェクトである <literal>Subject</literal>
+      の状態が変化した場合にそのメソッドが正しくコールされるかどうかを調べます。
+<programlisting>public $wasCalled = FALSE;
+
+public function update(Subject $subject)
+{
+  $this->wasCalled = TRUE;
+}</programlisting>
+    </para>
+
+    <para>
+      さあ、それではテストを書いてみましょう。まず新しい <literal>Subject</literal>
+      オブジェクトを作成し、テストオブジェクトをオブザーバとしてアタッチします。
+      <literal>Subject</literal> の状態が変化すると (例えば <literal>doSomething()</literal>
+      メソッドがコールされるなど)、<literal>Subject</literal>
+      オブジェクトは全オブザーバの <literal>update()</literal>
+      メソッドをコールしなければなりません。ここではインスタンス変数
+      <literal>$wasCalled</literal> を使用し、<literal>update()</literal>
+      の中でその値を設定します。これにより、<literal>Subject</literal>
+      オブジェクトが期待通りの動作をしているかどうかを確かめます。
+<programlisting>public function testUpdate()
+{
+  $subject = new Subject;
+  $subject->attach($this);
+  $subject->doSomething();
+
+  $this->assertTrue($this->wasCalled);
+}</programlisting>
+    </para>
+
+    <para>
+      グローバルなインスタンスではなく、新しい <literal>Subject</literal>
+      オブジェクトを作成したことに注意してください。スタブを利用する際には、
+      このような設計をお勧めします。こうすると、
+      オブジェクト間の結合度が緩やかになり、再利用性が高まります。
+    </para>
+
+    <para>
+      自己シャントパターンになじみのない方には、このテストはわかりにくいかもしれません。
+      いったいここで何が起こっているんだ? テストケース自身がオブザーバになるだって?
+      でも、お決まりのパターンをいったん身につけてしまえば、
+      これらのテストは簡単に理解できるようになります。
+      テストの内容をつかむために必要なことは、
+      すべてひとつのクラスの中に含まれているのですから。
+    </para>
+  </section>
+
+  <section id="mock-objects.stubs">
+    <title>スタブ</title>
+
+    <para>
+      いろいろな要因で失敗する可能性があるテストよりも、
+      単一の事項のみをテストするテストのほうが情報を得やすくなります。では、
+      できるだけ外部からの影響を受けないようなテストを作成するには
+      どうすればいいのでしょうか? 単純なことです。
+      高価で面倒で頼りなくて遅くて複雑なリソースを、
+      テスト用に自動で生成されたスタブに置き換えればいいのです。たとえば、
+      複雑な計算結果を単に定数に置き換えたものを、テスト用に作成すればいいのです。
+    </para>
+
+    <para>
+      <indexterm><primary>PHPUnit_Extensions_TestSetup</primary></indexterm>
+
+      スタブを使用すると、高価な外部リソースを使用することによる問題を解決できます。
+      たとえばデータベース接続のようなリソースをテスト間で共有するには
+      <literal>PHPUnit_Extensions_TestSetup</literal> デコレータを使用すればいいのですが、
+      テストの目的を考えると、データベースを使用せずにすむのならばそのほうがずっとよいでしょう。
+    </para>
+
+    <para>
+      <xref linkend="mock-objects.stubs.examples.StubTest.php" />
+      に、スタブメソッドの作成と返り値の設定の方法を示します。
+    </para>
+
+    <example id="mock-objects.stubs.examples.StubTest.php">
+      <title>メソッド呼び出しのスタブの作成</title>
+      <programlisting><![CDATA[<?php
+require_once 'PHPUnit/Framework.php';
+
+class StubTest extends PHPUnit_Framework_TestCase
+{
+    public function testStub()
+    {
+        $stub = $this->getMock('SomeClass');
+        $stub->expects($this->any())
+             ->method('doSomething')
+             ->will($this->returnValue('foo'));
+
+        // $stub->doSomething() をコールすると、'foo' を返します。
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      <xref linkend="mock-objects.stubs.tables.api" />
+      は、スタブメソッドの返り値を設定する際に使用できるメソッドの一覧です。
+    </para>
+
+    <table id="mock-objects.stubs.tables.api">
+      <title>スタブの API</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>メソッド</entry>
+            <entry>意味</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>PHPUnit_Framework_MockObject_Stub_Return returnValue(mixed $value)</literal></entry>
+            <entry>メソッドが実行された場合の返り値を <literal>$value</literal> に設定します。</entry>
+          </row>
+          <row>
+            <entry><literal>PHPUnit_Framework_MockObject_Stub_ConsecutiveCalls onConsecutiveCalls(mixed $value, ...)</literal></entry>
+            <entry>メソッドが続けて実行された場合に返す値を設定します。</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <para>
+      また、スタブを使用することで、よりよい設計を行うことができるようにもなります。
+      あちこちで使用されているリソースを単一の窓口 (façade : ファサード)
+      経由でアクセスするようにすることで、
+      それを簡単にスタブに置き換えられるようになります。例えば、
+      データベースへのアクセスのコードをそこらじゅうにちりばめるのではなく、
+      その代わりに <literal>IDatabase</literal> インターフェイスを実装した単一の
+      <literal>Database</literal> オブジェクトを使用するようにします。すると、
+      <literal>IDatabase</literal> を実装したスタブを作成することで、
+      それをテストに使用できるようになるのです。同時に、
+      テストを行う際にスタブデータベースを使用するか
+      本物のデータベースを使用するかを選択できるようになります。
+      つまり開発時にはローカル環境でテストし、
+      統合テスト時には実際のデータベースでテストするといったことができるようになるのです。
+    </para>
+
+    <para>
+      スタブ化しなければならない機能は、たいてい同一オブジェクト内で密結合しています。
+      この機能ををひとつの結合したインターフェイスにまとめることで、
+      システムのそれ以外の部分との結合を緩やかにすることができます。
+    </para>
+  </section>
+</chapter>

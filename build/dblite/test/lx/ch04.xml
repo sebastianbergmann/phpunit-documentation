@@ -1,0 +1,3190 @@
+<chapter id="qc"><title>Quality Control with Schemas</title>
+
+<simplesect>
+
+<para>Up until now, we have been talking about the things all XML
+documents have in common. Well-formedness rules are universal,
+ensuring perfect compatibility with generic tools and APIs. This
+homogeneity is a big selling point for XML, but equally important is
+the need for ways to distinguish XML-based languages from each
+other. A document usually attempts to conform to a language of some
+sort, and we need methods to test its level of conformance.</para>
+
+<para>Schemas, the topic of this chapter, are the shepherds of markup
+languages. They keep documents from straying outside of the herd and
+causing trouble. For instance, an administrator of a web site can use
+a schema to determine which web pages are legal XHTML, and which are
+only pretending to be. A schema can also be used to publish a
+specification for a language in a succinct and unambiguous way.</para>
+
+</simplesect>
+
+
+<sect1><title>Basic Concepts</title>
+
+<para>In the general sense of the word, a schema is a generic
+representation of a class of things. For example, a schema for
+restaurant menus could be the phrase "a list of dishes available at a
+particular eating establishment". A schema may resemble the thing it
+describes, the way a "smiley face" represents an actual human
+face. The information contained in a schema allows you to identify
+when something is or is not a representative instance of the
+concept.</para>
+
+<para>In the XML context, a schema is a pass-or-fail test for
+documents. A document that passes the test is said to "conform" to it,
+or be "valid". Testing a document with a schema is called
+"validation". A schema ensures that a document fulfills a minimum set
+of requirements, finding flaws that could result in anomolous
+processing. It also may serve as a way to formalize an application,
+being a publishable object that describes a language in unambiguous
+rules.</para>
+
+
+<sect2><title>Validation</title>
+
+<para>An XML schema is like a program that tells a processor how to
+read a document. It's very similar to a later topic we'll discuss
+called "transformations". The processor reads the rules and
+declarations in the schema and uses this information to build a
+specific type of parser, called a validating parser. The parser takes
+an XML instance as input and produces a validation report as
+output. At a minimum, this report is a return code, true if the
+document is valid, false otherwise. Optionally, the parser can create
+a Post Schema Validation Infoset (PSVI) including information about
+datatypes and structure that may be user for further
+processing.</para>
+
+<para>Validation happens on at least four levels:</para>
+
+<orderedlist>
+<listitem><para>Structure, the use and placement of markup elements
+and attributes.</para></listitem>
+<listitem><para>Datatyping, patterns of character data (e.g. numbers,
+dates, text).</para></listitem>
+<listitem><para>Integrity, the status of links between nodes and
+resources.</para></listitem>
+<listitem><para>Business rules, miscellaneous tests such as spelling
+checks, checksum results, and so on.</para></listitem>
+</orderedlist>
+
+<para>Structural validation is the most important and is the area
+schemas are best prepared to handle. Datatyping is often useful,
+especially in "data" style documents, but not widely
+supported. Testing integrity is less common and somewhat problematic
+to define.</para>
+
+</sect2>
+
+
+<sect2><title>A History of Schema Languages</title>
+
+<para>There are different kinds of XML schemas each with its own
+strengths and weaknesses.</para>
+
+
+<sect3><title>DTD</title>
+
+<para>The oldest and most widely supported schema language is the
+Document Type Definition (DTD). Borrowed from SGML, a simplified
+version DTD was included in the XML Core recommendation. Though a DTD
+isn't necessary to read and process an XML document, it can be a
+useful component for a document, providing the means to define
+macro-like entities and other conveniences. DTDs were the first widely
+used method to formally define languages like HTML.</para>
+
+
+</sect3><sect3><title>W3C XML Schema</title>
+
+<para>As soon as XML hit the streets, developers began to clamor for
+an alternative. DTDs don't support namespaces, which appeared after
+the XML 1.0 specification. They also have very weak datatyping, being
+mostly markup-focused. The W3C formed a working group for XML Schema
+and began to receive proposals for what would later become their W3C
+XML Schema recommendation.</para>
+
+<para>Following are some of the proposals made by various
+groups.</para>
+
+<variablelist>
+<varlistentry><term>XML-Data</term>
+<listitem><para>Submitted by Arbortext, DataChannel, Inso Corporation,
+Microsoft, and the Univeristy of Edinburgh in January 1998, this
+technical note put forth many of the features incorporated in W3C
+Schema, and many others that were left out, such as a mechanism for
+declaring entities, and object-oriented programming support. Microsoft
+has implemented a version of this called XML-Data-Reduced
+(XDR).</para></listitem></varlistentry>
+
+<varlistentry><term>Document Content Description (DCD)</term>
+<listitem><para>IBM, Microsoft, and Textuality submitted this proposal
+in July 1998 as an attempt to make XML-Data integrate with the
+Resource Description Framework (RDF). It introduced the idea of making
+elements and attributes interchangeable in
+schemas.</para></listitem></varlistentry>
+
+<varlistentry><term>Schema for Object-Oriented XML (SOX)</term>
+<listitem><para>As the name implies, this technical note was
+influenced by programming needs, incorporating concepts as interfaces
+and "parameters". It was submitted in July 1998 by Veo Systems /
+Commerce One which has created an implementation that they use
+today.</para></listitem></varlistentry>
+
+<varlistentry><term>Document Definition Markup Language (DDML)</term>
+<listitem><para>This proposal came out of the discussion of many
+members of the XML-Dev mailing list. It was an early effort to take
+the information expressed in a DTD and format it as XML and did not
+include support for datatypes.</para></listitem></varlistentry>
+</variablelist>
+
+<para>Informed by these proposals, the W3C XML Schema Working Group
+arrived at a recommendation in May 2001, composed of three parts
+(XMLS0, XMLS1, and XMLS2) dealing with Core, Namespaces, and XXXXX,
+respeectively. Although some of the predecessors are still in use,
+all involved parties agree that they should be retired in favor of the
+one, true W3C XML Schema.</para>
+
+
+</sect3><sect3><title>RELAX-NG</title>
+
+<para>An independant effort by a creative few coalesced into another
+schema language called RELAX-NG. It is the merging of Regular Language
+Description for XML (RELAX) and Tree Regular Expressions for XML
+(TREX). Like W3C Schema, it supports namespaces and datatypes. It also
+includes some unique innovations, such as interchangeability of
+elements and attributes in content descriptions and more flexible
+content models.</para>
+
+<para>RELAX, a product of the Japanese Standard Association's INSTAC
+XML Working Group, was designed to be an easy alternative to XML
+Schema. "Tired of complex specifications?" the home page asks. "You
+can relax!" Unlike W3C Schema, with its broad scope and high learning
+curve, RELAX is simple to implement and use.</para>
+
+<para>You can think of RELAX as DTDs (formatted in XML) plus datatypes
+inherited from W3C Schema's datatype set. This makes it nearly
+painless to migrate from DTDs to RELAX and, if you want to do so
+later, fairly easy to migrate from RELAX to W3C Schemas. It supports
+to levels of conformance. "Classic" is just like DTD validation plus
+datatype checking. "Fully relaxed" adds more features.</para>
+
+<para>The theoretical basis of RELAX is the Hedge Automata theory of
+XML tree processing. MORE ABOUT THIS HERE.</para>
+
+<para>At about the same time RELAX was taking shape, James Clark of
+Thai Opensource Software was busy developing TREX. It came out of work
+on XDuce, a typed programming language for manipulating XML markup and
+data. XDuce (the word is a contraction of "XML" and "transduce") is a
+transformation language taking an XML document as input, extracting
+data, and outputting another document in XML or another format. TREX
+takes XDuce's type system and adds various features into an XML-based
+language. XDuce appeared in March 2000, followed by TREX in January
+2001.</para>
+
+<para>Like RELAX, TREX uses a very clear and flexible language that is
+easy to learn, read, and implement. Definitions of elements and
+attributes are interchangeable, greatly simplifying the syntax. It has
+full support for namespaces, mixed content, and unordered content,
+things that are missing from, or very difficult to achieve, with
+DTDs. Like RELAX, it uses the W3C XML Schema datatype set, shortening
+the learning curve further.</para>
+
+<para>RELAX-NG (new generation) takes the best features from both
+RELAX and TREX in one XML-based schema language. First announced in
+May 2001, An OASIS Technical Committee headed by James Clark and
+Murata Makoto oversees its development. It was approved
+as a Draft International Standard by the ISO/IEC.</para>
+
+
+</sect3><sect3><title>Schematron</title>
+
+<para>Also worthy of note is Schematron, first proposed by Rick
+Jelliffe of the Academia Sinicia Computing Centre in 1999. It uses
+XPath expressions to define validation rules and is one of the most
+flexible schema languages around.</para>
+
+
+</sect3></sect2>
+
+
+<sect2><title>Do You Need Schema?</title>
+
+<para>It may seem like schema are a lot of work, and you'd be right to
+think so. In designing a schema, you are forced to think hard about
+how your language is structured. As your language evolves, you have to
+update your schema, which is like maintaining a piece of
+software. There will be bugs, version tracking, useability issues, and
+even the occasional overhaul to consider. So with all this overhead,
+is it really worth it?</para>
+
+<para>First, let's look at the benefits:</para>
+
+<itemizedlist>
+
+<listitem><para>It can function as a publishable specification. There
+is simply no better way to describe a language than with a
+schema. A schema is, after all, a "yes or no" test for document
+conformance. It's designed to be readable by humans and machines
+alike. DTDs are very reminiscent of Backus-Naur Form (BNF) grammars
+which are used to describe programming languages. Other schemas, such
+as RELAX-NG, are intuitive and very easy to read. So if you need to
+disseminate information on how to use a markup language, a schema is
+not a bad way to do it.</para></listitem>
+
+<listitem><para>It will catch higher-level mistakes. Sure, there are
+well-formedness rules to protect your software from errors in basic
+syntax, but do they go far enough? What if a required field of
+information is missing? Or someone has consistently misspelled an
+element name? Or a date was entered in the wrong format? These are
+things only a validating parser can detect.</para></listitem>
+
+<listitem><para>It is portable and efficient. Writing a program to
+test a document is an option, but it may not be the best one. Software
+can be platform-dependant, difficult to install, bulky to transfer. A
+schema, however, is compact and optimized for one purpose:
+validation. It's easy to hand someone a schema, and you know it has to
+work for them because its syntax is governed by a standard
+specification. And since many schemas are based on XML, they can be
+edited in XML editors and tested by well-formedness
+checkers.</para></listitem>
+
+<listitem><para>It is extensible. Schemas are designed to be
+modular. If you want to maintain a set of similar languages, or
+versions of them, they can share common components. For example, DTDs
+allow you to declare general entities for special characters or
+frequently used text. They may be so useful that you want to export
+them to other languages.</para></listitem>
+
+</itemizedlist>
+
+<para>Using a schema also has some drawbacks:</para>
+
+<itemizedlist>
+
+<listitem><para>It reduces flexibility. The expressiveness of schemas
+varies considerably, and each standard tends to have its flaws. For
+example, DTDs are notorious for their incompatibility with
+namespaces. They are also inefficient at specifying a content model
+that contains required children in any order. While other schema
+languages improve upon DTDs, they will always have limitations of one
+sort or another.</para></listitem>
+
+<listitem><para>It can be an obstacle for authors. In spite of
+advances in XML editors with fancy graphical interfaces, authoring in
+XML will never be as easy as writing in a traditional word
+processor. Time spent thinking about which element to use in a given
+context is time not spent on thinking about the document's content,
+which is the original reason you're writing it. Some editors supply a
+menu of elements to select from, which changes depending on the
+context. But depending on the language, it still can be confusing and
+frustrating for the lay person.</para></listitem>
+
+<listitem><para>You have to maintain it. With a schema, you have one
+more tool to debug and update. Like software, it will have bugs,
+versions, and even its own documentation. It's all too easy to damage
+a schema by deleting an imported component, or introducing a syntax
+error. Older documents may not validate if you update the schema,
+forcing you to make retroactive changes to them. One silver lining is
+that, except for DTDs, most schema are based on XML, which allows you
+to use XML editors to make changes.</para></listitem>
+
+<listitem><para>Designing it will be hard. Schema are tricky documents
+to compose. You have to really think about how each element will fit
+together, what kinds of data will be input, whether there are special
+cases to accomodate. If you're just starting out with a language,
+there are many needs you don't know about until you start using it,
+creating a bit of a bootstrapping problem. The syntax is very logical,
+using concepts from regular expressions, sets, and even programming
+languages.</para></listitem>
+
+</itemizedlist>
+
+<para>To make the decision easier, think about it this way. A schema
+is basically a quality-control tool. If you are reasonably certain
+that your documents are good enough for processing, then you have no
+need for schemas. However, if you want extra assurance that documents
+are complete and structurally sound, and the work you save fixing
+mistakes outweights the work you will spend maintaining a schema, then
+you should look into it.</para>
+
+<para>One thing to consider is whether a human will be involved with
+producing a document. No matter how careful we are, we humans tend to
+make a lot of mistakes. Validation can find those problems and save
+frustration later. But software-created documents tend to be very
+predictible and probably never need to be validated.</para>
+
+<para>The really hard question to answer is not whether you need a
+schema, but which standard to use. There are a few very valuable
+choices that I will be describing in the rest of the chapter. I hope
+to provide you with enough information to decide which one is right
+for your application.</para>
+
+</sect2></sect1>
+
+
+<sect1><title>DTDs</title>
+
+<para>The most popular type of document model is the Document Type
+Definition (DTD). DTDs actually predate XML, being a hand-me-down from
+SGML with the syntax almost completely intact.  A DTD defines a
+document type in the following way:</para>
+
+<itemizedlist>
+<listitem><para>It declares a set of allowed elements. You cannot use
+any element names other than those in this set. Think of this as the
+"vocabulary" of the language.</para></listitem>
+
+<listitem><para>It defines a <firstterm>content model</firstterm> for
+each element. The content model is a pattern that tells what elements
+or data can go inside an element, in what order, in what number, and
+whether they are required or optional. Think of this as the "grammar"
+of the language.</para></listitem>
+
+<listitem><para>It declares a set of allowed attributes for each
+element. Each attribute declaration defines the name, datatype,
+default values (if any), and behavior (e.g., if it is required or
+optional) of the attribute.</para></listitem>
+
+<listitem><para>It provides a variety of mechanisms to make managing
+the model easier, for example, the use of parameter entities
+and the ability to import pieces of the model from an external
+file.</para></listitem>
+</itemizedlist>
+
+
+<sect2><title>Document Prolog</title>
+
+<para>Unlike an XML document, a DTD is not required to have a prolog.
+A DTD can have an optional XML declaration, the same kind as XML
+documents require. If you need to specify a character set other than
+the default UTF-8 (see <xref linkend="int"/>, for more about
+character sets), or to change the XML version number from the default
+1.0, this is where you would do it.</para>
+
+<note>
+<para>If you do set a character set in the DTD, it won't
+automatically carry over into XML documents that use the
+DTD. XML documents have to specify their own encodings in their
+document prologs.</para>
+</note>
+
+<para>There are other parts of the traditional document prolog that do
+not apply to DTDs. The XML declaration property
+<literal>standalone</literal> and the document type declaration are
+actually irrelevant. The former will probably be ignored by an XML
+processor, while the latter is likely to trigger a syntax error. In
+this book, we do not use a document prolog for DTD examples.</para>
+
+</sect2>
+
+
+<sect2><title>Declarations</title>
+
+<para>As shown in <xref linkend="qc-decls"/>, a DTD is a set
+of rules or <firstterm>declarations</firstterm>. Each declaration adds
+a new element, set of attributes, entity, or notation to the language
+you are describing. DTDs can be combined using parameter entities, a
+technique called <firstterm>modularization</firstterm>. You can also 
+add declarations inside the internal subset of the document.</para>
+
+<figure id="qc-decls"><title>DTD syntax</title>
+<graphic fileref="figs/lxml_0402.jpg"/>
+</figure>
+
+<para>The order of the declarations is important in two situations. First,
+if there are redundant declarations (an attempt to declare the same
+element type twice, for example), the first one that appears takes
+precedence and all others are ignored. This is important to know
+if you are going to override declarations, either in the internal
+subset or by cascading DTDs. Second, if parameter entities are used
+in declarations, they must be declared before they are used as
+references.</para>
+
+<para>Declaration syntax is flexible when it comes to whitespace. You
+can add extra space anywhere except in the string of characters at the
+beginning that identifies the declaration type. For example, these are
+all acceptable:</para>
+
+<programlisting><![CDATA[<!ELEMENT         thingie      ALL>
+<!ELEMENT
+  thingie
+  ALL>
+<!ELEMENT thingie (          foo      |
+                             bar      |
+                             zap      )*>]]></programlisting>
+
+</sect2>
+
+
+<sect2 id="qc-sect-census"><title>An Example</title>
+
+<para>Imagine a scenario where you are collecting information from a
+group of people. The data you receive will be fed to a program that
+will process it and store it in a database. You need a quick way to
+determine whether all the required information is there before you can
+accept a submission. For this, we will use a DTD.</para>
+
+<para>The information in this example will be census data. Your staff
+is roaming around the neighborhood interviewing families and entering
+data on their laptop computers. They are using an XML editor
+configured with a DTD that you've created to model your language,
+CensusML. Later, they will upload all the CensusML documents to the
+central repository to be processed overnight.</para>
+
+<para><xref linkend="qc-ex-census"/> shows how a typical valid
+CensusML document should look, minus the document prolog. A document
+represents an interview with one family. It contains a date, an
+address, a list of people residing there. For each person, we are
+interested in taking their full name, age, employment status, and
+gender. There are also identification numbers for people, to ensure
+that we don't accidentally enter in somebody more than once.</para>
+
+<example id="qc-ex-census">
+<title>A typical CensusML document</title>
+<programlisting><![CDATA[<census-record taker="3163">
+  <date><year>2003</year><month>10</month><day>11</day></date>
+  <address>
+    <street>471 Skipstone Lane <unit>4-A</unit></street>
+    <city>Emerald City</city>
+    <county>Greenhill</county>
+    <country>Oz</country>
+    <postalcode>885JKL</postalcode>
+  </address>
+  <person employed="fulltime" pid="270405">
+    <name>
+      <first>Meeble</first>
+      <last>Bigbug</last>
+      <junior/>
+    </name>
+    <age>39</age>
+    <gender>male</gender>
+  </person>
+  <person employed="parttime" pid="273882">
+    <name>
+      <first>Mable</first>
+      <last>Bigbug</last>
+    </name>
+    <age>36</age>
+    <gender>female</gender>
+  </person>
+  <person pid="472891">
+    <name>
+      <first>Marble</first>
+      <last>Bigbug</last>
+    </name>
+    <age>11</age>
+    <gender>male</gender>
+  </person>
+</census-record>]]></programlisting>
+</example>
+
+<para>So let's start putting together a DTD. The first declaration is
+for the document element:</para>
+
+<programlisting><![CDATA[<!ELEMENT census-record
+(date, taker, address, person+)>]]></programlisting>
+
+<para>This establishes the first rules for the CensusML language: (1)
+there is an element named <sgmltag>census-record</sgmltag> and (2) it must
+contains one <sgmltag>date</sgmltag> element, one <sgmltag>taker</sgmltag>
+element, one <sgmltag>address</sgmltag> element, and at least one
+<sgmltag>person</sgmltag> element. If you leave any of these elements
+out, or put them in a different order, the document will be
+invalid.</para> 
+
+<para>Note that the declaration doesn't actually specify that the
+<sgmltag>census-record</sgmltag> must be used as the document
+element. In fact, a DTD can't single out any element to be the root of
+a document. You might view this as a bad thing, since you can't stop
+someone from submitting an incomplete document containing only a
+<sgmltag>person</sgmltag> element and nothing else. On the other hand,
+you could see it as a feature, where DTD's can contain more than one
+model for a document. For example, DocBook relies on this to support
+many different models for documents; a book would use the
+<sgmltag>book</sgmltag> element as its root, while an article would
+use the element <sgmltag>article</sgmltag>. In any case, be aware of
+this loophole.</para>
+
+<para>Now we should declare the attributes for this element. There is
+only one, <literal>taker</literal>, identifying the census taker who
+authored this document. Its type is
+<literal>CDATA</literal> (character data). We will make it required,
+because it's important to know who is submitting the data just to make
+sure no mischeivous people submit fraudulent records. Here is the
+attribute list for <sgmltag>census-record</sgmltag>:</para>
+
+<programlisting><![CDATA[<!ATTLIST census-record
+  taker   CDATA   #REQUIRED>]]></programlisting>
+
+<para>Next, let's declare the <sgmltag>date</sgmltag> element. The
+order of element declarations doesn't really matter. All the
+declarations are read into the parser's memory before any validation
+takes place, so all that is necessary is that every element is
+accounted for. But I like to keep things organized and in the
+approximate order, so here's the next set of declarations:</para>
+
+<programlisting><![CDATA[<!ELEMENT date (year, month, day)>
+<!ELEMENT year (#PCDATA)*>
+<!ELEMENT month (#PCDATA)*>
+<!ELEMENT day (#PCDATA)*>]]></programlisting>
+
+<para>The <literal>#PCDATA</literal> literal represents character
+data. Any element with a content model <literal>(#PCDATA)*</literal>
+can contain character data but not elements. So the elements
+<sgmltag>year</sgmltag>, <sgmltag>month</sgmltag>, and
+<sgmltag>day</sgmltag> are what you might call data fields. The
+<sgmltag>date</sgmltag> element, in contrast, must contain elements,
+but not character data<footnote><para>Whitespace is
+allowed to make the markup more readable, but would be ignored
+for the purpose of validation.</para></footnote>.</para>
+
+<para>The asterisk (*) in the content model means that there may or
+may not be any characters in the content. Alas, there is no way to
+<emphasis>require</emphasis> that an element contains character
+data. The census taker could just leave these elements blank and the
+validating parser would be happy with that. But to change that to a
+plus (+) to require some character data is not allowed. To make
+validation simple and fast, DTD's never concern themselves with the
+actual details of character data.</para>
+
+<para>Now for the address bit. <sgmltag>address</sgmltag> is a
+container of elements just like <sgmltag>date</sgmltag>. For the most
+part, its subelements are plain data fields (content is character data
+only), but for one element which has mixed content:
+<sgmltag>street</sgmltag>. Here are the declarations:</para>
+
+<programlisting><![CDATA[<!ELEMENT address 
+  (street, city, county, country, postalcode)>
+<!ELEMENT street (#PCDATA | unit)*>
+<!ELEMENT city (#PCDATA)*>
+<!ELEMENT county (#PCDATA)*>
+<!ELEMENT country (#PCDATA)*>
+<!ELEMENT postalcode (#PCDATA)*>
+<!ELEMENT unit (#PCDATA)*>]]></programlisting>
+
+<para>The declaration for <sgmltag>street</sgmltag> follows the
+pattern that all mixed-content elements use. The
+<literal>#PCDATA</literal> must come first followed by all the allowed
+subelements separated by vertical bars (|). The upshot is that
+character data is optional, along with all the elements that can be
+interspersed within it. Again, you can't require character data or
+elements here. In our current situation this is okay because not
+every street address has a unit extension.</para>
+
+<para>Our final task is to declare the elements and attributes making
+up a <sgmltag>person</sgmltag>. Here is a crack at the element
+declarations:</para>
+
+<programlisting><![CDATA[<!ELEMENT person (name, age, gender)>
+<!ELEMENT name (first, last, (junior | senior)?)>
+<!ELEMENT age (#PCDATA)*>
+<!ELEMENT gender (#PCDATA)*>
+<!ELEMENT first (#PCDATA)*>
+<!ELEMENT last (#PCDATA)*>
+<!ELEMENT junior #EMPTY>
+<!ELEMENT senior #EMPTY>
+<!ATTLIST person
+    pid       ID                   #REQUIRED
+    employed  (fulltime|parttime)  #IMPLIED>]]></programlisting>
+
+<para>The content model is a little more complex for this
+container. The first and last names are required, but there is an
+option to follow these with a qualifier ("Junior" or "Senior"). The
+qualifiers are declared as empty elements here using the
+keyword <literal>#EMPTY</literal>. Perhaps it would be just as easy to
+make an attribute called <literal>qualifier</literal> with values
+"junior" or "senior", but I decided to do it this way to show you how
+to declare empty elements. Also, doing it as an element makes the
+markup less cluttered, and we already have two attributes in
+the container element.</para>
+
+<para>The first attribute declared is a required
+<literal>pid</literal>, a person identification string. Its type is
+<literal>ID</literal>, which to validating parsers means that it is a
+unique identifier within the scope of the document. No other element
+can have an
+<literal>ID</literal>-type attribute with that value. This means that
+if the census taker accidentally puts in a person twice, the parser
+will catch the error and report the document invalid. The parser can
+only check within the scope of the document, however, so there is
+nothing to stop a census taker from entering the same person in
+another document.</para>
+
+<para><literal>ID</literal>-type attributes have another
+limitation. There is one identifier-space for all of them, so even if
+you want to use them in different ways, such as having an identifier
+for the address and another for people, you can't use the same string
+in both element types. A solution to this might be to prefix the
+identifier string with a code like "HOME-38225" for address and
+"PID-489294" for person, effectively creating your own separate
+identifier spaces.</para>
+
+<para>The other attribute, <literal>employed</literal>, is optional as
+denoted by the <literal>#IMPLIED</literal> keyword. It's also an
+enumerated type, meaning that there is a set of allowed values
+("fulltime" and "parttime"). Setting the attribute to anything else
+would result in a validation error.</para>
+
+<para><xref linkend="qc-ex-censusdtd"/> shows the complete DTD.</para>
+
+<example id="qc-ex-censusdtd">
+<title>The CensusML DTD</title>
+<programlisting><![CDATA[<!--
+Census Markup Language
+(use <census-record> as the document element)
+-->
+<!ELEMENT census-record (date, taker, address, person+)>
+<!ATTLIST census-record 
+  taker   CDATA   #REQUIRED>
+
+<!-- date the info was collected -->
+<!ELEMENT date (year, month, day)>
+<!ELEMENT year (#PCDATA)*>
+<!ELEMENT month (#PCDATA)*>
+<!ELEMENT day (#PCDATA)*>
+
+<!-- address information -->
+<!ELEMENT address 
+  (street, city, county, country, postalcode)>
+<!ELEMENT street (#PCDATA | unit)*>
+<!ELEMENT city (#PCDATA)*>
+<!ELEMENT county (#PCDATA)*>
+<!ELEMENT country (#PCDATA)*>
+<!ELEMENT postalcode (#PCDATA)*>
+<!ELEMENT unit (#PCDATA)*>
+
+<!-- person information -->
+<!ELEMENT person (name, age, gender)>
+<!ELEMENT name (first, last, (junior | senior)?)>
+<!ELEMENT age (#PCDATA)*>
+<!ELEMENT gender (#PCDATA)*>
+<!ELEMENT first (#PCDATA)*>
+<!ELEMENT last (#PCDATA)*>
+<!ELEMENT junior #EMPTY>
+<!ELEMENT senior #EMPTY>
+<!ATTLIST person
+    pid       ID                   #REQUIRED
+    employed  (fulltime|parttime)  #IMPLIED>]]></programlisting>
+</example>
+
+</sect2>
+
+
+<sect2><title>Tips for Designing and Customizing DTDs</title>
+
+<para>DTD design and construction is part science and part art
+form. The basic concepts are easy enough, but managing a large
+DTD&mdash;maintaining hundreds of element and attribute declarations
+while keeping them readable and bug-free&mdash;can be a
+challenge. This section offers a collection of hints and best
+practices that you may find useful. The next section shows a concrete
+example that uses these practices.</para>
+
+
+<sect3><title>Keep It Organized</title>
+
+<para>DTDs are notoriously hard to read, but good organization
+always helps. A few extra minutes spent tidying up and writing comments 
+can save you hours of scrutinizing later. Often, a DTD is its own 
+documentation, so if you expect others to use it, clean code is
+doubly important.</para>
+
+<variablelist>
+<varlistentry><term>Organize declarations by function</term>
+<listitem><para>Keep declarations separated into sections by their
+purpose. In small DTDs, this helps you navigate the file. In
+larger DTDs, you might even want to break the declarations into
+separate modules. Some categories to group by are
+blocks, inlines, hierarchical elements,
+parts of tables, lists, etc. As you'll see in the example in the
+next section, the declarations are divided by
+function (block, inline, hierarchical).</para></listitem>
+</varlistentry>
+
+<varlistentry><term>Whitespace</term>
+<listitem><para>Pad your declarations with lots of whitespace. Content
+models and attribute lists suffer from dense syntax, so spacing out
+the parts, even placing them on separate lines, helps make them
+more understandable. Indent lines inside declarations to make
+the delimiters more clear. Between logical divisions, use extra space
+and perhaps use a comment with a row of dark characters to add
+separation. When you quickly scroll through the file, you will find it is
+much easier to navigate.</para></listitem>
+</varlistentry>
+
+<varlistentry><term>Comments</term>
+<listitem><para>Use comments liberally&mdash;they are like signposts in a
+wilderness of text. First, place a comment at the top of each file that
+explains the purpose of the DTD or module, gives the version
+number, and provides contact information. If it is a customized
+frontend to a public DTD, be sure to mention the original that it
+is based on, give credit to the authors, and explain the changes that
+you made. Next, label each section and subsection of the
+DTD.</para>
+
+<para>Anywhere a comment might help to clarify the use of the DTD or
+explain your decisions, add one. As you modify the DTD, add
+new comments describing your changes. Comments are part of
+documentation, and unclear or outdated documentation can be worse than
+useless.</para></listitem>
+</varlistentry>
+
+<varlistentry><term>Version tracking</term>
+<listitem><para>As with software, your DTD is likely to be updated as
+your requirements change.  You should keep track of versions by
+numbering them; to avoid confusion, it's important to change the
+version number when you make a change to the document. By convention,
+the first public release is "1.0".  After that, small changes earn
+decimal increments: "1.1", "1.2", etc. Major changes increment by
+whole numbers: "2.0", "3.0", etc. Document the changes from version to
+version. Revision control systems are available to automate this
+process. On Unix-based systems, the RCS and CVS packages have both
+been the trusted friends of developers.</para></listitem>
+</varlistentry>
+
+<varlistentry><term>Parameter entities</term>
+<listitem><para>Parameter entities can hold recurring parts of
+declarations and allow you to edit them in one place. In the external
+subset, they can be used in element type declarations to hold element
+groups and content models, or in attribute list declarations to hold
+attribute definitions. The internal subset is a little stricter;
+parameter entities can hold only complete declarations, not
+fragments.</para>
+
+<para>For example, assume you want every element to have an optional
+<literal>ID</literal> attribute for linking and an optional
+<literal>class</literal> attribute to assign specific role
+information. You can declare a parameter entity to hold common
+attributes like this:</para>
+
+<programlisting>&lt;!ENTITY % common.atts "
+  id        ID        #IMPLIED
+  class     CDATA     #IMPLIED"
+  &gt;</programlisting>
+
+<para>That entity can then be used in attribute list declarations:</para>
+
+<programlisting>&lt;!ATTLIST foo %common.atts;&gt;
+&lt;!ATTLIST bar %common.atts;
+   extra    CDATA     #FIXED "blah"
+   &gt;</programlisting></listitem>
+</varlistentry>
+</variablelist>
+
+</sect3>
+
+
+<sect3><title>Attributes vs. Elements</title>
+
+<para>Making a DTD from scratch is not easy. You have to break your
+information down into its conceptual atoms and package it as a
+hierarchical structure, but it's not always clear how to divide the
+information. The book model is easy, because it breaks down readily
+into hierarchical containers such as chapters, sections, and
+paragraphs. Less obvious are the models for equations, molecules, and
+databases. For such applications, it takes a supple mind to chop up
+documents into the optimal mix of elements and attributes. These tips
+are principles that can help you design DTDs:</para>
+
+<itemizedlist>
+<listitem><para>Choose names that make sense. If your document is
+composed exclusively of elements like <sgmltag>thing</sgmltag>,
+<sgmltag>object</sgmltag>, and <sgmltag>chunk</sgmltag>, it's going to
+be nearly impossible to figure out what's what. Names should
+closely match the logical purpose of an element. It's better to create
+specific elements for different tasks than to overload a few elements
+to handle many different situations. For example, the <sgmltag>DIV</sgmltag>
+and <sgmltag>SPAN</sgmltag> HTML elements aren't ideal, because they
+serve many different roles.</para></listitem>
+
+<listitem><para>Hierarchy adds information. A newspaper has
+articles that contain paragraphs and heads. Containers create
+boundaries to make it easier to write stylesheets and processing
+applications. And they have an implied ownership that provides
+convenient handles and navigation aids for processors. Containers add
+depth, another dimension to increase the amount of structure.</para>
+
+<para>Strive for a tree structure that resembles a wide, bushy
+shrub. If you go too deep, the markup begins to overwhelm the content
+and it becomes harder to edit a document; too shallow and the
+information content is diluted. A good analogy is to think of
+documents and their parts as nested boxes. A big box filled with a
+million tiny boxes is much harder to work with than a box with a few
+medium boxes, and smaller boxes inside those, and so
+on.</para></listitem>
+
+<listitem><para>Know when to use elements over attributes. An element
+holds content that is part of your document. An attribute modifies the
+behavior of an element. The trick is to find a balance between using
+general elements with attributes to specify purpose, and creating
+an element for every single contingency.</para></listitem>
+</itemizedlist>
+
+</sect3>
+
+
+<sect3><title>Modularizing</title>
+
+<para>There are advantages to splitting a monolithic DTD into smaller
+components, or <firstterm>modules</firstterm>. The first benefit is
+that a modularized DTD can be easier to maintain, for reasons of
+organization mentioned earlier and because parts can be edited
+separately or "turned off" for debugging purposes. Also, the DTD
+becomes configurable. Modules in separate files can be swapped with
+others as easily as redefining a single parameter entity. Even within
+the same file, they can be marked for inclusion or exclusion.</para>
+
+<para>XML provides two ways to modularize your DTD. The first is
+to store parts in separate files, then import them with external
+parameter entities. The second is to use a syntactic device called a
+conditional section. Both are powerful ways to make a DTD more
+flexible.</para>
+
+</sect3>
+
+
+<sect3><title>Importing modules from external sources</title>
+
+<para>A DTD does not have to exist in one file. In fact, it often
+makes sense to store it in different places. You may wish to borrow
+from someone else, importing their DTD into your own as a
+subset. Or you may just want to make the DTD a little neater by
+separating pieces into different files.</para>
+
+<para>To import whole DTDs or parts of DTDs, use an
+external parameter entity. Here is an example of a complete DTD
+that imports its pieces from various modules:</para>
+
+<programlisting>&lt;!ELEMENT catalog (title, metadata, front, entries+)&gt;
+&lt;!ENTITY % basic.stuff   SYSTEM "basics.mod"&gt;
+&lt;!ENTITY % front.matter  SYSTEM "front.mod"&gt;
+&lt;!ENTITY % metadata      PUBLIC "-//Standards Stuff//DTD Metadata 
+  v3.2//EN" "http://www.standards-stuff.org/dtds/metadata.dtd"&gt;</programlisting>
+
+<para>This DTD has two local components, which are specified by system
+identifiers. Each component has a <filename>.mod</filename> filename
+extension, which is a traditional way to say that a file contains
+declarations but should not be used as a DTD on its own. The last
+component is a DTD that can stand on its own; in fact, in this
+example, it's a public resource.</para>
+
+<para>There is one potential problem with importing DTD text. An
+external parameter entity imports <emphasis>all</emphasis> the text in
+a file, not just a part of it. You get all the declarations, not just
+a few select ones. Worse, there is no concept of local scope, in which
+declarations in the local DTD automatically override those in the
+imported file. The declarations are assembled into one logical entity,
+and any information about what was imported from where is lost before
+the DTD is parsed.</para>
+
+<para>There are a few ways to get around this problem. You can override
+declarations by re-declaring them or, to be more precise,
+predeclaring them. In other words:</para>
+
+<itemizedlist>
+<listitem><para>If there are multiple declarations for the same
+element name, the first one seen by the XML processor is used and
+the rest are ignored.</para></listitem>
+<listitem><para>If there are multiple attribute list declarations for
+the same element name, they are concatenated into one
+list.</para></listitem>
+<listitem><para>Within that list, if an attribute name is declared
+more than once, the first mention takes precedence.</para></listitem>
+</itemizedlist>
+
+<para>Say you have a set of declarations in a file that includes this 
+element declaration:</para>
+
+<programlisting>&lt;!ELEMENT polyhedron (side+, angle+)&gt;</programlisting>
+
+<para>If you want to import that file into a local DTD but override
+the declaration for that particular element, the key is to place the
+declaration you want <emphasis>before</emphasis> the declarations you
+don't want. Here's how you'd do that:</para>
+
+<programlisting>&lt;!ELEMENT polyhedron (side, side, side+, angle, angle, angle+)&gt;
+&lt;!ENTITY % shapes "shapes.mod"&gt;
+%shapes;</programlisting>
+
+<para>This assumes that you still plan to use a
+<sgmltag>polyhedron</sgmltag> element, but say you don't want that
+element in your DTD at all. How can you block a declaration that has
+been imported? To do that, we need to introduce a new syntactic construct
+called the conditional section.</para>
+
+</sect3>
+
+
+<sect3><title>Conditional sections</title>
+
+<para>A <firstterm>conditional section</firstterm> is a special form
+of markup used in a DTD that marks a region of text for inclusion or
+exclusion in the DTD.<footnote><para>In SGML, you can use
+conditional sections in documents as well as in DTDs. XML restricts
+its use to DTDs only. Truthfully, I miss them because I think they
+are a very powerful way to conditionally alter
+documents.</para></footnote> If you anticipate that a piece 
+of your DTD may someday be an unwanted option, you can make it a
+conditional section and let the end user decide whether to keep it in
+or not. Note that conditional sections can be used only in external
+subsets, not internal subsets.</para>
+
+<para>Conditional sections look similar to CDATA sections. They use
+the square bracket delimiters, but the <literal>CDATA</literal> keyword is
+replaced with either <literal>INCLUDE</literal> or
+<literal>IGNORE</literal>. The syntax is like this:</para>
+
+<programlisting>&lt;![<replaceable>switch</replaceable>[<replaceable>DTD text</replaceable>]]&gt;</programlisting>
+
+<para>where <replaceable>switch</replaceable> is like a on/off switch,
+activating the <replaceable>DTD text</replaceable> if its value is
+<literal>INCLUDE</literal>, or marking it inactive if it's set to
+<literal>IGNORE</literal>. For example:</para>
+
+<programlisting>&lt;![INCLUDE[
+&lt;!-- these declarations will be included --&gt;
+&lt;!ELEMENT foo (bar, caz, bub?)&gt;
+&lt;!ATTLIST foo crud CDATA #IMPLIED)&gt;
+]]&gt;
+&lt;![IGNORE[
+&lt;!-- these declarations will be ignored --&gt;
+&lt;!ELEMENT blah (#PCDATA)*&gt;
+&lt;!ELEMENT glop (flub|zuc) 'zuc')&gt;
+]]&gt;</programlisting>
+
+<para>Using the hardcoded literals <literal>INCLUDE</literal> and
+<literal>IGNORE</literal> isn't all that useful, since you have to
+edit each conditional section manually to flip the switch. Usually,
+the switch is a parameter entity, which can be defined
+anywhere:</para>
+
+<programlisting>&lt;!ENTITY % optional.stuff "INCLUDE"&gt;
+&lt;![%optional.stuff;[
+&lt;!-- these declarations may or may not be included --&gt;
+&lt;!ELEMENT foo (bar, caz, bub?)&gt;
+&lt;!ATTLIST foo crud CDATA #IMPLIED)&gt;
+]]&gt;</programlisting>
+
+<para>Because the parameter entity <literal>optional.stuff</literal>
+is defined with the keyword <literal>INCLUDE</literal>, the
+declarations in the marked section will be used. If
+<literal>optional.stuff</literal> had been defined to be
+<literal>IGNORE</literal>, the declarations would have been ignored in the
+document.</para>
+
+<para>This technique is especially powerful when you declare the
+entity inside a document subset. In the next example, our DTD
+declares a general entity that is called <literal>disclaimer</literal>. The
+actual value of the entity depends on whether
+<literal>use-disclaimer</literal> has been set to
+<literal>INCLUDE</literal>:</para>
+
+<programlisting>&lt;![%use-disclaimer;[[
+  &lt;!ENTITY disclaimer "&lt;p&gt;This is Beta software. We can't promise it
+  is free of bugs.&lt;/p&gt;"&gt;
+]]&gt;
+&lt;!ENTITY disclaimer ""&gt;</programlisting>
+
+<para>In documents where you want to include a disclaimer, it's a
+simple step to declare the switching entity in the internal
+subset:</para>
+
+<programlisting>&lt;?xml version="1.0"?&gt;
+&lt;!DOCTYPE manual SYSTEM "manual.dtd" [
+  &lt;!ENTITY % use-disclaimer "IGNORE"&gt;
+]&gt;
+
+&lt;manual&gt;
+  &lt;title&gt;User Guide for Techno-Wuzzy&lt;/title&gt;
+
+  &amp;disclaimer;
+  ...</programlisting>
+
+<para>In this example, the entity <literal>use-disclaimer</literal> is
+set to <literal>IGNORE</literal>, so the <literal>disclaimer</literal>
+is declared as an empty string and the document's text will
+not contain a disclaimer. This is a simple example of customizing a
+DTD using conditional sections and parameter entities.</para>
+
+<para>Conditional sections can be nested, but
+outer sections override the ones inside. So if the outer section
+is set to <literal>IGNORE</literal>, its contents (including any 
+conditional sections inside it) are completely turned off regardless
+of their values. For example:</para>
+
+<programlisting>&lt;![INCLUDE[
+&lt;!-- text in here will be included --&gt;
+  &lt;![IGNORE[
+  &lt;!-- text in here will be ignored --&gt;
+  ]]&gt;
+]]&gt;
+&lt;![IGNORE[
+&lt;!-- text in here will be ignored --&gt;
+  &lt;![INCLUDE[
+  &lt;!-- Warning: this stuff will be ignored too! --&gt;
+  ]]&gt;
+]]&gt;</programlisting>
+
+<para>Public DTDs often make heavy use of conditional sections
+to allow the maximum level of customization. For example, the DocBook
+XML DTD Version 1.0 includes the following:</para>
+
+<programlisting>&lt;!ENTITY % screenshot.content.module "INCLUDE"&gt;
+&lt;![%screenshot.content.module;[
+&lt;!ENTITY % screenshot.module "INCLUDE"&gt;
+&lt;![%screenshot.module;[
+&lt;!ENTITY % local.screenshot.attrib ""&gt;
+&lt;!ENTITY % screenshot.role.attrib "%role.attrib;"&gt;
+&lt;!ELEMENT screenshot (screeninfo?, (graphic|graphicco))&gt;
+&lt;!ATTLIST screenshot
+		%common.attrib;
+		%screenshot.role.attrib;
+		%local.screenshot.attrib;
+&gt;
+&lt;!--end of screenshot.module--&gt;]]&gt;
+
+&lt;!ENTITY % screeninfo.module "INCLUDE"&gt;
+&lt;![%screeninfo.module;[
+&lt;!ENTITY % local.screeninfo.attrib ""&gt;
+&lt;!ENTITY % screeninfo.role.attrib "%role.attrib;"&gt;
+&lt;!ELEMENT screeninfo (%para.char.mix;)*&gt;
+&lt;!ATTLIST screeninfo
+		%common.attrib;
+		%screeninfo.role.attrib;
+		%local.screeninfo.attrib;
+&gt;
+&lt;!--end of screeninfo.module--&gt;]]&gt;
+&lt;!--end of screenshot.content.module--&gt;]]&gt;</programlisting>
+
+<para>The outermost conditional section surrounds declarations for
+<sgmltag>screenshot</sgmltag> and also <sgmltag>screeninfo</sgmltag>,
+which occurs inside it. You can completely eliminate both
+<sgmltag>screenshot</sgmltag> and <sgmltag>screeninfo</sgmltag> by
+setting <literal>screenshot.content.module</literal> to
+<literal>IGNORE</literal> in your local DTD before the file is
+loaded. Alternately, you can turn off only the section around the
+<sgmltag>screeninfo</sgmltag> declarations, perhaps to declare your
+own version of <sgmltag>screeninfo</sgmltag>.  (Turning off the
+declarations for an element in the imported file avoids warnings from
+your parser about redundant declarations.)  Notice that there are
+parameter entities to assign various kinds of content and attribute
+definitions, such as <literal>%common.attrib;</literal>. There are
+also hooks for inserting attributes of your own, such as
+<literal>%local.screenshot.attrib;</literal>.</para>
+
+<para>Skillful use of conditional sections can make a DTD extremely
+flexible, although it may become harder to read. You should
+use them sparingly in your personal DTDs and try to design them to fit
+your needs from the beginning. Later, if the DTD becomes
+a public resource, it will make sense to add conditional sections to
+allow end user customization.</para>
+
+</sect3>
+
+
+<sect3><title>Using the Internal Subset</title>
+
+<para>Recall from <xref linkend="core"/> that the internal subset is
+the part of an XML document that can contain entity
+declarations. Actually, it's more powerful than that: you can put any
+declarations that would appear in a DTD into the internal subset. The
+only things that are restricted are conditional sections (can't use
+them) and parameter entities (they can hold only complete
+declarations, not fragments). This is useful for overriding or turning
+on or off parts of the DTD. Here's the general form:</para>
+
+<programlisting>&lt;!DOCTYPE <replaceable>root-element</replaceable> <replaceable>URI</replaceable> [ <replaceable>declarations</replaceable> ]&gt;</programlisting>
+
+<para>When a parser reads the DTD, it reads the internal subset first,
+then the external subset. (Remember that the order of declarations is
+important, because earlier rules override later ones.) And the same
+rules for DTDs importing declarations apply here. For example:</para>
+
+<programlisting>&lt;!DOCTYPE inventory SYSTEM "InventoryReport.dtd" [
+
+&lt;!-- override DTD to include a "category" attribute --&gt;
+&lt;!ATTLIST item category (screw | bolt | nut) #REQUIRED&gt;
+
+&lt;!-- redefine the &lt;price&gt; element --&gt;
+&lt;!ELEMENT price (currency, amount)&gt;
+&lt;!ENTITY % price.module "IGNORE"&gt;
+
+&lt;!-- use a different module for figures --&gt;
+&lt;!ENTITY % figs SYSTEM "myfigs.mod"&gt;
+
+]&gt;</programlisting>
+
+
+<para>The attribute list declaration in this internal subset adds the
+attribute <sgmltag>category</sgmltag> to the set of attributes for
+<sgmltag>item</sgmltag>. The element declaration overrides the
+declaration in the DTD for <sgmltag>price</sgmltag>. If your parser
+complains about multiple declarations for the same element, the DTD
+you're importing may have conditional sections around each declaration
+that you can turn off, as in the case of the DocBook DTD mentioned
+previously. That's the purpose of the entity declaration for
+<literal>price.module</literal> that
+follows. The last declaration overrides an external parameter entity
+in the DTD that imports a module, causing it to load the file
+<filename>myfigs.mod</filename> instead.</para>
+
+</sect3>
+</sect2>
+
+
+<sect2><title>SimpleDoc: A narrative example</title>
+
+<para>In <xref linkend="qc-sect-census"/> we developed a simple DTD
+for a data markup language. Narrative applications tend to be a little
+more complex, since there is more to human languages than simple data
+structures. Let's experiment now with a DTD for a more complex,
+narrative application.</para>
+
+<para>Inspired by DocBook, I've created a small, narrative application
+called SimpleDoc. It's much smaller and doesn't attempt to do even a
+fraction of what DocBook can do, but it touches on all the major
+concepts and so is suitable for pedagogical purposes. Specifically,
+the goal os SimpleDoc is to mark up small, simple documents such as
+the one in <xref linkend="qc-ex-simpledoc"/>.</para>
+
+<example id="qc-ex-simpledoc">
+<title></title>
+<programlisting></programlisting>
+</example>
+
+
+<example id="qc-ex-simpledocdtd">
+<title>SimpleDoc DTD</title>
+<programlisting><![CDATA[<!--
+SimpleDoc DTD
+-->
+
+<!-- ========================================
+               Paramater Entities
+     ======================================== -->
+
+<!-- Attributes used in all elements -->
+<!ENTITY % common.atts "
+        id        ID        #IMPLIED
+        class     CDATA     #IMPLIED
+        xml:space (default | preserve) 'default'
+">
+
+<!-- Inline elements -->
+<!-- Block and complex elements -->
+<!ENTITY % block.group "
+          author
+	| blockquote
+        | codelisting
+        | example
+        | figure
+        | graphic
+        | list
+        | note
+        | para
+        | remark
+">
+
+<!ENTITY % inline.group "
+          acronym
+        | citation
+        | command
+        | date
+        | emphasis
+        | filename
+        | firstterm
+        | literal
+        | quote
+        | ulink
+        | xref
+">
+
+<!-- ========================================
+               Hierarchical Elements
+     ======================================== -->
+
+<!-- The document element -->
+<!ELEMENT simpledoc (title, (%block.group)*, section+)>
+<!ATTLIST simpledoc %common.atts;>
+
+<!-- Section to break up the document -->
+<!ELEMENT section (title, (%block.group)*, section+)>
+<!ATTLIST section %common.atts;>
+
+<!-- ========================================
+                 Block Elements
+     ======================================== -->
+
+<!-- place to put the author's name -->
+<!ELEMENT author (#PCDATA)*>
+<!ATTLIST author %common.atts;>
+
+<!-- region of quoted text -->
+<!ELEMENT blockquote (para+)>
+<!ATTLIST blockquote %common.atts;>
+
+<!-- formal codelisting (adds title) -->
+<!ELEMENT example (title, codelisting)>
+<!ATTLIST example %common.atts;>
+
+<!-- formal picture (adds title) -->
+<!ELEMENT figure (title, graphic)>
+<!ATTLIST figure %common.atts;>
+
+<!-- out-of-flow note -->
+<!ELEMENT footnote (para+)>
+<!ATTLIST footnote %common.atts;>
+
+<!-- picture -->
+<!ELEMENT graphic EMPTY>
+<!ATTLIST graphic
+        fileref   CDATA     #REQUIRED
+        %common.atts;
+>
+
+<!-- sequence of items -->
+<!ELEMENT list (term?, listitem)+>
+<!ATTLIST list
+    type      (numbered|bulleted|definition)      "numbered"
+    %common.atts;
+>
+
+<!-- component of a list -->
+<!ELEMENT listitem (%block.group;)+>
+<!ATTLIST listitem %common.atts;>
+
+<!-- in-flow note -->
+<!ELEMENT note (para+)>
+<!ATTLIST note %common.atts;>
+
+<!-- basic paragraph -->
+<!ELEMENT para (#PCDATA | %inline.group; | footnote)*>
+<!ATTLIST para %common.atts;>
+
+<!-- code listing -->
+<!ELEMENT codelisting (#PCDATA | %inline.group;)*>
+<!ATTLIST codelisting
+    xml:space (preserve) #FIXED 'preserve'
+    %common.atts;
+>
+
+<!-- visible comment -->
+<!ELEMENT remark (#PCDATA | %inline.group;)*>
+<!ATTLIST remark %common.atts;>
+
+<!-- document or section label -->
+<!ELEMENT title (#PCDATA | %inline.group;)*>
+<!ATTLIST title %common.atts;>
+
+<!-- term in a definition list -->
+<!ELEMENT term (#PCDATA | %inline.group;)*>
+<!ATTLIST term %common.atts;>
+
+<!-- ========================================
+                 Inline Elements
+     ======================================== -->
+
+<!ENTITY % inline.content "(#PCDATA)*">
+
+<!ELEMENT acronym %inline.content;>
+<!ATTLIST acronym %common.atts;>
+
+<!ELEMENT citation %inline.content;>
+<!ATTLIST citation %common.atts;>
+
+<!ELEMENT command %inline.content;>
+<!ATTLIST command %common.atts;>
+
+<!ELEMENT date %inline.content;>
+<!ATTLIST date %common.atts;>
+
+<!ELEMENT emphasis %inline.content;>
+<!ATTLIST emphasis %common.atts;>
+
+<!ELEMENT filename %inline.content;>
+<!ATTLIST filename %common.atts;>
+
+<!ELEMENT firstterm %inline.content;>
+<!ATTLIST firstterm %common.atts;>
+
+<!ELEMENT literal %inline.content;>
+<!ATTLIST literal %common.atts;>
+
+<!ELEMENT quote %inline.content;>
+<!ATTLIST quote %common.atts;>
+
+<!ELEMENT ulink %inline.content;>
+<!ATTLIST ulink
+        href      CDATA   #REQUIRED
+        %common.atts;
+>
+
+<!ELEMENT xref EMPTY>
+<!ATTLIST xref 
+        linkend   ID      #REQUIRED
+        %common.atts;
+>
+
+<!-- ========================================
+                 Useful Entities
+     ======================================== -->
+
+<!ENTITY % isolat1
+    PUBLIC "ISO 8879:1986//ENTITIES Added Latin 1//EN//XML"
+    "isolat1.ent"
+>
+%isolat1;
+<!ENTITY % isolat2
+    PUBLIC "ISO 8879:1986//ENTITIES Added Latin 2//EN//XML"
+    "isolat2.ent"
+>
+%isolat2;
+<!ENTITY % isomath
+    PUBLIC "ISO 8879:1986//ENTITIES Added Math Symbols: Ordinary//EN//XML"
+    "isoamso.ent"
+>
+%isomath;
+<!ENTITY % isodia
+    PUBLIC "ISO 8879:1986//ENTITIES Diacritical Marks//EN//XML"
+    "isodia.ent"
+>
+%isodia;
+<!ENTITY % isogreek
+    PUBLIC "ISO 8879:1986//ENTITIES Greek Symbols//EN//XML"
+    "isogrk3.ent"
+>
+%isogreek;</programlisting>
+</example>
+
+</sect2></sect1>
+
+
+<sect1><title>W3C Schema</title>
+
+<para>DTDs are chiefly directed toward describing how elements are
+arranged in a document. They say very little about the content in the
+document, other than whether an element can contain character
+data. Although attributes can be declared to be of different types
+(e.g. ID, IDREF, enumerated), there is no way to constrain the type of
+data in an element.</para>
+
+<para>Returning to the example in <xref linkend="qc-sect-census"/>, we
+can see how this limitation can be a serious problem. Suppose that a
+census taker submitted the following document:</para>
+
+<example id="qc-ex-census-bad">
+<title>A bad CensusML document</title>
+<programlisting><![CDATA[<census-record taker="9170">
+  <date><month>?</month><day>110</day><year>03</year></date>
+  <address>
+    <city>Munchkinland</city>
+    <street></street>
+    <county></county>
+    <country>Here, silly</country>
+    <postalcode></postalcode>
+  </address>
+  <person employed="fulltime" pid="?">
+    <name>
+      <last>Burgle</last>
+      <first>Brad</first>
+    </name>
+    <age>2131234</age>
+    <gender>yes</gender>
+  </person>
+</census-record>]]></programlisting>
+</example>
+
+<para>There are a lot of things wrong with this document. The date is
+in the wrong wrong format. Several important fields were left
+empty. The stated age is an impossibly large number. The gender, which
+ought to be "male" or "female" contains something else. The personal
+identification number attribute has a bad value. And yet, to our
+infinite dismay, the DTD would pick up none of these problems.</para>
+
+<para>It isn't hard to write a program that would check the data
+types, but that's a low-level operation, requiring technical ability
+and prone to bugs. It's also getting away from the point of DTDs,
+which is to create a kind of meta-document, a formal description of a
+markup language. Programming languages aren't portable and don't work
+well as a way of conveying syntactic and semantic details. So we have
+to conclude that DTDs don't go far enough in describing a markup
+language.</para>
+
+<para>To make matters worse, what the DTD will reject as bad markup
+are often trivial things. For example, the contents of
+<sgmltag>date</sgmltag> and <sgmltag>name</sgmltag> are not in the
+specific order required by their element declarations. This seems
+unnecessarily picayune, but it's actually very difficult to write a
+content model that allows its children to appear in any order.</para>
+
+<para>To illustrate the problem, let's try to make the
+<sgmltag>date</sgmltag> more flexible, so that it accepts children in
+any order. The best I can think of is to write the declaration like
+this:</para>
+
+<programlisting><![CDATA[<!ELEMENT date (
+        (year,  ((month, day)  | (day, month)))
+      | (month, ((year, day)   | (day, year)))
+      | (day,   ((month, year) | (year, month)))
+)>]]></programlisting>
+
+<para>Pretty ugly, isn't it? And that's only with three child
+elements. This is another serious drawback of DTDs.</para>
+
+<para>Perhaps the most damaging limitation of DTDs is the lockdown of
+namespace. Any element in a document has to have a corresponding
+declaration in the DTD. No exceptions. This is fundamentally at odds
+with XML namespaces, which allow you to import vocabularies from
+anywhere. Granted, there are good reasons to want to limit the kinds
+of elements used: more efficient validation, preventing illegal
+elements from appearing. But there's no way to turn this feature off
+if you don't want it.</para>
+
+<para>To address problems like these, a new validation system was
+invented called schema. Like DTDs, schemas contain rules that all must
+be satisfied for a document to be considered valid. Unlike DTDs,
+however, schemas are not built into the XML specification. They are an
+add-on technology that you can use, provided you have access to
+parsers that will support it.</para>
+
+<para>There are several competing kinds of Schema. The one that is
+sanctioned by the W3C is called XML Schema. Another proposal, called
+RELAX, adds capabilities not found in XML Schema, such as regular
+expression matching in character data. Yet another popular alternative
+is Schematron. We'll focus on the W3C variety in this section and
+visit some alternatives in later sections.</para>
+
+<para>XML Schemas are themselves XML documents. That's a nice
+convenience, allowing you to check well-formedness and validity when
+you make modifications to a schema. It's more verbose than a DTD, but
+still pretty readable, and vastly more flexible.</para>
+
+<para>From the census example, here is how you would define the
+<sgmltag>county</sgmltag> element:</para>
+
+<programlisting><![CDATA[<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="county" type="xs:string"/>
+</xs:schema>]]></programlisting>
+
+<para>The <sgmltag>xs:element</sgmltag> element acts like a and
+<literal>!ELEMENT</literal> declaration in a DTD. Its
+<literal>name</literal> attribute declares a name ("county"), and its
+<literal>type</literal> attribute defines a content model by refering
+to a <firstterm>data type</firstterm> identifier. Instead of using a
+compact string of symbols to define a content model, schemas define
+content models in a separate place, then refer to them inside the
+element definition. This is kind of like using parameter entities, but
+as we will see it's more flexible in schemas.</para>
+
+<para><literal>xs:string</literal> refers to a <firstterm>simple
+type</firstterm> of element, one that is built in to the Schema
+specification. In this case, it's just a string of character data,
+about as simple as you can get. There are other simple types,
+such as <literal>xs:date</literal> for date formats,
+<literal>xs:integer</literal>, for integer numbers, and
+<literal>xs:ID</literal>, for ID-type attributes.</para>
+
+<para>Most elements are not simple, however. They can contain
+elements, attributes, and character data with specialized formats. So
+schemas also contain complex element definitions. Here's how you could
+define the <sgmltag>date</sgmltag> element:</para>
+
+<programlisting><![CDATA[<xs:element name="date">
+  <xs:complexType>
+    <xs:all>
+      <xs:element ref="year"/>
+      <xs:element ref="month"/>
+      <xs:element ref="day"/>
+    </xsl:sequence>
+  </xs:all>
+</xs:element>
+<xs:element name="year" type="xs:integer"/>
+<xs:element name="month" type="xs:integer"/>
+<xs:element name="day" type="xs:integer"/>]]></programlisting>
+
+<para>The <sgmltag>date</sgmltag> element is a <firstterm>complex
+type</firstterm> because it has special requirements that you must
+explicitly define. In this case, the type is a group of three elements
+(in any order), referred to by name using the <literal>ref</literal>
+attribute. These referred elements are defined at the bottom to be of
+type <literal>integer</literal>.</para>
+
+<para>It is possible to refine the date even further. Although the
+schema will guarantee that each of the subfields
+<sgmltag>year</sgmltag>, <sgmltag>month</sgmltag>, and
+<sgmltag>day</sgmltag> are all integer values, it will allow some
+values we don't want. For example, -125724 is a valid integer,
+but we wouldn't want that to be used for
+<sgmltag>month</sgmltag>.</para>
+
+<para>The way to control the range of a data type is to use
+<firstterm>facets</firstterm>. A facet is an additional parameter
+added to a type definition. You can create a new data type for the
+<sgmltag>month</sgmltag> element like this:</para>
+
+<programlisting><![CDATA[<xs:simpleType name="monthNum">
+  <xs:resiction base="xs:integer">
+    <xs:minInclusive value="1"/>
+    <xs:maxInclusive value="12"/>
+  </xs:restriction>
+</xs:simpleType>
+<xs:element name="month" type="monthNum"/>]]></programlisting>
+
+<para>Here, we created a named type and named it "monthNum". Named
+types are not bound to any particular element, so they are useful if
+you'll be using the same type over and over. In this type definition
+is a <sgmltag>xs:restriction</sgmltag> element from which we will
+derive a more specific type than the loose
+<literal>xs:integer</literal>. Inside are two facets,
+<literal>minInclusive</literal> and
+<literal>maxInclusive</literal>, setting the lower and upper bounds
+respectively. So any element set to the type
+<literal>monthNum</literal> will be checked whether its value is a
+number that falls inside that range.</para>
+
+<para>Besides setting ranges, facets can create fixed values, constrain
+the length of strings, and match patterns with regular
+expressions. For example, say you want the postal code to be any
+string that contains three digits followed by two numbers, as in the
+census example:</para>
+
+<programlisting><![CDATA[<postalcode>885JKL</postalcode>]]></programlisting>
+
+<para>You might define the element like this:</para>
+
+<programlisting><![CDATA[<xs:element name="postalcode" type="pcode"/>
+<xs:simpleType name="pcode">
+  <xs:restriction base="xs:string">
+    <xs:pattern value="[0-9][0-9][0-9][A-Z][A-Z][A-Z]"/>
+  </xs:restriction>
+</xs:simpleType>]]></programlisting>
+
+<para>Another way to define a type is by
+<firstterm>enumeration</firstterm>, defining a set of allowed
+values. The <sgmltag>gender</sgmltag> element, for example, may only
+contain two values: "female" or "male". So here's a gender type:</para>
+
+<programlisting><![CDATA[<xs:simpleType name="genderType">
+  <xs:restriction base="xs:string">
+    <xs:enumeration value="female"/>
+    <xs:enumeration value="male"/>
+  </xs:restriction>
+</xs:simpleType>]]></programlisting>
+
+<para>Now, let me show you how I would write a schema for the CensusML
+document type. <xref linkend="qc-census-schema"/> shows my
+attempt.</para>
+
+<example id="qc-census-schema">
+<title>Schema for CensusML</title>
+<programlisting><![CDATA[<xs:schema xmlns="http://www.w3.org/2001/XMLSchema">
+  <!-- document element -->
+  <element name="census-record">
+    <complexType>
+      <sequence>
+        <attribute ref="taker"/>
+        <element ref="date"/>
+        <element ref="address"/>
+        <element ref="person" maxOccurs="unbounded"/>
+      </sequence>
+    </complexType>
+  </element>
+
+  <!-- Number identifying the census taker (1-9999) -->
+  <attribute name="taker">
+    <complexType>
+      <restriction base="integer">
+        <minInclusive value="1"/>
+        <maxInclusive value="9999"/>
+      </restriction>
+    </complexType>
+  </attribute>
+
+  <!-- structure containing date information -->
+  <!-- this is a simplification over the previous definition using -->
+  <!-- three sub-elements. -->
+  <element name="date" type="date"/>
+
+  <!-- structure containing address information -->
+  <element name="address">
+    <complextype>
+      <all>
+        <element ref="street"/>
+        <element ref="city"/>
+        <element ref="country"/>
+        <element ref="postalcode"/>
+      </all>
+    </complextype>
+  </element>
+
+  <element name="street" type="string"/>
+  <element name="city" type="string"/>
+  <element name="county" type="string"/>
+
+  <!-- postalcode element: uses format 123ABC -->
+  <element name="postalcode" type="pcode"/>
+    <simpleType name="pcode">
+      <restriction base="string">
+        <pattern value="[0-9][0-9][0-9][A-Z][A-Z][A-Z]"/>
+      </restriction>
+    </simpleType>
+  </element>
+
+  <!-- structure containing data for one resident of the household -->
+  <element name="person">
+    <complextype>
+      <all>
+        <attribute ref="employed"/>
+        <attribute ref="pid"/>
+        <element ref="name"/>
+        <element ref="age"/>
+        <element ref="gender"/>
+      </all>
+    </complextype>
+  </element>
+
+  <!-- Employment status: fulltime, parttime, or none -->
+  <xsl:attribute name="employed">
+    <simpleType>
+      <restriction base="string">
+        <enumeration value="fulltime"/>
+        <enumeration value="parttime"/>
+        <enumeration value="none"/>
+      </restriction>
+    </simpleType>
+  </attribute>
+
+  <!-- Number identifying the person (1-999999) -->
+  <attribute name="pid">
+    <complexType>
+      <restriction base="integer">
+        <minInclusive value="1"/>
+        <maxInclusive value="999999"/>
+      </restriction>
+    </complexType>
+  </attribute>
+
+  <!-- Age (0-200) -->
+  <element name="age">
+    <complexType>
+      <restriction base="integer">
+        <minInclusive value="0"/>
+        <maxInclusive value="200"/>
+      </restriction>
+    </complexType>
+  </element>
+
+  <!-- Enumerated type: male or female -->
+  <element name="gender">
+    <xsl:simpleType>
+      <restriction base="string">
+        <enumeration value="female"/>
+        <enumeration value="male"/>
+      </restriction>
+    </simpleType>
+  </element>
+
+  <!-- structure containing the name; note the choice element
+       that allows an optional junior OR senior element -->
+  <element name="name">
+    <complextype>
+      <all>
+        <attribute ref="first"/>
+        <attribute ref="last"/>
+        <choice minOccurs="0">
+          <element ref="junior"/>
+          <element ref="senior"/>
+        </choice>
+      </all>
+    </complextype>
+  </element>
+
+  <element name="junior" type="emptyElem"/>
+  <element name="senior" type="emptyElem"/>
+
+  <!-- Defining a type of element that is empty -->
+  <simpleType name="emptyElem">
+    <restriction base="string">
+      <length value="0"/>
+    </restriction>
+  </simpleType>
+
+</schema>]]></programlisting>
+</example>
+
+<para>Some notes:</para>
+
+<itemizedlist>
+<listitem><para>Since XML Schema supports a variety of date formats
+for character data, it makes sense to replace the cumbersome
+<sgmltag>date</sgmltag> container with three child elements with one
+that takes only text content. This simplifies the schema and
+supporting software for the census application.</para></listitem>
+
+<listitem><para>I used an attribute <literal>maxOccurs</literal> to
+allow an unlimited number of <sgmltag>person</sgmltag>
+elements. Without it, the schema would enforce a default maximum of
+one such element.</para></listitem>
+
+<listitem><para>A <sgmltag>choice</sgmltag> element is the opposite
+of <sgmltag>all</sgmltag>. Instead of requiring all the elements to
+be present, it will allow only one of the choices to appear. In this
+case, I wanted at most one of <sgmltag>junior/</sgmltag> or
+<sgmltag>senior/</sgmltag> to appear.</para></listitem>
+
+<listitem><para>I set the <literal>minOccurs</literal> attribute in
+the choice to zero to make it optional. You can choose to use
+<sgmltag>junior/</sgmltag> or <sgmltag>senior/</sgmltag>, but you
+don't have to.</para></listitem>
+
+<listitem><para>Curiously, there is no type for empty elements. That's
+why I had to define one, <literal>emptyElem</literal> for the elements
+<sgmltag>junior</sgmltag> and <sgmltag>senior</sgmltag>. There are
+different ways you could do it, but I chose to restrict the
+<literal>string</literal> type by setting its length to
+zero.</para></listitem>
+</itemizedlist>
+
+</sect2>
+</sect1>
+
+
+<sect1><title>RELAX-NG</title>
+
+<para>RELAX-NG is the merger of RELAX and TREX. From RELAX, it inherits
+... and from TREX, ...</para>
+
+<para>RELAX-NG has many strengths. Like W3C Schema, it uses XML syntax
+and supports namespaces and datatyping. It goes further by integrating
+attributes into content models, taking the approach of symmetrical
+treatment of both, which greatly simplifies the structure of
+schema. It has superior handling of unordered content, and supports
+context-sensitive content models.</para>
+
+<para>In general, it just seems easier to write schemas in RELAX-NG
+than W3C Schema. The syntax is very clear, with elements like
+<sgmltag>zeroOrMore</sgmltag> for specifying optional repeating
+content. Declarations can contain other declarations, leading to a
+more natural representation of a document's structure.</para>
+
+<para>Consider the simple schema in <xref linkend="qc-ex-relaxng"/>
+which models a document type for logging work activity. It's easy to
+read this schema and understand the structure of a typical
+document.</para>
+
+<example id="qc-ex-relaxng">
+<title>A simple RELAX-NG schema</title>
+<programlisting><![CDATA[<element name="worklog"
+         xmlns="http://relaxng.org/ns/structure/1.0"
+         xmlns:ann="http://relaxng.org/ns/annotation/1.0">
+  <ann:documentation>A document for logging work activity, broken down
+         into days, and further into tasks.</ann:documentation>
+  <zeroOrMore>
+    <element name="day">
+      <attribute name="date">
+        <text/>
+      <attribute>
+      <element name="task">
+        <element name="description">
+          <text/>
+        </element>
+        <element name="time-start">
+          <text/>
+        </element>
+        <element name="time-end">
+          <text/>
+        </element>
+      </element>
+    </element>
+  </zeroOrMore>
+</element>]]></programlisting>
+</example>
+
+<para>The same thing would look like this as a DTD:</para>
+
+<programlisting><![CDATA[<!ELEMENT worklog (day*)>
+<!ELEMENT day (task*)>
+<!ELEMENT task (description, time-start, time-end)>
+<!ELEMENT description (#PCDATA)>
+<!ELEMENT time-start (#PCDATA)>
+<!ELEMENT time-end (#PCDATA)>
+<!ATTLIST day date CDATA #REQUIRED>]]></programlisting>
+
+<para>Although the DTD is more compact, it relies on a special syntax
+that is decidedly not XML-ish. RELAX-NG accomplishes the same thing
+with more readability.</para>
+
+<para>The basic component of a RELAX-NG schema is a
+<firstterm>pattern</firstterm>. A pattern denotes any construct that
+describes the order and types of structure and content. It can be an
+element declaration, an attribute declaration, character data, or any
+combination. Elements in Schema are used to group, order, and
+parameterize these patterns.</para>
+
+<para>Note that any element or attribute in a namespace other than the
+RELAX-NG namespace
+(<filename>http://relaxng.org/ns/structure/1.0</filename>) is simply
+ignored by the parser. That gives us a mechanism for putting in
+comments or annotations, which explains why I created the "ann"
+namespace in the previous example.</para>
+
+
+<sect2><title>Elements</title>
+
+<para>The <sgmltag>element</sgmltag> construct is used both to declare
+an element, and to establish where the element can appear (when placed
+inside another <sgmltag>element</sgmltag> declaration). For example,
+the following schema declares three elements,
+<sgmltag>report</sgmltag>, <sgmltag>title</sgmltag>, and
+<sgmltag>body</sgmltag>, and specifies that the first element contains
+the other two in the exact order and number that they appear:</para>
+
+<programlisting><![CDATA[<element name="report">
+  <element name="title">
+    <text/>
+  </element>
+  <element name="body">
+    <text/>
+  </element>
+</element>]]></programlisting>
+
+<para>Whitespace inbetween these elements is allowed, as it would be
+for a DTD. The <sgmltag>text/</sgmltag> element, which is always
+empty, restricts the content of the inner elements to be only
+character content.</para>
+
+<sect3><title>Repetition</title>
+
+<para>To allow for repeating children, RELAX-NG provides two modifier
+elements, <sgmltag>zeroOrMore</sgmltag> and 
+<sgmltag>oneOrMore</sgmltag>. They function like DTD's star (*) and
+plus (+) operators, respectively. In this example, the
+<sgmltag>body</sgmltag> element has been modified to allow an
+arbitrary number of <sgmltag>para</sgmltag> elements:</para>
+
+<programlisting><![CDATA[<element name="report">
+  <element name="title">
+    <text/>
+  </element>
+  <element name="body">
+    <zeroOrMore>
+      <element name="para">
+        <text/>
+      </element>
+    </zeroOrMore>
+  </element>
+</element>]]></programlisting>
+
+</sect3><sect3><title>Choices</title>
+
+<para>The question mark (?) operator in DTDs means that an element is
+optional (zero or one in number). In RELAX-NG, you can achieve that
+effect with the <sgmltag>optional</sgmltag> modifier. For example,
+this schema allows you to insert an optional
+<sgmltag>authorname</sgmltag> element after the
+<sgmltag>title</sgmltag>:</para>
+
+<programlisting><![CDATA[<element name="report">
+  <element name="title">
+    <text/>
+  </element>
+  <optional>
+    <element name="authorname">
+      <text/>
+    </element>
+  </optional>
+  <element name="body">
+    <text/>
+  </element>
+</element>]]></programlisting>
+
+<para>It is also useful to offer a choice of elements. Corresponding
+to DTD's vertical bar (|) operator is the modifier
+<sgmltag>choice</sgmltag>. Here, we require either an
+<sgmltag>authorname</sgmltag> or a <sgmltag>source</sgmltag> element
+after the <sgmltag>title</sgmltag>:</para>
+
+<programlisting><![CDATA[<element name="report">
+  <element name="title">
+    <text/>
+  </element>
+  <choice>
+    <element name="authorname">
+      <text/>
+    </element>
+    <element name="source">
+      <text/>
+    </element>
+  </choice>
+  <element name="body">
+    <text/>
+  </element>
+</element>]]></programlisting>
+
+<para>This declaration combines <sgmltag>choice</sgmltag> with
+<sgmltag>zeroOrMore</sgmltag> to create a container with mixed content
+(text plus elements, in any order):</para>
+
+<programlisting><![CDATA[<element name="paragraph">
+  <zeroOrMore>
+    <choice>
+      <text/>
+      <element name="emphasis">
+        <text/>
+      </element>
+    </choice>
+  </zeroOrMore>
+</element>]]></programlisting>
+
+</sect3><sect3><title>Grouping</title>
+
+<para>For a required sequence of children, you can use the
+<sgmltag>group</sgmltag> modifier, which functions much like
+parentheses in DTDs. For example, here the (now required)
+<sgmltag>authorname</sgmltag> is either plain text or a sequence of
+elements: </para>
+
+<programlisting><![CDATA[<element name="report">
+  <element name="title">
+    <text/>
+  </element>
+  <element name="authorname">
+    <choice>
+      <text/>
+      <group>
+        <element name="first"><text/></element>
+        <element name="last"><text/></element>
+      </group>
+    </choice>
+  </element>
+  <element name="body">
+    <text/>
+  </element>
+</element>]]></programlisting>
+
+<para>The <sgmltag>group</sgmltag> container is necessary because
+without it the <sgmltag>first</sgmltag> and <sgmltag>last</sgmltag>
+elements would be part of the choice and become mutually
+exclusive.</para>
+
+<para>Something not available in DTDs is a way to require a group of
+elements where order is <emphasis>not</emphasis> significant. RELAX-NG
+provides a container called <sgmltag>interleave</sgmltag> which does
+just that. It requires all the children to be present, but in any
+order. In the following example, <sgmltag>title</sgmltag> can come
+before <sgmltag>authorname</sgmltag>, or it can come after:</para>
+
+<programlisting><![CDATA[<element name="report">
+  <interleave>
+    <element name="title">
+      <text/>
+    </element>
+    <element name="authorname">
+      <text/>
+    </element>
+  </interleave>
+  <element name="body">
+    <text/>
+  </element>
+</element>]]></programlisting>
+
+</sect3><sect3><title>Non-element Content Descriptors</title>
+
+<para>The <sgmltag>text</sgmltag> content descriptor is only one of several
+options for describing non-element content. Here's the full
+assortment:</para>
+
+<informaltable>
+<tgroup cols="2">
+<thead>
+<row><entry>Name</entry><entry>Content</entry></row>
+</thead><tbody>
+<row><entry>empty</entry><entry>no content at all</entry></row>
+<row><entry>text</entry><entry>any string</entry></row>
+<row><entry>fixed</entry><entry>a predetermined value</entry></row>
+<row><entry>value</entry><entry>a predetermined value</entry></row>
+<row><entry>data</entry><entry>text following a specific pattern
+(datatype)</entry></row>
+<row><entry>list</entry><entry>a predetermined value</entry></row>
+</tbody>
+</tgroup>
+</informaltable>
+
+<para>The <sgmltag>empty</sgmltag> marker precludes any content. With this
+declaration, the element <sgmltag>bookmark</sgmltag> is not allowed to
+appear in any form other than as an empty element:</para>
+
+<programlisting><![CDATA[<element name="bookmark">
+  <empty/>
+</element>]]></programlisting>
+
+<para>RELAX-NG provides the <sgmltag>fixed</sgmltag> descriptor for
+times when you want to insert a definite string into a schema. This is
+useful, for example, when enumerating values for an element:</para>
+
+<programlisting><![CDATA[<element name="size">
+  <choice>
+    <fixed>small</fixed>
+    <fixed>medium</fixed>
+    <fixed>large</fixed>
+  </choice>
+</element>]]></programlisting>
+
+<para>Similar to <sgmltag>fixed</sgmltag> is
+<sgmltag>value</sgmltag>. The difference is that the latter first
+normalizes whitespace before testing content. Whereas
+<sgmltag>fixed</sgmltag> is absolutely literal, considering all
+whitespace to be significant,
+<sgmltag>value</sgmltag> removes leading and trailing whitespace, and
+collapses other whitespace into single space characters. The example
+element below would be rejected by the declaration above:</para>
+
+<programlisting><![CDATA[<size>  small    </size>]]></programlisting>
+
+<para>But change the declaration, replacing "fixed" with "value", and
+now the element is acceptible.</para>
+
+<para>The most interesting content descriptor is
+<sgmltag>data</sgmltag>.  This is the vehicle for using datatypes in
+RELAX-NG. Its
+<literal>type</literal> attribute contains the name of a type defined
+in a datatype library. (Don't worry about what that means yet, we'll
+get to it in a moment.) The content of the element declared here is
+set to be an integer value:</para>
+
+<programlisting><![CDATA[<element name="font-size">
+  <data type="integer"/>
+</element>]]></programlisting>
+
+<para>One downside to using <sgmltag>data</sgmltag> is that it can't be
+mixed with elements in content, unlike <sgmltag>text</sgmltag>.</para>
+
+<para>The <sgmltag>list</sgmltag> descriptor contains a sequence of
+space-separated tokens, a special type of string consisting only of
+non-space characters. Token lists are a convenient way to represent
+sets of discrete data. Here, it's used to encode a set of numbers:</para>
+
+<programlisting><![CDATA[<element name="vector">
+  <list>
+    <oneOrMore>
+      <data type="float"/>
+    </oneOrMore>
+  </list>
+</element>]]></programlisting>
+
+<para>Note how the <sgmltag>oneOrMore</sgmltag> descriptor works just
+as well with text as it does with elements. It's yet another example
+of how succinct and flexible RELAX-NG is.</para>
+
+</sect3>
+</sect2>
+
+
+<sect2><title>Data Typing</title>
+
+<para>Although RELAX-NG supports datatyping, the specification only
+includes two built-in types: <literal>string</literal> and
+<literal>token</literal>. To use other kinds of datatypes, you need to
+import them from another specification. You do this by setting a
+<literal>datatypeLibrary</literal> attribute like so:</para>
+
+<programlisting><![CDATA[<element name="font-size">
+  <data type="integer"
+        datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes"/>
+</element>]]></programlisting>
+
+<para>This will associate the datatype definitions from the W3C Schema
+specification with your schema. The datatypes you can use depend on
+the implementation of your RELAX-NG validating parser.</para>
+
+<para>It isn't so convenient to put the
+<literal>datatypeLibrary</literal> attribute in every
+<sgmltag>data</sgmltag> element. The good news is, it can be inherited
+from any ancestor in the schema. Here, we declare it once in an
+element declaration, and all the <sgmltag>data</sgmltag> descriptors
+inside call from that library:</para>
+
+<programlisting><![CDATA[<element name="rectangle"
+         datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <element name="width">
+    <data type="double"/>
+  </element>
+  <element name="height">
+    <data type="double"/>
+  </element>
+</element>]]></programlisting>
+
+<sect3><title>String and Token</title>
+
+<para>Both <literal>string</literal> and <literal>token</literal> match
+arbitrary strings of legal XML character data. The difference is that
+<literal>token</literal> normalizes whitespace and
+<literal>string</literal> keeps whitespace as-is. They correspond to
+the datatypes <sgmltag>value</sgmltag> and <sgmltag>fixed</sgmltag>,
+respectively.</para>
+
+</sect3><sect3><title>Parameters</title>
+
+<para>Some datatypes allow you to specify a parameter to further
+restrict the pattern. This is expressed with a
+<sgmltag>param</sgmltag> element as a child of the
+<sgmltag>data</sgmltag> element. For example, the element below
+restricts its content to a string of no more than 8 characters:</para>
+
+<programlisting><![CDATA[<element name="username">
+  <data type="string">
+    <param name="maxLength">8</param>
+  </data>
+</element>]]></programlisting>
+
+</sect3>
+</sect2>
+
+
+<sect2><title>Attributes</title>
+
+<para>Attributes are declared much the same way as elements. In this
+example, we add a <literal>date</literal> attribute to the
+<sgmltag>report</sgmltag> element:</para>
+
+<programlisting><![CDATA[<element name="report">
+  <attribute name="date">
+    <text/>
+  </attribute>
+  <element name="title">
+    <text/>
+  </element>
+  <element name="body">
+    <text/>
+  </element>
+</element>]]></programlisting>
+
+<para>Like element declarations, we can use grouping modifiers like
+<sgmltag>choice</sgmltag> and <sgmltag>group</sgmltag>:</para>
+
+<programlisting><![CDATA[<element name="alert">
+  <attribute name="priority">
+    <choice>
+      <value>emergency</value>
+      <value>important</value>
+      <value>warning</value>
+      <value>notification</value>
+    </choice>
+  </attribute>
+  <element name="body">
+    <text/>
+  </element>
+</element>]]></programlisting>
+
+<para>Attribute declarations differ from elements' in two ways. First,
+order is not significant. So the above use of
+<sgmltag>choice</sgmltag> was not necessary. Second, there is a
+shorthand form in which the lack of any content information defaults
+to text. So, for example, this declaration:</para>
+
+<programlisting><![CDATA[<element name="emphasis">
+  <attribute name="style"/>
+</element>]]></programlisting>
+
+<para>...is equivalent to this:</para>
+
+<programlisting><![CDATA[<element name="emphasis">
+  <attribute name="style">
+    <text/>
+  </attribute>
+</element>]]></programlisting>
+
+<para>This interchangability between element and attribute
+declarations makes the schema language much simpler and more
+elegant.</para>
+
+</sect2>
+
+
+<sect2><title>Namespaces</title>
+
+<para>RELAX-NG is fully namespace aware. You can include namespaces in
+any <literal>name</literal> attribute using the
+<literal>xmlns</literal> attribute:</para>
+
+<programlisting><![CDATA[<element name="poem"
+        xmlns:foo="http://www.mystuff.com/commentary">
+  <optional>
+    <attribute name="xml:space">
+      <choice>
+        <value>default</value>
+        <value>preserve</value>
+      </choice>
+    </attribute>
+  </optional>
+  <zeroOrMore>
+    <choice>
+      <text/>
+      <element name="foo:comment"><text/></element>
+    </choice>
+  </zeroOrMore>
+</element>]]></programlisting>
+
+<para>Add the attribute <literal>ns</literal> to any element or
+attribute declaration to set an implicit namespace context. For
+example, this declaration:</para>
+
+<programlisting><![CDATA[<element name="vegetable" ns="http://www.broccoli.net">
+  <empty/>
+</element>]]></programlisting>
+
+<para>would match either of these:</para>
+
+<programlisting><![CDATA[<food:vegetable xmlns:food="http://www.broccoli.net"/>
+<vegetable xmlns="http://www.broccoli.net"/>]]></programlisting>
+
+<para>...but fail to match these:</para>
+
+<programlisting><![CDATA[<vegetable/>
+<food:vegetable xmlns:food="http://www.uglifruit.org"/>]]></programlisting>
+
+<para>The namespace setting is inherited, allowing you to set it once at a
+high level. Here, the inner element declarations for
+<sgmltag>title</sgmltag> and <sgmltag>body</sgmltag> implicitly
+require the namespace
+<literal>http://howtowrite.info</literal>:</para>
+
+<programlisting><![CDATA[<element name="report" ns="http://howtowrite.info">
+  <element name="title"><text/></element>
+  <element name="body"><text/></element>
+</element>]]></programlisting>
+
+</sect2>
+
+
+<sect2><title>Name Classes</title>
+
+<para>A <firstterm>name class</firstterm> is any pattern that
+substitutes for a set of element or attribute types. We've already
+seen one, <sgmltag>choice</sgmltag>, which matches an enumerated set
+of elements and attributes. Even more permissive is the name class
+<sgmltag>anyName</sgmltag>. Like the keyword <literal>#ANY</literal>
+in DTDs, it allows for any element or attribute type.</para>
+
+<para>For example, this pattern matches any well-formed
+document:</para> 
+
+<programlisting><![CDATA[<grammar>
+  <start>
+    <ref name="all-elements"/>
+  </start>
+  <define name="all-elements">
+    <element>
+      <anyName/>       <!-- use in place of the "name" attribute -->
+      <zeroOrMore>
+        <choice>
+          <ref name="anyElement"/>
+          <text/>
+          <attribute><anyName/></attribute>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+</grammar>]]></programlisting>
+
+<para>The <sgmltag>anyName</sgmltag> appears inside the
+<sgmltag>element</sgmltag> instead of a <literal>name</literal>
+attribute. The <sgmltag>zeroOrMore</sgmltag> is required here because
+each name class element matches exactly one thing.</para>
+
+<para>The <sgmltag>nsName</sgmltag> class matches any element or
+attribute in a particular namespace specified by an
+<literal>ns</literal> attribute. For example:</para>
+
+<programlisting><![CDATA[<element name="script">
+  <nsName ns="http://foobar.org">
+</element>]]></programlisting>
+
+<para>This restricts the content of <sgmltag>script</sgmltag> to elements
+and attributes in the namespace
+<literal>http://foobar.org</literal>. If you leave out the
+<literal>ns</literal> attribute, <sgmltag>nsName</sgmltag>
+will inherit the namespace from the nearest ancestor that defines
+one. So this will also work:</para>
+
+<programlisting><![CDATA[<element name="script" ns="http://foobar.org">
+  <nsName/>
+</element>]]></programlisting>
+
+<para>If you don't want to let though <emphasis>everything</emphasis>,
+you can trim down the set using <sgmltag>except</sgmltag>. Use it as a
+child to <sgmltag>anyName</sgmltag> or <sgmltag>nsName</sgmltag> to
+list classes of elements or attribute you don't want to allow. Here,
+the element <sgmltag>script</sgmltag> will only allow elements that
+are not in the current namespace:</para>
+
+<programlisting><![CDATA[<element name="script" ns="http://foobar.org">
+  <anyName>
+    <except>
+      <nsName/>
+    </except>
+  </anyName>
+</element>]]></programlisting>
+
+<para>The only place you cannot use a name class is as the child of a
+<sgmltag>define</sgmltag> element. This is wrong:</para>
+
+<programlisting><![CDATA[<define name="too-ambiguous">
+  <anyElement/>
+</define>]]></programlisting>
+
+</sect2>
+
+
+<sect2><title>Named Patterns</title>
+
+<para>The patterns we have seen so far are monolithic. All the
+declarations are nested inside one big one. This is fine for simple
+documents, but as complexity builds, it can be hard to
+manage. <firstterm>Named patterns</firstterm> allow you to move
+declarations outside of the main pattern, breaking up the schema into
+discrete parts that are more easily handled. It also allows for
+reusing patterns that recur in many places.</para>
+
+<para>A schema that uses named patterns follows this layout:</para>
+
+<programlisting>&lt;grammar&gt;
+  &lt;start&gt;
+    <replaceable>main pattern</replaceable>
+  &lt;/start&gt;
+  &lt;define name="<replaceable>identifier</replaceable>"&gt;
+    <replaceable>pattern</replaceable>
+  &lt;/start&gt;
+  <replaceable>more pattern definitions</replaceable>
+&lt;/grammar&gt;</programlisting>
+
+<para>The outermost <sgmltag>grammar</sgmltag> element encloses both
+the main pattern and a set of named pattern definitions. It 
+contains exactly one
+<sgmltag>start</sgmltag> element with the primary pattern, and any
+number of <sgmltag>define</sgmltag> elements, each defining a named
+pattern. Named patterns are imported into a pattern using a
+<sgmltag>ref</sgmltag> element. For example:</para>
+
+<programlisting><![CDATA[<grammar>
+
+  <start>
+    <element name="report">
+      <ref name="head"/>
+      <ref name="body"/>
+    </element>
+  </start>
+
+  <define name="head">
+    <element name="title">
+      <text/>
+    </element>
+    <element name="authorname">
+      <text/>
+    </element>
+  </define>
+
+  <define name="body">
+    <zeroOrMore>
+      <element name="paragraph">
+        <text/>
+      </element>
+    </zeroOrMore>
+  </define>
+
+</grammar>]]></programlisting>
+
+<para>The pattern inside <sgmltag>start</sgmltag> must contain exactly
+one pattern. However, a <sgmltag>define</sgmltag> may contain any
+number of children, since its contents will be copied into another
+pattern.</para>
+
+<para>You can write a grammar to fit the style of DTDs, with one
+definition per element<footnote>
+<para>This is how DTDs can be mapped directly into RELAX-NG
+schema. It's important to have this kind of backwards-compatibility,
+since most people are still stuck with DTDs. So this is a good way to
+upgrade up to RELAX-NG.</para>
+</footnote>:</para>
+
+<programlisting><![CDATA[<grammar>
+
+  <start>
+    <element name="report">
+      <ref name="title"/>
+      <ref name="authorname"/>
+      <zeroOrMore>
+        <ref name="paragraph"/>
+      </zeroOrMore>
+    </element>
+  </start>
+
+  <define name="title">
+    <element name="title">
+      <text/>
+    </element>
+  </define>
+
+  <define name="authorname">
+    <element name="authorname">
+      <text/>
+    </element>
+  </define>
+
+  <define name="paragraph">
+    <element name="paragraph">
+      <text/>
+    </element>
+  </define>
+
+</grammar>]]></programlisting>
+
+<sect3><title>Recursive definitions</title>
+
+<para>Recursive definitions are allowed, as long as the
+<sgmltag>ref</sgmltag> is enclosed inside an
+<sgmltag>element</sgmltag>. This pattern describes a section element
+that can contain sub-sections arbitrarily deep:</para>
+
+<programlisting><![CDATA[<grammar>
+
+  <start>
+    <element name="report">
+      <element name="title"><text/></element>
+      <zeroOrMore>
+        <ref name="paragraph">
+      </zeroOrMore>
+      <zeroOrMore>
+        <ref name="section"/>
+      </zeroOrMore>
+    </element>
+  </start>
+
+  <define name="paragraph">
+    <element name="paragraph">
+      <text/>
+    </element>
+  </define>
+
+  <define name="section">
+    <element name="section">
+      <zeroOrMore>
+        <ref name="paragraph"/>
+      </zeroOrMore>
+      <zeroOrMore>
+        <ref name="section"/>
+      </zeroOrMore>
+    </element>
+  </define>
+
+</grammar>]]></programlisting>
+
+<para>Failing to put the <sgmltag>ref</sgmltag> inside an
+<sgmltag>element</sgmltag> in a recursive definition would set up
+a logical infinite loop. So this is illegal:</para>
+
+<programlisting><![CDATA[<define name="foo">
+  <choice>
+    <ref name="bar"/>
+    <ref name="foo"/>
+  </choice>
+</define></programlisting>
+
+<para>Order of definitions for named patterns doesn't matter. As long
+as every referenced pattern has a definition within the same
+<sgmltag>grammar</sgmltag>, everything will be kosher.</para>
+
+</sect3><sect3><title>Aggregate definitions</title>
+
+<para>Multiple pattern definitions with the same name are illegal
+unless you use the <literal>combine</literal> attribute. This tells
+the processor to merge the definitions into one, grouped with either a
+<sgmltag>choice</sgmltag> <sgmltag>interleave</sgmltag> container. The
+value of this attribute describes how to combine the parts. For
+example:</para>
+
+<programlisting><![CDATA[<define name="block.class" combine="choice">
+  <element name="title">
+    <text/>
+  </element>
+</define>
+
+<define name="block.class" combine="choice">
+  <element name="para">
+    <text/>
+  </element>
+</define>]]></programlisting>
+
+<para>...which is equivalent to this:</para>
+
+<programlisting><![CDATA[<define name="block.class">
+  <choice>
+    <element name="title">
+      <text/>
+    </element>
+    <element name="para">
+      <text/>
+    </element>
+  </choice>
+</define>]]></programlisting>
+
+<para>The usefulness of aggregate definitions becomes more clear when
+used with patterns in other files.</para>
+
+</sect3>
+</sect2>
+
+
+<sect2><title>Modularity</title>
+
+<para>Good housekeeping of schemas often requires putting pieces in
+different files. Not only will it make parts smaller and easier to
+manage, but it allows them to be shared between schemas.</para>
+
+<sect3><title>External References</title>
+
+<para>The pattern <sgmltag>externalRef</sgmltag> functions like
+<sgmltag>ref</sgmltag> and uses an attribute <literal>href</literal>
+to locate the file containing a
+grammar. <sgmltag>externalRef</sgmltag> references the whole
+<sgmltag>grammar</sgmltag>, not a named pattern inside it.</para>
+
+<para>Suppose we have a file <filename>section.rng</filename>
+containing this pattern:</para>
+
+<programlisting><![CDATA[<grammar>
+  <start>
+    <ref name="section"/>
+  </start>
+  <define name="section">
+    <element name="section">
+      <zeroOrMore>
+        <ref name="paragraph"/>
+      </zeroOrMore>
+      <zeroOrMore>
+        <ref name="section"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="paragraph">
+    <text/>
+  </define>
+</grammar>]]></programlisting>
+
+<para>We can link it to a pattern in another file like this:</para>
+
+<programlisting><![CDATA[<element name="report">
+  <element name="title"><text/></element>
+  <oneOrMore>
+    <externalRef href="section.rng"/>
+  </oneOrMore>
+</element>]]></programlisting>
+
+</sect3><sect3><title>Nested Grammars</title>
+
+<para>One consequence of external referencing is that grammars
+effectively contain other grammars. To prevent name clashes, each
+<sgmltag>grammar</sgmltag> has its own scope for named patterns. The
+named patterns in a parent are not automatically available to its
+child grammars. Instead, <sgmltag>ref</sgmltag> will only reference a
+definition from inside the current <sgmltag>grammar</sgmltag>.</para>
+
+<para>To get around that, you need to use the element
+<sgmltag>notAllowed</sgmltag>. This blanks out any definition of a
+pattern of a given name, forcing the processor to import one from the
+parent context. Such a technique is useful for defining element
+"templates". For example, this pattern creates a generic list-type
+container:</para>
+
+<programlisting><![CDATA[<grammar>
+  <define name="listitem.content">
+    <notAllowed/>
+  </define>
+  <start>
+    <element name="list">
+      <oneOrMore>
+        <element name="listitem">
+          <ref name="listitem.content"/>
+        </element>
+      </oneOrMore>
+    </element>
+  </start>
+</grammar>]]></programlisting>
+
+<para>The pattern named "listitem.content" must be defined by the
+parent grammar. You have the freedom to make it anything you want. For
+example, this will configure the list so that <sgmltag>para</sgmltag>
+and nested <sgmltag>list</sgmltag> elements are allowed (assume that
+the list definition is in a file called
+<filename>list.rng</filename>):</para>
+
+<programlisting><![CDATA[<grammar>
+  <start>
+    <element name="section">
+      <oneOrMore>
+        <ref name="para"/>
+        <externalRef href="list.rng"/>
+      </oneOrMore>
+    </element>
+  </start>
+  <define name="para">
+    <text/>
+  </define>
+  <define name="listitem.content">
+    <ref name="para"/>
+    <externalRef href="list.rng">
+  </define>
+</grammar>]]></programlisting>
+
+<para>An alternative method is to use
+<sgmltag>parentRef</sgmltag>. It functions like <sgmltag>ref</sgmltag>
+but looks for definitions in the grammar one level up. For example,
+consider this case where two grammars reference each other. I am
+defining one element, <sgmltag>para</sgmltag>, as a paragraph that can
+include footnotes. The <sgmltag>footnote</sgmltag> element contains
+some number of <sgmltag>para</sgmltag>s. They are stored in files
+<filename>para.rng</filename> and <filename>footnote</filename>,
+respectively:</para>
+
+<example id="qc-rng-para">
+<title>para.rng</title>
+<programlisting><![CDATA[<grammar>
+  <start>
+    <element name="para">
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <externalRef name="footnote.rng">
+        </choice>
+      </zeroOrMore>
+    </element>
+  </start>
+</grammar>]]></programlisting>
+</example>
+
+<example id="qc-rng-footnote">
+<title>footnote.rng</title>
+<programlisting><![CDATA[<grammar>
+  <start>
+    <element name="footnote">
+      <oneOrMore>
+        <parentRef name="para">
+      </oneOrMore>
+  </start>
+</grammar>]]></programlisting>
+</example>
+
+<para>The footnote pattern relies on its parent grammar to define a
+pattern for <sgmltag>para</sgmltag>.</para>
+
+</sect3><sect3><title>Merging Grammars</title>
+
+<para>You can merge grammars from external sources using
+<sgmltag>include</sgmltag> as a child of
+<sgmltag>grammar</sgmltag>. Like <sgmltag>externalRef</sgmltag>, it
+uses an <literal>href</literal> attribute to source in the
+definitions. However, it actually incorporates them in the same
+context, unlike <sgmltag>externalRef</sgmltag> which keeps scopes
+for named patterns separate.</para>
+
+<para>One use for <sgmltag>include</sgmltag> is to augment an existing
+definition with more patterns. Suppose, for example, this pattern is
+located in <filename>blocks.rng</filename>:</para>
+
+<programlisting><![CDATA[<grammar>
+  <start>
+    <ref name="block.class"/>
+  </start>
+  <define name="block.class">
+    <choice>
+      <element name="title">
+        <text/>
+      </element>
+      <element name="para">
+        <text/>
+      </element>
+    </choice>
+  </define>
+</grammar>]]></programlisting>
+
+<para>I can add more items to this class by importing it like
+so:</para>
+
+<programlisting><![CDATA[<grammar>
+  <import href="block.rng">
+  <start>
+    <oneOrMore>
+      <element name="section">
+        <ref name="block.class"/>
+      </element>
+    </oneOrMore>
+  </start>
+  <define name="block.class" combine="choice">
+    <element name="poem">
+      <text/>
+    </element>
+  </define>
+</grammar>]]></programlisting>
+
+<para>The <literal>combine</literal> attribute is necessary to tell
+the processor how to incorporate the new definition with the previous
+one imported from <filename>block.rng</filename>. Note that for
+multiply defined patterns of the same name, one is allowed to leave
+out the <literal>combine</literal> attribute, as is the case in the
+file <filename>block.rng</filename>.</para>
+
+</sect3><sect3><title>Overriding imported definitions</title>
+
+<para>You can override some definitions that you import by including
+new ones inside the <sgmltag>import</sgmltag> element. Say we have a
+file <filename>report.rng</filename> defined like this:</para>
+
+<programlisting><![CDATA[<grammar>
+  <start>
+    <element name="report">
+      <ref name="head"/>
+      <ref name="body"/>
+    </element>
+  </start>
+
+  <define name="head">
+    <element name="title"><text/></element>
+  </define>
+
+  <define name="body">
+    <element name="section">
+      <oneOrMore>
+        <element name="para"><text/></element>
+      </oneOrMore>
+    </element>
+  </define>
+</grammar>]]></programlisting>
+
+<para>We wish to import this grammar, but asjust it slightly. Instead
+of just a <sgmltag>title</sgmltag>, we want to allow a subtitle as
+well. Rather than rewrite the whole grammar, we can just redefine
+"head":</para>
+
+<programlisting><![CDATA[<grammar>
+  <import href="report.rng">
+    <define name="head">
+      <element name="title"><text/></element>
+      <optional>
+        <element name="subtitle"><text/></element>
+      </optional>
+    </define>
+  </import>
+  <start>
+    <ref name="report">
+  </start>
+</grammar>]]></programlisting>
+
+<para>This is a good way to customize a schema to suit your own
+particular taste.</para>
+
+</sect3>
+</sect2>
+
+
+<sect2><title>CensusML Example</title>
+
+<para>In case you are curious, let's go back to the CensusML example
+from W3C Schemas and try to do it as a RELAX-NG schema. The result is
+<xref linkend="qc-ex-census-relaxng"/>.</para>
+
+<example id="qc-ex-census-relaxng">
+<title>RELAX-NG schema for CensusML</title>
+<programlisting><![CDATA[<element name="census-record">
+         xmlns="http://relaxng.org/ns/structure/1.0"
+         datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <attribute name="taker">
+    <data type="integer">
+      <param name="minInclusive">1</param>
+      <param name="maxInclusive">9999</param>
+    </data>
+  </element>
+  <element name="date">
+    <data type="date"/>
+  </element>
+  <element name="address">
+    <interleave>
+      <element name="street"><text/></element>
+      <element name="city"><text/></element>
+      <element name="county"><text/></element>
+      <element name="postalcode">
+        <data type="string">
+          <param name="pattern">[0-9][0-9][0-9][A-Z][A-Z][A-Z]</param>
+        </data>
+      </element>
+    </interleave>
+  </element>
+  <oneOrMore>
+    <element name="person">
+      <interleave>
+        <attribute name="employed">
+          <choice>
+            <value>fulltime</value>
+            <value>parttime</value>
+            <value>none</value>
+          </choice>
+        </attribute>
+        <attribute name="pid">
+          <data type="integer">
+            <param name="minInclusive">1</param>
+            <param name="maxInclusive">999999</param>
+          </data>
+        </attribute>
+        <element name="age">
+          <data type="integer">
+            <param name="minInclusive">0</param>
+            <param name="maxInclusive">200</param>
+          </data>
+        </element>
+        <element name="gender">
+          <choice>
+            <value>male</value>
+            <value>gender</value>
+          </choice>
+        </element>
+        <element name="name">
+          <interleave>
+            <element name="first"><text/></element>
+            <element name="last"><text/></element>
+            <optional>
+              <choice>
+                <element name="junior"><empty/></element>
+                <element name="senior"><empty/></element>
+              </choice>
+            </optional>
+          </interleave>
+        </element>
+      </interleave>
+    </element>
+  </oneOrMore>
+</element>]]></programlisting>
+</example>
+
+<para>This schema certainly looks a lot cleaner than the W3C Schema
+version. Enumerations and complex types are much more clear. The
+grouping structures are very easy to read. Personally, I think
+RELAX-NG is just more intuitive all around.</para>
+
+</sect2>
+</sect1>
+
+
+<sect1><title>Schematron</title>
+
+<para>Schematron takes a different approach from the schema languages
+we've seen so far. Instead of being prescriptive, as in "this element
+has the following content model", it replies instead on a series of
+boolean tests. Depending on the result of a test, the schema will
+output some predetermined message.</para>
+
+<para>The tests are based on XPath, which is a very granular and
+exhaustive set of node examination tools. Relying on XPath is clever,
+taking much of the complexity out of the schema language. XPath, which
+is used in places such as XSLT and some implementations of DOM, can
+scratch an itch that more blunt tools like DTDs can't reach. As the
+creator of Schematron, Rick Jelliffe, says, it's like "a feather
+duster for the furthest corners of a room where the vacuum cleaner
+(DTD) cannot reach".</para>
+
+<sect2><title>Overview</title>
+
+<para>The basic structure of a Schematron schema is this:</para>
+
+<programlisting>&lt;schema xmlns="http://www.ascc.net/xml/schematron"&gt;
+  &lt;pattern&gt;
+    &lt;rule context="<replaceable>XPath Expression</replaceable>"&gt;
+      &lt;assert test="<replaceable>XPath Expression</replaceable>"&gt;
+        <replaceable>message</replaceable>
+      &lt;/assert&gt;
+      &lt;report test="<replaceable>XPath Expression</replaceable>"&gt;
+        <replaceable>message</replaceable>
+      &lt;/report&gt;
+      <replaceable>...more tests...</replaceable>
+    &lt;/rule&gt;
+    <replaceable>...more rules...</replaceable>
+  &lt;/pattern&gt;
+  <replaceable>...more patterns...</replaceable>
+&lt;/schema&gt;</programlisting>
+
+<para>A <sgmltag>pattern</sgmltag> in Schematron does not carry the
+same meaning as patterns in RELAX-NG. Here, it's just a logical
+grouping of rules. If your schema is testing books, one pattern may
+hold rules for chapters while another groups rules for
+appendixes. So think of this as more of a higher-level, conceptual
+testing pattern, rather than as a specific node matching pattern.</para>
+
+<para>The context for each test is deterimined by a
+<sgmltag>rule</sgmltag>. Its <literal>context</literal> attribute
+contains an XPath expression that fetches nodes for testing. Each
+node found becomes the <firstterm>context node</firstterm>, on which
+all tests inside the rule are applied.</para>
+
+<para>The children of a rule, <sgmltag>report</sgmltag> and
+<sgmltag>assert</sgmltag>, each apply a test to the context node. The
+test is another XPath expression, stored in a <literal>test</literal>
+attribute. <sgmltag>report</sgmltag>'s contents will be output if its
+XPath expression evaluates to "true". <sgmltag>assert</sgmltag> is just
+the opposite, outputting its contents if its test evaluates to
+"false".</para>
+
+<para>XPath expressions are very good at describing XML nodes and
+reasonably good at matching text patterns. Here's how you might test
+an email address:</para>
+
+<programlisting><![CDATA[<rule context="email">
+  <p>Found an email address...</p>
+  <assert test="contains(.,'@')">Error: no @ in email</assert>
+  <assert test="contains(.,'.')">Error: no dot in email</assert>
+  <report test="length(.)>20">Warning: email is unusually long</report>
+</rule>]]></programlisting>
+
+<para>To summarize, running a Schematron validator on a document works
+like this. First, parse the document to build a document tree in
+memory. Then, for each rule, obtain a context node using its XPath
+locator expression. For each <sgmltag>assert</sgmltag> or
+<sgmltag>report</sgmltag> in the rule, evaluate the XPath expression
+for a boolean value, and conditionally output text. The idea is that
+whenever something is found that is not right with the document, the
+Schematron processor should output a message to that effect. You can
+think of Schematron as a language for generating validation
+reports.</para>
+
+<para>One interesting feature of Schematron is that its documentation
+is a part of the language itself. Rather than rely on comments or the
+namespace hack from RELAX-NG, this language explicitly defines
+elements and attributes to hold commentary. The root element,
+<sgmltag>schema</sgmltag> has an optional child
+<sgmltag>title</sgmltag> to name the schema, and
+<sgmltag>pattern</sgmltag> elements have a <literal>name</literal>
+attribute for identifying rule groups. A Schematron validator will use
+that attribute to label each pattern of testing in output. There is
+also a set of tags for formatting text, borrowed from HTML, such as
+<sgmltag>p</sgmltag> and <sgmltag>span</sgmltag>.</para>
+
+<para>Let's look at an example. Below is a schema to test a report
+document. There are two kinds of reports we allow: one with a body,
+and another with a set of at least three sections.</para>
+
+<programlisting><![CDATA[<schema xmlns="http://www.ascc.net/xml/schematron">
+  <title>Test: Report Document Validity</title>
+
+  <pattern name="Type 1">
+    <p>Type 1 reports should have a title and a body.</p>
+    <rule context="/">
+      <assert test="report">Wrong root element. This isn't a report.</assert>
+    </rule>
+    <rule context="report">
+      <assert test="title">Darn! It's missing a title.</assert>
+      <report test="title">Yup, found a title.</assert>
+      <assert test="body">Yikes! It's missing a body.</assert>
+      <report test="body">Yup, found a body.</assert>
+    </rule>
+  </pattern>
+
+  <pattern name="Type 2">
+    <p>Type 2 reports should have a title and <emph>at least
+      three</emph> sections.</p>
+    <rule context="/">
+      <assert test="report">Wrong root element. This isn't a report.</assert>
+    </rule>
+    <rule context="report">
+      <assert test="title">Darn! It's missing a title.</assert>
+      <report test="title">Yup, found a title.</assert>
+      <assert test="count(section)&gt;2">There are not enough section
+        elements in this report.</assert>
+      <report test="count(section)&gt;2">Plenty of sections, so I'm 
+        happy.</assert>
+    </rule>
+  </pattern>
+</schema>]]></programlisting>
+
+<para>Now, let's run the Schematron validator on this document:</para>
+
+<programlisting><![CDATA[<report>
+  <title>A ridiculous report</title>
+  <body>
+    <para>Here's a paragraph.</para>
+    <para>Here's a paragraph.</para>
+  </body>
+</report>]]></programlisting>
+
+<para>The result of testing is:</para>
+
+<screen>I WILL PUT A GRAPHIC OF FORMATTED HTML HERE.</screen>
+
+</sect2>
+
+
+<sect2><title>Abstract rules</title>
+
+<para>An <firstterm>abstract rule</firstterm> allows you to reuse
+rules when they are likely to appear often in the schema. The syntax
+is the same, with additional attribute <literal>abstract</literal>,
+set to "yes", and <literal>id</literal> with some unique
+value. Another rule will reference the <literal>id</literal> with a a
+<literal>rule</literal> attribute in an <sgmltag>extends</sgmltag>
+child element. For example:</para>
+
+<programlisting><![CDATA[<rule id="inline" abstract="yes">
+  <report test="*">Error! Element inside inline.</report>
+  <assert test="text()">Strange, there's no text inside this inline.</assert>
+</rule>
+<rule context="bold">
+  <extends rule="inline"/>
+</rule>
+<rule context="emphasis">
+  <extends rule="inline"/>
+</rule>
+<rule context="quote">
+  <extends rule="inline"/>
+</rule>]]></programlisting>
+
+</sect2>
+</sect1>
+
+
+<sect1><title>Schemas compared</title>
+
+<para>Each of the schemas we've looked at has compelling features and
+significant flaws. Some of the important points are listed <xref
+linkend="qc-table-compare"/>.</para>
+
+<table id="qc-table-compare">
+<title>Comparison of Schema</title>
+<tgroup cols="5">
+<thead>
+<row>
+<entry>Feature</entry>
+<entry>DTD</entry>
+<entry>W3C Schema</entry>
+<entry>RELAX-NG</entry>
+<entry>Schematron</entry>
+</row>
+</thead>
+<tbody>
+<row>
+<entry>XML Syntax</entry>
+<entry>No</entry>
+<entry>Yes</entry>
+<entry>Yes</entry>
+<entry>Yes</entry>
+</row>
+<row>
+<entry>Namespace Compatible</entry>
+<entry>No</entry>
+<entry>Yes</entry>
+<entry>Yes</entry>
+<entry>Yes</entry>
+</row>
+<row>
+<entry>Declare entities</entry>
+<entry>Yes</entry>
+<entry>No</entry>
+<entry>No</entry>
+<entry>No</entry>
+</row>
+<row>
+<entry>Tests datatypes</entry>
+<entry>No</entry>
+<entry>Yes</entry>
+<entry>Yes</entry>
+<entry>Yes</entry>
+</row>
+<row>
+<entry>Default attribute values</entry>
+<entry>Yes</entry>
+<entry>Yes</entry>
+<entry><para>No<footnote><para>Added later in RELAX-NG DTD
+Compatibility specification.</para></footnote></para></entry>
+<entry>Yes</entry>
+</row>
+<row>
+<entry>Notations</entry>
+<entry>Yes</entry>
+<entry>No</entry>
+<entry>No</entry>
+<entry>No</entry>
+</row>
+<row>
+<entry>Unordered content</entry>
+<entry>No</entry>
+<entry>Yes</entry>
+<entry>Yes</entry>
+<entry>No</entry>
+</row>
+<row>
+<entry>Modular</entry>
+<entry>Yes</entry>
+<entry>Yes</entry>
+<entry>Yes</entry>
+<entry>No</entry>
+</row>
+<row>
+<entry>Element-attribute interchangibility</entry>
+<entry>No</entry>
+<entry>Yes</entry>
+<entry>Yes</entry>
+<entry>Yes</entry>
+</row>
+<row>
+<entry>Specify if whitespace is significant</entry>
+<entry>No</entry>
+<entry>Yes</entry>
+<entry>No</entry>
+<entry>Yes</entry>
+</row>
+<row>
+<entry>Specify how to associate with a document</entry>
+<entry>Yes</entry>
+<entry>Yes</entry>
+<entry>No</entry>
+<entry>No</entry>
+</row>
+</tbody>
+</tgroup>
+</table>
+
+<para>DTDs have been around the longest, so as you would expect it has
+the widest support in literature and software. It also has the
+advantage of being the only way to declare entities at the moment. The
+syntax for DTDs is very easy to learn, although its readability often
+leaves much to be desired. Try reading the DocBook-XML DTD sometime
+and you'll see what I mean. After a fashion, it is modular, but I find
+the parameter entities are often a nuisance, especially when you want
+to override imported declarations.</para>
+
+<para>W3C Schema has the advantage of being blessed by the W3C, so
+you can be sure it will win many converts. Software support is growing
+quickly. I think it's pretty decent, but it has a clunkiness to it
+that can make schema design a chore. The datatypes will become a
+defacto standard, as they are already borrowed upon by the likes of
+RELAX-NG. In general, this is a good step forward, but be aware that
+there will always be contenders for the throne.</para>
+
+<para>RELAX-NG has won my admiration for its elegance and
+simplicity. Writing schemas is easy and reading them even
+easier. Niceties like interleave and nested grammars are not to be
+overlooked. There are some things missing, like entity declarations and
+built-in datatypes. The first you can probably get around by using a
+DTD in conjunction with the schema. The second is supplied by W3C
+Schema, so no worries there.</para>
+
+<para>Schematron is a very creative effort, but I find it seriously
+lacking in usefulness. I can see doing some simple tests with XPath,
+but other things it just doesn't do very well. There is no support for
+regular expressions either for character data or higher level objects
+like elements. The dependance on a flat set of rules makes schema
+seriously clunky and hard to develop.</para>
+
+<para>There was a time when all we had to work with were DTDs. With
+time, more and more XML tools become available, and we should all be
+thankful for the tireless efforts of many developers. It's worth
+taking time to become familiar with different schema types in case you
+find one will fit your needs best.</para>
+
+</sect1>
+</chapter>

@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="organizing-test-suites">
+  <title>テストの構成</title>
+
+  <para>
+    PHPUnit の目指すところ (<xref linkend="goals" /> を参照ください) のひとつに
+    「自由に組み合わせられる」ということがあります。つまり、
+    例えば「そのプロジェクトのすべてのテストを実行する」「プロジェクトの中の
+    ある部品を構成するすべてのクラスについて、すべてのテストを実行する」
+    「特定のひとつのクラスのテストのみを実行する」など、
+    数や組み合わせにとらわれずに好きなテストを一緒に実行できるということです。
+  </para>
+
+  <para>
+    PHPUnit フレームワークの <literal>PHPUnit_Framework_TestSuite</literal>
+    クラスを使用すると、複数のテストを階層構造でテストスイートにまとめることができます。
+    実際の例として、PHPUnit 自身のテストスイートを見てみましょう。
+  </para>
+
+  <para>
+    <xref linkend="organizing-test-suites.examples.AllTests.php" />
+    は <filename>Tests/AllTests.php</filename> の一部を抜粋したもの、そして
+    <xref linkend="organizing-test-suites.examples.Framework_AllTests.php" />
+    は <filename>Tests/Framework/AllTests.php</filename> の一部を抜粋したものです。
+  </para>
+
+  <example id="organizing-test-suites.examples.AllTests.php">
+    <title>AllTests クラス</title>
+    <programlisting><![CDATA[<?php
+require_once 'PHPUnit/Framework.php';
+
+require_once 'Framework/AllTests.php';
+// ...
+
+class AllTests
+{
+    public static function suite()
+    {
+        $suite = new PHPUnit_Framework_TestSuite('PHPUnit');
+
+        $suite->addTest(Framework_AllTests::suite());
+        // ...
+
+        return $suite;
+    }
+}
+?>]]></programlisting>
+  </example>
+
+  <example id="organizing-test-suites.examples.Framework_AllTests.php">
+    <title>Framework_AllTests クラス</title>
+    <programlisting><![CDATA[<?php
+require_once 'PHPUnit/Framework.php';
+
+require_once 'Framework/AssertTest.php';
+// ...
+
+class Framework_AllTests
+{
+    public static function suite()
+    {
+        $suite = new PHPUnit_Framework_TestSuite('PHPUnit Framework');
+
+        $suite->addTestSuite('Framework_AssertTest');
+        // ...
+
+        return $suite;
+    }
+}
+?>]]></programlisting>
+  </example>
+
+  <para>
+    <literal>Framework_AssertTest</literal> クラスは、
+    基底クラス <literal>PHPUnit_Framework_TestCase</literal>
+    を継承した標準的なテストケースクラスです。
+  </para>
+
+  <itemizedlist>
+    <listitem>
+      <para>
+        <literal>phpunit AllTests</literal> を
+        <filename>Tests</filename> ディレクトリで実行すると、すべてのテストを実行します。
+      </para>
+    </listitem>
+    <listitem>
+      <para>
+        <literal>phpunit Framework_AllTests AllTests.php</literal> を
+        <filename>Tests/Framework</filename> ディレクトリで実行すると、
+        <literal>PHPUnit_Framework_*</literal> クラスのテストのみを実行します。
+      </para>
+    </listitem>
+    <listitem>
+      <para>
+        <literal>phpunit Framework_AssertTest AssertTest.php</literal> を
+        <filename>Tests/Framework</filename> ディレクトリで実行すると、
+        <literal>PHPUnit_Framework_Assert</literal> クラスのテストのみを実行します。
+      </para>
+    </listitem>
+    <listitem>
+      <para>
+        <literal>phpunit --filter testFail Framework_AssertTest AssertTest.php</literal> を
+        <filename>Tests/Framework</filename> ディレクトリで実行すると、
+        <literal>Framework_AssertTest</literal> クラスの
+        <literal>testFail</literal> という名前のテストのみを実行します。
+      </para>
+    </listitem>
+  </itemizedlist>
+
+  <section id="organizing-test-suites.suite-level-setup">
+    <title>スイートレベルのセットアップ</title>
+ 
+    <para>
+      <indexterm><primary>Template Method</primary></indexterm>
+      <indexterm><primary>setUp()</primary></indexterm>
+      <indexterm><primary>tearDown()</primary></indexterm>
+
+      <literal>PHPUnit_Framework_TestSuite</literal> クラスには、
+      ふたつのテンプレートメソッド <literal>setUp()</literal>
+      および <literal>tearDown()</literal> が存在します。
+      これらはそれぞれ、テストスイートの最初のテストの実行前と
+      テストスイートの最後のテストの実行後にコールされます。
+    </para>
+
+    <example id="organizing-test-suites.suite-level-setup.examples.MySuite.php">
+      <title>MySuite クラス</title>
+      <programlisting><![CDATA[<?php
+require_once 'MyTest.php';
+
+class MySuite extends PHPUnit_Framework_TestSuite
+{
+    public static function suite()
+    {
+        return new MySuite('MyTest');
+    }
+
+    protected function setUp()
+    {
+        print "\nMySuite::setUp()";
+    }
+ 
+    protected function tearDown()
+    {
+        print "\nMySuite::tearDown()";
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      <xref linkend="organizing-test-suites.suite-level-setup.examples.MySuite.php"/>
+      のテストスイート <literal>MySuite</literal> に追加されたテストケースクラス
+      <literal>MyTest</literal> には、ふたつのテストメソッド
+      <literal>testOne()</literal> と <literal>testTwo()</literal> のほかに
+      <literal>setUp()</literal> メソッドと <literal>tearDown()</literal>
+      メソッドが定義されているものとします。
+      この出力を見れば、これら 8 つのメソッドがどの順にコールされるのかがわかります。
+    </para>
+
+    <screen>MySuite::setUp()
+MyTest::setUp()
+MyTest::testOne()
+MyTest::tearDown()
+MyTest::setUp()
+MyTest::testTwo()
+MyTest::tearDown()
+MySuite::tearDown()</screen>
+
+    <para>
+      <literal>PHPUnit_Framework_TestSuite</literal> クラスの
+      <literal>setUp()</literal> メソッドで
+      <literal>$this->sharedFixture</literal> に保存した変数は、
+      テストスイートオブジェクトに登録したすべてのテストから
+      <literal>$this->sharedFixture</literal> でアクセスできます
+      (<xref linkend="fixtures.sharing-fixture"/> を参照ください)。
+    </para>
+
+    <para>
+      <literal>TestSuite</literal> の <literal>setUp()</literal>
+      および <literal>tearDown()</literal> メソッドは、
+      (たとえばフィルタリングなどの結果として)
+      テストスイート内のテストが実行されなかった場合でもコールされることに注意しましょう。
+    </para>
+  </section>
+</chapter>

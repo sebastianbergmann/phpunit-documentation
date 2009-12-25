@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+
+<chapter id="fixtures">
+  <title>Testinventar</title>
+
+  <para>
+    <indexterm><primary>Fixture</primary></indexterm>
+    <indexterm><primary>Testinventar</primary></indexterm>
+
+    Eine der zeitraubendsten Arbeiten beim Erstellen von Tests besteht
+    darin, Code zu schreiben, mit dem die Welt vor dem Test in einen
+    definierten Zustand versetzt und wieder in ihren ursprünglichen
+    Zustand gebracht wird, nachdem der Test abgeschlossen worden ist.
+    Diesen wohldefinierten Zustand bezeichnen wir als
+    <emphasis>Testinventar</emphasis>, oder englisch 
+    <emphasis>fixture</emphasis>.
+  </para>
+
+  <para>
+    In <xref linkend="goals.examples.ArrayTest.php" /> bestand das
+    Testinventar lediglich aus einem einfachen <literal>array</literal>,
+    das in der Variablen <literal>$fixture</literal> abgelegt wurde. In
+    den meisten Fällen wird das Testinventar allerdings komplexer aufgebaut
+    sein, und der für das Vorbereiten des Testinventars benötigte Code wird
+    entsprechend wachsen. Der eigentliche Inhalt des Tests verschwindet
+    dann zwischen dem vielen Code, der für den Aufbau eines vorhersagbaren
+    Zustands der Welt benötigt wird, in dem die Tests laufen sollen. Noch
+    größer wird das Problem, wenn Sie mehrere Tests mit ähnlicher
+    Initialisierung schreiben wollen. Wenn uns das Test-Framework nicht
+    dabei helfen würde, müssten wir das obige Muster für jeden zu
+    schreibenden Test duplizieren.
+  </para>
+
+  <para>
+    <indexterm><primary>Schablonenmethode</primary></indexterm>
+    <indexterm><primary>setUp()</primary></indexterm>
+    <indexterm><primary>tearDown()</primary></indexterm>
+
+    PHPUnit hilft uns dabei, den Initialisierungscode mehrfach zu verwenden.
+    Bevor eine Testmethode läuft, wird eine Schablonenmethode namens
+    <literal>setUp()</literal> aufgerufen. <literal>setUp()</literal> ist
+    dafür vorgesehen, dass Sie dort die Objekte erzeugen, mit denen Sie die
+    Tests durchführen wollen. Wenn ein Test ausgeführt worden ist, wird
+    unabhängig davon, ob er erfolgreich war oder nicht, eine weitere
+    Schablonenmethode namens <literal>tearDown()</literal> aufgerufen.
+    Diese ist dafür gedacht, die Objekte, mit denen der Test durchgeführt
+    worden ist, aufzuräumen.
+  </para>
+
+  <para>
+    Sie können nun <xref linkend="goals.examples.ArrayTest.php" />
+    verbessern, indem Sie in <literal>setUp()</literal> eine Instanzvariable
+    <literal>$fixture</literal> vorbereiten, die in den Testmethoden
+    anstelle einer Methoden-lokalen Variablen verwendet wird. Hiermit
+    verhindern Sie die Code-Duplikation, die vorher bestand.
+  </para>
+
+  <programlisting><![CDATA[<?php
+require_once 'PHPUnit2/Framework/TestCase.php';
+
+class ArrayTest extends PHPUnit2_Framework_TestCase {
+    protected $fixture;
+
+    protected function setUp() {
+        // Array-Fixture erzeugen.
+        $this->fixture = array();
+    }
+
+    public function testNewArrayIsEmpty() {
+        // Der erwartete Wert von sizeof($this->fixture) ist 0.
+        $this->assertEquals(0, sizeof($this->fixture));
+    }
+
+    public function testArrayContainsAnElement() {
+        // Ein Element dem Array hinzufügen.
+        $this->fixture[] = 'Element';
+
+        // Der erwartete Wert von sizeof($this->fixture) ist 1.
+        $this->assertEquals(1, sizeof($this->fixture));
+    }
+}
+?>]]></programlisting>
+
+  <para>
+    Bei jedem Durchlauf einer Testmethode werden <literal>setUp()</literal>
+    und <literal>tearDown()</literal> genau einmal aufgerufen. Es mag
+    sparsamer erscheinen, diese Methoden für alle Testaufrufe einer
+    Testfall-Klasse nur einmal aufzurufen, aber es wäre dann sehr viel
+    schwieriger, Tests zu schreiben, die vollständig unabhängig
+    voneinander sind.
+  </para>
+
+  <para>
+    Abgesehen davon, dass für jede Testmethode <literal>setUp()</literal>
+    und <literal>tearDown()</literal> aufgerufen werden, laufen die
+    Testmethoden auch jeweils mit frisch erzeugten Instanzen der
+    Testfall-Klasse (siehe <xref linkend="implementation" />).
+  </para>
+
+  <section id="fixtures.more-setup-than-teardown">
+    <title>Mehr setUp() als tearDown()</title>
+
+    <para>
+      In der Theorie sehen <literal>setUp()</literal> und
+      <literal>tearDown()</literal> schön symmetrisch aus, in der Praxis
+      sind sie es aber nicht. Sie müssen <literal>tearDown()</literal>
+      tatsächlich nur implementieren, wenn Sie in <literal>setUp()</literal>
+      externe Ressourcen wie Dateien oder Sockets alloziert haben. Dient
+      Ihr <literal>setUp()</literal> nur dazu, einfache PHP-Objekte zu
+      allozieren, so können Sie im Allgemeinen <literal>tearDown()</literal>
+      ignorieren. Wenn Sie allerdings viele Objekte in Ihrem
+      <literal>setUp()</literal> erzeugen, so sollten Sie die auf diese
+      Objekte verweisenden Variablen mit <literal>unset()</literal> leeren,
+      damit sie von der Garbage Collection erfasst werden können. Die
+      Testfall-Objekte werden nämlich zu keiner vorhersagbaren Zeit der
+      Garbage Collection unterzogen.
+    </para>
+  </section>
+
+  <section id="fixtures.variations">
+    <title>Variationen</title>
+
+    <para>
+      Wie gehen Sie vor, wenn Sie zwei Tests mit nur geringfügig
+      unterschiedlichen Initialisierungen haben? Hierfür gibt es zwei
+      Möglichkeiten:
+    </para>
+
+    <itemizedlist>
+      <listitem>
+        <para>
+          Wenn die Unterschiede im <literal>setUp()</literal> gering sind,
+          verschieben Sie den variablen Teil aus <literal>setUp()</literal>
+          in die Testmethode.
+        </para>
+      </listitem>
+
+      <listitem>
+        <para>
+          Wenn <literal>setUp()</literal> wirklich unterschiedlich ist,
+          benötigen Sie eine andere Testfall-Klasse. Benennen Sie die Klassen
+          entsprechend ihrer unterschiedlichen Initialisierung.
+        </para>
+      </listitem>
+    </itemizedlist>
+  </section>
+
+  <section id="fixtures.suite-level-setup">
+    <title>Initialisierung auf Testreihen-Ebene</title>
+
+    <para>
+      <indexterm><primary>PHPUnit2_Extensions_TestSetup</primary></indexterm>
+
+      Für die Initialisierung auf der Ebene der Testreihe bietet PHPUnit
+      keine besonders komfortable Unterstützung. Es gibt durchaus Gründe
+      dafür, Teile des Inventars von mehreren Tests gemeinsam nutzen zu
+      lassen. Allerdings ist der eigentliche Grund für die Nutzung von
+      gemeinsam genutztem Testinventar in der Regel ein ungelöstes
+      Designproblem.
+    </para>
+
+    <para>
+      Ein gutes Beispiel dafür, wann es sinnvoll ist, Teile des Inventars von
+      mehreren Tests gemeinsam nutzen zu lassen, sind Tests, die mit einer
+      Datenbank interagieren. So gibt es beispielsweise die Möglichkeit,
+      sich nur einmal bei einer Datenbank anzumelden und die resultierende
+      Datenbankverbindung in verschiedenen Tests zu verwenden. Das
+      beschleunigt Ihre Tests natürlich. Zu diesem Zweck verpacken Sie die
+      Testreihe, die Sie beim Aufruf der Klassenmethode
+      <literal>suite()</literal> erhalten, in einem Objekt der Klasse
+      <literal>PHPUnit2_Extensions_TestSetup</literal>, das die Methoden
+      <literal>setUp()</literal> und <literal>tearDown()</literal> so
+      überschreibt, dass darin eine Datenbankverbindung hergestellt bzw.
+      wieder geschlossen wird.
+      <xref linkend="fixtures.suite-level-setup.examples.DatabaseTestSetup.php" />
+      zeigt mit <literal>DatabaseTestSetup</literal> eine mögliche
+      Implementierung von <literal>PHPUnit2_Extensions_TestSetup</literal>.
+      Die Tests der Testfall-Klasse <literal>DatabaseTests</literal> können
+      beispielsweise mit <userinput>phpunit DatabaseTestSetup</userinput> über
+      den Test-basierten Testrunner so ausgeführt werden, dass sie von
+      <literal>DatabaseTestSetup</literal> dekoriert werden.
+    </para>
+
+    <example id="fixtures.suite-level-setup.examples.DatabaseTestSetup.php">
+      <title>Initialisierung auf Testreihen-Ebene</title>
+      <programlisting><![CDATA[<?php
+require_once 'PHPUnit2/Framework/TestSuite.php';
+require_once 'PHPUnit2/Extensions/TestSetup.php';
+
+class DatabaseTestSetup extends PHPUnit2_Extensions_TestSetup {
+    protected $connection = NULL;
+
+    protected function setUp() {
+        $this->connection = new PDO(
+          'mysql:host=wopr;dbname=test',
+          'root',
+          ''
+        );
+    }
+
+    protected function tearDown() {
+        $this->connection = NULL;
+    }
+
+    public static function suite() {
+        return new DatabaseTestSetup(
+          new PHPUnit2_Framework_TestSuite('DatabaseTests')
+        );
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      Es kann aber nicht oft genug darauf hingewiesen werden, dass es den
+      Wert Ihres Tests vermindert, wenn Sie dasselbe Inventar in mehreren
+      Tests verwenden. Das hier zugrunde liegende Designproblem besteht
+      darin, dass die Objekte zu eng miteinander verknüpft sind. Es wäre
+      günstiger, erst das Design zu verbessern und dann Tests mit Hilfe von
+      Stubs (siehe <xref linkend="stubs" />) zu schreiben. Indem Sie
+      Laufzeit-Abhängigkeiten herstellen, verpassen Sie eine Gelegenheit
+      zur Verbesserung des Designs.
+    </para>
+  </section>
+</chapter>

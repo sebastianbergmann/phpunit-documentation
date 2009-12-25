@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<appendix id="appendixes.configuration">
+  <title>XML 設定ファイル</title>
+
+  <para>
+    ...
+  </para>
+
+  <section id="appendixes.configuration.testsuite">
+    <title>テストスイート</title>
+
+    <para>
+      <indexterm><primary>Test Suite</primary></indexterm>
+
+      ...
+    </para>
+
+    <screen><![CDATA[<phpunit>
+  <testsuite name="My Test Suite">
+    <directory>/path/to/*Test.php files</directory>
+    <file>/path/to/MyTest.php</file>
+  </testsuite>
+</phpunit>]]></screen>
+  </section>
+
+  <section id="appendixes.configuration.groups">
+    <title>グループ</title>
+
+    <para>
+      <indexterm><primary>Test Groups</primary></indexterm>
+
+      ...
+    </para>
+
+    <screen><![CDATA[<phpunit>
+  <groups>
+    <include>
+      <group>name</group>
+    </include>
+    <exclude>
+      <group>name</group>
+    </exclude>
+  </groups>
+</phpunit>]]></screen>
+
+    <para>
+      上の XML 設定ファイルは、 TextUI テストランナーを以下の引数で起動します。
+    </para>
+
+    <itemizedlist>
+      <listitem><para><literal>--group name</literal></para></listitem>
+      <listitem><para><literal>--exclude-group name</literal></para></listitem>
+    </itemizedlist>
+  </section>
+
+  <section id="appendixes.configuration.blacklist-whitelist">
+    <title>コードカバレッジ対象のファイルの追加や除外</title>
+
+    <para>
+      <indexterm><primary>Code Coverage</primary></indexterm>
+      <indexterm><primary>Blacklist</primary></indexterm>
+      <indexterm><primary>Whitelist</primary></indexterm>
+      <indexterm><primary>PHPUnit_Util_Filter</primary></indexterm>
+
+      ...
+    </para>
+
+    <screen><![CDATA[<phpunit>
+  <filter>
+    <blacklist>
+      <directory suffix=".php">/path/to/files</directory>
+      <file>/path/to/file</file>
+      <exclude>
+        <directory suffix=".php">/path/to/files</directory>
+        <file>/path/to/file</file>
+      </exclude>
+    </blacklist>
+    <whitelist>
+      <directory suffix=".php">/path/to/files</directory>
+      <file>/path/to/file</file>
+      <exclude>
+        <directory suffix=".php">/path/to/files</directory>
+        <file>/path/to/file</file>
+      </exclude>
+    </whitelist>
+  </filter>
+</phpunit>]]></screen>
+
+    <para>
+      上の XML 設定ファイルは、
+      次のような <literal>PHPUnit_Util_Filter</literal> クラスを使用することに対応します。
+    </para>
+
+    <screen><![CDATA[PHPUnit_Util_Filter::addDirectoryToFilter(
+  /path/to/files', '.php'
+);
+
+PHPUnit_Util_Filter::addFileToFilter('/path/to/file');
+
+PHPUnit_Util_Filter::removeDirectoryFromFilter(
+  /path/to/files', '.php'
+);
+
+PHPUnit_Util_Filter::removeFileFromFilter('/path/to/file');
+
+PHPUnit_Util_Filter::addDirectoryToWhitelist(
+  /path/to/files', '.php'
+);
+
+PHPUnit_Util_Filter::addFileToWhitelist('/path/to/file');
+
+PHPUnit_Util_Filter::removeDirectoryFromWhitelist(
+  /path/to/files', '.php'
+);
+
+PHPUnit_Util_Filter::removeFileFromWhitelist('/path/to/file');]]></screen>
+  </section>
+
+  <section id="appendixes.configuration.logging">
+    <title>ログ出力</title>
+
+    <para>
+      <indexterm><primary>Logging</primary></indexterm>
+
+      ...
+    </para>
+
+    <screen><![CDATA[<phpunit>
+  <logging>
+    <log type="coverage-html" target="/tmp/report" charset="UTF-8"
+         yui="true" highlight="false"
+         lowUpperBound="35" highLowerBound="70"/>
+    <log type="coverage-xml" target="/tmp/coverage.xml"/>
+    <log type="graphviz" target="/tmp/logfile.dot"/>
+    <log type="json" target="/tmp/logfile.json"/>
+    <log type="metrics-xml" target="/tmp/metrics.xml"/>
+    <log type="plain" target="/tmp/logfile.txt"/>
+    <log type="pmd-xml" target="/tmp/pmd.xml" cpdMinLines="5" cpdMinMatches="70"/>
+    <log type="tap" target="/tmp/logfile.tap"/>
+    <log type="test-xml" target="/tmp/logfile.xml" logIncompleteSkipped="false"/>
+    <log type="testdox-html" target="/tmp/testdox.html"/>
+    <log type="testdox-text" target="/tmp/testdox.txt"/>
+  </logging>
+</phpunit>]]></screen>
+
+    <para>
+      上の XML 設定ファイルは、 TextUI テストランナーを以下の引数で起動します。
+    </para>
+
+    <itemizedlist>
+      <listitem><para><literal>--coverage-html /tmp/report</literal></para></listitem>
+      <listitem><para><literal>--coverage-xml /tmp/coverage.xml</literal></para></listitem>
+      <listitem><para><literal>--log-graphviz /tmp/logfile.dot</literal></para></listitem>
+      <listitem><para><literal>--log-json /tmp/logfile.json</literal></para></listitem>
+      <listitem><para><literal>--log-metrics /tmp/metrics.xml</literal></para></listitem>
+      <listitem><para><literal><![CDATA[>]]> /tmp/logfile.txt</literal></para></listitem>
+      <listitem><para><literal>--log-pmd /tmp/pmd.xml</literal></para></listitem>
+      <listitem><para><literal>--log-tap /tmp/logfile.tap</literal></para></listitem>
+      <listitem><para><literal>--log-xml /tmp/logfile.xml</literal></para></listitem>
+      <listitem><para><literal>--testdox-html /tmp/testdox.html</literal></para></listitem>
+      <listitem><para><literal>--testdox-text /tmp/testdox.txt</literal></para></listitem>
+    </itemizedlist>
+
+    <section id="appendixes.configuration.logging.pmd-rules">
+      <title>PMD ルール</title>
+
+      <para>
+        <indexterm><primary>Project Mess Detector</primary></indexterm>
+
+        ...
+      </para>
+
+      <screen><![CDATA[<phpunit>
+  <logging>
+    <pmd>
+      <rule class="PHPUnit_Util_Log_PMD_Rule_Project_CRAP"
+            threshold="5,30"/>
+      <rule class="PHPUnit_Util_Log_PMD_Rule_Class_DepthOfInheritanceTree"
+            threshold="6"/>
+      <rule class="PHPUnit_Util_Log_PMD_Rule_Class_EfferentCoupling"
+            threshold="20"/>
+      <rule class="PHPUnit_Util_Log_PMD_Rule_Class_ExcessiveClassLength"
+            threshold="1000"/>
+      <rule class="PHPUnit_Util_Log_PMD_Rule_Class_ExcessivePublicCount"
+            threshold="45"/>
+      <rule class="PHPUnit_Util_Log_PMD_Rule_Class_TooManyFields"
+            threshold="15"/>
+      <rule class="PHPUnit_Util_Log_PMD_Rule_Function_CodeCoverage"
+            threshold="35,70"/>
+      <rule class="PHPUnit_Util_Log_PMD_Rule_Function_CRAP"
+            threshold="30"/>
+      <rule class="PHPUnit_Util_Log_PMD_Rule_Function_CyclomaticComplexity"
+            threshold="20"/>
+      <rule class="PHPUnit_Util_Log_PMD_Rule_Function_ExcessiveMethodLength"
+            threshold="100"/>
+      <rule class="PHPUnit_Util_Log_PMD_Rule_Function_ExcessiveParameterList"
+            threshold="10"/>
+      <rule class="PHPUnit_Util_Log_PMD_Rule_Function_NPathComplexity"
+            threshold="200"/>
+    </pmd>
+  </logging>
+</phpunit>]]></screen>
+
+      <para>
+        上の <literal><![CDATA[<rule>]]></literal> は、
+        組み込みの PMD ルールの設定に対応します。
+      </para>
+    </section>
+  </section>
+
+  <section id="appendixes.configuration.php-ini-variables">
+    <title>PHP INI 項目やグローバル変数の設定</title>
+
+    <para>
+
+      ...
+    </para>
+
+    <screen><![CDATA[<phpunit>
+  <php>
+    <ini name="foo" value="bar"/>
+    <var name="foo" value="bar"/>
+  </php>
+</phpunit>]]></screen>
+
+    <para>
+      上の XML 設定は、次の PHP コードに対応します。
+    </para>
+
+    <screen><![CDATA[ini_set('foo', 'bar');
+$GLOBALS['foo'] = 'bar';]]></screen>
+  </section>
+</appendix>

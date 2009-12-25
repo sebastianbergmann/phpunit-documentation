@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+
+<chapter id="code-coverage-analysis">
+  <title>Code Coverage Analysis</title>
+
+  <para>
+    You have learned how to use unit tests to test your code. But how do you
+    test your tests? How do you find code that is not yet tested -- or, in
+    other words, not yet <emphasis>covered</emphasis> by a test? How do you
+    measure testing completeness? All these questions are answered by a
+    practice called Code Coverage Analysis. Code Coverage Analysis gives you
+    an insight into what parts of the production code are executed when the
+    tests are run.
+  </para>
+
+  <para>
+    <indexterm><primary>Code Coverage</primary></indexterm>
+
+    PHPUnit's Code Coverage Analysis utilizes the statement coverage
+    functionality provided by the <ulink url="http://www.xdebug.org/">Xdebug</ulink>
+    extension. An example of what statement coverage means is that if there is
+    a method with 100 lines of code, and only 75 of these lines are actually
+    executed when tests are being run, then the method is considered to have a
+    code coverage of 75 percent.
+  </para>
+
+  <para>
+    Let us generate a code coverage report for the <literal>BankAccount</literal>
+    class from <xref linkend="test-first-programming.bankaccount-example.examples.BankAccount2.php" />.
+  </para>
+
+  <screen><userinput>phpunit --report ./report BankAccountTest</userinput>
+PHPUnit 3.1.9 by Sebastian Bergmann.
+
+...
+
+Time: 0 seconds
+
+OK (3 tests)
+
+Generating report, this may take a moment.</screen>
+
+  <para>
+    <xref linkend="code-coverage-analysis.figures.Code_Coverage.png" /> shows
+    an excerpt from a Code Coverage report. Lines of code that were executed
+    while running the tests are highlighted green, lines of code that are
+    executable but were not executed are highlighted red, and "dead code" is
+    highlighted orange. The number left to the actual line of code indicates
+    how many tests cover that line.
+  </para>
+
+  <figure id="code-coverage-analysis.figures.Code_Coverage.png">
+    <title>Code Coverage for <literal>setBalance()</literal></title>
+
+    <graphic fileref="figures/Code_Coverage.png" />
+  </figure>
+
+  <para>
+    The code coverage report for our <literal>BankAccount</literal> example
+    shows that we do not have any tests yet that call the
+    <literal>setBalance()</literal>, <literal>depositMoney()</literal>, and
+    <literal>withdrawMoney()</literal> methods with legal values.
+    <xref linkend="code-coverage-analysis.examples.BankAccountTest.php" />
+    shows a test that can be added to the <literal>BankAccountTest</literal>
+    test-case class to completely cover the <literal>BankAccount</literal>
+    class.
+  </para>
+
+  <example id="code-coverage-analysis.examples.BankAccountTest.php">
+    <title>Test missing to achieve complete code coverage</title>
+    <programlisting><![CDATA[<?php
+require_once 'PHPUnit/Framework.php';
+require_once 'BankAccount.php';
+
+class BankAccountTest extends PHPUnit_Framework_TestCase
+{
+    // ...
+
+    public function testDepositWithdrawMoney()
+    {
+        $this->assertEquals(0, $this->ba->getBalance());
+        $this->ba->depositMoney(1);
+        $this->assertEquals(1, $this->ba->getBalance());
+        $this->ba->withdrawMoney(1);
+        $this->assertEquals(0, $this->ba->getBalance());
+    }
+}
+?>]]></programlisting>
+  </example>
+
+  <para>
+    <xref linkend="code-coverage-analysis.figures.Code_Coverage2.png" /> shows
+    the code coverage of the <literal>setBalance()</literal> method with the
+    additional test.
+  </para>
+
+  <figure id="code-coverage-analysis.figures.Code_Coverage2.png">
+    <title>Code Coverage for <literal>setBalance()</literal> with additional test</title>
+
+    <graphic fileref="figures/Code_Coverage2.png" />
+  </figure>
+
+  <section id="code-coverage-analysis.including-excluding-files">
+    <title>Including and Excluding Files</title>
+
+    <para>
+      By default, all sourcecode files that contain at least one line of code
+      that has been executed (and only these files) are included in the report.
+      You can configure the sourcecode files that are included in the report
+      using the <literal>PHPUnit_Util_Filter</literal> API (see
+      <xref linkend="code-coverage-analysis.including-excluding-files.tables.filter-api"/>).
+    </para>
+
+    <table id="code-coverage-analysis.including-excluding-files.tables.filter-api">
+      <title>The <literal>PHPUnit_Util_Filter</literal> API</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>Method</entry>
+            <entry>Meaning</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>void addDirectoryToFilter(string $directory)</literal></entry>
+            <entry>Adds all files from a directory that are suffixed with <literal>.php</literal> to the blacklist (recursively).</entry>
+          </row>
+          <row>
+            <entry><literal>void addDirectoryToFilter(string $directory, string $suffix)</literal></entry>
+            <entry>Adds all files from a directory that are suffixed with <literal>$suffix</literal> to the blacklist (recursively).</entry>
+          </row>
+          <row>
+            <entry><literal>void addFileToFilter(string $filename)</literal></entry>
+            <entry>Adds a file to the blacklist.</entry>
+          </row>
+          <row>
+            <entry><literal>void removeDirectoryFromFilter(string $directory)</literal></entry>
+            <entry>Removes all files from a directory that are suffixed with <literal>.php</literal> from the blacklist (recursively).</entry>
+          </row>
+          <row>
+            <entry><literal>void removeDirectoryFromFilter(string $directory, string $suffix)</literal></entry>
+            <entry>Removes all files from a directory that are suffixed with <literal>$suffix</literal> from the blacklist (recursively).</entry>
+          </row>
+          <row>
+            <entry><literal>void removeFileFromFilter(string $filename)</literal></entry>
+            <entry>Removes a file from the blacklist.</entry>
+          </row>
+          <row>
+            <entry><literal>void addDirectoryToWhitelist(string $directory)</literal></entry>
+            <entry>Adds all files from a directory that are suffixed with <literal>.php</literal> to the whitelist (recursively).</entry>
+          </row>
+          <row>
+            <entry><literal>void addDirectoryToWhitelist(string $directory, string $suffix)</literal></entry>
+            <entry>Adds all files from a directory that are suffixed with <literal>$suffix</literal> to the whitelist (recursively).</entry>
+          </row>
+          <row>
+            <entry><literal>void addFileToWhitelist(string $filename)</literal></entry>
+            <entry>Adds a file to the whitelist.</entry>
+          </row>
+          <row>
+            <entry><literal>void removeDirectoryFromWhitelist(string $directory)</literal></entry>
+            <entry>Removes all files from a directory that are suffixed with <literal>.php</literal> from the whitelist (recursively).</entry>
+          </row>
+          <row>
+            <entry><literal>void removeDirectoryFromWhitelist(string $directory, string $suffix)</literal></entry>
+            <entry>Removes all files from a directory that are suffixed with <literal>$suffix</literal> from the whitelist (recursively).</entry>
+          </row>
+          <row>
+            <entry><literal>void removeFileFromWhitelist(string $filename)</literal></entry>
+            <entry>Removes a file from the whitelist.</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <para>
+      The blacklist is pre-filled with all sourcecode files of PHPUnit itself
+      and the tests. When the whitelist is empty (default), blacklisting is used.
+      When the whitelist is not empty, whitelisting is used. When whitelisting
+      is used, each file on the whitelist is added to the code coverage report
+      regardless of whether or not it was executed.
+    </para>
+  </section>
+</chapter>

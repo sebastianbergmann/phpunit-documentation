@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="organizing-test-suites">
+  <title>テストの構成</title>
+
+  <para>
+    PHPUnit の目指すところ (<xref linkend="goals" /> を参照ください) のひとつに
+    「自由に組み合わせられる」ということがあります。つまり、
+    例えば「そのプロジェクトのすべてのテストを実行する」「プロジェクトの中の
+    ある部品を構成するすべてのクラスについて、すべてのテストを実行する」
+    「特定のひとつのクラスのテストのみを実行する」など、
+    数や組み合わせにとらわれずに好きなテストを一緒に実行できるということです。
+  </para>
+
+  <para>
+    PHPUnit フレームワークの <literal>PHPUnit_Framework_TestSuite</literal>
+    クラスを使用すると、複数のテストを階層構造でテストスイートにまとめることができます。
+    実際の例として、PHPUnit 自身のテストスイートを見てみましょう。
+  </para>
+
+  <para>
+    <xref linkend="organizing-test-suites.examples.AllTests.php" />
+    は <filename>Tests/AllTests.php</filename> の一部を抜粋したもの、そして
+    <xref linkend="organizing-test-suites.examples.Framework_AllTests.php" />
+    は <filename>Tests/Framework/AllTests.php</filename> の一部を抜粋したものです。
+  </para>
+
+  <example id="organizing-test-suites.examples.AllTests.php">
+    <title>AllTests クラス</title>
+    <programlisting><![CDATA[<?php
+require_once 'PHPUnit/Framework.php';
+
+require_once 'Framework/AllTests.php';
+// ...
+
+class AllTests
+{
+    public static function suite()
+    {
+        $suite = new PHPUnit_Framework_TestSuite('PHPUnit');
+
+        $suite->addTest(Framework_AllTests::suite());
+        // ...
+
+        return $suite;
+    }
+}
+?>]]></programlisting>
+  </example>
+
+  <example id="organizing-test-suites.examples.Framework_AllTests.php">
+    <title>Framework_AllTests クラス</title>
+    <programlisting><![CDATA[<?php
+require_once 'PHPUnit/Framework.php';
+
+require_once 'Framework/AssertTest.php';
+// ...
+
+class Framework_AllTests
+{
+    public static function suite()
+    {
+        $suite = new PHPUnit_Framework_TestSuite('PHPUnit Framework');
+
+        $suite->addTestSuite('Framework_AssertTest');
+        // ...
+
+        return $suite;
+    }
+}
+?>]]></programlisting>
+  </example>
+
+  <para>
+    <literal>Framework_AssertTest</literal> クラスは、
+    基底クラス <literal>PHPUnit_Framework_TestCase</literal>
+    を継承した標準的なテストケースクラスです。
+  </para>
+
+  <itemizedlist>
+    <listitem>
+      <para>
+        <literal>phpunit AllTests</literal> を
+        <filename>Tests</filename> ディレクトリで実行すると、すべてのテストを実行します。
+      </para>
+    </listitem>
+    <listitem>
+      <para>
+        <literal>phpunit Framework_AllTests AllTests.php</literal> を
+        <filename>Tests/Framework</filename> ディレクトリで実行すると、
+        <literal>PHPUnit_Framework_*</literal> クラスのテストのみを実行します。
+      </para>
+    </listitem>
+    <listitem>
+      <para>
+        <literal>phpunit Framework_AssertTest AssertTest.php</literal> を
+        <filename>Tests/Framework</filename> ディレクトリで実行すると、
+        <literal>PHPUnit_Framework_Assert</literal> クラスのテストのみを実行します。
+      </para>
+    </listitem>
+    <listitem>
+      <para>
+        <literal>phpunit --filter testFail Framework_AssertTest AssertTest.php</literal> を
+        <filename>Tests/Framework</filename> ディレクトリで実行すると、
+        <literal>Framework_AssertTest</literal> クラスの
+        <literal>testFail</literal> という名前のテストのみを実行します。
+      </para>
+    </listitem>
+  </itemizedlist>
+</chapter>

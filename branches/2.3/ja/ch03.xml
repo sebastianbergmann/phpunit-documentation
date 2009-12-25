@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="installation">
+  <title>PHPUnit のインストール</title>
+
+  <para>
+    <ulink url="http://www.phpunit.de/">PHPUnit</ulink> をインストールするには、
+    <ulink url="http://pear.php.net/">PEAR インストーラ</ulink>
+    を使用します。このインストーラは PEAR の根幹をなすものであり、
+    PHP のパッケージを配布する仕組みを提供しています。また、バージョン
+    4.3.0 以降のすべての PHP に同梱されています。
+  </para>
+
+  <para>
+    PHPUnit の配布に使用する PEAR チャネル (<literal>pear.phpunit.de</literal>)
+    を、ローカルの PEAR 環境に登録する必要があります。
+  </para>
+
+  <screen><userinput>pear channel-discover pear.phpunit.de</userinput></screen>
+
+  <para>
+    これを行う必要があるのは最初の一度だけです。これで、PEAR
+    インストーラは PHPUnit チャネルからパッケージをインストールできるようになります。
+  </para>
+
+  <screen><userinput>pear install phpunit/PHPUnit</userinput></screen>
+
+  <note>
+    <para>
+      以前に <literal>pear.php.net</literal> から
+      <literal>PHPUnit</literal> や <literal>PHPUnit2</literal>
+      をインストールしている場合、まずそれをアンインストールしなければなりません。
+    </para>
+  </note>
+
+  <para>
+    インストールすると、PHPUnit のソースファイルがローカルの PEAR
+    ディレクトリに格納されます。場所は、通常は
+    <filename>/usr/lib/php/PHPUnit</filename> です。
+  </para>
+
+  <para>
+    PHPUnit がサポートしているのは PEAR インストーラを使用する方法のみですが、
+    PHPUnit を手動でインストールすることも可能です。そのためには、
+    以下の手順に従ってください。
+  </para>
+
+  <orderedlist>
+    <listitem>
+      <para>
+        <literal>http://pear.phpunit.de/get/</literal>
+        からアーカイブをダウンロードし、それを <filename>php.ini</filename>
+        設定ファイルの <literal>include_path</literal>
+        で指定したディレクトリに展開します。
+      </para>
+    </listitem>
+
+    <listitem>
+      <para>
+        <filename>phpunit</filename> スクリプトを準備します。
+      </para>
+
+      <orderedlist>
+        <listitem>
+          <para>
+            <filename>pear-phpunit</filename> スクリプトの名前を
+            <filename>phpunit</filename> に変更します。
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            その中の <literal>@php_bin@</literal> という文字列を、
+            PHP コマンドラインインタプリタへのパス (通常は
+            <filename>/usr/bin/php</filename>) に変更します。
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            それを <filename>PATH</filename> の通ったディレクトリにコピーし、
+            実行可能属性を付与します (<literal>chmod +x phpunit</literal>)。
+          </para>
+        </listitem>
+      </orderedlist>
+    </listitem>
+  </orderedlist>
+</chapter>

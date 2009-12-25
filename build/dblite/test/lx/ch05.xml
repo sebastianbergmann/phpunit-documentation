@@ -1,0 +1,2389 @@
+<chapter id="css"><title>Presentation Part I: CSS</title>
+
+<simplesect>
+
+<para>As the Web exploded in popularity in the mid-1990s, everyone
+wanted their own website. I remember learning HTML from friends and
+the excitement I felt when I saw my virtual homestead suddenly become
+accessible to thousands of computer users. Back then, I had only a
+very limited understanding of things like "good design", "standards",
+and "best practices". They seemed like lofty concepts with little
+relation to me and my happy experiments. So, like everyone else, I cut
+corners, sacrificed good taste, and ignored rules because all that
+mattered was seeing something display reasonably well in a
+browser.</para>
+
+<para>Since then, the novelty has worn off and my situation is vastly
+different. My concern has shifted from "how can I get something to
+display at all" to "how can I make my information available to
+everyone who tries to look at it, regardless of what software they are
+using, on what platform, and in which media format?"  And instead of
+asking "how can I create an HTML page", I now ask, "how can I make
+this vast amount of information easier to update, store, and publish?"
+And where before I might wonder how to achieve some effect in HTML,
+like making some lines of text larger than other lines, I now have to
+cope with a variety of different XML formats and extremely detailed
+design needs.</para>
+
+<para>Cascading Stylesheets (CSS) are the first piece to the
+puzzle. They have been around for a long time, but for several reasons
+they haven't started to take off until recently. Now sites like
+<systemitem role="url">wired.com</systemitem> are totally based on CSS
+and they actually look pretty good. Although originally designed to
+augment HTML, CSS can complement XML as well. In this chapter, we will
+see how it can be used for web pages as well as XML documents for
+human consumption.</para>
+
+</simplesect>
+
+
+<sect1><title>Stylesheets</title>
+
+<para>XML and stylesheets go together like naked people and
+clothes. Let's take a moment to familiarize ourselves with the general
+concepts behind stylesheets. First, why do you want them? Second, how
+do they work? Finally, are there limitations, and what can we do about
+them?</para>
+
+
+<sect2><title>Why we need them</title>
+
+<para>I can rant about why it's important to keep information pure and
+separate presentation into stylesheets, but this would ignore a
+critical question: if it's easier to write in presentational
+markup&mdash;and I admit that it is&mdash;why would you want to bother
+with stylesheets? After all, the Web itself testifiest to the fact
+that presentational markup is working quite well for what it was
+designed to do. For that matter, what's wrong with plain text?</para>
+
+<para>If you are already familiar with the sermon, then skip this
+section, because I'm going to preach the religion of stylesheets
+now.</para>
+
+<para>XML was inspired, to a large extent, by the limitations of HTML.
+Tim Berners-Lee, the inventor of HTML, always had stylesheets in mind,
+but for some reason, they had been forgotten in the huge initial surge
+of webification. Although it had only limited presentational
+capabilities built in, still this was enough to satisfy the hourdes of
+new web authors. Easy to implement and even easier to learn, HTML was
+soon stretched far beyond its original intentions as a simple report
+formatting language, forced to encode everything from product catalogs
+to corporate portals. But the very thing that led to its rapid uptake,
+presentational markup, is also holding HTML back.</para>
+
+<para>Here are some problems associated with presentational markup and
+how stylesheets help to solve them:</para>
+
+<variablelist>
+
+<varlistentry><term>Low information content.</term>
+
+<listitem>
+<para>Presentational markup is not much better than plain text. A
+machine can't understand the difference between a typical body
+paragraph and a poem or code sample. Nor does it know that one thing
+is marked bold because it's a stock price and another is bold because
+it's the name of a town. Consequently, you can't easily mine pages for
+information. Search engines can only try to match character strings,
+since any sense of context is missing from the markup.</para>
+
+<para>With stylesheets, you are free to mark up a document in a way
+that preserves information. XML markup languages are tailored for
+their data, using element names that describe what things are rather
+than how they should look. This makes it possible to create data
+mining software or search engines that use markup information in
+addition to content.</para>
+</listitem></varlistentry>
+
+<varlistentry><term>Management nightmare.</term>
+
+<listitem>
+<para>When your markup is presentational, the design details are
+inextricably mixed with the content. You have to get into the document
+itself anytime you need to make a change to the design. This can be
+quite laborious. For example, to change italicized proper nouns to
+bold typeface means editing each case manually, since there is no
+automatic search-and-replace utility that can recognize a proper noun
+from an emphasized phrase.</para>
+
+<para>Stylesheets untangle presentation details from the document,
+storing them in a separate place. If you need to make a change to the
+design of a document, you can do it in once place in the stylesheet,
+rather than manually fix every hard-coded tag in the markup. What's
+more, since one stylesheet an be used for many documents (see <xref
+linkend="css-fig-many"/>), one simple change can affect many pages. In
+a setting where design changes occur frequently, this is a
+godsend.</para>
+
+<figure id="css-fig-many">
+<title>One stylesheet can be used by many documents</title>
+<graphic fileref="figs/lx2_0501.jpg"/>
+</figure>
+
+</listitem></varlistentry>
+
+<varlistentry><term>Dubious vendor extensions.</term>
+
+<listitem><para>Seeking to extend their market share by addressing the
+frustrations of web authors, some tool vendors have taken the
+initiative of extending HTML on their own, circumventing the standards
+process. Differentiating their products this way is a bad way seems
+good at first, but it leads to a horrible fracturing of your
+audience. People have to use the same tools as you in order to view
+your information. Web pages with messages like "best when viewed by
+browser X" have fallen into this trap.</para>
+
+<para>Stylesheets are regulated by standards bodies. Instead of
+inventing <foreignphrase>ad hoc</foreignphrase> extensions that
+fragment the community, vendors instead are encouraged to implement
+the same standards as everyone else. If something is missing that
+people need, it's better to tell the standard maintaining body than to
+go it alone. (That's the theory, anyway. In practice, it doesn't
+always work. CSS has been around for a long time, and to date none has
+completely implemented it correctly.)</para>
+</listitem></varlistentry>
+
+<varlistentry><term>Device dependance.</term>
+
+<listitem>
+<para>Designers often focus too much on getting something to
+look <firstterm>just right</firstterm> instead of making it good
+enough for a range of uses. In the process, they end up making their
+document too inflexible for viewers. For example, it's tempting to set
+the column widths of a table with absolute widths. It may look
+terrific on the designer's 17-inch screen, but simply awful on a
+smaller, 14-inch monitor, not to mention PDA's and cell
+phones.</para>
+
+<para>Instead of trying to exploit side-effects of tags or tinkering
+with minute details in markup to get the right effect, designers now
+can work on a stylesheet. Stylesheets typically are designed with
+multiple purposes in mind. For example, typeface selection is
+flexible, taking into account the capabilities of the reader's local
+system. Stylesheets supply more options for specifying sizes, lengths,
+colors, margins, and other properties, usually with the option for
+flexible, relative dimensions.</para>
+</listitem></varlistentry>
+
+<varlistentry><term>Limited reusability.</term>
+
+<listitem>
+<para>Sometimes you want your document to be used in different ways,
+but are limited by the hardwired presentation details. Write a
+document in HTML and it's only good for viewing online. You can print
+it out, but the typeface looks big and blocky because it's designed
+for a computer screen. You could cut and paste the content into
+another program, but then you'd lose design information or you'd carry
+in some unwanted artifacts (spurious whitespace for example).</para>
+
+<para>Again, the separation of stylesheet from document will help you
+here. You can write as many stylesheets as you want for different
+purposes (<xref linkend="css-fig-mix"/>. In the document, you only
+need to change a simple setting to associate it with a different
+stylesheet. A web server can detect what device is requesting a page
+and select an appropriate stylesheet. The user can also make changes
+to the presentation, substituting their own stylesheet, or just
+overriding a few styles.</para>
+
+<figure id="css-fig-mix">
+<title>Mix and match stylesheets for different purposes</title>
+<graphic fileref="figs/lx2_0502.jpg"/>
+</figure>
+
+</listitem></varlistentry>
+
+</variablelist>
+
+<para>To summarize, the three principle ways in which stylesheets help
+you are:</para>
+
+<itemizedlist>
+<listitem><para>Making design changes easier by disentangling the
+details from the document.</para></listitem>
+<listitem><para>Enabling multiple uses for one
+document.</para></listitem>
+<listitem><para>Giving the end-user more control and
+accessibility.</para></listitem>
+</itemizedlist>
+
+<para>The key to all this is what we in XML intellectual circles call
+<firstterm>late binding</firstterm>. Keep the document as far away
+from its final product as possible, and you maximize its
+flexibility. The stylesheet extends the information into a particular
+realm, be it online viewing or print or spoken text.</para>
+
+</sect2>
+
+
+<sect2><title>How they work</title>
+
+<para>Think of applying a stylesheet to a document as preparing a meal
+from a cookbook. Your XML document is a bunch of raw, unprocessed
+ingredients; the stylesheet is a recipe, telling the chef how to
+handle each ingredient and how to combine them. The software that
+transmutes XML into another format, based on the stylesheet's
+instructions, is the chef in our analogy. After the dicing, mixing,
+and baking, we have something palatable and easily digested.</para>
+
+
+<sect3><title>Applying properties</title>
+
+<para>In the simplest sense, a stylesheet is like a table that maps
+style properties to elements in the document (see <xref
+linkend="css-fig-combo"/>). A
+<firstterm>property</firstterm> is anything that affects the
+appearance or behavior of the document, such as typeface, color, size,
+or decoration. Each mapping from element to property set is called a
+<firstterm>rule</firstterm>. It consists of a part that matches parts
+of a document, and another that lists the properties to use.</para>
+
+<figure id="css-fig-combo">
+<title>A stylesheet helps produce a formatted document</title>
+<graphic fileref="figs/lx2_0503.jpg"/>
+</figure>
+
+<para>The software that uses a stylesheet to generate formatted output
+is a <firstterm>stylesheet processor</firstterm>. As it reads the XML
+document, it keeps consulting the stylesheet to find rules to apply to
+elements. For each element, there may be multiple rules that match,
+so the processor may apply them all, or it may just try to find one
+that is the best fit. Matching rules to elements can be a complex
+process in writing a stylesheet.</para>
+
+
+</sect3><sect3><title>Client and server-side processing</title>
+
+<para>The result of this processing is either a generated display or
+another document. The first case is what you would see in a web
+browser on screen, or a printout from the browser. It's a
+device-dependant result, created on the client end of the
+transaction. Client-side processing like this takes the load off of
+the server making information propagate faster. It also gives the end
+user more control over the appearance by being able to override some
+style settings.</para>
+
+<para>The other kind of output from a style processor is a new
+document. XSLT, which we will explore in <xref linkend="xslt"/>, is
+such a stylesheet language. This sort of process is also known as a
+<firstterm>transformation</firstterm> because it effectively
+transforms the original document into a different
+form. Transformations can be performed on either the server or the
+client end, before or during the transaction. For example, a DocBook
+document can be transformed into HTML for presentation on a
+browser. It's a very powerful technique that we will have fun talking
+about later.</para>
+
+
+</sect3><sect3><title>Cascading styles</title>
+
+<para>Stylesheets can be modularized to mix and match rules. This is
+the source of the term "cascading" in CSS. The idea is that no
+stylesheet ought to be monolithic. Instead, you should be able to
+combine styles from different sources, create subsets, override rules
+in different situations. For example, you can use a general-purpose
+stylesheet combined with one that fine-tunes the style settings
+for a specific product (see <xref linkend="css-fig-cascade"/>).</para>
+
+<figure id="css-fig-cascade">
+<title>A cascade of stylesheets</title>
+<graphic fileref="figs/lx2_0504.jpg"/>
+</figure>
+
+<para>One reason for doing this is to make it easier to manage a huge
+set of style rules. The fix-once-see-everywhere principle is enhanced
+when changes to one set of rules are inherited by many
+stylesheets.</para> 
+
+<para>Cascading rules also make it possible to change the result at
+any point in the transaction. All browsers in fact have a default
+client-side stylesheet that specifies how to render HTML in the
+absence of any specifications from the server. Some browsers, such as
+Mozilla allow you to edit this local stylesheet, or <firstterm>user
+stylesheet</firstterm> so you can customize the appearance to suit
+your tastes. For example, if you think most text in pages is hard to
+read, you can increase the default size of fonts and save yourself
+some eyestrain.</para>
+
+
+</sect3><sect3><title>Associating a stylesheet to a document</title>
+
+<para>There is no hard and fast rule for how to associate resources to
+documents in XML. Each markup language may or may not provide support
+for stylesheets. For some languages it wouldn't make any sense to do
+so, such as SVG. In others, where stylesheets are a good idea, the
+language doesn't have an explicit method for association, as is the
+case with DocBook.</para>
+
+<para>HTML happens to define an element for linking resources like
+stylesheets to the document. <sgmltag>link</sgmltag> will bind a web
+page to a CSS stylesheet like this:</para>
+
+<programlisting><![CDATA[<html>
+  <head>
+    <title>The Behavior of Martian Bees</title>
+    <link rel="stylesheet" type="text/css" href="honey.css"/>
+  </head>
+  ...]]></programlisting>
+
+<para>Alternatively, in HTML you can embed the stylesheet inside the
+document:</para>
+
+<programlisting><![CDATA[<html>
+  <head>
+    <title>The Behavior of Martian Bees</title>
+    <style>
+      body { background-color: wheat;
+             color: brown;
+             font-family: sans-serif; }
+      .sect { border: thin solid red; 
+              padding: 0.5em; }
+    </style>
+  </head>
+  ...]]></programlisting>
+
+<para>Of course, this is more limiting, since the stylesheet can't be
+applied to more than one document and the document is stuck with this
+stylesheet. In general, I think keeping the two separate is a better
+idea, but there may be advantages to putting them together, such as
+making it easier to transport a document through email.</para>
+
+<para>These two solutions work because HTML evolved together with
+stylesheets. Not all languages are designed with them in mind.  For
+this purpose, XML provides a generic way to embed a stylesheet using a
+processing instruction named
+<literal>&lt;?xml-stylesheet?</literal> whose syntax is shown in <xref
+linkend="css-fig-decl"/>.</para>
+
+<figure id="css-fig-decl">
+<title>Syntax for a stylesheet declaration</title>
+<graphic fileref="figs/lx2_0505.jpg"/>
+</figure>
+
+<para>The declaration begins with the processing instruction delimiter
+and target <literal>&lt;?xml-stylesheet</literal> (1).  The PI includes two
+property assignments similar to attributes. The first property,
+<literal>type</literal> (2), is set to the MIME type (3) of the
+stylesheet (for CSS, this is <literal>text/css</literal>). The value
+of the other property, <literal>href</literal> (4), is the URL of the
+stylesheet (5), which can be on the same system or anywhere on the
+Internet. The declaration ends with the closing delimiter (6).</para>
+
+<para>Here's how it would be used in a document:</para>
+
+<programlisting>&lt;?xml version="1.0"?&gt;
+<emphasis role="bold">&lt;?xml-stylesheet type="text/css" href="bookStyle.css"?&gt;</emphasis>
+&lt;book&gt;
+  &lt;title&gt;Tom Swift's Aerial Adventures&lt;/title&gt;
+  &lt;chapter&gt;
+    &lt;title&gt;The Dirigible&lt;/title&gt;
+  ...</programlisting>
+
+<para>Using a processing instruction for this purpose is smart for a
+few reasons. First, it doesn't "pollute" the language with an extra
+element that has to be declared in a DTD. Second, it can be ignored by
+processors that don't care about stylesheets, or older ones that don't
+know how to work with them. Third, it isn't really part of the
+document anyway, but rather a recommended way to work with the
+information.</para>
+
+</sect3>
+</sect2>
+
+
+<sect2><title>Limitations</title>
+
+<para>Not surprisingly, there are limits to what you can do with
+stylesheets. Languages for stylesheets are optimized for different
+purposes. You need to be aware of how a stylesheet language works to
+use it most effectively.</para>
+
+<para>CSS, for example, is designed to be compact and
+efficient. Documents have to be rendered quickly because people don't
+want to wait a long time for something to read. The stylesheet
+processor is on the client end, and doesn't have a lot of computing
+power at its disposal. So the algorithm for applying styles needs to
+be very simple. Each rule that matches an element can only apply a set
+of styles. There is no other processing allowed, no looking backwards
+or forwards in the document for extra information. You have only one
+pass through the document to get it right.</para>
+
+<para>Sometimes, information is stored in an order other than the way
+you want it to be rendered. If that is the case, then you need
+something more powerful than CSS. XSLT works on a tree representation
+of the document. It provides the luxury of looking ahead or behind to
+pull together all the data you need to generate output. This freedom
+comes at the price of increased computational requirements. Although
+some browsers support client-side XSLT processing (e.g. Internet
+Explorer), it's more likely you'll want transformations to be done on
+the server side, where you have more control and can cache
+results.</para>
+
+<para>Property sets are finite, so no matter how many features are
+built into a stylesheet language, there will always be something
+lacking, some effect you want to achieve but can't. When that happens,
+you should be open to other options, such as post-processing with
+custom software. In <xref linkend="prog"/>, I'll talk about strategies
+for programming with XML. This is the ultimate and most work intensive
+solution, but sometimes there just is no other way to get what you
+want.</para>
+
+<para>Unquestionably, implementation among clients has been the
+biggest obstacle. The pace of standards development was much faster
+than actual implementation. Browsers either didn't support them or had
+buggy and incomplete implementations. This is quite frustrating for
+designers who want to support multiple platforms but are stymied by
+differing behaviors among user agents. Not only does behavior vary
+among vendors, but versions too. Internet Explorer, for example,
+behaves very differently on Macintosh as it does on Windows for
+versions that came out at the same time.</para>
+
+<para>When I wrote the first edition of this book, I was quite
+disappointed by the level of support for CSS. Any but the most simple
+example would not work on more than one browser. Since then, the
+situation has improved a little. Mozilla has much better support for
+CSS now. Internet Explorer, which used to be the leader, has
+inexplicably remained stuck for over a year. Sure, CSS is rich and
+featured, but it shouldn't be <emphasis>that</emphasis> difficult to
+implement. I think the open source movement offers the most hope,
+because there will always be an opportunity for some hacker, fed up
+with an unimplemented option, to go in a get it working; whereas with
+corporations, we have to wait until the marketing department deems it
+a high enough priority to put it on the schedule.</para>
+
+</sect2>
+</sect1>
+
+
+<sect1><title>CSS Basics</title>
+
+<sect2><title>The CSS Specfication</title>
+
+<para>Cascading Style Sheets (CSS) is a recommendation developed by
+the World Wide Web Consortium (W3C). It originated in 1994 when
+H&aring;kon Wium Lee, working at CERN (the birthplace of HTML),
+published a paper titled <citetitle>Cascading HTML Style
+Sheets</citetitle>. It was a bold move at the right time. By then, the
+Web was four years old and growing quickly, yet there was still no
+consensus for a standard style description language. The architects of
+HTML knew that the language was in danger of becoming a style
+description language if something like CSS wasn't adopted soon.</para>
+
+<para>The goal was to create a simple yet expressive language that
+could combine style descriptions from different sources. Another style
+description language, DSSSL, was already being used to format SGML
+documents. Though very powerful, DSSSL was too big and complex to be
+practical for the Web. It is a full programming language, capable of
+more precision and logical expression than CSS, which is a simple
+language, focused on the basic needs of small documents.</para>
+
+<para>While other stylesheet languages existed when CSS was proposed,
+none offered the ability to combine multiple sources (cascading) into
+one style description set. CSS makes the Web truly accessible and
+flexible by allowing a reader to override the author's styles to adapt
+a document to the reader's particular requirements and
+applications.</para>
+
+<para>The W3C put forward the first CSS recommendation (later called
+CSS1) in 1996. A short time later, a W3C working group formed around
+the subject of "Cascading Style Sheets and Formatting Properties" to
+add missing functionality. Their recommendation, CSS2, increased the
+language's properties from around 50 to more than 120 when it was
+released in 1998. It also added concepts like generated text,
+selection by attribute, and media other than screen display. CSS3 is
+still a work in progress.</para>
+
+</sect2>
+
+
+<sect2><title>Syntax</title>
+
+<para>Below is a sample CSS stylesheet.</para>
+
+<programlisting>/* A simple example */
+addressbook {
+  display-type: block;
+  font-family: sans-serif;
+  font-size: 12pt;
+  background-color: white;
+  color: blue;
+}
+entry {
+  display-type: block;
+  border: thin solid black;
+  padding: 5em;
+  margin: 5em;
+}
+name, phone, email, address {
+  display-type: block;
+  margin-top: 2em;
+  margin-bottom: 2em;
+}</programlisting>
+
+<para>This stylesheet has three rules. The first matches any
+<sgmltag>addressbook</sgmltag> element. The name to the left of the
+open bracket is a <firstterm>selector</firstterm> telling the
+processor what this rule matches. The items inside the brackets are
+the <firstterm>property declaration</firstterm>, a list of properties
+to apply.</para>
+
+<para>The syntax for a CSS rule is shown in <xref
+linkend="css-fig-rule"/>. It consists of a
+<firstterm>selector</firstterm> (1) for matching elements and a
+<firstterm>declaration</firstterm> (2) for describing styles. The
+declaration is a list of name-value assignments (3), in which each
+style <firstterm>property</firstterm> (4) is assigned to a
+<firstterm>value</firstterm> (5) with a colon (:) separator.</para>
+
+<figure id="css-fig-rule"><title>CSS rule syntax</title>
+<graphic fileref="figs/lx2_0506.jpg"/>
+</figure>
+
+<para>CSS has a syntax for comments too. Anything inside a comment is
+ignored by the processor. The start delimiter is <literal>/*</literal>
+and the end is marked by the delimiter <literal>*/</literal>. A
+comment can span multiple lines and may be used to enclose CSS rules
+to remove them from consideration:</para>
+
+<programlisting>/* this part will be ignored
+gurble { color: red }
+burgle { color: blue; font-size: 12pt; }
+*/</programlisting>
+
+<para>Whitespace is generally ignored and provides a nice way to make
+stylesheets more readable. The exception is that there are some cases
+where spaces act as delimiters in lists. Some properties take multiple
+arguments separated with spaces like <literal>border</literal> below:</para>
+
+<programlisting>sidebar {
+  border: thin solid black
+}</programlisting>
+
+</sect2>
+
+
+<sect2><title>Matching properties to elements</title>
+
+<para>Let's look closer at this rule:</para>
+
+<programlisting>addressbook {
+  display-type: block;
+  font-family: sans-serif;
+  font-size: 12pt;
+  background-color: white;
+  color: blue;
+}</programlisting>
+
+<para>Qualitatively, this rule is like saying, "for every addressbook
+element, display it like a block, set the font family to any
+sans-serif typeface with size 12 points, set the background color to
+white and make the foreground (text) blue." So whenever the CSS
+processor encounters an <sgmltag>addressbook</sgmltag> element, it
+will set apply these properties to the current formatting context.</para>
+
+<para>To understand how it works, think of painting-by-numbers. In
+front of you is a canvas with outlines of shapes and numbers inside
+the shapes. Each number corresponds to a paint color. You go to each
+shape, find the paint that corresponds to the number inside it, and
+fill it in with that color. In an hour or so, you'll have a lovely
+stylized pastoral scene with a barn and wildflowers. In this analogy,
+the rule is a paint can with a numbered label. The color is the
+property and the number is the selector.</para>
+
+<para>The selector can be more complex than just one element name. It
+can be a comma-separated list of elements matching any element whose
+name is in the list. It could be qualified with an attribute, as this
+example, which matches a <sgmltag>foo</sgmltag> element with
+<literal>class="flubber"</literal>:</para>
+
+<programlisting>foo.flubber { color: green; }</programlisting>
+
+<para>The CSS processor tries to find the
+<emphasis>best</emphasis> rule (or rules) for each element. In a
+stylesheet, there may be several rules that apply. For example:</para>
+
+<programlisting>p.big { 
+  font-size: 18pt; 
+}
+
+p { 
+  font-family: garamond, serif;
+  font-size: 12pt;
+}
+
+* { 
+  color: black;
+  font-size: 10pt; 
+}</programlisting>
+
+<para>The first rule matches a <sgmltag>p</sgmltag> with atribute
+<literal>class="big"</literal>. The second matches any
+<sgmltag>p</sgmltag> regardless of attributes, and the last matches
+any element at all. Suppose the next element to process is a <sgmltag
+class="element">p</sgmltag> with the attribute
+<literal>class="big"</literal>. All three rules match this
+element.</para>
+
+<para>How does CSS decide which properties to apply? The solution to
+this dilemma has two parts. The first is that all rules that match are
+used. It's as if the property declarations for all the applicable
+rules were merged into one set. That means all of these properties
+potentially apply to the element:</para>
+
+<programlisting>font-size: 18pt; 
+font-family: garamond, serif;
+font-size: 12pt;
+color: black;
+font-size: 10pt;</programlisting>
+
+<para>The second part is that redundant property settings are
+resolved according to an algorithm. As you can see, there are three
+different <literal>font-size</literal> property settings. Only one of
+the settings can be used, so the CSS processor has to weed out the worst
+two using a property clash resolution system. As a rule of thumb, you
+can assume that the property from the rule with the most specific
+selector will win out. The first <literal>font-size</literal> property
+originates from the rule with selector <literal>p.big</literal>, which
+is more descriptive than <literal>p</literal> or <literal>*</literal>,
+so it's the winner.</para>
+
+<para>In the final analysis, these three properties will apply:</para>
+
+<programlisting>font-size: 18pt;
+font-family: garamond, serif;
+color: black;</programlisting>
+
+</sect2>
+
+
+<sect2><title>Property inheritance</title>
+
+<para>In XML documents, there is a hierarchy of elements. CSS uses
+that hierarchy to pass along properties in a process called
+<firstterm>inheritance</firstterm>. Going back to our DocBook example,
+a <sgmltag>sect1</sgmltag> contains a
+<sgmltag>para</sgmltag>. Consider the following stylesheet:</para>
+
+<programlisting>sect1 {
+  margin-left: 25pt;
+  margin-right: 25pt;
+  font-size: 18pt;
+}
+
+para {
+  margin-top: 10pt;
+  margin-bottom: 10pt;
+  font-size: 12pt;
+}</programlisting>
+
+<para>The <sgmltag>para</sgmltag>'s set of properties
+is a combination of those it explicitly declares and those it
+inherits from the elements in its ancestry (not counting those that
+are redefined along the way). And here, it has inherited the properties
+<literal>margin-left</literal> and <literal>margin-right</literal> from the
+<sgmltag>sect1</sgmltag> element. It does not inherit
+<literal>font-size</literal> from <sgmltag>sect1</sgmltag> because
+that property is explicitly declared by the <sgmltag>para</sgmltag>,
+in effect eclipsing the earlier declaration.</para>
+
+</sect2>
+
+
+<sect2><title>Combining Stylesheets</title>
+
+<para>A very powerful feature of CSS is its ability to combine
+multiple stylesheets by importing one into another. This lets you
+borrow predefined style definitions so you don't
+have to continuously reinvent the wheel. Any style settings that
+you want to redefine or don't need can be overridden in the local
+stylesheet.</para>
+
+<para>One reason to combine stylesheets is
+<firstterm>modularity</firstterm>. It may be more manageable to break
+up a large stylesheet into several smaller files. For example, we
+could store all the styles pertaining to math equations in
+<filename>math.css</filename> and all the styles for regular text in
+<filename>text.css</filename>. The command <literal>@import</literal>
+links the current stylesheet to another and causes the style
+settings in the target to be imported:</para>
+
+<programlisting>@import url(http://www.mycompany.org/mystyles/math.css);
+@import url(http://www.mycompany.org/mystyles/text.css);
+
+<lineannotation>More stylesheet stuff...</lineannotation></programlisting>
+
+<para>Some of the imported style rules may not suit your taste, or
+they may not fit the presentation. You can override those rules by
+redefining them in your own stylesheet. Here, we've decided that the
+rule for <sgmltag>h1</sgmltag> elements defined in
+<filename>text.css</filename> needs to be changed:</para>
+
+<programlisting>@import url(http://www.mycompany.org/mystyles/text.css);
+
+h1: { font-size: 3em; }    /* redefinition */</programlisting>
+
+</sect2>
+</sect1>
+
+
+<sect1><title>Rule Matching</title>
+
+<para>We will delve now into the details of selector syntax and all
+the ways a rule can match an element or attribute. Don't worry yet
+about what properties actually mean. I'll cover all that in the next
+section. For now, concentrate on how rules drive processing and how
+they interact with each other.</para>
+
+<para><xref linkend="css-fig-selector"/> shows the general syntax for
+selectors. They typically consist of an element name (1) followed by
+some number of attribute tests (2) in square brackets, which in turn
+contain an attribute name (3) and value (4). Note that each of these
+parts is optional as long as you specify at least an element or
+attribute. The element name can contain wildcards to match any
+element, and it can also contain chains of elements to specify
+hierarchical information. The attribute tests can check for the
+existence of an attribute (with any value), the existence of a value
+(for any attribute), or in the strictest case, a particular
+attribute-value combination.</para>
+
+<figure id="css-fig-selector">
+<title>Syntax for a CSS selector</title>
+<graphic fileref="figs/lx2_0507.jpg"/>
+</figure>
+
+
+<sect2><title>Elements</title>
+
+<para>Matching an element is as simple as writing its name:</para>
+
+<programlisting>emphasis { 
+  font-style: italic; 
+  font-weight: bold; }</programlisting>
+
+<para>This rule matches any <sgmltag>emphasis</sgmltag> element in the
+document. This is just the tip of the iceberg. There are many ways to
+qualify the selection. You can specify attribute names, attribute
+values, elements that come before and after, and even special
+conditions such as whether the cursor is currently hovering over a
+link, or in what language the document claims to be written.</para>
+
+<para>A list of names is also allowed, letting you apply the same
+properties to many kinds of elements. Here, a set of three properties
+applies to any of the four elements, <sgmltag>name</sgmltag>,
+<sgmltag>phone</sgmltag>, <sgmltag>email</sgmltag>, and
+<sgmltag>address</sgmltag>:</para>
+
+<programlisting>name, phone, email, address {
+  display-type: block;
+  margin-top: 2em;
+  margin-bottom: 2em;
+}</programlisting>
+
+<para>Besides using definite element names, you can use an asterisk
+(*) as a wildcard to match any element name. It's called the
+<firstterm>universal selector</firstterm> For example, the
+following rule applies to any element in a document, setting the text
+color to blue:</para>
+
+<programlisting>* { color: blue }</programlisting>
+
+<para>Since this is a very general selector, it takes a low
+precedence in the set of rules. Any other element that defines a color
+property will override this rule.</para>
+
+</sect2>
+
+
+<sect2><title>Attributes</title>
+
+<para>For a finer level of control, you can qualify the selection of
+elements by their attributes. An <firstterm>attribute
+selector</firstterm> consists of an element type name immediately
+followed by the attribute refinement in square brackets. Varying levels
+of precision are available:</para>
+
+<variablelist>
+<varlistentry><term><literal>planet[atmosphere]</literal></term>
+<listitem>
+<para>This selector matches any <sgmltag>planet</sgmltag> element that
+has an <literal>atmosphere</literal> attribute. For example, it selects
+<sgmltag>planet atmosphere="poisonous"</sgmltag> and
+<sgmltag>planet atmosphere="breathable"</sgmltag>, but not
+<sgmltag>planet</sgmltag>.</para>
+
+<para>You can leave out the element name if you will accept any
+element that contains the attribute. The selector
+<literal>[atmosphere]</literal> matches both <sgmltag>planet
+atmosphere="dense"</sgmltag> and <sgmltag>moon
+atmosphere="wispy"</sgmltag>.</para>
+</listitem></varlistentry>
+
+<varlistentry><term><literal>planet[atmosphere="breathable"]</literal></term>
+<listitem>
+<para>Adding a value makes the selector even more specific.
+This selector matches <sgmltag>planet
+atmosphere="breathable"</sgmltag>, but it doesn't match
+<sgmltag>planet atmosphere="poisonous"</sgmltag>.</para>
+</listitem></varlistentry>
+
+<varlistentry><term><literal>planet[atmosphere~="sweet"]</literal></term>
+<listitem>
+<para>If the attribute's value is a space-separated list of
+strings, you can match any one of them by using the operator
+<literal>~=</literal> instead of the equals sign (<literal>=</literal>). 
+This selector matches <sgmltag>planet atmosphere="breathable sweet
+dense"</sgmltag> or <sgmltag>planet atmosphere="foggy
+sweet"</sgmltag>, but it does not match <sgmltag>planet
+atmosphere="breathable stinky"</sgmltag>.</para>
+</listitem></varlistentry>
+
+<varlistentry><term><literal>planet[populace|="barbaric"]</literal></term>
+<listitem>
+<para>Similar to the item-in-list matching operator, a selector with the
+operator <literal>|=</literal> matches an item in a hyphen-separated
+value list, provided it begins with the value in the selector. This matches
+<sgmltag>planet populace="barbaric-hostile"</sgmltag>.</para>
+
+<para>This kind of selector is often used to distinguish between
+language types. The value of the XML attribute
+<literal>xml:lang</literal> is a <firstterm>language
+identifier</firstterm>, a string that looks like this:
+<literal>en-US</literal>. The two-character code
+"en" stands for "English" and the code
+"US" qualifies that as the United States variant. To
+match a <sgmltag>planet</sgmltag> element with an
+<literal>xml:lang</literal> attribute that specifies
+English, use the selector
+<literal>planet[language|="en"]</literal>. This selects both
+<literal>en-US</literal> and <literal>en-UK</literal>.</para>
+</listitem></varlistentry>
+
+<varlistentry><term><literal>planet[atmosphere="breathable"][populace="friendly"]</literal></term>
+<listitem>
+<para>Selectors can string together multiple attribute
+requirements. To match, the attribute selectors must be
+satisfied, just as if they were bound with a logical
+AND operator. The above selector matches 
+<sgmltag>planet atmosphere="breathable" populace="friendly"</sgmltag> 
+but not <sgmltag>planet populace="friendly"</sgmltag>.</para>
+</listitem></varlistentry>
+
+<varlistentry><term><literal>#mars</literal></term>
+<listitem>
+<para>This special form is used to match <literal>ID</literal> 
+attributes. It matches <sgmltag>planet id="mars"</sgmltag> or
+<sgmltag>candy-bar id="mars"</sgmltag>, but not <sgmltag>planet
+id="venus"</sgmltag>. Remember that
+only one element in the whole document can have an <literal>ID</literal>
+attribute with a given value, so this rule is very specific.</para>
+</listitem></varlistentry>
+
+<varlistentry><term><literal>planet.uninhabited</literal></term>
+<listitem>
+<para>An attribute that is frequently used to designate
+special categories of an element for stylesheets is
+<literal>class</literal>. A shortcut for matching class attributes is
+the period, which stands for <literal>class=</literal>. The selector
+above matches <sgmltag>planet class="uninhabited"</sgmltag> but
+doesn't match <sgmltag>planet class="colony"</sgmltag>.</para>
+</listitem></varlistentry>
+
+<varlistentry><term><literal>planet:lang(en)</literal></term>
+<listitem>
+<para>This selector form is used to match elements with a
+particular language specified. In pre-XML versions of HTML, this
+would be specified in a <literal>lang</literal> attribute.
+In XML, the attribute is <literal>xml:lang</literal>. The attribute
+values are matched in the same way as the <literal>|=</literal>
+operator: a hyphenated list matches the value given in the selector if
+the list starts with a string identical to the one in the
+selector. The <literal>xml:lang</literal> attribute is an exception 
+to XML's usual rules of case-sensitivity; values here are compared
+without regard to case. So in this example the selector matches 
+<sgmltag>planet lang="en"</sgmltag>, 
+<sgmltag>planet lang="EN-us"</sgmltag>, or
+<sgmltag>planet lang="en-US"</sgmltag>, but not
+<sgmltag>planet lang="jp"</sgmltag>.</para>
+</listitem></varlistentry>
+</variablelist>
+
+</sect2>
+
+
+<sect2><title>Contextual Selection</title>
+
+<para>Selectors can also use contextual information to match
+elements. This information includes the element's ancestry (its
+parent, its parent's parent, etc.) and siblings, and is useful for
+cases in which an element needs to be rendered differently depending
+on where it occurs.</para>
+
+<sect3><title>Ancestry</title>
+
+<para>You can specify that an element is a child of another element
+using the greater-than symbol (&gt;). For example:</para>
+
+<programlisting>book &gt; title { font-size: 24pt; }
+chapter &gt; title { font-size: 20pt; }
+title { font-size: 18pt; }</programlisting>
+
+<para>The element to select here is <sgmltag>title</sgmltag>. If the
+<sgmltag>title</sgmltag> appears in a <sgmltag>book</sgmltag>, then
+the first rule applies. If it appears within a
+<sgmltag>chapter</sgmltag>, the second rule is chosen. If the title
+appears somewhere else, the last rule is used.</para>
+
+<para>The &gt; operator works only when there is one level separating
+the two elements. To reach an element at an arbitrary depth inside
+another element, list them in the selector, separated by spaces. For
+example:</para>
+
+<programlisting>table para { color: green }
+para { color: black }</programlisting>
+
+<para>The first rule matches a <sgmltag>para</sgmltag> that occurs
+somewhere inside a <sgmltag>table</sgmltag>, like this:</para>
+
+<programlisting>&lt;table&gt;
+  &lt;title&gt;A plain ol' table&lt;/title&gt;
+  &lt;tgroup&gt;
+    &lt;tbody&gt;
+      &lt;row&gt;
+        &lt;entry&gt;
+          &lt;para&gt;Hi! I'm a table cell paragraph.&lt;/para&gt;
+     ...</programlisting>
+
+<para>There's no limit to the number of elements you can string in a
+row. This is useful if you ever need to go far back into the ancestry
+to gather information. For example, say you want to use a list inside
+a list, perhaps to create an outline. By convention, the inner list
+should be indented more than the outer list. The following rules
+would provide you with up to three levels of nested lists:</para>
+
+<programlisting>list { indent: 3em }
+list &gt; list { indent: 6em }
+list &gt; list &gt; list { indent: 9em }</programlisting>
+
+<para>The universal selector (*) can be used anywhere in the
+hierarchy. For example, given this content:</para>
+
+<programlisting>&lt;chapter&gt;&lt;title&gt;Classification of Bosses&lt;/title&gt;
+  &lt;sect1&gt;&lt;title&gt;Meddling Types&lt;/title&gt;
+    &lt;sect2&gt;&lt;title&gt;Micromanagers&lt;/title&gt;
+       ...</programlisting>
+
+<para>You can match the last two <sgmltag>title</sgmltag> elements
+with this selector:</para>
+
+<programlisting>chapter * title</programlisting>
+
+<para>The first <sgmltag>title</sgmltag> is not selected, since the
+universal selector requires at least one element to sit between
+<sgmltag>chapter</sgmltag> and <sgmltag>title</sgmltag>.</para>
+
+</sect3><sect3><title>Position</title>
+
+<para>Often, you need to know where an element occurs in a sequence
+of same-level elements. For example, you might want to treat the first
+paragraph of a chapter differently from the rest, by making it all
+uppercase perhaps. To do this, add a special suffix to the element
+selector like this:</para>
+
+<programlisting>para:first-child { font-variant: uppercase; }</programlisting>
+
+<para><literal>para:first-child</literal> matches only a
+<sgmltag>para</sgmltag> that is the first child of an 
+element. A colon (:) followed by a keyword like
+<literal>first-child</literal> is called a
+<firstterm>pseudo-class</firstterm> in CSS. It provides extra
+information that can't be expressed in terms of element or attribute
+names. We saw another earlier: <literal>:lang</literal>.</para>
+
+<para>Another way to examine the context of an element is to look its
+siblings. The <firstterm>sibling selector</firstterm> matches an
+element immediately following another. For example:</para>
+
+<programlisting>title + para { text-indent: 0 }</programlisting>
+
+<para>matches every <sgmltag>para</sgmltag> that follows a
+<sgmltag>title</sgmltag> and turns off its initial indent. This works
+only for elements that are right next to each other; there may be text
+in between, but no other elements.</para>
+
+<para>You can select parts of an element's content with
+<firstterm>pseudo-element selectors</firstterm>.
+<literal>:first-line</literal> applies to the first line of an element
+as it appears in a browser. (This may vary, since the
+extent of the line depends on unpredictable factors such as window
+size.) With this selector, we can set the first line of a paragraph to
+all-caps, achieving a nice stylistic effect to open an article. This
+rule transforms the first line of the first <sgmltag>para</sgmltag> of a <sgmltag>chapter</sgmltag> to all capitals:</para>
+
+<programlisting>chapter &gt; para:first-child:first-line { 
+  text-transform: uppercase }</programlisting>
+
+<para>In a similar fashion, <literal>:first-letter</literal> operates
+solely on the first letter in an element's content, as well as any
+punctuation preceding the letter within the element. This is
+useful for drop caps and raised capitals:</para>
+
+<programlisting>body &gt; p:first-child:first-letter {
+  font-size: 300%;
+  font-color: red }</programlisting>
+
+<para>With the pseudo-classes <literal>:before</literal> and
+<literal>:after</literal>, you can select a point just before or just
+after an element, respectively. This is most valuable for adding
+generated text: character data not present in the XML
+document. <xref linkend="css-fig-gentext"/> illustrates the 
+following example:</para>
+
+<programlisting>warning &gt; *:first-child:before { 
+  content: "WARNING!";
+  font-weight: bold;
+  color: red }</programlisting>
+
+<figure id="css-fig-gentext">
+<title>Auto-generated text in an admonition object</title>
+<graphic fileref="figs/lx2_0508.jpg"/>
+</figure>
+
+</sect3>
+</sect2>
+
+
+<sect2><title>Resolving Property Conflicts</title>
+
+<para>We talked before about how multiple rules can match the same
+element. When that happens, all unique property declarations are
+applied. Conflicting properties have to be resolved with a special
+algorithm to find the "best" match.</para>
+
+<para>Consider this stylesheet:</para>
+
+<programlisting>* {font-family: "ITC Garamond"}
+h1 { font-size: 24pt }
+h2 { font-size: 18pt }
+h1, h2 { color: blue }</programlisting>
+
+<para>The <sgmltag>h1</sgmltag> element matches three of these
+rules. The net effect is to render it with the font ITC Garamond at
+24-point size in the color blue.</para>
+
+<para>What if there's a conflict between two or more values for the
+same property? For example, there might be another rule in this
+stylesheet that says:</para>
+
+<programlisting>h1:first-child { 
+  color: red
+}</programlisting>
+
+<para>An <sgmltag>h1</sgmltag> that is the first child
+of its parent would have conflicting values for the
+<literal>color</literal> property.</para>
+
+<para>CSS defines an algorithm for resolving conflicts like these. The
+basic principle is that more specific selectors override more general
+selectors. The following list outlines the decision process:</para>
+
+<orderedlist>
+
+<listitem><para><literal>ID</literal>s are more specific than anything
+else. If one rule has an <literal>ID</literal> selector and another
+doesn't, the one with the <literal>ID</literal> selector wins. More
+<literal>ID</literal>s are stronger than fewer, though given that
+<literal>ID</literal>s are unique within a document, a rule doesn't
+really need more than one.</para></listitem>
+
+<listitem><para>More attribute selectors and pseudo-classes are
+stronger than fewer. This means that
+<literal>para:first-child</literal> is more specific than
+<literal>title&nbsp;+&nbsp;para</literal>, and that
+<literal>*[role="powerful"][class="mighty"]</literal> overrides
+<literal>para:first-child</literal>.</para></listitem>
+
+<listitem><para>More specific genealogical descriptions win over less
+specific chains. So <literal>chapter&nbsp;&gt;&nbsp;para</literal> has
+precedence over <literal>para</literal>, but not over
+<literal>title&nbsp;+&nbsp;para</literal>. Pseudo-elements don't
+count here.</para></listitem>
+
+<listitem><para>If the selectors are still in a dead heat, there's a
+tie-breaking rule: the one that appears later in the stylesheet wins
+out.</para></listitem>
+
+</orderedlist>
+
+<para>Property value conflicts are resolved one property at a
+time. One rule might be more specific than another, but set only one
+property; other properties may be set by a less specific rule, even
+though one of the rule's properties has been overridden. So in our earlier 
+example, the first <sgmltag>h1</sgmltag> in an element
+gets the color red, not blue.</para>
+
+</sect2>
+</sect1>
+
+
+<sect1><title>Properties</title>
+
+<para>The three levels of CSS define so many properties, I can't cover
+them all here. There are over 120 in level 2 alone. Instead, I'll
+cover the basic categories you are likely to encounter and leave more
+exhaustive descriptions to books specializing on the topic.</para>
+
+
+<sect2><title>Inheritance</title>
+
+<para>CSS properties can be passed down from a container element to
+its child. This inheritance principle greatly simplifies stylesheet
+design. For example, in the document element rule, you can set a font
+family that will be used throughout the document. Wherever you want to
+use a different family, simply insert a new property for a rule and it
+will override the global setting.</para>
+
+<para>In <xref linkend="css-fig-inherit"/>, a <sgmltag>para</sgmltag>
+inherits some properties from a 
+<sgmltag>section</sgmltag>, which in turn inherits from an
+<sgmltag>article</sgmltag>. Some of the properties, for example
+<literal>font-size</literal> in <sgmltag>section</sgmltag> and
+<literal>font-family</literal> in <sgmltag>para</sgmltag>, are
+overridden in each descendant.</para>
+
+<figure id="css-fig-inherit">
+<title>Element-inheriting properties</title>
+<graphic fileref="figs/lx2_0509.jpg"/>
+</figure>
+
+<para>Inheritance is forbidden for some properties where it wouldn't
+make sense to pass that trait on. For example, the
+<literal>background-image</literal> property, which causes an image to
+be loaded and displayed in the background, is not inherited. If every
+element did inherit this property, the result would be a complete
+mess, with every paragraph and inline element trying to display its
+own copy of the image in its rectangular area. It looks much better if
+only one element has this property and its children don't.</para>
+
+</sect2>
+
+
+<sect2><title>Units of Measurement</title>
+
+<para>Many properties involve some kind of measurement: the width
+of a rule, a font size, or a distance to indent. These lengths can
+be expressed in several different kinds of
+units. <firstterm>Absolute</firstterm> measurements use units that
+have a predefined size, such as inches, points, or
+picas. <firstterm>Relative</firstterm> measurements use percentages
+and fractions of some variable distance, such as the height of the
+current font.</para>
+
+<para>You can measure an absolute length with a ruler because the
+units never change. A millimeter is the same no matter what font
+you're using or which language you're speaking. Absolute units
+used in CSS include millimeters (<literal>mm</literal>),
+centimeters (<literal>cm</literal>), and inches
+(<literal>in</literal>), as well as units specific to the world of print,
+such as points (<literal>&thinsp;pt</literal>) and picas
+(<literal>pc</literal>).</para>
+
+<para>Relative units are unfixed, scaling values that depend on some
+other measurement. For example, an <literal>em</literal> is defined as
+the size of the current font. If that font happens to be 12 points,
+then an em is 12 points. If the font size changes to 18 points, so
+does the em. Another relative unit is <literal>ex</literal>, defined
+to be the <firstterm>x-height</firstterm> of a font (the height of a
+lowercase <quote>x</quote>). This is a fraction of the em, usually
+around a half, but is a changing characteristic specific to a
+font. Different fonts can have different x-heights
+even if their em sizes are the same.</para>
+
+<para>Relative measurements can also be expressed as percentages. This
+type of measurement relies on another element's property of the same
+type. For example:</para>
+
+<programlisting>b { font-size: 200% }</programlisting>
+
+<para>means that the <sgmltag>b</sgmltag>
+element has a font size that is twice its parent's.</para>
+
+<para>In general, relative measurements are better than
+absolute. Relative units don't have to be rewritten when you adjust
+the default properties. It's much easier to write a
+stylesheet for multiple scenarios when you define the
+base size in only one place, and everything else is relative.</para>
+
+</sect2>
+
+
+<sect2><title>Display Types</title>
+
+<para>Most elements fit into one of three categories of formatting:
+<firstterm>block</firstterm>, <firstterm>inline</firstterm>, or
+<firstterm>invisible</firstterm>. These designations, listed here,
+govern how the content is packaged in the formatted document:</para>
+
+<variablelist>
+
+<varlistentry><term>block</term>
+<listitem>
+<para>A block is a rectangular region of text isolated from
+the content preceding and following it by spacing. It begins on a new
+line, often after some whitespace, and it has boundaries (called
+margins) that keep the text in the rectangular shape. The text
+<firstterm>wraps</firstterm> at the margin, meaning it stops and
+then restarts on the next line. Blocks can contain
+other, smaller blocks, as well as inlines. Examples of blocks in
+traditional documents are paragraphs, titles, and
+sections.</para>
+</listitem></varlistentry>
+
+<varlistentry><term>inline</term>
+<listitem>
+<para>An inline is content that doesn't interrupt the flow of text in
+a block. It wraps at the margin of the block it resides in like
+ordinary character data. It can set properties that don't affect the
+flow, such as <literal>font-family</literal> and
+<literal>color</literal>, but cannot have properties related to
+blocks, such as margins and padding. Examples of inlines are emphasis,
+keywords, and hypertext links.</para>
+</listitem></varlistentry>
+
+<varlistentry><term>invisible</term>
+<listitem>
+<para>This category is for elements that should not be
+included in the formatted document. The CSS processor skips 
+over these elements. Examples of invisible elements are metadata,
+index terms, and link anchors.</para>
+</listitem></varlistentry>
+
+<varlistentry><term>none</term>
+<listitem>
+<para>Any element defined as <literal>display: none</literal> will be
+skipped by the CSS processor. It's a convenient way to "turn off"
+large portions of a document for faster processing. It also happens to
+be the only display setting that is inherited, since all the children
+of the element are ignored too.</para>
+</listitem></varlistentry>
+
+</variablelist>
+
+<para>Every element is assigned a <literal>display</literal>
+property that tells the CSS processor how to format it. If 
+<literal>display</literal> is set to <literal>block</literal>, the
+element begins on its own line. If it's set to
+<literal>inline</literal>, the element begins on the line that the
+previous element or character data finished on. The value
+<literal>none</literal> indicates that the element is
+invisible.</para>
+
+<para>Where this model breaks down is for complex objects like
+tables. A table is a unique formatting structure with cellular regions
+that can contain blocks or inlines. The discussion of this formatting
+is too complex for the scope of this chapter.</para>
+
+<note>
+<para>Because HTML browsers have an implicit CSS stylesheet built-in,
+there is no need to define a display value for any HTML elements. The
+<sgmltag>p</sgmltag> element always displays like a block, and
+<sgmltag>tt</sgmltag> displays as an inline. However, the same is not
+true for generic XML languages. The processor has no prior knowledge
+of the language, so it is forced to guess. So declaring the display
+property for all the elements is recommended.</para>
+</note>
+
+</sect2>
+
+
+<sect2><title>Blockish Properties</title>
+
+<para>Around every block is an invisible box that shapes its content
+and keeps a healthy distance from its neighbors. <xref
+linkend="css-fig-box"/> shows all the parts of this <firstterm>box
+model</firstterm>. Immediately surrounding the content of the block 
+is a rectangular buffer of space called the
+<firstterm>bounding box</firstterm>. Its distance from the content is
+known as <firstterm>padding</firstterm>. The perimeter of this region,
+called the <firstterm>boundary</firstterm>, is sometimes displayed as
+a rule or border on one, two, three, or all four sides. The thickness
+of these rules is measured outward. Outside the boundary is another
+envelope of space, defined by four widths called
+<firstterm>margins</firstterm>.</para>
+
+<figure id="css-fig-box"><title>The CSS Box Model</title>
+<graphic fileref="figs/lx2_0510.jpg"/>
+</figure>
+
+<para>A block's boundaries hold content while separating the block
+from sibling blocks. Any background image or color is
+confined to the area within the boundary, while text and nested boxes
+are confined to an even smaller area, the rectangle determined by
+boundary minus padding. If the boundary is not displayed, the padding
+is often set to zero. Margins demarcate a rectangular region outside
+the box that keeps other boxes away.</para>
+
+<sect3><title>Margins</title>
+
+<para>A common way to adjust space around an element is to set
+its margins. A margin is the distance between the bounding
+box of an element and that of any neighboring (or containing)
+element. The four sides of a box have their own margin property:
+<literal>margin-left</literal>, <literal>margin-right</literal>,
+<literal>margin-top</literal>, and
+<literal>margin-bottom</literal>. The value can be a length or a
+percentage of the containing element's width.</para>
+
+<para>The <literal>margin</literal> property is shorthand for defining
+all four sides of the margin. Its value is a space-separated list
+containing between one and four lengths or percentages. If only one value is
+specified, that value applies to all four sides. If there are two
+values, the first sets the top and bottom margins and the second sets
+the left and right margins. If there are three values, the first
+assigns the top margin, the second assigns both the left and right
+margins, and the third assigns the bottom margin.  Finally, if four
+values are specified, they correspond to the top, right, bottom, and
+left margins, respectively. Unspecified margins default to zero. Thus 
+the following rules are equivalent:</para>
+
+<programlisting>para { margin-left: 10em; margin-right: 10em; margin-top: 5% }
+para { margin: 5% 10em 0 }</programlisting>
+
+<para>In both cases, the <sgmltag>para</sgmltag> element is
+defined with left and right margins of 10 em, a top margin of 5% of
+the containing element's size in the vertical dimension (i.e., its
+height), and no bottom margin. Negative values are acceptable. The result 
+of a negative margin is to push the bounding box outside its container's box
+ by that amount. To create the effect of text spilling outside a colored
+region, we use this stylesheet for an HTML file:</para>
+
+<programlisting>body { background-color: silver }
+p { right-margin: -15% }</programlisting>
+
+<para>Margins often overlap. For example, paragraphs in a column touch
+at their top and bottom sides. Instead of adding the margins to make a
+bigger space, the smaller margin is discarded and the bigger one is
+used in its place. This is called <firstterm>collapsing</firstterm>
+the margins. So, if a paragraph has a top margin of 24 points and a
+bottom margin of 10 points, the actual distance between two paragraphs
+is 24 points. The rules of collapsing margins are actually a little more
+complex than this, but a full explanation is beyond the scope of
+this chapter.</para>
+
+</sect3><sect3><title>Borders</title>
+
+<para>It's often appealing to surround an element with a rectangular
+outline to make it stand out. The warning example used previously would
+catch readers' attention better if it were enclosed in a border. With
+the <literal>border</literal> property, you can create many kinds of
+effects, from dotted lines encircling a block to rules on any side.</para>
+
+<para>It takes three parameters to define the border you want. The
+<literal>width</literal> can be an absolute or relative measurement,
+or one of three preset values:</para>
+
+<simplelist>
+<member><literal>thin</literal></member>
+<member><literal>medium</literal> (the default)</member>
+<member><literal>thick</literal></member>
+</simplelist>
+
+<para>The next parameter is <literal>style</literal>. Eight styles
+are provided in CSS2:</para>
+
+<simplelist>
+<member><literal>solid</literal></member>
+<member><literal>dashed</literal></member>
+<member><literal>dotted</literal></member>
+<member><literal>groove</literal></member>
+<member><literal>ridge</literal></member>
+<member><literal>double</literal></member>
+<member><literal>inset</literal></member>
+<member><literal>outset</literal></member>
+</simplelist>
+
+<para>The final parameter is <literal>color</literal>. Put all the
+parameters together in a space-separated list, in any order. 
+Some examples:</para>
+
+<programlisting>border: thin solid green;
+border: red groove thick;
+border: inset blue 12pt;</programlisting>
+
+</sect3><sect3><title>Padding</title>
+
+<para>But one thing is missing. Recall that this border is just inside
+the margins, putting it right against the text of the block. As a result, we need
+some extra space inside the border to keep it from crowding the
+text. The <literal>padding</literal> property lines the inside of the
+border with space to compact the text and keep the border from
+colliding into it. The value of this property is a space-separated
+list of between one and four length measurements. The application of
+lengths to sides is the same as it is with the <literal>margin</literal>
+property.</para>
+
+<para>Let's expand on our previous <literal>warning</literal> 
+example by giving it a border, shown in <xref
+linkend="css-fig-border"/>:</para>
+
+<programlisting>warning {
+  display: block;
+  border: thick solid gray;
+}
+warning:before { 
+  content: "WARNING!";
+  font-weight: bold;
+  color: red }
+warning</programlisting>
+
+<figure id="css-fig-border">
+<title>A warning inside a border</title>
+<graphic fileref="figs/lx2_0511.jpg"/>
+</figure>
+
+</sect3><sect3><title>Alignment and indentation</title>
+
+<para><literal>text-align</literal> is a property that defines the
+alignment or justification of lines in a paragraph. Sometimes you may
+want a crisp border on both the left and right sides of a column. At other
+times you may want a ragged right or left, or centered text. The following
+values are supported:</para>
+
+<variablelist>
+
+<varlistentry><term><literal>left</literal></term>
+<listitem><para>Align text with the left
+border (ragged right).</para></listitem>
+</varlistentry>
+
+<varlistentry><term><literal>right</literal></term>
+<listitem><para>Align text with the right
+border (ragged left).</para></listitem>
+</varlistentry>
+
+<varlistentry><term><literal>center</literal></term>
+<listitem><para>Center each line within the block (ragged left and
+right).</para></listitem>
+</varlistentry>
+
+<varlistentry><term><literal>justify</literal></term>
+<listitem><para>Expand each line to reach both left and right borders
+of the block.</para></listitem>
+</varlistentry>
+
+</variablelist>
+
+<para>Left justification is used by default in most CSS
+processors. Note that <literal>left</literal> and
+<literal>right</literal> are absolute and independent of text
+direction.</para>
+
+<para>The <literal>text-indent</literal> property indents the first
+line of a block. A positive or negative absolute length can be specified,
+or the indent can be given as a percentage of the width of the
+block.</para>
+
+</sect3>
+</sect2>
+
+
+<sect2><title>Text Properties</title>
+
+<para>So far, we've talked about blocks as containers of text. Now
+let's focus on the text itself. This section lists some properties for
+controlling how character data looks and behaves, such as font types,
+font styles, and color.</para>
+
+<sect3><title>Font family</title>
+
+<para>A typeface has several parameters that control its appearance,
+such as size, weight, and style. The most important, however, is the
+font family (e.g., Courier, Helvetica, Times). Each family comes
+in different styles and weights, such as italic, bold, and heavy.</para>
+
+<para>The <literal>font-family</literal> property is declared with a
+comma-separated list of font preferences, starting with the most
+specific and desirable, and finishing with the most generic. This list
+provides a series of alternatives in case the user agent doesn't have
+access to the specific font you request. At the very end of the list
+should be a generic font class, essentially leaving it up to the
+user's software to decide which font matches best. Some generic font
+classes are:</para>
+
+<variablelist>
+
+<varlistentry><term><literal>serif</literal></term>
+<listitem><para>Fonts that have decorative appendages, or serifs, fit 
+in this category. Some common serif fonts include Palatino, Times, and
+Garamond.</para></listitem>
+</varlistentry>
+
+<varlistentry><term><literal>sans-serif</literal></term>
+<listitem><para>These fonts, lacking serifs, are relatively plain in comparison to
+the <literal>serif</literal> fonts. Helvetica and Avant-Garde are in this
+group.</para></listitem>
+</varlistentry>
+
+<varlistentry><term><literal>monospace</literal></term>
+<listitem><para>These are fonts in which each character occupies the
+same amount of space, unlike most fonts, where letters are packed together
+in varying widths. This font type is typically used to render computer
+programs, teletype simulations, and ASCII art.<footnote>
+
+<para>See <systemitem role="url">http://www.textfiles.com/art/</systemitem>.</para>
+
+</footnote> Examples of monospace fonts are Courier and 
+Monaco.</para></listitem>
+</varlistentry>
+
+<varlistentry><term><literal>cursive</literal></term>
+<listitem><para>Fonts that connect characters in a
+simulation of calligraphy or handwriting fall in this group. Such
+typefaces are often used on wedding invitations and diplomas. Since
+this is not a standard font category on most systems, you should use
+it rarely, if ever.</para></listitem>
+</varlistentry>
+
+<varlistentry><term><literal>fantasy</literal></term>
+<listitem><para>This collects all the oddball fonts like
+Comic Strip, Ransom Note, and Wild West. Again, most users are not
+likely to have access to this kind of font, so use the fonts in this
+category sparingly.</para></listitem>
+</varlistentry>
+
+</variablelist>
+
+<para>Examples of these typefaces are shown in <xref
+linkend="css-fig-fonts"/>.</para>
+
+<figure id="css-fig-fonts"><title>Generic font families</title>
+<graphic fileref="figs/lx2_0512.jpg"/>
+</figure>
+
+<para>Let's say you want to select the font typeface Palatino. Zapf's
+Humanist 521 is generally held to be a high-quality variant of
+Palatino. A clone from Monotype on some Windows systems called Book
+Antiqua is not as carefully designed, but is fairly sturdy. There are
+various cheap knock-offs variously called Palisades or Palestine. If
+neither Palatino nor any of its kin can be found, Times New Roman is a
+handy substitute. (It doesn't have much in common with Palatino other
+than being another serif font, but at least it's closer than
+Helvetica.) Times New Roman is sometimes found as Times Roman, TmsRmn,
+or Times.</para>
+
+<para>Now you must decide how to order your list. There is a trade-off
+between including more Palatino clones of doubtful quality, or
+shortening the list in favor of radically different, but
+higher-quality alternative typefaces. Three approaches might
+be:</para>
+
+<programlisting>font-family: Palatino, "BT Humanist 521", "Book Antiqua", Palisades, 
+    "Times New Roman", "Times Roman", Times, serif;
+
+font-family: Palatino, "Times New Roman", serif;
+
+font-family: "BT Humanist 521", Palatino, serif;</programlisting>
+
+<para>Note that font names with spaces must be quoted. Capitalization
+is not necessary.</para>
+
+<para>The first option offers the most alternatives, but there is a
+risk that if Palisades is chosen, the quality of document appearance
+will diminish. The second is much shorter, and says, <quote>If I can't
+have Palatino, then just use Times New Roman.</quote> The third
+ambitiously strives for BT Humanist 521, but will settle for common
+Palatino. All of these include the <literal>serif</literal> generic as
+a last resort, letting the system pick a serifed font if all else
+fails.</para>
+
+</sect3><sect3><title>Font size</title>
+
+<para>The size of a font is determined by the
+<literal>font-size</literal> property. The value can be given in
+absolute units (points, usually) or relative units (percentages or ems
+of the parent's font). You can also use semi-absolute keywords:</para>
+
+<simplelist>
+<member><literal>xx-small</literal></member>
+<member><literal>x-small</literal></member>
+<member><literal>small</literal></member>
+<member><literal>medium</literal></member>
+<member><literal>large</literal></member>
+<member><literal>x-large</literal></member>
+<member><literal>xx-large</literal></member>
+</simplelist>
+
+<para>The CSS specification recommends that CSS processors display
+each size 1.2 times larger than the previous one (so that
+<literal>xx-large</literal> would be 3.6 times the size of
+<literal>xx-small</literal>), but the actual sizes are left to user
+preference. This provides a nice way to specify sizes relative to your
+audience's comfort levels, at the cost of losing absolute
+precision. <xref linkend="css-fig-sizes"/> shows how these different
+font sizes might look.</para>
+
+<figure id="css-fig-sizes"><title>Font sizes</title>
+<graphic fileref="figs/lx2_0513.jpg"/>
+</figure>
+
+<para>Relative keywords are also available:</para>
+
+<simplelist>
+<member><literal>larger</literal></member>
+<member><literal>smaller</literal></member>
+</simplelist>
+
+<para>These move the size up or down by a size factor.</para>
+
+</sect3><sect3><title>Line height and font size adjustment</title>
+
+<para>Whereas <literal>font-size</literal> determines the size of
+characters being displayed, the <literal>line-height</literal>
+property affects the total height of the font plus the whitespace above
+it. If the <literal>line-height</literal> is greater than the
+<literal>font-size</literal>, the difference is made up by adding
+space evenly to the top and bottom of each line. This
+makes the block look either looser or more condensed.</para>
+
+<para>In the following example, we have specified single-space, 
+double-space, and one-and-one-half space between lines:</para>
+
+<programlisting>para1 { line-height: 1 }
+para2 { line-height: 2 }
+para3 { line-height: 1.5 }</programlisting>
+
+<para>Fonts with the same point size can look bigger or smaller,
+depending on various characteristics summarily referred to as the
+<firstterm>eye</firstterm> of the font. Chief among these is the
+x-height, or <literal>ex</literal>. In Latin (read: European) fonts,
+<literal>ex</literal> is the height of a lower-case
+<quote>x</quote>. (Other fonts use different criteria, but it's always
+a fraction of the font size, or <literal>em</literal>.) As a result,
+some fonts appear bigger than others.</para>
+
+<para>For the obsessive designer, there is a way around this
+problem.  The <literal>font-size-adjust</literal> property can be used
+to tweak the sizes of fonts in the font family relative to
+others. The <firstterm>aspect value</firstterm> is the ratio of the x-height 
+to the font size. If you provide the aspect value of your desired
+font, expressed as a decimal fraction, as the value of
+<literal>font-size-adjust</literal>, the browser can adjust substitute
+fonts to have the same apparent size as the desired font.</para>
+
+</sect3><sect3><title>Font style and weight</title>
+
+<para>Font families contain variants that allow an author to add
+emphasis or meaning to parts of the text. There are two kinds of
+variants: font style (italic, oblique) and font weight (light,
+bold).</para>
+
+<para>The <literal>font-style</literal> property has four
+possible settings:</para>
+
+<variablelist>
+
+<varlistentry><term><literal>normal</literal></term>
+<listitem><para>The traditional, upright version of the font.</para></listitem>
+</varlistentry>
+
+<varlistentry><term><literal>italic</literal></term>
+<listitem><para>An italic version of the font, if available, or the oblique
+version.</para></listitem>
+</varlistentry>
+
+<varlistentry><term><literal>oblique</literal></term>
+<listitem><para>The oblique version, if available, or the
+normal font with a slight slant effect.</para></listitem>
+</varlistentry>
+
+<varlistentry><term><literal>inherit</literal></term>
+<listitem><para>Whatever setting the parent element has.</para></listitem>
+</varlistentry>
+
+</variablelist>
+
+<para>The CSS specification is not clear on the effect of
+italic on languages without a tradition of italics; as a result, it is probably
+best to specify an alternate typeface for other languages:</para>
+
+<programlisting>em { font-style: italic }
+em:lang(ja) { font-family: ...;
+              font-style: normal }</programlisting>
+
+<para>The <literal>font-weight</literal> property controls how bold or
+light a font is. The following keyword values are defined:</para>
+
+<variablelist>
+<varlistentry><term><literal>light</literal></term>
+<listitem><para>A light and airy version of the font, if
+available. Otherwise, the user's system may generate one 
+automatically.</para></listitem>
+</varlistentry>
+
+<varlistentry><term><literal>normal</literal></term>
+<listitem><para>The standard variant of the font.</para></listitem>
+</varlistentry>
+
+<varlistentry><term><literal>bold</literal></term>
+<listitem><para>A darker, heavier version of the font, if 
+available. Otherwise, the user's system may generate one 
+automatically.</para></listitem>
+</varlistentry>
+
+</variablelist>
+
+<para>There are also relative keywords, which decrease or increase the
+weight with respect to the parent's property:</para>
+
+<variablelist>
+
+<varlistentry><term><literal>lighter</literal></term>
+<listitem><para>Decreases the weight by one increment.</para></listitem>
+</varlistentry>
+
+<varlistentry><term><literal>bolder</literal></term>
+<listitem><para>Increases the weight by one increment.</para></listitem>
+</varlistentry>
+
+</variablelist>
+
+<para>Nine weight increments are available, so
+<literal>lighter</literal> and <literal>bolder</literal> can fine-tune
+weight by 1/9 of the range. Alternately, a numeric
+value can be used, ranging from 100 to 900 (in steps of 100). Not
+every font has nine weights, so changing the number by 100 may not
+have a visible effect. The value 400 corresponds to
+<literal>normal</literal>, and <literal>bold</literal> is set to
+700. <xref linkend="css-fig-styles"/> shows some font styles and
+weights.</para>
+
+<figure id="css-fig-styles">
+<title>Font styles and weights</title>
+<graphic fileref="figs/lx2_0514.jpg"/>
+</figure>
+
+</sect3><sect3><title>Color</title>
+
+<para>Color is an important feature for text, especially with computer
+displays. Text has two color properties: <literal>color</literal>
+for the foreground, and <literal>background-color</literal> for the
+background.</para>
+
+<para>There is a bevy of predefined colors you can call by
+name. Alternately, a color can be specified using a three-number
+code where the numbers correspond to values for red, green, and
+blue (RGB). These numbers can be percentages, integers from 0&thinsp;-255, or
+hexadecimal values from <literal>#000000</literal> to
+<literal>#ffffff</literal>. Some examples are given in <xref
+linkend="css-table-colors"/>.</para>
+
+<table id="css-table-colors">
+<title>Color Selections</title>
+<tgroup cols="4">
+<thead>
+<row>
+<entry>Preset Name</entry>
+<entry>Percentages</entry>
+<entry>Integers</entry>
+<entry>Hexadecimal</entry>
+</row>
+</thead>
+<tbody>
+
+<row>
+<entry><literal>aqua</literal></entry>
+<entry><literal>rgb(0%,65%,65%)</literal></entry>
+<entry><literal>rgb(0,160,160)</literal></entry>
+<entry><literal>#00a0a0</literal></entry>
+</row>
+
+<row>
+<entry><literal>black</literal></entry>
+<entry><literal>rgb(0%,0%,0%)</literal></entry>
+<entry><literal>rgb(0,0,0)</literal></entry>
+<entry><literal>#000000</literal></entry>
+</row>
+
+<row>
+<entry><literal>blue</literal></entry>
+<entry><literal>rgb(0%,32%,100%)</literal></entry>
+<entry><literal>rgb(0,80,255)</literal></entry>
+<entry><literal>#0050ff</literal></entry>
+</row>
+
+<row>
+<entry><literal>fuchsia</literal></entry>
+<entry><literal>rgb(100%,0%,65%)</literal></entry>
+<entry><literal>rgb(255,0,160)</literal></entry>
+<entry><literal>#ff00a0</literal></entry>
+</row>
+
+<row>
+<entry><literal>gray</literal></entry>
+<entry><literal>rgb(65%,65%,65%)</literal></entry>
+<entry><literal>rgb(160,160,160)</literal></entry>
+<entry><literal>#a0a0a0</literal></entry>
+</row>
+
+<row>
+<entry><literal>green</literal></entry>
+<entry><literal>rgb(0%,100%,0%)</literal></entry>
+<entry><literal>rgb(0,255,0)</literal></entry>
+<entry><literal>#00ff00</literal></entry>
+</row>
+
+<row>
+<entry><literal>lime</literal></entry>
+<entry><literal>rgb(0%,65%,0%)</literal></entry>
+<entry><literal>rgb(0,160,0)</literal></entry>
+<entry><literal>#00a000</literal></entry>
+</row>
+
+<row>
+<entry><literal>maroon</literal></entry>
+<entry><literal>rgb(70%,0%,32%)</literal></entry>
+<entry><literal>rgb(176,0,80)</literal></entry>
+<entry><literal>#b00050</literal></entry>
+</row>
+
+<row>
+<entry><literal>navy</literal></entry>
+<entry><literal>rgb(0%,0%,65%)</literal></entry>
+<entry><literal>rgb(0,0,160)</literal></entry>
+<entry><literal>#0000a0</literal></entry>
+</row>
+
+<row>
+<entry><literal>olive</literal></entry>
+<entry><literal>rgb(65%,65%,0%)</literal></entry>
+<entry><literal>rgb(160,160,0)</literal></entry>
+<entry><literal>#a0a000</literal></entry>
+</row>
+
+<row>
+<entry><literal>purple</literal></entry>
+<entry><literal>rgb(65%,0%,65%)</literal></entry>
+<entry><literal>rgb(160,0,160)</literal></entry>
+<entry><literal>#a000a0</literal></entry>
+</row>
+
+<row>
+<entry><literal>red</literal></entry>
+<entry><literal>rgb(100%,0%,32%)</literal></entry>
+<entry><literal>rgb(255,0,80)</literal></entry>
+<entry><literal>#ff0050</literal></entry>
+</row>
+
+<row>
+<entry><literal>silver</literal></entry>
+<entry><literal>rgb(90%,90%,90%)</literal></entry>
+<entry><literal>rgb(225,225,255)</literal></entry>
+<entry><literal>#d0d0d0</literal></entry>
+</row>
+
+<row>
+<entry><literal>teal</literal></entry>
+<entry><literal>rgb(0%,65%,100%)</literal></entry>
+<entry><literal>rgb(0,160,255)</literal></entry>
+<entry><literal>#00a0ff</literal></entry>
+</row>
+
+<row>
+<entry><literal>white</literal></entry>
+<entry><literal>rgb(100%,100%,100%)</literal></entry>
+<entry><literal>rgb(255,255,255)</literal></entry>
+<entry><literal>#ffffff</literal></entry>
+</row>
+
+<row>
+<entry><literal>yellow</literal></entry>
+<entry><literal>rgb(100%,100%,0%)</literal></entry>
+<entry><literal>rgb(255,255,0)</literal></entry>
+<entry><literal>#ffff00</literal></entry>
+</row>
+
+</tbody>
+</tgroup>
+</table>
+
+</sect3>
+</sect2>
+
+
+<sect2><title>Generated Text</title>
+
+<para>Automatically generating text is an important capability of
+stylesheets. We have seen an example where a warning sidebar was
+created with an automatically generated <quote>WARNING!</quote>
+header. The general form of a text-generating property is:</para>
+
+<programlisting>content: <replaceable>string1</replaceable> <replaceable>string2</replaceable> ...</programlisting>
+
+<para>Each string is either a quoted value (like
+<literal>"WARNING!"</literal>) or a function that creates text. Some
+of these text-creating functions are:</para>
+
+<variablelist>
+
+<varlistentry><term><literal>url(</literal><replaceable>locator</replaceable><literal>)</literal></term>
+<listitem><para>This function opens a file at a URL given by
+<replaceable>locator</replaceable> and inserts the contents of 
+the file at that point in the text. This is useful for including 
+boilerplate text.</para></listitem>
+</varlistentry>
+
+<varlistentry><term><literal>attr(</literal><replaceable>attname</replaceable><literal>)</literal></term>
+<listitem><para>This function inserts the value of an attribute with
+name <replaceable>attname</replaceable>.</para></listitem>
+</varlistentry>
+
+<varlistentry><term><literal>counter(</literal><replaceable>name</replaceable><literal>)</literal></term>
+<listitem><para>This useful function reads the value of an internal
+counter with the label <replaceable>name</replaceable> and converts it
+to text.</para></listitem>
+</varlistentry>
+
+</variablelist>
+
+<sect3><title>Counters</title>
+
+<para>Counters in CSS are variables that hold numeric values. They
+are used for chapter numbers, ordered lists, and anything else that
+needs to be labeled with a number. To use a counter, you have to give
+it a name and tell CSS when to increment it using the property
+<literal>counter-increment</literal>. You can get the value of the
+counter any time with the <literal>counter()</literal> function. For
+example:</para>
+
+<programlisting>chapter { counter-increment: chapnum }
+chapter &gt; title:before { content: "Chapter " counter(chapnum) ". " }</programlisting>
+
+<para>Here, we create a counter called <literal>chapnum</literal> and
+increment it every time the CSS processor sees a new
+<sgmltag>chapter</sgmltag>. The <sgmltag>title</sgmltag> element is
+rendered with this number just before it, like this:</para>
+
+<programlisting>Chapter 3. Sonic the Hedgehog</programlisting>
+
+<para><literal>counter-reset</literal> is another property that
+affects counters. It sets the counter value back to zero when the element is
+processed. This can be used for things like numbered lists, where you
+want each list to start at <literal>1</literal> instead of
+incrementing through the whole document:</para>
+
+<programlisting>numberedlist { counter-reset: list_item_number; }
+listitem { counter-increment: list_item_number; }
+listitem:before { content: counter(list_item_number) ". "; }</programlisting>
+
+<para>Now, each list will start counting at <literal>1</literal>:</para>
+
+<programlisting>First list:
+  1. Alpha
+  2. Bravo
+  3. Charlie
+  4. Delta
+
+Second list:
+  1. Fee
+  2. Fi
+  3. Fo
+  4. Fum</programlisting>
+
+</sect3>
+</sect2>
+</sect1>
+
+
+<sect1><title>Examples</title>
+
+<para>Let's put what we know to use now and format a document with
+CSS. XHTML is a good place to start, so let's take the document in
+<xref linkend="mod-ex-xhtml"/>. To maximize the possibilities for
+formatting it, we should add some structure with
+<sgmltag>div</sgmltag> elements, and use <sgmltag>span</sgmltag>
+elements to increase the granularity of inlines. <xref
+linkend="css-ex-xhtml"/> is the improved result.</para>
+
+<example id="css-ex-xhtml">
+<title>An XHTML document with DIVs and SPANs</title>
+<programlisting><![CDATA[<html>
+  <head>
+    <title>CAT(1) System General Commands Manual</title>
+    <link rel="stylesheet" type="text/css" href="style1.css" />
+  </head>
+  <body>
+    <h1>CAT(1) System General Commands Manual</h1>
+    <div class="section">
+      <h2>NAME</h2>
+      <p>cat - concatenate and print files</p>
+    </div>
+    <div class="section">
+      <h2>SYNOPSIS</h2>
+      <p class="code">cat [-benstuv] [-] [<em>file</em>...]</p>
+    </div>
+    <div class="section">
+      <h2>DESCRIPTION</h2>
+      <p>
+The <span class="command">cat</span> utility reads files sequentially,
+writing them to the standard output. The file operands are processed
+in command line order. A single dash represents the standard input.
+      </p>
+      <p>
+The options are as follows:
+      </p>
+      <dl>
+        <dt><span class="option">-b</span></dt>
+        <dd>
+Implies the <span class="option">-n</span> option but doesn't number blank lines.
+        </dd>
+        <dt><span class="option">-e</span></dt>
+        <dd>
+Implies the <span class="option">-v</span> option, and displays a
+dollar sign (<span class="symbol">$</span>) at the end of each line as
+well.
+        </dd>
+        <dt><span class="option">-n</span></dt>
+        <dd>Number the output lines, starting at 1.</dd>
+        <dt><span class="option">-s</span></dt>
+        <dd>
+Squeeze multiple adjacent empty lines, causing the output to be single
+spaced.
+        </dd>
+        <dt><span class="option">-t</span></dt>
+        <dd>
+Implies the <span class="option">-v</span> option, and displays tab
+characters as <span class="symbol">^I</span> as well.
+        </dd>
+        <dt><span class="option">-u</span></dt>
+        <dd>
+The <span class="option">-u</span> option guarantees that the output
+is unbuffered. 
+        </dd>
+        <dt><span class="option">-v</span></dt> 
+        <dd>
+Displays non-printing characters so they are visible. Control
+characters print as <span class="symbol">^X</span> for control-X; the
+delete character (octal 0177) prints as <span class="symbol">^?</span>
+Non-ascii characters (with the high bit set) are printed as <span
+class="symbol">M-</span> (for meta) followed by the character for the
+low 7 bits.
+        </dd>
+      </dl>
+      <p>
+The <i>cat</i> utility exits 0 on success, and &gt;0 if an error occurs.
+      </p>
+    </div>
+    <div class="section">
+      <h2>BUGS</h2>
+      <p>
+Because of the shell language mechanism used to perform output
+redirection, the command <span class="command">cat file1 file2 &gt;
+file1</span> will cause the original data in file1 to be destroyed!
+      </p>
+    </div>
+    <div class="section">
+      <h2>SEE ALSO</h2>
+      <ul>
+        <li><a href="head.html">head(1)</a></li>
+        <li><a href="more.html">more(1)</a></li>
+        <li><a href="pr.html">pr(1)</a></li>
+        <li><a href="tail.html">tail(1)</a></li>
+        <li><a href="vis.html">vis(1)</a></li>
+      </ul>
+      <p>
+Rob Pike, <span class="citation">UNIX Style, or cat -v Considered
+Harmful</span>, USENIX Summer Conference Proceedings, 1983.
+      </p>
+    </div>
+    <div class="section">
+      <h3>HISTORY</h3>
+      <p>
+A <i>cat</i> utility appeared in Version 6 AT&amp;T UNIX.
+      </p>
+      <p>3rd Berkeley Distribution, May 2, 1995</p>
+    </div>
+  </body>
+</html>]]></programlisting>
+</example>
+
+<para><xref linkend="css-ex-xhtml-css"/> is a CSS stylesheet for this
+document.</para>
+
+<example id="css-ex-xhtml-css">
+<title>CSS stylesheet for XHTML Document</title>
+<programlisting>/* GLOBAL SETTINGS */
+
+body {
+  background-color: #aa6;
+  font-family: serif;
+}
+
+/* BLOCKS */
+
+.section {
+  margin: 1em;
+  padding: .5em;
+  background-color: wheat;
+}
+
+h1, h2, h3 { 
+  font-family: sans-serif;
+}
+
+dt { 
+  background-color: tan; 
+}
+
+.code {
+  padding: 1em;
+  border: thin solid gray;
+  font-family: monospace;
+  font-weight: bold;
+}
+
+/* INLINES */
+
+.citation {
+  color: purple;
+  font-family: sans-serif;
+  font-style: italic;
+  font-weight: bold;
+}
+
+.command {
+  font-family: monospace;
+  font-weight: bold;
+  color: red;
+}
+
+.option {
+  font-family: monospace;
+  font-weight: bold;
+  color: blue;
+}
+
+.symbol {
+  font-family: monospace;
+  font-weight: bold;
+  color: green;
+}</programlisting>
+</example>
+
+<para>I used the <sgmltag>body</sgmltag> element as the stage for
+setting global properties. All the viewable elements will inherit
+these properties and optionally override them. The remaining rules are
+divided into the block-type element group and rules for inline
+elements.</para>
+
+<para>In the block group, the rule matching
+<literal>.section</literal> will apply to all the
+<sgmltag>div class="section"</sgmltag> elments, separating the page
+into nicely separated regions using background color and margin
+settings.</para> 
+
+<para>Heads are next, with the elements <sgmltag>h1</sgmltag>,
+<sgmltag>h2</sgmltag>, and <sgmltag>h3</sgmltag> set to override the
+font family of the page with <literal>sans-serif</literal>. This is an
+example of how a rule can match a group of elements and apply the same
+set of styles to each.</para>
+
+<para>An interesting experiment to try is to add a
+<literal>font-size</literal> property setting for one of these
+heads. You'll probably find that, no matter what you set it to, it
+will not change the size of the text in most HTML browsers. I am not
+sure why this is the case, but it is an example of how the user agent
+can choose to ignore the style settings from the server.</para>
+
+<para>Skip down to the rule matching <literal>.code</literal>. This is
+a traditional paragraph whose style has been modified to look like a
+code listing. In our example, there is only one line of code, but what
+would happen if there were more? The whitespace would be crushed into
+single spaces, and the code would lose its structure. So perhaps a better
+definition would be based on the <sgmltag>pre</sgmltag>
+element.</para>
+
+<para><xref linkend="css-fig-xhtml"/> shows how the CSS-formatted page
+would look in a web browser.</para>
+
+<figure id="css-fig-xhtml">
+<title>Browser view of the XHTML document</title>
+<graphic fileref="figs/lx2_0515.jpg"/>
+</figure>
+
+<para>This example is fairly simple due to the fact that every browser
+has a built-in stylesheet for HTML already. So we are in fact only
+overriding a few default properties. We should now take a look at how
+a CSS stylesheet would look for another kind of XML document.</para>
+
+<para>Let's return to <xref linkend="mod-ex-db"/>, the DocBook
+version of a technical reference page. A stylesheet for this might
+look like <xref linkend="css-ex-db"/>. To associate this with the XML
+document, you first have to add this line, near the top underneath the
+XML declaration:</para>
+
+<programlisting>&lt;?xml-stylesheet rel="stylesheet" type="text/css" href="<replaceable>uri</replaceable>"?&gt;</programlisting>
+
+<para>where <replaceable>uri</replaceable> is the location of the
+stylesheet.</para> 
+
+<example id="css-ex-db">
+<title>CSS Stylesheet for DocBook Reference Page</title>
+<programlisting><![CDATA[/* GLOBAL SETTINGS */
+
+refentry {
+  display: block;
+  background: silver;
+  font-family: serif;
+  font-size: 12pt;
+}
+
+/* SECTIONS */
+
+refnamediv, refsynopsisdiv, refsect1 {
+  display: block;
+  margin-top: 1em;
+  margin-bottom: 1em;
+  margin-left: 0.5em;
+  margin-right: 0.5em;
+  padding: 0.5em;
+  background: #99a;
+}
+
+refnamediv {
+  text-align: center;
+  font-size: 13pt;
+}
+
+refsynopsisdiv:before {
+  content: "Usage";
+  font-family: sans-serif;
+  font-weight: bold;
+  font-size: 15pt;
+}
+
+/* BLOCKS */
+
+listitem, member, para, refmeta, refpurpose, simplelist, synopsis, 
+term, title, variablelist {
+  display: block;
+}
+
+listitem, member {
+  margin-left: 2em;
+  margin-right: 2em;
+}
+
+para { margin: 0.5em; }
+
+refpurpose { font-style: italic; }
+
+refsect1 > title {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  font-family: sans-serif;
+  font-weight: bold;
+  font-size: 15pt;
+}
+
+simplelist { margin-left: 1em; }
+
+synopsis {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  padding: 0.5em;
+  font-family: monospace;
+  background-color: #77f;
+}
+
+term { float: left; }
+
+variablelist {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  margin-left: 1em;
+  margin-right: 1em;
+}
+
+/* INLINES */
+
+citetitle, command, keysym, literal, option, manvolnum, 
+replaceable { display: inline; }
+
+command, keysym, literal, option {
+  font-family: monospace;
+  font-weight: bold;
+}
+
+citetitle { font-style: italic; }
+
+command {
+  background: gray;
+  color: black;
+}
+
+keysym {
+  background: purple;
+  color: yellow;
+}
+
+literal { color: brown; }
+
+manvolnum:before { content: "("; }
+manvolnum:after {  content: ")"; }
+
+option { color: blue; }
+
+refmeta:before { content: " - "; }
+
+replaceable { font-style: italic; }]]></programlisting>
+</example>
+
+<para>Every element in this example has its <literal>display</literal>
+property set. Although the default behavior in browsers is to set the
+display to <literal>inline</literal>, I think it's a good idea to be
+explicit and set them all, lest you forget. If you want to see what a
+document looks when everything is an inline, try taking out the display
+property settings. Can you say, "obfuscated"?</para>
+
+<para>Notice that in this example, I took advantage of CSS's property
+merging feature to make things a little more organized. All the inline
+elements have their display property set in one rule, and any other
+specific properties are added in other rules.</para>
+
+<para>Skip down to the rule matching
+<literal>refsynopsisdiv:before</literal>. Here's an example of
+generated text. As you will see in <xref linkend="css-fig-db"/>, it
+adds a previously non-existent head just before the
+<sgmltag>synopsis</sgmltag> element telling you that this is a "Usage"
+synopsis. Other elements, such as the <sgmltag>manvolnum</sgmltag>
+also add text to make the document more readable and correct.</para>
+
+<para>The rule matching the <sgmltag>term</sgmltag> element sets a
+property we haven't seen before. <literal>float</literal> lets the
+block exist on the same horizontal level as another block, relaxing
+the requirement of vertical alignment. By setting it to
+<literal>float:left</literal>, the list terms and definitions can sit
+side-by-side, making a more compact and readable list.</para>
+
+<figure id="css-fig-db">
+<title>Browser view of the CSS-Formatted DocBook document</title>
+<graphic fileref="figs/lx2_0516.jpg"/>
+</figure>
+
+<para>CSS has a lot more to it than the few properties we've seen
+here. More and more, these features are being implemented in browsers
+allowing web designers more freedom to express themselves. Some things
+we haven't talked about are the interesting properties coming in CSS
+level 3. These include alternative media formats, such as speech
+synthesis and printed page. You will have much better control of your
+document in these forms as well as what is on the screen.</para>
+
+<para>As useful as CSS can be, it is still limited in many ways. We
+mentioned the problem of working with elements out of order. CSS can't
+jump ahead to grab an element at the end of the document for
+example. Its processing path is fixed. Lucky for us, there is another
+option. XSLT and XSL-FO bring to the table much more powerful
+formatting, allowing you incredible freedom to control the path of
+processing. Get ready, because they are the subjects of the next two
+chapters.</para>
+
+</sect1>
+</chapter>

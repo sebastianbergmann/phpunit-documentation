@@ -1,0 +1,1508 @@
+<chapter id="core"><title>Markup and Core Concepts</title>
+
+<simplesect>
+
+<para>There's a <citetitle>Far Side</citetitle> cartoon by Gary Larson
+about an unusual chicken ranch. Instead of strutting around, pecking
+at seed, the chickens were all lying on the ground or draped over
+fences as if they were made of rubber. You see, it was a
+<emphasis>boneless</emphasis> chicken ranch.</para>
+
+<para>Just as skeletons give us vertibrates shape and structure,
+markup does the same for text. Take out the markup and you have a
+mess of character data without any form. It would be very difficult to
+write a computer program that did anything useful with that
+content. Software relies on markup to label and delineate pieces of
+data, the way suitcases make it easy for you to carry clothes with you
+on a trip.</para>
+
+<para>This chapter focuses on the details of XML markup. Here I will
+describe the fundamental building blocks of all XML-derived languages:
+elements, attributes, entities, processing instructions and more. And
+I'll show you how they all fit together to make a well-formed XML
+document. Mastering these concepts is essential to understanding every
+other topic in the book, so read this chapter carefully.</para>
+
+<para>All of the markup rules for XML are laid out in the W3C's
+technical recommendation for XML version 1.0 (<systemitem
+class="url">http://www.w3.org/TR/2000/REC-xml-20001006</systemitem>).
+This is the second edition of the original which first appeared in
+1998. If you're interested in taking a look for yourself, you may
+find Tim Bray's annotated, interactive version useful. Go and check it
+out at <systemitem
+class="url">http://www.xml.com/axml/testaxml.htm</systemitem>.</para>
+
+</simplesect>
+
+
+<sect1><title>Tags</title>
+
+<para>If XML markup is a structural skeleton for a document, then tags
+are the bones. They mark the boundaries of elements, allow insertion
+of comments and special instructions, and declare settings for the
+parsing environment. A parser, the front line of any program that
+processes XML, relies on tags to help it break down documents into
+discrete XML objects. There are a handful of different XML object
+types, listed in <xref linkend="core-table-tags"/>.</para>
+
+<table id="core-table-tags">
+<title>Types of tags in XML</title>
+<tgroup cols="">
+<thead>
+<row>
+<entry>Object</entry><entry>purpose</entry><entry>example</entry>
+</row>
+</thead>
+<tbody>
+<row>
+<entry>empty element</entry>
+<entry>Represent information at a specific point in the document.</entry>
+<entry>&lt;xref linkend="abc"/&gt;</entry>
+</row>
+<row>
+<entry>container element</entry>
+<entry>Group together elements and character data.</entry>
+<entry>&lt;p&gt;This is a paragraph.&lt;/p&gt;</entry>
+</row>
+<row>
+<entry>declaration</entry>
+<entry>Add a new parameter, entity, or grammar definition to the
+parsing environment.</entry>
+<entry>&lt;!ENTITY author "Erik Ray"&gt;</entry>
+</row>
+<row>
+<entry>processing instruction</entry>
+<entry>Feed a special instruction to a particular type of software.</entry>
+<entry>&lt;?print-formatter force-linebreak?&gt;</entry>
+</row>
+<row>
+<entry>comment</entry>
+<entry>Insert an annotation that should be removed by the parser.</entry>
+<entry>&lt;!-- here's where I left off --&gt;</entry>
+</row>
+<row>
+<entry>CDATA section</entry>
+<entry>Create a section of character data that should not be parsed,
+preserving any special characters inside it.</entry>
+<entry>&lt;![CDATA[Ampersands galore! &amp;&amp;&amp;&amp;&amp;&amp;]]&gt;</entry>
+</row>
+<row>
+<entry>entity reference</entry>
+<entry>Command the parser to insert some text stored
+elsewhere.</entry>
+<entry>&amp;company-name;</entry>
+</row>
+</tbody>
+</tgroup>
+</table>
+
+<para>Elements are the most common XML object type. They break up the
+document into smaller and smaller cells, nesting inside one another
+like boxes. <xref linkend="core-fig-boxes"/> shows the document in
+<xref linkend="intro-ex-telegram"/> partitioned into separate
+elements. Each of these pieces has its own properties and role in a
+document, so we want to divide them up for separate processing.</para>
+
+<figure id="core-fig-boxes">
+<title>Telegram with element boundaries visible</title>
+<graphic fileref="figs/lx2_0201.jpg"/>
+</figure>
+
+<para>Inside element start tags, you sometimes will see some extra
+characters next to the element name in the form of <replaceable>name</replaceable>="<replaceable>value</replaceable>". These are
+<firstterm>attributes</firstterm>. They associate information with an
+element that may be inappropriate to include as character data. In the
+telegram example above, look for an attribute in the start tag of the
+<sgmltag>telegram</sgmltag> element.</para>
+
+<para><firstterm>Declarations</firstterm> are never seen inside
+elements, but may appear at the top of the document or in an external
+document type definition file. They are important in setting
+parameters for the parsing session. They can set up the character
+encoding, define rules for validation, or declare special entities to
+stand in for text.</para>
+
+<para>The next three objects are used to alter parser behavior while
+it's going over the document. <firstterm>Processing
+instructions</firstterm> are software-specific directives embedded in
+the markup for convenience (e.g. storing page numbers for a particular
+formatter). <firstterm>Comments</firstterm> are regions of text that
+the parser should strip out before processing, as they only have
+meaning to the author. <firstterm>CDATA sections</firstterm> are
+special regions in which the parser should temporarily suspend its tag
+recognition.</para>
+
+<para>Rounding out the list are <firstterm>entity
+references</firstterm>, commands that tell the parser to insert
+predefined pieces of text in the markup. These objects don't follow
+the pattern of other tags in their appearance. Instead of angle
+brackets for delimiters, they use the ampersand and semicolon.</para>
+
+<para>In upcoming sections, I'll explain each of these objects in more
+detail.</para>
+
+</sect1>
+
+
+<sect1><title>Documents</title>
+
+<para>An XML document is a special construct designed to archive data
+in a way that is most convenient for parsers. It has nothing to do
+with our traditional concept of documents, like the <citetitle>Magna
+Carta</citetitle> or <citetitle>Time Magazine</citetitle>, although
+those texts could be stored as XML documents. It simply is a way of
+describing a piece of XML as being whole and intact for
+parsing.</para>
+
+<para>It's important to stress the document as a
+<emphasis>logical</emphasis> entity rather than a
+<emphasis>physical</emphasis> one. In other words, don't assume that a
+document will be contained within a single file on a computer. Quite
+often, a document may be spread out across many files, and some of
+these may live on different systems. All that is required is that the
+XML parser that reads the document has the ability to assemble the
+pieces into a coherent whole. Later, we will talk about mechanisms
+used in XML for linking together discrete physical entities into a
+complete logical unit.</para>
+
+<para>A document has two parts. First is the <firstterm>document
+prolog</firstterm>, a special section containing metadata. The second
+is an element called the <firstterm>document element</firstterm>, also
+called the <firstterm>root element</firstterm> for reasons you will
+understand later when we talk about trees. The root element contains
+all the other elements and content in the document.</para>
+
+<para>The prolog is optional. If you leave it out, the parser will
+fall back on default settings. For example, it will automatically
+select the character encoding UTF-8 unless something else is
+specified. The root element is required, because a document without
+data is just not a document<footnote>
+<para>Interestingly, there is no rule that says the root element has
+to contain anything. This leads to the amusing fact that the following
+smiley of a perplexed, bearded dunce is a well-formed document:</para>
+<programlisting>&lt;:-/&gt;</programlisting>
+<para>It's an empty element whose name is
+":-".</para></footnote>.</para>
+
+</sect1>
+
+
+<sect1><title>The document prolog</title>
+
+<para>Being a flexible markup language toolkit, XML lets you use
+different character encodings, define your own grammars, and store
+parts of the document in many places. An XML parser needs to know
+about these particulars before it can start its work. You communicate
+these options to the parser through a construct called the document
+prolog.</para>
+
+<para>The document prolog (if you use one) comes at the top of the
+document, before the root element. There are two parts (both
+optional): an XML declaration and a document type
+declaration<footnote><para>Don't confuse <wordasword>document type
+declaration</wordasword> with <wordasword>document type
+definition</wordasword>, a completely different beast. To keep the two
+terms distinct, I will always refer to the latter one with the acronym
+"DTD".</para></footnote>. The first sets parameters for basic XML 
+parsing while the second is for more advanced settings. The XML
+declaration, if used, has to be the first line in the document. <xref
+linkend="core-ex-prolog"/> shows a document containing a full
+prolog.</para>
+
+<example id="core-ex-prolog">
+<title>A document with a full prolog</title>
+<programlisting>&lt;?xml version="1.0" standalone="no"?&gt;         <lineannotation>The XML declaration</lineannotation>
+&lt;!DOCTYPE                                     <lineannotation>Beginning of the DOCTYPE declaration</lineannotation>
+  reminder                                    <lineannotation>Root element declaration</lineannotation>
+  SYSTEM "/home/eray/reminder.dtd"            <lineannotation>DTD identifier</lineannotation>
+  [                                           <lineannotation>Internal subset start delimiter</lineannotation>
+    &lt;!ENTITY smile "&lt;graphic file="smile.jpg"/&gt;"&gt;  <lineannotation>Entity declaration</lineannotation>
+  ]&gt;                                          <lineannotation>Internal subset end delimiter</lineannotation>
+&lt;reminder&gt;                                    <lineannotation>Start of document element</lineannotation>
+  &amp;smile;                                     <lineannotation>Reference to the entity declared above</lineannotation>
+  &lt;msg&gt;Smile! It can always get worse.&lt;/msg&gt;
+&lt;/reminder&gt;                                   <lineannotation>End of document element</lineannotation></programlisting>
+</example>
+
+
+<sect2><title>The XML declaration</title>
+
+<para>The XML declaration is a simple collection of details 
+for the XML parser resembling a processing instruction. It has the
+form:</para> 
+
+<programlisting>&lt;?xml <replaceable>parameters</replaceable>?&gt;</programlisting>
+
+<para>Where <replaceable>parameters</replaceable> is a set of
+parameter settings, each with a name, an equal sign (=), and a quoted
+value. There are three optional parameters that can be set:</para>
+
+<variablelist>
+<varlistentry><term><literal>version</literal></term>
+<listitem><para>The version of XML being used. At the moment, only
+version 1.0 is officially recognized, but a version 1.1 may be
+available soon.</para></listitem>
+</varlistentry>
+
+<varlistentry><term><literal>encoding</literal></term>
+<listitem><para>Defines the character encoding used in the document.
+If undefined, the default encoding "UTF-8" will be used, which is okay
+for most documents used in english-speaking countries. Character
+encodings are explained in <xref linkend="int"/>.</para></listitem>
+</varlistentry>
+
+<varlistentry><term><literal>standalone</literal></term>
+
+<listitem><para>Informs the parser whether there are other files to be
+loaded. If the document is spread across multiple files, or it uses a
+DTD, then set this parameter to "no". Setting it to "yes" means the
+document can stand on its own without need for other files. This may
+improve performance for the parser which might otherwise have to keep
+a network connection open while it tries to determine if other files
+need to be downloaded.</para></listitem>
+</varlistentry>
+</variablelist>
+
+<para>Parameter names and values are case-sensitive. The names are
+always lower-case. Order is important; the version must come before
+the encoding which must precede the standalone parameter. Either
+single or double quotes may be used. Some examples of XML
+declarations:</para>
+
+<programlisting>&lt;?xml version="1.0"?&gt;
+&lt;?xml version='1.0' encoding='US-ASCII' standalone='yes'?&gt;
+&lt;?xml version = '1.0' encoding= 'iso-8859-1' standalone ="no"?&gt;</programlisting>
+
+</sect2>
+
+
+<sect2><title>The Standalone Parameter</title>
+
+<para>REWRITE THIS SECTION</para>
+
+<para>The
+<literal>standalone</literal> parameter tells an XML processor when
+it's safe to skip loading the DTD's external subset. So if you set
+<literal>standalone="yes"</literal>, the application can safely assume
+that everything it needs to know to format the document is in the
+internal subset. In other words, nothing outside the document
+is necessary to fully flesh out the content.</para>
+
+<para>If you aren't sure how to set the <literal>standalone</literal>
+parameter, just leave it out. The value will default to
+<literal>"no"</literal> and the XML processor will load 
+what it needs to. However, there are advantages to setting
+<literal>standalone="yes"</literal> when it's appropriate: it saves
+time in processing the document, a browser doesn't have to keep the
+connection open, and an archival system can save on resources that
+would have been spent tracking document relationships.</para>
+
+<para>Three things affect whether a document
+can be declared standalone:</para>
+
+<variablelist>
+<varlistentry><term>External entities</term>
+<listitem><para>An external entity (other than references to DTD-type
+declarations) is, by definition, content that resides outside your
+document. So when you use an external entity reference in the
+document, the processing application has to find and load the
+replacement text. Obviously, the document isn't standalone.</para>
+
+<para>The remedy for this is to cut off reliance on outside content by
+permanently replacing external entity references with their replacement
+text. Essentially, you are saving the XML processor the step of
+replacing the entity references itself. On the other hand, this defeats
+the purpose of using entities, and you may be better off leaving the
+external entities in.</para>
+
+<para>An exception to this rule is entity references to external DTD
+subsets. You don't have to move every element, attribute, or other
+declaration into the internal subset of your document, since the XML
+processor doesn't always need to see the DTD to process your
+XML. As long as the next two conditions in this list are satisfied,
+you can safely label the document as standalone.</para></listitem>
+</varlistentry>
+
+<varlistentry><term>General entities declared in the external subset</term>
+<listitem><para>If the document uses general entities, then check
+whether they are declared outside the internal subset. If they are,
+you will need to move the declarations into the internal subset, or
+swap the entity references with their replacement text, as you would
+do with external entities. For single-character entities, you should
+consider using number-based character entity references instead. If
+all the entities are in fact declared in the internal subset, then the
+document can be declared standalone.</para></listitem>
+</varlistentry>
+
+<varlistentry><term>Default attribute values</term>
+<listitem><para>Some elements in your document may have default
+attribute values associated with them. For example, a hypertext link
+might have a fixed <literal>xlink:form</literal>
+attribute that you never have to set yourself. Without the DTD, a
+processing application won't know of the default attribute, and the
+behavior of the link could change. In this case, you'll have to supply
+the attribute yourself. You can either put an attribute list
+declaration in the internal subset or insert the attribute in every
+element. So, if some elements in the document have default attribute
+values associated with them and the attributes are declared in the
+internal subset, the document can be declared
+standalone.</para></listitem>
+</varlistentry>
+</variablelist>
+
+</sect2>
+
+
+<sect2><title>The Document Type Declaration</title>
+
+<para>There are two reasons why you would want to use a document type
+declaration. The first is to define entities. The second is to support
+validation, a special mode of parsing that checks grammar and
+vocabulary of markup. A validating parser needs to read a list of
+declarations for element rules before it can begin to parse. So in
+both cases, you need to make declarations available, and the place to
+do that is in the document type declaration section.</para>
+
+<para>There are three parts to this section, all enclosed
+within the familiar angle brackets and labelled with the keyword
+"!DOCTYPE". First is the name of the root element. It tells the parser
+what to expect for the root element, in case the author made a mistake
+and misspelled it. The second part is the DTD identifier, a string
+that describes how to find the DTD for validation. The last part is an
+optional list of entity declarations called the <firstterm>internal
+subset</firstterm>. It combines with the external DTD file, also called
+the <firstterm>external subset</firstterm>, to make a complete
+environment for parsing.</para>
+
+<para>The DTD identifier supports two methods of indentification:
+system-specific and public. A <firstterm>system identifier</firstterm>
+uses a physical address scheme, such as a filesystem path or a
+URL. It's easy to implement but has the disadvantage that physical
+addresses frequently change as things get moved around. A
+<firstterm>public identifier</firstterm> is a permanent name for a
+resource that should remain the same no matter where the object
+lives. An XML parser has to look up the physical address from a
+catalog or name server somewhere. Not all XML parsers support
+public identifiers, so a system identifier is always required as a
+backup. Here are two examples of DTD identifiers, first a
+system-specific one:</para>
+
+<programlisting>SYSTEM "/usr/local/xml/dtds/my.dtd"</programlisting>
+
+<para>...and a public identifier:</para>
+
+<programlisting>PUBLIC "-//W3C//DTD HTML 3.2//EN" "http://www.w3.org/TR/HTML/html.dtd"</programlisting>
+
+<para>ADD A SIDEBAR HERE ABOUT PUBLIC IDENTIFIERS</para>
+
+<para>The internal subset consists of a bunch of declarations inside
+square brackets. These declarations will be read after the external
+subset, in the order they appear. Only entity declarations are allowed
+in the internal subset, perhaps to make it easier for non-validating
+parsers to work with documents. An entity declaration takes two
+forms. The first is for internal entities, those whose values are
+expressed as a quoted string:</para>
+
+<programlisting>&lt;!ENTITY <replaceable>name</replaceable> "<replaceable>text</replaceable>"&gt;</programlisting>
+
+<para>So, for example, this declaration creates an entity called
+"jobtitle" and assigns it the text "<sgmltag>jobtitle</sgmltag>Herder
+of Cats<sgmltag>/jobtitle</sgmltag>":</para>
+
+<programlisting>&lt;!ENTITY jobtitle "&lt;jobtitle&gt;Herder of Cats&lt;/jobtitle&gt;"&gt;</programlisting>
+
+<para>The second form of entity declaration is for external entities,
+those whose values come from another file or resource. In place of the
+quoted text string is a public or system identifier. For
+example this declaration associates the name "chap2" with the file
+<filename>ch02.xml</filename> on the system on which the parser is
+running:</para> 
+
+<programlisting>&lt;!ENTITY chap2 SYSTEM "ch02.xml"&gt;</programlisting>
+
+<para>We'll talk more about the internal subset and declarations in
+<xref linkend="qc"/>.</para>
+
+</sect2>
+</sect1>
+
+
+<sect1><title>Elements</title>
+
+<para>Elements are the building blocks of XML, dividing a document
+into a hierarchy of regions, each serving a specific purpose. Some
+elements are containers, holding text or elements. Others are empty,
+marking a place for some special processing such as importing a
+media object. In this section, I'll describe the rules for how
+to construct elements.</para>
+
+
+<sect2><title>Syntax</title>
+
+<para><xref linkend="core-fig-elemc"/> shows the syntax for a
+container element. It begins with a start tag (1) consisting of an
+angle bracket (&lt;) followed by a name (2). The start tag may contain
+some attributes (3) separated by whitespace, and it ends with a
+closing angle bracket (&gt;). An attribute defines a property of the
+element and consists of a name (4) joined by an equals sign
+(<literal>=</literal>) to a value in quotes (5). An element can have
+any number of attributes, but no two attributes can have the same
+name. Following the start tag is the element's content (6), which in
+turn is followed by an end tag (7). The end tag consists of an opening
+angle bracket, a slash, the element's name, and a closing bracket. The
+end tag has no attributes, and the element name must match the start
+tag's name exactly.</para>
+
+<figure id="core-fig-elemc">
+<title>Container element syntax</title>
+<graphic fileref="figs/lx2_0202.jpg"/>
+</figure>
+
+<para>As shown in <xref linkend="core-fig-eleme"/>, an empty element
+consists of a single tag (1) that begins with an opening angle bracket
+(&lt;) followed by the element name (2). This is followed by some
+number of attributes (3), each of which consists of a name (4) and a
+value in quotes (5), and the element ends with a slash (/) and a
+closing angle bracket.</para>
+
+<figure id="core-fig-eleme">
+<title>Empty element syntax</title>
+<graphic fileref="figs/lx2_0203.jpg"/>
+</figure>
+
+<para>Element naming must follow the rules of <firstterm>XML
+names</firstterm>, a generic term in the XML specification that also
+applies to names of attributes and some other kinds of markup. An XML
+name can contain any alphanumeric characters (a-z, A-Z, and 0-9),
+accented characters like &ccedil;, characters from non-latin scripts
+like Greek, Arabic, or Katakana. The only punctuation allowed in names
+are the hyphen (-), underscore (_) and period (.). The colon (:) is
+reserved for another purpose, which I will explain later. Names can
+only start with a letter, ideograph, or underscore. Names are
+case-sensitive, so <sgmltag>Para</sgmltag>, <sgmltag>para</sgmltag>,
+and <sgmltag>pArA</sgmltag> are three different elements.</para>
+
+<para>The following elements are well-formed:</para>
+
+<programlisting>&lt;to-do&gt;Clean fish tank&lt;/to-do&gt;
+&lt;street_address&gt;1420 Seseme Street&lt;/street_address&gt;
+&lt;MP3.name&gt;Where my doggies at?&lt;/MP3.name&gt;
+&lt;&alpha;3/&gt;
+&lt;_-_&gt;goofy, but legal&lt;/_-_&gt;</programlisting>
+
+<para>These element names are not:</para>
+
+<programlisting>&lt;-item&gt;Bathe the badger&lt;/-item&gt;
+&lt;2nd-phone-number&gt;785-555-1001&lt;/2nd-phone-number&gt;
+&lt;notes+comments&gt;Huh?&lt;/notes+commments&gt;</programlisting>
+
+<para>Technically, there is no limit to the length of an XML
+name. Practically speaking, you should probably keep names at a
+reasonable length, in case an XML parser can't handle really long
+names. Anything over 50 characters is probably unnecessarily
+long.</para>
+
+<para>Inserting whitespace characters (tab, newline, and space) inside
+the tag is fine, as long as there aren't any between the opening angle
+bracket and the element name. These characters are used to separate
+attributes. They are also often used to make tags more readable. In
+the following example, all of the whitespace characters are
+allowed:</para> 
+
+<programlisting>&lt;boat
+  type="trireme"
+&gt;&lt;crewmember   class="rower"&gt;Dronicus Laborius&lt;/crewmember    &gt;</programlisting>
+
+<para>There are a few important rules about the tags of container
+elements. The names in the start and end tags must be identical. An
+end tag has to come after (never before) the start tag. And both tags
+have to reside within the same parent element. Violating the last rule
+is an error called <firstterm>overlapping</firstterm>. It's an
+ambiguous situation where each element seems to contain the other, as
+you can see here:</para> 
+
+<programlisting>&lt;a&gt;Don't &lt;b&gt;do&lt;/a&gt; this!&lt;/b&gt;</programlisting>
+
+<para>These untangled elements are okay:</para>
+
+<programlisting>&lt;a&gt;No problem&lt;/a&gt;&lt;b&gt;here&lt;/b&gt;</programlisting>
+
+</sect2>
+
+
+<sect2><title>Content</title>
+
+<para>Text between markup tags is called <firstterm>character
+data</firstterm>. It can include any character in the vast Unicode
+character set. However, some characters must be represented in a
+special way so as not to confuse the parser. For example, the left
+angle bracket (&lt;) is reserved for element tags. Including it
+directly in content causes an ambiguous situation: is it the start of
+an XML tag or is it just data? Here's an example:</para>
+
+<programlisting>&lt;foo&gt;x &lt; y&lt;/foo&gt;    <lineannotation>yikes!</lineannotation></programlisting>
+
+<para>To resolve this conflict, you need to use a special code in
+place of the offending character. The code is a <firstterm>character
+entity reference</firstterm>, predefined in XML for this purpose. For
+the left angle bracket, the code is &amp;lt;. (The equivalent code for
+the right angle bracket is &amp;gt;.) You can rewrite the above
+example like this:</para>
+
+<programlisting>&lt;foo&gt;x &amp;lt; y&lt;/foo&gt;</programlisting>
+
+<para>I'll say more about entities in the upcoming section on
+entities.</para>
+
+<para>Elements can be mixed with text to create <firstterm>mixed
+content</firstterm>. Why would you want to mix the two? It happens
+most often in narrative documents. Sometimes you will want to insert
+an object inside a stream of text, such as a picture or a link, and
+such objects are coded as elements. Some elements in mixed content are
+themselves containers of text. These 
+<firstterm>inline elements</firstterm>, as they are called, affect
+local changes to regions of text, marking them as emphasized or
+glossary terms for example.</para>
+
+</sect2>
+
+
+<sect2><title>Attributes</title>
+
+<para>In the element start tag you can add more information about the
+element in the form of attributes. An <firstterm>attribute</firstterm>
+is a name-value pair. You can use it to add a unique label to an
+element, place it in a category, add a boolean flag, or otherwise
+associate some short string of data. In <xref
+linkend="intro-ex-telegram"/>, I used an attribute in the
+<sgmltag>telegram</sgmltag> element to set a priority level.</para>
+
+<para>One reason to use attributes is if you want to distinguish
+between elements of the same type. Effectively, this adds a new
+dimension to the namespace for each attribute you use. In narrative
+applications like DocBook or HTML, it's common to see attributes like
+<literal>class</literal> and <literal>role</literal> used for this
+purpose. For example:</para>
+
+<programlisting>&lt;message class="tip"&gt;When making crop circles,
+push down &lt;emphasis&gt;gently&lt;emphasis&gt; on the stalks to
+avoid breaking them.&lt;/message&gt; 
+
+&lt;message class="warning"&gt;Farmers don't like finding people in
+their fields at night, so be &lt;emphasis role="bold"&gt;very
+quiet&lt;/emphasis&gt; when making crop circles.&lt;/message&gt;</programlisting>
+
+<para>The <literal>class</literal> attribute might be used by a
+stylesheet to specify a special typeface or color. It might format the
+<sgmltag>message class="warning"</sgmltag> with a thick border and an
+icon containing an exclamation point, while the <sgmltag>message
+class="tip</sgmltag> gets an icon of a light bulb and a thin
+border. The <sgmltag>emphasis</sgmltag> elements are distinguished in
+whether they have an attribute at all. The second does, and its
+purpose is to override the default style, whatever that may be.</para>
+
+<para>Another way an attribute can distinguish an element is as a
+unique identifier. There may be hundreds of sections in a book, but
+only one with the attribute <literal>id="217"</literal>. If you want a
+cross reference to a particular section, you might use an attribute to
+refer to that element's identification attribute.</para>
+
+<para><xref linkend="core-fig-att"/> shows the syntax of an attribute,
+which consists of a property name (1), an equals sign (2), and a value
+in quotes (3). Attributes are separated from each other with spaces,
+tabs, or newline characters. Quotes are always required for the
+attribute value, but either single (') or double quotes (") can be
+used. An element can have any number of attributes, as long as each
+has a unique name. Order doesn't matter and is ignored by the
+parser. The naming pattern is the same as for elements.</para>
+
+<figure id="core-fig-att">
+<title>Attribute syntax</title>
+<graphic fileref="figs/lx2_0204.jpg"/>
+</figure>
+
+<para>Here's an example of an element with three attributes:</para>
+
+<programlisting>&lt;kiosk music="bagpipes" color="red" id="page-81527"&gt;</programlisting>
+
+<para>You can't have more than one attribute with a given name in an
+element, though sometimes it would be nice. The following example is
+not allowed:</para>
+
+<programlisting>&lt;!-- Wrong --&gt;
+&lt;team person="sue" person="joe" person="jane"&gt;</programlisting>
+
+<para>There are some ways to get around this limitation. You could use
+one attribute to hold all the values:</para>
+
+<programlisting>&lt;team persons="sue joe jane"&gt;</programlisting>
+
+<para>You could use attributes with different names:</para>
+
+<programlisting>&lt;team person1="sue" person2="joe" person3="jane"&gt;</programlisting>
+
+<para>Or use elements instead:</para>
+
+<programlisting>&lt;team&gt;
+&nbsp;&nbsp;&lt;person&gt;sue&lt;/person&gt;
+&nbsp;&nbsp;&lt;person&gt;joe&lt;/person&gt;
+&nbsp;&nbsp;&lt;person&gt;jane&lt;/person&gt;
+&lt;/team&gt;</programlisting>
+
+<para>In a DTD, attributes can be declared to be of certain types. An
+attribute can have an enumerated value, meaning that the value must be
+one of a predefined set. Or it may have a type that registers it as a
+unique identifier (no other element can have the same value). It may
+be an identifier reference type, requiring that another element
+somewhere has an identifier attribute that matches. A validating
+parser will check all of these attribute types and report deviations
+from the DTD. I'll have more to say about declaring attribute types in
+<xref linkend="qc"/>.</para>
+
+<note>
+<para>Some attribute names are reserved in XML. Typically, they start
+with the prefix "xml", such as <literal>xmlns</literal>. To avoid a
+conflict, choose names that don't start with those letters.</para>
+</note>
+
+</sect2>
+
+
+<sect2><title>Namespaces</title>
+
+<para>Namespaces are a mechanism by which element and attribute names
+can be assigned to groups. They are most often used when combining
+different vocabularies in the same document, as I did in <xref
+linkend="intro-ex-mix"/>. Look at that example, and you'll see
+attributes in some elements like this one:</para>
+
+<programlisting>&lt;math xmlns="http://www.w3.org/TR/REC-MathML/"&gt;</programlisting>
+
+<para>The <literal>xmlns</literal> attribute is a <firstterm>namespace
+declaration</firstterm>. It tells the parser that it is entering a new
+namespace, identified uniquely by the string
+<literal>http://www.w3.org/TR/REC-MathML/</literal>, which is a URI at
+the W3C website. (The URI itself is not important except as a unique
+identifier&mdash;the parser doesn't go to that URI and do anything
+with the information there.) While it is inside this element, the
+namespace is in effect. Once it reaches the end tag, it reverts to the
+previous namespace. Any descendants of the element are part of the
+namespace.</para>
+
+<para>What the parser does with the namespace information depends on
+the application. For a web document, it may trigger a shift in
+processing from one kind (e.g. normal web text) to another (e.g. math
+forumlae). Or, as in the case of XSLT, it may use namespaces to sort
+instructions from data where the former is kind of like a
+meta-markup.</para>
+
+<para>The general form of the namespace declaration is illustrated in
+<xref linkend="core-fig-namespace"/>. It starts with the keyword
+<literal>xmlns</literal> (1) to alert the XML parser that this
+attribute is a namespace declaration. Optionally, it may be followed
+by a colon and then a namespace prefix (2), which
+is a label can use in element and attribute names for more
+clarity. Last, there follows an equals sign and a URI in quotes
+(3).</para>
+
+<figure id="core-fig-namespace">
+<title>Namespace declaration syntax</title>
+<graphic fileref="figs/lx2_0205.jpg"/>
+</figure>
+
+<para>In the following example, the <sgmltag>part-catalog</sgmltag>
+element declares two namespaces. The first declaration sets up a
+namespace for <systemitem>nutware.com</systemitem> with a namespace
+prefix "nw". The second sets up a default namespace for
+<systemitem>bobco.com</systemitem>. We know the
+<sgmltag>nw:entry</sgmltag> element belongs to the
+<systemitem>netware.com</systemitem> namespace because it has the "nw"
+qualifier in the name. The <sgmltag>part</sgmltag> element has no
+namespace qualifier so it must be part of the
+<literal>bobco.com</literal> namespace.</para>
+
+<programlisting><![CDATA[<part-catalog
+  xmlns:nw="http://www.nutware.com/"
+  xmlns="http://www.bobco.com/"
+>
+  <nw:entry>
+    <nw:number>1327</nw:number>
+    <nw:description>torque-balancing hexnut</nw:description>
+  </nw:entry>
+  <part id="555">
+    <name>type 4 wingnut</name>
+  </part>
+</part-catalog>]]></programlisting>
+
+<para>This example shows that namespaces are useful for combining markup
+from different document types in the same document. A program
+interpreting this data can use the namespace qualifier to decide how
+to process it, using the standard Bobco template or a different one
+for Nutware products.</para>
+
+<para>Namespaces are a great example of how protocols can be layered
+on one another to enhance their usefulness. The current version of the
+XML specification says nothing about namespaces. They were added later
+and work wonderfully. Or do they?</para>
+
+<para>It's time to give you the bad news. Namespaces don't fit neatly
+into XML for one reason: they may make your document invalid. The
+problem is that DTDs automatically constrain a vocabulary to just
+those elements that it declares. If you want to be able to include any
+namespace in a document, your DTD would have to include declarations
+for the elements in all namespaces, which just isn't
+feasible. Namespaces aren't going away. DTD's aren't either. Something
+has to be done to reconcile the two, but no one has an answer
+yet.</para>
+
+</sect2>
+
+
+<sect2><title>Whitespace</title>
+
+<para>You'll notice in my examples, I like to indent elements to
+clarify the structure of the document. Spaces, tabs, and newlines
+(collectively called <firstterm>whitespace</firstterm> characters) are
+often used to make a document more readable to the human eye. Take out
+this visual padding and your eyes will get tired very quickly. So why
+not add some spaces here and there where it will help?</para>
+
+<para>XML parsers often will collapse or remove whitespace. Often this
+is desireable for nicely formatted documents. A web browser displaying
+XHTML will condense adjacent spaces into one, strip out newlines and
+tabs so it can justify paragraphs properly, and ignore leading and
+trailing spaces altogether. There are times, however, when you don't
+want this to happen.</para>
+
+
+<para>Consider this XML-encoded poem by E. E. Cummings<footnote>
+<para>From Complete Poems: 1904-1962 by E. E. Cummings, edited by
+George J. Firmage. Used with the permission of Liveright Publishing
+Corporation. Copyright &copy; 1923, 1931, 1935, 1940, 1951, 1959, 1963,
+1968, 1991 by the Trustees for the E. E. Cummings Trust. Copyright &copy;
+1976, 1978, 1979 by George James Firmage.</para></footnote>:</para>
+
+<remark>If you don't want to use this poem, we can use another that
+is public domain or write one from scratch. I just really like
+Cummings.</remark>
+
+<programlisting>&lt;poem xml:lang="preserve"&gt;r-p-o-p-h-e-s-s-a-g-r
+   who
+a)s w(e loo)k
+upnowgath
+  PPEGORHRASS
+        eringint(o-
+aThe):l
+ eA
+     !p:
+S         a
+ (r
+rIvInG .gRrEaPsPhOs)
+    to
+rea(be)rran(com)gi(e)ngly
+,grasshopper;&lt;/poem&gt;</programlisting>
+
+<para>Those spaces were put there by the author, Mr. Cummings. I had
+nothing to do with it, and I don't want a parser to muck around with
+the spacing either. Leave it alone, I say! The way to force the
+parser to obey is to give the <sgmltag>poem</sgmltag> element an
+attribute named <literal>xml:space</literal>, and set its value to
+"preserve", as I have done here. In <xref linkend="qc"/>, I'll show
+you how to make this the standard behavior for an element, by making
+the attribute implicit in the element declaration.</para>
+
+<para>Some parsers will make reasonably smart guesses about which
+elements should preserve whitespace and which should not. Elements which
+are declared in a DTD to allow mixed content should preserve whitespace,
+since it may be part of the content. Elements not declared to allow
+text should have whitespace dropped, since any space in there is only
+for clarification of markup. However, you can't always rely on a
+parser to know do this, so using the <literal>xml:space</literal>
+attribute is the safest option.</para>
+
+</sect2>
+
+
+<sect2><title>Trees</title>
+
+<para>Elements can be represented graphically as upside-down,
+tree-like structures. The outermost element, like the trunk of a tree,
+branches out into smaller elements which in turn branch into other
+elements until the very innermost content&mdash;empty elements and
+character data&mdash; is reached. You can think of the character data
+as leaves of the tree. <xref linkend="core-fig-tree"/> shows how the
+telegram document would be drawn as a tree.</para>
+
+<figure id="core-fig-tree">
+<title>A document tree</title>
+<graphic fileref="figs/lx2_0206.jpg"/>
+</figure>
+
+<para>Since every XML document has only one possible tree, the diagram
+acts something like a fingerprint, uniquely identifying the
+document. It's this unambiguous structure that makes XML so useful in
+containing data. The arboreal metaphor is also useful in thinking
+about how you would "move" through a document. Documents are parsed
+from beginning to end, naturally, which happens to correspond to a
+means of traversing a tree called depth-first searching. You start at
+the root, then move down the first branch to an element, take the
+first branch from there, and so on to the leaves. Then you backtrack
+to the last fork and take the next branch, as shown in <xref
+linkend="core-fig-depth"/>.</para>
+
+<figure id="core-fig-depth">
+<title>Depth-first search</title>
+<graphic fileref="figs/lx2_0207.jpg"/>
+</figure>
+
+<para>Let me give you some terminology about trees. Every point in a
+tree, be it an element or text or something else, is called a
+<firstterm>node</firstterm>. This borrows from graph theory in
+mathematics, where a tree is a particular type of graph (directed,
+non-cyclic). Any branch of the tree can be snapped off and thought of
+as a tree too, just as you can plant the branch of a willow tree to
+make a new willow tree (and which is why you should never make
+fenceposts out of willow wood). Branches of trees are often called
+<firstterm>subtrees</firstterm> or just trees. Collections of trees
+are appropriately called <firstterm>groves</firstterm>.</para>
+
+<para>An XML tree or subtree (or sub-subtree, or sub-sub-subtree, ...)
+must adhere to the rules of well-formedness. In other words, any
+branch you pluck out of a document could be run through an XML parser,
+which wouldn't know or care that it wasn't a complete document. But a
+grove (group of adjacent trees) is not well-formed XML. In order to be
+well-formed, all of the elements must be contained inside just
+one.</para>
+
+<para>It's sometimes useful to talk about arbitrary segments of XML
+called chunks. A <firstterm>chunk</firstterm> is just a random string
+of text cut from a document. It may or may not be well-formed. One
+important kind of chunk is the <firstterm>balanced chunk</firstterm>,
+which consists only of complete elements. It's either a tree or a
+grove.</para>
+
+<para>To describe elements in relation to one another, we use
+geneological terms. Imagine that elements are like single-celled
+organisms, reproducing asexually. You can think of an element as the
+parent of the nodes it contains, its children. So the root of any tree
+is the progenitor of a whole family with numerous
+descendants. Likewise, a node may have ancestors and
+siblings. Siblings to the left (appearing earlier in the document) are
+<firstterm>preceding siblings</firstterm> while those to the right are
+<firstterm>following siblings</firstterm>. These relationships are
+illustrated in <xref linkend="core-fig-geneology"/>.</para>
+
+<figure id="core-fig-geneology">
+<title>Geneological concepts</title>
+<graphic fileref="figs/lx2_0208.jpg"/>
+</figure>
+
+<para>Another reason why the tree model of XML is important is that
+this is the way XML is usually stored in computer memory. Each element
+and region of text is packaged in a cell with pointers to children and
+parents, and has an object-oriented interface with which to manipulate
+data. This is convenient for developers because actions like moving
+document parts around and searching for text are easier and more
+efficient when separated into tree structures like this.</para>
+
+</sect2>
+</sect1>
+
+
+<sect1><title>Entities</title>
+
+<para>Entities are placeholders in XML. You declare it in the document
+prolog or in a DTD, and you can refer to it many times in the
+document. Different types of entities have different uses. You can
+substitute characters that are difficult or impossible to type with
+character entities. You can pull in content that lives outside of your
+document with external entities. And rather than type the same thing
+in over and over again, such as boilerplate, you can instead define
+your own general entities.</para>
+
+<para><xref linkend="core-fig-ents"/> shows the different kinds of
+entities and their roles. In the family tree of entity types, the two
+major branches are <firstterm>parameter</firstterm> entities and
+<firstterm>general</firstterm> entities. <firstterm>Parameter
+entities</firstterm> are used only in DTDs, so I'll talk about them
+later, in <xref linkend="qc"/>. This section will focus on the other
+type, general entities.</para>
+
+<figure id="core-fig-ents">
+<title>Entity Types</title>
+<graphic fileref="figs/lx2_0209.jpg"/>
+</figure>
+
+<para>An entity consists of a name and a value. When an XML parser
+begins to process a document, it first reads a series of
+<firstterm>declarations</firstterm>, some of which define entities by
+associating a name with a value. The value is anything from a single
+character to a file of XML markup. As the parser scans the XML
+document, it encounters <firstterm>entity references</firstterm>,
+which are special markers derived from entity names. For each entity
+reference, the parser consults a table in memory for something with
+which to replace the marker. It replaces the entity reference with the
+appropriate replacement text or markup, then resumes parsing just
+before that point, so the new text is parsed too. Any entity
+references inside the replacement text are also replaced; this process
+repeats as many times as necessary.</para>
+
+<para>An entity reference consists of an ampersand
+(<literal>&amp;</literal>), the entity name, and a semicolon
+(<literal>;</literal>). The following is an example of a document that
+declares three general entities and references them in the text:
+
+<programlisting>&lt;?xml version="1.0"?&gt;
+&lt;!DOCTYPE message SYSTEM "/xmlstuff/dtds/message.dtd"
+[
+  &lt;!ENTITY client "Mr. Rufus Xavier Sasperilla"&gt;
+  &lt;!ENTITY agent "Ms. Sally Tashuns"&gt;
+  &lt;!ENTITY phone "&lt;number&gt;617-555-1299&lt;/number&gt;"&gt;
+]&gt;
+&lt;message&gt;
+&lt;opening&gt;Dear &amp;client;&lt;/opening&gt;
+&lt;body&gt;We have an exciting opportunity for you! A set of 
+ocean-front cliff dwellings in Pi&amp;#241;ata, Mexico have been
+renovated as time-share vacation homes. They're going fast! To 
+reserve a place for your holiday, call &amp;agent; at &amp;phone;. 
+Hurry, &amp;client;. Time is running out!&lt;/body&gt;
+&lt;/message&gt;</programlisting></para>
+
+<para>The entities &amp;client;, &amp;agent;, and &amp;phone; are
+declared in the internal subset of this document and referenced in the
+<sgmltag>message</sgmltag> element. A fourth entity, &amp;#241;, is a
+numbered character entity that represents the character "&#241;". This
+entity is referenced but not declared; no declaration is necessary
+because numbered character entities are implicitly defined in XML as
+references to characters in the current character set. (For more
+information about character sets, see <xref linkend="int"/>.)
+The XML parser simply replaces the entity with the correct
+character.</para>
+
+<para>The previous example looks like this with all the entities
+resolved:</para>
+
+<programlisting>&lt;?xml version="1.0"?&gt;
+&lt;!DOCTYPE message SYSTEM "/xmlstuff/dtds/message.dtd"&gt;
+&lt;message&gt;
+&lt;opening&gt;Dear Mr. Rufus Xavier Sasperilla&lt;/opening&gt;
+&lt;body&gt;We have an exciting opportunity for you! A set of 
+ocean-front cliff dwellings in Pi&#241;ata, Mexico have been
+renovated as time-share vacation homes. They're going fast! To 
+reserve a place for your holiday, call Ms. Sally Tashuns at
+&lt;number&gt;617-555-1299&lt;/number&gt;.
+Hurry, Mr. Rufus Xavier Sasperilla. Time is running out!&lt;/body&gt;
+&lt;/message&gt;</programlisting>
+
+<para>All entities (besides predefined ones) must be
+declared before they are used in a document. Two acceptable places
+to declare them are in the internal subset, which is ideal for local 
+entities, and in an external DTD, which is more suitable for entities 
+shared between documents. If the parser runs across an entity reference 
+that hasn't been declared, either implicitly (a predefined entity) or 
+explicitly, it can't insert replacement text in the document because 
+it doesn't know what to replace the entity with. This error
+prevents the document from being well-formed.</para>
+
+
+<sect2><title>Character Entities</title>
+
+<para>Entities that contain a single character are called, naturally,
+<firstterm>character entities</firstterm>. These fall into several
+groups:</para>
+
+<variablelist>
+<varlistentry><term>Predefined character entities</term>
+
+<listitem><para>Some characters cannot be used in the text of an XML
+document because they conflict with the special markup delimiters. For
+example, angle brackets (<literal>&lt;&gt;</literal>) are used to
+delimit element tags. The XML specification provides the following
+<emphasis>predefined character entities</emphasis>, so you can express
+these characters safely:</para>
+
+<informaltable>
+<tgroup cols="2">
+<thead>
+<row>
+<entry>Name</entry>
+<entry>Value</entry>
+</row>
+
+</thead>
+
+<tbody>
+<row>
+<entry><literal>amp</literal></entry>
+<entry><literal>&amp;</literal></entry>
+</row>
+
+<row>
+<entry><literal>apos</literal></entry>
+<entry><literal>'</literal></entry>
+</row>
+
+<row>
+<entry><literal>gt</literal></entry>
+<entry><literal>&gt;</literal></entry>
+</row>
+
+<row>
+<entry><literal>lt</literal></entry>
+<entry><literal>&lt;</literal></entry>
+</row>
+
+<row>
+<entry><literal>quot</literal></entry>
+<entry><literal>"</literal></entry>
+</row>
+
+</tbody>
+</tgroup>
+</informaltable></listitem>
+</varlistentry>
+
+<varlistentry><term>Numbered character entities</term>
+<listitem><para>XML supports Unicode, a huge character set with tens
+of thousands of different symbols, letters, and ideograms. You should
+be able to use any Unicode character in your document. The problem is
+how enter a nonstandard character from a keyboard with less
+than 100 keys, or how to represent one in a text-only editor display. One 
+solution is to use a <firstterm>numbered character
+entity</firstterm>, an entity whose name is of the form
+<literal>#</literal><replaceable>n</replaceable>, where
+<replaceable>n</replaceable> is a number that represents the
+character's position in the Unicode character set.</para>
+
+<para>The number in the name of the entity can be expressed in decimal
+or hexadecimal format. For example, a lowercase c with a cedilla
+(&#231;) is the 231st Unicode character. It can be represented in
+decimal as <literal>&amp;#231;</literal> or in hexadecimal as
+<literal>&amp;#xe7;</literal>. Note that the hexadecimal version is
+distinguished with an x as the prefix to the number. The range of
+characters that can be represented this way starts at zero and goes up
+to 65,536. We'll discuss character sets and encodings in more detail
+in <xref linkend="int"/>.</para></listitem>
+</varlistentry>
+
+<varlistentry><term>Named character entities</term>
+<listitem><para>The problem with numbered character entities is that
+they're hard to remember: you need to consult a table every time you
+want to use a special character. An easier way to remember them is to
+use mnemonic entity names. These <firstterm>named character
+entities</firstterm> use easy-to-remember names for references like
+<literal>&amp;THORN;</literal>, which stands for the Icelandic capital
+thorn character (&#222;).</para>
+
+<para>Unlike the predefined and numeric character entities, you do
+have to declare named character entities. In fact, they are
+technically no different from other general entities. Nevertheless,
+it's useful to make the distinction, because large groups of such
+entities have been declared in DTD modules that you can use in your
+document. An example is ISO-8879, a standardized set of named
+character entities including Latin, Greek, Nordic, and Cyrillic
+scripts, math symbols, and various other useful characters found in
+European documents.</para></listitem>
+</varlistentry>
+</variablelist>
+</sect2>
+
+
+<sect2><title>Mixed-Content Entities</title>
+
+<para>Entity values aren't limited to a single character, of
+course. The more general <firstterm>mixed-content entities</firstterm>
+have values of unlimited length and can include markup as well as
+text.  These entities fall into two categories: internal and
+external. For <firstterm>internal entities</firstterm>, the
+replacement text is defined in the entity declaration; for
+<firstterm>external entities</firstterm>, it is located in another
+file.</para>
+
+
+<sect3><title>Internal entities</title>
+
+<para>Internal mixed-content entities are most often used to stand in
+for oft-repeated phrases, names, and boilerplate text. Not only is an
+entity reference easier to type than a long piece of text, but it also
+improves accuracy and maintainability, since you only have to change
+an entity once for the effect to appear everywhere. The following
+example proves this point:</para>
+
+<programlisting>&lt;?xml version="1.0"?&gt;
+&lt;!DOCTYPE press-release SYSTEM "http://www.dtdland.org/dtds/reports.dtd" 
+[
+  &lt;!ENTITY bobco "Bob's Bolt Bazaar, Inc."&gt;
+]&gt;
+&lt;press-release&gt;
+&lt;title&gt;&amp;bobco; Earnings Report for Q3&lt;/title&gt;
+&lt;par&gt;The earnings report for &amp;bobco; in fiscal
+quarter Q3 is generally good. Sales of &amp;bobco; bolts increased 35%
+over this time a year ago.&lt;/par&gt;
+&lt;par&gt;&amp;bobco; has been supplying high-quality bolts to contractors
+for over a century, and &amp;bobco; is recognized as a leader in the
+construction-grade metal fastener industry.&lt;/par&gt;
+&lt;/press-release&gt;</programlisting>
+
+<para>The entity &amp;bobco; appears in the document five times. If
+you want to change something about the company name, you only have to
+enter the change in one place. For example, to make the name appear
+inside a <sgmltag>companyname</sgmltag> element, simply edit the entity
+declaration:</para>
+
+<programlisting>&lt;!ENTITY bobco 
+  "&lt;companyname&gt;Bob's Bolt Bazaar, Inc.&lt;/companyname&gt;"&gt;</programlisting>
+
+<para>When you include markup in entity declarations, be sure not to
+use the predefined character entities (e.g.,
+<literal>&amp;lt;</literal> and <literal>&amp;gt;</literal>). The
+parser knows to read the markup as an entity value because the value
+is quoted inside the entity declaration. Exceptions to this are the
+quote-character entity &amp;quot; and the single-quote character
+entity &amp;apos;. If they would conflict with the entity
+declaration's value delimiters, then use the predefined entities,
+e.g., if your value is in double quotes and you want it to contain a
+double quote.</para>
+
+<para>Entities can contain entity references, as long as the entities being 
+referenced have been declared previously. Be careful not to include
+references to the entity being declared, or you'll create a circular
+pattern that may get the parser stuck in a loop. Some parsers will
+catch the circular reference, but it is an error.</para>
+
+</sect3>
+
+
+<sect3 id="XML-MARKUP-EXTENT"><title>External entities</title>
+
+<para>Sometimes you may need to create an entity for such a large
+amount of mixed content that it is impractical to fit
+it all inside the entity declaration. In this case, you should use
+an <firstterm>external entity</firstterm>, an entity whose replacement
+text exists in another file. External entities are useful for
+importing content that is shared by many documents, or that changes
+too frequently to be stored inside the document. They also
+make it possible to split a large, monolithic document into smaller
+pieces that can be edited in tandem and that take up less space in
+network transfers.</para>
+
+<para>External entities effectively break a document into multiple
+physical parts. However, all that matters to the XML processor is
+that the parts assemble into a perfect whole. That is, all the parts
+in their different locations must still conform to the well-formedness 
+rules. The XML parser stitches up all the pieces into one logical 
+document; with the correct markup, the physical divisions should be 
+irrelevant to the meaning of the document.</para>
+
+<para>External entities are a linking mechanism. They connect parts of
+a document that may exist on other systems, far across the
+Internet. The difference from traditional XML links (XLinks) is that
+for external entities, the XML processor must insert the replacement
+text at the time of parsing.</para>
+
+<para>External entities must always be declared, so the parser knows
+where to find the replacement text. In the following example, a
+document declares the three external entities &amp;part1;,
+&amp;part2;, and &amp;part3; to hold its content:</para>
+
+<programlisting>&lt;?xml version="1.0"?&gt;
+&lt;!DOCTYPE doc SYSTEM "http://www.dtds-r-us.com/generic.dtd"
+[
+  &lt;!ENTITY part1 SYSTEM "p1.xml"&gt;
+  &lt;!ENTITY part2 SYSTEM "p2.xml"&gt;
+  &lt;!ENTITY part3 SYSTEM "p3.xml"&gt;
+]&gt;
+&lt;longdoc&gt;
+  &amp;part1;
+  &amp;part2;
+  &amp;part3;
+&lt;/longdoc&gt;</programlisting>
+
+<para>As shown in <xref linkend="core-fig-extents"/>, the file at the
+top of the pyramid, which we might call the "master file", contains
+the document declarations and external entity references.  The other
+files are sub-documents, containing XML but not documents in their own
+right. You could not legally insert document prologs in them. Each may
+contain more than one XML tree. Though you can't validate them
+individually (you can only validate a complete document), any errors
+in a subdocument will affect the whole. External entities don't shield
+you from parse errors.</para>
+
+<figure id="core-fig-extents">
+<title>Document with external entities</title>
+<graphic fileref="figs/lx2_0210.jpg"/>
+</figure>
+
+<tip>
+<para>Whenever possible, make each subdocument contain at most one XML
+tree. While you can't validate a subdocument on its own, you can
+perform a well-formedness check if it has no more than one tree. The
+parser will think it's looking at a standalone document without a
+prolog. This makes it a lot easier to manage a large document,
+especially if you have different people working on it at the same
+time.</para>
+</tip>
+
+<para>The syntax just shown for declaring an external entity uses the
+keyword <literal>SYSTEM</literal> followed by a quoted string
+containing a filename. This string is called a <firstterm>system
+identifier</firstterm> and is used to identify a resource by location.
+The quoted string is actually a URL, so you can include files from
+anywhere on the Internet. For example:</para>
+
+<programlisting>&lt;!ENTITY catalog SYSTEM "http://www.bobsbolts.com/catalog.xml"&gt;</programlisting>
+
+<para>The system identifier suffers from the same drawback as all
+URLs: if the referenced item is moved, the link breaks.  To
+avoid that problem, you can use a public identifier in the entity
+declaration. In theory, a public identifier will endure any location
+shuffling and still fetch the correct resource. For example:</para>
+
+<programlisting>&lt;!ENTITY faraway PUBLIC "-//BOB//FILE Catalog//EN"
+    "http://www.bobsbolts.com/catalog.xml"&gt;</programlisting>
+
+<para>Of course, for this to work, the XML processor has to know
+how to use public identifiers, and it must be able to find a catalog
+that maps them to actual locations.  In addition, there's no guarantee
+that the catalog is up to date. A lot can go wrong. Perhaps for this 
+reason, the public identifier must be accompanied by a system identifier 
+(here, <literal>"http://www.bobsbolts.com/catalog.xml"</literal>). If the
+XML processor for some reason can't handle the public identifier, it
+falls back on the system identifier. Most web browsers in use today
+can't deal with public identifiers, so perhaps the backup is
+a good idea.</para>
+
+</sect3>
+</sect2>
+
+
+<sect2><title>Unparsed Entities</title>
+
+<para>The last kind of entity discussed in this chapter is the
+<firstterm>unparsed entity</firstterm>. This kind of entity holds content
+that should not be parsed because it contains something other than
+text and would likely confuse the parser. Unparsed entities are used to import
+graphics, sound files, and other non-character data.</para>
+
+<para>The declaration for an unparsed entity
+looks similar to that of an external entity, with some
+additional information at the end. For example:</para>
+
+<programlisting>&lt;?xml version="1.0"?&gt;
+&lt;!DOCTYPE doc [
+  &lt;!ENTITY mypic SYSTEM "photos/erik.gif" NDATA GIF&gt;
+]&gt;
+&lt;doc&gt;
+  &lt;para&gt;Here's a picture of me:&lt;/para&gt;
+
+  &amp;mypic;
+
+&lt;/doc&gt;</programlisting>
+
+<para>This declaration differs from an external entity declaration in
+that there is an <literal>NDATA</literal> keyword following the system
+path information. This keyword tells the parser that the entity's
+content is in a special format, or <firstterm>notation</firstterm>,
+other than the usual parsed mixed content. The
+<literal>NDATA</literal> keyword is followed by a <firstterm>notation
+identifier</firstterm> that specifies the data format. In this case,
+the entity is a graphic file encoded in the GIF format, so the word
+<literal>GIF</literal> is appropriate.</para>
+
+<para>The notation identifier must be declared in a separate
+<firstterm>notation declaration</firstterm>, which is a complex affair
+discussed in <xref linkend="qc"/>. GIF and other notations are not
+built into XML, and an XML processor may not know what to do with them. 
+At the very least, the parser will not blindly load the entity's content and 
+attempt to parse it, which offers some protection from errors.</para>
+
+</sect2>
+</sect1>
+
+
+<sect1><title>Miscellaneous Markup</title>
+
+<para>Rounding out the list of markup objects are comments, processing
+instructions and CDATA sections. They all have one thing in common:
+they shield content from the parser in some fashion. Comments keep
+text from ever getting to the parser. CDATA sections turn off the tag
+resolution, and processing instructions target specific
+processors.</para>
+
+
+<sect2><title>Comments</title>
+
+<para>Comments are notes in the document that are not interpreted by
+the parser.  If you're working with other people on the same files,
+these messages can be invaluable. They can be used to identify the
+purpose of files and sections to help navigate a cluttered document,
+or simply to communicate with each other. So, in XML there is a
+special kind of markup called a <firstterm>comment</firstterm>.</para>
+
+<para>A comment starts with four characters: an open angle bracket, an
+exclamation point, and two dashes. It ends with two dashes and a
+closing angle bracket. Inbetween these delimiters goes the content to
+be ignored. The comment can contain almost any kind of text you want,
+including spaces, newlines, and markup. However, since two dashes in a
+row (--) are used tell the parser when a comment begins and ends, they
+can't be placed anywhere inside the comment. This means that instead
+of using dashes to create an easily visible line, you should use
+another symbol like an equals sign (=) or an underscore (_):</para>
+
+<programlisting>Good:  &lt;!--========================================================--&gt;
+
+Good:  &lt;!--________________________________________________________--&gt;
+
+Good:  &lt;!-- - - - - - - - - - - -  - - - - - - - - - - - - - - - - --&gt;
+
+Bad:   &lt;!------------------------------------------------------------&gt;
+
+Bad:   &lt;!--                 -- Don't do this! --                   --&gt;</programlisting>
+
+<para>Comments can go anywhere in your document except before the
+XML declaration and inside tags; an XML parser will ignore those
+completely. So this piece of XML:</para>
+
+<programlisting>&lt;p&gt;The quick brown fox jumped&lt;!-- test --&gt;over the lazy dog. 
+The quick brown &lt;!-- test --&gt; fox jumped over the lazy dog. The&lt;!--
+
+test
+
+--&gt;quick brown fox 
+jumped over the lazy dog.&lt;/p&gt;</programlisting>
+
+<para>becomes this, after the parser has removed the comments:</para>
+
+<programlisting>&lt;p&gt;The quick brown fox jumpedover the lazy dog. 
+The quick brown  fox jumped over the lazy dog. Thequick brown fox 
+jumped over the lazy dog.&lt;/p&gt;</programlisting>
+
+<para>Since comments can contain markup, they can be used to
+"turn off" parts of a document. This is valuable when you
+want to remove a section temporarily, keeping it in the file for later
+use. In this example, a region of code is commented out:</para>
+
+<programlisting>&lt;p&gt;Our store is located at:&lt;/p&gt;
+&lt;!--
+&lt;address&gt;59 Sunspot Avenue&lt;/address&gt;
+--&gt;
+&lt;address&gt;210 Blather Street&lt;/address&gt;</programlisting>
+
+<para>When using this technique, be careful not to comment out
+any comments, i.e., don't put comments inside comments. Since they 
+contain double dashes in their delimiters, the parser will complain 
+when it gets to the inner comment.</para>
+
+</sect2>
+
+
+<sect2><title>CDATA Sections</title>
+
+<para>If you mark up characters frequently in your text, you may find
+it tedious to use the predefined entities &amp;lt;, &amp;gt;,
+&amp;amp;. They require typing and are generally hard to read in the
+markup. There's another way to type lots of forbidden characters,
+however: the CDATA section.</para>
+
+<para>CDATA is an acronym for "character data," which
+just means "not markup." Essentially, you're telling the
+parser that this section of the document contains no markup and should
+be treated as regular text. The only thing that cannot go inside a
+CDATA section is the ending delimiter (<literal>]]&gt;</literal>). For
+that, you have to resort to a predefined entity and write it as
+<literal>]]&amp;gt;</literal>.</para>
+
+<para>A CDATA section begins with the nine-character delimiter
+<literal>&lt;![CDATA[</literal>, and it ends with the delimiter
+<literal>]]&gt;</literal>. The content of the section may contain
+markup characters (<literal>&lt;</literal>, <literal>&gt;</literal>,
+and <literal>&amp;</literal>) but they are ignored by the XML
+processor.</para>
+
+<para>Here's an example of a CDATA section in action:</para>
+
+<programlisting>&lt;para&gt;Then you can say &lt;![CDATA[if (&amp;x &lt; &amp;y)]]&gt; and be done 
+with it.&lt;/para&gt;</programlisting>
+
+<para>CDATA sections are convenient for large swaths of text that
+contains a lot of forbidden characters. However, the very thing that
+makes them useful can also be a problem. You will not be able to use
+any elements or attributes inside the marked region. If that's a
+problem for you, then you would probably be better off using character
+entity references.</para>
+
+</sect2>
+
+
+<sect2><title>Processing Instructions</title>
+
+<para>Presentational information should be kept out of a document
+whenever possible. Still, there may be times when you don't have any
+other option, for example, if you need to store page numbers in the
+document to facilitate generation of an index. This information
+applies only to a specific XML processor and may be irrelevant or
+misleading to others. The prescription for this kind of information is
+a <firstterm>processing instruction</firstterm>. It is a container for
+data that is targeted toward a specific XML processor.</para>
+
+<para>Processing instructions (PIs) contain two pieces of information:
+a target keyword and some data. The parser passes processing
+instructions up to the next level of processing. If the processing
+instruction handler recognizes the target keyword, it may choose to
+use the data; otherwise, the data is discarded. How the data will
+help processing is up to the developer.</para>
+
+<para>A PI starts with a two-character delimiter consisting of an open
+angle bracket and a question mark (<literal>&lt;?</literal>), followed
+by a <firstterm>target</firstterm>, an optional string of characters
+that is the data portion of the PI, and a closing delimiter consisting
+of a question mark and closing angle bracket
+(<literal>?&gt;</literal>).</para>
+
+<para>"Funny," you say, "PIs look a lot like the XML declaration."
+You're right: the XML declaration can be thought of as a processing
+instruction for all XML processors<footnote><para>This syntactic trick
+allows XML documents to be processed by older SGML systems; they
+simply treat the XML declaration as another processing instruction,
+ignoring it since it obviously isn't meant for them.</para></footnote>
+that broadcast general information about the document.</para>
+
+<para>The target is a keyword that an XML processor uses to
+determine whether the data is meant for it or not. The keyword doesn't
+necessarily mean anything, such as the name of the software that will
+use it. More than one program can use a PI, and a single program can 
+accept multiple PIs. It's sort of like posting a message on a wall saying, 
+"The party has moved to the green house," and people interested in the
+party will follow the instructions, while those uninterested
+won't.</para>
+
+<para>The PI can contain any data except the combination
+<literal>?&gt;</literal>, which would be interpreted as the closing
+delimiter. Here are some examples of valid PIs:</para>
+
+<programlisting>&lt;?flubber pg=9 recto?&gt;
+&lt;?thingie?&gt;
+&lt;?xyz stop: the presses?&gt;</programlisting>
+
+<para>If there is no data string, the target keyword itself can
+function as the data. A forced line break is a good example. Imagine
+that there is a long section heading that extends off the page. Rather
+than relying on an automatic formatter to break the title just anywhere,
+we want to force it to break in a specific place.</para>
+
+<para>Here is what a forced line break would look like:</para>
+
+<programlisting>&lt;title&gt;The Confabulation of Branklefitzers &lt;?lb?&gt;in a Portlebunky 
+Frammins &lt;?lb?&gt;Without Denaculization of &lt;?lb?&gt;Crunky Grabblefooties
+&lt;/title&gt;</programlisting>
+
+<para>Now you know all the ins and outs of markup. You can read and
+understand any XML document as if you were a living XML parser. But it
+still may not be clear to you <emphasis>why</emphasis> things are
+marked up as they are, or <emphasis>how</emphasis> to mark up a bunch
+of data. In the next chapter, I'll cover these issues as we look at
+the fascinating topic of data modelling.</para>
+
+</sect2>
+</sect1>
+</chapter>

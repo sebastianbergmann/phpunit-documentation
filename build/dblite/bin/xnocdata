@@ -1,0 +1,64 @@
+#!/usr/bin/perl -w
+
+
+use strict;
+
+
+foreach my $file ( @ARGV ) {
+    print "processing $file\n";
+    if( open( F, $file )) {
+        my $text = '';
+        while( <F> ) {
+            $text .= $_;
+        }
+        close F;
+        my $fixed = process( $text );
+	if( open( F, ">$file" )) {
+	    print F $fixed;
+	    close F;
+	} else {
+	    die( "Can't write file '$file'" );
+	}
+    } else {
+        die( "Can't read file '$file'" );
+    }
+}
+print "done.\n";
+
+
+sub process {
+#
+# Troll through text, looking for CDATA markers. When in CDATA
+# section, change reserved chars into entity refs and strip out
+# markers.
+#
+    my $text = shift;
+    $text =~ s/]]>/\001/g;     # will make it easier to write regexps
+    my $out = '';
+    my $in_cdata = 0;
+    while( $text ) {
+	if( $in_cdata and $text =~ /^([^\001&<>]*)</ ) {
+	    $out .= $1 . '&lt;';
+	    $text = $';
+	} elsif( $in_cdata and $text =~ /^([^\001&<>]*)>/ ) {
+	    $out .= $1 . '&gt;';
+	    $text = $';
+	} elsif( $in_cdata and $text =~ /^([^\001&<>]*)&/ ) {
+	    $out .= $1 . '&amp;';
+	    $text = $';
+	} elsif( $in_cdata and $text =~ /\001/ ) {
+	    $out .= $`;
+	    $text = $';
+	    $in_cdata = 0;
+	} elsif( $text =~ /<!\[CDATA\[/ ) {
+	    $out .= $`;
+	    $text = $';
+	    $in_cdata = 1;
+	} else {
+	    $out .= $text;
+	    $text = '';
+	}
+    }
+    return $out;
+}
+

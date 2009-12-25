@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="fixtures">
+  <title>Fixtures</title>
+
+  <para>
+    <indexterm><primary>Fixture</primary></indexterm>
+
+    テストを記述する際にいちばん時間を食うのは、テストを開始するための事前設定と
+    テスト終了後の後始末の処理を書くことです。この事前設定は、テストの
+    <emphasis>fixture</emphasis> と呼ばれます。
+  </para>
+
+  <para>
+    <xref linkend="writing-tests-for-phpunit.examples.ArrayTest.php" />
+    では、fixture は
+    <literal>$fixture</literal> という変数に格納された配列だけでした。
+    しかしたいていの場合は fixture はこれより複雑なものとなり、
+    それを準備するにはかなりの量のコードが必要です。本来のテストの内容が、
+    fixture を設定するためのコードの中に埋もれてしまうことになります。
+    この問題は、複数のテストで同じような fixture を設定する場合により顕著になります。
+    テストフレームワークの助けがなければ、
+    個々のテストのなかで同じような準備コードを繰り返し書くはめになってしまいます。
+  </para>
+
+  <para>
+    <indexterm><primary>Template Method (テンプレートメソッド)</primary></indexterm>
+    <indexterm><primary>setUp()</primary></indexterm>
+    <indexterm><primary>tearDown()</primary></indexterm>
+
+    PHPUnit は、準備用のコードの共有をサポートしています。
+    各テストメソッドが実行される前に、<literal>setUp()</literal>
+    という名前のテンプレートメソッドが実行されます。<literal>setUp()</literal>
+    は、テスト対象のオブジェクトを生成するような処理に使用します。
+    テストメソッドの実行が終了すると、それが成功したか否かにかかわらず、
+    <literal>tearDown()</literal> という名前の別のテンプレートメソッドが実行されます。
+    <literal>tearDown()</literal> では、テスト対象のオブジェクトの後始末などを行います。
+  </para>
+
+  <para>
+    それでは、<literal>setUp()</literal> を使用してコードの重複を排除するように
+    <xref linkend="writing-tests-for-phpunit.examples.ArrayTest.php" />
+    を書き換えてみましょう。
+    まず最初にインスタンス変数 <literal>$fixture</literal> を宣言し、
+    メソッド内のローカル変数ではなくこちらを使用するようにします。
+    そして、<literal>array</literal> fixture の生成処理を
+    <literal>setUp()</literal> メソッドに移動します。最後に、
+    テストメソッド内で重複しているコードを取り除き、
+    新しく作成したインスタンス変数を使用するようにします。つまり、
+    <literal>assertEquals()</literal> で使用しているローカル変数
+    <literal>$fixture</literal> を、<literal>$this-&gt;fixture</literal>
+    に置き換えます。
+  </para>
+
+  <example id="fixtures.examples.ArrayTest.php">
+    <title>setUp() を使用して Array fixture を作成する</title>
+    <programlisting><![CDATA[<?php
+require_once 'PHPUnit/Framework.php';
+
+class ArrayTest extends PHPUnit_Framework_TestCase
+{
+    protected $fixture;
+
+    protected function setUp()
+    {
+        // Array fixture を作成します。
+        $this->fixture = array();
+    }
+
+    public function testNewArrayIsEmpty()
+    {
+        // Array fixture のサイズは 0 のはずです。
+        $this->assertEquals(0, sizeof($this->fixture));
+    }
+
+    public function testArrayContainsAnElement()
+    {
+        // Array fixture に要素を追加します。
+        $this->fixture[] = 'Element';
+
+        // Array fixture のサイズは 1 のはずです。
+        $this->assertEquals(1, sizeof($this->fixture));
+    }
+}
+?>]]></programlisting>
+  </example>
+
+  <para>
+    各テストメソッドが実行されるたびに、<literal>setUp()</literal>
+    および <literal>tearDown()</literal> が一度ずつコールされます。
+    「テストケース内の全テストメソッドについて一度だけコールするように
+    したほうがよいのではないか」とお考えになるかもしれませんが、
+    そのようにすると各テストを互いに独立した状態にすることが難しくなります。
+  </para>
+
+  <para>
+    テストメソッドごとに <literal>setUp()</literal> および
+    <literal>tearDown()</literal> が一度ずつ実行されるだけでなく、
+    テストメソッドごとに、新しいテストケースクラスのインスタンスが作成されます
+    (<xref linkend="implementation" /> を参照ください)。
+  </para>
+
+  <section id="fixtures.more-setup-than-teardown">
+    <title>tearDown() よりも setUp()</title>
+
+    <para>
+      <literal>setUp()</literal> と <literal>tearDown()</literal>
+      は理屈上では対称的になるはずですが、実際にはそうではありません。実際には、
+      <literal>tearDown()</literal> を実装する必要があるのは <literal>setUp()</literal>
+      で外部リソース (ファイルやソケットなど) を割り当てた場合のみです。もし
+      <literal>setUp()</literal> で単に PHP オブジェクトを作成しただけの場合は、
+      一般には <literal>tearDown()</literal> は必要ありません。しかし、もし
+      <literal>setUp()</literal> で大量のオブジェクトを作成した場合には、
+      それらの後始末をするために <literal>tearDown()</literal> で変数を
+      <literal>unset()</literal> したくなることもあるでしょう。
+      テストケースオブジェクト自体のガベージコレクションにはあまり意味がありません。
+    </para>
+  </section>
+
+  <section id="fixtures.variations">
+    <title>バリエーション</title>
+
+    <para>
+      ふたつのテストがあって、それぞれの setup がほんの少しだけ違う場合にはどうなるでしょう?
+      このような場合は、二種類の可能性が考えられます。
+    </para>
+
+    <itemizedlist>
+      <listitem>
+        <para>
+          もし <literal>setUp()</literal> の違いがごくわずかなものなら、
+          その違う部分を <literal>setUp()</literal>
+          からテストメソッドのほうに移動させます。
+        </para>
+      </listitem>
+
+      <listitem>
+        <para>
+          <literal>setUp()</literal> の違いが大きければ、
+          テストケースクラスを別に分ける必要があります。それぞれのクラスには、
+          setup の違いを表す名前をつけます。
+        </para>
+      </listitem>
+    </itemizedlist>
+  </section>
+
+  <section id="fixtures.sharing-fixture">
+    <title>Fixture の共有</title>
+
+    <para>
+      複数のテストの間で fixture を を共有する利点は、ほとんどありません。
+      しかし、設計上の問題などでどうしても fixture
+      を共有しなければならないこともあるでしょう。
+    </para>
+
+    <para>
+      複数のテスト間で共有する意味のある fixture の例として意味のあるものといえば、
+      データベースとの接続でしょう。テストのたびに新しいデータベース接続を毎回作成するのではなく、
+      最初にログインした状態を再利用するということです。こうすることで、
+      テストの実行時間を短縮できます。
+    </para>
+
+    <para>
+      <xref linkend="fixtures.sharing-fixture.examples.DatabaseTestSuite.php" />
+      は、<literal>PHPUnit_Framework_TestSuite</literal> クラス
+      (<xref linkend="organizing-test-suites.suite-level-setup"/> を参照ください)
+      のテンプレートメソッド
+      <literal>setUp()</literal> および <literal>tearDown()</literal> を使用します。
+      これらを使用して、
+      最初のテストの前にデータベースとの接続を行い、
+      最後のテストが終わった後にデータベースとの接続を解除します。
+      <literal>PHPUnit_Framework_TestSuite</literal> オブジェクトの属性
+      <literal>$sharedFixture</literal> が、
+      <literal>PHPUnit_Framework_TestSuite</literal>
+      および <literal>PHPUnit_Framework_TestCase</literal>
+      オブジェクトから使用できます。
+    </para>
+
+    <example id="fixtures.sharing-fixture.examples.DatabaseTestSuite.php">
+      <title>テストスイートの複数テスト間での fixture の共有</title>
+      <programlisting><![CDATA[<?php
+require_once 'PHPUnit/Framework.php';
+
+class DatabaseTestSuite extends PHPUnit_Framework_TestSuite
+{
+    protected function setUp()
+    {
+        $this->sharedFixture = new PDO(
+          'mysql:host=wopr;dbname=test',
+          'root',
+          ''
+        );
+    }
+
+    protected function tearDown()
+    {
+        $this->sharedFixture = NULL;
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      このように fixture を共有することがテストの価値を下げてしまうということを、
+      まだうまく伝え切れていないかもしれません。問題なのは、
+      各オブジェクトが疎結合になっていないという設計なのです。
+      複数が連携しているようなテストを作って設計上の問題から目をそらしてしまうのではなく、
+      きちんと設計しなおした上で、スタブ (<xref linkend="mock-objects" /> を参照ください)
+      を使用するテストを書くことをお勧めします。
+    </para>
+  </section>
+</chapter>

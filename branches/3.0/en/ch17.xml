@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+
+<chapter id="selenium">
+  <title>PHPUnit and Selenium</title>
+
+  <section id="selenium.selenium-rc">
+    <title>Selenium RC</title>
+
+    <para>
+      <ulink url="http://www.openqa.org/selenium-rc/">Selenium RC</ulink> is a
+      test tool that allows you to write automated user-interface tests for
+      web applications in any programming language against any HTTP website
+      using any mainstream browser. It uses
+      <ulink url="http://www.openqa.org/selenium/">Selenium Core</ulink>, a
+      library that performs automated browser tasks using JavaScript. Selenium
+      tests run directly in a browser, just as real users do. These tests can
+      be used for both <emphasis>acceptance testing</emphasis> (by performing
+      higher-level tests on the integrated system instead of just testing each
+      unit of the system independently) and <emphasis>browser compatibility
+      testing</emphasis> (by testing the web application on different
+      operating systems and browsers).
+    </para>
+
+    <para>
+      Let us take a look at how Selenium RC is installed:
+    </para>
+
+    <orderedlist>
+      <listitem>
+        <para>Download a <ulink url="http://release.openqa.org/selenium-remote-control/nightly/">nightly snapshot</ulink> of Selenium RC.</para>
+        <para>The current release version (0.9.0) does not support Mozilla Firefox 2, for instance.</para>
+      </listitem>
+      <listitem>Unzip the distribution archive and copy <filename>server/selenium-server.jar</filename> to <filename>/usr/local/bin</filename>, for instance.</listitem>
+      <listitem>Start the Selenium RC server by running <userinput>java -jar /usr/local/bin/selenium-server.jar</userinput>.</listitem>
+    </orderedlist>
+
+    <para>
+      Now we can send commands to the Selenium RC server using its client/server
+      protocol.
+    </para>
+  </section>
+
+  <section id="selenium.seleniumtestcase">
+    <title>PHPUnit_Extensions_SeleniumTestCase</title>
+
+    <para>
+      The <literal>PHPUnit_Extensions_SeleniumTestCase</literal> test case
+      extension implements the protocol to talk to Selenium RC as well as
+      specialized assertion methods for web testing.
+    </para>
+
+    <para>
+      <xref linkend="selenium.seleniumtestcase.examples.WebTest.php" /> shows how to test the
+      contents of the <literal><![CDATA[<title>]]></literal> element
+      of the <systemitem role="URL">http://www.example.com/</systemitem> website.
+    </para>
+
+    <example id="selenium.seleniumtestcase.examples.WebTest.php">
+      <title>Usage example for PHPUnit_Extensions_SeleniumTestCase</title>
+      <programlisting><![CDATA[<?php
+require_once 'PHPUnit/Extensions/SeleniumTestCase.php';
+ 
+class WebTest extends PHPUnit_Extensions_SeleniumTestCase
+{
+    protected function setUp()
+    {
+        $this->setBrowser('*firefox');
+        $this->setBrowserUrl('http://www.example.com/');
+    }
+ 
+    public function testTitle()
+    {
+        $this->open('http://www.example.com/');
+        $this->assertTitleEquals('Example Web Page');
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      Unlike with the <literal>PHPUnit_Framework_TestCase</literal> class,
+      test case classes that extend <literal>PHPUnit_Extensions_SeleniumTestCase</literal>
+      have to provide a <literal>setUp()</literal> method. This method is used
+      to configure the Selenium RC session. See
+      <xref linkend="selenium.seleniumtestcase.tables.seleniumrc-api.setup" /> for the list of
+      methods that are available for this.
+    </para>
+
+    <table id="selenium.seleniumtestcase.tables.seleniumrc-api.setup">
+      <title>Selenium RC API: Setup</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>Method</entry>
+            <entry>Meaning</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>void setBrowser(string $browser)</literal></entry>
+            <entry>Set the browser to be used by the Selenium RC server.</entry>
+          </row>
+          <row>
+            <entry><literal>void setBrowserUrl(string $browserUrl)</literal></entry>
+            <entry>Set the base URL for the tests.</entry>
+          </row>
+          <row>
+            <entry><literal>void setHost(string $host)</literal></entry>
+            <entry>Set the hostname for the connection to the Selenium RC server.</entry>
+          </row>
+          <row>
+            <entry><literal>void setPort(int $port)</literal></entry>
+            <entry>Set the port for the connection to the Selenium RC server.</entry>
+          </row>
+          <row>
+            <entry><literal>void setTimeout(int $timeout)</literal></entry>
+            <entry>Set the timeout for the connection to the Selenium RC server.</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <para>
+      <xref linkend="selenium.seleniumtestcase.tables.assertions" /> lists the various assertion
+      methods that <literal>PHPUnit_Extensions_SeleniumTestCase</literal> provides.
+    </para>
+
+    <table id="selenium.seleniumtestcase.tables.assertions">
+      <title>Assertions</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>Assertion</entry>
+            <entry>Meaning</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>void assertAlertPresent()</literal></entry>
+            <entry>Reports an error if no alert is present.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNoAlertPresent()</literal></entry>
+            <entry>Reports an error if an alert is present.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertChecked(string $locator)</literal></entry>
+            <entry>Reports an error if the element identified by <literal>$locator</literal> is not checked.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNotChecked(string $locator)</literal></entry>
+            <entry>Reports an error if the element identified by <literal>$locator</literal> is checked.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertConfirmationPresent()</literal></entry>
+            <entry>Reports an error if no confirmation is present.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNoConfirmationPresent()</literal></entry>
+            <entry>Reports an error if a confirmation is present.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertEditable(string $locator)</literal></entry>
+            <entry>Reports an error if the element identified by <literal>$locator</literal> is not editable.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNotEditable(string $locator)</literal></entry>
+            <entry>Reports an error if the element identified by <literal>$locator</literal> is editable.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertElementValueEquals(string $locator, string $text)</literal></entry>
+            <entry>Reports an error if the value of the element identified by <literal>$locator</literal> is not equal to the given <literal>$text</literal>.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertElementValueNotEquals(string $locator, string $text)</literal></entry>
+            <entry>Reports an error if the value of the element identified by <literal>$locator</literal> is equal to the given <literal>$text</literal>.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertElementContainsText(string $locator, string $text)</literal></entry>
+            <entry>Reports an error if the element identified by <literal>$locator</literal> does not contain the given <literal>$text</literal>.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertElementNotContainsText(string $locator, string $text)</literal></entry>
+            <entry>Reports an error if the element identified by <literal>$locator</literal> contains the given <literal>$text</literal>.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertElementPresent(string $locator)</literal></entry>
+            <entry>Reports an error if the element identified by <literal>$locator</literal> is not present.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertElementNotPresent(string $locator)</literal></entry>
+            <entry>Reports an error if the element identified by <literal>$locator</literal> is present.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertLocationEquals(string $location)</literal></entry>
+            <entry>Reports an error if the current location is not equal to the given <literal>$location</literal>.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertLocationNotEquals(string $location)</literal></entry>
+            <entry>Reports an error if the current location is equal to the given <literal>$location</literal>.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertPromptPresent()</literal></entry>
+            <entry>Reports an error if no prompt is present.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNoPromptPresent()</literal></entry>
+            <entry>Reports an error if a prompt is present.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertSomethingSelected(string $selectLocator)</literal></entry>
+            <entry>Reports an error if the option identified by <literal>$selectLocator</literal> is not selected.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNothingSelected(string $selectLocator)</literal></entry>
+            <entry>Reports an error if the option identified by <literal>$selectLocator</literal> is selected.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertTextPresent(string $pattern)</literal></entry>
+            <entry>Reports an error if the given <literal>$pattern</literal> is not present.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertTextNotPresent(string $pattern)</literal></entry>
+            <entry>Reports an error if the given <literal>$pattern</literal> is present.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertTitleEquals(string $title)</literal></entry>
+            <entry>Reports an error if the current title is not equal to the given <literal>$title</literal>.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertTitleNotEquals(string $title)</literal></entry>
+            <entry>Reports an error if the current title is equal to the given <literal>$title</literal>.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertVisible(string $locator)</literal></entry>
+            <entry>Reports an error if the element identified by <literal>$locator</literal> is not visible.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNotVisible(string $locator)</literal></entry>
+            <entry>Reports an error if the element identified by <literal>$locator</literal> is visible.</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <para>
+      Please refer to the <ulink url="http://www.openqa.org/selenium-core/reference.html">documentation of Selenium Core</ulink>
+      for a reference of the commands available and how they are used.
+    </para>
+  </section>
+</chapter>

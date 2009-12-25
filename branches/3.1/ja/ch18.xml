@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="continous-integration">
+  <title>継続的インテグレーション</title>
+
+  <blockquote>
+    <attribution>Martin Fowler</attribution>
+    <para>
+      <ulink url="http://www.martinfowler.com/articles/continuousIntegration.html">Continuous Integration</ulink>
+      is a software development practice where members of a team integrate
+      their work frequently, usually each person integrates at least daily,
+      leading to multiple integrations per day. Each integration is verified
+      by an automated build (including test) to detect integration errors as
+      quickly as possible. Many teams find that this approach leads to
+      significantly reduced integration problems and allows a team to develop
+      cohesive software more rapidly.
+    </para>
+    <para>
+      <ulink url="http://www.martinfowler.com/articles/continuousIntegration.html">継続的インテグレーション</ulink>
+      というソフトウェア開発手法は、チームのメンバーどうしが
+      お互いの開発内容を頻繁に結合させるというものだ、通常は、
+      最低でも一日に一度、あるいは場合によっては一日に何度もこれを行う。
+      結合の際には自動ビルド (テストを含む) を行い、
+      エラーはできるだけ早い段階で検出する。
+      多くのチームが、この手法によって結合時の問題を激減させている。
+      また、ソフトウェアをより高速に開発できるようにもなっている。
+    </para>
+  </blockquote>
+
+  <para>
+    この章では、まず継続的インテグレーションという技法の概要について述べ、
+    それを PHPUnit にどのように適用するかを説明していきます。
+  </para>
+
+  <section id="continous-integration.cruisecontrol">
+    <title>CruiseControl</title>
+
+    <para>
+      継続的インテグレーションでは、テストを含めたビルド手順を
+      完全に自動化して何度でも実行できるようにしておく必要があります。
+      これは、一日に何度も実行されます。
+      各開発者は、この仕組みによって結合を行い、結合時の問題を減らします。
+      自動化を実現するには
+      <ulink url="http://en.wikipedia.org/wiki/Crontab">cronjob</ulink>
+      を使用します。このジョブでは、まずプロジェクトの
+      <ulink url="http://en.wikipedia.org/wiki/Source_code_repository">
+      ソースコードリポジトリ</ulink> から定期的に最新版をチェックアウトし、
+      テストを実行し、その結果を利用しやすい形式で出力します。
+    </para>
+
+    <para>
+      <indexterm><primary>Apache Ant</primary></indexterm>
+      <indexterm><primary>CruiseControl</primary></indexterm>
+
+      ここで
+      <ulink url="http://cruisecontrol.sourceforge.net/">CruiseControl</ulink>
+      のような継続的ビルドプロセス用のフレームワークの出番です。
+      このフレームワークには、メールでの通知や
+      <ulink url="http://ant.apache.org/">Apache Ant</ulink> との統合、
+      またさまざまなバージョン管理ツールとの統合のためのプラグインが用意されています。
+      またウェブインターフェイスも用意されており、
+      最新のビルドおよび以前のビルドについての詳細を見ることができます。
+    </para>
+
+    <para>
+      次の例では、CruiseControl が
+      <filename>/usr/local/cruisecontrol</filename>
+      にインストールされていることを想定しています。
+    </para>
+
+    <orderedlist>
+      <listitem><userinput>cd /usr/local/cruisecontrol</userinput></listitem>
+      <listitem><userinput>mkdir -p projects/BankAccount/build/logs</userinput></listitem>
+      <listitem><userinput>cd projects/BankAccount</userinput></listitem>
+      <listitem><userinput>svn co svn://svn.phpunit.de/phpunit/phpunit/branches/release/3.1/PHPUnit/Samples/BankAccount source</userinput></listitem>
+      <listitem><filename>build.xml</filename> ファイルを編集します。</listitem>
+    </orderedlist>
+
+    <example id="continuous-integration.cruisecontrol.examples.build.xml">
+      <title>projects/BankAccount/build.xml</title>
+      <programlisting><![CDATA[<project name="BankAccount" default="build" basedir=".">
+ <target name="checkout">
+  <exec dir="${basedir}/source/" executable="svn">
+   <arg line="up"/>
+  </exec>
+ </target>
+
+ <target name="test">
+  <exec dir="${basedir}/source" executable="phpunit" failonerror="true">
+   <arg line="--log-xml ${basedir}/build/logs/bankaccount.xml BankAccountTest"/>
+  </exec>
+ </target>
+
+ <target name="build" depends="checkout,test"/>
+</project>]]></programlisting>
+    </example>
+
+    <orderedlist continuation="continues">
+      <listitem><userinput>cd /usr/local/cruisecontrol</userinput></listitem>
+      <listitem><filename>config.xml</filename> ファイルを編集します。</listitem>
+    </orderedlist>
+
+    <example id="continuous-integration.cruisecontrol.examples.config.xml">
+      <title>config.xml</title>
+      <programlisting><![CDATA[<cruisecontrol>
+  <project name="BankAccount" buildafterfailed="false">
+    <plugin
+    name="svnbootstrapper"
+    classname="net.sourceforge.cruisecontrol.bootstrappers.SVNBootstrapper"/>
+    <plugin
+    name="svn"
+    classname="net.sourceforge.cruisecontrol.sourcecontrols.SVN"/>
+
+    <listeners>
+      <currentbuildstatuslistener file="logs/${project.name}/status.txt"/>
+    </listeners>
+
+    <bootstrappers>
+      <svnbootstrapper localWorkingCopy="projects/${project.name}/source/"/>
+    </bootstrappers>
+
+    <modificationset>
+      <svn localWorkingCopy="projects/${project.name}/source/"/>
+    </modificationset>
+
+    <schedule interval="300">
+      <ant
+      anthome="apache-ant-1.7.0"
+      buildfile="projects/${project.name}/build.xml"/>
+    </schedule>
+
+    <log dir="logs/${project.name}">
+      <merge dir="projects/${project.name}/build/logs/"/>
+    </log>
+
+    <publishers>
+      <currentbuildstatuspublisher
+      file="logs/${project.name}/buildstatus.txt"/>
+
+      <email
+      mailhost="localhost"
+      buildresultsurl="http://cruise.example.com/buildresults/${project.name}"
+      skipusers="true"
+      spamwhilebroken="true"
+      returnaddress="project@example.com">
+        <failure address="dev@lists.example.com" reportWhenFixed="true"/>
+      </email>
+    </publishers>
+  </project>
+</cruisecontrol>]]></programlisting>
+    </example>
+
+    <orderedlist continuation="continues">
+      <listitem><userinput>./cruisecontrol.sh</userinput></listitem>
+      <listitem><filename>http://localhost:8080/</filename> をブラウザで開きます。</listitem>
+    </orderedlist>
+  </section>
+
+  <section id="continuous-integration.maven">
+    <title>Apache Maven</title>
+
+    <para>
+      <indexterm><primary>Apache Maven</primary></indexterm>
+
+      <ulink url="http://maven.apache.org/">Apache Maven</ulink>
+      は、ソフトウェアプロジェクトの管理や理解のためのツールです。
+      プロジェクト指向モデル (POM) にもとづいた Apache Maven は、
+      プロジェクトのビルドやレポート、ドキュメントの作成を共通の情報から行います。
+    </para>
+
+    <para>
+      PHPUnit の XML ログ機能 (<xref linkend="logging.xml"/> を参照ください)
+      で作成した XML のログファイルは、テストスイート単位で個別の XML に分割しないと
+      Apache Maven の <ulink url="http://maven.apache.org/plugins/maven-surefire-plugin/">
+      surefire plugin</ulink> で処理することができません。
+      このプラグインはプロジェクトのテストフェーズで用いるもので、
+      アプリケーションのユニットテストを実行します。
+      <xref linkend="continuous-integration.maven.examples.phpunit_to_surefire.xsl"/>
+      に、XML の分割を行うための XSLT スタイルシートを示します。
+      <xref linkend="continuous-integration.maven.examples.pom.xml"/>
+      は <filename>pom.xml</filename> 設定ファイルの例です。
+    </para>
+
+    <example id="continuous-integration.maven.examples.pom.xml">
+      <title>pom.xml</title>
+      <programlisting><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+  http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <!-- ... -->
+  <prerequisites>
+    <maven>2.0.7</maven>
+  </prerequisites>    
+  <!-- ... -->
+  <build>
+  <!-- ... -->
+    <plugins>
+      <plugin>
+      <dependencies>
+        <dependency>
+          <groupId>org.apache.ant</groupId>
+          <artifactId>ant-trax</artifactId>
+          <version>1.7.0</version>
+        </dependency>
+        <dependency>
+          <groupId>net.sf.saxon</groupId>
+          <artifactId>saxon</artifactId>
+          <version>8.7</version>
+        </dependency>
+      </dependencies>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-antrun-plugin</artifactId>
+      <version>1.2-SNAPSHOT</version>
+      <executions>
+        <execution>
+          <id>codecoverage</id>
+          <phase>pre-site</phase>
+          <goals>
+            <goal>run</goal>
+          </goals>
+          <configuration>
+            <tasks>
+              <property name="phpunit.codecoverage"
+                        location="${project.reporting.outputDirectory}/phpunit/codecoverage" />
+              <property name="surefire.reports"
+                        location="${project.build.directory}/surefire-reports" />
+
+              <mkdir dir="${phpunit.codecoverage}"/>
+              <mkdir dir="${surefire.reports}"/>
+
+              <!-- ${ant.phpunit} path to PHPUnit executable -->
+              <!-- ${ant.pear};... this is the include path for your test execution -->
+              <!-- ${test.AllTests} PHPUnit cmd line args like 'AllTests de/dmc/dashboard/AllTests.php' -->
+              <exec executable="${ant.phpunit}" dir="${basedir}">
+                <arg line="-d include_path=${ant.pear};${project.build.sourceDirectory};${project.build.testSourceDirectory}
+                           --report ${phpunit.codecoverage} ${test.AllTests}" />
+              </exec>
+
+              <xslt in="${phpunit.codecoverage}/logfile.xml"
+                    out="${surefire.reports}/xslt.info"
+                    style="src/test/config/phpunit_to_surefire.xslt"
+                    processor="trax">
+                <!-- this is the output folder for surefire like XML Reports -->
+                <param name="outputDir" expression="${surefire.reports}"/>
+              </xslt>
+            </tasks>
+          </configuration>
+        </execution>
+      </executions>
+      </plugin>
+    </plugins>
+  </build>
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-report-plugin</artifactId>
+        <version>2.4-SNAPSHOT</version>
+        <reportSets>
+          <reportSet>
+            <reports>
+              <report>report-only</report>
+            </reports>
+          </reportSet>
+        </reportSets>
+      </plugin>
+    </plugins>
+  </reporting>
+</project>]]></programlisting>
+    </example>
+
+    <example id="continuous-integration.maven.examples.phpunit_to_surefire.xsl">
+      <title>phpunit_to_surefire.xsl</title>
+      <programlisting><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+
+<xsl:stylesheet version="2.0"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:fn="http://www.w3.org/2005/xpath-functions">
+  <xsl:output method="xml" version="1.0" encoding="UTF-8" indent="yes"/>
+  <xsl:param name="outputDir">.</xsl:param>
+
+  <xsl:template match="testsuites">
+    <xsl:apply-templates select="testsuite"/>
+  </xsl:template>
+
+  <xsl:template match="testsuite">
+    <xsl:if test="testcase">
+      <xsl:variable name="outputName" select="./@name"/>
+      <xsl:result-document href="file:///{$outputDir}/{$outputName}.xml" method="xml">
+        <xsl:copy-of select="."/>
+      </xsl:result-document>
+    </xsl:if>
+
+    <xsl:apply-templates select="testsuite"/>
+  </xsl:template>
+</xsl:stylesheet>
+]]></programlisting>
+    </example>
+  </section>
+</chapter>

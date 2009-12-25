@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+
+<chapter id="fixtures">
+  <title>Fixtures</title>
+
+  <para>
+    <indexterm><primary>Fixture</primary></indexterm>
+
+    One of the most time-consuming parts of writing tests is writing the
+    code to set the world up in a known state and then return it to its
+    original state when the test is complete. This known state is called
+    the <emphasis>fixture</emphasis> of the test.
+  </para>
+
+  <para>
+    In <xref linkend="goals.examples.ArrayTest.php" />, the fixture
+    was simply the array that is stored in the <literal>$fixture</literal>
+    variable. Most of the time, though, the fixture will be more complex
+    than a simple array, and the amount of code needed to set it up will
+    grow accordingly. The actual content of the test gets lost in the noise
+    of setting up the fixture. This problem gets even worse when you write
+    several tests with similar fixtures. Without some help from the testing
+    framework, we would have to duplicate the code that sets up the fixture
+    for each test we write.
+  </para>
+
+  <para>
+    <indexterm><primary>Template Method</primary></indexterm>
+    <indexterm><primary>setUp()</primary></indexterm>
+    <indexterm><primary>tearDown()</primary></indexterm>
+
+    PHPUnit supports sharing the setup code. Before a test method is run, a
+    template method called <literal>setUp()</literal> is invoked.
+    <literal>setUp()</literal> is where you create the objects against which
+    you will test. Once the test method has finished running, whether it
+    succeeded or failed, another template method called
+    <literal>tearDown()</literal> is invoked. <literal>tearDown()</literal>
+    is where you clean up the objects against which you tested.
+  </para>
+
+  <para>
+    We can now refactor <xref linkend="goals.examples.ArrayTest.php" /> and
+    use <literal>setUp()</literal> to eliminate the code duplication that
+    we had before. First we declare the instance variable,
+    <literal>$fixture</literal>, that we are going to use instead of a
+    method-local variable. Then we put the creation of the
+    <literal>array</literal> fixture into the <literal>setUp()</literal>
+    method. Finally, we remove the redundant code from the test methods and
+    use the newly introduced instance variable,
+    <literal>$this->fixture</literal>, instead of the method-local variable
+    <literal>$fixture</literal> with the <literal>assertEquals()</literal>
+    assertion method.
+  </para>
+
+  <example id="fixtures.examples.ArrayTest.php">
+    <title>Using setUp() to create the Array fixture</title>
+    <programlisting><![CDATA[<?php
+require_once 'PHPUnit2/Framework/TestCase.php';
+
+class ArrayTest extends PHPUnit2_Framework_TestCase {
+    protected $fixture;
+
+    protected function setUp() {
+        // Create the Array fixture.
+        $this->fixture = array();
+    }
+
+    public function testNewArrayIsEmpty() {
+        // Assert that the size of the Array fixture is 0.
+        $this->assertEquals(0, sizeof($this->fixture));
+    }
+
+    public function testArrayContainsAnElement() {
+        // Add an element to the Array fixture.
+        $this->fixture[] = 'Element';
+
+        // Assert that the size of the Array fixture is 1.
+        $this->assertEquals(1, sizeof($this->fixture));
+    }
+}
+?>]]></programlisting>
+  </example>
+
+  <para>
+    <literal>setUp()</literal> and <literal>tearDown()</literal> will be
+    called once for each test method run. While it might seem frugal to
+    only run these methods once for all the test methods in a test-case
+    class, doing so would make it hard to write tests that are completely
+    independent of each other.
+  </para>
+
+  <para>
+    Not only are <literal>setUp()</literal> and <literal>tearDown()</literal>
+    run once for each test method, but the test methods are run in fresh
+    instances of the test-case class (see <xref linkend="implementation" />).
+  </para>
+
+  <section id="fixtures.more-setup-than-teardown">
+    <title>More setUp() than tearDown()</title>
+
+    <para>
+      <literal>setUp()</literal> and <literal>tearDown()</literal> are nicely
+      symmetrical in theory but not in practice. In practice, you only need
+      to implement <literal>tearDown()</literal> if you have allocated
+      external resources like files or sockets in <literal>setUp()</literal>.
+      If your <literal>setUp()</literal> just creates plain PHP objects, you
+      can generally ignore <literal>tearDown()</literal>. However, if you
+      create many objects in your <literal>setUp()</literal>, you might want
+      to <literal>unset()</literal> the variables pointing to those objects
+      in your <literal>tearDown()</literal> so they can be garbage collected.
+      The garbage collection of test case objects is not predictable.
+    </para>
+  </section>
+
+  <section id="fixtures.variations">
+    <title>Variations</title>
+
+    <para>
+      What happens when you have two tests with slightly different setups?
+      There are two possibilities:
+    </para>
+
+    <itemizedlist>
+      <listitem>
+        <para>
+          If the <literal>setUp()</literal> code differs only slightly, move
+          the code that differs from the <literal>setUp()</literal> code to
+          the test method.
+        </para>
+      </listitem>
+
+      <listitem>
+        <para>
+          If you really have a different <literal>setUp()</literal>, you need
+          a different test-case class. Name the class after the difference in
+          the setup.
+        </para>
+      </listitem>
+    </itemizedlist>
+  </section>
+
+  <section id="fixtures.suite-level-setup">
+    <title>Suite-Level Setup</title>
+
+    <para>
+      <indexterm><primary>PHPUnit2_Extensions_TestSetup</primary></indexterm>
+
+      PHPUnit does not provide convenient support for suite-level setup. There
+      are few good reasons to share fixtures between tests, but in most cases
+      the need to share a fixture between tests stems from an unresolved
+      design problem.
+    </para>
+
+    <para>
+      A good example of a fixture that makes sense to share across several
+      tests is a database connection: you log into the database once and reuse
+      the database connection instead of creating a new connection for each
+      test. This makes your tests run faster. To do this, write your database
+      tests in a test-case class named <literal>DatabaseTests</literal> and
+      wrap the test suite in a <literal>TestSetup</literal> decorator object
+      that overrides <literal>setUp()</literal> to open the database
+      connection and <literal>tearDown()</literal> to close the connection, as
+      shown in
+      <xref linkend="fixtures.suite-level-setup.examples.DatabaseTestSetup.php" />.
+      You can run the tests from <literal>DatabaseTests</literal> through the
+      <literal>DatabaseTestSetup</literal> decorator by invoking, for instance,
+      PHPUnit's command-line test runner with
+      <userinput>phpunit DatabaseTestSetup</userinput>.
+    </para>
+
+    <example id="fixtures.suite-level-setup.examples.DatabaseTestSetup.php">
+      <title>Writing a suite-level setup decorator</title>
+      <programlisting><![CDATA[<?php
+require_once 'PHPUnit2/Framework/TestSuite.php';
+require_once 'PHPUnit2/Extensions/TestSetup.php';
+
+class DatabaseTestSetup extends PHPUnit2_Extensions_TestSetup {
+    protected $connection = NULL;
+
+    protected function setUp() {
+        $this->connection = new PDO(
+          'mysql:host=wopr;dbname=test',
+          'root',
+          ''
+        );
+    }
+
+    protected function tearDown() {
+        $this->connection = NULL;
+    }
+
+    public static function suite() {
+        return new DatabaseTestSetup(
+          new PHPUnit2_Framework_TestSuite('DatabaseTests')
+        );
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      It cannot be emphasized enough that sharing fixtures between tests
+      reduces the value of the tests. The underlying design problem is
+      that objects are too closely bound together. You will achieve better
+      results solving the underlying design problem and then writing tests
+      using stubs (see <xref linkend="stubs" />), than by creating
+      dependencies between tests at runtime and ignoring the opportunity
+      to improve your design.
+    </para>
+  </section>
+</chapter>

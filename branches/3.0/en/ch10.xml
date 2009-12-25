@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+
+<chapter id="mock-objects">
+  <title>Mock Objects</title>
+
+  <para>
+    Sometimes you need to check that an object has been called correctly.
+    Here is an example: suppose we want to test that the correct method,
+    <literal>update()</literal> in our example, is called on an object that
+    observes another object.
+  </para>
+
+  <para>
+    In <xref linkend="mock-objects.examples.ObserverTest.php" />
+    we first use the <literal>getMock()</literal> method that is provided by
+    the <literal>PHPUnit_Framework_TestCase</literal> class (see <xref
+    linkend="api.testcase.tables.api" />) to set up a mock object for the
+    <literal>Observer</literal>. Since we give an array as the second
+    (optional) parameter for the <literal>getMock()</literal> method, only
+    the <literal>update()</literal> method of the <literal>Observer</literal>
+    class is replaced by a mock implementation.
+  </para>
+
+  <para>
+    We then use the <ulink url="http://martinfowler.com/bliki/FluentInterface.html">Fluent Interface</ulink>
+    that PHPUnit provides to specify behavior and expectations for the mock.
+    In essence, this means that you do not need to create several temporary
+    objects -- for instance one to specify that you expect the
+    <literal>update()</literal> method to be called and another for the
+    expected parameter -- and wire them together afterwards to configure
+    expectations. Instead, you chain method calls as shown in the example.
+    This leads to more readable and "fluent" code.
+  </para>
+
+  <example id="mock-objects.examples.ObserverTest.php">
+    <title>Testing that a methods gets called once and with a specified parameter</title>
+    <programlisting><![CDATA[<?php
+require_once 'PHPUnit/Framework.php';
+
+class ObserverTest extends PHPUnit_Framework_TestCase
+{
+    public function testUpdateIsCalledOnce()
+    {
+        // Create a Mock Object for the Observer class
+        // mocking only the update() method.
+        $observer = $this->getMock('Observer', array('update'));
+
+        // Set up the expectation for the update() method
+        // to be called only once and with the string 'something'
+        // as its parameter.
+        $observer->expects($this->once())
+                 ->method('update')
+                 ->with($this->equalTo('something'));
+
+        // Create a Subject object and attach the mocked
+        // Observer object to it.
+        $subject = new Subject;
+        $subject->attach($observer);
+
+        // Call the doSomething() method on the $subject object
+        // which we expect to call the mocked Observer object's
+        // update() method with the string 'something'.
+        $subject->doSomething();
+    }
+}
+?>]]></programlisting>
+  </example>
+
+  <para>
+    <xref linkend="mock-objects.tables.matchers" />
+    lists the available matchers that can be used to express expectations
+    on how often a mocked method is to be executed.
+  </para>
+
+  <table id="mock-objects.tables.matchers">
+    <title>Matchers</title>
+
+    <tgroup cols="2" align="left" colsep="1" rowsep="1">
+      <thead>
+        <row>
+          <entry>Matcher</entry>
+          <entry>Meaning</entry>
+        </row>
+      </thead>
+      <tbody>
+        <row>
+          <entry><literal>PHPUnit_Framework_MockObject_Matcher_AnyInvokedCount any()</literal></entry>
+          <entry>Returns a matcher that matches when the method it is evaluated for is executed zero or more times.</entry>
+        </row>
+        <row>
+          <entry><literal>PHPUnit_Framework_MockObject_Matcher_InvokedCount never()</literal></entry>
+          <entry>Returns a matcher that matches when the method it is evaluated for is never executed.</entry>
+        </row>
+        <row>
+          <entry><literal>PHPUnit_Framework_MockObject_Matcher_InvokedAtLeastOnce atLeastOnce()</literal></entry>
+          <entry>Returns a matcher that matches when the method it is evaluated for is executed at least once.</entry>
+        </row>
+        <row>
+          <entry><literal>PHPUnit_Framework_MockObject_Matcher_InvokedCount once()</literal></entry>
+          <entry>Returns a matcher that matches when the method it is evaluated for is executed exactly once.</entry>
+        </row>
+        <row>
+          <entry><literal>PHPUnit_Framework_MockObject_Matcher_InvokedCount exactly(int $count)</literal></entry>
+          <entry>Returns a matcher that matches when the method it is evaluated for is executed exactly <literal>$count</literal> times.</entry>
+        </row>
+        <row>
+          <entry><literal>PHPUnit_Framework_MockObject_Matcher_InvokedAtIndex at(int $index)</literal></entry>
+          <entry>Returns a matcher that matches when the method it is evaluated for is invoked at the given <literal>$index</literal>.</entry>
+        </row>
+      </tbody>
+    </tgroup>
+  </table>
+
+  <para>
+    The constraints that can be used together with these matchers can be
+    found in <xref linkend="api.assert.tables.constraints" />.
+  </para>
+
+  <section id="mock-objects.self-shunting">
+    <title>Self-Shunting</title>
+
+    <para>
+      <indexterm><primary>Self Shunt Pattern</primary></indexterm>
+
+      Alternatively, you can test the <literal>Subject</literal> implementation
+      without the use of Mock Objects and apply the <emphasis>Self Shunt Pattern</emphasis>
+      instead. This uses the test-case object itself as a stub. The term
+      self-shunting is taken from the medical practice of installing a tube
+      that takes blood from an artery and returns it to a vein to provide a
+      convenient place for injecting drugs.
+    </para>
+
+    <para>
+      First, we make our test-case class an implementor of <literal>Observer</literal>,
+      an interface to be implemented by objects that want to observe
+      <literal>Subject</literal>:
+<programlisting>class ObserverTest extends PHPUnit_Framework_TestCase implements Observer
+{
+}</programlisting>
+    </para>
+
+    <para>
+      Next, we implement the one <literal>Observer</literal> method,
+      <literal>update()</literal>, to check that it is called when the state
+      of the observed <literal>Subject</literal> object changes:
+<programlisting>public $wasCalled = FALSE;
+
+public function update(Subject $subject)
+{
+  $this->wasCalled = TRUE;
+}</programlisting>
+    </para>
+
+    <para>
+      Now, we can write our test. We create a new <literal>Subject</literal>
+      object and attach the test object to it as an observer. When the state
+      of the <literal>Subject</literal> changes -- for instance, by calling its
+      <literal>doSomething()</literal> method -- the <literal>Subject</literal>
+      object has to call the <literal>update()</literal> method on all objects
+      that are registered as observers. We use the <literal>$wasCalled</literal>
+      instance variable that is set by our implementation of
+      <literal>update()</literal> to check whether the <literal>Subject</literal>
+      object does what it is supposed to do:
+<programlisting>public function testUpdate()
+{
+  $subject = new Subject;
+  $subject->attach($this);
+  $subject->doSomething();
+
+  $this->assertTrue($this->wasCalled);
+}</programlisting>
+    </para>
+
+    <para>
+      Notice that we create a new <literal>Subject</literal> object instead of
+      relying on a global instance. Stubbing encourages this style of design.
+      It reduces the coupling between objects and improves reuse.
+    </para>
+
+    <para>
+      If you are not familiar with the self-shunt pattern, the tests can be
+      hard to read. What is going on here? Why is a test case also an
+      observer? Once you get used to the idiom, the tests are easy to read.
+      Everything you need to understand the test is in one class.
+    </para>
+  </section>
+
+  <section id="mock-objects.stubs">
+    <title>Stubs</title>
+
+    <para>
+      Tests that only test one thing are more informative than tests where
+      failure can come from many sources. How can you isolate your tests from
+      external influences? Simply put, by replacing the expensive, messy,
+      unreliable, slow, complicated resources with stubs that are automatically
+      generated for the purpose of your tests. For example, you can replace
+      what is in reality a complicated computation with a constant, at least
+      for the purposes of a single test.
+    </para>
+
+    <para>
+      <indexterm><primary>PHPUnit_Extensions_TestSetup</primary></indexterm>
+
+      Stubs solve the problem of allocating expensive external resources.
+      For example, sharing a resource, such as a database connection, between
+      tests by using the <literal>PHPUnit_Extensions_TestSetup</literal>
+      decorator helps, but not using the database for the purposes of the tests
+      at all is even better.
+    </para>
+
+    <para>
+      <xref linkend="mock-objects.stubs.examples.StubTest.php" /> shows how
+      to stub method calls and set up return values.
+    </para>
+
+    <example id="mock-objects.stubs.examples.StubTest.php">
+      <title>Stubbing a method call</title>
+      <programlisting><![CDATA[<?php
+require_once 'PHPUnit/Framework.php';
+
+class StubTest extends PHPUnit_Framework_TestCase
+{
+    public function testStub()
+    {
+        $stub = $this->getMock('SomeClass');
+        $stub->expects($this->any())
+             ->method('doSomething')
+             ->will($this->returnValue('foo'));
+
+        // Calling $stub->doSomething() will now return 'foo'.
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      <xref linkend="mock-objects.stubs.tables.api" /> lists the methods that
+      are available to configure the return values for stubbed method calls.
+    </para>
+
+    <table id="mock-objects.stubs.tables.api">
+      <title>Stubs API</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>Method</entry>
+            <entry>Meaning</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>PHPUnit_Framework_MockObject_Stub_Return returnValue(mixed $value)</literal></entry>
+            <entry>Sets the return value to <literal>$value</literal> for all invocations of the method.</entry>
+          </row>
+          <row>
+            <entry><literal>PHPUnit_Framework_MockObject_Stub_ConsecutiveCalls onConsecutiveCalls(mixed $value, ...)</literal></entry>
+            <entry>Sets up different return values for consecutive invocations of the method.</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <para>
+      Alternatively, you can write the stub yourself and improve your design
+      along the way. Widely used resources are accessed through a single façade,
+      so you can easily replace the resource with the stub. For example,
+      instead of having direct database calls scattered throughout the code,
+      you have a single <literal>Database</literal> object, an implementor of
+      the <literal>IDatabase</literal> interface. Then, you can create a stub
+      implementation of <literal>IDatabase</literal> and use it for your
+      tests. You can even create an option for running the tests with the
+      stub database or the real database, so you can use your tests for both
+      local testing during development and integration testing with the real
+      database.
+    </para>
+
+    <para>
+      Functionality that needs to be stubbed out tends to cluster in the same
+      object, improving cohesion. By presenting the functionality with a
+      single, coherent interface, you reduce the coupling with the rest of the
+      system.
+    </para>
+  </section>
+</chapter>

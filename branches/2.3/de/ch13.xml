@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+
+<chapter id="implementation">
+  <title>Wie PHPUnit implementiert ist</title>
+
+  <para>
+    PHPUnit ist in einer etwas ungewöhnlichen Weise implementiert
+    worden, und die dabei verwendeten Techniken wären in normalen
+    Anwendungsprogrammen kaum zu pflegen. Es wird Ihnen beim Schreiben
+    von Tests helfen, wenn Sie etwas über diese Art der Implementierung
+    wissen.
+  </para>
+
+  <para>
+    <indexterm><primary>Collecting Parameter</primary></indexterm>
+    <indexterm><primary>PHPUnit2_Framework_Test</primary></indexterm>
+    <indexterm><primary>PHPUnit2_Framework_TestResult</primary></indexterm>
+
+    Ein einzelner Test wird durch ein
+    <literal>PHPUnit2_Framework_Test</literal>-Objekt repräsentiert und
+    benötigt ein Objekt der Klasse <literal>PHPUnit2_Framework_TestResult</literal>,
+    um ausgeführt zu werden. Dieses wird an die <literal>run()</literal>-Methode
+    des <literal>PHPUnit2_Framework_Test</literal>-Objekts übergeben, die
+    ihrerseits die eigentliche Testmethode ausführt und das Ergebnis im
+    <literal>PHPUnit2_Framework_TestResult</literal>-Objekt vermerkt.
+    Dies ist ein Idiom aus der Welt von Smalltalk, das
+    <emphasis>Collecting Parameter</emphasis> genannt wird. Es schlägt vor,
+    dass wenn man Ergebnisse über mehrere Methodenaufrufe hinweg sammeln
+    möchte, im Falle von PHPUnit die wiederholten Aufrufe der
+    <literal>run()</literal>-Methode, man der Methode über einen Parameter
+    ein Objekt übergeben soll, das die Ergebnisse sammelt. Siehe dazu auch
+    "JUnit: A Cook's Tour" von Erich Gamma und Kent Beck
+    <xref linkend="GammaBeck1999" /> und "Smalltalk Best Practice Patterns"
+    von Kent Beck <xref linkend="Beck1997" />.
+  </para>
+
+  <para>
+    Damit Sie verstehen, wie PHPUnit die Tests ausführt, betrachten Sie die
+    Testfall-Klasse aus <xref linkend="implementation.examples.EmptyTest.php" />.
+  </para>
+
+  <example id="implementation.examples.EmptyTest.php">
+    <title>Die Testfall-Klasse EmptyTest</title>
+    <programlisting><![CDATA[<?php
+require_once 'PHPUnit2/Framework/TestCase.php';
+
+class EmptyTest extends PHPUnit2_Framework_TestCase {
+    private $emptyArray = array();
+
+    public function testSize() {
+        $this->assertEquals(0, sizeof($this->emptyArray));
+    }
+
+    public function testIsEmpty() {
+        $this->assertTrue(empty($this->emptyArray));
+    }
+}
+?>]]></programlisting>
+  </example>
+
+  <para>
+    <indexterm><primary>PHPUnit2_Framework_Test</primary></indexterm>
+    <indexterm><primary>PHPUnit2_Framework_TestSuite</primary></indexterm>
+
+    Wenn dieser Test ausgeführt wird, konvertiert PHPUnit die
+    Testfall-Klasse zunächst in ein Objekt vom Typ
+    <literal>PHPUnit2_Framework_Test</literal>, in diesem Fall in ein
+    Objekt der Klasse <literal>PHPUnit2_Framework_TestSuite</literal>.
+    Dieses enthält zwei Instanzen der Klasse <literal>EmptyTest</literal>,
+    wie in <xref linkend="implementation.figures.EmptyTest-before.png" />
+    gezeigt.
+  </para>
+
+  <figure id="implementation.figures.EmptyTest-before.png">
+    <title>Tests vor ihrer Ausführung</title>
+
+    <graphic fileref="figures/EmptyTest-before.png" />
+  </figure>
+
+  <para>
+    <indexterm><primary>setUp()</primary></indexterm>
+
+    Beim Ausführen der Testreihe ruft PHPUnit wiederum jeden
+    <literal>EmptyTest</literal> einzeln auf. Jeder dieser Tests startet
+    seine eigene <literal>setUp()</literal>-Methode, so dass für ihn ein
+    frisches <literal>$emptyArray</literal> erzeugt wird, wie in
+    <xref linkend="implementation.figures.EmptyTest-after.png" /> zu sehen
+    ist. Auf diese Weise wird, wenn ein Test das Array verändert, der
+    andere Test dadurch nicht beeinflusst. Sogar Änderungen an globalen
+    und super-globalen Variablen (wie <literal>$_ENV</literal>) in einem
+    Test haben keine Auswirkungen auf andere Tests.
+  </para>
+
+  <figure id="implementation.figures.EmptyTest-after.png">
+    <title>Tests nach ihrer Ausführung, jeder mit eigenem Inventar</title>
+
+    <graphic fileref="figures/EmptyTest-after.png" />
+  </figure>
+
+  <para>
+    Kurz gesagt, eine Testfall-Klasse bildet bei ihrer Ausführung einen
+    Objektbaum mit zwei Ebenen. Jede Testmethode verwendet ihre eigene
+    Kopie der durch <literal>setUp()</literal> erzeugten Objekte. Die Folge
+    davon ist, dass die Tests völlig unabhängig voneinander ausgeführt
+    werden können.
+  </para>
+
+  <para>
+    <indexterm><primary>Pluggable Selector</primary></indexterm>
+
+    Um die eigentliche Testmethode auszuführen, sucht PHPUnit mit Hilfe von
+    Reflection die in <literal>$name</literal> genannte Methode und ruft sie
+    auf. In der Smalltalk-Welt bezeichnet man dieses Idiom als
+    <emphasis>Pluggable Selector</emphasis>. Dieser vereinfacht das
+    Schreiben von Tests sehr, hat aber einen Nachteil: Man kann nicht mehr
+    allein durch Betrachten des Codes feststellen, ob eine Methode
+    aufgerufen wird, sondern muss stattdessen Dateninhalte zur Laufzeit
+    betrachten.
+  </para>
+</chapter>

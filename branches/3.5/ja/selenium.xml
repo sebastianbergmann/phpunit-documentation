@@ -1,0 +1,409 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="selenium">
+  <title>PHPUnit と Selenium</title>
+
+  <section id="selenium.selenium-rc">
+    <title>Selenium RC</title>
+
+    <para>
+      <indexterm><primary>Selenium RC</primary></indexterm>
+
+      <ulink url="http://seleniumhq.org/projects/remote-control/">Selenium RC</ulink>
+      はテストツールのひとつです。これを使用すると、
+      ウェブアプリケーションのユーザインターフェイスについてのテストを自動化することができます。
+      あらゆるプログラミング言語で稼動しているウェブサイトに対応しており、
+      現在主流のあらゆるブラウザで使用することができます。Selenium RC は
+      <ulink url="http://seleniumhq.org/">Selenium Core</ulink>
+      を使用しています。これは、ブラウザ上でのタスクを自動的に実行する
+      JavaScript のライブラリです。Selenium でのテストは、
+      一般のユーザが使用するのと同じようにブラウザ上で直接実行されます。
+      主な使用例としては、<emphasis>受け入れテスト</emphasis>
+      (各システム単体のテストではなく、結合されたシステム全体に対するテスト)
+      や <emphasis>ブラウザの互換性のテスト</emphasis>
+      (ウェブアプリケーションを、さまざまなオペレーティングシステムやブラウザでテストする)
+      などがあります。
+    </para>
+
+    <para>
+      Selenium RC のインストール手順は、次のようになります。
+    </para>
+
+    <orderedlist>
+      <listitem><ulink url="http://seleniumhq.org/projects/remote-control/">Selenium RC</ulink> の配布アーカイブをダウンロードする。</listitem>
+      <listitem>アーカイブを展開し、<filename>server/selenium-server.jar</filename> を <filename>/usr/local/bin</filename> などにコピーする。</listitem>
+      <listitem><userinput>java -jar /usr/local/bin/selenium-server.jar</userinput> などのようにして Selenium RC サーバを起動する。</listitem>
+    </orderedlist>
+
+    <para>
+      これで、クライアント/サーバ プロトコルを用いて
+      Selenium RC サーバにコマンドを送信できるようになりました。
+    </para>
+  </section>
+
+  <section id="selenium.seleniumtestcase">
+    <title>PHPUnit_Extensions_SeleniumTestCase</title>
+
+    <para>
+      <indexterm><primary><literal>PHPUnit_Extensions_SeleniumTestCase</literal></primary></indexterm>
+
+      <literal>PHPUnit_Extensions_SeleniumTestCase</literal>
+      は、Selenium RC と通信するための クライアント/サーバ プロトコルを実装したものです。
+      また、ウェブのテスト用に特化したアサーションメソッドも提供します。
+    </para>
+
+    <para>
+      <xref linkend="selenium.seleniumtestcase.examples.WebTest.php" /> は、
+      ウェブサイト <systemitem role="URL">http://www.example.com/</systemitem>
+      の <literal><![CDATA[<title>]]></literal> 要素の内容をテストする方法を示したものです。
+    </para>
+
+    <example id="selenium.seleniumtestcase.examples.WebTest.php">
+      <title>PHPUnit_Extensions_SeleniumTestCase の使用例</title>
+      <programlisting><![CDATA[<?php
+require_once 'PHPUnit/Extensions/SeleniumTestCase.php';
+ 
+class WebTest extends PHPUnit_Extensions_SeleniumTestCase
+{
+    protected function setUp()
+    {
+        $this->setBrowser('*firefox');
+        $this->setBrowserUrl('http://www.example.com/');
+    }
+ 
+    public function testTitle()
+    {
+        $this->open('http://www.example.com/');
+        $this->assertTitleEquals('Example WWW Page');
+    }
+}
+?>]]></programlisting>
+      <screen><userinput>phpunit WebTest</userinput><![CDATA[
+PHPUnit 3.5.0 by Sebastian Bergmann.
+
+F
+
+Time: 5 seconds
+
+There was 1 failure:
+
+1) testTitle(WebTest)
+Current URL: http://www.example.com/
+
+Failed asserting that two strings are equal.
+expected string <Example WWW Page>
+difference      <         xx>
+got string      <Example Web Page>
+/home/sb/WebTest.php:30
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+    </example>
+
+    <para>
+      <literal>PHPUnit_Framework_TestCase</literal> クラスとは異なり、
+      <literal>PHPUnit_Extensions_SeleniumTestCase</literal> を継承したテストケースクラスは
+      <literal>setUp()</literal> メソッドが必須となります。
+      このメソッド内で、Selenium RC セッションの設定を行います。
+      ここで使用できるメソッドの一覧は
+      <xref linkend="selenium.seleniumtestcase.tables.seleniumrc-api.setup" />
+      を参照ください。
+    </para>
+
+    <table id="selenium.seleniumtestcase.tables.seleniumrc-api.setup">
+      <title>Selenium RC API: セットアップ</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>メソッド</entry>
+            <entry>意味</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>void setBrowser(string $browser)</literal></entry>
+            <entry>Selenium RC サーバが使用するブラウザを設定します。</entry>
+          </row>
+          <row>
+            <entry><literal>void setBrowserUrl(string $browserUrl)</literal></entry>
+            <entry>テストするベース URL を設定します。</entry>
+          </row>
+          <row>
+            <entry><literal>void setHost(string $host)</literal></entry>
+            <entry>Selenium RC サーバに接続する際のホスト名を設定します。</entry>
+          </row>
+          <row>
+            <entry><literal>void setPort(int $port)</literal></entry>
+            <entry>Selenium RC サーバに接続する際のポートを設定します。</entry>
+          </row>
+          <row>
+            <entry><literal>void setTimeout(int $timeout)</literal></entry>
+            <entry>Selenium RC サーバに接続する際のタイムアウト値を設定します。</entry>
+          </row>
+          <row>
+            <entry><literal>void setSleep(int $seconds)</literal></entry>
+            <entry>Selenium RC クライアントが、Selenium RC サーバにアクションコマンドを送信してから待機する秒数を設定します。</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+<!-- TODO: to be translated -->
+    <para>
+      PHPUnit can optionally capture a screenshot when a Selenium test fails. To
+      enable this, set <literal>$captureScreenshotOnFailure</literal>,
+      <literal>$screenshotPath</literal>, and <literal>$screenshotUrl</literal>
+      in your test case class as shown in
+      <xref linkend="selenium.seleniumtestcase.examples.WebTest2.php"/>.
+    </para>
+
+    <example id="selenium.seleniumtestcase.examples.WebTest2.php">
+      <title>Capturing a screenshot when a test fails</title>
+      <programlisting><![CDATA[<?php
+require_once 'PHPUnit/Extensions/SeleniumTestCase.php';
+ 
+class WebTest extends PHPUnit_Extensions_SeleniumTestCase
+{
+    protected $captureScreenshotOnFailure = TRUE;
+    protected $screenshotPath = '/var/www/localhost/htdocs/screenshots';
+    protected $screenshotUrl = 'http://localhost/screenshots';
+
+    protected function setUp()
+    {
+        $this->setBrowser('*firefox');
+        $this->setBrowserUrl('http://www.example.com/');
+    }
+ 
+    public function testTitle()
+    {
+        $this->open('http://www.example.com/');
+        $this->assertTitleEquals('Example WWW Page');
+    }
+}
+?>]]></programlisting>
+      <screen><userinput>phpunit WebTest</userinput><![CDATA[
+PHPUnit 3.5.0 by Sebastian Bergmann.
+
+F
+
+Time: 5 seconds
+
+There was 1 failure:
+
+1) testTitle(WebTest)
+Current URL: http://www.example.com/
+Screenshot: http://localhost/screenshots/6c8e1e890fff864bd56db436cd0f309e.png
+
+Failed asserting that two strings are equal.
+expected string <Example WWW Page>
+difference      <         xx>
+got string      <Example Web Page>
+/home/sb/WebTest.php:30
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+    </example>
+
+    <para>
+      複数のブラウザを使用してテストを行なうこともできます。この場合は、
+      <literal>setBrowser()</literal> でブラウザの設定を行うかわりに、
+      テストケースクラスの中で <literal>$browsers</literal> という名前の
+      <literal>public static</literal> な配列を作成します。
+      この配列の各項目が個々のブラウザの設定を表します。
+      これらのブラウザは、それぞれ別の Selenium RC サーバで管理することができます。
+      <xref linkend="selenium.seleniumtestcase.examples.WebTest3.php"/>
+      に例を示します。
+    </para>
+
+    <example id="selenium.seleniumtestcase.examples.WebTest3.php">
+      <title>複数のブラウザの設定管理</title>
+      <programlisting><![CDATA[<?php
+require_once 'PHPUnit/Extensions/SeleniumTestCase.php';
+ 
+class WebTest extends PHPUnit_Extensions_SeleniumTestCase
+{
+    public static $browsers = array(
+      array(
+        'name'    => 'Firefox on Linux',
+        'browser' => '*firefox',
+        'host'    => 'my.linux.box',
+        'port'    => 4444,
+        'timeout' => 30000,
+      ),
+      array(
+        'name'    => 'Safari on MacOS X',
+        'browser' => '*safari',
+        'host'    => 'my.macosx.box',
+        'port'    => 4444,
+        'timeout' => 30000,
+      ),
+      array(
+        'name'    => 'Safari on Windows XP',
+        'browser' => '*custom C:\Program Files\Safari\Safari.exe -url',
+        'host'    => 'my.windowsxp.box',
+        'port'    => 4444,
+        'timeout' => 30000,
+      ),
+      array(
+        'name'    => 'Internet Explorer on Windows XP',
+        'browser' => '*iexplore',
+        'host'    => 'my.windowsxp.box',
+        'port'    => 4444,
+        'timeout' => 30000,
+      )
+    );
+
+    protected function setUp()
+    {
+        $this->setBrowserUrl('http://www.example.com/');
+    }
+ 
+    public function testTitle()
+    {
+        $this->open('http://www.example.com/');
+        $this->assertTitleEquals('Example Web Page');
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      <literal>PHPUnit_Extensions_SeleniumTestCase</literal> を使用すると、
+      Selenium で実行したテストのカバレッジ情報を収集することができます。
+    </para>
+
+    <orderedlist>
+      <listitem><filename>PHPUnit/Extensions/SeleniumTestCase/phpunit_coverage.php</filename> をウェブサーバのドキュメントルートディレクトリにコピーします。</listitem>
+      <listitem>ウェブサーバ上の <filename>php.ini</filename> ファイルで、<filename>PHPUnit/Extensions/SeleniumTestCase/prepend.php</filename> と <filename>PHPUnit/Extensions/SeleniumTestCase/append.php</filename> をそれぞれ <literal>auto_prepend_file</literal> および <literal>auto_append_file</literal> に設定します。</listitem>
+      <listitem><literal>PHPUnit_Extensions_SeleniumTestCase</literal> を継承したテストケースクラスで、<programlisting>protected $coverageScriptUrl = 'http://host/phpunit_coverage.php';</programlisting> のようにして <filename>phpunit_coverage.php</filename> スクリプトの URL を指定します。</listitem>
+    </orderedlist>
+
+    <para>
+      <xref linkend="selenium.seleniumtestcase.tables.assertions" />
+      は、<literal>PHPUnit_Extensions_SeleniumTestCase</literal>
+      が提供するさまざまなアサーションメソッドの一覧です。
+    </para>
+
+    <table id="selenium.seleniumtestcase.tables.assertions">
+      <title>アサーション</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>アサーション</entry>
+            <entry>意味</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>void assertElementValueEquals(string $locator, string $text)</literal></entry>
+            <entry><literal>$locator</literal> で表される要素の値が <literal>$text</literal> と異なる場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertElementValueNotEquals(string $locator, string $text)</literal></entry>
+            <entry><literal>$locator</literal> で表される要素の値が <literal>$text</literal> と等しい場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertElementValueContains(string $locator, string $text)</literal></entry>
+            <entry><literal>$locator</literal> で表される要素の値が <literal>$text</literal> を含まない場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertElementValueContains(string $locator, string $text)</literal></entry>
+            <entry><literal>$locator</literal> で表される要素の値が <literal>$text</literal> を含む場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertElementContainsText(string $locator, string $text)</literal></entry>
+            <entry><literal>$locator</literal> で表される要素が <literal>$text</literal> を含まない場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertElementNotContainsText(string $locator, string $text)</literal></entry>
+            <entry><literal>$locator</literal> で表される要素が <literal>$text</literal> を含む場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertSelectHasOption(string $selectLocator, string $option)</literal></entry>
+            <entry>指定したオプションが使用できない場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertSelectNotHasOption(string $selectLocator, string $option)</literal></entry>
+            <entry>指定したオプションが使用できる場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertSelected($selectLocator, $option)</literal></entry>
+            <entry>指定したラベルが選択されていない場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNotSelected($selectLocator, $option)</literal></entry>
+            <entry>指定したラベルが選択されている場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertIsSelected(string $selectLocator, string $value)</literal></entry>
+            <entry>指定した値が選択されていない場合にエラーを報告します。</entry>
+          </row>
+          <row>
+            <entry><literal>void assertIsNotSelected(string $selectLocator, string $value)</literal></entry>
+            <entry>指定した値が選択されている場合にエラーを報告します。</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <para>
+      <xref linkend="selenium.seleniumtestcase.tables.template-methods" /> は、
+      <literal>PHPUnit_Extensions_SeleniumTestCase</literal>
+      のテンプレートメソッドをまとめたものです。
+    </para>
+
+    <table id="selenium.seleniumtestcase.tables.template-methods">
+      <title>テンプレートメソッド</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>メソッド</entry>
+            <entry>意味</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>void defaultAssertions()</literal></entry>
+            <entry>
+             テストケース内のすべてのテストで共有するアサーションを上書きします。
+             このメソッドは、Selenium RC サーバにコマンドが送信されるたびに (送信された後に) コールされます。
+            </entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <para>
+      使用できるコマンドのリファレンスや実際の使用法については
+      <ulink url="http://www.openqa.org/selenium-core/reference.html">Selenium Core のドキュメント</ulink>
+      を参照ください。
+    </para>
+
+    <para>
+      <literal>runSelenese($filename)</literal> メソッドを使用すると、
+      Selenese/HTML の設定から Selenium のテストを実行することができます。
+      さらに、静的属性 <literal>$seleneseDirectory</literal> を使用すると、
+      Selenese/HTML ファイルを含むディレクトリから自動的にテストオブジェクトを作成することができます。
+      指定したディレクトリ配下を再帰的に走査し、
+      <literal>.htm</literal> ファイルを探します。このファイルには
+      Selenese/HTML が含まれているものとします。例として
+      <xref linkend="selenium.seleniumtestcase.examples.WebTest4.php"/>
+      を参照ください。
+    </para>
+
+    <example id="selenium.seleniumtestcase.examples.WebTest4.php">
+      <title>Selenese/HTML ファイルのディレクトリをテストとして使用する</title>
+      <programlisting><![CDATA[<?php
+require_once 'PHPUnit/Extensions/SeleniumTestCase.php';
+ 
+class SeleneseTests extends PHPUnit_Extensions_SeleniumTestCase
+{
+    public static $seleneseDirectory = '/path/to/files';
+}
+?>]]></programlisting>
+    </example>
+  </section>
+</chapter>

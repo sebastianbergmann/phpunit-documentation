@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+
+<chapter id="other-uses-for-tests">
+  <title>Weitere Anwendungsmöglichkeiten für Tests</title>
+
+  <para>
+    Wenn Sie sich erst einmal daran gewöhnt haben, automatisierte Tests zu
+    schreiben, werden Sie vermutlich weitere Anwendungsmöglichkeiten dafür
+    entdecken. Hier sind einige Beispiele.
+  </para>
+
+  <section id="other-uses-for-tests.agile-documentation">
+    <title>Agile Dokumentation</title>
+
+    <para>
+      <indexterm><primary>Agile Dokumentation</primary></indexterm>
+      <indexterm><primary>Automatisierte Dokumentation</primary></indexterm>
+      <indexterm><primary>Extreme Programming</primary></indexterm>
+      <indexterm><primary>TestDox</primary></indexterm>
+
+      In einem Projekt, das mit einem agilen Software-Entwicklungsprozess wie
+      dem Extreme Programming entwickelt wird, kommt es häufig vor, dass die
+      Dokumentation nicht mit den Änderungen an Code und Design Schritt
+      halten kann. Extreme Programming verlangt <emphasis>kollektives Eigentum
+      des Codes</emphasis>. Daher müssen alle Entwickler wissen, wie das
+      gesamte System funktioniert. Wenn Sie diszipliniert genug sind und
+      konsequent "sprechende Namen" für Ihre Tests verwenden, können Sie
+      mit Hilfe der TestDox-Funktionalität von PHPUnit automatisch
+      Dokumentation für Ihr Projekt auf Grundlage der Tests erstellen. Diese
+      Dokumentation gibt den Entwicklern einen Überblick über die Klassen
+      des Projekts, und was von ihnen erwartet wird.
+    </para>
+
+    <para>
+      Die TestDox-Funktionalität von PHPUnit betrachtet die Testmethoden und
+      erzeugt aus der Camel-Case-Notation der PHP-Namen Sätze: aus
+      <literal>testBalanceIsInitiallyZero()</literal> wird "Balance is initially
+      zero". Gibt es mehrere Testmethoden, deren Namen sich nur durch eine
+      Ziffer am Ende unterscheiden (beispielsweise
+      <literal>testBalanceCannotBecomeNegative()</literal> und
+      <literal>testBalanceCannotBecomeNegative2()</literal>), so wird der
+      entsprechende Satz ("Balance cannot become negative") nur einmal
+      erzeugt, und zwar dann, wenn alle diese Testmethoden erfolgreich
+      durchlaufen wurden.
+    </para>
+
+    <para>
+      Das folgende Beispiel zeigt die mit
+      <userinput>phpunit --testdox-text BankAccountTest.txt BankAccountTest</userinput>
+      für die Tests aus
+      <xref linkend="test-first-programming.bankaccount-example.examples.BankAccountTest.php" />
+      erstellte agile Dokumentation.
+    </para>
+
+    <screen>BankAccount
+ - Balance is initially zero
+ - Balance cannot become negative</screen>
+
+    <para>
+      Alternativ kann die agile Dokumentation mit
+      <literal>--testdox-html BankAccountTest.htm</literal> auch im
+      HTML-Format erstellt werden.
+    </para>
+
+    <para>
+      <indexterm><primary>Dokumentieren von Prämissen</primary></indexterm>
+
+      Wenn Sie sich dazu entschließen, bei der Entwicklung ein externes Paket
+      einzusetzen, gehen Sie damit ein gewisses Risiko ein. Es ist nicht
+      auszuschließen, dass sich das Paket nicht so verhält, wie Sie es
+      erwarten, und dass sich zukünftige Versionen in subtiler Weise so
+      verändern, dass Ihre Programme nicht mehr funktionieren, ohne dass Sie
+      es merken. Eine Möglichkeit, dieses Problem zu lösen, besteht darin,
+      Annahmen über die Funktionsweise des externen Paketes durch Tests und
+      agile Dokumentation zu dokumentieren: Jedes Mal, wenn Sie eine Annahme
+      treffen, schreiben Sie einen Test. Wird der Test bestanden, ist Ihre
+      Prämisse gültig. Wenn Sie die erforderliche Disziplin aufbringen und
+      alle Annahmen durch Tests ausdrücken, dann brauchen Sie in der Zukunft
+      neue Versionen des externen Paketes nicht zu fürchten. Sie lassen Ihre
+      Testreihe laufen, und wenn diese erfolgreich verläuft, so können Sie
+      davon ausgehen, dass Ihre Programme weiterhin wie erwartet
+      funktionieren. Andernfalls müssen Sie näher untersuchen, was sich
+      geändert hat.
+    </para>
+  </section>
+
+  <section id="other-uses-for-tests.cross-team-tests">
+    <title>Teamübergreifende Tests</title>
+
+    <para>
+      Wenn Sie Tests dazu verwenden, Prämissen zu dokumentieren, gehören die
+      Tests Ihnen. In diesem Fall haben Sie mit dem Lieferanten des Pakets,
+      auf das Sie sich verlassen können müssen, eine eher distanzierte
+      Beziehung. Ist die Beziehung zu dem Hersteller aber enger oder streben
+      Sie eine engere Beziehung an, so können Tests eine Möglichkeit zur
+      Koordination Ihrer Aktivitäten sein.
+    </para>
+
+    <para>
+      Können Sie sich mit dem Ersteller auf eine API einigen, ist es Ihnen
+      möglich, die Tests gemeinsam zu schreiben und zu pflegen. Sie setzen
+      sich mit dem Lieferanten zusammen und codieren die Tests so, dass sie
+      so viele Prämissen wie möglich deutlich machen. Versteckte
+      Anforderungen sind der Tod jeder Kooperation. Anhand der Tests weiß
+      der Hersteller genau, was von ihm erwartet wird. Er braucht erst
+      wiederzukommen, wenn alle Tests erfolgreich laufen.
+    </para>
+
+    <para>
+      <indexterm><primary>Stubs</primary></indexterm>
+
+      Mit dem Konzept der Stubs aus dem vorigen Kapitel können Sie die beiden
+      Teams noch weiter entkoppeln:
+    </para>
+
+    <itemizedlist>
+      <listitem>
+        <para>
+          Die Aufgabe des Herstellerteams besteht darin, die Tests zum
+          Laufen zu bringen, indem es die Stub-Objekte durch reale
+          Implementierungen ersetzt.
+        </para>
+      </listitem>
+
+      <listitem>
+        <para>
+          Ihre Aufgabe ist es, dafür zu sorgen, dass Ihr eigener Code mit den
+          Stub-Objekten funktioniert, bis er schließlich die eigentliche
+          Implementierung erhält.
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <para>
+      Auf diese Weise können beide Teams unabhängig voneinander arbeiten.
+    </para>
+  </section>
+
+  <section id="other-uses-for-tests.debugging-tests">
+    <title>Debugging mit Tests</title>
+
+    <para>
+      Wenn Sie eine Fehlermeldung erhalten, so mag Ihre spontane Reaktion
+      darauf sein, den Fehler so schnell wie möglich zu beheben. Diese Neigung
+      ist aber selten hilfreich, da es sehr wahrscheinlich ist, dass Sie mit
+      Ihrer "Reparatur" einen anderen Fehler verursachen.
+    </para>
+
+    <para>
+      Tests bieten eine Möglichkeit, diesen spontane Drang im Zaum zu
+      halten.
+    </para>
+
+    <orderedlist>
+      <listitem>
+        <para>
+          Verifizieren Sie, dass Sie den Fehler reproduzieren können.
+        </para>
+      </listitem>
+
+      <listitem>
+        <para>
+          Finden Sie die kleinstmögliche Programmeinheit, in der sich der
+          Fehler noch darstellen lässt. Wenn beispielsweise eine Zahl in der
+          Ausgabe fehlerhaft dargestellt wird, suchen Sie das Objekt, das
+          diese Zahl berechnet.
+        </para>
+      </listitem>
+
+      <listitem>
+        <para>
+          Schreiben Sie einen automatisierten Test, der jetzt versagt, aber
+          der erfolgreich verlaufen muss, wenn der Mangel behoben ist.
+        </para>
+      </listitem>
+
+      <listitem>
+        <para>
+          Beseitigen Sie den Fehler.
+        </para>
+      </listitem>
+    </orderedlist>
+
+    <para>
+      Die Suche nach der kleinstmöglichen zuverlässigen Reproduktion des
+      Fehlers gibt Ihnen die Möglichkeit, sich wirklich auf die Ursache des
+      Problems zu konzentrieren. Der Test, den Sie schreiben, erhöht die
+      Wahrscheinlichkeit, dass Sie durch die Reparatur wirklich nur den
+      Fehler beseitigen. Zusätzlich vermindert der neue Test die
+      Wahrscheinlichkeit, dass die Korrektur zu einem späteren Zeitpunkt
+      versehentlich rückgängig gemacht wird. Die bereits existierenden Tests
+      tragen dafür Sorge, dass die Korrektur des aktuellen Problems
+      ihrerseits keine neuen Probleme verursacht.
+    </para>
+  </section>
+
+  <section id="other-uses-for-tests.refactoring">
+    <title>Refactoring mit Tests</title>
+
+    <para>
+      <indexterm><primary>Refactoring</primary></indexterm>
+
+      Erst automatisierte Tests machen die zum Erreichen des einfachsten
+      Designs nötigen Änderungen (Refactoring, "neu herstellen") am Code
+      sinnvoll durchführbar. Ohne sie müsste jede Methode einer jeden
+      Klasse von Hand getestet werden, wenn der Code einer Klasse geändert
+      wurde. Der Vorgang des Refactoring kann in kleine Einzelschritte
+      aufgeteilt werden, die verhaltensneutral sind.
+    </para>
+
+    <para>
+      Die folgenden Schritte helfen Ihnen, Code und Design Ihres Projekts
+      zu verbessern, und dabei jeden Einzelschritt mit Unit-Tests
+      abzusichern, damit das Ergebnis wirklich verhaltensneutral ist:
+    </para>
+
+    <orderedlist>
+      <listitem>
+        <para>Alle Unit-Tests laufen.</para>
+      </listitem>
+
+      <listitem>
+        <para>Der Code kommuniziert alle seine Designkonzepte.</para>
+      </listitem>
+
+      <listitem>
+        <para>Der Code enthält keine Redundanz.</para>
+      </listitem>
+
+      <listitem>
+        <para>Der Code enthält, unter Berücksichtigung der obigen Regeln, die geringstmögliche Anzahl an Klassen und Methoden.</para>
+      </listitem>
+    </orderedlist>
+  </section>
+</chapter>

@@ -1,0 +1,2230 @@
+<chapter id="xslt">
+<title>Transforming with XSLT</title>
+
+
+<simplesect>
+<para>INTRO TEXT</para>
+</simplesect>
+
+
+<sect1><title>Transformations</title>
+
+<para>Transformation is one of the most important and useful
+techniques in working with XML. To <firstterm>transform</firstterm>
+XML is to change its structure, its markup, and perhaps its content
+into another form. A transformed document may be subtly altered or
+profoundly changed. The process is carefully shaped with a
+configuration document variously called a stylesheet or transformation
+script.</para>
+
+<para>There are many reasons to transform XML. Most often, it is to
+extend the reach of a document into new areas by converting it into a
+presentational format. Alternatively, you can use a transformation to
+alter the content, such as extracting a section, or adding a table of
+numbers together. It can even be used to filter an XML document to
+change it in very small ways, such as inserting an attribute into a
+particular kind of element.</para>
+
+<para>Some uses of transformation are:</para>
+
+<itemizedlist>
+
+<listitem><para>Changing a non-presentational application such as
+DocBook into HTML for display as web pages.</para></listitem>
+
+<listitem><para>Formatting a document with a high-quality
+presentational format like PDF, through the XSL-FO
+path.</para></listitem>
+
+<listitem><para>Extracting specific pieces of information and
+formatting them in another way, such as constructing a table of
+contents from section titles.</para></listitem>
+
+<listitem><para>Re-formatting or generating content. For example,
+numeric values can be massaged to turn integers into floating point
+numbers or roman numerals as a way to create your own numbered lists
+or section heads.</para></listitem>
+
+<listitem><para>Polish a rough document with a transformation that
+fixes common mistakes, preparing it for later
+processing.</para></listitem>
+
+</itemizedlist>
+
+<para>It almost seems like magic, but transformations are a very
+powerful and not too complicated way to squeeze more use out of your
+XML.</para>
+
+<sect2><title>Languages</title>
+
+<para>In the very early days of markup languages, the only way to
+transform documents was by writing a custom software application to do
+it. Before SGML and XML, this was excruciating at best. Presentational
+markup is quite difficult to interpret in any way other than the
+device-dependant behavior it encodes.</para>
+
+<para>SGML opened up documents to much easier manipulation by
+software. However, any transformation process was tied to a particular
+programming platform, making it difficult to share with others. The
+SGML community really needed a portable language specifically designed
+to handle SGML transformations, and which supported the nuances of
+print publishing (the major use of SGML at the time). The first
+solution to address these needs was the Document Style Semantics and
+Specification Language (DSSSL).</para>
+
+<para>DSSSL (pronounced "dissel") was completed in 1996 under the
+auspices of the ISO working group for Document Description and
+Processing Languages. It laid out the fundamental rules for describing
+the parts of a formatted document that inspired later efforts
+including XSL and CSS. Concepts such as bounding boxes and font
+properties are painstakingly defined here.</para>
+
+<para>If you look at a DSSSL script, you'll see that it is a
+no-fooling-around programming language. The syntax is Scheme, a
+dialect of Lisp. You have to be a pretty good programmer to be able to
+work with it, and the parentheses might drive some to
+distraction. There is really nothing you can't do with DSSSL, but for
+most transformations, it may be overly complex. I certainly don't miss
+it.</para>
+
+<para>As XML gained prominence, the early adopters and developers
+began to map out a strategy for high-quality formatting. They looked
+at DSSSL and decided it suffered from the same problems as SGML: too
+big, too hard to learn, not easy to implement. James Clarke, a pioneer
+in the text processing frontier who was instrumental in DSSSL
+development, took what he had learned and began to work on a
+slimmed-down successor. Thus was born the Extensible Stylesheet
+Language (XSL).</para>
+
+<para>XSL is really three technologies rolled into one:</para>
+
+<itemizedlist>
+<listitem><para>XPath, for finding and handling document
+components</para></listitem>
+<listitem><para>XSL Transformations, for changing any XML document
+into a presentational XSL Formatting Object tree.</para></listitem>
+<listitem><para>XSL Formatting Objects, a markup language for high
+quality formatted text.</para></listitem>
+</itemizedlist>
+
+<para>XSL Transformations (XSLT) is the subject of this chapter (we
+already covered XPath in the last chapter, and visit XSL Formatting
+Objects in the next). First published as a recommendation by the W3C
+in 1998, it was originally designed just to transform an XML document
+into an XSL Formatting Object tree, hence the reason why it retains
+the "XSL" in its name. So it was surprising to everybody involved when
+XSLT became the generic transformation language of choice.</para>
+
+<para>In retrospect, it is not so surprising. XSLT is a brilliantly
+designed language. It is simple enough to be learned in an hour. The
+elegance of XPath is perfectly intuitive. The idea of templates is
+natural and flexible enough to apply to a wide variety of
+situations. And because XSLT is itself an XML application, all the XML
+APIs and tools will happily dissect and manipulate XSLT
+stylesheets.</para>
+
+<para>In this chapter, I will show you not only how to use XSLT to
+generate formatted (presentational) output, but to use it in a wide
+variety of problems. Once you have the transformation mindset, you'll
+find that it's useful in so many ways. Things you used to write
+programs to do can be done much more succinctly and clearly in an XSLT
+script.</para>
+
+</sect2>
+
+
+<sect2><title>Concepts</title>
+
+<para>Before we jump into specifics, I want to explain some important
+concepts that will help you understand how XSLT works. An XSLT
+processor (I'll call it an <firstterm>XSLT engine</firstterm> because
+I think that sounds sexy) takes two things as input: an XSLT
+stylesheet to govern the transformation process, and an input document
+called the <firstterm>source tree</firstterm>. The output is called
+the <firstterm>result tree</firstterm>.</para>
+
+<para>The XSLT stylesheet controls the transformation process. While
+it is usually called a stylesheet, it is not necessarily used to apply
+style. This is just a term inherited from the original intention of
+using XSLT to construct XSL-FO trees. Since XSLT is used for many
+other purposes, it may be better to call it an XSLT script or
+transformation document, but I will stick with the convention to avoid
+confusion.</para>
+
+<para>The XSLT processor is a state engine. That is, at any point
+in time, it has a state, and there are rules to drive processing
+forward based on the state. The state consists of defined variables
+plus a set of <firstterm>context nodes</firstterm>, the nodes that are
+next in line for processing. The process is recursive, meaning that
+for each node processed, there may be children that also need
+processing. In that case, the current context node set is temporarily
+shelved until the recursion has completed.</para>
+
+<para>The XSLT engine begins by reading in the XSLT stylesheet and
+caching it as a look-up table. For each node it processes, it will
+look in the table for the best matching rule to apply. The rule
+specifies what to output to build its part of the result tree, and
+also how to continue processing. Starting from the root node, the XSLT
+engine finds rules, executes them, and continues until there are no
+more nodes in its context node set to work with. At that point,
+processing is complete and the XSLT engine outputs the result
+document.</para>
+
+<para>Let us now look at an example. Consider the document in <xref
+linkend="xslt-ex-rocketdoc"/>.</para>
+
+<example id="xslt-ex-rocketdoc">
+<title>Instruction guide for a model rocket</title>
+<programlisting><![CDATA[<?xml version="1.0"?>
+<manual type="assembly" id="model-rocket">
+  <parts-list>
+    <part label="A" count="1">fuselage, left half</part>
+    <part label="B" count="1">fuselage, right half</part>
+    <part label="F" count="4">steering fin</part>
+    <part label="N" count="3">rocket nozzle</part>
+    <part label="C" count="1">crew capsule</part>
+  </parts-list>
+  <instructions>
+    <step>
+Glue <part ref="A"/> and <part ref="B"/> together to form the
+fuselage.
+    </step>
+    <step>
+For each <part ref="F"/>, apply glue and insert it into slots in the
+fuselage.
+    </step>
+    <step>
+Affix <part ref="N"/> to the fusilage bottom with a small amount of
+glue.
+    </step>
+    <step>
+Connect <part ref="C"/> to the top of the fuselage. Do not use
+any glue, as it is spring-loaded to detach from the fuselage.
+    </step>
+  </instructions>
+</manual>]]></programlisting>
+</example>
+
+<para>Suppose you want to format this document in HTML with an XSLT
+transformation. The following plain english rules describe the
+process:</para> 
+
+<orderedlist>
+<listitem><para>Starting with the <sgmltag>manual</sgmltag> element,
+set up the "shell" of the document, in this case the
+<sgmltag>html</sgmltag> element, title, and metadata.</para></listitem>
+
+<listitem><para>For the <sgmltag>parts-list</sgmltag> element, create
+a list of items.</para></listitem>
+
+<listitem><para>For each <sgmltag>part</sgmltag> with a
+<literal>label</literal> attribute, create a <sgmltag>li</sgmltag>
+element in the parts list.</para></listitem>
+
+<listitem><para>For each <sgmltag>part</sgmltag> with a
+<literal>ref</literal> attribute, output some text only: the label and
+name of the part.</para></listitem>
+
+<listitem><para>The <sgmltag>instructions</sgmltag> element is a
+numbered list, so output the container element for
+that.</para></listitem> 
+
+<listitem><para>For each <sgmltag>step</sgmltag> element, output an
+item for the instructions list.</para></listitem>
+
+</orderedlist>
+
+<para>The stylesheet in <xref linkend="xslt-ex-rocketxslt"/> follows
+the same structure as these english rules, with a
+<firstterm>template</firstterm> for each.</para>
+
+<example id="xslt-ex-rocketxslt">
+<title>XSLT Stylesheet for the Instruction Guide</title>
+<programlisting><![CDATA[<xsl:stylesheet
+    xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+    version="1.0"
+>
+  <xsl:output method="xml" encoding="ISO-8859-1"/>
+
+  <!-- Handle the document element: set up the HTML page -->
+  <xsl:template match="manual">
+    <html>
+      <head><title>Instructions Guide</title></head>
+      <body>
+        <h1>Instructions Guide</h1>
+        <xsl:apply-templates/>
+      </body>
+    </html>
+  </xsl:template>
+
+  <!-- Create a parts list -->
+  <xsl:template match="parts-list">
+    <h2>Parts</h2>
+    <dl>
+      <xsl:apply-templates/>
+    </dl>
+  </xsl:template>
+
+  <!-- One use of the <part> element: item in a list -->
+  <xsl:template match="part[@label]">
+    <dt>
+      <xsl:value-of select="@label"/>
+    </dt>
+    <dd>
+      <xsl:apply-templates/>
+    </dd>
+  </xsl:template>
+
+  <!-- another use of the <part> element: generate part name -->
+  <xsl:template match="part[@ref]">
+    <xsl:variable name="label">
+      <xsl:value-of select="@ref"/>
+    </xsl:variable>
+    <xsl:value-of select="//part[@label=$label]"</xsl:value-of>
+    <xsl:text> (Part </xsl:text>
+    <xsl:value-of select="@ref"/>
+    <xsl:text>)</xsl:text>
+  </xsl:template>
+
+  <!-- Set up the instructions list -->
+  <xsl:template match="instructions">
+    <h2>Steps</h2>
+    <ol>
+      <xsl:apply-templates/>
+    </ol>
+  </xsl:template>
+
+  <!-- Handle each item (a <step>) in the instructions list -->
+  <xsl:template match="step">
+    <li>
+      <xsl:apply-templates/>
+    </li>
+  </xsl:template>
+
+</xsl:stylesheet>]]></programlisting>
+</example>
+
+<para>You will notice that for each rule in the verbal description,
+there is a corresponding <sgmltag>template</sgmltag> element that
+contains a balanced (well-formed) piece of XML. Namespaces help the
+processor tell the difference between what is an XSLT instruction and
+what is markup to output in the result tree. In this case, XSLT
+instructions are elements that have the namespace prefix
+<literal>xsl</literal>. The <literal>match</literal> attribute in each
+<sgmltag>template</sgmltag> element assigns it to a piece of the
+source tree using an XPath expression.</para>
+
+<para>A <firstterm>template</firstterm> is a mixture of markup, text
+content, and XSLT instructions. The instructions may be conditional
+statements (if these conditions are true, output this), content
+formatting functions, or instructions to redirect processing to other
+nodes. The element <sgmltag>apply-templates</sgmltag>, for example,
+tells the XSLT engine to move processing to a new set of context
+nodes, the children of the current node.</para>
+
+<para>The result of running a transformation with the above document
+and XSLT stylesheet is a formatted HTML page (whitespace may
+vary):</para>
+
+<programlisting><![CDATA[<html>
+  <head><title>Instructions Guide</title></head>
+  <body>
+    <h1>Instructions Guide</h1>
+    <h2>Parts</h2>
+    <dl>
+      <dt>A</dt>
+      <dd>fusilage, left half</dd>
+      <dt>B</dt>
+      <dd>fusilage, right half</dd>
+      <dt>F</dt>
+      <dd>steering fin</dd>
+      <dt>N</dt>
+      <dd>rocket nozzle</dd>
+      <dt>C</dt>
+      <dd>crew capsule</dd>
+    </dl>
+    <h2>Steps</h2>
+    <ol>
+      <li>
+Glue fusilage, left half (Part A) and fusilage, right half (Part B)
+together to form the fuselage.
+      </li>
+      <li>
+For each steering fin (Part F), apply glue and insert it into slots in
+the fuselage.
+      </li>
+      <li>
+Affix rocket nozzle (Part N) to the fusilage bottom with a small
+amount of glue.
+      </li>
+      <li>
+Connect crew capsule (Part C) to the top of the fuselage. Do not use
+any glue, as it is spring-loaded to detach from the fuselage.
+      </li>
+    </ol>
+  </body>
+</html>]]></programlisting>
+
+<para>As you see here, the elements in the source tree have been
+mapped to different elements in the result tree. We have successfully
+converted a document in one format to another. That is one example of
+XSLT in action.</para>
+
+</sect2>
+
+
+<sect2><title>Running Transformations</title>
+
+<para>There are several strategies to performing a transformation,
+depending on your needs. If you want a transformed document for your
+own use, you could run a program such as <application>xt</application>
+to transform it on your local system. With web documents, the
+transformation is performed either on the server side or the client
+side. Some web servers can detect a stylesheet declaration and
+transform the document as it's being served out. Another possibility
+is to send the source document to the client to perform the
+transformation. Internet Explorer 5.0 was the first browser to
+implement XSLT, opening the door to this procedure. Which method you
+choose depends on various factors such as how often the data changes,
+what kind of load your server can handle, and whether there is some
+benefit to giving the user your source XML files.</para>
+
+<para>If the transformation will be done by the web server or client,
+you must include a reference to the stylesheet in the document as a
+processing instruction, similar to the one used to associate documents
+with CSS stylesheets. It should look like this:</para>
+
+<programlisting>&lt;?xml-stylesheet type="text/xml" href="mytrans.xsl"?&gt;</programlisting>
+
+<para>The <literal>type</literal> attribute is a MIME type. The value
+<literal>text/xml</literal> should suffice, although it may change to
+something else in the future, such as
+<literal>text/xslt</literal>. The attribute <literal>href</literal>
+points to the location of the stylesheet.</para>
+
+</sect2>
+</sect1>
+
+
+<sect1><title>The <sgmltag>stylesheet</sgmltag> element</title>
+
+<para>As mentioned before, an XSLT is an XML application, so
+stylesheets are XML documents. The document element is
+<sgmltag>stylesheet</sgmltag>, although you are also allowed to use
+<sgmltag>transform</sgmltag> if the stylesheet term bugs you. This
+element is where you should declare the mandatory XSLT keyword
+namespace and set the version. The preferred namespace to use is
+<systemitem
+class="url">http://www.w3.org/1999/XSL/Transform/</systemitem>.<footnote>
+<para>Some older XSLT implementations may use a different
+namespace. For instance, Internet Explorer 5.0 has its own required
+namespace. See the documentation for your XSLT engine to find out
+which namespace to use.</para></footnote></para>
+
+<para>XSLT can be extended by the implementor to perform special
+functions not contained in the specification. For example, there is
+often a feature to redirect output to multiple files. These extensions
+are identified by a separate namespace that you must declare if you
+want to use them. And, just to make things clear for the XSLT engine,
+you should set the attribute
+<literal>extension-element-prefixes</literal> to contain the namespace
+prefixes of extensions.</para>
+
+<para>XSLT allows you to define a namespace to be ignored by the
+processor. Anything in that namespace will not be interpreted or
+included in the result tree. This could be useful to embed documentation
+in the stylesheet, for example. To register namespaces for being
+ignored, set the attribute <literal>exclude-result-prefixes</literal>
+to the set of namespace prefixes.</para>
+
+<para>As an example, consider the <sgmltag>stylesheet</sgmltag>
+element below. It declares namespaces for XSLT control elements
+(prefix <literal>xsl</literal>),
+implementation-specific elements (prefix <literal>ext</literal>), and
+elements to be ignored by the processor (prefix
+<literal>doc</literal>). It informs the XSLT engine of these latter
+two purposes with the next two attributes. Finally, it specifies the
+version 1.0 of XSLT in the last attribute.</para>
+
+<programlisting><![CDATA[<xsl:stylesheet
+    xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+    xmlns:ext="http://www.myxslt.org/extentions"
+    xmlns:doc="http://www.myxslt.org/comments"
+    extension-element-prefixes="ext"
+    exclude-result-prefixes="doc"
+    version="1.0"
+>]]></programlisting>
+
+<para>The namespace, represented here as <literal>xsl</literal> is
+used by the transformation processor to determine which elements
+control the process. Any elements or attributes not in that namespace,
+the extensions namespace, or the excluded namespaces, will be
+interpreted as data to be output in the result tree.</para>
+
+</sect1>
+
+
+<sect1><title>Templates</title>
+
+<para>XSLT stylesheets are collections of templates. Each template
+associates a condition (e.g. an element in the source tree with a
+particular attribute) with a mixture of output data and
+instructions. These instructions refine and redirect processing,
+extending the simple matching mechanism to give you full control over
+the transformation.</para>
+
+<para>A template does three things. First, it
+<firstterm>matches</firstterm> a class of node. The XPath expression
+in its <literal>match</literal> attribute returns a set of nodes. If
+that set is empty, the XSLT engine moves on to another
+template.</para> 
+
+<para>Second, the template contributes a priority value to help the
+processor decide which among eligible templates is the best to
+use. For example, one template may match all elements with the XPath
+expression <literal>*</literal>. Another may match a specific element,
+while a third matches that element and further requires an
+attribute. The one with the most specific requirements must be
+selected over the others.</para>
+
+<para>Third, it specifies the structure of the result tree. The
+markup, character data, and XSLT instructions inside all contribute to
+a final portion of XML. Certain instructions create new contexts and
+redirect processing to other templates.</para>
+
+<para>This model for scripting a transformation has strong
+benefits. The markup structure for the result tree is easy to see
+inside each template. The templates are ordered by the type of node
+from the source tree, further enhancing readability. Templates are
+usually compact, modular entities that can be moved into other files
+if necessary.</para>
+
+
+<sect2><title>Matching nodes</title>
+
+<para>XPath location paths associate templates with nodes in the
+source tree. However, not just any XPath expression can be used in a
+<literal>match</literal> attribute. There are some restrictions
+necessary to ensure efficient and correct processing of nodes in a
+transformation.</para>
+
+<para>First, only descending or self-referential axes may be used. The
+processor works most efficiently in a downward direction, starting
+from the root node and ending at the leaves. Axes like
+<literal>parent</literal> and <literal>preceding</literal> make things
+too complicated and could possibly set up infinite loops.</para>
+
+<para>The second difference is that paths are actually
+evaluated right to left, not the other direction as is usual with
+XPath. This is a more natural fit for the XSLT style of
+processing. As the processor moves through the source tree, it keeps a
+running list of nodes to process next, called the <firstterm>context
+node set</firstterm>. Each node in this set is processed in turn. The
+processor looks at the set of rules in the stylesheet, finds a few
+that apply to the node to be processed, and out of this set selects
+the best matching rule. The right-to-left processing helps the XSLT
+engine prioritize eligible templates.</para>
+
+<para>Suppose there is a rule with a match pattern
+<literal>chapter/section/para</literal>. To test this pattern, the
+XSLT engine first instantiates the node-to-process as the context
+node. Then it asks these questions in order:</para>
+
+<orderedlist>
+<listitem><para>Is the context node an element of type
+<sgmltag>para</sgmltag>?</para></listitem> 
+
+<listitem><para>Is the parent of this node an element of type
+<sgmltag>section</sgmltag>?</para></listitem>
+
+<listitem><para>Is the grandparent of this node an element of type
+<sgmltag>chapter</sgmltag>?</para></listitem>
+
+</orderedlist>
+
+<para>Logically, this is not so different from traditional XPath
+processing, which usually starts from some absolute node and works its
+way into the depths of the document. You just have to change your
+notion of where the path is starting from. It might make more sense to
+rewrite the match pattern like this:</para>
+
+<programlisting><replaceable>abstract-node</replaceable>/child::chapter/child::section/child::para</programlisting>
+
+<para>where <replaceable>abstract-node</replaceable> is some node such
+that a location path extending from it matches a set of nodes
+that includes the node-to-process.</para>
+
+</sect2>
+
+
+<sect2><title>Resolving Conflicts Among Rules</title>
+
+<para>It is possible for more than one rule to match a node. In this
+case, the XSLT processor must select exactly one rule from the mix,
+and that rule should meet our expectations for best match. Here are
+the rules of precedence among matching patterns:</para>
+
+<orderedlist>
+
+<listitem><para>If the pattern contains multiple alternatives
+separated by vertical bars (|), each alternative is treated with equal
+importance, as though there were a separate rule for
+each.</para></listitem>
+
+<listitem><para>A pattern that contains specific hierarchical
+information has higher priority than a pattern that contains general
+information. For example, the pattern
+<literal>chapter/section/para</literal> is more specific than
+<literal>para</literal>, and takes precedence.</para></listitem>
+
+<listitem><para>A pattern that relies on a wildcard is more general
+and therefore has lower priority than a pattern with specific
+information. The pattern <literal>stuff/cruft</literal> defeats the
+wildcard pattern <literal>stuff/*</literal>.</para></listitem>
+
+<listitem><para>A pattern with a successful test expression in square
+brackets (<literal>[]</literal>) overrides a pattern with no test
+expression but that is otherwise identical.  So
+<literal>bobo[@role="clown"]</literal> is better than
+<literal>bobo</literal>.</para></listitem>
+
+<listitem><para>Other information, such as position in the stylesheet,
+may be used to pare down the set if there is still more than one rule
+remaining.</para></listitem>
+</orderedlist>
+
+<para>The basic assumption is that rules that are more specific in
+their application take precedence over rules that are more general. If
+this were not the case, it would be impossible to write catch-all
+rules and default cases. Position and order don't come into play
+unless all other means of discrimination fail. It's up to the
+transformation processor to determine how to handle the final
+tie-breaking.</para>
+
+<para>The <sgmltag>xsl:template</sgmltag> element has an optional
+<sgmltag class="attribute">priority</sgmltag> attribute that can be
+set to give it precedence over other rules and override the process of
+determination. The value must be a real number (i.e., it must have a
+decimal point) between 1.0 and -1.0, with a default of 0. A larger
+number overrides a smaller number.</para>
+</sect2>
+
+
+<sect2><title>Default Rules</title>
+
+<para>XSLT defines a set of default rules to make the job of writing
+stylesheets easier. If no rule from the stylesheet matches, the default
+rules provide an emergency backup system. Their general behavior is to
+carry over any text data in elements and attributes from the source
+tree to the result tree, and to assume an implicit
+<sgmltag>xsl:apply-templates</sgmltag> element to allow recursive
+processing. The following list sums up the default rules for each type
+of node:</para>
+
+<variablelist>
+
+<varlistentry><term>Root</term>
+<listitem><para>Processing starts at the root. To force
+processing of the entire tree, the default behavior is to apply templates
+to all the children. The rule looks like this:</para>
+
+<programlisting>&lt;xsl:template match="/"&gt;
+  &lt;xsl:apply-templates/&gt;
+&lt;/xsl:template&gt;</programlisting></listitem>
+</varlistentry>
+
+<varlistentry><term>Element</term>
+<listitem><para>We want the processor to touch every element in the
+tree so it does not miss any branches for which rules are
+defined. The rule is similar to that for the root node:</para>
+
+<programlisting>&lt;xsl:template match="*"&gt;
+  &lt;xsl:apply-templates/&gt;
+&lt;/xsl:template&gt;</programlisting></listitem>
+</varlistentry>
+
+<varlistentry><term>Attribute</term>
+<listitem><para>The value of every attribute should be included in the
+result tree, so the following rule is used:</para>
+
+<programlisting>&lt;xsl:template match="@*"&gt;
+  &lt;xsl:value-of select="."/&gt;
+&lt;/xsl:template&gt;</programlisting></listitem>
+</varlistentry>
+
+<varlistentry><term>Text</term>
+<listitem><para>It is inconvenient to include the
+<sgmltag>xsl:value-of</sgmltag> element in every template to
+output text. Since we almost always want the text data to be output,
+it is done by default:</para>
+
+<programlisting>&lt;xsl:template match="text()"&gt;
+  &lt;xsl:value-of select="."/&gt;
+&lt;/xsl:template&gt;</programlisting></listitem>
+</varlistentry>
+
+<varlistentry><term>Processing instruction</term>
+<listitem><para>By default, these nodes are left out. The rule is
+this:</para>
+
+<programlisting>&lt;xsl:template match="processing-instruction()"/&gt;</programlisting></listitem>
+</varlistentry>
+
+<varlistentry><term>Comment</term>
+<listitem><para>Comments are also omitted from the result tree by
+default:</para>
+
+<programlisting>&lt;xsl:template match="comment()"/&gt;</programlisting></listitem>
+</varlistentry>
+
+</variablelist>
+
+</sect2>
+
+
+<sect2><title>Redirecting Processing</title>
+
+<para>The template model of transformation creates islands of markup
+separate from each other. We need some way of connecting them so that
+processing continues through the document. According to the 
+default rules, for every element that has no matching template, the
+XSLT engine should output its text value. This requires processing not
+only its text nodes, but all the descendants in case they have text
+values too.</para>
+
+<para>If a template does match an element, there is no requirement
+that it has to do anything with the element or its content. In fact,
+it is often the case that you want certain elements to be
+ignored. Perhaps they contain metadata that is not to be included with
+the formatted data. So you are allowed to leave a template
+empty. Here, the element <sgmltag>ignore-me</sgmltag> will be passed
+over by the XSLT processor (unless another rule matches with higher
+priority):</para>
+
+<programlisting>&lt;xsl:template match="ignore-me"/&gt;</programlisting>
+
+<para>Unless you explicitly tell the XSLT engine how to proceed with
+processing in the template, it will go no further. Instead, it will
+revert to the context node set and evaluate the next node in line. If
+you do want processing to go on to the children, or you otherwise want
+to insert other nodes to process before the next node in the context
+set, there are some directives at your disposal.</para>
+
+<sect3><title>The apply-templates instruction</title>
+
+<para>The element <sgmltag>apply-templates</sgmltag> interrupts the
+current processing in the template and forces the XSLT engine to move
+on to the children of the current node. This enables recursive
+behavior, so that processing can descend through the tree of a
+document. It is called <sgmltag>apply-templates</sgmltag> because the
+processor has to find new templates to process the children.</para>
+
+<para>The first template in <xref linkend="xslt-ex-rocketxslt"/>
+contains an <sgmltag>apply-templates</sgmltag> element:</para>
+
+<programlisting><![CDATA[<xsl:template match="manual">
+  <html>
+    <head><title>Instructions Guide</title></head>
+    <body>
+      <h1>Instructions Guide</h1>
+      <xsl:apply-templates/>
+    </body>
+  </html>
+</xsl:template>]]></programlisting>
+
+<para>When processing this template, the XSLT engine would first
+output the markup starting from the <sgmltag>html</sgmltag> start tag
+all the way to the end tag of the <sgmltag>h1</sgmltag> element. When
+it gets to the element <sgmltag>xsl:apply-templates/</sgmltag>, it
+jumps to the children of the current (<sgmltag>manual</sgmltag>)
+element and processes those with their own templates: the attributes
+<literal>type</literal> and <literal>id</literal>, then the elements
+<sgmltag>parts-list</sgmltag> and
+<sgmltag>instructions</sgmltag>. After all these have been processed,
+the XSLT engine returns to its work on the above template and outputs
+the end tags for <sgmltag>body</sgmltag> and
+<sgmltag>html</sgmltag>.</para>
+
+<para>Suppose that you did not want to handle all the children of a
+node, but just a few. You can restrict the set of children to process
+using the attribute <literal>select</literal>. It takes an XPath
+location path as its value, giving you a rich assortment of
+options. For example, we could rewrite the above template like
+so:</para>
+
+<programlisting><![CDATA[<xsl:template match="manual">
+  <html>
+    <head><title>Parts List</title></head>
+    <body>
+      <h1>Parts List</h1>
+      <xsl:apply-templates select="parts-list"/>
+    </body>
+  </html>
+</xsl:template>]]></programlisting>
+
+<para>Now only the <sgmltag>parts-list</sgmltag> element will be
+processed. All other children of <sgmltag>manual</sgmltag>, including
+its attributes and the <sgmltag>instructions</sgmltag> element, would
+be skipped. Alternatively, you can skip a particular element type like
+this:</para>
+
+<programlisting><![CDATA[<xsl:template match="manual">
+  <html>
+    <head><title>Assembly Steps</title></head>
+    <body>
+      <h1>Assembly Steps</h1>
+      <xsl:apply-templates select="not(parts-list)"/>
+    </body>
+  </html>
+</xsl:template>]]></programlisting>
+
+<para>And everything but the <sgmltag>parts-list</sgmltag> element
+will be handled.</para>
+
+<para>It is dangerous to set the <literal>select</literal> attribute to
+be a location path that points to an ancestor of the current
+node. It could quite possibly set up an infinite loop, making
+the poor XSLT engine process the same set of nodes over and over
+until it runs out of stack space and crashes.</para>
+
+<para>NEED TO CHECK THE SPEC TO SEE IF THIS IS ACTUALLY FORBIDDEN. I
+DON'T REMEMBER.</para>
+
+</sect3><sect3><title>The for-each instruction</title>
+
+<para>The element <sgmltag>for-each</sgmltag> creates a
+template-within-a-template. Instead of relying on the XSLT engine to
+find matching templates, this directive encloses its own region of
+markup. Inside that region, the context node set is redefined to a
+different node set, again determined by a <literal>select</literal>
+attribute. Once outside the <sgmltag>for-each</sgmltag>, the old
+context node set is reinstantiated.</para>
+
+<para>Consider this template:</para>
+
+<programlisting><![CDATA[<xsl:template match="book">
+  <xsl:for-each select="chapter">
+    <xsl:text>Chapter </xsl:text>
+    <xsl:value-of select="position()"/>
+    <xsl:text>. </xsl:text>
+    <xsl:value-of select="title"/>
+    <xsl:text>
+</xsl:text>
+  </xsl:for-each>
+  <xsl:apply-templates/>
+</xsl:template>]]></programlisting>
+
+<para>It creates a table of contents from a DocBook document. The
+<sgmltag>for-each</sgmltag> element goes through the
+<sgmltag>book</sgmltag> and retrieves every child element of type
+<sgmltag>chapter</sgmltag>. This set becomes the new context node set,
+and within the <sgmltag>for-each</sgmltag>, we know nothing about the
+old context nodes.</para>
+
+<para>The first <sgmltag>value-of</sgmltag> element outputs the string
+value of the XPath expression
+<literal>position()</literal>, which is the position in the set of the
+current chapter being evaluated in this iteration through the
+loop. The next <sgmltag>value-of</sgmltag> outputs the title of this
+chapter. Note that it is a child of <sgmltag>chapter</sgmltag>, not
+<sgmltag>book</sgmltag>.</para>
+
+<para>Since the output of this is plain text, I had to insert the
+second <sgmltag>text</sgmltag> element to output a newline
+character. (We will cover formatting and whitespace issues later in
+the chapter.) What we get from doing this transformation would be
+something like this:</para>
+
+<screen>Chapter 1. Teething on Transistors: My Early Years
+Chapter 2. Running With the Geek Gang
+Chapter 3. My First White Collar Crime
+Chapter 4. Hacking the Pentagon</screen>
+
+<para>You may wonder what happens when the <sgmltag>for-each</sgmltag>
+directive fails to match any nodes. The answer is, nothing. The XSLT
+processor never enters the region of the element and instead just
+continues on with the template. There is no "or else" contingency in
+<sgmltag>for-each</sgmltag>, but you can get that functionality by
+using <sgmltag>if</sgmltag> and <sgmltag>choose</sgmltag> constructs
+covered later in the chapter.</para>
+
+</sect3>
+</sect2>
+
+
+<sect2><title>Named Templates</title>
+
+<para>All the template rules we have seen so far are specified by
+their match patterns. They are accessible only by the XSLT engine's
+template matching facility. Sometimes, however, you may find it more
+convenient to create a <firstterm>named template</firstterm> to which
+you can direct processing manually.</para>
+
+<para>The concept is similar to defining functions in programming. You
+set aside a block of code and give it a name. Later, you can reference
+that function and pass it data through arguments. This makes your code
+simpler and easier to read overall, and functions keep frequently
+accessed code in one place for easier maintenance. These same benefits
+are available in your XSLT stylesheet through named templates.</para>
+
+<para>A named template differs from the matching kind in that it
+substitutes the attribute <literal>name</literal> for the
+<literal>match</literal> attribute. Its value is a name (a NMTOKEN in
+DTD parlance, to be specific) that uniquely identifies the
+template.</para>
+
+<sect3><title>The <sgmltag>call-template</sgmltag> directive</title>
+
+<para>To direct processing to this template, use the directive
+<sgmltag>call-template</sgmltag>, identifying it with a
+<literal>name</literal> attribute. For example:</para>
+
+<programlisting><![CDATA[<xsl:template match="document">
+  <!-- regular page markup here -->
+  <xsl:call-template name="copyright-info"/>
+  <!-- generate a page number -->
+</xsl:template>
+
+<xsl:template name="copyright-info">
+  <p>
+This is some text the lawyers make us write. It appears at the bottom
+of every single document, ad nauseum. Blah blah, all rights reserved,
+blah blah blah, under penalty of eating yogurt, blah blah...
+  </p>
+</xsl:template>]]></programlisting>
+
+<para>The first template calls the second, named template. Processing
+jumps over to the named template, then returns to where it left off in
+the first template. The context node set does not change in this
+jump. So even in the named template, you could check what is the
+current node with <literal>self::node()</literal> and it would be
+exactly the same.</para>
+
+<para>Here is another example. This named template generates a menu of
+navigation links for an HTML page:</para>
+
+<programlisting><![CDATA[<xsl:template name="navbar">
+  <div class="navbar">
+    <xsl:text>Current document: </xsl:text>
+    <xsl:value-of select="title"/>
+    <br/>
+    <a href="index.htm">Home</a> |
+    <a href="help.htm">Help</a> |
+    <a href="toc.htm">Contents</a>
+  </div>
+</xsl:template>]]></programlisting>
+
+<para>Before the links, I placed two lines to print the current
+document's title demonstrating that the current node is the same
+as it was in the rule that invoked the named template. Since you can
+call a named template as many times as you want, let us put the
+navigation menu at the top and bottom of the page:</para>
+
+<programlisting><![CDATA[<xsl:template match="page">
+  <body>
+    <xsl:call-template name="navbar"/>
+    <xsl:apply-templates/>
+    <xsl:call-template name="navbar"/>
+  </body>
+</xsl:template>]]></programlisting>
+
+<para>If you want to change the context node set for a named template,
+you must enclose the call in a <sgmltag>for-each</sgmltag>
+element:</para>
+
+<programlisting><![CDATA[<xsl:template match="cross-reference">
+  <xsl:variable name="reference">
+    <xsl:value-of select="@ref"/>
+  </xsl:variable>
+  <xsl:for-each select="//*[@id='$reference']">
+    <xsl:call-template name="generate-ref-text"/>
+  </xsl:for-each>
+</xsl:template>]]></programlisting>
+
+<para>What this template does is handle the occurance of a cross
+reference, which is a link to another element in the same
+document. For example, an entry in a dictionary might have a "see
+also" link to another entry. For an element of type
+<sgmltag>cross-reference</sgmltag>, this template finds the value of
+its <literal>ref</literal> attribute and assigns it to a variable (as
+we will see later on when I talk more about variables, this is a
+useful way of inserting a piece of text into an XPath expression). The
+<sgmltag>for-each</sgmltag> element then locates the element whose
+<literal>ID</literal> matches the reference value and sets that to be
+the context node before passing control over to the template named
+<literal>generate-ref-text</literal>. That template will generate some
+text appropriate for the kind of cross reference we want.</para>
+
+</sect3><sect3><title>Parameters</title>
+
+<para>Like subroutines from programming languages, named templates can
+accept parameters from the templates that call them. This is a way to
+pass extra information to the template that it needs for
+processing.</para>
+
+<para>For example, you may have a template that creates a hilighted
+node or sidebar in a formatted document. You can use a parameter to
+add some text to the title to set the tone: tip, caution, warning,
+informative, and so on. Here is how that might look:</para>
+
+<programlisting><![CDATA[<programlisting><xsl:template match="warning">
+  <xsl:call-template name="generic-note">
+    <xsl:with-param name="label">Look out! </xsl:with-param>
+  </xsl:call-template>
+</xsl:template>
+
+<xsl:template match="tip">
+  <xsl:call-template name="generic-note">
+    <xsl:with-param name="label">Useful Tip: </xsl:with-param>
+  </xsl:call-template>
+</xsl:template>
+
+<xsl:template match="note">
+  <xsl:call-template name="generic-note"/>
+</xsl:template>
+
+<xsl:template name="generic-note">
+  <xsl:param name="label">Note: </xsl:param>
+  <blockquote class="note">
+    <h3>
+      <xsl:value-of select="$label"/>
+      <xsl:value-of select="title"/>
+    </h3>
+    <xsl:apply-templates/>
+  </blockquote>
+</xsl:template>]]></programlisting>
+
+<para>This example creates a named template called
+<literal>generic-note</literal> that takes one parameter, 
+named <literal>label</literal>. Each template calling
+<literal>generic-note</literal> may define this parameter with the
+<sgmltag>with-param</sgmltag> element as a child of the
+<sgmltag>call-template</sgmltag> element. Or it may defer that to the
+default value defined in the <sgmltag>param</sgmltag> element inside
+the named template, as is the case with the template matching
+<sgmltag>note</sgmltag>.</para>
+
+<para><sgmltag>param</sgmltag> declares the parameter in the named
+template. The <literal>name</literal> attribute gives it a label that
+you can refer to later in an attribute with a dollar sign preceding,
+as in the <sgmltag>value-of</sgmltag> element above. Optionally,
+<sgmltag>param</sgmltag> may assign a default value using the string
+value of its content. You may use as many parameters as you with, but
+each one has to be declared.</para>
+
+<para>If you use the parameter reference inside a non-xpath attribute,
+you need to enclose it in curly braces (<literal>{}</literal>) to
+force the XSLT engine to resolve it to its text value:</para>
+
+<programlisting>&lt;a href="{$file}"&gt;Next Page&lt;/a&gt;</programlisting>
+
+</sect3>
+</sect2>
+</sect1>
+
+
+<sect1><title>Formatting</title>
+
+<para>Since XSLT was originally intended for producing human-readable
+formatted documents, and not just as a general transformation tool, it
+comes with a decent supply of formatting capabilities.</para>
+
+
+<sect2><title>Setting the output mode</title>
+
+<para>A global setting you may want to include in your stylesheet is
+the <sgmltag>output</sgmltag> element. It controls how the XSLT engine
+constructs the result tree by forcing start and end tags, handling
+whitespace in a certain way, and so on. It is a top-level element that
+should reside outside of any template.</para>
+
+<para>There are three choices provided: XML, HTML, and text.  The
+default output type, XML, is simple: whitespace and predefined
+entities are handled exactly the same in the result tree as in the
+input tree, so there are no surprises when you look at the output. If
+your result document will be an application of XML, place this
+directive in your stylesheet:</para>
+
+<programlisting>&lt;xsl:output method="xml"/&gt;</programlisting>
+
+<para>HTML is a special case necessary for older browsers that do not
+understand some of the new syntax required by XML. While it is
+unlikely you will need to use this mode instead of XML (for XHTML),
+nevertheless it is here if you need it. The exact output conforms to
+HTML version 4.0. Empty elements will not contain a slash at the end
+and processing instructions will contain only one question mark. So in
+this mode, the XSLT engine will not generate well-formed XML:</para>
+
+<para>Text mode is useful for generating non-XML output. For example,
+you may want to dump a document to plain text with all the tags
+stripped out. Or you may want to output to a format such as troff or
+TeX. In this mode, the XSLT engine is required to resolve all
+character entities rather than keep them as references. It also
+handles whitespace differently, preserving all newlines and
+indentation.</para>
+
+</sect2>
+
+
+<sect2><title>Outputting node values</title>
+
+<para>XPath introduced the notion of a node's string value. All the
+text in an element is assembled into a string and that is what you
+get. So in this element:</para>
+
+<programlisting><![CDATA[<sentence><subject>The quick, brown
+<noun>fox</noun></subject> <action>jumped over</action> <object>the
+lazy <noun>dog</noun></object>.</sentence>]]></programlisting>
+
+<para>The text value is "The quick, brown fox jumped over the lazy
+dog."</para>
+
+<para>In the default rules, all text nodes that are the children of
+elements are output literally. If you have no explicit template for
+text nodes, then any <sgmltag>apply-templates</sgmltag> directive that
+matches a text node will resort to the default rule and the text will
+be output normally.</para>
+
+<para>However, there are cases when you can't rely on the default
+rules. You may want to output the value of an attribute, for
+example. Or else you might want to get a string without any markup
+tags in it. When this is the case, you should use
+<sgmltag>value-of</sgmltag>.</para>
+
+<para>This element requires an attribute <literal>select</literal>
+which takes an XPath expression as its
+value. <sgmltag>value-of</sgmltag> simply outputs the string value of
+that expression. </para>
+
+<para>Recall from <xref linkend="xslt-ex-rocketxslt"/> this
+template:</para>
+
+<programlisting><![CDATA[<xsl:template match="part[@label]">
+  <dt>
+    <xsl:value-of select="@label"/>
+  </dt>
+  <dd>
+    <xsl:apply-templates/>
+  </dd>
+</xsl:template>]]></programlisting>
+
+<para>It extracts the value of the attribute <literal>label</literal>
+and outputs it literally as the content of a <sgmltag>dt</sgmltag>
+element.</para>
+
+<para>Besides nodes, <sgmltag>value-of</sgmltag> can be used to
+resolve variables, as you will see in the next section.</para>
+
+</sect2>
+
+
+<sect2><title>Variables</title>
+
+<para>A convenience provided in XSLT is the ability to create
+placeholders for text called
+<firstterm>variables</firstterm>. Contrary to what the name suggests,
+it is not actually a variable that can be modified over the course of
+processing. It's really a constant that is set once, read multiple
+times. A variable must be defined before it can be used. For that, you
+can use the <sgmltag>variable</sgmltag> element.</para>
+
+<para>Here are some examples of declaring variable:</para>
+
+<programlisting><![CDATA[<!-- A numeric constant -->
+<xsl:variable name="year" select="2001"/>
+
+<!-- A string consisting of two blank lines, useful for making
+output XML easier to read -->
+<xsl:variable name="double-blank-line">
+  <xsl:text>
+
+  </xsl:text>
+</xsl:variable>
+
+<!-- A concatenation of two elements' string values -->
+<xsl:variable name="author-name">
+  <xsl:value-of select="/book/bookinfo/authorgroup/author/firstname"/>
+  <xsl:text> </xsl:text>
+  <xsl:value-of select="/book/bookinfo/authorgroup/author/surname"/>
+</xsl:variable>]]></programlisting>
+
+<para>Like parameters, a variable reference has a required dollar sign
+(<literal>$</literal>) prefix, and when referenced in non-XPath
+attribute values it must be enclosed in curly braces
+(<literal>{}</literal>). Variabless can be used in other declarations,
+as long as they don't create recursive definitions. This is a
+no-no:</para>
+
+<programlisting><![CDATA[<!-- DO NOT DO THIS -->
+<xsl:variable name="GNU">
+  <xsl:value-of select="$GNU"/>
+  <xsl:text> is Not Unix!</xsl:text>
+</xsl:variable>]]></programlisting>
+
+<para>Mutually referential definitions like this are also forbidden:</para>
+
+<programlisting><![CDATA[<!-- ASKING FOR TROUBLE -->
+<xsl:variable name="thing1">
+  $thing2
+</xsl:variable>
+
+<xsl:variable name="thing2">
+  $thing1
+</xsl:variable>]]></programlisting>
+
+<para>Variables can be declared outside of templates, where they are
+visible by all, or inside one, where its scope is limited to that
+template. The following template creates a bracketed number to mark a
+footnote, and makes it a link to the footnote text at the end of the
+page. The number of the footnote is calculated once, but used
+twice.</para>
+
+<programlisting><![CDATA[<xsl:template match="footnote">
+  <xsl:variable name="fnum"
+      select="count(preceding::footnote[ancestor::chapter//.])+1"/>
+  <a>
+    <xsl:attribute name="href">
+      <xsl:text>#FOOTNOTE-</xsl:text>
+      <xsl:number value="$fnum" format="1"/>
+    </xsl:attribute>
+    <xsl:text>[</xsl:text>
+    <xsl:number value="$fnum"/>
+    <xsl:text>]</xsl:text>
+  </a>
+</xsl:template>]]></programlisting>
+
+<para>Instead of performing the calculation in the content of the
+element, I did it inside a <literal>select</literal> attribute. Both
+methods are acceptable, but the element-content method is better for
+more complex calculations such as those involving choices.</para>
+
+</sect2>
+
+
+<sect2><title>Creating nodes</title>
+
+<para>You can create elements and attributes just by typing them out
+in template rules, as we have seen in previous examples. Although this
+method is generally preferable for its simplicity, it has its
+limitations. For example, you may want to create an attribute with a
+value that must be determined through a complex process:</para>
+
+<programlisting><![CDATA[<xsl:template match="a">
+  <p>See the
+    <a>
+      <xsl:attribute
+        name="href">http://www.oreilly.com/catalog/<xsl:call-template
+        name="prodname"/></xsl:attribute>
+        catalog page
+    </a> for more information.)
+  </p>
+</xsl:template>]]></programlisting>
+
+
+<para>In this template, the element <sgmltag>attribute</sgmltag>
+creates a new attribute node named <sgmltag>href</sgmltag>. The value
+of this attribute is the content of the node-creating element, in this
+case a URI with some variable text provided by n
+<sgmltag>call-template</sgmltag> element. As I have written 
+it here, the variable text is impossible to include inside the
+<sgmltag>a</sgmltag> element, so I have broken it out in a
+separate attribute node creation step.</para>
+
+<sect3><title>Elements</title>
+
+<para>XSLT provides an element for each node type you would want to
+create. <sgmltag>element</sgmltag> creates elements. Usually, you
+don't need this because you can just type in the element tags. In some
+circumstances, the element name may not be known at the time you write
+the stylesheet. It has to be generated dynamically. This would be an
+application of <sgmltag>element</sgmltag>.</para>
+
+<para>The <literal>name</literal> attribute sets the element type. For
+example:</para> 
+
+<programlisting><![CDATA[<xsl:template match="shape">
+  <xsl:element name="{@type}">
+    <xsl:value-of select="."/>
+  </xsl:element>
+</xsl:template>]]></programlisting>
+
+<para>If this template is applied to an element
+<sgmltag>shape</sgmltag> with attribute
+<literal>type="circle</literal>, it would create an element of type
+<sgmltag>circle</sgmltag>.</para>
+
+</sect3><sect3><title>Attributes and attribute sets</title>
+
+<para>I have already shown you how to create attributes with
+<sgmltag>attribute</sgmltag>. As with element generation, you can
+derive the attribute name and value on the fly. Note, however, that an
+<sgmltag>attribute</sgmltag> directive must come before any
+other content. It is an error to try to create an attribute after an
+element or text node.</para>
+
+<para>To apply a single set of attributes to many different
+elements, you can use <sgmltag>attribute-set</sgmltag>.
+First, define the set like this:</para>
+
+<programlisting><![CDATA[<xsl:attribute-set name="common-atts">
+  <xsl:attribute name="id"/>
+    <xsl:value-of select="generate-id()"/>
+  </xsl:attribute>
+  <xsl:attribute name="class">
+    quote
+  </xsl:attribute>
+</xsl:attribute-set>]]></programlisting>
+
+<para>This creates a set of two attributes, <literal>id</literal> with
+a unique identifier value and
+<literal>class="shape"</literal>. The set can be accessed from any
+element through its name <literal>common-atts</literal>. Use the
+attribute <literal>use-attribute-sets</literal> to refer to the
+attribute set you defined:</para>
+
+<programlisting><![CDATA[<xsl:template match="quote">
+  <blockquote xsl:use-attribute-sets="common-atts">
+    <xsl:value-of select="."/>
+  </blockquote>
+</xsl:template>]]></programlisting>
+
+<para>You can include as many attribute sets as you want by including
+them in a space-separated list.</para>
+
+</sect3><sect3><title>Text nodes</title>
+
+<para>Creating a text node is as simple as typing in character data to
+the template. However, it may not always come out as you
+expect. For example, whitespace is stripped from certain places in the
+template before processing. And if you want to output a reserved
+character such as &lt;, it will be output as the entity reference, not
+the literal character.</para>
+
+<para>The container element <sgmltag>text</sgmltag> gives you more
+control over your character data. It preserves all whitespace
+literaelly (and, in my opinion, it makes templates easier to
+read). The element has an optional attribute
+<literal>disable-output-escaping</literal>, which if set to
+<literal>yes</literal>, turns off the tendency of the XSLT engine to
+escape reserved characters in the result tree. For example:</para>
+
+<programlisting><![CDATA[<xsl:template match="codelisting">
+  <h3>Code Example</h3>
+  <pre>
+    <xsl:text disable-output-escaping="yes">
+      cout &lt;&lt; "How to output strings in C++";
+    </xsl:text>
+  </pre>
+</xsl:template>]]></programlisting>
+
+<para>The string of character data is actually three lines, with the
+middle one indented several spaces. Without
+the <sgmltag>text</sgmltag> tags around it, the space would be
+normalized so that it would be on one line without the
+indentation. And in this example, the result tree would contain the
+literal characters <literal>&lt;&lt;</literal>, not just character
+entities <literal>&amp;lt;&amp;lt;</literal>.</para>
+
+</sect3><sect3><title>Processing Instructions and Comments</title>
+
+<para>Creating processing instructions and comments is a simple task. The
+element <sgmltag>processing-instruction</sgmltag> takes an
+attribute <sgmltag class="attribute">name</sgmltag> and some textual
+content to create a processing instruction:</para>
+
+<programlisting><![CDATA[<xsl:template match="marker">
+  <xsl:processing-instruction name="formatter">
+    pagenumber=<xsl:value-of select="{@page}"/>
+  </xsl:processing-instruction>
+</xsl:template>]]></programlisting>
+
+<para>This rule creates the following output:</para>
+
+<programlisting>&lt;?formatter pagenumber=1?&gt;</programlisting>
+
+<para>You can create a comment with the element
+<sgmltag>comment</sgmltag>, with no attributes:</para>
+
+<programlisting><![CDATA[xsl:template match="comment">
+  <xsl:comment>
+    <xsl:value-of select="."/>
+  </xsl:comment>
+</xsl:template>]]></programlisting>
+
+<para>To create the processing instruction or content of a comment, you
+have to specify either plain text or an element such as
+<sgmltag>value-of</sgmltag> that becomes text. Any
+other kind of specification produces an error.</para>
+
+</sect3>
+</sect2>
+
+
+<sect2><title>Numeric Text</title>
+
+<para>Although <sgmltag>value-of</sgmltag> can output any numeric
+value as a string, it does not offer any special formatting for
+numbers. You are stuck with decimals and that's it. For more options,
+you should move up the more flexible <sgmltag>number</sgmltag> function.
+With this element, you can output numbers as Roman numerals, with
+zeroes prepended, or as letters. It also has a built-in facility for
+counting nodes.</para>
+
+<para>Returning to the table of contents example, here is how you
+could do it with <sgmltag>number</sgmltag>:</para>
+
+<programlisting><![CDATA[<xsl:template match="book">
+  <xsl:for-each select="chapter">
+    <xsl:number value="position()" format="I"/>.
+    <xsl:value-of select="title"/>.
+  </xsl:for-each>
+</xsl:template>]]></programlisting>
+
+<para>to get output like this:</para>
+
+<programlisting>I. Evil King Oystro Sends Assassins
+II. Aquaman is Poisoned by Pufferfish
+III. Aqualad Delivers the Antidote
+IV. Atlantis Votes Aquaman into Office</programlisting>
+
+<para>The attribute <literal>value</literal> contains the numeric
+expression or value to be formatted, and the attribute
+<literal>format</literal> controls the appearance (in this case, roman
+numerals). The default value for <literal>format</literal> is the same
+as <sgmltag>value-of</sgmltag>: plain decimal.</para>
+
+<para><xref linkend="xslt-table-num"/> shows some other ways to use
+the <literal>format</literal> attribute.</para>
+
+<table id="xslt-table-num">
+<title>Number Formats</title>
+
+<tgroup cols="2">
+<thead>
+<row>
+<entry>Format String</entry>
+<entry>Numbering Scheme</entry>
+</row>
+</thead>
+
+<tbody>
+<row>
+<entry>1</entry>
+<entry><para>1, 2, 3, 4, ...</para></entry>
+</row>
+
+<row>
+<entry>0</entry>
+<entry><para>0, 1, 2, 3, ...</para></entry>
+</row>
+
+<row>
+<entry>4</entry>
+<entry><para>4, 5, 6, 7, ...</para></entry>
+</row>
+
+<row>
+<entry>01</entry>
+<entry><para>01, 02, 03, ..., 09, 10, 11, ...</para></entry>
+</row>
+
+<row>
+<entry>I</entry>
+<entry><para>I, II, III, IV, ...</para></entry>
+</row>
+
+<row>
+<entry>i</entry>
+<entry><para>i, ii, iii, iv, ...</para></entry>
+</row>
+
+<row>
+<entry>iii</entry>
+<entry><para>iii, iv, v, vi, ...</para></entry>
+</row>
+
+<row>
+<entry>A</entry>
+<entry><para>A, B, C, D, ...</para></entry>
+</row>
+
+<row>
+<entry>a</entry>
+<entry><para>a, b, c, d, ...</para></entry>
+</row>
+
+<row>
+<entry>G</entry>
+<entry><para>G, H, I, J, ...</para></entry>
+</row>
+
+</tbody>
+</tgroup>
+</table>
+
+<para>One stickler is if you wanted an alphabetical list starting with
+"i". You cannot use <literal>format="i"</literal> because that indicates
+lowercase roman numerals. To resolve the ambiguity, use an additional
+attribute, <literal>letter-value</literal>, to force the format type
+to be alphabetical.</para>
+
+<para>Very large integers often require separator characters to group
+the digits. For example, in the United States a comma is used
+(e.g. 1,000,000 for a million). In Germany, the comma means something
+else (decimal point), so you need to be able to specify which scheme
+you want. You have two attributes to help you. The first,
+<literal>grouping-separator</literal>, sets the character used to
+delimit groups. The other, <literal>grouping-size</literal>,
+determines how many digits to put in a group.</para>
+
+<para>The following would result in the text
+<literal>1*0000*0000</literal>:</para>
+
+<programlisting>&lt;xsl:number
+  value="100000000"
+  grouping-separator="*"
+  grouping-size="4"/&gt;</programlisting>
+
+<para>An interesting feature of <sgmltag>number</sgmltag> is its
+ability to count nodes. The <literal>count</literal> attribute
+specifies the kind of node to count. Say you wanted to print the title
+of a chapter with a preceding number like this:</para>
+
+<programlisting>&lt;h1&gt;Chapter 3. Bouncing Kittens&lt;/h1&gt;</programlisting>
+
+<para>Perhaps you could use this template:</para>
+
+<programlisting><![CDATA[<xsl:template match="chapter/title">
+  <xsl:text>Chapter </xsl:text>
+  <xsl:value-of select="count(../preceding-sibling::chapter)+1"/>
+  <xsl:text>. </xsl:text>
+  <xsl:value-of select="."/>
+</xsl:template>]]></programlisting>
+
+<para>That will work, but it is a little difficult to read. Instead
+you can write it like this:</para>
+
+<programlisting><![CDATA[<xsl:template match="chapter/title">
+  <xsl:text>Chapter </xsl:text>
+  <xsl:number count="chapter" format "1. ">
+  <xsl:value-of select="."/>
+</xsl:template>]]></programlisting>
+
+<para><literal>count</literal> looks only at nodes that are
+siblings. If you want to count nodes that may appear at different
+levels, you need to add more information. The attribute
+<literal>level</literal> determines where to look for matching
+nodes. It has three possible values: <literal>single</literal>,
+<literal>multiple</literal>, and <literal>any</literal>.</para>
+
+<para>If <literal>single</literal> is selected (the default), the XSLT
+engine looks for the most recent ancestor that matches the pattern in
+the <literal>count</literal> attribute. Then it counts backwards among
+nodes at the same level. With the value
+<literal>multiple</literal> selected, all matching nodes among the
+ancestors, and their preceding siblings, may be considered. Finally,
+if you select <literal>any</literal>, then all previous nodes matching
+the pattern are counted. These options correspond to decreasing order
+of efficiency in implementation.</para>
+
+<para>Consider:</para>
+
+<programlisting>&lt;xsl:template match="footnote"&gt;
+  &lt;xsl:text&gt;[&lt;xsl/text&gt;
+  &lt;xsl:number count="footnote" from="chapter" level="any"/&gt;
+  &lt;xsl:text&gt;]&lt;xsl/text&gt;
+&lt;/xsl:template&gt;</programlisting>
+
+<para>This rule inserts a bracketed number where the footnote
+appears. The attribute
+<literal>from="chapter"</literal> causes the numbering to
+begin at the last <sgmltag>chapter</sgmltag> start
+tag. <literal>level="any"</literal> ensures that all footnotes are
+counted, regardless of the level at which they appear.</para>
+
+</sect2>
+
+
+<sect2><title>Sorting</title>
+
+<para>Elements often must be sorted to make them useful. Spreadsheets,
+catalogs, and surveys are a few examples of documents that require sorting.
+Imagine a telephone book sorted by three keys: last name, first
+name, and town. The document looks like this:</para>
+
+<programlisting><![CDATA[<telephone-book>
+  ...
+  <entry id="44456">
+    <surname>Mentary</surname>
+    <firstname>Rudy</firstname>
+    <town>Simpleton</town>
+    <street>123 Bushwack Ln</street>
+    <phone>555-1234</phone>
+  </entry>
+
+  <entry id="44457">
+    <surname>Chains</surname>
+    <firstname>Allison</firstname>
+    <town>Simpleton</town>
+    <street>999 Leafy Rd</street>
+    <phone>555-4321</phone>
+  </entry>
+  ...
+</telephone-book>]]></programlisting>
+
+<para>By default, the transformation processes each node in the order
+it appears in the document. So the entry with
+<literal>id="44456"</literal> is output before
+<literal>id="44457"</literal>. Obviously, that would not be in
+alphabetical order, so we need to sort the results somehow. It just so
+happens that we can do this with an element called
+<sgmltag>sort</sgmltag>. Here's how the document
+element's rule might look:</para>
+
+<programlisting>&lt;xsl:template match="telephone-book"&gt;
+  &lt;xsl:apply-templates&gt;
+    &lt;xsl:sort select="town"/&gt;
+    &lt;xsl:sort select="surname"/&gt;
+    &lt;xsl:sort select="firstname"/&gt;
+  &lt;/xsl:apply-templates&gt;
+&lt;/xsl:template&gt;</programlisting>
+
+<para>There are three sorting axes here. First, all the results are
+sorted by town. Next, the entries are sorted by surname. Finally, the
+entries are sorted by first name.</para>
+</sect2>
+
+
+<sect2><title>Handling whitespace</title>
+
+<para>During processing, the character data in the stylesheet is
+massaged to normalize the whitespace (i.e. the characters space, tab,
+and newline). If a text node contains only whitespace, it will be
+removed. Leading and trailing whitespace in tesxt nodes will be
+stripped, and sequences of multiple whitespace characters will be
+collapsed into one space.</para>
+
+<para>There are two ways to protect whitespace from
+normalization. First, you can use the XML convention of adding an
+attribute <literal>xml:space="preserve"</literal> to an ancestor
+element in the source document. In this example, element
+<sgmltag>a</sgmltag> will be stripped of extra whitespace, while
+<sgmltag>b</sgmltag> will not:</para>
+
+<programlisting><![CDATA[<xsl:template match="foo">
+  <a>
+all    space  stripped   here.
+  </a>
+  <b xml:space="preserve">
+all    space  preserved   here.
+  </b>
+</xsl:template>]]></programlisting>
+
+<para>Second, you can use <sgmltag>text</sgmltag> elements to contain
+character data in the stylesheet, as we discussed previously.</para> 
+
+<para>In contrast, character data from the source tree is not
+generally normalized. You can force the XSLT engine to strip space of
+selected elements by adding their names to a list in the
+stylesheet. The element <sgmltag>strip-space</sgmltag> contains a list
+of element names in its <literal>elements</literal> attribute. This is
+a top-level element that should be outside of any template.</para>
+
+<para>There is also a list of elements to preserve space called
+<sgmltag>preserve-space</sgmltag>. The reason for having both these
+elements is that you can set up a default behavior and then override
+it with a more specific case. For example:</para>
+
+<programlisting><![CDATA[<xsl:strip-space elements="*"/>
+<xsl:preserve-space elements="poem codelisting asciiart"/>]]></programlisting>
+
+<para>All elements will now have their whitespace normalized except
+for the elements <sgmltag>poem</sgmltag>,
+<sgmltag>codelisting</sgmltag>, and
+<sgmltag>asciiart</sgmltag>.</para>
+
+</sect2>
+
+
+<sect2><title>Example: a checkbook</title>
+
+<para>It is time now for a useful example that demonstrates the
+concepts discussed so far. First, <xref linkend="xslt-ex-cb"/> is a
+sample XML document representing a checkbook.</para>
+
+<example id="xslt-ex-cb"><title>Checkbook Document</title>
+<programlisting><![CDATA[<checkbook>
+
+  <deposit type="direct-deposit">
+    <payor>Bob's Bolts</payor>
+    <amount>987.32</amount>
+    <date>21-6-00</date>
+    <description category="income">Paycheck</description>
+  </deposit>
+
+  <payment type="check" number="980">
+    <payee>Kimora's Sports Equipment</payee>
+    <amount>132.77</amount>
+    <date>23-6-00</date>
+    <description category="entertainment">kendo equipment</description>
+  </payment>
+
+  <payment type="atm">
+    <amount>40.00</amount>
+    <date>24-6-00</date>
+    <description category="cash">pocket money</description>
+  </payment>
+
+  <payment type="debit">
+    <payee>Lone Star Cafe</payee>
+    <amount>36.86</amount>
+    <date>26-6-00</date>
+    <description category="food">lunch with Greg</description>
+  </payment>
+
+  <payment type="check" number="981">
+    <payee>Wild Oats Market</payee>
+    <amount>47.28</amount>
+    <date>29-6-00</date>
+    <description category="food">groceries</description>
+  </payment>
+
+  <payment type="debit">
+    <payee>Barnes and Noble</payee>
+    <amount>58.79</amount>
+    <date>30-6-00</date>
+    <description category="work">O'Reilly Books</description>
+  </payment>
+
+  <payment type="check" number="982">
+    <payee>Old Man Ferguson</payee>
+    <amount>800.00</amount>
+    <date>31-6-00</date>
+    <description category="misc">a 3-legged antique credenza that once
+    belonged to Alfred Hitchcock</description>
+  </payment>
+
+</checkbook>]]></programlisting>
+</example>
+
+<para>Now we will write an XSLT stylesheet to change this type of
+document into a nicely formatted HTML page. As a further benefit, our
+stylesheet will add up the transactions and print a final
+balance (assuming that the initial balance is zero). The first
+template sets up the HTML page's outermost structure:</para> 
+
+<programlisting>&lt;xsl:template match="checkbook"&gt;
+  &lt;html&gt;
+    &lt;head/&gt;
+    &lt;body&gt;
+              &lt;!-- page content goes here --&gt;
+    &lt;/body&gt;
+  &lt;/html&gt;
+&lt;/xsl:template&gt;</programlisting>
+
+<para>Let us add a section to this that summarizes income activity. The
+section header, wrapped inside an <sgmltag>h3</sgmltag> element, is
+generated using new text (with <sgmltag>text</sgmltag>) not
+present in the document and the dates from the first and last transactions
+(using <sgmltag>value-of</sgmltag>). After the header, all the
+income transactions are listed, in the order they appear, with
+<sgmltag>apply-templates</sgmltag>. The rule now looks like this (the
+new addition is in bold):</para>
+
+<programlisting>&lt;xsl:template match="checkbook"&gt;
+  &lt;html&gt;
+    &lt;head/&gt;
+    &lt;body&gt;<emphasis role="bold">
+
+      &lt;!-- income information --&gt;
+      &lt;h3&gt;
+        &lt;xsl:text&gt;Income from &lt;/xsl:text&gt;
+        &lt;xsl:value-of select="child::*[1]/date"/&gt;
+        &lt;xsl:text&gt; until &lt;/xsl:text&gt;
+        &lt;xsl:value-of select="child::*[last()]/date"/&gt;
+        &lt;xsl:text&gt;:&lt;/xsl:text&gt;
+      &lt;/h3&gt;
+      &lt;xsl:apply-templates select="deposit"/&gt;
+
+</emphasis>    &lt;/body&gt;
+  &lt;/html&gt;
+&lt;/xsl:template&gt;</programlisting>
+
+<para>After that, we will add a section to describe the deductions from
+the checking account. It would be nice to sort this list of
+transactions from highest to lowest, so let's use the
+<sgmltag>sort</sgmltag> element. The rule is now:</para>
+
+<programlisting>&lt;xsl:template match="checkbook"&gt;
+  &lt;html&gt;
+    &lt;head/&gt;
+    &lt;body&gt;
+
+      &lt;!-- income information --&gt;
+      &lt;h3&gt;
+        &lt;xsl:text&gt;Income from &lt;/xsl:text&gt;
+        &lt;xsl:value-of select="child::*[1]/date"/&gt;
+        &lt;xsl:text&gt; until &lt;/xsl:text&gt;
+        &lt;xsl:value-of select="child::*[last()]/date"/&gt;
+        &lt;xsl:text&gt;:&lt;/xsl:text&gt;
+      &lt;/h3&gt;
+      &lt;xsl:apply-templates select="deposit"/&gt;<emphasis role="bold">
+
+      &lt;!-- payment information --&gt;
+      &lt;h3&gt;
+        &lt;xsl:text&gt;Expenditures from &lt;/xsl:text&gt;
+        &lt;xsl:value-of select="child::*[1]/date"/&gt;
+        &lt;xsl:text&gt; until &lt;/xsl:text&gt;
+        &lt;xsl:value-of select="child::*[last()]/date"/&gt;
+        &lt;xsl:text&gt;, ranked from highest to lowest:&lt;/xsl:text&gt;
+      &lt;/h3&gt;
+      &lt;xsl:apply-templates select="payment"&gt;
+        &lt;xsl:sort data-type="number" order="descending"
+                  select="amount"/&gt;
+      &lt;/xsl:apply-templates&gt;
+
+</emphasis>    &lt;/body&gt;
+  &lt;/html&gt;
+&lt;/xsl:template&gt;</programlisting>
+
+<para>And finally, let us display the account balance. We'll use
+<sgmltag>number</sgmltag> to calculate the sum of the
+transactions. Two <literal>sum()</literal> terms are necessary: one
+for the payment total and one for the income total. Then we'll subtract
+the total payment from the total income. To make it clear
+whether the user is in debt or not, we'll
+color-code the calculated result and print a warning if it's
+negative. Here is the template:</para>
+
+<programlisting>&lt;xsl:template match="checkbook"&gt;
+  &lt;html&gt;
+    &lt;head/&gt;
+    &lt;body&gt;
+
+      &lt;!-- income information --&gt;
+      &lt;h3&gt;
+        &lt;xsl:text&gt;Income from &lt;/xsl:text&gt;
+        &lt;xsl:value-of select="child::*[1]/date"/&gt;
+        &lt;xsl:text&gt; until &lt;/xsl:text&gt;
+        &lt;xsl:value-of select="child::*[last()]/date"/&gt;
+        &lt;xsl:text&gt;:&lt;/xsl:text&gt;
+      &lt;/h3&gt;
+      &lt;xsl:apply-templates select="deposit"/&gt;
+
+      &lt;!-- payment information --&gt;
+      &lt;h3&gt;
+        &lt;xsl:text&gt;Expenditures from &lt;/xsl:text&gt;
+        &lt;xsl:value-of select="child::*[1]/date"/&gt;
+        &lt;xsl:text&gt; until &lt;/xsl:text&gt;
+        &lt;xsl:value-of select="child::*[last()]/date"/&gt;
+        &lt;xsl:text&gt;, ranked from highest to lowest:&lt;/xsl:text&gt;
+      &lt;/h3&gt;
+      &lt;xsl:apply-templates select="payment"&gt;
+        &lt;xsl:sort data-type="number" order="descending"
+                  select="amount"/&gt;
+      &lt;/xsl:apply-templates&gt;<emphasis role="bold">
+
+      &lt;h3&gt;Balance&lt;/h3&gt;
+      &lt;p&gt;
+        &lt;xsl:text&gt;Your balance as of &lt;/xsl:text&gt;
+        &lt;xsl:value-of select="child::*[last()]/date"/&gt;
+	&lt;xsl:text&gt; is &lt;/xsl:text&gt;
+        &lt;tt&gt;&lt;b&gt;
+          &lt;xsl:choose&gt;
+            &lt;xsl:when test="sum( payment/amount )
+                          &gt; sum( deposit/amount )"&gt;
+              &lt;font color="red"&gt;
+                &lt;xsl:text&gt;$&lt;/xsl:text&gt;
+                &lt;xsl:value-of select="sum( deposit/amount )
+                                    - sum( payment/amount )"/&gt;
+              &lt;/font&gt;
+            &lt;/xsl:when&gt;
+            &lt;xsl:otherwise&gt;
+              &lt;font color="blue"&gt;
+                &lt;xsl:text&gt;$&lt;/xsl:text&gt;
+                &lt;xsl:value-of select="sum( deposit/amount )
+                                    - sum( payment/amount )"/&gt;
+              &lt;/font&gt;
+            &lt;/xsl:otherwise&gt;
+          &lt;/xsl:choose&gt;
+        &lt;/b&gt;&lt;/tt&gt;
+      &lt;/p&gt;
+      &lt;xsl:if test="sum( payment/amount ) &gt; sum( deposit/amount )"&gt;
+        &lt;p&gt;
+          &lt;font color="red"&gt;
+            &lt;xsl:text&gt;DANGER! Deposit money quick!&lt;/xsl:text&gt;
+          &lt;/font&gt;
+        &lt;/p&gt;
+      &lt;/xsl:if&gt;
+
+</emphasis>    &lt;/body&gt;
+  &lt;/html&gt;
+&lt;/xsl:template&gt;</programlisting>
+
+<para>Now we need some rules to handle the <sgmltag>payment</sgmltag>
+and <sgmltag>deposit</sgmltag> elements. The first, shown below,
+numbers each payment and summarizes it nicely in a sentence:</para>
+
+<programlisting>&lt;xsl:template match="payment"&gt;
+  &lt;p&gt;
+    &lt;xsl:value-of select="position()"/&gt;
+    &lt;xsl:text&gt;. On &lt;/xsl:text&gt;
+    &lt;xsl:value-of select="date"/&gt;
+    &lt;xsl:text&gt;, you paid &lt;/xsl:text&gt;
+    &lt;tt&gt;&lt;b&gt;
+      &lt;xsl:text&gt;$&lt;/xsl:text&gt;
+      &lt;xsl:value-of select="amount"/&gt;
+    &lt;/b&gt;&lt;/tt&gt;
+    &lt;xsl:text&gt; to &lt;/xsl:text&gt;
+    &lt;i&gt;
+      &lt;xsl:value-of select="payee"/&gt;
+    &lt;/i&gt;
+    &lt;xsl:text&gt; for &lt;/xsl:text&gt;
+    &lt;xsl:value-of select="description"/&gt;
+    &lt;xsl:text&gt;.&lt;/xsl:text&gt;
+  &lt;/p&gt;
+&lt;/xsl:template&gt;</programlisting>
+
+<para>This works well enough for most payment types, but doesn't quite
+work when <literal>type="atm"</literal>.  Notice in the document
+instance that the <literal>atm</literal> payment lacks any description
+of the payee, since it's assumed that the checkbook's author is
+receiving the funds. So let's make a special rule just for this
+case:</para>
+
+<programlisting>&lt;xsl:template match="payment[@type='atm']"&gt;
+  &lt;p&gt;
+    &lt;xsl:value-of select="position()"/&gt;
+    &lt;xsl:text&gt;. On &lt;/xsl:text&gt;
+    &lt;xsl:value-of select="date"/&gt;
+    &lt;xsl:text&gt;, you withdrew &lt;/xsl:text&gt;
+    &lt;tt&gt;&lt;b&gt;
+      &lt;xsl:text&gt;$&lt;/xsl:text&gt;
+      &lt;xsl:value-of select="amount"/&gt;
+    &lt;/b&gt;&lt;/tt&gt;
+    &lt;xsl:text&gt; from an ATM for &lt;/xsl:text&gt;
+    &lt;xsl:value-of select="description"/&gt;
+    &lt;xsl:text&gt;.&lt;/xsl:text&gt;
+  &lt;/p&gt;
+&lt;/xsl:template&gt;</programlisting>
+
+<para>Finally, here's the rule for <sgmltag>deposit</sgmltag>:</para>
+
+<programlisting>&lt;xsl:template match="deposit"&gt;
+  &lt;p&gt;
+    &lt;xsl:value-of select="position()"/&gt;
+    &lt;xsl:text&gt;. On &lt;/xsl:text&gt;
+    &lt;xsl:value-of select="date"/&gt;
+    &lt;xsl:text&gt;, &lt;/xsl:text&gt;
+    &lt;tt&gt;&lt;b&gt;
+      &lt;xsl:text&gt;$&lt;/xsl:text&gt;
+      &lt;xsl:value-of select="amount"/&gt;
+    &lt;/b&gt;&lt;/tt&gt;
+    &lt;xsl:text&gt; was deposited into your account by &lt;/xsl:text&gt;
+    &lt;i&gt;
+      &lt;xsl:value-of select="payor"/&gt;
+    &lt;/i&gt;
+    &lt;xsl:text&gt;.&lt;/xsl:text&gt;
+  &lt;/p&gt;
+&lt;/xsl:template&gt;</programlisting>
+
+<para>Putting it all together in one stylesheet, we get the listing in
+<xref linkend="xslt-ex-cbxslt"/>.</para>
+
+<example id="xslt-ex-cbxslt">
+<title>Checkbook Transformation Stylesheet</title>
+<programlisting><![CDATA[<?xml version="1.0"?>
+
+<!--
+========================================================================
+A simple transformation stylesheet to get information out of
+a checkbook.
+========================================================================
+-->
+
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+		version="1.0">
+
+<xsl:template match="checkbook">
+  <html>
+    <head/>
+    <body>
+      <h3>
+        <xsl:text>Income from </xsl:text>
+        <xsl:value-of select="child::*[1]/date"/>
+        <xsl:text> until </xsl:text>
+        <xsl:value-of select="child::*[last()]/date"/>
+        <xsl:text>:</xsl:text>
+      </h3>
+      <xsl:apply-templates select="deposit"/>
+      <h3>
+        <xsl:text>Expenditures from </xsl:text>
+        <xsl:value-of select="child::*[1]/date"/>
+        <xsl:text> until </xsl:text>
+        <xsl:value-of select="child::*[last()]/date"/>
+        <xsl:text>, ranked from highest to lowest:</xsl:text>
+      </h3>
+      <xsl:apply-templates select="payment">
+        <xsl:sort data-type="number" order="descending" select="amount"/>
+      </xsl:apply-templates>
+      <h3>Balance</h3>
+      <p>
+        <xsl:text>Your balance as of </xsl:text>
+        <xsl:value-of select="child::*[last()]/date"/>
+	<xsl:text> is </xsl:text>
+        <tt><b>
+          <xsl:choose>
+            <xsl:when test="sum( payment/amount ) > sum( deposit/amount )">
+              <font color="red">
+                <xsl:text>$</xsl:text>
+                <xsl:value-of select="sum( deposit/amount )
+                                    - sum( payment/amount )"/>
+              </font>
+            </xsl:when>
+            <xsl:otherwise>
+              <font color="blue">
+                <xsl:text>$</xsl:text>
+                <xsl:value-of select="sum( deposit/amount )
+                                    - sum( payment/amount )"/>
+              </font>
+            </xsl:otherwise>
+          </xsl:choose>
+        </b></tt>
+      </p>
+      <xsl:if test="sum( payment/amount ) > sum( deposit/amount )">
+        <p>
+          <font color="red">
+            <xsl:text>DANGER! Deposit money quick!</xsl:text>
+          </font>
+        </p>
+      </xsl:if>
+    </body>
+  </html>
+</xsl:template>
+
+<xsl:template match="payment[@type='atm']">
+  <p>
+    <xsl:value-of select="position()"/>
+    <xsl:text>. On </xsl:text>
+    <xsl:value-of select="date"/>
+    <xsl:text>, you withdrew </xsl:text>
+    <tt><b>
+      <xsl:text>$</xsl:text>
+      <xsl:value-of select="amount"/>
+    </b></tt>
+    <xsl:text> from an ATM for </xsl:text>
+    <xsl:value-of select="description"/>
+    <xsl:text>.</xsl:text>
+  </p>
+</xsl:template>
+
+<xsl:template match="payment">
+  <p>
+    <xsl:value-of select="position()"/>
+    <xsl:text>. On </xsl:text>
+    <xsl:value-of select="date"/>
+    <xsl:text>, you paid </xsl:text>
+    <tt><b>
+      <xsl:text>$</xsl:text>
+      <xsl:value-of select="amount"/>
+    </b></tt>
+    <xsl:text> to </xsl:text>
+    <i>
+      <xsl:value-of select="payee"/>
+    </i>
+    <xsl:text> for </xsl:text>
+    <xsl:value-of select="description"/>
+    <xsl:text>.</xsl:text>
+  </p>
+</xsl:template>
+
+<xsl:template match="deposit">
+  <p>
+    <xsl:value-of select="position()"/>
+    <xsl:text>. On </xsl:text>
+    <xsl:value-of select="date"/>
+    <xsl:text>, </xsl:text>
+    <tt><b>
+      <xsl:text>$</xsl:text>
+      <xsl:value-of select="amount"/>
+    </b></tt>
+    <xsl:text> was deposited into your account by </xsl:text>
+    <i>
+      <xsl:value-of select="payor"/>
+    </i>
+    <xsl:text>.</xsl:text>
+  </p>
+</xsl:template>
+</xsl:stylesheet>]]></programlisting>
+</example>
+
+<para><xref linkend="xslt-ex-cbout"/> shows the resulting HTML file. 
+<xref linkend="xslt-fig-cbout"/> shows how it looks in a browser.</para>
+
+<example id="xslt-ex-cbout"><title>The Result Tree</title>
+<programlisting><![CDATA[<html>
+<body>
+<h3>Income from 21-6-00 until 31-6-00:</h3>
+<p>1. On 21-6-00, <tt><b>$987.32</b></tt> was deposited into your
+account by <i>Bob's Bolts</i>.</p>
+<h3>Expenditures from 21-6-00 until 31-6-00, ranked from highest to
+lowest:</h3>
+<p>1. On 31-6-00, you paid <tt><b>$800.00</b></tt> to <i>Old Man
+Ferguson</i> for a 3-legged antique credenza that once belonged to
+Alfred Hitchcock.</p>
+<p>2. On 23-6-00, you paid <tt><b>$132.77</b></tt> to <i>Kimora's
+Sports Equipment</i> for kendo equipment.</p>
+<p>3. On 30-6-00, you paid <tt><b>$58.79</b></tt> to <i>Barnes and
+Noble</i> for O'Reilly Books.</p>
+<p>4. On 29-6-00, you paid <tt><b>$47.28</b></tt> to <i>Wild Oats
+Market</i> for groceries.</p>
+<p>5. On 24-6-00, you withdrew <tt><b>$40.00</b></tt> from an ATM for
+pocket money.</p>
+<p>6. On 26-6-00, you paid <tt><b>$36.86</b></tt> to <i>Lone Star
+Cafe</i> for lunch with Greg.</p>
+<h3>Balance</h3>
+<p>Your balance as of 31-6-00 is <tt><b><font
+color="red">$-128.38</font></b></tt>
+</p>
+<p>
+<font color="red">DANGER! Deposit money quick!</font>
+</p>
+</body>
+</html>]]></programlisting>
+</example>
+
+
+<figure id="xslt-fig-cbout">
+<title>Checkbook stats in Netscape</title>
+
+<graphic fileref="figs/lxml_0602.eps"/>
+</figure>
+</sect2>
+
+</sect1>
+
+
+<sect1><title>Modularity</title>
+
+
+<sect2><title>Combining Stylesheets</title>
+
+<para>There are various reasons to use multiple stylesheets for the
+same document. For instance, you may be supporting several documents
+that share most of the same style, but have a few local differences
+between them. Or you might have to combine different namespaces, each
+with its own style set. You may want to borrow some styles from a
+library and override the ones you want to customize. XSLT gives you
+two ways to combine stylesheets: inclusion and importing.</para>
+
+<para><firstterm>Including</firstterm> a stylesheet means inserting
+its contents directly into the target stylesheet. All the rules and
+directives will be treated as if they were in your stylesheet all
+along. The <sgmltag>include</sgmltag> element has an
+<literal>href</literal> attribute, which holds a URI for the
+stylesheet to include. You can insert this element anywhere in your
+stylesheet as long as it isn't inside a rule.</para>
+
+<para><firstterm>Importing</firstterm> a stylesheet is a little more
+complicated. The imported rules have lower standing than the
+rules that are physically present in your stylesheet. There is a
+numeric calculation that determines which rule will be applied, but in
+general, imported rules are picked by the processor only if a rule
+of similar specificity isn't found in the original stylesheet. The
+element <sgmltag>import</sgmltag> also uses an
+<literal>href</literal> attribute to specify a stylesheet, but it can
+be placed only at the very top of the stylesheet, before any other
+rules or directives.</para>
+
+<para>The advantage of this weaker form of inclusion is that it can
+overriding parts of a more complete set of rules to customize the
+results. While <sgmltag>include</sgmltag> pours rules in at the same
+level of precedence as your own, <sgmltag>import</sgmltag> gives you
+more control over the remote set, allowing you to pick and choose
+among rules.</para>
+
+<para>There may be times when you want to override your own rules in
+favor of those that are imported for a localized region. The element
+<sgmltag>apply-imports</sgmltag> is analogous to
+<sgmltag>apply-templates</sgmltag>, except that it considers only
+imported rules, and ignores those that are physically present.</para>
+
+<para>You can include or import any number of stylesheets, which lets
+you mix and match different vocabularies for transformation. You
+may have one set for generic document content, another for handling
+tables, yet another for handling sidebars, and so on. The order of
+inclusion is used to break ties between conflicting rules from different sets:
+earlier imports override later ones. Here's how you can import several
+stylesheets into your own:</para>
+
+<programlisting>&lt;xsl:stylesheet version="1.0"
+                 xmlns:xsl="http://www.w3.org/1999/XSL/Transform"&gt;
+  &lt;xsl:import href="basic_style.xsl"/&gt;
+  &lt;xsl:import href="table_styles.xsl"/&gt;
+  &lt;xsl:import href="chem_formulae.xsl"/&gt;
+  ...</programlisting>
+
+</sect2>
+
+
+<sect2><title>Modes</title>
+
+<para>Sometimes you want to treat nodes differently depending on where
+they are used in the document. For example, you may want
+footnotes in tables to be alphabetized instead of numbered. XSLT provides
+special rule modifiers called <firstterm>modes</firstterm>
+to accomplish this.</para>
+
+<para>To set up a mode, simply add a <literal>mode</literal> attribute
+set to a particular label to the affected <sgmltag>template</sgmltag>
+and template-calling elements. The mode label can be anything you want
+as long as it's unique among mode labels.  The following example shows
+how to do this:</para>
+
+<programlisting><![CDATA[<xsl:template match="footnote">
+  <xsl:variable name="fnum"
+      select="count(preceding::footnote[ancestor::chapter//.])+1"/>
+  <a>
+    <xsl:attribute name="href">
+      <xsl:text>#FOOTNOTE-</xsl:text>
+      <xsl:number value="$fnum" format="1"/>
+    </xsl:attribute>
+    <xsl:text>[</xsl:text>
+    <xsl:number value="$fnum"/>
+    <xsl:text>]</xsl:text>
+  </a>
+</xsl:template>
+
+<xsl:template match="footnote" mode="tabular">
+  <xsl:variable name="fnum"
+      select="count(preceding::footnote[ancestor::chapter//.])+1"/>
+  <a>
+    <xsl:attribute name="href">
+      <xsl:text>#FOOTNOTE-</xsl:text>
+      <xsl:number value="$fnum" format="1"/>
+    </xsl:attribute>
+    <xsl:text>[</xsl:text>
+    <xsl:number value="$fnum" format="a"/>
+    <xsl:text>]</xsl:text>
+  </a>
+</xsl:template>
+
+<xsl:template match="table-entry">
+  <xsl:apply-templates mode="tabular"/>
+</xsl:template>]]></programlisting>
+
+<para>The first rule defines the default behavior of a footnote, while
+the second one sets up the special case for footnotes in
+<literal>tabular</literal> mode. The behavior differs only in how the
+footnote number is formatted. The third and last rule is a table-cell
+rule that turns on the <literal>tabular</literal> mode.</para>
+
+<para>It's important to remember that rules without the mode specifier
+are not considered by the processor when it's in a specific
+mode. Instead, the default rules are used. This means you have to
+write a new rule for every element that might be chosen.</para>
+</sect2>
+</sect1>
+
+
+</chapter>

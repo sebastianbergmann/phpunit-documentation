@@ -1,0 +1,334 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="organizing-tests">
+  <title>テストの構成</title>
+
+  <para>
+    <indexterm><primary>Test Suite</primary></indexterm>
+
+    PHPUnit の目指すところ (<xref linkend="goals" /> を参照ください) のひとつに
+    「自由に組み合わせられる」ということがあります。つまり、
+    例えば「そのプロジェクトのすべてのテストを実行する」「プロジェクトの中の
+    ある部品を構成するすべてのクラスについて、すべてのテストを実行する」
+    「特定のひとつのクラスのテストのみを実行する」など、
+    数や組み合わせにとらわれずに好きなテストを一緒に実行できるということです。
+  </para>
+
+  <para>
+    <!-- TODO: to be translated -->
+    PHPUnit supports different ways of organizing tests and composing them into
+    a test suite. This chapter shows the most commonly used approaches.
+  </para>
+
+  <section id="organizing-tests.filesystem">
+    <title>Composing a Test Suite Using the Filesystem</title>
+
+    <para>
+      Probably the easiest way to compose a test suite is to keep all test case
+      source files in a test directory. PHPUnit can automatically discover and
+      run the tests by recursively traversing the test directory.
+    </para>
+
+    <para>
+      Lets take a look at the test suite of the <ulink url="http://github.com/sebastianbergmann/php-object-freezer/">Object_Freezer</ulink>
+      library. Looking at this project's directory structure, we see that the
+      test case classes in the <filename>Tests</filename> directory mirror the
+      package and class structure of the System Under Test (SUT) in the
+      <filename>Object</filename> directory:
+    </para>
+
+    <screen>Object                              Tests
+|-- Freezer                         |-- Freezer
+|   |-- HashGenerator               |   |-- HashGenerator
+|   |   `-- NonRecursiveSHA1.php    |   |   `-- NonRecursiveSHA1Test.php
+|   |-- HashGenerator.php           |   |
+|   |-- IdGenerator                 |   |-- IdGenerator
+|   |   `-- UUID.php                |   |   `-- UUIDTest.php
+|   |-- IdGenerator.php             |   |
+|   |-- LazyProxy.php               |   |
+|   |-- Storage                     |   |-- Storage
+|   |   `-- CouchDB.php             |   |   `-- CouchDB
+|   |                               |   |       |-- WithLazyLoadTest.php
+|   |                               |   |       `-- WithoutLazyLoadTest.php
+|   |-- Storage.php                 |   |-- StorageTest.php
+|   `-- Util.php                    |   `-- UtilTest.php
+`-- Freezer.php                     `-- FreezerTest.php</screen>
+
+    <para>
+      To run all tests for the library we just need to point the PHPUnit
+      command-line test runner to the test directory:
+    </para>
+
+    <screen><userinput>phpunit Tests</userinput>
+PHPUnit 3.4.0 by Sebastian Bergmann.
+
+............................................................ 60 / 75
+...............
+
+Time: 0 seconds
+
+OK (75 tests, 164 assertions)</screen>
+
+    <para>
+      To run only the tests that are declared in the <literal>Object_FreezerTest</literal>
+      test case class in <filename>Tests/FreezerTest.php</filename> we can use
+      the following command:
+    </para>
+
+    <screen><userinput>phpunit Tests/FreezerTest</userinput>
+PHPUnit 3.4.0 by Sebastian Bergmann.
+
+............................
+
+Time: 0 seconds
+
+OK (28 tests, 60 assertions)</screen>
+
+    <para>
+      For more fine-grained control of which tests to run we can use the
+      <literal>--filter</literal> switch:
+    </para>
+
+    <screen><userinput>phpunit --filter testFreezingAnObjectWorks Tests</userinput>
+PHPUnit 3.4.0 by Sebastian Bergmann.
+
+.
+
+Time: 0 seconds
+
+OK (1 test, 2 assertions)</screen>
+
+    <note>
+      <para>
+        A drawback of this approach is that we have no control over the order in
+        which the test are run.
+      </para>
+    </note>
+  </section>
+
+  <section id="organizing-tests.xml-configuration">
+    <title>Composing a Test Suite Using XML Configuration</title>
+    <indexterm><primary>XML Configuration</primary></indexterm>
+
+    <para>
+      PHPUnit's XML configuration file (<xref linkend="appendixes.configuration"/>)
+      can also be used to compose a test suite.
+      <xref linkend="organizing-tests.xml-configuration.examples.phpunit.xml"/>
+      shows a minimal example that will add all <literal>*Test</literal> classes
+      that are found in <filename>*Test.php</filename> files when the
+      <filename>Tests</filename> is recursively traversed.
+    </para>
+
+    <example id="organizing-tests.xml-configuration.examples.phpunit.xml">
+      <title>Composing a Test Suite Using XML Configuration</title>
+      <programlisting><![CDATA[<phpunit
+  <testsuite name="Object_Freezer">
+    <directory>Tests</directory>
+  </testsuite>
+</phpunit>]]></programlisting>
+    </example>
+
+    <note>
+      <para>
+        A drawback of this approach is that we have no control over the order in
+        which the test are run.
+      </para>
+    </note>
+
+    <para>
+      Alternatively, we can make the order in which tests are executed explicit:
+    </para>
+
+    <example id="organizing-tests.xml-configuration.examples.phpunit.xml2">
+      <title>Composing a Test Suite Using XML Configuration</title>
+      <programlisting><![CDATA[<phpunit
+  <testsuite name="Object_Freezer">
+    <file>Tests/Freezer/HashGenerator/NonRecursiveSHA1Test.php</file>
+    <file>Tests/Freezer/IdGenerator/UUIDTest.php</file>
+    <file>Tests/Freezer/UtilTest.php</file>
+    <file>Tests/FreezerTest.php</file>
+    <file>Tests/Freezer/StorageTest.php</file>
+    <file>Tests/Freezer/Storage/CouchDB/WithLazyLoadTest.php</file>
+    <file>Tests/Freezer/Storage/CouchDB/WithoutLazyLoadTest.php</file>
+  </testsuite>
+</phpunit>]]></programlisting>
+    </example>
+  </section>
+
+  <section id="organizing-tests.testsuite">
+    <title>Using the TestSuite Class</title>
+    <indexterm><primary>PHPUnit_Framework_TestSuite</primary></indexterm>
+
+    <para>
+      The <literal>PHPUnit_Framework_TestSuite</literal> class of the PHPUnit
+      framework allows us to organize tests into a hierarchy of test suite
+      objects.
+    </para>
+
+    <para>
+      <xref linkend="organizing-tests.testsuite.examples.AllTests.php"/> shows
+      the top-level <literal>AllTests</literal> class for a project that has a
+      package named <literal>Package</literal>.
+    </para>
+
+    <example id="organizing-tests.testsuite.examples.AllTests.php">
+      <title>The top-level AllTests class</title>
+      <programlisting><![CDATA[<?php
+require_once 'PHPUnit/Framework.php';
+
+require_once 'Package/AllTests.php';
+// ...
+
+class AllTests
+{
+    public static function suite()
+    {
+        $suite = new PHPUnit_Framework_TestSuite('Project');
+
+        $suite->addTest(Package_AllTests::suite());
+        // ...
+
+        return $suite;
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      The top-level <literal>AllTests</literal> class aggregates the
+      package-level <literal>Package_AllTests</literal> class that in turn
+      aggregates the test case classes for the classes of said package.
+    </para>
+
+    <example id="organizing-tests.testsuite.examples.Package_AllTests.php">
+      <title>The Package_AllTests class</title>
+      <programlisting><![CDATA[<?php
+require_once 'PHPUnit/Framework.php';
+
+require_once 'Framework/ClassTest.php';
+// ...
+
+class Package_AllTests
+{
+    public static function suite()
+    {
+        $suite = new PHPUnit_Framework_TestSuite('Package');
+
+        $suite->addTestSuite('Package_ClassTest');
+        // ...
+
+        return $suite;
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      <literal>Package_ClassTest</literal> クラスは、
+      基底クラス <literal>PHPUnit_Framework_TestCase</literal>
+      を継承した標準的なテストケースクラスです。
+    </para>
+
+    <itemizedlist>
+      <listitem>
+        <para>
+          <literal>phpunit AllTests</literal> を
+          <filename>Tests</filename> ディレクトリで実行すると、すべてのテストを実行します。
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          <literal>phpunit AllTests</literal> を
+          <filename>Tests/Package</filename> ディレクトリで実行すると、
+          <literal>Package_*</literal> クラスのテストのみを実行します。
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          <literal>phpunit ClassTest</literal> を
+          <filename>Tests/Package</filename> ディレクトリで実行すると、
+          <literal>Package_Class</literal> クラスのテストのみを実行します
+          (これは <literal>Package_ClassTest</literal> クラスで宣言されています)。
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          <literal>phpunit --filter testSomething ClassTest</literal> を
+          <filename>Tests/Package</filename> ディレクトリで実行すると、
+          <literal>Package_ClassTest</literal> クラスの
+          <literal>testSomething</literal> という名前のテストのみを実行します。
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <para>
+      <indexterm><primary>Template Method</primary></indexterm>
+      <indexterm><primary>setUp()</primary></indexterm>
+      <indexterm><primary>tearDown()</primary></indexterm>
+
+      The <literal>PHPUnit_Framework_TestSuite</literal> class offers two
+      template methods, <literal>setUp()</literal> and <literal>tearDown()</literal>,
+      that are called before the first test of the test suite and after the last
+      test of the test suite, respectively.
+    </para>
+
+    <example id="organizing-tests.testsuite.examples.MySuite.php">
+      <title>The MySuite class</title>
+      <programlisting><![CDATA[<?php
+require_once 'MyTest.php';
+
+class MySuite extends PHPUnit_Framework_TestSuite
+{
+    public static function suite()
+    {
+        return new MySuite('MyTest');
+    }
+
+    protected function setUp()
+    {
+        print __METHOD__ . "\n";
+    }
+ 
+    protected function tearDown()
+    {
+        print __METHOD__ . "\n";
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      The <literal>MyTest</literal> test case class that is added to the test
+      suite <literal>MySuite</literal> in
+      <xref linkend="organizing-tests.testsuite.examples.MySuite.php"/>
+      has two test methods, <literal>testOne()</literal> and <literal>testTwo()</literal>
+      as well as the <literal>setUp()</literal> and <literal>tearDown()</literal>
+      methods. The output shows in which order these eight methods are called:
+    </para>
+
+    <screen>MySuite::setUp()
+MyTest::setUp()
+MyTest::testOne()
+MyTest::tearDown()
+MyTest::setUp()
+MyTest::testTwo()
+MyTest::tearDown()
+MySuite::tearDown()</screen>
+
+    <para>
+      Variables stored in <literal>$this->sharedFixture</literal> by the
+      <literal>setUp()</literal> method of the <literal>PHPUnit_Framework_TestSuite</literal>
+      class are available as <literal>$this->sharedFixture</literal> in all the
+      test that are aggregated by the test suite object (see
+      <xref linkend="fixtures.sharing-fixture"/>).
+    </para>
+
+    <note>
+      <para>
+        A <literal>TestSuite</literal>'s <literal>setUp()</literal> and
+        <literal>tearDown()</literal> methods will be called even if no test of
+        the test suite is run because it is, for instance, filtered.
+      </para>
+    </note>
+  </section>
+</chapter>

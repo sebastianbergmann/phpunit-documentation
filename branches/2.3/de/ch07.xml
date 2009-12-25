@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+
+<chapter id="incomplete-tests">
+  <title>Unvollständige Tests</title>
+
+  <para>
+    Wenn Sie eine neue Testfall-Klasse schreiben, so möchten Sie vielleicht
+    mit leeren Testmethoden wie <programlisting>public function testSomething() {
+}</programlisting> beginnen, um so den Überblick darüber zu behalten, welche
+    Tests Sie schreiben müssen. Das Problem mit leeren Testmethoden ist,
+    dass sie vom PHPUnit-Framework als erfolgreich gewertet werden. Diese
+    Missinterpretation führt dazu, dass Ihre Testreports nutzlos werden: Sie
+    können nicht erkennen, ob ein Test tatsächlich erfolgreich durchlaufen
+    wurde, oder ob er nur noch nicht implementiert ist. Das Aufrufen von
+    <literal>$this->fail()</literal> in der noch nicht implementierten
+    Testmethode hilft ebenfalls nicht, da der Test dann als fehlgeschlagen
+    gewertet würde. Dies wäre genauso falsch wie die Interpretation eines
+    noch nicht implementierten Tests als Erfolg.
+  </para>
+
+  <para>
+    <indexterm><primary>Unvollständiger Test</primary></indexterm>
+    <indexterm><primary>PHPUnit2_Framework_IncompleteTest</primary></indexterm>
+    <indexterm><primary>PHPUnit2_Framework_IncompleteTestError</primary></indexterm>
+
+    Wenn wir uns einen erfolgreichen Test als "grünes Lämpchen" und einen
+    fehlgeschlagenen Test als "rotes Lämpchen" vorstellen, so benötigen wir
+    also zusätzlich ein "gelbes Lämpchen", um einen Test als unvollständig
+    oder noch nicht implementiert markieren zu können.
+    <literal>PHPUnit2_Framework_IncompleteTest</literal> ist eine
+    Schnittstelle, mit der eine Ausnahme markiert werden kann. Wird eine
+    solche Ausnahme in einer Testmethode ausgelöst, wird der Test als
+    unvollständing oder noch nicht implementiert markiert.
+    <literal>PHPUnit2_Framework_IncompleteTestError</literal> ist die
+    Standard-Implementierung dieser Markierer-Schnittstelle.
+  </para>
+
+  <para>
+    <xref linkend="incomplete-tests.examples.SampleTest.php" /> zeigt die
+    Testfall-Klasse <literal>SampleTest</literal>. Diese enthält eine
+    Testmethode <literal>testSomething()</literal>, in der die Ausname
+    <literal>PHPUnit2_Framework_IncompleteTestError</literal> ausgelöst
+    wird, um den Test als unvollständing zu markieren.
+  </para>
+
+  <example id="incomplete-tests.examples.SampleTest.php">
+    <title>Einen Test als unvollständig markieren</title>
+    <programlisting><![CDATA[<?php
+require_once 'PHPUnit2/Framework/TestCase.php';
+require_once 'PHPUnit2/Framework/IncompleteTestError.php';
+
+class SampleTest extends PHPUnit2_Framework_TestCase {
+    public function testSomething() {
+        // Optional: Testen Sie hier, was Sie möchten.
+        $this->assertTrue(TRUE, 'Dies sollte bereits funktionieren.');
+
+        // Test anhalten und als unvollständig markieren.
+        // Hierzu können Sie jede Ausnahme verwenden, die die
+        // Schnittstelle PHPUnit2_Framework_IncompleteTest implementiert.
+        throw new PHPUnit2_Framework_IncompleteTestError(
+          'Dieser Test ist noch nicht fertig ausprogrammiert.'
+        );
+    }
+}
+?>]]></programlisting>
+  </example>
+
+  <para>
+    Ein unvollständiger Test wird mit einem <literal>I</literal> in der
+    Ausgabe des textbasierten Testrunners angezeigt, wie folgendes
+    Beispiel zeigt:
+  </para>
+
+  <screen><userinput>phpunit SampleTest</userinput>
+PHPUnit 2.3.0 by Sebastian Bergmann.
+
+I
+
+Time: 0.006657
+There was 1 incomplete test case:
+1) testSomething(SampleTest)
+Dieser Test ist noch nicht fertig ausprogrammiert.
+
+OK, but incomplete test cases!!!
+Tests run: 1, incomplete test cases: 1.</screen>
+</chapter>

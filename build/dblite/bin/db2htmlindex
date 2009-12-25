@@ -1,0 +1,39 @@
+#!/usr/bin/perl -w
+#
+# $Id: db2htmlindex,v 1.2 2002/11/01 19:58:10 eray Exp $
+# -*- Perl -*-
+#
+# Wrapper for James Clark's xt program
+# calling db2htmlindex.xsl stylsheet for pre-processing indexterms
+#
+
+# command line options
+# -d           debug mode
+# -v           verbose mode
+use Getopt::Std;
+my %opts;
+getopts('dhv', \%opts);
+&print_usage if( $opts{h} );
+
+my $source = shift @ARGV;
+my $styledir = "/usr/local/prod/sgml/dblite/xsl/";
+my $stylesheet = "$styledir/db2htmlindex.xsl";
+my $cmd1 = "xtrans -c -s $stylesheet -o tmpindex.xml $source";
+my $cmd2 = "db2htmlindexproc";
+
+if( -e $source ) {
+    print "$cmd1\n";
+    system( $cmd1 );
+    print "$cmd2\n";
+    system( $cmd2 );
+    #unlink( 'tmpindex.xml' ) unless( exists( $opts{d} ));
+
+} else {
+    &print_usage;
+}
+
+sub print_usage {
+    print "\nUsage: $0 <xml file>\n\n";
+    exit(1);
+}
+

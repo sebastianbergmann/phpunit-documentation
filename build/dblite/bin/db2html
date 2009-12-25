@@ -1,0 +1,511 @@
+#!/usr/bin/perl -w
+#
+# $Id: db2html,v 1.10 2002/11/19 16:24:34 eray Exp $
+
+use strict;
+use Getopt::Std;
+use XML::LibXML;
+use XML::LibXSLT;
+use XML::DOMHandler;
+
+
+# globals
+#
+my %opts;                  # options hash
+my $parser;                # xml parser
+my $xslt;                  # path to xslt script
+my %graphics_seen;
+my $grents_dir = '/usr/local/prod/graphics/gif/cropped';
+my $globaltext;
+
+
+# main loop
+#
+init();
+foreach my $file ( @ARGV ) {
+    process_file( $file );
+}
+
+
+sub process_file {
+#
+# convert file into html
+#
+    my $file = shift;
+    check_script();
+    my $dbdoc = get_doc( $file );
+    my @date = localtime;
+    my $time = sprintf( "%02d:%02d:%02d", $date[2],$date[1],$date[0] );
+    inform( "Starting: $time" );
+    my $htmldoc = transform( $dbdoc, $xslt );
+    post_process_dom( $htmldoc );
+    separate( $htmldoc );
+    @date = localtime;
+    $time = sprintf( "%02d:%02d:%02d", $date[2],$date[1],$date[0] );
+    inform( "Finished: $time" );
+}
+
+
+sub check_script {
+#
+# make sure required scripts are here
+#
+    foreach my $script ( qw( db2hbody.xsl bookpage.xsl 
+			     chapter.xsl sect1.xsl )) {
+	unless( -r $script ) {
+	    system( "cp /usr/local/prod/sgml/dblite/xsl/$script ." );
+	}
+    }
+}
+
+
+sub get_doc {
+#
+# get doc to process
+#
+    my $file = shift;
+    inform( "Processing file '$file'..." );
+    if( open( F, $file )) {
+
+	# first just read in the book file
+	my $buf = '';
+	while( <F> ) { $buf .= $_; }
+	close F;
+	$buf =~ s|(SYSTEM\s+"/usr/local/prod/sgml/dblite/)dblite.dtd|$1dblite_htmlents.dtd|;
+	debug_file_text( 'debug.db_preparse', $buf );
+
+	# now parse the whole document
+        $parser->expand_entities(1);
+	my $doc = $parser->parse_string( $buf );
+	debug_file_doc( 'debug.db', $doc );
+	return $doc;
+    } else {
+	abort( "Can't read '$file'" );
+    }
+}
+
+
+sub transform {
+#
+# run xslt transformation on file
+#
+    my( $sourcedoc, $script ) = @_;
+    if( -r $script ) {
+	my $trans_maker = new XML::LibXSLT;
+	my $transdoc = $parser->parse_file( $script );
+	my $transformer = $trans_maker->parse_stylesheet( $transdoc );
+	my %params;
+	$params{verbose} = $opts{v} if( exists( $opts{v} ));
+	my $resultdoc = $transformer->transform( $sourcedoc, %params );
+	debug_file_doc( 'debug.html', $resultdoc );
+	return $resultdoc;
+    } else {
+	abort( "Can't read '$script'" );
+    }
+}
+
+
+sub post_process_dom {
+#
+# post-process the dom object
+#
+    my $doc = shift;
+    inform( "post-processing object tree..." );
+    my $dh = new XML::DOMHandler( handler_package => 'PostProcDOM' );
+    $dh->traverse( $doc );
+    debug_file_doc( 'debug.html_scrubbed', $doc );
+}
+
+
+sub separate {
+#
+# separate output into multiple files
+#
+    my $doc = shift;
+    inform( "splitting into files..." );
+    unless( -d 'html' ) {
+	if( system( 'mkdir html' )) {
+	    abort( "Can't make directory 'html'" );
+	}
+    }
+    my @elems = $doc->findnodes( '//html' );
+    my $cntr = 0;
+    foreach my $html ( @elems ) {
+	if( $html->findnodes( '//file' )) {
+	    #print "ERROR: file inside file!\n";
+	}
+	$globaltext = $html->toString;
+	my $filename = $html->findvalue( '../@name' );
+	$cntr ++;
+	inform( "  $cntr. $filename" );
+	post_process_text();
+	    graphics();
+	if( open( F, ">html/$filename" )) {
+	    print F $globaltext;
+	    close F;
+	} else {
+	    abort( "Can't write file '$filename'" );
+	}
+    }
+}
+
+
+sub post_process_text {
+#
+# post-process the text
+#
+    $globaltext =~ s/__GRAPHIC_ENTITY__([^_]+)__/&$1;/g;   # repair entities
+    $globaltext =~ s|/>| />|g;                             # space before />
+    $globaltext =~ s/&quot;/\"/g;
+    $globaltext =~ s/\$\$ENTITY-START\$\$/&/g;
+}
+
+
+sub graphics {
+#
+# check graphics and copy over if necessary
+#
+    my @paths = $globaltext =~ /<img\s+src=\"([^\"]+)/g;
+    foreach my $path ( @paths ) {
+	system( "mkdir html/figs" ) unless( -d "html/figs" );
+	unless( -r "html/$path" ) {
+	    my $file = $path;
+	    $file =~ s|^figs/||g;
+	    next if( $graphics_seen{ $file } or $file =~ /^\.\./ );
+	    if( -r "$grents_dir/$file" ) {
+		system( "cp $grents_dir/$file html/figs" );
+	    } else {
+		inform( "WARNING: graphic '$path' is missing" );
+	    }
+	    $graphics_seen{ $file } ++;
+	}
+    }
+}
+
+
+sub inform {
+#
+# print verbose messages
+#
+    my $msg = shift;
+    if( $opts{v} ) {
+	print "db2html> $msg\n";
+    }
+}
+
+
+sub abort {
+#
+# print error messages
+#
+    my $msg = shift;
+    print STDERR "db2html ERROR> $msg\n";
+    exit(1);
+}
+
+
+sub debug_file_doc {
+#
+# output doc to a file for debug purposes
+#
+    my $file = shift;
+    my $doc = shift;
+    if( $opts{d} ) {
+	open( DEBUG, ">$file" );
+	print DEBUG $doc->toString;
+	close DEBUG;
+    }
+}
+
+
+sub debug_file_text {
+#
+# output text to a file for debug purposes
+#
+    my $file = shift;
+    my $text = shift;
+    if( $opts{d} ) {
+	open( DEBUG, ">$file" );
+	print DEBUG $text;
+	close DEBUG;
+    }
+}
+
+
+sub init {
+#
+# get everything ready
+#
+
+    # command line options
+    getopts('dhnv', \%opts);
+    print_usage() if( exists( $opts{h} ) or not( @ARGV ));
+
+    # configure the parser
+    $parser = new XML::LibXML;
+    $parser->load_ext_dtd(1);
+    $parser->expand_entities(1);
+
+    # xslt script location
+    if( -r 'db2hbody.xsl' ) {
+	$xslt = 'db2hbody.xsl';
+    } else {
+	$xslt = '/usr/local/prod/sgml/dblite/xsl/db2hbody.xsl';
+    }
+}
+
+
+sub print_usage {
+#
+# print a usage message and quit
+#
+    my $progname = $0;
+    print "Usage: $progname <options> [<filename>]\n";
+    print <<END;
+where options are:
+  -d           debug mode
+  -h           print this help message
+  -v           verbose mode
+
+END
+    exit(0);
+}
+
+
+###########################################################
+package PostProcDOM;
+
+
+sub new {
+#
+# initialize object with options
+#
+    my $class = shift;
+    my $obj = {@_};
+    my $self = bless( $obj, $class );
+    return $self;
+}
+
+
+my @file_stack = ();
+
+
+sub a {
+#
+# replace $val$ with a value in href atts
+# Supported variables:
+#   prev = previous filename
+#   next = next filename
+#
+    my( $self, $agent, $a ) = @_;
+    my $href = $a->getAttribute( 'href' );
+    if( $href and $href eq '$prev$' ) {
+	my $file = $a->findvalue( 
+            'ancestor::file/preceding-sibling::file[1]/@name' );
+        $file = 'index.htm' unless( $file );
+	$a->setAttribute( 'href', $file );
+    } elsif( $href and $href eq '$next$' ) {
+	my $file = $a->findvalue( 
+            'ancestor::file/following-sibling::file[1]/@name' );
+        $file = 'index/index.htm' unless( $file );
+	$a->setAttribute( 'href', $file );
+    }
+}
+
+
+sub img {
+#
+# change image names to .gif from .eps
+#
+  my( $self, $agent, $img ) = @_;
+  my $src = $img->getAttribute( 'src' );
+  $src =~ s/\.eps/.gif/;
+  $img->setAttribute( 'src', $src );
+}
+
+
+sub insertdata {
+#
+# replace <insertdata>var</insertdata> with a value.
+# Supported variables:
+#   prev_title = previous section's title
+#   next_title = next section's title
+#   prev_number = previous section's number
+#   next_number = next section's number
+#
+    my( $self, $agent, $elem ) = @_;
+    my $data = $elem->findvalue('.');
+    my $parent = $elem->parentNode;
+    my $text = '';
+    if( $data eq 'prev_label' ) {
+	$text = prev_label( $elem );
+	$text =~ s/\([^\)]+\)$//;  # remove stuff in parens at end
+    } elsif( $data eq 'next_label' ) {
+	$text = next_label( $elem );
+	$text =~ s/\([^\)]+\)$//;
+    } elsif( $data eq 'prev_title' ) {
+	$text = prev_title( $elem );
+	$text =~ s/\([^\)]+\)$//;
+    } elsif( $data eq 'next_title' ) {
+	$text = next_title( $elem );
+	$text =~ s/\([^\)]+\)$//;
+    } elsif( $data eq 'prev_number' ) {
+	$text = prev_number( $elem );
+    } elsif( $data eq 'next_number' ) {
+	$text = next_number( $elem );
+    }
+    my $newtext = $elem->getOwnerDocument->createTextNode( $text );
+    $parent->replaceChild( $newtext, $elem );
+}
+
+
+sub prev_label {
+#
+# get label of previous file
+#
+    my $elem = shift;
+    my $val = $elem->findvalue( 
+        'ancestor::file/preceding-sibling::file[1]/label' );
+    if( $val ) {
+	return $val;
+    } else {
+	return 'Table of Contents';
+    }
+}
+
+
+sub next_label {
+#
+# get label of next file
+#
+    my $elem = shift;
+    my $val = $elem->findvalue( 
+        'ancestor::file/following-sibling::file[1]/label' );
+    if( $val ) {
+	return $val;
+    } else {
+	return 'Index';
+    }
+}
+
+
+sub prev_title {
+#
+# get title of previous file
+#
+    my $elem = shift;
+    my $val = $elem->findvalue( 
+        'ancestor::file/preceding-sibling::file[1]/following::title[1]' );
+    if( $val ) {
+	return $val;
+    } else {
+	return 'Table of Contents';
+    }
+}
+
+
+sub next_title {
+#
+# get title of next file
+#
+    my $elem = shift;
+    my $val = $elem->findvalue( 
+        'ancestor::file/following-sibling::file[1]/following::title[1]' );
+    if( $val ) {
+	return $val;
+    } else {
+	return 'Index';
+    }
+}
+
+
+sub prev_number {
+#
+# get number of previous file
+#
+    my $elem = shift;
+    my $val = $elem->findvalue( 
+        'ancestor::file/preceding-sibling::file[1]/number' );
+    if( $val ) {
+	return $val;
+    } else {
+	return 'Table of Contents';
+    }
+}
+
+
+sub next_number {
+#
+# get number of next file
+#
+    my $elem = shift;
+    my $val = $elem->findvalue( 
+        'ancestor::file/following-sibling::file[1]/number' );
+    if( $val ) {
+	return $val;
+    } else {
+	return 'Index';
+    }
+}
+
+
+1;
+
+
+=pod
+
+=head1 NAME
+
+db2html - convert DocBook document into HTML
+
+=head1 SYNOPSIS
+
+  $ db2html book.xml
+
+=head1 DESCRIPTION
+
+This tool converts a DocBook document into HTML. Its argument should
+be the top-level file containing the <book> element. The script uses
+an XSLT transformation script to convert DocBook elements into
+appropriate HTML, using the db2hbody.xsl, chapter.xsl, sect1.xsl, and
+bookpage.xsl scripts in the "xsl" subdirectory of the dblite
+package. It writes the HTML files in a subdirectory called "html".
+
+=head1 OPTIONS
+
+=head2 -d
+
+Turn on debug mode, preserving temporary files and outputting verbose
+messages.
+
+=head2 -h
+
+Print out a help message to the command line.
+
+=head2 -v
+
+Turn on verbose mode, writing messages to the screen at appropriate
+intervals. Nice for long conversions.
+
+=head1 CUSTOMIZING OUTPUT
+
+You can customize the output by making a local copy of any of the XSLT
+scripts and placing them in the directory with XML files. The default
+behavior is to chunk by chapter (one file per chapter). But you can
+override this in the XSLT. Substitute the chapter2.xsl and sect1_2.xsl
+files if you want to chunk by level 1 section. The HTML generated
+includes support for CSS stylesheets. Wherever possible, I've used
+<span> and <div> elements to allow you to override the default
+formatting of the browser.
+
+=head1 AUTHOR
+
+Erik Ray <tools@oreilly.com>.
+
+=head1 COPYRIGHT
+
+Copyright 2002 O'Reilly and Associates.
+
+=cut
+
+

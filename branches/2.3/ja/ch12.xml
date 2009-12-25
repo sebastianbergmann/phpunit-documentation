@@ -1,0 +1,451 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="phing">
+  <title>PHPUnit と Phing</title>
+
+  <para>
+    <indexterm><primary>Phing</primary></indexterm>
+
+    <ulink url="http://www.phing.info/">Phing (PHing Is Not GNU make)</ulink>
+    は、<ulink url="http://ant.apache.org/">Apache Ant</ulink>
+    をもとにしてつくられたプロジェクトビルドシステムです。
+    PHP の世界ではソースファイルをビルドしたりコンパイルしたりする必要はありません。
+    Phing が意図しているのは、パッケージの作成や配布、
+    そしてアプリケーションのテストを容易にすることです。
+    これらの作業を行うために、Phing には多くの独創的な操作モジュール
+    ("タスク") が用意されており、
+    また独自のタスクを追加しやすいようにオブジェクト指向のモデルが提供されています。
+  </para>
+
+  <para>
+    Phing は PEAR インストーラでインストールできます。
+    コマンドラインで以下のように入力してください。
+  </para>
+
+  <screen><userinput>pear channel-discover pear.phing.info
+pear install phing/phing</userinput></screen>
+
+  <para>
+    Phing ではシンプルな XML 形式のビルドファイルを使用しており、
+    そこで対象のツリーや実行されるタスクを指定します。
+    Phing に含まれる独創的なタスクのひとつに 
+    <literal><![CDATA[<phpunit2>]]></literal> タスクというものがあり、
+    これを使用すると PHPUnit フレームワークでテストケースを実行します。
+    これは、Apache Ant における JUnit タスクと同じ機能を提供するものです。
+  </para>
+
+  <para>
+    <xref linkend="phing.examples.build.xml" />
+    で示しているのは、"BankAccount" という名前の <literal><![CDATA[<project>]]></literal>
+    を指定した <filename>build.xml</filename> ファイルです。
+    このプロジェクトのデフォルトの <literal><![CDATA[<target>]]></literal> は
+    <emphasis>test</emphasis> となっています。<literal><![CDATA[<phpunit2>]]></literal>
+    タスクを使用すると、<literal>*Test.php</literal>
+    に一致するソースファイル内のすべてのテストケースを実行します。
+    これは <literal><![CDATA[<batchtest>]]></literal> 要素によって実現されており、
+    この要素は、内部の <literal><![CDATA[<fileset>]]></literal>
+    要素に含まれるすべてのファイルをとりまとめます。この例では、ソースファイル
+    <filename>BankAccountTest.php</filename> に含まれるクラス <literal>BankAccountTest</literal>
+    で宣言されているテストが実行されるわけです。
+  </para>
+
+  <example id="phing.examples.build.xml">
+    <title>BankAccount のテスト用の Phing build.xml ファイル</title>
+    <programlisting><![CDATA[<?xml version="1.0"?>
+
+<project name="BankAccount" basedir="." default="test">
+  <target name="test">
+    <phpunit2 haltonfailure="true" printsummary="true">
+      <batchtest>
+        <fileset dir=".">
+          <include name="*Test.php"/>
+        </fileset>
+      </batchtest>
+    </phpunit2>
+  </target>
+</project>]]></programlisting>
+  </example>
+
+  <para>
+    <filename>build.xml</filename>
+    (<xref linkend="phing.examples.build.xml" />)、
+    <filename>BankAccount.php</filename>
+    (<xref linkend="test-first-programming.bankaccount-example.examples.BankAccount2.php" />)、
+    そして <filename>BankAccountTest.php</filename>
+    (<xref linkend="test-first-programming.bankaccount-example.examples.BankAccountTest.php" />)
+    が存在するディレクトリで Phing を起動すると、
+    プロジェクトのデフォルトのターゲットである <emphasis>tests</emphasis>
+    にしたがってテストが行われます。
+  </para>
+
+  <screen><userinput>phing</userinput>
+Buildfile: /home/sb/build.xml
+
+BankAccount > test:
+ [phpunit2] Tests run: 4, Failures: 0, Errors: 0, Time elapsed: 0.00067 sec
+
+BUILD FINISHED
+
+Total time: 0.0960 seconds</screen>
+
+  <para>
+    <literal><![CDATA[<phpunit2>]]></literal> タスクを設定する際に使用できる
+    パラメータの一覧を <xref linkend="phing.tables.phpunit2" /> にまとめます。
+  </para>
+
+  <table id="phing.tables.phpunit2">
+    <title><![CDATA[<phpunit2>]]> 要素の属性</title>
+
+    <tgroup cols="4" align="left" colsep="1" rowsep="1">
+      <thead>
+        <row>
+          <entry>名前</entry>
+          <entry>型</entry>
+          <entry>説明</entry>
+          <entry>デフォルト</entry>
+        </row>
+      </thead>
+      <tbody>
+        <row>
+          <entry><literal>codecoverage</literal></entry>
+          <entry><literal>Boolean</literal></entry>
+          <entry>コードカバレッジ情報を収集します。</entry>
+          <entry><literal>false</literal></entry>
+        </row>
+        <row>
+          <entry><literal>haltonerror</literal></entry>
+          <entry><literal>Boolean</literal></entry>
+          <entry>テストの実行中にエラーが発生したら、ビルドプロセスを停止します。</entry>
+          <entry><literal>false</literal></entry>
+        </row>
+        <row>
+          <entry><literal>haltonfailure</literal></entry>
+          <entry><literal>Boolean</literal></entry>
+          <entry>テストが失敗したら、ビルドプロセスを停止します。エラーも失敗と同様に扱います。</entry>
+          <entry><literal>false</literal></entry>
+        </row>
+        <row>
+          <entry><literal>printsummary</literal></entry>
+          <entry><literal>Boolean</literal></entry>
+          <entry>各テストケースについて、状態を一行で出力します。</entry>
+          <entry><literal>false</literal></entry>
+        </row>
+      </tbody>
+    </tgroup>
+  </table>
+
+  <para>
+    以下は、テストが失敗した場合の
+    <literal><![CDATA[<phpunit2>]]></literal>
+    タスクの出力例です。
+  </para>
+
+  <screen><userinput>phing</userinput>
+Buildfile: /home/sb/build.xml
+
+BankAccount > test:
+ [phpunit2] Tests run: 4, Failures: 1, Errors: 0, Time elapsed: 0.00067 sec
+Execution of target "test" failed for the following reason:
+/home/sb/build.xml:5:37: One or more tests failed
+
+BUILD FAILED
+/home/sb/build.xml:5:37: One or more tests failed
+Total time: 0.0968 seconds</screen>
+
+  <section id="phing.formatting-feedback">
+    <title>結果を整形する</title>
+
+    <para>
+      必須要素である <literal><![CDATA[<batchtest>]]></literal> 以外にも、
+      <literal><![CDATA[<phpunit2>]]></literal> には別の要素を含めることができます。
+      <literal><![CDATA[<formatter>]]></literal>
+      はテスト結果の出力書式を変更するために使用するものです。
+      <literal>usefile</literal> 属性を <literal>false</literal> にしない限り、
+      出力は常にファイルに送信されます。
+      ファイル名はフォーマッタによって事前に決められていますが、
+      <literal>outfile</literal> 属性を使用して変更することも可能です。
+      定義済みのフォーマッタには以下のようなものがあります。
+    </para>
+
+    <variablelist>
+      <varlistentry>
+        <term><literal>brief</literal></term>
+        <listitem>
+          <para>
+            失敗したテストケースについての情報のみをプレーンテキストで表示します。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>plain</literal></term>
+        <listitem>
+          <para>
+            すべてのテストケースについて、結果を一行のプレーンテキストで表示します。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>xml</literal></term>
+        <listitem>
+          <para>
+            テストの結果を XML 形式で書き込みます。
+          </para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+
+    <para>
+      <literal><![CDATA[<formatter>]]></literal>
+      タスクを設定するために使用できるパラメータの一覧を
+      <xref linkend="phing.formatting-feedback.tables.formatter" />
+      にまとめます。
+    </para>
+
+    <table id="phing.formatting-feedback.tables.formatter">
+      <title><![CDATA[<formatter>]]> 要素の属性</title>
+
+      <tgroup cols="4" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>名前</entry>
+            <entry>型</entry>
+            <entry>説明</entry>
+            <entry>デフォルト</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>type</literal></entry>
+            <entry><literal>String</literal></entry>
+            <entry>定義済みのフォーマッタ (xml、plain あるいは brief) を使用します。</entry>
+            <entry/>
+          </row>
+          <row>
+            <entry><literal>classname</literal></entry>
+            <entry><literal>String</literal></entry>
+            <entry>独自のフォーマッタクラスの名前。</entry>
+            <entry/>
+          </row>
+          <row>
+            <entry><literal>usefile</literal></entry>
+            <entry><literal>Boolean</literal></entry>
+            <entry>出力をファイルに送るかどうかを指定します。</entry>
+            <entry><literal>true</literal></entry>
+          </row>
+          <row>
+            <entry><literal>todir</literal></entry>
+            <entry><literal>String</literal></entry>
+            <entry>ファイルを書き込むディレクトリ。</entry>
+            <entry/>
+          </row>
+          <row>
+            <entry><literal>outfile</literal></entry>
+            <entry><literal>String</literal></entry>
+            <entry>書き込むファイル名。</entry>
+            <entry><literal>使用するフォーマッタに依存します。</literal></entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <para>
+      <indexterm><primary>Test Report (テストレポート)</primary></indexterm>
+
+      テスト結果を HTML 形式で出力するには <literal><![CDATA[<phpunit2report>]]></literal>
+      タスクを使用します。これは、<literal><![CDATA[<formatter>]]></literal>
+      タスクで作成した XML ログファイルに XSLT スタイルシートを適用するものです。
+      Phing には <filename>phpunit2-frames.xsl</filename> と
+      <filename>phpunit2-noframes.xsl</filename> の 2 種類の XSLT
+      スタイルシートが含まれており、それぞれフレーム使用版/フレーム未使用版の
+      HTML を生成します。
+    </para>
+
+    <para>
+      <xref linkend="phing.formatting-feedback.examples.build2.xml" />
+      では、Phing で <literal>BankAccountTest</literal> クラスのテストを実行し、
+      XSLT スタイルシート <filename>phpunit2-frames.xsl</filename>
+      を使用して結果を HTML 形式で得るための <filename>build.xml</filename>
+      ファイルを示します。レポートが生成した HTML ファイルは <filename>report/</filename>
+      ディレクトリに保存されます。このディレクトリは <emphasis>prepare</emphasis>
+      <literal><![CDATA[<target>]]></literal> で作成され、<emphasis>clean</emphasis>
+      <literal><![CDATA[<target>]]></literal> で削除されます。
+    </para>
+
+    <example id="phing.formatting-feedback.examples.build2.xml">
+      <title>XSLT スタイルシートを適用してテストレポートを取得する</title>
+      <programlisting><![CDATA[<?xml version="1.0"?>
+
+<project name="BankAccount" basedir="." default="report">
+  <target name="prepare">
+    <mkdir dir="report"/>
+  </target>
+
+  <target name="clean"> 
+    <delete dir="report"/>
+  </target>
+
+  <target name="report" depends="prepare">
+    <phpunit2>
+      <batchtest>
+        <fileset dir=".">
+          <include name="*Test.php"/>
+        </fileset>
+      </batchtest>
+
+      <formatter type="xml" todir="report" outfile="logfile.xml"/>
+    </phpunit2>
+
+    <phpunit2report infile="report/logfile.xml"
+                    styledir="/usr/lib/php/data/phing/etc"
+                    format="frames"
+                    todir="report"/>
+  </target>
+</project>]]></programlisting>
+    </example>
+
+    <para>
+      以下に、<literal>phing</literal> コマンドを実行した際の出力例を示します。
+    </para>
+
+    <screen><userinput>phing</userinput>
+Buildfile: /home/sb/build.xml
+
+BankAccount > prepare:
+    [mkdir] Created dir: /home/sb/report
+
+BankAccount > report:
+
+BUILD FINISHED
+
+Total time: 0.1112 seconds</screen>
+
+    <para>
+      生成されたテストレポートのタイトルページは
+      <xref linkend="phing.formatting-feedback.figures.Report.png" />
+      のようになります。
+    </para>
+
+    <figure id="phing.formatting-feedback.figures.Report.png">
+      <title>生成されたテストレポート</title>
+
+      <graphic fileref="figures/Report.png" />
+    </figure>
+
+    <para>
+      <literal><![CDATA[<phpunit2report>]]></literal>
+      タスクを設定するために使用できるパラメータの一覧を
+      <xref linkend="phing.formatting-feedback.tables.phpunit2report" />
+      にまとめます。
+    </para>
+
+    <table id="phing.formatting-feedback.tables.phpunit2report">
+      <title><![CDATA[<phpunit2report>]]> 要素の属性</title>
+
+      <tgroup cols="4" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>名前</entry>
+            <entry>型</entry>
+            <entry>説明</entry>
+            <entry>デフォルト</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>infile</literal></entry>
+            <entry><literal>String</literal></entry>
+            <entry>使用する XML 結果ファイル名。</entry>
+            <entry><literal>testsuites.xml</literal></entry>
+          </row>
+          <row>
+            <entry><literal>format</literal></entry>
+            <entry><literal>String</literal></entry>
+            <entry>生成される結果の書式。<literal>frames</literal> あるいは <literal>noframes</literal> のいずれかでなければなりません。</entry>
+            <entry><literal>noframes</literal></entry>
+          </row>
+          <row>
+            <entry><literal>styledir</literal></entry>
+            <entry><literal>String</literal></entry>
+            <entry>スタイルシートの存在する場所。スタイルシートは、以下の規約を満たすものでなければなりません。<literal>frames</literal> フォーマット用のスタイルシートの名前は <filename>phpunit2-frames.xsl</filename> であること。また、<literal>noframes</literal> フォーマット用のスタイルシートの名前は <filename>phpunit2-noframes.xsl</filename> であること。</entry>
+            <entry/>
+          </row>
+          <row>
+            <entry><literal>todir</literal></entry>
+            <entry><literal>String</literal></entry>
+            <entry>変換後のファイルを書き込むディレクトリ。</entry>
+            <entry/>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <para>
+      <indexterm><primary>Code-Coverage (コードカバレッジ)</primary></indexterm>
+
+      いま作成したテストレポートのほかに、
+      Phing ではコードカバレッジレポートを作成することもできます。そのためには、
+      <literal><![CDATA[<coverage-setup>]]></literal> タスクおよび
+      <literal><![CDATA[<coverage-report>]]></literal> タスクを使用します。
+      前者はテストの実行中にコードカバレッジ情報を保存するためのデータベースを準備するタスクで、
+      後者は XSLT スタイルシートを使用して結果を HTML 形式に変換するタスクです。
+    </para>
+
+    <para>
+      <xref linkend="phing.formatting-feedback.examples.build3.xml" /> では、
+      Phing で <literal>BankAccountTest</literal> クラスのテストを実行し、
+      HTML 形式のコードカバレッジレポートを生成するための <filename>build.xml</filename>
+      ファイルを示します。
+    </para>
+
+    <example id="phing.formatting-feedback.examples.build3.xml">
+      <title>コードカバレッジレポートの生成</title>
+      <programlisting><![CDATA[<?xml version="1.0"?>
+
+<project name="BankAccount" basedir="." default="coverage-report">
+  <target name="prepare">
+    <mkdir dir="coverage-report"/>
+  </target>
+
+  <target name="clean"> 
+    <delete dir="coverage-report"/>
+  </target>
+
+  <target name="coverage-report" depends="prepare">
+    <coverage-setup database="./coverage-report/database">
+      <fileset dir=".">
+        <include name="*.php"/>
+        <exclude name="*Test.php"/>
+      </fileset>
+    </coverage-setup>
+
+    <phpunit2 codecoverage="true">
+      <batchtest>
+        <fileset dir=".">
+          <include name="*Test.php"/>
+        </fileset>
+      </batchtest>
+    </phpunit2>
+
+    <coverage-report outfile="coverage-report/coverage.xml">
+      <report styledir="/usr/lib/php/data/phing/etc"
+              todir="coverage-report"/>
+    </coverage-report>
+  </target>
+</project>]]></programlisting>
+    </example>
+
+    <para>
+      生成されたコードカバレッジレポートのタイトルページは
+      <xref linkend="phing.formatting-feedback.figures.CoverageReport.png" />
+      のようになります。
+    </para>
+
+    <figure id="phing.formatting-feedback.figures.CoverageReport.png">
+      <title>生成されたコードカバレッジレポート</title>
+
+      <graphic fileref="figures/CoverageReport.png" />
+    </figure>
+  </section>
+</chapter>

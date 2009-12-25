@@ -1,0 +1,334 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="code-coverage-analysis">
+  <title>コードカバレッジ解析</title>
+
+  <para>
+    ユニットテストでコードをテストする方法はわかりました。でも、
+    テストそのものをテストするにはどうしたらいいのでしょう?
+    テストされていないコードを見つけるには? 言い換えれば、まだテストで
+    <emphasis>カバーされていない</emphasis>部分を見つけるには?
+    完全にテストができたことをどうやって確認するの?
+    これらのすべての疑問に対する答えとなるのが、コードカバレッジ解析という手法です。
+    コードカバレッジ解析を行うと、
+    コードのどの部分がテストされたのかを調べることができるようになります。
+  </para>
+
+  <para>
+    <indexterm><primary>Code Coverage (コードカバレッジ)</primary></indexterm>
+
+    PHPUnit のコードカバレッジ解析では、<ulink url="http://www.xdebug.org/">Xdebug</ulink>
+    拡張モジュールが提供するステートメントカバレッジ機能を利用しています。
+    ステートメントカバレッジというのは、たとえば
+    100 行のコードで構成されるメソッドがあった場合に、
+    もしテストで実際に実行されたのがそのうちの 75 行だけだったなら、
+    そのメソッドのコードカバレッジは 75 パーセントだと考えるということです。
+  </para>
+
+  <para>
+    それでは、<xref linkend="test-driven-development.bankaccount-example.examples.BankAccount2.php" />
+    の <literal>BankAccount</literal> クラスについての
+    コードカバレッジレポートを作成してみましょう。
+  </para>
+
+  <screen><userinput>phpunit --coverage-html ./report BankAccountTest</userinput>
+PHPUnit 3.4.2 by Sebastian Bergmann.
+
+...
+
+Time: 0 seconds
+
+OK (3 tests, 3 assertions)
+
+Generating report, this may take a moment.</screen>
+
+  <para>
+    <xref linkend="code-coverage-analysis.figures.Code_Coverage.png" />
+    は、コードカバレッジレポートの一部を抜粋したものです。
+    テスト時に実行された行は、緑色で強調表示されます。
+    実行可能なコードであるにもかかわらず実行されなかった行については赤色で強調表示されます。
+    また、"無意味なコード" についてはオレンジ色で強調表示されます。
+    行の左にある数字は、その行をカバーするテストの数を表します。
+  </para>
+
+  <figure id="code-coverage-analysis.figures.Code_Coverage.png">
+    <title><literal>setBalance()</literal> のコードカバレッジ</title>
+
+    <graphic fileref="figures/Code_Coverage.png" />
+  </figure>
+
+  <para>
+    <literal>BankAccount</literal> のコードカバレッジレポートからわかることは、
+    <literal>setBalance()</literal>、<literal>depositMoney()</literal>
+    をコールするテストがまだ存在しないということ、
+    そして <literal>withdrawMoney()</literal>
+    に正しい値を指定した場合のテストも存在しないということです。
+    <literal>BankAccountTest</literal> クラスに追加するテストを
+    <xref linkend="code-coverage-analysis.examples.BankAccountTest.php" />
+    に示します。これによって、<literal>BankAccount</literal>
+    クラスのテストケースを完全に網羅できるようになります。
+  </para>
+
+  <example id="code-coverage-analysis.examples.BankAccountTest.php">
+    <title>完全なコードカバレッジを達成するために欠けているテスト</title>
+    <programlisting><![CDATA[<?php
+require_once 'PHPUnit/Framework.php';
+require_once 'BankAccount.php';
+
+class BankAccountTest extends PHPUnit_Framework_TestCase
+{
+    // ...
+
+    public function testDepositWithdrawMoney()
+    {
+        $this->assertEquals(0, $this->ba->getBalance());
+        $this->ba->depositMoney(1);
+        $this->assertEquals(1, $this->ba->getBalance());
+        $this->ba->withdrawMoney(1);
+        $this->assertEquals(0, $this->ba->getBalance());
+    }
+}
+?>]]></programlisting>
+  </example>
+
+  <para>
+    <xref linkend="code-coverage-analysis.figures.Code_Coverage3.png" /> は、
+    テストを追加した後の <literal>setBalance()</literal> のコードカバレッジです。
+  </para>
+
+  <figure id="code-coverage-analysis.figures.Code_Coverage3.png">
+    <title><literal>setBalance()</literal> にテストを追加した後のコードカバレッジ</title>
+
+    <graphic fileref="figures/Code_Coverage3.png" />
+  </figure>
+
+  <section id="code-coverage-analysis.specifying-covered-methods">
+    <title>カバーするメソッドの指定</title>
+
+    <para>
+      <indexterm><primary>Annotation</primary></indexterm>
+      <indexterm><primary>@covers</primary></indexterm>
+
+      テストコードで <literal>@covers</literal> アノテーション
+      (<xref linkend="appendixes.annotations.covers.tables.annotations"/>)
+      を参照ください) を使用すると、
+      そのテストメソッドがどのメソッドをテストしたいのかを指定することができます。
+      これを指定すると、指定したメソッドのコードカバレッジ情報のみを考慮します。
+      <xref linkend="code-coverage-analysis.specifying-covered-methods.examples.BankAccountTest.php"/>
+      に例を示します。
+    </para>
+
+    <example id="code-coverage-analysis.specifying-covered-methods.examples.BankAccountTest.php">
+      <title>どのメソッドを対象とするかを指定したテスト</title>
+      <programlisting><![CDATA[<?php
+require_once 'PHPUnit/Framework.php';
+require_once 'BankAccount.php';
+
+class BankAccountTest extends PHPUnit_Framework_TestCase
+{
+    protected $ba;
+
+    protected function setUp()
+    {
+        $this->ba = new BankAccount;
+    }
+
+    /**
+     * @covers BankAccount::getBalance
+     */
+    public function testBalanceIsInitiallyZero()
+    {
+        $this->assertEquals(0, $this->ba->getBalance());
+    }
+
+    /**
+     * @covers BankAccount::withdrawMoney
+     */
+    public function testBalanceCannotBecomeNegative()
+    {
+        try {
+            $this->ba->withdrawMoney(1);
+        }
+
+        catch (BankAccountException $e) {
+            $this->assertEquals(0, $this->ba->getBalance());
+
+            return;
+        }
+
+        $this->fail();
+    }
+
+    /**
+     * @covers BankAccount::depositMoney
+     */
+    public function testBalanceCannotBecomeNegative2()
+    {
+        try {
+            $this->ba->depositMoney(-1);
+        }
+
+        catch (BankAccountException $e) {
+            $this->assertEquals(0, $this->ba->getBalance());
+
+            return;
+        }
+
+        $this->fail();
+    }
+
+    /**
+     * @covers BankAccount::getBalance
+     * @covers BankAccount::depositMoney
+     * @covers BankAccount::withdrawMoney
+     */
+
+    public function testDepositWithdrawMoney()
+    {
+        $this->assertEquals(0, $this->ba->getBalance());
+        $this->ba->depositMoney(1);
+        $this->assertEquals(1, $this->ba->getBalance());
+        $this->ba->withdrawMoney(1);
+        $this->assertEquals(0, $this->ba->getBalance());
+    }
+}
+?>]]></programlisting>
+    </example>
+  </section>
+
+  <section id="code-coverage-analysis.ignoring-code-blocks">
+    <title>コードブロックの無視</title>
+
+    <para>
+      <indexterm><primary>Annotation</primary></indexterm>
+      <indexterm><primary>@codeCoverageIgnoreStart</primary></indexterm>
+      <indexterm><primary>@codeCoverageIgnoreEnd</primary></indexterm>
+
+      どうしてもテストができないコードブロックなどを、
+      コードカバレッジ解析時に無視させたいこともあるでしょう。
+      PHPUnit でこれを実現するには、
+      <literal>@codeCoverageIgnoreStart</literal> および
+      <literal>@codeCoverageIgnoreEnd</literal> アノテーションを
+      <xref linkend="code-coverage-analysis.ignoring-code-blocks.examples.Sample.php"/>
+      のように使用します。
+    </para>
+
+    <example id="code-coverage-analysis.ignoring-code-blocks.examples.Sample.php">
+      <title><literal>@codeCoverageIgnoreStart</literal> および <literal>@codeCoverageIgnoreEnd</literal> アノテーションの使用法</title>
+        <programlisting><![CDATA[<?php
+class Sample
+{
+    // ...
+
+    public function doSomething()
+    {
+        if (0) {
+            // @codeCoverageIgnoreStart
+            $this->doSomethingElse();
+            // @codeCoverageIgnoreEnd
+        }
+    }
+
+    // ...
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      <literal>@codeCoverageIgnoreStart</literal> アノテーションから
+      <literal>@codeCoverageIgnoreEnd</literal> アノテーションまでの間の行は、
+      (たとえ実行されなかったとしても) 実行されたものとみなされ、
+      強調表示されません。
+    </para>
+  </section>
+
+  <section id="code-coverage-analysis.including-excluding-files">
+    <title>ファイルのインクルードや除外</title>
+
+    <para>
+      <indexterm><primary>Code Coverage</primary></indexterm>
+      <indexterm><primary>Blacklist</primary></indexterm>
+      <indexterm><primary>Whitelist</primary></indexterm>
+      <indexterm><primary>PHPUnit_Util_Filter</primary></indexterm>
+
+      デフォルトでは、1 行でもコードが実行されたソースコードファイルはすべて
+      (そしてそのようなファイルのみが) レポートに含められます。
+      レポートにどのようなソースコードファイルを含めるかを設定するには
+      <literal>PHPUnit_Util_Filter</literal> API を使用します
+      (<xref linkend="code-coverage-analysis.including-excluding-files.tables.filter-api"/>
+      を参照ください)。
+    </para>
+
+    <table id="code-coverage-analysis.including-excluding-files.tables.filter-api">
+      <title><literal>PHPUnit_Util_Filter</literal> の API</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>メソッド</entry>
+            <entry>意味</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>void addDirectoryToFilter(string $directory)</literal></entry>
+            <entry>あるディレクトリ内でファイル名の最後が <literal>.php</literal> であるすべてのファイルを (再帰的に) ブラックリストに追加します。</entry>
+          </row>
+          <row>
+            <entry><literal>void addDirectoryToFilter(string $directory, string $suffix)</literal></entry>
+            <entry>あるディレクトリ内でファイル名の最後が <literal>$suffix</literal> であるすべてのファイルを (再帰的に) ブラックリストに追加します。</entry>
+          </row>
+          <row>
+            <entry><literal>void addFileToFilter(string $filename)</literal></entry>
+            <entry>ファイルをブラックリストに追加します。</entry>
+          </row>
+          <row>
+            <entry><literal>void removeDirectoryFromFilter(string $directory)</literal></entry>
+            <entry>あるディレクトリ内でファイル名の最後が <literal>.php</literal> であるすべてのファイルを (再帰的に) ブラックリストから削除します。</entry>
+          </row>
+          <row>
+            <entry><literal>void removeDirectoryFromFilter(string $directory, string $suffix)</literal></entry>
+            <entry>あるディレクトリ内でファイル名の最後が <literal>$suffix</literal> であるすべてのファイルを (再帰的に) ブラックリストから削除します。</entry>
+          </row>
+          <row>
+            <entry><literal>void removeFileFromFilter(string $filename)</literal></entry>
+            <entry>ファイルをブラックリストから削除します。</entry>
+          </row>
+          <row>
+            <entry><literal>void addDirectoryToWhitelist(string $directory)</literal></entry>
+          <entry>あるディレクトリ内でファイル名の最後が <literal>.php</literal> であるすべてのファイルを (再帰的に) ホワイトリストに追加します。</entry>
+          </row>
+          <row>
+            <entry><literal>void addDirectoryToWhitelist(string $directory, string $suffix)</literal></entry>
+          <entry>あるディレクトリ内でファイル名の最後が <literal>$suffix</literal> であるすべてのファイルを (再帰的に) ホワイトリストに追加します。</entry>
+          </row>
+          <row>
+            <entry><literal>void addFileToWhitelist(string $filename)</literal></entry>
+            <entry>ファイルをホワイトリストに追加します。</entry>
+          </row>
+          <row>
+            <entry><literal>void removeDirectoryFromWhitelist(string $directory)</literal></entry>
+            <entry>あるディレクトリ内でファイル名の最後が <literal>.php</literal> であるすべてのファイルを (再帰的に) ホワイトリストから削除します。</entry>
+          </row>
+          <row>
+            <entry><literal>void removeDirectoryFromWhitelist(string $directory, string $suffix)</literal></entry>
+            <entry>あるディレクトリ内でファイル名の最後が <literal>$suffix</literal> であるすべてのファイルを (再帰的に) ホワイトリストから削除します。</entry>
+          </row>
+          <row>
+            <entry><literal>void removeFileFromWhitelist(string $filename)</literal></entry>
+            <entry>ファイルをホワイトリストから削除します。</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <para>
+      ブラックリストには、PHPUnit
+      自身のソースコードファイルやテストファイルがデフォルトで登録されています。
+      ホワイトリストが空 (デフォルト) の場合はブラックリストを使用し、
+      ホワイトリストが空でない場合はホワイトリストを使用します。
+      ホワイトリストを使用する場合は、そのファイルが実行されるかどうかにかかわらず
+      リスト内のすべてのファイルがコードカバレッジレポートに追加されます。
+    </para>
+  </section>
+</chapter>

@@ -1,0 +1,1061 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+
+<chapter id="api">
+  <title>Die PHPUnit-API</title>
+
+  <para>
+    Für die meisten Anwendungsfälle bietet PHPUnit eine einfache API:
+    Leiten Sie für Ihre Testfälle eigene Klassen von
+    <literal>PHPUnit2_Framework_TestCase</literal> ab, in denen Sie von
+    Zeit zu Zeit <literal>assertTrue()</literal> oder
+    <literal>assertEquals()</literal> aufrufen. Für alle, die einen
+    tieferen Einblick in PHPUnit haben möchten, stellen wir nachfolgend
+    alle veröffentlichten Methoden und Klassen vor.
+  </para>
+
+  <section id="api.overview">
+    <title>Überblick</title>
+
+    <para>
+      In der Regel werden Sie bei der Arbeit mit PHPUnit mit fünf Klassen
+      beziehungsweise Schnittstellen zu tun haben:
+    </para>
+
+    <variablelist>
+      <varlistentry>
+        <term><literal>PHPUnit2_Framework_Assert</literal></term>
+        <listitem>
+          <para>
+            Eine Sammlung von statischen Methoden, mit denen Ergebniswerte mit
+            erwarteten Werten verglichen werden können (Zusicherungen).
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>PHPUnit2_Framework_Test</literal></term>
+        <listitem>
+          <para>
+            Die Schnittstelle für alle als Tests dienenden Objekte.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>PHPUnit2_Framework_TestCase</literal></term>
+        <listitem>
+          <para>
+            Ein einzelner Testfall.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>PHPUnit2_Framework_TestSuite</literal></term>
+        <listitem>
+          <para>
+            Eine Testreihe, also eine Sammlung von Testfällen.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>PHPUnit2_Framework_TestResult</literal></term>
+        <listitem>
+          <para>
+            Eine Zusammenfassung der Ergebnisse aus der Ausführung von einem
+            oder mehreren Tests.
+          </para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+
+    <para>
+      <xref linkend="api.overview.figures.PHPUnit2_Framework.png" />
+      zeigt die Beziehungen zwischen den fünf grundlegenden Klassen und
+      Schnittstellen von PHPUnit:
+      <literal>PHPUnit2_Framework_Assert</literal>,
+      <literal>PHPUnit2_Framework_Test</literal>,
+      <literal>PHPUnit2_Framework_TestCase</literal>,
+      <literal>PHPUnit2_Framework_TestSuite</literal>, und
+      <literal>PHPUnit2_Framework_TestResult</literal>.
+    </para>
+
+    <figure id="api.overview.figures.PHPUnit2_Framework.png">
+      <title>Die fünf grundlegenden Klassen und Schnittstellen von PHPUnit</title>
+
+      <graphic fileref="figures/PHPUnit2_Framework.png" />
+    </figure>
+  </section>
+
+  <section id="api.assert">
+    <title>PHPUnit2_Framework_Assert</title>
+    <indexterm><primary>PHPUnit2_Framework_Assert</primary></indexterm>
+
+    <para>
+      <indexterm><primary>Assertion</primary></indexterm>
+      <indexterm><primary>Zusicherung</primary></indexterm>
+      <indexterm><primary>Design-by-Contract</primary></indexterm>
+
+      Die meisten für PHPUnit geschriebenen Testfälle sind indirekt von
+      <literal>PHPUnit2_Framework_Assert</literal> abgeleitet. Diese Klasse
+      enthält die Methoden zur automatischen Prüfung von Werten und zur
+      Meldung von Abweichungen. Diese Methoden sind statisch deklariert, so
+      dass sie als Zusicherungen im Stile von Design-by-Contract in Ihre
+      Methoden eingefügt und die Ergebnisse durch PHPUnit ausgewertet werden
+      können (<xref linkend="api.assert.examples.Sample.php" />).
+    </para>
+
+    <example id="api.assert.examples.Sample.php">
+      <title>Zusicherungen im Stile von Design-by-Contract</title>
+      <programlisting><![CDATA[<?php
+require_once 'PHPUnit2/Framework/Assert.php';
+
+class Sample {
+    public function aSampleMethod($object) {
+        PHPUnit2_Framework_Assert::assertNotNull($object);
+    }
+}
+
+$sample = new Sample;
+$sample->aSampleMethod(NULL);
+?>]]></programlisting>
+
+<screen><![CDATA[Fatal error: Uncaught exception 'PHPUnit2_Framework_AssertionFailedError'
+with message 'expected: <NOT NULL> but was: <NULL>']]></screen>
+    </example>
+
+    <para>
+      Normalerweise werden Sie die Zusicherungen jedoch im Rahmen von Tests
+      verwenden.
+    </para>
+
+    <para>
+      Von jeder Zusicherungsmethode gibt es zwei Varianten: Bei der einen
+      dient der letzte Parameter dazu, dass zusammen mit dem Fehler eine
+      Mitteilung angezeigt wird, während die andere keinen solchen Parameter
+      hat. Typischerweise wird diese optionale Meldung bei der Anzeige eines
+      Fehlers mit ausgegeben und erleichtert das Debuggen.
+    </para>
+
+    <example id="api.assert.examples.MessageTest.php">
+      <title>Verwenden von Zusicherungen mit angepassten Meldungen</title>
+      <programlisting><![CDATA[<?php
+require_once 'PHPUnit2/Framework/TestCase.php';
+
+class MessageTest extends PHPUnit2_Framework_TestCase {
+    public function testMessage() {
+        $this->assertTrue(FALSE, 'Dies ist eine angepasste Nachricht.');
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      Das folgende Beispiel zeigt die Ausgabe der Ausführung des Tests
+      <literal>testMessage()</literal> aus
+      <xref linkend="api.assert.examples.MessageTest.php" />:
+    </para>
+
+    <screen><userinput>phpunit MessageTest.php</userinput>
+PHPUnit 2.3.0 by Sebastian Bergmann.
+
+F
+
+Time: 0.102507
+There was 1 failure:
+1) testMessage(MessageTest)
+Dies ist eine angepasste Nachricht.
+
+FAILURES!!!
+Tests run: 1, Failures: 1, Errors: 0, Incomplete Tests: 0.</screen>
+
+    <para>
+      <xref linkend="api.assert.tables.assertions" /> zeigt die ganze Vielfalt
+      der Zusicherungen. Die Zusicherungen sind paarweise dargestellt, die
+      zweite Form enthält dabei jeweils den zusätzlichen String-Parameter für
+      den Fehlertext am Ende der Parameterliste.
+    </para>
+
+    <table id="api.assert.tables.assertions">
+      <title>Zusicherungen</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>Zusicherung</entry>
+            <entry>Aktion</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>void assertTrue(bool $condition)</literal></entry>
+            <entry>Meldet einen Fehler, falls <literal>$condition</literal> den Wert <literal>FALSE</literal> hat.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertTrue(bool $condition, string $message)</literal></entry>
+            <entry>Meldet einen durch <literal>$message</literal> bezeichneten Fehler, falls <literal>$condition</literal> den Wert <literal>FALSE</literal> hat.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertFalse(bool $condition)</literal></entry>
+            <entry>Meldet einen Fehler, falls <literal>$condition</literal> den Wert <literal>TRUE</literal> hat.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertFalse(bool $condition, string $message)</literal></entry>
+            <entry>Meldet einen durch <literal>$message</literal> bezeichneten Fehler, falls <literal>$condition</literal> den Wert <literal>TRUE</literal> hat.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNull(mixed $variable)</literal></entry>
+            <entry>Meldet einen Fehler, falls <literal>$variable</literal> nicht den Wert <literal>NULL</literal> hat.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNull(mixed $variable, string $message)</literal></entry>
+            <entry>Meldet einen durch <literal>$message</literal> bezeichneten Fehler, falls <literal>$variable</literal> nicht den Wert <literal>NULL</literal> hat.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNotNull(mixed $variable)</literal></entry>
+            <entry>Meldet einen Fehler, falls <literal>$variable</literal> den Wert <literal>NULL</literal> hat.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNotNull(mixed $variable, string $message)</literal></entry>
+            <entry>Meldet einen durch <literal>$message</literal> bezeichneten Fehler, falls <literal>$variable</literal> den Wert <literal>NULL</literal> hat.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertSame(object $expected, object $actual)</literal></entry>
+            <entry>Meldet einen Fehler, falls die beiden Variablen <literal>$expected</literal> und <literal>$actual</literal> nicht dasselbe Objekt referenzieren.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertSame(object $expected, object $actual, string $message)</literal></entry>
+            <entry>Meldet einen durch <literal>$message</literal> bezeichneten Fehler, falls die beiden Variablen <literal>$expected</literal> und <literal>$actual</literal> nicht dasselbe Objekt referenzieren.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertSame(mixed $expected, mixed $actual)</literal></entry>
+            <entry>Meldet einen Fehler, falls die beiden Variablen <literal>$expected</literal> und <literal>$actual</literal> nicht denselben Typ und Wert haben.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertSame(mixed $expected, mixed $actual, string $message)</literal></entry>
+            <entry>Meldet einen durch <literal>$message</literal> bezeichneten Fehler, falls die beiden Variablen <literal>$expected</literal> und <literal>$actual</literal> nicht denselben Typ und Wert haben.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNotSame(object $expected, object $actual)</literal></entry>
+            <entry>Meldet einen Fehler, falls die beiden Variablen <literal>$expected</literal> und <literal>$actual</literal> dasselbe Objekt referenzieren.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNotSame(object $expected, object $actual, string $message)</literal></entry>
+            <entry>Meldet einen durch <literal>$message</literal> bezeichneten Fehler, falls die beiden Variablen <literal>$expected</literal> und <literal>$actual</literal> dasselbe Objekt referenzieren.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNotSame(mixed $expected, mixed $actual)</literal></entry>
+            <entry>Meldet einen Fehler, falls die beiden Variablen <literal>$expected</literal> und <literal>$actual</literal> denselben Typ und Wert haben.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNotSame(mixed $expected, mixed $actual, string $message)</literal></entry>
+            <entry>Meldet einen durch <literal>$message</literal> bezeichneten Fehler, falls die beiden Variablen <literal>$expected</literal> und <literal>$actual</literal> denselben Typ und Wert haben.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertEquals(array $expected, array $actual)</literal></entry>
+            <entry>Meldet einen Fehler, falls die beiden Arrays <literal>$expected</literal> und <literal>$actual</literal> nicht identisch sind.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertEquals(array $expected, array $actual, string $message)</literal></entry>
+            <entry>Meldet einen durch <literal>$message</literal> bezeichneten Fehler, falls die beiden Arrays <literal>$expected</literal> und <literal>$actual</literal> nicht identisch sind.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNotEquals(array $expected, array $actual)</literal></entry>
+            <entry>Meldet einen Fehler, falls die beiden Arrays <literal>$expected</literal> und <literal>$actual</literal> identisch sind.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNotEquals(array $expected, array $actual, string $message)</literal></entry>
+            <entry>Meldet einen durch <literal>$message</literal> bezeichneten Fehler, falls die beiden Arrays <literal>$expected</literal> und <literal>$actual</literal> identisch sind.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertEquals(float $expected, float $actual, '', float $delta = 0)</literal></entry>
+            <entry>Meldet einen Fehler, falls die beiden Gleitpunktzahlen <literal>$expected</literal> und <literal>$actual</literal> nicht bis auf <literal>$delta</literal> gleich sind.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertEquals(float $expected, float $actual, string $message, float $delta = 0)</literal></entry>
+            <entry>Meldet einen durch <literal>$message</literal> bezeichneten Fehler, falls die beiden Gleitpunktzahlen <literal>$expected</literal> und <literal>$actual</literal> nicht bis auf <literal>$delta</literal> gleich sind.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNotEquals(float $expected, float $actual, '', float $delta = 0)</literal></entry>
+            <entry>Meldet einen Fehler, falls die beiden Gleitpunktzahlen <literal>$expected</literal> und <literal>$actual</literal> bis auf <literal>$delta</literal> gleich sind.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNotEquals(float $expected, float $actual, string $message, float $delta = 0)</literal></entry>
+            <entry>Meldet einen durch <literal>$message</literal> bezeichneten Fehler, falls die beiden Gleitpunktzahlen <literal>$expected</literal> und <literal>$actual</literal> bis auf <literal>$delta</literal> gleich sind.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertEquals(string $expected, string $actual)</literal></entry>
+            <entry>Meldet einen Fehler, falls die beiden Zeichenketten <literal>$expected</literal> und <literal>$actual</literal> nicht identisch sind. Der Fehler wird als Unterschied der beiden Zeichenketten gemeldet.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertEquals(string $expected, string $actual, string $message)</literal></entry>
+            <entry>Meldet einen durch <literal>$message</literal> bezeichneten Fehler, falls die beiden Zeichenketten <literal>$expected</literal> und <literal>$actual</literal> nicht identisch sind. Der Fehler wird als Unterschied der beiden Zeichenketten gemeldet.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNotEquals(string $expected, string $actual)</literal></entry>
+            <entry>Meldet einen Fehler, falls die beiden Zeichenketten <literal>$expected</literal> und <literal>$actual</literal> identisch sind.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNotEquals(string $expected, string $actual, string $message)</literal></entry>
+            <entry>Meldet einen durch <literal>$message</literal> bezeichneten Fehler, falls die beiden Zeichenketten <literal>$expected</literal> und <literal>$actual</literal> identisch sind.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertEquals(mixed $expected, mixed $actual)</literal></entry>
+            <entry>Meldet einen Fehler, falls die beiden Variablen <literal>$expected</literal> und <literal>$actual</literal> nicht identisch sind.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertEquals(mixed $expected, mixed $actual, string $message)</literal></entry>
+            <entry>Meldet einen durch <literal>$message</literal> bezeichneten Fehler, falls die beiden Variablen <literal>$expected</literal> und <literal>$actual</literal> nicht identisch sind.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNotEquals(mixed $expected, mixed $actual)</literal></entry>
+            <entry>Meldet einen Fehler, falls die beiden Variablen <literal>$expected</literal> und <literal>$actual</literal> identisch sind.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNotEquals(mixed $expected, mixed $actual, string $message)</literal></entry>
+            <entry>Meldet einen durch <literal>$message</literal> bezeichneten Fehler, falls die beiden Variablen <literal>$expected</literal> und <literal>$actual</literal> identisch sind.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertContains(mixed $needle, array $haystack)</literal></entry>
+            <entry>Meldet einen Fehler, falls <literal>$needle</literal> nicht in <literal>$haystack</literal> enthalten ist.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertContains(mixed $needle, array $haystack, string $message)</literal></entry>
+            <entry>Meldet einen durch <literal>$message</literal> bezeichneten Fehler, falls <literal>$needle</literal> nicht in <literal>$haystack</literal> enthalten ist.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNotContains(mixed $needle, array $haystack)</literal></entry>
+            <entry>Meldet einen Fehler, falls <literal>$needle</literal> in <literal>$haystack</literal> enthalten ist.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNotContains(mixed $needle, array $haystack, string $message)</literal></entry>
+            <entry>Meldet einen durch <literal>$message</literal> bezeichneten Fehler, falls <literal>$needle</literal> in <literal>$haystack</literal> enthalten ist.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertContains(mixed $needle, Iterator $haystack)</literal></entry>
+            <entry>Meldet einen Fehler, falls <literal>$needle</literal> nicht in <literal>$haystack</literal> enthalten ist.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertContains(mixed $needle, Iterator $haystack, string $message)</literal></entry>
+            <entry>Meldet einen durch <literal>$message</literal> bezeichneten Fehler, falls <literal>$needle</literal> nicht in <literal>$haystack</literal> enthalten ist.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNotContains(mixed $needle, Iterator $haystack)</literal></entry>
+            <entry>Meldet einen Fehler, falls <literal>$needle</literal> in <literal>$haystack</literal> enthalten ist.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNotContains(mixed $needle, Iterator $haystack, string $message)</literal></entry>
+            <entry>Meldet einen durch <literal>$message</literal> bezeichneten Fehler, falls <literal>$needle</literal> in <literal>$haystack</literal> enthalten ist.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertRegExp(string $pattern, string $string)</literal></entry>
+            <entry>Meldet einen Fehler, falls <literal>$string</literal> nicht dem Regulären Ausdruck <literal>$pattern</literal> entspricht.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertRegExp(string $pattern, string $string, string $message)</literal></entry>
+            <entry>Meldet einen durch <literal>$message</literal> bezeichneten Fehler, falls <literal>$string</literal> nicht dem Regulären Ausdruck <literal>$pattern</literal> entspricht.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNotRegExp(string $pattern, string $string)</literal></entry>
+            <entry>Meldet einen Fehler, falls <literal>$string</literal> dem Regulären Ausdruck <literal>$pattern</literal> entspricht.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNotRegExp(string $pattern, string $string, string $message)</literal></entry>
+            <entry>Meldet einen durch <literal>$message</literal> bezeichneten Fehler, falls <literal>$string</literal> dem Regulären Ausdruck <literal>$pattern</literal> entspricht.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertType(string $expected, mixed $actual)</literal></entry>
+            <entry>Meldet einen Fehler, falls die Variable <literal>$actual</literal> keinen Wert vom Typ <literal>$expected</literal> enthält.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertType(string $expected, mixed $actual, string $message)</literal></entry>
+            <entry>Meldet einen durch <literal>$message</literal> bezeichneten Fehler, falls die Variable <literal>$actual</literal> keinen Wert vom Typ <literal>$expected</literal> enthält.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNotType(string $expected, mixed $actual)</literal></entry>
+            <entry>Meldet einen Fehler, falls die Variable <literal>$actual</literal> einen Wert vom Typ <literal>$expected</literal> enthält.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNotType(string $expected, mixed $actual, string $message)</literal></entry>
+            <entry>Meldet einen durch <literal>$message</literal> bezeichneten Fehler, falls die Variable <literal>$actual</literal> einen Wert vom Typ <literal>$expected</literal> enthält.</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <para>
+      Es kann vorkommen, dass Sie neben den hier genannten noch weitere
+      Zusicherungen benötigen, um projektspezifische Objekte vergleichen zu
+      können. Schreiben Sie einfach eine <literal>Assert</literal>-Klasse mit
+      den Zusicherungen, die Sie zur Vereinfachung Ihrer Tests benötigen.
+    </para>
+
+    <para>
+      Bei jedem Scheitern einer Zusicherung wird implizit eine
+      Flaschenhals-Methode namens <literal>fail(string $message)</literal>
+      aufgerufen, die ihrerseits einen
+      <literal>PHPUnit2_Framework_AssertionFailedError</literal> auslöst.
+      Daneben gibt es noch eine parameterlose Variante von
+      <literal>fail()</literal>. Sie können <literal>fail()</literal> auch
+      explizit aufrufen, wenn Ihr Test auf einen Fehler stößt. Ein Beispiel
+      hierfür ist der Test auf eine erwartete Ausnahme.
+      <xref linkend="api.assert.tables.bottleneck-methods" /> führt die beiden
+      Flaschenhals-Methoden in PHPUnit auf.
+    </para>
+
+    <table id="api.assert.tables.bottleneck-methods">
+      <title>Flaschenhals-Methoden</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>Methode</entry>
+            <entry>Aktion</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>void fail()</literal></entry>
+            <entry>Meldet einen Fehler.</entry>
+          </row>
+          <row>
+            <entry><literal>void fail(string $message)</literal></entry>
+            <entry>Meldet einen durch <literal>$message</literal> bezeichneten Fehler.</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+  </section>
+
+  <section id="api.test">
+    <title>PHPUnit2_Framework_Test</title>
+    <indexterm><primary>PHPUnit2_Framework_Test</primary></indexterm>
+
+    <para>
+      Die generische Schnittstelle <literal>PHPUnit2_Framework_Test</literal>
+      wird von allen Objekten implementiert, die als Tests dienen können.
+      Eine implementierende Klasse kann einen oder mehrere Tests
+      repräsentieren. Ihre beiden Methoden sind in
+      <xref linkend="api.test.tables.implementor-methods" />
+      dargestellt.
+    </para>
+
+    <table id="api.test.tables.implementor-methods">
+      <title>Implementor-Methoden</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>Methode</entry>
+            <entry>Aktion</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>int countTestCases()</literal></entry>
+            <entry>Gibt die Anzahl der Tests zurück.</entry>
+          </row>
+          <row>
+            <entry><literal>void run(PHPUnit2_Framework_TestResult $result)</literal></entry>
+            <entry>Führt die Tests aus und meldet die Ergebnisse an <literal>$result</literal>.</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <para>
+      <literal>PHPUnit2_Framework_TestCase</literal> und
+      <literal>PHPUnit2_Framework_TestSuite</literal> sind die beiden
+      prominentesten Implementierungen von
+      <literal>PHPUnit2_Framework_Test</literal>. Sie können
+      <literal>PHPUnit2_Framework_Test</literal> aber auch selbst
+      implementieren. Die Schnittstelle wurde bewusst schmal gehalten, damit
+      dies möglichst einfach ist.
+    </para>
+  </section>
+
+  <section id="api.testcase">
+    <title>PHPUnit2_Framework_TestCase</title>
+    <indexterm><primary>PHPUnit2_Framework_TestCase</primary></indexterm>
+
+    <para>
+      Ihre Testfall-Klassen leiten Sie von
+      <literal>PHPUnit2_Framework_TestCase</literal> ab. In der Regel werden
+      Sie die Tests aus automatisch erzeugten Testreihen ausführen. In diesem
+      Fall muss aber jeder Ihrer Tests durch eine Methode repräsentiert sein,
+      die (konventionsgemäß) mit <literal>test*</literal> benannt ist.
+    </para>
+
+    <para>
+      <literal>PHPUnit2_Framework_TestCase</literal> implementiert
+      <literal>PHPUnit2_Framework_Test</literal>.
+      <literal>countTestCases()</literal> liefert <literal>1</literal>.
+      <literal>run(PHPUnit2_Framework_TestResult $result)</literal> führt erst
+      <literal>setUp()</literal>, danach die Testmethode und schließlich
+      <literal>tearDown()</literal> aus, wobei alle Ausnahmen in
+      <literal>PHPUnit2_Framework_TestResult</literal> gemeldet werden.
+    </para>
+
+    <para>
+      <xref linkend="api.testcase.tables.external-protocols" /> führt das
+      durch <literal>PHPUnit2_Framework_TestCase</literal> implementierte
+      externe Protokoll auf.
+    </para>
+
+    <table id="api.testcase.tables.external-protocols">
+      <title>Das externe Protokoll eines Testfalls</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>Methode</entry>
+            <entry>Aktion</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>__construct()</literal></entry>
+            <entry>Erzeugt einen Testfall.</entry>
+          </row>
+          <row>
+            <entry><literal>__construct(string $name)</literal></entry>
+            <entry>Erzeugt einen Testfall mit dem in <literal>$name</literal> angegebenen Namen. Der Name wird zur Ausgabe des Testfalls und häufig für den Namen einer durch Reflection auszuführenden Testmethode verwendet.</entry>
+          </row>
+          <row>
+            <entry><literal>string getName()</literal></entry>
+            <entry>Gibt den Namen des Testfalls zurück.</entry>
+          </row>
+          <row>
+            <entry><literal>void setName($name)</literal></entry>
+            <entry>Setzt den Namen des Testfalls.</entry>
+          </row>
+          <row>
+            <entry><literal>PHPUnit2_Framework_TestResult run(PHPUnit2_Framework_TestResult $result)</literal></entry>
+            <entry>Vereinfachte Methode, die den Testfall ausführt und das Ergebnis in <literal>$result</literal> meldet.</entry>
+          </row>
+          <row>
+            <entry><literal>void runTest()</literal></entry>
+            <entry>Überschreiben Sie diese Methode mit einer Testmethode, wenn Sie nicht wollen, dass die Testmethode durch Reflection aufgerufen wird.</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <para>
+      Die beiden Schablonenmethoden <literal>setUp()</literal> und
+      <literal>tearDown()</literal> können Sie überschreiben, um die Objekte
+      zu erzeugen und zu beseitigen, mit denen Sie die Tests durchführen
+      wollen.
+      <xref linkend="api.testcase.tables.template-methods" /> zeigt diese
+      Methoden.
+    </para>
+
+    <table id="api.testcase.tables.template-methods">
+      <title>Schablonenmethoden</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>Methode</entry>
+            <entry>Aktion</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>void setUp()</literal></entry>
+            <entry>Überschreiben Sie diese Methode, um die Objekte zu erzeugen, mit denen Sie testen wollen. Jeder Test wird in seinem eigenen Testfall-Objekt ausgeführt, und für jedes wird <literal>setUp()</literal> separat ausgeführt.</entry>
+          </row>
+          <row>
+            <entry><literal>void tearDown()</literal></entry>
+            <entry>Überschreiben Sie diese Methode, um die Objekte zu beseitigen, die nach dem Abschluss des Tests nicht mehr benötigt werden. Im Allgemeinen brauchen Sie in <literal>tearDown()</literal> nur externe Ressourcen (zum Beispiel Dateien und Sockets) zu beseitigen.</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+  </section>
+
+  <section id="api.testsuite">
+    <title>PHPUnit2_Framework_TestSuite</title>
+    <indexterm><primary>PHPUnit2_Framework_TestSuite</primary></indexterm>
+
+    <para>
+      Eine <literal>PHPUnit2_Framework_TestSuite</literal> ist ein Kompositum
+      (<emphasis>Composite</emphasis>) aus
+      <literal>PHPUnit2_Framework_Test</literal>-Objekten. Im einfachsten
+      Fall enthält sie mehrere Testfälle, die alle ausgeführt werden, wenn
+      auch die Testreihe ausgeführt wird. Als Composite-Objekt kann eine
+      Testreihe selbst wiederum Testreihen enthalten und so weiter. Dadurch
+      lassen sich auf einfache Weise Tests aus unterschiedlichen Quellen
+      kombinieren und gemeinsam ausführen.
+    </para>
+
+    <para>
+      Zusätzlich zu dem Protokoll von <literal>PHPUnit2_Framework_Test</literal> --
+      <literal>run(PHPUnit2_Framework_TestResult $result)</literal> und
+      <literal>countTestCases()</literal> -- enthält
+      <literal>PHPUnit2_Framework_TestSuite</literal> noch ein Protokoll für
+      die Erzeugung benannter und unbenannter Instanzen.
+      <xref linkend="api.testsuite.tables.creating-instances" /> zeigt das
+      Protokoll für die Erzeugung von Instanzen der Klasse
+      <literal>PHPUnit2_Framework_TestSuite</literal>.
+    </para>
+
+    <table id="api.testsuite.tables.creating-instances">
+      <title>Erzeugung von benannten und unbenannten Instanzen</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>Methode</entry>
+            <entry>Aktion</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>__construct()</literal></entry>
+            <entry>Liefert eine leere Testreihe.</entry>
+          </row>
+          <row>
+            <entry><literal>__construct(string $theClass)</literal></entry>
+            <entry>Liefert eine Testreihe, die für jede Methode der Klasse <literal>$theClass</literal> eine Instanz dieser Klasse mit dem Namen <literal>test*</literal> enthält. Existiert keine Klasse mit Namen <literal>$theClass</literal>, so wird eine leere Testreihe zurückgegeben, die den Namen <literal>$theClass</literal> trägt.</entry>
+          </row>
+          <row>
+            <entry><literal>__construct(string $theClass, string $name)</literal></entry>
+            <entry>Liefert eine Testreihe mit dem angegebenen Namen, die für jede Methode der Klasse <literal>$theClass</literal> eine Instanz dieser Klasse mit dem Namen <literal>test*</literal> enthält.</entry>
+          </row>
+          <row>
+            <entry><literal>__construct(ReflectionClass $theClass)</literal></entry>
+            <entry>Liefert eine Testreihe, die für jede Methode der Klasse <literal>$theClass</literal> eine Instanz dieser Klasse mit dem Namen <literal>test*</literal> enthält.</entry>
+          </row>
+          <row>
+            <entry><literal>__construct(ReflectionClass $theClass, $name)</literal></entry>
+            <entry>Liefert eine Testreihe mit dem angegebenen Namen, die für jede Methode der Klasse <literal>$theClass</literal> eine Instanz dieser Klasse mit dem Namen <literal>test*</literal> enthält.</entry>
+          </row>
+          <row>
+            <entry><literal>string getName()</literal></entry>
+            <entry>Liefert den Namen der Testreihe.</entry>
+          </row>
+          <row>
+            <entry><literal>void setName(string $name)</literal></entry>
+            <entry>Setzt den Namen der Testreihe.</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <para>
+      Außerdem enthält die <literal>PHPUnit2_Framework_TestSuite</literal>
+      Methoden für das Hinzufügen und das Auslesen von
+      <literal>PHPUnit2_Framework_Test</literal>s, die in
+      <xref linkend="api.testsuite.tables.protocol" /> aufgeführt sind.
+    </para>
+
+    <table id="api.testsuite.tables.protocol">
+      <title>Protokoll zum Hinzufügen und Auslesen von Tests</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>Methode</entry>
+            <entry>Aktion</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>void addTest(PHPUnit2_Framework_Test $test)</literal></entry>
+            <entry>Fügt der Testreihe einen Test hinzu.</entry>
+          </row>
+          <row>
+            <entry><literal>void addTestFile(string $filename)</literal></entry>
+            <entry>Fügt der Testreihe die Tests einer oder mehrerer Testfall-Klassen, die in der angegebenen Quelltext-Datei deklariert sind, hinzu.</entry>
+          </row>
+          <row>
+            <entry><literal>void addTestFiles(array $filenames)</literal></entry>
+            <entry>Fügt der Testreihe die Tests der Testfall-Klassen, die in den angegebenen Quelltext-Dateien deklariert sind, hinzu.</entry>
+          </row>
+          <row>
+            <entry><literal>int testCount()</literal></entry>
+            <entry>Liefert die Anzahl der Tests, die sich direkt (nicht rekursiv) in dieser Testreihe befinden.</entry>
+          </row>
+          <row>
+            <entry><literal>PHPUnit2_Framework_Test[] tests()</literal></entry>
+            <entry>Liefert die Tests, die sich direkt in dieser Testreihe befinden.</entry>
+          </row>
+          <row>
+            <entry><literal>PHPUnit2_Framework_Test testAt(int $index)</literal></entry>
+            <entry>Liefert den Test mit dem angegebenen Index.</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <para>
+      <xref linkend="api.testsuite.examples.TestSuite-example.php" /> zeigt,
+      wie Sie eine <literal>PHPUnit2_Framework_TestSuite</literal> für eine
+      Testfall-Klasse erzeugen sowie deren Tests ausführen.
+    </para>
+
+    <example id="api.testsuite.examples.TestSuite-example.php">
+      <title>Eine Testreihe erzeugen und ausführen</title>
+      <programlisting><![CDATA[<?php
+require_once 'PHPUnit2/Framework/TestSuite.php';
+
+require_once 'ArrayTest.php';
+
+// Ein TestSuite-Objekt erzeugen, das die Tests
+// der Testfall-Klasse ArrayTest enthält.
+$suite = new PHPUnit2_Framework_TestSuite('ArrayTest');
+
+// Tests ausführen.
+$suite->run();
+?>]]></programlisting>
+    </example>
+
+    <para>
+      Als Beispiel für eine hierarchische Komposition von Testreihen betrachten
+      wir die Testreihe von PHPUnit selbst.
+    </para>
+
+    <para>
+      <xref linkend="api.testsuite.examples.AllTests.php" /> zeigt eine
+      verkürzte Fassung von <filename>Tests/AllTests.php</filename>,
+      <xref linkend="api.testsuite.examples.Framework_AllTests.php" /> eine
+      verkürzte Fassung von <filename>Tests/Framework/AllTests.php</filename>.
+    </para>
+
+    <example id="api.testsuite.examples.AllTests.php">
+      <title>Die Klasse AllTests</title>
+      <programlisting><![CDATA[<?php
+if (!defined('PHPUnit2_MAIN_METHOD')) {
+    define('PHPUnit2_MAIN_METHOD', 'AllTests::main');
+}
+
+require_once 'PHPUnit2/Framework/TestSuite.php';
+require_once 'PHPUnit2/TextUI/TestRunner.php';
+
+require_once 'Framework/AllTests.php';
+// ...
+
+class AllTests {
+    public static function main() {
+        PHPUnit2_TextUI_TestRunner::run(self::suite());
+    }
+
+    public static function suite() {
+        $suite = new PHPUnit2_Framework_TestSuite('PHPUnit');
+
+        $suite->addTest(Framework_AllTests::suite());
+        // ...
+
+        return $suite;
+    }
+}
+
+if (PHPUnit2_MAIN_METHOD == 'AllTests::main') {
+    AllTests::main();
+}
+?>]]></programlisting>
+    </example>
+
+    <example id="api.testsuite.examples.Framework_AllTests.php">
+      <title>Die Klasse Framework_AllTests</title>
+      <programlisting><![CDATA[<?php
+if (!defined('PHPUnit2_MAIN_METHOD')) {
+    define('PHPUnit2_MAIN_METHOD', 'Framework_AllTests::main');
+}
+
+require_once 'PHPUnit2/Framework/TestSuite.php';
+require_once 'PHPUnit2/TextUI/TestRunner.php';
+
+require_once 'Framework/AssertTest.php';
+// ...
+
+class Framework_AllTests {
+    public static function main() {
+        PHPUnit2_TextUI_TestRunner::run(self::suite());
+    }
+
+    public static function suite() {
+        $suite = new PHPUnit2_Framework_TestSuite('PHPUnit Framework');
+
+        $suite->addTestSuite('Framework_AssertTest');
+        // ...
+
+        return $suite;
+    }
+}
+
+if (PHPUnit2_MAIN_METHOD == 'Framework_AllTests::main') {
+    Framework_AllTests::main();
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      Die Klasse <literal>Framework_AssertTest</literal> ist eine normale
+      Testfall-Klasse, die sich von
+      <literal>PHPUnit2_Framework_TestCase</literal> ableitet.
+    </para>
+
+    <para>
+      Das Ausführen von <filename>Tests/AllTests.php</filename>, zu sehen im
+      folgenden Beispiel, benutzt den textbasierten Testrunner für die
+      Ausführung aller Tests, während das Ausführen von
+      <filename>Tests/Framework/AllTests.php</filename> nur die Tests für die
+      <literal>PHPUnit2_Framework_*</literal> Klassen ausführt.
+    </para>
+
+    <screen><userinput>php AllTests.php</userinput>
+PHPUnit 2.3.0 by Sebastian Bergmann.
+
+.........................................
+.........................................
+.......
+
+Time: 4.642600
+
+OK (89 tests)</screen>
+  </section>
+
+  <section id="api.testresult">
+    <title>PHPUnit2_Framework_TestResult</title>
+    <indexterm><primary>PHPUnit2_Framework_TestResult</primary></indexterm>
+
+    <para>
+      Wenn Sie alle Ihre Tests ausführen, benötigen Sie einen Platz, an dem
+      die gesamten Ergebnisse abgelegt werden können: wie viele Tests
+      ausgeführt worden sind, welche davon fehlgeschlagen sind und wie viel
+      Zeit sie benötigten. <literal>PHPUnit2_Framework_TestResult</literal>
+      sammelt die Testresultate. Dabei wird ein einziges
+      <literal>PHPUnit2_Framework_TestResult</literal>-Objekt durch den
+      gesamten Test-Baum gereicht. Wenn ein Test ausgeführt worden oder
+      gescheitert ist, wird diese Tatsache in
+      <literal>PHPUnit2_Framework_TestResult</literal> vermerkt. Am Ende des
+      Testlaufs <literal>PHPUnit2_Framework_TestResult</literal> noch eine
+      Zusammenfassung aller Tests.
+    </para>
+
+    <para>
+      Außerdem ist <literal>PHPUnit2_Framework_TestResult</literal> ein
+      Objekt, das von anderen Objekten beobachtet werden kann, um den
+      Fortschritt des Testvorgangs anzuzeigen. So könnte etwa ein
+      grafischer Testrunner das
+      <literal>PHPUnit2_Framework_TestResult</literal>-Objekt verfolgen und
+      bei jedem Start eines Tests einen Fortschrittsbalken weiterschalten.
+    </para>
+
+    <para>
+      <xref linkend="api.testresult.tables.external-protocols" /> fasst die
+      Methoden zur Auswertung der Versager und Fehler zusammen.
+    </para>
+
+    <table id="api.testresult.tables.external-protocols">
+      <title>Die Unterscheidung zwischen Versagern und Fehlern</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>Methode</entry>
+            <entry>Aktion</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>void addError(PHPUnit2_Framework_Test $test, Exception $e)</literal></entry>
+            <entry>Vermerkt, dass die Ausführung von <literal>$test</literal> zur unerwarteten Auslösung der Ausnahme <literal>$e</literal> geführt hat.</entry>
+          </row>
+          <row>
+            <entry><literal>void addFailure(PHPUnit2_Framework_Test $test, PHPUnit2_Framework_AssertionFailedError $e)</literal></entry>
+            <entry>Vermerkt, dass die Ausführung von <literal>$test</literal> zur unerwarteten Auslösung der Ausnahme <literal>$e</literal> geführt hat.</entry>
+          </row>
+          <row>
+            <entry><literal>PHPUnit2_Framework_TestFailure[] errors()</literal></entry>
+            <entry>Gibt die aufgezeichneten Fehler zurück.</entry>
+          </row>
+          <row>
+            <entry><literal>PHPUnit2_Framework_TestFailure[] failures()</literal></entry>
+            <entry>Gibt die aufgezeichneten Versager zurück.</entry>
+          </row>
+          <row>
+            <entry><literal>PHPUnit2_Framework_TestFailure[] notImplemented()</literal></entry>
+            <entry>Gibt die aufgezeichneten unvollständigen Tests zurück.</entry>
+          </row>
+          <row>
+            <entry><literal>int errorCount()</literal></entry>
+            <entry>Gibt die Anzahl der Fehler zurück.</entry>
+          </row>
+          <row>
+            <entry><literal>int failureCount()</literal></entry>
+            <entry>Gibt die Anzahl der Versager zurück.</entry>
+          </row>
+          <row>
+            <entry><literal>int notImplementedCount()</literal></entry>
+            <entry>Gibt die Anzahl der unvollständigen Tests zurück.</entry>
+          </row>
+          <row>
+            <entry><literal>int runCount()</literal></entry>
+            <entry>Gibt die Gesamtzahl der durchlaufenen Testfälle zurück.</entry>
+          </row>
+          <row>
+            <entry><literal>boolean wasSuccessful()</literal></entry>
+            <entry>Gibt zurück, ob alle Tests erfolgreich durchlaufen wurden oder nicht.</entry>
+          </row>
+          <row>
+            <entry><literal>boolean allCompletlyImplemented()</literal></entry>
+            <entry>Gibt zurück, ob alle Tests vollständig implementiert waren oder nicht.</entry>
+          </row>
+          <row>
+            <entry><literal>void collectCodeCoverageInformation(bool $flag)</literal></entry>
+            <entry>Schaltet das Sammeln von Code-Coverage-Informationen an oder aus.</entry>
+          </row>
+          <row>
+            <entry><literal>array getCodeCoverageInformation()</literal></entry>
+            <entry>Gibt die gesammelten Code-Coverage-Informationen zurück.</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <para>
+      <indexterm><primary>Observer Pattern</primary></indexterm>
+      <indexterm><primary>PHPUnit2_Framework_TestListener</primary></indexterm>
+
+      Wenn Sie ein Objekt als Beobachter eines
+      <literal>PHPUnit2_Framework_TestResult</literal> registrieren möchten,
+      müssen Sie <literal>PHPUnit2_Framework_TestListener</literal>
+      implementieren. Um es anzumelden, rufen Sie die in
+      <xref linkend="api.testresult.tables.testresult-testlistener" />
+      aufgeführte Methode <literal>addListener()</literal> auf.
+    </para>
+
+    <table id="api.testresult.tables.testresult-testlistener">
+      <title>TestResult und TestListener</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>Methode</entry>
+            <entry>Aktion</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>void addListener(PHPUnit2_Framework_TestListener $listener)</literal></entry>
+            <entry>Registriert das <literal>$listener</literal>-Objekt, so dass es informiert wird, wenn Ergebnisse im <literal>PHPUnit2_Framework_TestResult</literal> aufgezeichnet werden.</entry>
+          </row>
+          <row>
+            <entry><literal>void removeListener(PHPUnit2_Framework_TestListener $listener)</literal></entry>
+            <entry>Hebt die Registrierung für das <literal>$listener</literal>-Objekt auf.</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <para>
+      Ein <literal>PHPUnit2_Framework_TestListener</literal>-Objekt muss die
+      in <xref linkend="api.testresult.tables.testlistener" /> aufgeführten
+      Methoden implementieren. Ein Beispiel finden Sie in
+      <xref linkend="extending-phpunit.examples.SimpleTestListener.php" />.
+    </para>
+
+    <table id="api.testresult.tables.testlistener">
+      <title>Callback-Methoden des TestListener</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>Methode</entry>
+            <entry>Aktion</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>void addError(PHPUnit2_Framework_Test $test, Exception $e)</literal></entry>
+            <entry><literal>$test</literal> hat die Ausnahme <literal>$e</literal> ausgelöst.</entry>
+          </row>
+          <row>
+            <entry><literal>void addFailure(PHPUnit2_Framework_Test $test, PHPUnit2_Framework_AssertionFailedError $e)</literal></entry>
+            <entry><literal>$test</literal> ist fehlgeschlagen, <literal>PHPUnit2_Framework_AssertionFailedError</literal> beschreibt die verletzte Zusicherung.</entry>
+          </row>
+          <row>
+            <entry><literal>void addIncompleteTest(PHPUnit2_Framework_Test $test, Exception $e)</literal></entry>
+            <entry><literal>$test</literal> ist unvollständig.</entry>
+          </row>
+          <row>
+            <entry><literal>void startTestSuite(PHPUnit2_Framework_TestSuite $suite)</literal></entry>
+            <entry><literal>$suite</literal> ist im Begriff zu starten.</entry>
+          </row>
+          <row>
+            <entry><literal>void endTestSuite(PHPUnit2_Framework_TestSuite $suite)</literal></entry>
+            <entry><literal>$suite</literal> hat ihre Ausführung beendet.</entry>
+          </row>
+          <row>
+            <entry><literal>void startTest(PHPUnit2_Framework_Test $test)</literal></entry>
+            <entry><literal>$test</literal> ist im Begriff zu starten.</entry>
+          </row>
+          <row>
+            <entry><literal>void endTest(PHPUnit2_Framework_Test $test)</literal></entry>
+            <entry><literal>$test</literal> hat seine Ausführung beendet.</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+  </section>
+
+  <section id="api.package-structure">
+    <title>Die Package-Struktur</title>
+
+    <para>
+      Alle oben genannten Klassen befinden sich in
+      <literal>PHPUnit2/Framework</literal>. Hier sind alle PHPUnit-Packages:
+    </para>
+
+    <variablelist>
+      <varlistentry>
+        <term><literal>PHPUnit2/Framework</literal></term>
+        <listitem>
+          <para>
+            Die Basisklassen in PHPUnit.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>PHPUnit2/Extensions</literal></term>
+        <listitem>
+          <para>
+            Erweiterungen der Basisklassen.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>PHPUnit2/Runner</literal></term>
+        <listitem>
+          <para>
+            Abstrakte Hilfsklassen für die Ausführung von Tests.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>PHPUnit2/TextUI</literal></term>
+        <listitem>
+          <para>
+            Der textbasierte Testrunner.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>PHPUnit2/Util</literal></term>
+        <listitem>
+          <para>
+            Hilfsklassen, die von den anderen Packages verwendet werden.
+          </para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+  </section>
+</chapter>

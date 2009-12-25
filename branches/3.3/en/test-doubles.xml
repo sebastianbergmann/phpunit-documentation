@@ -1,0 +1,551 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="test-doubles">
+  <title>Test Doubles</title>
+
+  <para>
+    Gerard Meszaros introduces the concept of Test Doubles in
+    <xref linkend="Meszaros2007" /> like this:
+  </para>
+
+  <blockquote>
+    <attribution>Gerard Meszaros</attribution>
+    <para>
+      <indexterm><primary>System Under Test</primary></indexterm>
+
+      Sometimes it is just plain hard to test the system under test (SUT)
+      because it depends on other components that cannot be used in the test
+      environment. This could be because they aren't available, they will not
+      return the results needed for the test or because executing them would
+      have undesirable side effects. In other cases, our test strategy requires
+      us to have more control or visibility of the internal behavior of the SUT.
+    </para>
+
+    <para>
+      <indexterm><primary>Depended-On Component</primary></indexterm>
+      <indexterm><primary>Test Double</primary></indexterm>
+
+      When we are writing a test in which we cannot (or chose not to) use a real
+      depended-on component (DOC), we can replace it with a Test Double. The
+      Test Double doesn't have to behave exactly like the real DOC; it merely
+      has to provide the same API as the real one so that the SUT thinks it is
+      the real one!
+    </para>
+  </blockquote>
+
+  <para>
+    <indexterm><primary>Stub</primary></indexterm>
+
+    You can use a <emphasis>stub</emphasis> to "replace a real component on
+    which the SUT depends so that the test has a control point for the indirect
+    inputs of the SUT. This allows the test to force the SUT down paths it might
+    not otherwise execute".
+  </para>
+
+  <section id="test-doubles.stubs">
+    <title>Stubs</title>
+
+    <para>
+      <indexterm><primary>Stub</primary></indexterm>
+      <indexterm><primary>Fluent Interface</primary></indexterm>
+
+      <xref linkend="test-doubles.stubs.examples.StubTest.php" /> shows how
+      to stub method calls and set up return values. We first use the
+      <literal>getMock()</literal> method that is provided by the
+      <literal>PHPUnit_Framework_TestCase</literal> class (see <xref
+      linkend="api.testcase.tables.api" />) to set up a stub object that looks
+      like an object of <literal>SomeClass</literal>. We then use the <ulink
+      url="http://martinfowler.com/bliki/FluentInterface.html">Fluent Interface</ulink>
+      that PHPUnit provides to specify the behavior for the stub. In essence,
+      this means that you do not need to create several temporary objects and
+      wire them together afterwards. Instead, you chain method calls as shown in
+      the example. This leads to more readable and "fluent" code.
+    </para>
+
+    <example id="test-doubles.stubs.examples.StubTest.php">
+      <indexterm><primary>getMock()</primary></indexterm>
+      <indexterm><primary>expects()</primary></indexterm>
+      <indexterm><primary>method()</primary></indexterm>
+      <indexterm><primary>will()</primary></indexterm>
+      <indexterm><primary>returnValue()</primary></indexterm>
+      <title>Stubbing a method call to return a fixed value</title>
+      <programlisting><![CDATA[<?php
+require_once 'PHPUnit/Framework.php';
+ 
+class SomeClass
+{
+    public function doSomething()
+    {
+        // Do something.
+    }
+}
+
+class StubTest extends PHPUnit_Framework_TestCase
+{
+    public function testStub()
+    {
+        // Create a stub for the SomeClass class.
+        $stub = $this->getMock('SomeClass');
+
+        // Configure the stub.
+        $stub->expects($this->any())
+             ->method('doSomething')
+             ->will($this->returnValue('foo'));
+ 
+        // Calling $stub->doSomething() will now return
+        // 'foo'.
+        $this->assertEquals('foo', $stub->doSomething());
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      Sometimes you want to return one of the arguments of a method call
+      (unchanged) as the result of a stubbed method call.
+      <xref linkend="test-doubles.stubs.examples.StubTest2.php"/> shows how you
+      can achieve this using <literal>returnArgument()</literal> instead of
+      <literal>returnValue()</literal>.
+    </para>
+
+    <example id="test-doubles.stubs.examples.StubTest2.php">
+      <indexterm><primary>getMock()</primary></indexterm>
+      <indexterm><primary>expects()</primary></indexterm>
+      <indexterm><primary>method()</primary></indexterm>
+      <indexterm><primary>will()</primary></indexterm>
+      <indexterm><primary>returnArgument()</primary></indexterm>
+      <title>Stubbing a method call to return one of the arguments</title>
+      <programlisting><![CDATA[<?php
+class SomeClass
+{
+    public function doSomething($argument)
+    {
+        // Do something.
+    }
+}
+
+class StubTest extends PHPUnit_Framework_TestCase
+{
+    public function testReturnArgumentStub()
+    {
+        // Create a stub for the SomeClass class.
+        $stub = $this->getMock('SomeClass');
+
+        // Configure the stub.
+        $stub->expects($this->any())
+             ->method('doSomething')
+             ->will($this->returnArgument(0));
+ 
+        // $stub->doSomething('foo') returns 'foo'
+        $this->assertEquals('foo', $stub->doSomething('foo'));
+
+        // $stub->doSomething('bar') returns 'bar'
+        $this->assertEquals('bar', $stub->doSomething('bar'));
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      When the stubbed method call should return a calculated value instead of
+      a fixed one (see <literal>returnValue()</literal>) or an (unchanged)
+      argument (see <literal>returnArgument()</literal>), you can use
+      <literal>returnCallback()</literal> to have the stubbed method return the
+      result of a callback function or method. See
+      <xref linkend="test-doubles.stubs.examples.StubTest3.php"/> for an example.
+    </para>
+
+    <example id="test-doubles.stubs.examples.StubTest3.php">
+      <indexterm><primary>getMock()</primary></indexterm>
+      <indexterm><primary>expects()</primary></indexterm>
+      <indexterm><primary>method()</primary></indexterm>
+      <indexterm><primary>will()</primary></indexterm>
+      <indexterm><primary>returnCallback()</primary></indexterm>
+      <title>Stubbing a method call to return a value from a callback</title>
+      <programlisting><![CDATA[<?php
+class SomeClass
+{
+    public function doSomething($argument)
+    {
+        // Do something.
+    }
+}
+
+class StubTest extends PHPUnit_Framework_TestCase
+{
+    public function testReturnCallbackStub()
+    {
+        // Create a stub for the SomeClass class.
+        $stub = $this->getMock('SomeClass');
+
+        // Configure the stub.
+        $stub->expects($this->any())
+             ->method('doSomething')
+             ->will($this->returnCallback('str_rot13'));
+ 
+        // $stub->doSomething($argument) returns str_rot13($argument)
+        $this->assertEquals('fbzrguvat', $stub->doSomething('something'));
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      Instead of returning a value, a stubbed method can also raise an
+      exception. <xref linkend="test-doubles.stubs.examples.StubTest4.php"/>
+      shows how to use <literal>throwException()</literal> to do this.
+    </para>
+
+    <example id="test-doubles.stubs.examples.StubTest4.php">
+      <indexterm><primary>getMock()</primary></indexterm>
+      <indexterm><primary>expects()</primary></indexterm>
+      <indexterm><primary>method()</primary></indexterm>
+      <indexterm><primary>will()</primary></indexterm>
+      <indexterm><primary>throwException()</primary></indexterm>
+      <title>Stubbing a method call to throw an exception</title>
+      <programlisting><![CDATA[<?php
+class SomeClass
+{
+    public function doSomething()
+    {
+        // Do something.
+    }
+}
+
+class StubTest extends PHPUnit_Framework_TestCase
+{
+    public function testThrowExceptionStub()
+    {
+        // Create a stub for the SomeClass class.
+        $stub = $this->getMock('SomeClass');
+
+        // Configure the stub.
+        $stub->expects($this->any())
+             ->method('doSomething')
+             ->will($this->throwException(new Exception));
+ 
+        // $stub->doSomething() throws Exception
+        $stub->doSomething();
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      Alternatively, you can write the stub yourself and improve your design
+      along the way. Widely used resources are accessed through a single façade,
+      so you can easily replace the resource with the stub. For example,
+      instead of having direct database calls scattered throughout the code,
+      you have a single <literal>Database</literal> object, an implementor of
+      the <literal>IDatabase</literal> interface. Then, you can create a stub
+      implementation of <literal>IDatabase</literal> and use it for your
+      tests. You can even create an option for running the tests with the
+      stub database or the real database, so you can use your tests for both
+      local testing during development and integration testing with the real
+      database.
+    </para>
+
+    <para>
+      Functionality that needs to be stubbed out tends to cluster in the same
+      object, improving cohesion. By presenting the functionality with a
+      single, coherent interface you reduce the coupling with the rest of the
+      system.
+    </para>
+  </section>
+
+  <section id="test-doubles.mock-objects">
+    <title>Mock Objects</title>
+
+    <para>
+      <indexterm><primary>Mock Object</primary></indexterm>
+
+      You can use a <emphasis>mock object</emphasis> "as an observation point
+      that is used to verify the indirect outputs of the SUT as it is exercised.
+      Typically, the mock object also includes the functionality of a test stub
+      in that it must return values to the SUT if it hasn't already failed the
+      tests but the emphasis is on the verification of the indirect outputs.
+      Therefore, a mock object is lot more than just a test stub plus
+      assertions; it is used a fundamentally different way".
+    </para>
+
+    <para>
+      Sometimes you need to check that an object has been called correctly.
+      Here is an example: suppose we want to test that the correct method,
+      <literal>update()</literal> in our example, is called on an object that
+      observes another object.
+    </para>
+
+    <para>
+      <indexterm><primary>Mock Object</primary></indexterm>
+
+      In <xref linkend="test-doubles.mock-objects.examples.ObserverTest.php" />
+      we first use the <literal>getMock()</literal> method that is provided by
+      the <literal>PHPUnit_Framework_TestCase</literal> class (see <xref
+      linkend="api.testcase.tables.api" />) to set up a mock object for the
+      <literal>Observer</literal>. Since we give an array as the second
+      (optional) parameter for the <literal>getMock()</literal> method, only
+      the <literal>update()</literal> method of the <literal>Observer</literal>
+      class is replaced by a mock implementation.
+    </para>
+
+    <example id="test-doubles.mock-objects.examples.ObserverTest.php">
+      <title>Testing that a methods gets called once and with a specified parameter</title>
+      <programlisting><![CDATA[<?php
+require_once 'PHPUnit/Framework.php';
+
+class Subject
+{
+    protected $observers = array();
+
+    public function attach(Observer $observer)
+    {
+        $this->observers[] = $observer;
+    }
+
+    public function doSomething()
+    {
+        // Do something.
+        // ...
+
+        // Notify observers that we did something.
+        $this->notify('something');
+    }
+
+    protected function notify($argument)
+    {
+        foreach ($this->observers as $observer) {
+            $observer->update($argument);
+        }
+    }
+}
+
+class Observer
+{
+    public function update($argument)
+    {
+        // Do something.
+    }
+}
+
+class ObserverTest extends PHPUnit_Framework_TestCase
+{
+    public function testUpdateIsCalledOnce()
+    {
+        // Create a mock for the Observer class.
+        $observer = $this->getMock('Observer');
+
+        // Set up the expectation for the update() method
+        // to be called only once and with the string 'something'
+        // as its parameter.
+        $observer->expects($this->once())
+                 ->method('update')
+                 ->with($this->equalTo('something'));
+
+        // Create a Subject object and attach the mocked
+        // Observer object to it.
+        $subject = new Subject;
+        $subject->attach($observer);
+
+        // Call the doSomething() method on the $subject object
+        // which we expect to call the mocked Observer object's
+        // update() method with the string 'something'.
+        $subject->doSomething();
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      <xref linkend="api.assert.assertThat.tables.constraints"/> shows the
+      constraints and <xref linkend="test-doubles.mock-objects.tables.matchers"/>
+      shows the matchers that are available.
+    </para>
+
+    <table id="test-doubles.mock-objects.tables.matchers">
+      <title>Matchers</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>Matcher</entry>
+            <entry>Meaning</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>PHPUnit_Framework_MockObject_Matcher_AnyInvokedCount any()</literal></entry>
+            <entry>Returns a matcher that matches when the method it is evaluated for is executed zero or more times.</entry>
+          </row>
+          <row>
+            <entry><literal>PHPUnit_Framework_MockObject_Matcher_InvokedCount never()</literal></entry>
+            <entry>Returns a matcher that matches when the method it is evaluated for is never executed.</entry>
+          </row>
+          <row>
+            <entry><literal>PHPUnit_Framework_MockObject_Matcher_InvokedAtLeastOnce atLeastOnce()</literal></entry>
+            <entry>Returns a matcher that matches when the method it is evaluated for is executed at least once.</entry>
+          </row>
+          <row>
+            <entry><literal>PHPUnit_Framework_MockObject_Matcher_InvokedCount once()</literal></entry>
+            <entry>Returns a matcher that matches when the method it is evaluated for is executed exactly once.</entry>
+          </row>
+          <row>
+            <entry><literal>PHPUnit_Framework_MockObject_Matcher_InvokedCount exactly(int $count)</literal></entry>
+            <entry>Returns a matcher that matches when the method it is evaluated for is executed exactly <literal>$count</literal> times.</entry>
+          </row>
+          <row>
+            <entry><literal>PHPUnit_Framework_MockObject_Matcher_InvokedAtIndex at(int $index)</literal></entry>
+            <entry>Returns a matcher that matches when the method it is evaluated for is invoked at the given <literal>$index</literal>.</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+  </section>
+
+  <section id="test-doubles.mocking-the-filesystem">
+    <title>Mocking the Filesystem</title>
+
+    <para>
+      <ulink url="http://code.google.com/p/bovigo/wiki/vfsStream">vfsStream</ulink>
+      is a <ulink url="http://www.php.net/streams">stream wrapper</ulink> for a
+      <ulink url="http://en.wikipedia.org/wiki/Virtual_file_system">virtual
+      filesystem</ulink> that may be helpful in unit tests to mock the real
+      filesystem.
+    </para>
+
+    <para>
+      To install vfsStream, the PEAR channel
+      (<systemitem role="URL">pear.php-tools.net</systemitem>) that is used for
+      its distribution needs to be registered with the local PEAR environment:
+    </para>
+
+    <screen><userinput>pear channel-discover pear.php-tools.net</userinput></screen>
+
+    <para>
+      This has to be done only once. Now the PEAR Installer can be used to
+      install vfsStream:
+    </para>
+
+    <screen><userinput>pear install pat/vfsStream-alpha</userinput></screen>
+
+    <para>
+      <xref linkend="test-doubles.mocking-the-filesystem.examples.Example.php"/>
+      shows a class that interacts with the filesystem.
+    </para>
+
+    <example id="test-doubles.mocking-the-filesystem.examples.Example.php">
+      <title>A class that interacts with the filesystem</title>
+      <programlisting><![CDATA[<?php
+class Example
+{
+    protected $id;
+    protected $directory;
+
+    public function __construct($id)
+    {
+        $this->id = $id;
+    }
+
+    public function setDirectory($directory)
+    {
+        $this->directory = $directory . DIRECTORY_SEPARATOR . $this->id;
+
+        if (!file_exists($this->directory)) {
+            mkdir($this->directory, 0700, TRUE);
+        }
+    }
+}?>]]></programlisting>
+    </example>
+
+    <para>
+      Without a virtual filesystem such as vfsStream we cannot test the
+      <literal>setDirectory()</literal> method in isolation from external
+      influence (see <xref
+      linkend="test-doubles.mocking-the-filesystem.examples.ExampleTest.php"/>).
+    </para>
+
+    <example id="test-doubles.mocking-the-filesystem.examples.ExampleTest.php">
+      <title>Testing a class that interacts with the filesystem</title>
+      <programlisting><![CDATA[<?php
+require_once 'Example.php';
+
+class ExampleTest extends PHPUnit_Framework_TestCase
+{
+    protected function setUp()
+    {
+        if (file_exists(dirname(__FILE__) . '/id')) {
+            rmdir(dirname(__FILE__) . '/id');
+        }
+    }
+
+    public function testDirectoryIsCreated()
+    {
+        $example = new Example('id');
+        $this->assertFalse(file_exists(dirname(__FILE__) . '/id'));
+
+        $example->setDirectory(dirname(__FILE__));
+        $this->assertTrue(file_exists(dirname(__FILE__) . '/id'));
+    }
+
+    protected function tearDown()
+    {
+        if (file_exists(dirname(__FILE__) . '/id')) {
+            rmdir(dirname(__FILE__) . '/id');
+        }
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      The approach above has several drawbacks:
+    </para>
+
+    <itemizedlist>
+      <listitem><para>As with any external resource, there might be intermittent problems with the filesystem. This makes tests interacting with it flaky.</para></listitem>
+      <listitem><para>In the <literal>setUp()</literal> and <literal>tearDown()</literal> methods we have to ensure that the directory does not exist before and after the test.</para></listitem>
+      <listitem><para>When the test execution terminates before the <literal>tearDown()</literal> method is invoked the directory will stay in the filesystem.</para></listitem>
+    </itemizedlist>
+
+    <para>
+      <xref linkend="test-doubles.mocking-the-filesystem.examples.ExampleTest2.php"/>
+      shows how vfsStream can be used to mock the filesystem in a test for a
+      class that interacts with the filesystem.
+    </para>
+
+    <example id="test-doubles.mocking-the-filesystem.examples.ExampleTest2.php">
+      <title>Mocking the filesystem in a test for a class that interacts with the filesystem</title>
+      <programlisting><![CDATA[<?php
+require_once 'vfsStream/vfsStream.php';
+require_once 'Example.php';
+
+class ExampleTest extends PHPUnit_Framework_TestCase
+{
+    public function setUp()
+    {
+        vfsStreamWrapper::register();
+        vfsStreamWrapper::setRoot(new vfsStreamDirectory('exampleDir'));
+    }
+
+    public function testDirectoryIsCreated()
+    {
+        $example = new Example('id');
+        $this->assertFalse(vfsStreamWrapper::getRoot()->hasChild('id'));
+
+        $example->setDirectory(vfsStream::url('exampleDir'));
+        $this->assertTrue(vfsStreamWrapper::getRoot()->hasChild('id'));
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      This has several advantages:
+    </para>
+
+    <itemizedlist>
+      <listitem><para>The test itself is more concise.</para></listitem>
+      <listitem><para>vfsStream gives the test developer full control over what the filesystem environment looks like to the tested code.</para></listitem>
+      <listitem><para>Since the filesystem operations do not operate on the real filesystem anymore, cleanup operations in a <literal>tearDown()</literal> method are no longer required.</para></listitem>
+    </itemizedlist>
+  </section>
+</chapter>

@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="implementation">
+  <title>PHPUnit の実装</title>
+
+  <para>
+    PHPUnit の実装はちょっと見慣れないものでしょう。
+    通常のアプリケーションでは保守しづらくなるようなテクニックを使用したりしています。
+    PHPUnit がテストを実行する仕組みを知っておくと、
+    あなたがテストを書く際に役立つこともあるでしょう。
+  </para>
+
+  <para>
+    <indexterm><primary>Collecting Parameter</primary></indexterm>
+    <indexterm><primary>PHPUnit_Framework_Test</primary></indexterm>
+    <indexterm><primary>PHPUnit_Framework_TestResult</primary></indexterm>
+
+    個々のテストは <literal>PHPUnit_Framework_Test</literal>
+    のオブジェクトで表され、テストを実行するには <literal>PHPUnit_Framework_TestResult</literal>
+    のオブジェクトが必要です。<literal>PHPUnit_Framework_TestResult</literal>
+    オブジェクトが <literal>PHPUnit_Framework_Test</literal> オブジェクトの
+    <literal>run()</literal> メソッドに渡され、
+    このメソッドが実際のテストメソッドを実行します。そこで発生した例外を
+    <literal>PHPUnit_Framework_TestResult</literal> オブジェクトに報告します。
+    これは、Smalltalk の世界では <emphasis>Collecting Parameter</emphasis>
+    と呼ばれているお決まりのパターンです。複数のメソッドの結果
+    (ここでは、各テストを起動する <literal>run()</literal> メソッドの結果)
+    を一箇所にまとめたい場合は、メソッドにパラメータを追加すればそれが結果を集めてくれるのです。
+    Erich Gamma と Kent Beck の "JUnit: A Cook's Tour" <xref linkend="GammaBeck1999" />
+    や Kent Beck の "Smalltalk Best Practice Patterns" <xref linkend="Beck1997" /> <xref linkend="Beck1997-ja" />
+    を参照ください。
+  </para>
+
+  <para>
+    PHPUnit がテストを実行するしくみをより深く探るため、
+    <xref linkend="implementation.examples.EmptyTest.php" />
+    のようなテストクラスを考えてみましょう。
+  </para>
+
+  <example id="implementation.examples.EmptyTest.php">
+    <title>The EmptyTest class</title>
+    <programlisting><![CDATA[<?php
+require_once 'PHPUnit/Framework.php';
+
+class EmptyTest extends PHPUnit_Framework_TestCase
+{
+    private $emptyArray = array();
+
+    public function testSize()
+    {
+        $this->assertEquals(0, sizeof($this->emptyArray));
+    }
+
+    public function testIsEmpty()
+    {
+        $this->assertTrue(empty($this->emptyArray));
+    }
+}
+?>]]></programlisting>
+  </example>
+
+  <para>
+    <indexterm><primary>PHPUnit_Framework_Test</primary></indexterm>
+    <indexterm><primary>PHPUnit_Framework_TestSuite</primary></indexterm>
+
+    テストが実行されるときに PHPUnit がまず行うのは、テストクラスを
+    <literal>PHPUnit_Framework_Test</literal> オブジェクトに変換することです。
+    ここでは、<literal>PHPUnit_Framework_TestSuite</literal> には
+    <xref linkend="implementation.figures.EmptyTest-before.png" />
+    に見られるように 2 つの <literal>EmptyTest</literal> インスタンスが含まれます。
+  </para>
+
+  <figure id="implementation.figures.EmptyTest-before.png">
+    <title>実行しようとしているテスト</title>
+
+    <graphic fileref="figures/EmptyTest-before.png" />
+  </figure>
+
+  <para>
+    <indexterm><primary>Test Isolation</primary></indexterm>
+    <indexterm><primary>setUp()</primary></indexterm>
+
+    <literal>PHPUnit_Framework_TestSuite</literal> の実行時には、各
+    <literal>EmptyTest</literal> が順に実行されます。その中では各自の
+    <literal>setUp()</literal> メソッドが実行され、各テストについて
+    <xref linkend="implementation.figures.EmptyTest-after.png" />
+    に見られるような新しい <literal>$emptyArray</literal> を作成します。
+    こうすることで、あるテストが配列を変更したとしても
+    それが他のテストに影響を及ぼさないようになります。
+    仮にグローバル変数やスーパーグローバル変数
+    (<literal>$GLOBALS</literal> など)
+    を変更したとしても、それは他のテストには影響を及ぼしません。
+  </para>
+
+  <note>
+    <para>
+      <indexterm><primary>Test Isolation</primary></indexterm>
+      <indexterm><primary><literal>$GLOBALS</literal></primary></indexterm>
+
+      グローバル変数やスーパーグローバル変数の保存と復元には
+      <literal>serialize()</literal> および
+      <literal>unserialize()</literal> を使用しています。
+      PHP 自体が提供する一部のクラス、たとえば
+      <literal>PDO</literal> などのオブジェクトはシリアライズできないので、
+      このようなオブジェクトが <literal>$GLOBALS</literal>
+      配列に格納されている場合は保存に失敗します。
+    </para>
+
+    <para>
+      <indexterm><primary><literal>$backupGlobals</literal></primary></indexterm>
+
+      グローバル変数やスーパーグローバル変数の保存と復元を無効にするには、
+      このようにします。<programlisting>class MyTest extends PHPUnit_Framework_TestCase
+{
+    protected $backupGlobals = FALSE;
+
+    // ...
+}</programlisting>
+
+      <literal>$backupGlobals</literal> 属性をたとえば
+      <literal>setUp()</literal> メソッドの中で設定したとしても、
+      なんの効果もないことに注意しましょう。
+    </para>
+  </note>
+
+  <figure id="implementation.figures.EmptyTest-after.png">
+    <title>テストを実行した後の fixture の状態</title>
+
+    <graphic fileref="figures/EmptyTest-after.png" />
+  </figure>
+
+  <para>
+    つまり、テストが実行される際には、ひとつのテストケースクラスが
+    2 段階のオブジェクトツリーになるということです。各テストは <literal>setUp()</literal>
+    で作成された自分自身のコピーの上で実行され、テストは完全に独立して実行されます。
+  </para>
+
+  <para>
+    <indexterm><primary>Pluggable Selector</primary></indexterm>
+
+    PHPUnit は、リフレクションを使用してインスタンス変数 <literal>$name</literal>
+    からメソッド名を取得し、そのテストメソッドを実行します。これは、Smalltalk
+    の世界では <emphasis>Pluggable Selector</emphasis> と呼ばれているお決まりのパターンです。
+    Pluggable Selector を使用することでテストをよりシンプルに書くことができますが、
+    その代わりコードを見ただけではどのメソッドが実行されるのかがわからなくなります。
+    実行されるメソッドを知るには、実行時のデータの値を調べなければならないのです。
+  </para>
+</chapter>

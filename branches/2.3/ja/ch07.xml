@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="incomplete-tests">
+  <title>不完全なテスト</title>
+
+  <para>
+    新しいテストケースクラスを作成する際には、
+    これから書くべきテストの内容をはっきりさせるために、
+    まず最初は以下のような空のテストメソッドを書きたくなることでしょう。
+    <programlisting>public function testSomething() {
+}</programlisting>
+    しかし、PHPUnit フレームワークでは空のメソッドを「成功した」
+    と判断してしまうという問題があります。このような解釈ミスがあると、
+    テスト結果のレポートが無意味になってしまいます。
+    そのテストがほんとうに成功したのか、
+    それともまだテストが実装されていないのかが判断できないからです。
+    実装していないテストメソッドの中で <literal>$this-&gt;fail()</literal>
+    をコールするようにしたところで事態は何も変わりません。
+    こうすると、テストが「失敗した」と判断されてしまいます。
+    これは未実装のテストが「成功」と判断されてしまうのと同じくらいまずいことです
+    (訳注: レポートを見ても、そのテストがほんとうに失敗したのか、
+    まだ実装されていないだけなのかがわかりません)。
+  </para>
+
+  <para>
+    <indexterm><primary>Incomplete Test (不完全なテスト)</primary></indexterm>
+    <indexterm><primary>PHPUnit2_Framework_IncompleteTest</primary></indexterm>
+    <indexterm><primary>PHPUnit2_Framework_IncompleteTestError</primary></indexterm>
+
+    テストの成功を青信号、失敗を赤信号と考えるなら、
+    テストが未完成あるいは未実装であることを表すための黄信号が必要です。
+    そのような場合に使用するインターフェイスが
+    <literal>PHPUnit2_Framework_IncompleteTest</literal> で、
+    これは未完成あるいは未実装のテストメソッドで発生する例外を表すものです。
+    このインターフェイスの標準的な実装が
+    <literal>PHPUnit2_Framework_IncompleteTestError</literal> です。
+  </para>
+
+  <para>
+    <xref linkend="incomplete-tests.examples.SampleTest.php" />
+    では <literal>SampleTest</literal> というテストケースクラスを定義しています。
+    ここには <literal>testSomething()</literal> というテストメソッドが含まれています。
+    このメソッド内で例外 <literal>PHPUnit2_Framework_IncompleteTestError</literal>
+    を発生させることで、このメソッドがまだ完成していないことをはっきりさせます。
+  </para>
+
+  <example id="incomplete-tests.examples.SampleTest.php">
+    <title>テストに未完成の印をつける</title>
+    <programlisting><![CDATA[<?php
+require_once 'PHPUnit2/Framework/TestCase.php';
+require_once 'PHPUnit2/Framework/IncompleteTestError.php';
+
+class SampleTest extends PHPUnit2_Framework_TestCase {
+    public function testSomething() {
+        // オプション: お望みなら、ここで何かのテストをしてください。
+        $this->assertTrue(TRUE, 'これは既に動作します。');
+
+        // ここで処理を止め、テストが未完成であるという印をつけます。
+        // PHPUnit2_Framework_IncompleteTest インターフェイスを
+        // 実装するクラスであれば、任意のクラスを使用できます。
+        throw new PHPUnit2_Framework_IncompleteTestError(
+          'このテストは、まだ実装されていません。'
+        );
+    }
+}
+?>]]></programlisting>
+  </example>
+
+  <para>
+    未完成のテストは、PHPUnit のコマンドライン版テストランナーでは以下のように
+    <literal>I</literal> で表されます。
+  </para>
+
+  <screen><userinput>phpunit SampleTest</userinput>
+PHPUnit 2.3.0 by Sebastian Bergmann.
+
+I
+
+Time: 0.006657
+There was 1 incomplete test case:
+1) testSomething(SampleTest)
+This test has not been implemented yet.
+
+OK, but incomplete test cases!!!
+Tests run: 1, incomplete test cases: 1.</screen>
+</chapter>

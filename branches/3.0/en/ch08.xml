@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+
+<chapter id="testcase-extensions">
+  <title>TestCase Extensions</title>
+
+  <para>
+    PHPUnit provides extensions to the standard base-class for test classes,
+    <literal>PHPUnit_Framework_TestCase</literal>, that aid in the writing
+    of tests for exceptions, output, and performance regressions.
+  </para>
+
+  <section id="testcase-extensions.exceptions">
+    <title>Testing Exceptions</title>
+
+    <para>
+      <indexterm><primary>PHPUnit_Extensions_ExceptionTestCase</primary></indexterm>
+
+      You can extend your test class from <literal>PHPUnit_Extensions_ExceptionTestCase</literal>
+      to test whether an exception is thrown inside the tested code.
+      <xref linkend="testcase-extensions.exceptions.examples.ExceptionTest.php" />
+      shows how to subclass <literal>PHPUnit_Extensions_ExceptionTestCase</literal>
+      and use its <literal>setExpectedException()</literal> method to set the
+      expected exception. If this expected exception is not thrown, the test
+      will be counted as a failure.
+    </para>
+
+    <example id="testcase-extensions.exceptions.examples.ExceptionTest.php">
+      <title>Using PHPUnit_Extensions_ExceptionTestCase</title>
+      <programlisting><![CDATA[<?php
+require_once 'PHPUnit/Extensions/ExceptionTestCase.php';
+
+class ExceptionTest extends PHPUnit_Extensions_ExceptionTestCase
+{
+    public function testException()
+    {
+        $this->setExpectedException('Exception');
+    }
+}
+?>]]></programlisting>
+      <screen><userinput>phpunit ExceptionTest</userinput>
+PHPUnit 3.0.0 by Sebastian Bergmann.
+
+F
+
+Time: 00:00
+There was 1 failure:
+1) testException(ExceptionTest)
+Expected exception Exception
+
+FAILURES!
+Tests: 1, Failures: 1.</screen>
+    </example>
+
+    <para>
+      <xref linkend="testcase-extensions.exceptions.tables.api" />
+      shows the methods provided by
+      <literal>PHPUnit_Extensions_ExceptionTestCase</literal>.
+    </para>
+
+    <table id="testcase-extensions.exceptions.tables.api">
+      <title>ExceptionTestCase</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>Method</entry>
+            <entry>Meaning</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>void setExpectedException(string $exceptionName)</literal></entry>
+            <entry>Set the name of the expected exception to <literal>$exceptionName</literal>.</entry>
+          </row>
+          <row>
+            <entry><literal>String getExpectedException()</literal></entry>
+            <entry>Return the name of the expected exception.</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <para>
+      Alternatively, you can use the approach shown in
+      <xref linkend="testcase-extensions.exceptions.examples.ExceptionTest2.php" />
+      to test exceptions.
+    </para>
+
+    <example id="testcase-extensions.exceptions.examples.ExceptionTest2.php">
+      <title>Alternative approach to testing exceptions</title>
+      <programlisting><![CDATA[<?php
+require_once 'PHPUnit/Framework.php';
+
+class ExceptionTest extends PHPUnit_Framework_TestCase {
+    public function testException() {
+        try {
+            // ... Code that is expected to raise an Exception ...
+        }
+
+        catch (Exception $expected) {
+            return;
+        }
+
+        $this->fail('An expected Exception has not been raised.');
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      If the code that is expected to raise an exception in
+      <xref linkend="testcase-extensions.exceptions.examples.ExceptionTest2.php" />
+      does not raise the expected exception, the subsequent call to
+      <literal>fail()</literal> (see
+      <xref linkend="api.assert.tables.bottleneck-methods" />) will halt the
+      test and signal a problem with the test. If the expected exception is
+      raised, the <literal>catch</literal> block will be executed, and the
+      test will end successfully.
+    </para>
+  </section>
+
+  <section id="testcase-extensions.output">
+    <title>Testing Output</title>
+
+    <para>
+      <indexterm><primary>PHPUnit_Extensions_OutputTestCase</primary></indexterm>
+
+      Sometimes you want to assert that the execution of a method, for
+      instance, generates an expected output (via <literal>echo</literal> or
+      <literal>print</literal>, for example). The
+      <literal>PHPUnit_Extensions_OutputTestCase</literal> class uses PHP's
+      <ulink url="http://www.php.net/manual/en/ref.outcontrol.php">Output
+      Buffering</ulink> feature to provide the functionality that is
+      necessary for this.
+    </para>
+
+    <para>
+      <xref linkend="testcase-extensions.output.examples.OutputTest.php" />
+      shows how to subclass <literal>PHPUnit_Extensions_OutputTestCase</literal>
+      and use its <literal>expectOutputString()</literal> method to set the
+      expected output. If this expected output is not generated, the test
+      will be counted as a failure.
+    </para>
+
+    <example id="testcase-extensions.output.examples.OutputTest.php">
+      <title>Using PHPUnit_Extensions_OutputTestCase</title>
+      <programlisting><![CDATA[<?php
+require_once 'PHPUnit/Extensions/OutputTestCase.php';
+ 
+class OutputTest extends PHPUnit_Extensions_OutputTestCase
+{
+    public function testExpectFooActualFoo()
+    {
+        $this->expectOutputString('foo');
+        print 'foo';
+    }
+ 
+    public function testExpectFooActualBar()
+    {
+        $this->expectOutputString('foo');
+        print 'bar';
+    }
+}
+?>]]></programlisting>
+      <screen><userinput>phpunit OutputTest</userinput><![CDATA[
+PHPUnit 3.0.0 by Sebastian Bergmann.
+
+.F
+
+Time: 00:00
+
+There was 1 failure:
+
+1) testExpectFooActualBar(OutputTest)
+Failed asserting that <string:bar> is equal to <string:foo>.
+
+FAILURES!
+Tests: 2, Failures: 1.]]></screen>
+    </example>
+
+    <para>
+      <xref linkend="testcase-extensions.output.tables.api" />
+      shows the methods provided by
+      <literal>PHPUnit_Extensions_OutputTestCase</literal>.
+    </para>
+
+    <table id="testcase-extensions.output.tables.api">
+      <title>OutputTestCase</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>Method</entry>
+            <entry>Meaning</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>void expectOutputRegex(string $regularExpression)</literal></entry>
+            <entry>Set up the expectation that the output matches a <literal>$regularExpression</literal>.</entry>
+          </row>
+          <row>
+            <entry><literal>void expectOutputString(string $expectedString)</literal></entry>
+            <entry>Set up the expectation that the output is equal to an <literal>$expectedString</literal>.</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+  </section>
+
+  <section id="testcase-extensions.performance">
+    <title>Testing Performance</title>
+
+    <para>
+      <indexterm><primary>PHPUnit_Extensions_PerformanceTestCase</primary></indexterm>
+
+      You can extend your test class from <literal>PHPUnit_Extensions_PerformanceTestCase</literal>
+      to test whether the execution of a function or method call, for
+      instance, exceeds a specified time limit.
+    </para>
+
+    <para>
+      <xref linkend="testcase-extensions.performance.examples.PerformanceTest.php" />
+      shows how to subclass <literal>PHPUnit_Extensions_PerformanceTestCase</literal>
+      and use its <literal>setMaxRunningTime()</literal> method to set the
+      maximum running time for the test. If the test is not executed within
+      this time limit, it will be counted as a failure.
+    </para>
+
+    <example id="testcase-extensions.performance.examples.PerformanceTest.php">
+      <title>Using PHPUnit_Extensions_PerformanceTestCase</title>
+      <programlisting><![CDATA[<?php
+require_once 'PHPUnit/Extensions/PerformanceTestCase.php';
+
+class PerformanceTest extends PHPUnit_Extensions_PerformanceTestCase
+{
+    public function testPerformance()
+    {
+        $this->setMaxRunningTime(2);
+        sleep(1);
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      <xref linkend="testcase-extensions.performance.tables.api" />
+      shows the methods provided by
+      <literal>PHPUnit_Extensions_PerformanceTestCase</literal>.
+    </para>
+
+    <table id="testcase-extensions.performance.tables.api">
+      <title>PerformanceTestCase</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>Method</entry>
+            <entry>Meaning</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>void setMaxRunningTime(int $maxRunningTime)</literal></entry>
+            <entry>Set the maximum running time for the test to <literal>$maxRunningTime</literal> (in seconds).</entry>
+          </row>
+          <row>
+            <entry><literal>integer getMaxRunningTime()</literal></entry>
+            <entry>Return the maximum running time allowed for the test.</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+  </section>
+</chapter>

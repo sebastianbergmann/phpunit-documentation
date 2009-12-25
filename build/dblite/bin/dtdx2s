@@ -1,0 +1,71 @@
+#!/usr/bin/perl -w
+#
+# convert XML DTD into an SGML DTD
+#
+
+use strict;
+use Getopt::Std;
+my %opts;
+my $DEBUG_MODE = 0;
+my $VERBOSE_MODE = 0;
+&handle_opts;
+
+while( my $file = shift @ARGV ) {
+    print "Converting XML DTD $file into SGML DTD s$file\n";
+    &process_dtd( $file );
+}
+
+
+## process DTD
+##
+sub process_dtd {
+    my $file = shift;
+    if( open( F, $file )) {
+	my $buf = '';
+	while( <F> ) {
+	    # add the tag omission flags
+	    s/(ELEMENT\s+\S+\s+)/$1- O /;
+	    s|//XML||g;
+	    s/xml://g;
+	    $_ = '' if( /\.ent\"/ );
+	    $buf .= $_;
+	}
+	close F;
+
+	# output to a file starting with 's'
+	$file = 's' . $file;
+	if( open( F, ">$file" )) {
+	    print F $buf;
+	    close F;
+	} else {	
+	    print STDERR "WARNING: couldn't write to '$file' ...skipping\n";
+	}
+
+    } else {
+	print STDERR "WARNING: couldn't open '$file' ...skipping\n";
+    }
+}
+
+## handle options
+##
+sub handle_opts {
+    getopts('dhv', \%opts);
+    &print_usage() if( exists( $opts{'h'} ));
+    $DEBUG_MODE = 1 if( exists( $opts{'d'} ));
+    $VERBOSE_MODE = 1 if( exists( $opts{'v'} ));
+}
+
+## print a usage message and quit
+##
+sub print_usage {
+    my $progname = $0;
+    print "Usage: $progname <options> [<filename>]\n";
+    print <<END;
+where options are:
+  -v                debug mode
+  -h                print this help message
+  -v                verbose mode
+
+END
+    exit(0);
+}

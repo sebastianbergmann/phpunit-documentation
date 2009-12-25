@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+
+<chapter id="stubs">
+  <title>Stubs</title>
+
+  <para>
+    <indexterm><primary>Stubs</primary></indexterm>
+
+    Tests that only test one thing are more informative than tests where
+    failure can come from many sources. How can you isolate your tests from
+    external influences? Simply put, by replacing the expensive, messy,
+    unreliable, slow, complicated resources with stubs made from plain PHP
+    objects. For example, you can implement what is in reality a complicated
+    computation by returning a constant, at least for the purposes of a
+    single test.
+  </para>
+
+  <para>
+    <indexterm><primary>PHPUnit2_Extensions_TestSetup</primary></indexterm>
+
+    Stubs solve the problem of allocating expensive external resources.
+    For example, sharing a resource, such as a database connection, between
+    tests by using the <literal>PHPUnit2_Extensions_TestSetup</literal>
+    decorator helps, but not using the database for the purposes of the tests
+    at all is even better.
+  </para>
+
+  <para>
+    Design improvement is one effect of using stubs. Widely used resources
+    are accessed through a single façade, so you can easily replace the
+    resource with the stub. For example, instead of having direct database
+    calls scattered throughout the code, you have a single
+    <literal>Database</literal> object, an implementor of the
+    <literal>IDatabase</literal> interface. Then, you can create a stub
+    implementation of <literal>IDatabase</literal> and use it for your
+    tests. You can even create an option for running the tests with the
+    stub database or the real database, so you can use your tests for both
+    local testing during development and integration testing with the real
+    database.
+  </para>
+
+  <para>
+    Functionality that needs to be stubbed out tends to cluster in the same
+    object, improving cohesion. By presenting the functionality with a
+    single, coherent interface, you reduce the coupling with the rest of the
+    system.
+  </para>
+
+  <section id="stubs.self-shunting">
+    <title>Self-Shunting</title>
+
+    <para>
+      <indexterm><primary>Self Shunt Pattern</primary></indexterm>
+
+      Sometimes you need to check that an object has been called correctly. You
+      can create a complete stub of the object to be called, but that can make
+      it inconvenient to check for correct results. A simpler solution is to
+      apply the <emphasis>Self Shunt Pattern</emphasis> and use the test-case
+      object itself as a stub. The term self-shunting is taken from the medical
+      practice of installing a tube that takes blood from an artery and returns
+      it to a vein to provide a convenient place for injecting drugs.
+    </para>
+
+    <para>
+      <indexterm><primary>Observer Pattern</primary></indexterm>
+
+      Here is an example: suppose we want to test that the correct method is
+      called on an object that observes another object. First, we make our
+      test-case class an implementor of <literal>Observer</literal>:
+<programlisting>class ObserverTest extends PHPUnit2_Framework_TestCase implements Observer {
+}</programlisting>
+    </para>
+
+    <para>
+      Next, we implement the one <literal>Observer</literal> method,
+      <literal>update()</literal>, to check that it is called when the state
+      of the observed <literal>Subject</literal> object changes:
+<programlisting>public $wasCalled = FALSE;
+
+public function update(Subject $subject) {
+    $this->wasCalled = TRUE;
+}</programlisting>
+    </para>
+
+    <para>
+      Now, we can write our test. We create a new <literal>Subject</literal>
+      object and attach the test object to it as an observer. When the state
+      of the <literal>Subject</literal> changes -- for instance, by calling its
+      <literal>doSomething()</literal> method -- the <literal>Subject</literal>
+      object has to call the <literal>update()</literal> method on all objects
+      that are registered as observers. We use the <literal>$wasCalled</literal>
+      instance variable that is set by our implementation of
+      <literal>update()</literal> to check whether the <literal>Subject</literal>
+      object does what it is supposed to do:
+
+<programlisting>public function testUpdate() {
+    $subject = new Subject;
+    $subject->attach($this);
+    $subject->doSomething();
+
+    $this->assertTrue($this->wasCalled);
+}</programlisting>
+    </para>
+
+    <para>
+      Notice that we create a new <literal>Subject</literal> object instead of
+      relying on a global instance. Stubbing encourages this style of design.
+      It reduces the coupling between objects and improves reuse.
+    </para>
+
+    <para>
+      If you are not familiar with the self-shunt pattern, the tests can be
+      hard to read. What is going on here? Why is a test case also an
+      observer? Once you get used to the idiom, the tests are easy to read.
+      Everything you need to understand the test is in one class.
+    </para>
+  </section>
+</chapter>

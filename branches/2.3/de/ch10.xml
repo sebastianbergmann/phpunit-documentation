@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+
+<chapter id="stubs">
+  <title>Stubs</title>
+
+  <para>
+    <indexterm><primary>Stubs</primary></indexterm>
+
+    Tests, die nur einen Gegenstand prüfen sind informativer als Tests,
+    bei denen ein Versagen viele Ursachen haben kann. Wie aber können Sie
+    Ihre Tests von äußeren Einflüssen isolieren? Ersetzen Sie einfach alle
+    teuren, undurchsichtigen, unzuverlässigen, langsamen und komplizierten
+    Ressourcen durch Stubs aus einfachen PHP-Objekten. Beispielsweise
+    können Sie Elemente, die in Wirklichkeit komplizierte Berechnungen
+    erfordern, zumindest für einzelne Tests durch die Rückgabe von
+    Konstanten ersetzen.
+  </para>
+
+  <para>
+    <indexterm><primary>PHPUnit2_Extensions_TestSetup</primary></indexterm>
+
+    Ein Problem, das mit Hilfe von Stubs gelöst werden kann, ist die
+    Allokation teurer externer Ressourcen. Das gemeinsame Nutzen einer
+    Datenbankverbindung durch mehrere Tests, beispielsweise durch
+    Verwendung des <literal>PHPUnit2_Extensions_TestSetup</literal>-Dekorierers,
+    hilft. Die Datenbank für die Durchführung der Tests überhaupt nicht zu
+    verwenden ist noch besser.
+  </para>
+
+  <para>
+    Ein Nebeneffekt der Verwendung von Stubs ist die tendenzielle
+    Verbesserung Ihrer Designs. Auf Ressourcen, die an vielen Stellen
+    benötigt werden, greifen Sie über eine einzige Fassade zu, die Sie leicht
+    durch einen Stub ersetzen können. Beispielsweise verwenden Sie keine über
+    den gesamten Code verstreuten Datenbank-Aufrufe, sondern haben ein
+    einziges, die Schnittstelle <literal>IDatabase</literal>
+    implementierendes, <literal>Database</literal>-Objekt. Dann erstellen
+    Sie eine Stub-Implementierung von <literal>IDatabase</literal> und
+    benutzen diese, wenn Sie Ihre Tests laufen lassen. Sie können sogar eine
+    Wahlmöglichkeit schaffen, so dass die Tests alternativ mit der wirklichen
+    Datenbank oder mit der Stub-Datenbank laufen und Ihre Tests sowohl für
+    die lokale Entwicklung als auch für Integrationstests mit der richtigen
+    Datenbank verwenden.
+  </para>
+
+  <para>
+    Funktionalität, die zur selben Zeit durch Stubs ersetzt werden muss,
+    neigt dazu, sich auch im selben Objekt anzusammeln. Dies verbessert die
+    Kohäsion. Und indem Sie die Funktionalität in einer einzigen, kohärenten
+    Schnittstelle präsentieren, entkoppeln Sie diese besser vom Rest des
+    Systems.
+  </para>
+
+  <section id="stubs.self-shunting">
+    <title>Self-Shunting</title>
+
+    <para>
+      <indexterm><primary>Self Shunt Pattern</primary></indexterm>
+
+      Manchmal müssen Sie überprüfen, ob ein Objekt korrekt aufgerufen worden
+      ist. Dazu können Sie für das aufzurufende Objekt einen ausgewachsenen
+      Stub erstellen. Dann wiederum kann es aber schwierig sein, auf korrekte
+      Ergebnisse zu prüfen. Eine einfachere Lösung besteht darin, das
+      Testfall-Objekt selbst als Stub zu benutzen. Dies bezeichnet man als
+      <emphasis>Self-Shunting</emphasis>. Der Begriff ist von einem in der
+      Medizin üblichen Verfahren übernommen worden, bei dem Blut durch einen
+      Schlauch von einer Arterie in eine Vene geleitet wird, um eine bequeme
+      Möglichkeit zur Injektion von Medikamenten zu schaffen.
+    </para>
+
+    <para>
+      <indexterm><primary>Observer Pattern</primary></indexterm>
+
+      Dafür folgt nun ein Beispiel. Angenommen, Sie möchten testen, ob die
+      korrekte Methode eines Objekts aufgerufen wird, das ein anderes Objekt
+      beobachtet. Zunächst machen Sie aus der Testfall-Klasse einen
+      Implementor von <literal>Observer</literal>:
+<programlisting>class ObserverTest extends PHPUnit2_Framework_TestCase implements Observer {
+}</programlisting>
+    </para>
+
+    <para>
+      Danach implementieren Sie <literal>update()</literal>, die einzige
+      Methode in <literal>Observer</literal>, um sicherzustellen, dass diese
+      aufgerufen wird, wenn sich der Zustand des beobachteten Objekts
+      (<literal>Subject</literal>) ändert:
+<programlisting>public $wasCalled = FALSE;
+
+public function update(Subject $subject) {
+    $this->wasCalled = TRUE;
+}</programlisting>
+    </para>
+
+    <para>
+      Jetzt können Sie den Test schreiben. Erzeugen Sie ein neues Objekt
+      der Klasse <literal>Subject</literal> und registrieren das
+      Testfall-Objekt als Beobachter. Wenn sich der Zustand des
+      <literal>Subject</literal>-Objekts (beispielsweise durch Aufruf einer
+      Methode <literal>doSomething()</literal>) ändert, muss dieses die
+      <literal>update()</literal>-Methoden der registrierten Beobacher-Objekte
+      aufrufen. Wir benutzen die Instanzvariable <literal>$wasCalled</literal>,
+      die von unserer Implementierung von <literal>update()</literal> gesetzt
+      wird, um zu testen, ob sich das <literal>Subject</literal>-Objekt wie
+      erwartet verhält.
+<programlisting>public function testUpdate() {
+    $subject = new Subject;
+    $subject->attach($this);
+    $subject->doSomething();
+
+    $this->assertTrue($this->wasCalled);
+}</programlisting>
+    </para>
+
+    <para>
+      Beachten Sie, dass wir ein neues <literal>Subject</literal>-Objekt
+      anstelle einer globalen Instanz verwenden. Ein solcher Entwurfsstil,
+      der die Entkopplung zwischen den Objekten verbessert und damit die
+      Wiederverwendbarkeit erleichtert, wird duch die Verwendung von Stubs
+      gefördert.
+    </para>
+
+    <para>
+      Wer mit dem Self-Shunt-Pattern nicht vertraut ist, für den können die
+      Tests schwer lesbar sein. Was geschieht hier? Wie kann ein Testfall
+      zugleich ein Beobachter sein? Wenn Sie sich aber erst einmal an diese
+      Vorgehensweise gewöhnt haben, sind die Tests leicht zu lesen. Alles,
+      was Sie zum Verständnis eines Tests benötigen, befindet sich in einer
+      einzigen Klasse.
+    </para>
+  </section>
+</chapter>

@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="testcase-extensions">
+  <title>テストケースの拡張</title>
+
+  <para>
+    PHPUnit では、テストクラスの基底クラスである
+    <literal>PHPUnit_Framework_TestCase</literal> を拡張するための方法を提供しています。
+    これにより、例外や出力内容、そしてパフォーマンス低下のテストができるようになります。
+  </para>
+
+  <section id="testcase-extensions.exceptions">
+    <title>例外のテスト</title>
+
+    <para>
+      <indexterm><primary>PHPUnit_Extensions_ExceptionTestCase</primary></indexterm>
+
+      <literal>PHPUnit_Extensions_ExceptionTestCase</literal>
+      を継承したテストクラスを作成し、
+      テストコードの内部で例外がスローされたかどうかを調べることもできます。
+      <xref linkend="testcase-extensions.exceptions.examples.ExceptionTest.php" />
+      では、<literal>PHPUnit_Extensions_ExceptionTestCase</literal>
+      のサブクラスを作成し、テストしたい例外をその <literal>setExpectedException()</literal>
+      メソッドに設定する方法を示します。期待した例外がスローされなかった場合は、
+      そのテストは失敗という扱いになります。
+    </para>
+
+    <example id="testcase-extensions.exceptions.examples.ExceptionTest.php">
+      <title>PHPUnit_Extensions_ExceptionTestCase の使用法</title>
+      <programlisting><![CDATA[<?php
+require_once 'PHPUnit/Extensions/ExceptionTestCase.php';
+
+class ExceptionTest extends PHPUnit_Extensions_ExceptionTestCase
+{
+    public function testException()
+    {
+        $this->setExpectedException('Exception');
+    }
+}
+?>]]></programlisting>
+      <screen><userinput>phpunit ExceptionTest</userinput>
+PHPUnit 3.1.9 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds
+
+There was 1 failure:
+
+1) testException(ExceptionTest)
+Expected exception Exception
+
+FAILURES!
+Tests: 1, Failures: 1.</screen>
+    </example>
+
+    <para>
+      <xref linkend="testcase-extensions.exceptions.tables.api" />
+      は、<literal>PHPUnit_Extensions_ExceptionTestCase</literal>
+      が実装しているメソッドをまとめたものです。
+    </para>
+
+    <table id="testcase-extensions.exceptions.tables.api">
+      <title>ExceptionTestCase</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>メソッド</entry>
+            <entry>意味</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>void setExpectedException(string $exceptionName)</literal></entry>
+            <entry>発生することを期待する例外の名前を <literal>$exceptionName</literal> に設定します。</entry>
+          </row>
+          <row>
+            <entry><literal>String getExpectedException()</literal></entry>
+            <entry>発生することを期待する例外の名前を返します。</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <para>
+      一方、
+      <xref linkend="testcase-extensions.exceptions.examples.ExceptionTest2.php" />
+      のような方法で例外をテストすることもできます。
+    </para>
+
+    <example id="testcase-extensions.exceptions.examples.ExceptionTest2.php">
+      <title>例外をテストするための、別の方法</title>
+      <programlisting><![CDATA[<?php
+require_once 'PHPUnit/Framework.php';
+
+class ExceptionTest extends PHPUnit_Framework_TestCase {
+    public function testException() {
+        try {
+            // ... 例外が発生するであろうコード ...
+        }
+
+        catch (Exception $expected) {
+            return;
+        }
+
+        $this->fail('期待通りの例外が発生しませんでした。');
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      例外が発生するはずの
+      <xref linkend="testcase-extensions.exceptions.examples.ExceptionTest2.php" />
+      のコードで例外が発生しなかった場合、それに続く
+      <literal>fail()</literal> (<xref linkend="api.assert.tables.bottleneck-methods" /> を参照ください)
+      によってテストが終了し、問題を報告します。期待通りに例外が発生すると、
+      <literal>catch</literal> ブロックが実行されてテストは正常終了します。
+    </para>
+  </section>
+
+  <section id="testcase-extensions.output">
+    <title>出力内容のテスト</title>
+
+    <para>
+      <indexterm><primary>PHPUnit_Extensions_OutputTestCase</primary></indexterm>
+
+      メソッドの実行結果を確かめる方法として、(<literal>echo</literal> や
+      <literal>print</literal> などによる)
+      出力が期待通りのものかを調べたいこともあるでしょう。
+      <literal>PHPUnit_Extensions_OutputTestCase</literal> クラスは、PHP の
+      <ulink url="http://www.php.net/manual/ja/ref.outcontrol.php">
+      出力バッファリング</ulink> 機能を使用してこの仕組みを提供します。
+    </para>
+
+    <para>
+      <xref linkend="testcase-extensions.output.examples.OutputTest.php" />
+      では、<literal>PHPUnit_Extensions_OutputTestCase</literal>
+      のサブクラスを作成し、期待する出力内容を <literal>expectOutputString()</literal>
+      メソッドで設定する方法を示します。
+      期待通りの出力が得られなかった場合は、そのテストは失敗という扱いになります。
+    </para>
+
+    <example id="testcase-extensions.output.examples.OutputTest.php">
+      <title>PHPUnit_Extensions_OutputTestCase の使用法</title>
+      <programlisting><![CDATA[<?php
+require_once 'PHPUnit/Extensions/OutputTestCase.php';
+ 
+class OutputTest extends PHPUnit_Extensions_OutputTestCase
+{
+    public function testExpectFooActualFoo()
+    {
+        $this->expectOutputString('foo');
+        print 'foo';
+    }
+ 
+    public function testExpectBarActualBaz()
+    {
+        $this->expectOutputString('bar');
+        print 'baz';
+    }
+}
+?>]]></programlisting>
+      <screen><userinput>phpunit OutputTest</userinput><![CDATA[
+PHPUnit 3.1.9 by Sebastian Bergmann.
+
+.F
+
+Time: 0 seconds
+
+There was 1 failure:
+
+1) testExpectBarActualBaz(OutputTest)
+Failed asserting that two strings are equal.
+expected string <bar>
+difference      <  x>
+got string      <baz>
+
+FAILURES!
+Tests: 2, Failures: 1.]]></screen>
+    </example>
+
+    <para>
+      <xref linkend="testcase-extensions.output.tables.api" />
+      <literal>PHPUnit_Extensions_OutputTestCase</literal>
+      が提供するメソッドをまとめたものです。
+    </para>
+
+    <table id="testcase-extensions.output.tables.api">
+      <title>OutputTestCase</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>メソッド</entry>
+            <entry>意味</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>void expectOutputRegex(string $regularExpression)</literal></entry>
+            <entry>出力が正規表現 <literal>$regularExpression</literal> にマッチするであろうという予測を設定します。</entry>
+          </row>
+          <row>
+            <entry><literal>void expectOutputString(string $expectedString)</literal></entry>
+            <entry>出力が文字列 <literal>$expectedString</literal> と等しくなるであろうという予測を設定します。</entry>
+          </row>
+          <row>
+            <entry><literal>bool setOutputCallback(callable $callback)</literal></entry>
+            <entry>たとえば出力時の正規化などに使用するコールバック関数を設定します。</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+  </section>
+
+  <section id="testcase-extensions.performance">
+    <title>パフォーマンス低下のテスト</title>
+
+    <para>
+      <indexterm><primary>PHPUnit_Extensions_PerformanceTestCase</primary></indexterm>
+
+      <literal>PHPUnit_Extensions_PerformanceTestCase</literal>
+      を継承したテストクラスを使用すると、
+      関数やメソッドの実行が制限時間内に終わったかどうかなどをテストすることができます。
+    </para>
+
+    <para>
+      <literal>PHPUnit_Extensions_PerformanceTestCase</literal> 
+      のサブクラスを作成してその <literal>setMaxRunningTime()</literal>
+      メソッドを使用し、実行時間の最大値を制限する方法を 
+      <xref linkend="testcase-extensions.performance.examples.PerformanceTest.php" />
+      で示します。
+      もしテストが制限時間内に終了しなければ、そのテストは失敗という扱いになります。
+    </para>
+
+    <example id="testcase-extensions.performance.examples.PerformanceTest.php">
+      <title>PHPUnit_Extensions_PerformanceTestCase の使用法</title>
+      <programlisting><![CDATA[<?php
+require_once 'PHPUnit/Extensions/PerformanceTestCase.php';
+
+class PerformanceTest extends PHPUnit_Extensions_PerformanceTestCase
+{
+    public function testPerformance()
+    {
+        $this->setMaxRunningTime(2);
+        sleep(1);
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      <xref linkend="testcase-extensions.performance.tables.api" />
+      は、<literal>PHPUnit_Extensions_PerformanceTestCase</literal>
+      が実装しているメソッドをまとめたものです。
+    </para>
+
+    <table id="testcase-extensions.performance.tables.api">
+      <title>PerformanceTestCase</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>メソッド</entry>
+            <entry>意味</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>void setMaxRunningTime(int $maxRunningTime)</literal></entry>
+            <entry>テストの所要時間の最大値を (秒単位で) <literal>$maxRunningTime</literal> に設定します。</entry>
+          </row>
+          <row>
+            <entry><literal>integer getMaxRunningTime()</literal></entry>
+            <entry>このテストの最大所要時間を返します。</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <para>
+      <xref linkend="selenium" /> では、もうひとつの拡張である
+      <literal>PHPUnit_Extensions_SeleniumTestCase</literal>
+      クラスについて説明します。
+    </para>
+  </section>
+</chapter>

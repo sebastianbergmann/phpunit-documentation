@@ -1,0 +1,1653 @@
+<chapter id="xpath">
+<title>XPath and XPointer</title>
+
+<simplesect>
+
+<para>XML has often been compared to a database because of the way it
+packages information for easy retrieval. Ignoring the obvious issues
+of speed and optimization, this isn't a bad analogy. Element names and
+attributes put handles on data, just as SQL tables use table and field
+names. Element structure supplies even more information in the form of
+context (e.g. element A is the child of element B, which follows
+element C, etc.). With a little knowledge of the markup language, you
+can locate and extract any piece of information.</para>
+
+<para>This is useful for many reasons. First, you might want to locate
+a specific datum from a known location (called a
+<firstterm>path</firstterm>) in a particular document. Given a URI and
+path, you ought to be able to fetch that datum automatically. The
+other benefit is that you can use path information to get really
+specific about processing a class of documents. Instead of just giving
+element name or attribute value to configure a stylesheet as with CSS,
+you could incorporate all kinds of extra contextual details, including
+data located anywhere in the document. For example, you could specify
+that items in a list should use a particular kind of bullet specified
+in a metadata section at the beginning of the document.</para>
+
+<para>To express path information in a standard way, the W3C
+recommends the XML Path Language (also known as XPath). Quickly
+following on the heels of the XML recommendation, XPath opens up many
+possibilities for documents and facilitates technologies such as XSLT
+and DOM. The XML Pointer Language (XPointer) extends XPath into a
+wider realm, allowing you to locate information in other
+documents.</para>
+
+</simplesect>
+
+
+<sect1><title>Nodes and trees</title>
+
+<para>Remember in <xref linkend="intro"/> when we talked about trees
+and XML? I said that every XML document can be represented graphically
+with a tree structure. The reason that is important will now be
+revealed. Because there is only one possible tree configuration for
+any given document, it means that there is a unique path from the root
+(or any point inside) to any other point. XPath simply describes how
+to climb the tree in a series of steps to arrive at a
+destination.</para>
+
+<para>By the way, we will be slipping into some tree-ish terminology
+throughout the chapter. It's assumed you read the quick introduction
+to trees in <xref linkend="intro"/>. If you hear me talking about
+ancestors and siblings and have no idea what that has to do with XML,
+go back and refresh your vocabulary.</para>
+
+<sect2><title>Node types</title>
+
+<para>Each step in a path touches a branching or terminal point in the
+tree called a <firstterm>node</firstterm>. In keeping with the
+arboreal terminology, a terminal node (one with no descendants) is
+sometimes called a <firstterm>leaf</firstterm>. In XPath, there are
+seven different kinds of node:</para>
+
+<variablelist>
+
+<varlistentry><term>Root</term>
+<listitem><para>The root of the document is a special kind of
+node. It's not an element, as you might think, but rather it contains
+the document element. It also contains any comments or processing
+instructions that surround the document element.</para></listitem>
+</varlistentry>
+
+<varlistentry><term>Element</term>
+<listitem><para>Elements and the root node share a special property
+among nodes: they alone can contain other nodes. An element node can
+contain other elements, plus any other node type except the root
+node. In a tree, it would be the point where two branches meet. Or, if
+it is an empty element, it would be a leaf node.</para></listitem>
+</varlistentry>
+
+<varlistentry><term>Attribute</term>
+<listitem><para>For simplicity's sake, XPath treats attributes as
+separate nodes from their element hosts. This allows you to select the
+element as a whole, or merely the attribute in that element, using the
+same path syntax. An attribute is like an element that contains only
+text.</para></listitem>
+</varlistentry>
+
+<varlistentry><term>Text</term>
+<listitem><para>A region of uninterrupted text is treated as a leaf
+node. It is always the child of an element. An element may have more
+than one text node child, however, if it is broken up by elements or
+other node types. Keep that in mind if you process text in an element:
+you may have to check more than one node.</para></listitem>
+</varlistentry>
+
+<varlistentry><term>Comment</term>
+<listitem><para>Though technically it does not contribute anything to
+the content of the document, and most XML processors just throw it
+away, an XML comment is considered a valid node. This may be a way to
+express a document in such a way that it can be reconstructed down to
+the character (although, as I will say later, this is not strictly
+possible). And who knows, maybe you want to keep the comments
+around.</para></listitem>
+</varlistentry>
+
+<varlistentry><term>Processing instruction</term>
+<listitem><para>Like comments, a processing instruction can appear
+anywhere in the document under the root node.</para></listitem>
+</varlistentry>
+
+<varlistentry><term>Namespace</term>
+<listitem><para>Perhaps you might think it strange that a namespace
+declaration should be treated differently from an attribute. But think
+about this: a namespace is actually a region of the document, not just
+the possession of a single element. All the descendants of that
+element will be effected. XML processors must pay special attention to
+namespaces, so XPath makes it a unique node type.</para></listitem>
+</varlistentry>
+</variablelist>
+
+<para>What isn't included in this list is the DTD. You can't use XPath
+to poke around in the internal or external subsets. XPath just
+considers that information to be implicit and not worth accessing
+directly. Also, any entity references are assumed to be resolved before
+XPath enters the tree. This is probably a good thing, because entities
+can contain element trees that you would probably want to be able to
+reach.</para>
+
+<para>So it isn't strictly true that XPath will maintain all the
+information about a document so that you could later reconstruct it
+letter for letter. The structure and content are preserved, however,
+which makes it <firstterm>semantically</firstterm> equivalent. What
+this means is, if you were to slurp up the document into a program and
+then rebuild it from the structure in memory, it would probably not
+pass a <command>diff</command><footnote>
+<para><literal>diff</literal> is a program in Unix that compares two
+text files and reports when any two lines are different. Even if one
+character is out of place, it will find and report that
+fact.</para></footnote>
+test. Little things would be changed, such as the order of attributes
+(attribute order is not significant in XML), whitespace between
+elements may be missing or changed, and entities will all be
+resolved. To compare two semantically equivalent documents you'd need
+a special kind of tool. One that I know of in the Perl realm is the
+module <literal>XML::SemanticDiff</literal>, which will tell you if
+structure or content is the same.</para>
+
+<para>To show these nodes in their natural habitat, let's look at an
+example. The following document contains all the node types, and <xref
+linkend="xpath-fig-nodes"/> shows how it looks as a tree.</para>
+
+<programlisting>&lt;?xml version="1.0"?&gt;
+&lt;!-- Dee-licious! --&gt;
+&lt;sandwich xmlns="http://www.food.org/ns"&gt;
+  &lt;ingredient type="grape"&gt;jelly&lt;/ingredient&gt;
+  &lt;ingredient&gt;&lt;?knife spread thickly?&gt;
+    peanut butter&lt;/ingredient&gt;
+  &lt;ingredient&gt;bread
+    &lt;!-- white bread, preferably --&gt;&lt;/ingredient&gt;
+&lt;/sandwich&gt;</programlisting>
+
+<figure id="xpath-fig-nodes">
+<title>Tree view showing all kinds of nodes</title>
+<graphic fileref="figs/lxml_0601.eps"/>
+</figure>
+
+</sect2>
+<sect2><title>Trees and subtrees</title>
+
+<para>If you cut off a branch from a willow tree and plant it in the
+ground, chances are good it will sprout into a tree of its own (which
+is why you should never build a fence out of willow wood). In XML,
+what this means is that any node in the tree can be thought of as a
+tree its own right. It doesn't have a root node, so that part of the
+analogy breaks down, but everything else is there: the node is like a
+document element, it has descendants, it preserves the tree structure
+in a sort of fractal way. A tree fashioned from an arbitrary node is
+called a <firstterm>subtree</firstterm>.</para>
+
+<para>For example, consider this XML document:</para>
+
+<programlisting>&lt;?xml version="1.0"?&gt;
+&lt;manual type="assembly" id="model-rocket"&gt;
+  &lt;parts-list&gt;
+    &lt;part label="A" count="1"&gt;fuselage, left half&lt;/part&gt;
+    &lt;part label="B" count="1"&gt;fuselage, right half&lt;/part&gt;
+    &lt;part label="F" count="4"&gt;steering fin&lt;/part&gt;
+    &lt;part label="N" count="3"&gt;rocket nozzle&lt;/part&gt;
+    &lt;part label="C" count="1"&gt;crew capsule&lt;/part&gt;
+  &lt;/parts-list&gt;
+  &lt;instructions&gt;
+    &lt;step&gt;
+      Glue parts A and B together to form the fuselage.
+    &lt;/step&gt;
+    &lt;step&gt;
+      Apply glue to the steering fins (part F) and insert them into
+      slots in the fuselage.
+    &lt;/step&gt;
+    &lt;step&gt;
+      Affix the rocket nozzles (part N) to the fuselage bottom with a
+      small amount of glue.
+    &lt;/step&gt;
+    &lt;step&gt;
+      Connect the crew capsule to the top of the fuselage. Do not use
+      any glue, as it is spring-loaded to detach from the fuselage.
+    &lt;/step&gt;
+  &lt;/instructions&gt;
+&lt;/manual&gt;</programlisting>
+
+<para>The whole document is a tree with <sgmltag>manual</sgmltag> as
+the root; the <sgmltag>parts-list</sgmltag> and
+<sgmltag>instructions</sgmltag> elements are also in the form of
+trees, with roots and branches of their own.</para>
+
+<para>XML processing techniques often rely on nested trees. Trees
+facilitate recursive programming, which is easier and more clear than
+iterative means. XSLT, for example, is elegant because a rule treats
+every element as a tree.</para>
+
+<para>One important note about XML and nodes. You cannot take any
+fragment of an XML document and expect it to form a node tree. It has
+to be <firstterm>balanced</firstterm>. In other words, there should be
+a start tag for every end tag. An unbalanced piece of XML is really
+not easy to work with in the XML environment, certainly not with
+XPath.</para>
+
+</sect2>
+</sect1>
+
+  
+<sect1><title>Finding nodes</title>
+  
+<para>There are still a few cultures on earth, such as the Afghani
+people, who can name their ancestors back to the tenth generation or
+further. "Here is Sam, the son of Ben, the son of Andrew, the son
+of..." This chain of generations helps establish the identity of a
+person, showing that they are a member of such and such a clan or they
+are related to another person through some shared great, great
+uncle.</para>
+
+<para>XPath, too, uses chains of steps, except that they are steps in
+an XML tree rather than an actual family tree. The terms "child" and
+"parent" are still applicable. A <firstterm>location path</firstterm>
+is a chain of <firstterm>location steps</firstterm> that get you from
+one point in a document to another.</para>
+
+<para>If a location step identifies a fixed point, such as the root
+node or an element with an ID attribute, it is said to be an
+<firstterm>absolute step</firstterm>. Otherwise, it merely describes
+how to move from the current node to another nearby, and is called a
+<firstterm>relative step</firstterm>. Paths may be absolute or
+relative. A relative path starts from some
+<firstterm>context node</firstterm> implied in the current state of
+processing.</para>
+
+<para>A location step has three parts: an <firstterm>axis</firstterm>
+that describes the direction to travel, a
+<firstterm>node test</firstterm> that specifies what kinds of nodes are
+applicable, and a set of optional <firstterm>predicates</firstterm>
+that use Boolean (true/false) tests to winnow down the candidates even
+further.</para>
+
+<para>The axis is a keyword that specifies a direction you can travel
+from any node. You can go up through ancestors, down through
+descendants, or linearly through siblings. <xref
+linkend="xpath-table-axes"/> lists all the types of node axes.</para>
+
+<table id="xpath-table-axes">
+<title>Node Axes</title>
+<tgroup cols="2">
+<thead>
+<row>
+<entry>Axis Type</entry>
+<entry>Matches</entry>
+</row>
+</thead>
+<tbody>
+<row>
+<entry>Ancestor</entry>
+<entry><para>All nodes above the context node, including the parent,
+grandparent, and so on up to the root node.</para></entry>
+</row>
+<row>
+<entry>Ancestor-or-self</entry>
+<entry><para>Like above, but includes the context node.</para></entry>
+</row>
+<row>
+<entry>Attribute</entry>
+<entry><para>Attributes of the context node.</para></entry>
+</row>
+<row>
+<entry>Child</entry>
+<entry><para>Children of the context node.</para></entry>
+</row>
+<row>
+<entry>Descendant</entry>
+<entry><para>Children of the context node, plus their
+children, and so on down to the leaves of the subtree.</para></entry>
+</row>
+<row>
+<entry>Descendant-or-self</entry>
+<entry><para>Like above, but includes the context node.</para></entry>
+</row>
+<row>
+<entry>Following</entry>
+<entry><para>Nodes that follow the context node at any level in
+the document.</para></entry>
+</row>
+<row>
+<entry>Following-sibling</entry>
+<entry><para>Nodes that follow the context node at the same level
+(i.e., that share the same parent as the context node).</para></entry>
+</row>
+<row>
+<entry>Namespace</entry>
+<entry><para>All nodes of a particular namespace.</para></entry>
+</row>
+<row>
+<entry>Parent</entry>
+<entry><para>The parent of the context node.</para></entry>
+</row>
+<row>
+<entry>Preceding</entry>
+<entry><para>Nodes that occur before the context node at any
+level in the document.</para></entry>
+</row>
+<row>
+<entry>Preceding-sibling</entry>
+<entry><para>Nodes that occur before the context node at the same
+level (i.e., that share the same parent as the context node).</para></entry>
+</row>
+<row>
+<entry>Self</entry>
+<entry><para>The context node itself.</para></entry>
+</row>
+</tbody>
+</tgroup>
+</table>
+
+<para>After the axis comes a node test parameter, joined to the axis
+by a double colon (<literal>::</literal>). In some cases, a name can
+be used in place of an explicit node type, in which case the node type
+is inferred from the axis. For the attribute axis, the node is assumed
+to be an attribute, and for the namespace axis, the node is assumed to
+be a namespace. For all other axes, the node is assumed to be an
+element. In the absence of a node axis specifier, the axis is assumed
+to be <literal>child</literal> and the node is assumed to be of type
+element. <xref linkend="xpath-table-tests"/> lists the node
+tests.</para>
+
+<table id="xpath-table-tests">
+<title>Node Tests</title>
+
+<tgroup cols="2">
+<thead>
+<row>
+<entry>Term</entry>
+<entry>Matches</entry>
+</row>
+</thead>
+<tbody>
+<row>
+<entry><literal>/</literal></entry>
+<entry><para>The root node: not the root element, but
+the node containing the root element and any comments or processing
+instructions that precede it.</para></entry>
+</row>
+<row>
+<entry><literal>node()</literal></entry>
+<entry><para>Any node except the root and attributes.</para></entry>
+</row>
+<row>
+<entry><literal>*</literal></entry>
+<entry><para>In the attribute axis, any attribute. In the namespace
+axis, any namespace. In all other axes, any element.</para></entry>
+</row>
+<row>
+<entry><literal>crabcake</literal></entry>
+<entry><para>In the attribute axis, the attribute of the context
+node, <sgmltag class="attribute">crabcake</sgmltag> in this example. In
+a namespace axis, it's a namespace called
+<literal>crabcake</literal>. In all other axes, any element of type
+<sgmltag>crabcake</sgmltag>.</para></entry>
+</row>
+<row>
+<entry><literal>text()</literal></entry>
+<entry><para>Any text node.</para></entry>
+</row>
+<row>
+<entry><literal>processing-instruction()</literal></entry>
+<entry><para>Any processing instruction.</para></entry>
+</row>
+<row>
+<entry><literal>processing-instruction('.Ng 4')</literal></entry>
+<entry><para>The processing instruction with target
+<literal>.Ng</literal> and data <literal>4</literal>.</para></entry>
+</row>
+<row>
+<entry><literal>comment()</literal></entry>
+<entry><para>Any comment node.</para></entry>
+</row>
+<row>
+<entry><literal>@*</literal></entry>
+<entry><para>Any attribute. (The <literal>@</literal> is shorthand that
+overrides the implicitly assumed node type of <literal>element</literal>
+in the absence of an axis specification.) This is equivalent to
+<literal>attribute::*</literal>.</para></entry>
+</row>
+<row>
+<entry><literal>@role</literal></entry>
+<entry><para>An attribute called <sgmltag class="attribute">role</sgmltag>.</para></entry>
+</row>
+<row>
+<entry><literal>.</literal></entry>
+<entry><para>The context node (in other words, anything). This is
+equivalent to <literal>self::*</literal>.</para></entry>
+</row>
+</tbody>
+</tgroup>
+</table>
+
+<para>Location path steps are chained together using the slash
+(<literal>/</literal>) character. Each step gets you a little closer
+to the node you want to locate. It's sort of like giving directions to
+a restaurant ("Go to Davis Square, head down College Avenue; at the
+Powderhouse rotary, turn left and you'll see a great Vietnamese
+restaurant"). For example, to get from the root node to a
+<sgmltag>para</sgmltag> element inside a <sgmltag>section</sgmltag>
+inside a <sgmltag>chapter</sgmltag> inside a <sgmltag>book</sgmltag>,
+a path might look like this:</para>
+
+<programlisting>book/chapter/section/para</programlisting>
+
+<para>This syntax can be verbose. So, XPath defines some handy
+shortcuts. These are listed in <xref linkend="xpath-table-chains"/>.</para>
+
+<table id="xpath-table-chains">
+<title>Location Path Shortcuts</title>
+<tgroup cols="2">
+<thead>
+<row>
+<entry>Pattern</entry>
+<entry>Matches</entry>
+</row>
+</thead>
+<tbody>
+<row>
+<entry><literal>/*</literal></entry>
+<entry><para>Matches the document element. Any location path that
+starts with slash (<literal>/</literal>) is an absolute path, with the
+first step representing the root node. The next step is
+<literal>*</literal>, which matches any element.</para></entry>
+</row>
+<row>
+<entry><para><literal>parent::*/following-sibling::para</literal></para></entry>
+<entry><para>Matches all <sgmltag>para</sgmltag>s
+that follow the parent of the context node.</para></entry>
+</row>
+<row>
+<entry><literal>..</literal></entry>
+<entry><para>Matches the parent node. The double dot
+(<literal>..</literal>) is shorthand for
+<literal>parent::node()</literal>.</para></entry>
+</row>
+<row>
+<entry><literal>.//para</literal></entry>
+<entry><para>Matches any element of type <sgmltag>para</sgmltag>
+that is a descendant of the current
+node. The double slash (<literal>//</literal>) is shorthand for
+<literal>/descendant-or-self::*//</literal>.</para></entry>
+</row>
+<row>
+<entry><literal>//para</literal></entry>
+<entry><para>Matches any <sgmltag>para</sgmltag>
+descending from the root node. In other words, it matches all
+<sgmltag>para</sgmltag>s anywhere in the document. A location
+path starting with a double slash (<literal>//</literal>) is assumed to 
+begin at the root node.</para></entry>
+</row>
+<row>
+<entry><literal>../*</literal></entry>
+<entry><para>Matches all siblings plus the context node.</para></entry>
+</row>
+</tbody>
+</tgroup>
+</table>
+
+<para>To see how axis and node tests can be used to retrieve nodes, let's
+now look at some examples. Consider the sample document in <xref
+linkend="xpath-ex-quotes"/>.</para>
+
+<example id="xpath-ex-quotes">
+<title>A sample XML document</title>
+<programlisting><![CDATA[<quotelist>
+  <quotation style="wise" id="q1">
+    <text>Expect nothing; be ready for everything.</text>
+    <source>Samurai chant</source>
+  </quotation>
+  <quotation style="political" id="q2">
+    <text>If one morning I walked on top of the water across the Potomac
+    River, the headline that afternoon would read "President Can't
+    Swim".</text>
+    <source>Lyndon B. Johnson</source>
+  </quotation>
+  <quotation style="silly" id="q3">
+    <?human laugh?>
+    <text>What if the hokey-pokey IS what it's all about?</text>
+  </quotation>
+  <quotation style="wise" id="q4">
+    <text>If they give you ruled paper, write the other way.</text>
+    <source>Juan Ramon Jiminez</source>
+  </quotation>
+  <!-- the checkbook is mightier than the sword? -->
+  <quotation style="political" id="q5">
+    <text>Banking establishments are more dangerous than standing
+    armies.</text>
+    <source>Thomas Jefferson</source>
+  </quotation>
+</quotelist>]]></programlisting>
+</example>
+
+<para><xref linkend="xpath-table-xpaths1"/> shows some location paths
+and what they would return.</para>
+
+<table id="xpath-table-xpaths1">
+<title>Location Path Examples</title>
+<tgroup cols="2">
+<thead>
+<row>
+<entry>Path</entry>
+<entry>Matches</entry>
+</row>
+</thead>
+<tbody>
+<row>
+<entry><literal>/quotelist/child::node()</literal></entry>
+<entry><para>All the <sgmltag>quotation</sgmltag>
+elements plus the XML comment.</para></entry>
+</row>
+<row>
+<entry><literal>/quotelist/quotation</literal></entry>
+<entry><para>All the <sgmltag>quotation</sgmltag>
+elements.</para></entry>
+</row>
+<row>
+<entry><literal>/*/*</literal></entry>
+<entry><para>All the <sgmltag>quotation</sgmltag>
+elements.</para></entry>
+</row>
+<row>
+<entry><literal>//comment()/following-sibling::*/@type</literal></entry>
+<entry><para>The <literal>type</literal> attribute of the last
+<sgmltag>quotation</sgmltag> element.</para></entry>
+</row>
+<row>
+<entry><literal>id('q1')/parent</literal></entry>
+<entry><para>The first <sgmltag>quotation</sgmltag> element.</para></entry>
+</row>
+<row>
+<entry><literal>id('q2')/..</literal></entry>
+<entry><para>The document element.</para></entry>
+</row>
+<row>
+<entry><literal>id('q1')/ancestor-or-self::*</literal></entry>
+<entry><para>The document element and the first
+<sgmltag>quotation</sgmltag> element.</para></entry>
+</row>
+<row>
+<entry><literal>id('q3')/self::aphorism</literal></entry>
+<entry><para>Nothing! The first step does match the third
+<sgmltag>quotation</sgmltag> element, but the next step invalidates
+it because it's looking for an element of type
+<sgmltag>aphorism</sgmltag>. In a context where you don't know what
+type the element is, this is a good way to test it.</para></entry>
+</row>
+<row>
+<entry><literal>//processing-instruction()/../following::source</literal></entry>
+<entry><para>The <sgmltag>source</sgmltag> elements from the last
+three <sgmltag>quotation</sgmltag> elements.</para></entry>
+</row>
+</tbody>
+</tgroup>
+</table>
+
+<para>If the axis and node type aren't sufficient to narrow down the
+selection, you can use one or more predicates. A predicate is a
+Boolean expression enclosed within square brackets (<literal>[]</literal>).
+Every node that passes this test (in addition to the node test and axis
+specifier) is included in the final node set. Nodes that fail the
+test (the predicate evaluates to <literal>false</literal>) are
+not. <xref linkend="xpath-table-preds"/> shows some examples.</para>
+
+<table id="xpath-table-preds">
+<title>XPath Predicates</title>
+<tgroup cols="2">
+<thead>
+<row>
+<entry>Path</entry>
+<entry>Matches</entry>
+</row>
+</thead>
+<tbody>
+<row>
+<entry><literal>//quotation[@id="q3"]/text</literal></entry>
+<entry><para>The text element in the third <sgmltag>quotation</sgmltag>
+element. This is an example of an equality test, where the string
+value of the attribute is matched against another string. You can also
+test numerical and boolean values.</para></entry>
+</row>
+<row>
+<entry><literal>//quotation[@id="q3"]/text</literal></entry>
+<entry><para>The text element in the third <sgmltag>quotation</sgmltag>
+element.</para></entry>
+</row>
+<row>
+<entry><literal>//quotation[source]</literal></entry>
+<entry><para>All the <sgmltag>quotation</sgmltag> elements but the
+third, which doesn't have a <sgmltag>source</sgmltag> element. Here,
+the presence of a child element <sgmltag>source</sgmltag> is
+evaluated; if at least one node matching it is found, the value of the
+test is true, otherwise false.</para></entry>
+</row>
+<row>
+<entry><literal>//quotation[not(source)]</literal></entry>
+<entry><para>The third <sgmltag>quotation</sgmltag>
+element. <literal>not()</literal> is true if there are no
+<sgmltag>source</sgmltag> elements.</para></entry>
+</row>
+<row>
+<entry><literal>/*[@id="q2"]/preceding-sibling::*/source</literal></entry>
+<entry><para>The <sgmltag>source</sgmltag> element with the content
+"Samurai Chant".</para></entry>
+</row>
+<row>
+<entry><literal>//*[source='Thomas Jefferson']/../text</literal></entry>
+<entry><para>The <literal>text</literal> element in the last
+<sgmltag>quotation</sgmltag> element.</para></entry>
+</row>
+<row>
+<entry><literal>//*[source='Thomas Jefferson'][@id='q7']</literal></entry>
+<entry><para>Nothing! The two predicates are evaluated as a boolean
+<literal>and</literal> function. Both have to be true or the path
+fails. Since there is no element matching both these tests, we are
+left with nothing.</para></entry>
+</row>
+<row>
+<entry><literal>/*/*[position()=last()]</literal></entry>
+<entry><para>The last <sgmltag>quotation</sgmltag> element. The
+<literal>position()</literal> function equals the position of the last
+step among eligible candidates. The function <literal>last()</literal>
+is equal to the total number of candidates (in this case,
+5).</para></entry>
+</row>
+<row>
+<entry><literal>//quotation[position()!=2]</literal></entry>
+<entry><para>All <sgmltag>quotation</sgmltag> elements but the second
+one.</para></entry>
+</row>
+<row>
+<entry><literal>//quotation[4]</literal></entry>
+<entry><para>The fourth <sgmltag>quotation</sgmltag> element. A number
+alone in the predicate is shorthand for
+<literal>position=...</literal></para></entry>
+</row>
+<row>
+<entry><literal>//quotation[@type='silly'|type='wise']</literal></entry>
+<entry><para>The first, third, and fourth <sgmltag>quotation</sgmltag>
+elements. The vertical bar (|) acts as a boolean <literal>or</literal>
+function.</para></entry>
+</row>
+</tbody>
+</tgroup>
+</table>
+
+</sect1>
+
+
+<sect1><title>XPath Expressions</title>
+
+<para>Location paths are a subset of a more general concept called 
+<firstterm>XPath expressions</firstterm>. These are statements that
+can extract useful information from the tree. Instead of just finding
+nodes, you can count them, add up numeric values, compare strings, and
+more. They are much like statements in a functional programming
+language. There are five types, listed here:</para>
+
+<variablelist>
+<varlistentry><term>Boolean</term>
+<listitem><para>An expression type with two possible values,
+<literal>true</literal> and <literal>false</literal>.</para></listitem>
+</varlistentry>
+
+<varlistentry><term>Node set</term>
+<listitem><para>A collection of nodes that match an expression's criteria,
+usually derived with a location path.</para></listitem>
+</varlistentry>
+
+<varlistentry><term>Number</term>
+<listitem><para>A numeric value, useful for counting nodes and
+performing simple arithmetic.</para></listitem>
+</varlistentry>
+
+<varlistentry><term>String</term>
+<listitem><para>A fragment of text that may be from the input tree,
+processed or augmented with generated
+text.</para></listitem>
+</varlistentry>
+
+<varlistentry><term>Result tree fragment</term>
+<listitem><para>A mixture of nodes in a tree structure that aren't
+well-formed (balanced) XML.</para></listitem>
+</varlistentry>
+</variablelist>
+
+<para>In XPath, types are determined by context. An operator or
+function can transform one expression type into another as needed. For
+this reason, there are well-defined rules to determine what values map
+to when transformed to another type.</para>
+
+<para>There is a rich set of operators and functions for working with
+each expression type. In the following sections, I will describe these
+and the rules for switching between types.</para>
+
+
+<sect2>
+<title>Boolean expressions</title>
+
+<para>Boolean expressions have two values: true or false. As you saw
+with location step predicates, anything inside the brackets is forced
+into a boolean context. There are other ways to coerce an expression
+to behave as boolean. The function <literal>boolean()</literal>
+derives a true or false value from its argument. There are also
+various operators that combine and compare expressions with a boolean
+result.</para>
+
+<para>What value is derived from an expression depends on some rules
+which are listed in <xref linkend="xpath-table-boolconv"/>.</para>
+
+<table id="xpath-table-boolconv">
+<title>Boolean Conversion Rules</title>
+<tgroup cols="2">
+<thead>
+<row>
+<entry>Expression Type</entry>
+<entry>Rule</entry>
+</row>
+</thead>
+<tbody>
+<row>
+<entry>Node set</entry>
+<entry><para>True if the set contains at least one node, false if
+it is empty.</para></entry>
+</row>
+<row>
+<entry>String</entry>
+<entry><para>True unless the string is zero-length.</para></entry>
+</row>
+<row>
+<entry>Number</entry>
+<entry><para>True unless the value is zero or NaN (not a
+number).</para></entry>
+</row>
+<row>
+<entry>Result tree fragment</entry>
+<entry><para>True if the result tree fragment contains nodes, false
+otherwise.</para></entry>
+</row>
+</tbody>
+</tgroup>
+</table>
+
+<para>Numeric expressions can be compared with certain operators to
+arrive at a boolean value. These are listed in <xref
+linkend="xpath-table-boolops"/>. Note that the less-than operator
+(<literal>&lt;</literal>) is written with the entity
+<literal>&amp;lt;</literal>. Since an XSLT stylesheet is an XML
+document, we must respect the well-formedness rules.</para>
+
+<table id="xpath-table-boolops">
+<title>Comparison Operators</title>
+<tgroup cols="2">
+<thead>
+<row>
+<entry>Operator</entry>
+<entry>Returns</entry>
+</row>
+</thead>
+<tbody>
+<row>
+<entry><replaceable>expr</replaceable> <literal>=</literal>
+<replaceable>expr</replaceable></entry>
+<entry><para>True if both expressions (string or numeric)
+have the same value, otherwise false.</para></entry>
+</row>
+<row>
+<entry><replaceable>expr</replaceable> <literal>!=</literal>
+<replaceable>expr</replaceable></entry>
+<entry><para>True if the expressions do not have the same value (string or
+numeric), otherwise false.</para></entry>
+</row>
+<row>
+<entry><para><replaceable>expr</replaceable> <literal>&amp;lt;</literal>
+<replaceable>expr</replaceable></para></entry>
+<entry><para>True if the value of the first numeric expression is less than
+the value of the second, otherwise false.</para></entry>
+</row>
+<row>
+<entry><para><replaceable>expr</replaceable> <literal>&gt;</literal>
+<replaceable>expr</replaceable></para></entry>
+<entry><para>True if the value of the first numeric expression is greater
+than the value of the second, otherwise false.</para></entry>
+</row>
+<row>
+<entry><para><replaceable>expr</replaceable> <literal>&amp;lt;=</literal>
+<replaceable>expr</replaceable></para></entry>
+<entry><para>True if the value of the first numeric expression is less than
+or equal to the value of the second, otherwise false.</para></entry>
+</row>
+<row>
+<entry><replaceable>expr</replaceable> <literal>&gt;=</literal>
+<replaceable>expr</replaceable></entry>
+<entry><para>True if the value of the first numeric expression is greater
+than or equal to the value of the second, otherwise
+false.</para></entry>
+</row>
+<row>
+<entry><replaceable>expr</replaceable> <literal>and</literal> <replaceable>expr</replaceable></entry>
+<entry><para>True if both Boolean expressions are true, otherwise
+false.</para></entry>
+</row>
+<row>
+<entry><replaceable>expr</replaceable> <literal>or</literal> <replaceable>expr</replaceable></entry>
+<entry><para>True if at least one Boolean expression is true,
+otherwise false.</para></entry>
+</row>
+<row>
+<entry><literal>not(</literal> <replaceable>expr</replaceable> <literal>)</literal></entry>
+<entry><para>Negates the value of the Boolean expression: true if the
+expression is false, otherwise false.</para></entry>
+</row>
+<row>
+<entry><literal>true()</literal></entry>
+<entry><para>True.</para></entry>
+</row>
+<row>
+<entry><literal>false()</literal></entry>
+<entry><para>False.</para></entry>
+</row>
+</tbody>
+</tgroup>
+</table>
+
+</sect2>
+
+
+<sect2>
+<title>Node set expressions</title>
+
+<para>A node set expression is really the same thing as a location
+path. The expression evaluates to a set of nodes. This is a set in the
+strict mathematical sense, meaning that there are no duplicates. The
+same node can be added many times, but the set will always contain
+only one copy of it.</para>
+
+<para>XPath defines a number of functions that operate on node sets,
+listed in <xref linkend="xpath-table-nsetin"/>.</para>
+
+<table id="xpath-table-nsetin">
+<title>Node Set Functions</title>
+<tgroup cols="2">
+<thead>
+<row>
+<entry>Function</entry>
+<entry>Returns</entry>
+</row>
+</thead>
+<tbody>
+<row>
+<entry><literal>count( <replaceable>node set</replaceable> )</literal></entry>
+<entry><para>The number of items in
+<replaceable>node set</replaceable>. For example,
+<literal>count(parent::*)</literal> will return the value 1, since a
+node can only have one parent.</para></entry>
+</row>
+<row>
+<entry><literal>generate-id( <replaceable>node set</replaceable> )</literal></entry>
+<entry><para>A string containing a unique identifier for the first
+node in <replaceable>node set</replaceable>, or for the context node
+if the argument is left out. This string is generated by the processor
+and guaranteed not to occur twice for different nodes.</para></entry>
+</row>
+<row>
+<entry><literal>last()</literal></entry>
+<entry><para>The number of the last node in the context node set.
+<literal>last()</literal> is
+similar to <literal>count()</literal> except that it operates only on
+the context node set, not on an arbitrary set.</para></entry>
+</row>
+<row>
+<entry><literal>local-name( <replaceable>node set</replaceable> )</literal></entry>
+<entry><para>The name of the first node in
+<replaceable>node set</replaceable>, without the namespace
+prefix. Without an argument, it returns the local name of the context
+node.</para></entry>
+</row>
+<row>
+<entry><literal>name( <replaceable>node set</replaceable> )</literal></entry>
+<entry><para>Like <literal>local-name()</literal>, except that
+the namespace prefix is included.</para></entry>
+</row>
+<row>
+<entry><literal>namespace-uri( <replaceable>node set</replaceable> )</literal></entry>
+<entry><para>The URI of the namespace for the first node in
+<replaceable>node set</replaceable>. Without an argument, it returns
+the namespace URI for the context node.</para></entry>
+</row>
+<row>
+<entry><literal>position()</literal></entry>
+<entry><para>The number of the context node in the context node
+set.</para></entry>
+</row>
+</tbody>
+</tgroup>
+</table>
+
+<para>There are also functions that create node sets, pulling together
+nodes from all over the document. These are detailed in
+<xref linkend="xpath-table-nsetout"/>.</para>
+
+<table id="xpath-table-nsetout">
+<title>Functions Returning Node Sets</title>
+<tgroup cols="2">
+<thead>
+<row>
+<entry>Function</entry>
+<entry>Returns</entry>
+</row>
+</thead>
+<tbody>
+<row>
+<entry><literal>id( <replaceable>string</replaceable> )</literal></entry>
+<entry><para>A single node that has an <literal>ID</literal> attribute equal
+to the value of <replaceable>string</replaceable>, or an empty set if no node
+matches. At most, one node is returned, because the
+<literal>ID</literal> has to be unique.</para></entry>
+</row>
+<row>
+<entry><para><literal>key( <replaceable>string</replaceable>
+<replaceable>object</replaceable> )</literal></para></entry>
+<entry><para>A set of all nodes that have a key with name
+<replaceable>string</replaceable> and value
+<replaceable>object</replaceable>. (We'll talk more about keys later
+in the chapter.)</para></entry>
+</row>
+<row>
+<entry><para><literal>document(<replaceable>uri</replaceable>,
+<replaceable>base</replaceable>)</literal></para></entry>
+<entry><para>The set of nodes specified by a URI with an optional
+XPointer, relative to <replaceable>base</replaceable>, or to the
+context node if the second argument is left out.</para></entry>
+</row>
+</tbody>
+</tgroup>
+</table>
+</sect2>
+
+
+<sect2>
+<title>Numeric expressions</title>
+
+<para>XPath allows an expression to be evaluated numerically, which is
+useful for comparing positions in a set, adding the values of numeric
+elements, incrementing counters, and so forth. A number in XPath is
+defined to be a 64-bit floating point number (whether it has a decimal
+point or not). Alternatively, a number can be specified as NaN (not a
+number), in case a conversion fails.</para>
+
+<para>The rules for converting any expression into a numeric value are
+listed in <xref linkend="xpath-table-nums"/>.</para>
+
+<table id="xpath-table-nums">
+<title>Rules to Convert Expressions into Numbers</title>
+<tgroup cols="2">
+<thead>
+<row>
+<entry>Expression type</entry>
+<entry>Rule</entry>
+</row>
+</thead>
+<tbody>
+<row>
+<entry>Node set</entry>
+<entry><para>The first node is converted into a string, then the
+string conversion rule is used.</para></entry>
+</row>
+<row>
+<entry>Boolean</entry>
+<entry><para>The value <literal>true</literal>
+is converted to the number 1, and
+<literal>false</literal> to the number 0.</para></entry>
+</row>
+<row>
+<entry>String</entry>
+<entry><para>If the string is the literal serialization of a number (i.e.,
+ <literal>-123.5</literal>) it is converted into that
+number. Otherwise, the value <literal>NaN</literal> is used.</para></entry>
+</row>
+<row>
+<entry>Result-tree fragment</entry>
+<entry><para>Like node sets, a result-tree fragment is converted into
+a string, which is then applied to the string rule.</para></entry>
+</row>
+</tbody>
+</tgroup>
+</table>
+
+<para>To manipulate numeric values, there are a variety of operators
+and functions. These are cataloged in <xref
+linkend="xpath-table-numops"/>.</para>
+
+<table id="xpath-table-numops">
+<title>Numeric Operators and Functions</title>
+<tgroup cols="2">
+<thead>
+<row>
+<entry>Function</entry>
+<entry>Returns</entry>
+</row>
+</thead>
+<tbody>
+<row>
+<entry><replaceable>expr</replaceable> <literal>+</literal> <replaceable>expr</replaceable></entry>
+<entry><para>The sum of two numeric expressions.</para></entry>
+</row>
+<row>
+<entry><replaceable>expr</replaceable> <literal>-</literal> <replaceable>expr</replaceable></entry>
+<entry><para>The difference of the first numeric expression minus the
+second.</para></entry>
+</row>
+<row>
+<entry><replaceable>expr</replaceable> <literal>*</literal> <replaceable>expr</replaceable></entry>
+<entry><para>The product of two numeric expressions.</para></entry>
+</row>
+<row>
+<entry><replaceable>expr</replaceable> <literal>div</literal> <replaceable>expr</replaceable></entry>
+<entry><para>The first numeric expression divided by the second
+expression.</para></entry>
+</row>
+<row>
+<entry><replaceable>expr</replaceable> <literal>mod</literal> <replaceable>expr</replaceable></entry>
+<entry><para>The first numeric expression modulo the second
+expression.</para></entry>
+</row>
+<row>
+<entry><literal>round( <replaceable>expr</replaceable> )</literal></entry>
+<entry><para>The value of the expression rounded to the nearest
+integer.</para></entry>
+</row>
+<row>
+<entry><literal>sum( <replaceable>expr</replaceable>, <replaceable>expr</replaceable>, ... )</literal></entry>
+<entry><para>The sum of the expressions.</para></entry>
+</row>
+<row>
+<entry><literal>floor( <replaceable>expr</replaceable> )</literal></entry>
+<entry><para>The value of the expression rounded down to an integer
+value.</para></entry>
+</row>
+<row>
+<entry><literal>ceiling( <replaceable>expr</replaceable> )</literal></entry>
+<entry><para>The value of the expression rounded up to an integer
+value.</para></entry>
+</row>
+</tbody>
+</tgroup>
+</table>
+</sect2>
+
+
+<sect2>
+<title>String expressions</title>
+
+<para>A string is a segment of character data, such as "How are you?",
+"990", or "z". Any expression can be converted into a string using the
+<literal>string()</literal> function following the rules in <xref
+linkend="xpath-table-str"/>.</para> 
+
+<table id="xpath-table-str">
+<title>Rules to Convert Expressions into Strings</title>
+<tgroup cols="2">
+<thead>
+<row>
+<entry>Expression type</entry>
+<entry>Rule</entry>
+</row>
+</thead>
+<tbody>
+<row>
+<entry>Node set</entry>
+<entry><para>The text value of the first node is used as the
+string.</para></entry>
+</row>
+<row>
+<entry>Boolean</entry>
+<entry><para>The string is <literal>true</literal> if the expression
+is true, otherwise <literal>false</literal>.</para></entry>
+</row>
+<row>
+<entry>Number</entry>
+<entry><para>The string value is the number as it would be
+printed. For example, <literal>string(1 + 5 - 9)</literal>
+evaluates to the string <literal>-3</literal>.</para></entry>
+</row>
+<row>
+<entry>Result-tree fragment</entry>
+<entry><para>The string value is the concatenation of the text
+values of all the nodes in the fragment.</para></entry>
+</row>
+</tbody>
+</tgroup>
+</table>
+
+<para>Functions that return string values are listed in <xref
+linkend="xpath-table-strout"/>.</para> 
+
+<table id="xpath-table-strout">
+<title>Functions That Create Strings</title>
+<tgroup cols="2">
+<thead>
+<row>
+<entry>Function</entry>
+<entry>Returns</entry>
+</row>
+</thead>
+<tbody>
+<row>
+<entry><para><literal>concat( <replaceable>string</replaceable>,
+<replaceable>string</replaceable>, ...)</literal></para></entry>
+<entry><para>A string that is the concatenation of the string
+arguments.</para></entry>
+</row>
+<row>
+<entry><para><literal>format-number( <replaceable>number</replaceable>,
+<replaceable>pattern</replaceable>, <replaceable>locale</replaceable> )
+</literal></para></entry>
+<entry><para>A string containing the
+<replaceable>number</replaceable>, formatted according to
+<replaceable>pattern</replaceable> and a set of cultural rules
+specified by the optional argument <replaceable>locale</replaceable>.</para></entry>
+</row>
+<row>
+<entry><literal>normalize-space( <replaceable>string</replaceable> )</literal></entry>
+<entry><para>The <replaceable>string</replaceable> with leading and
+trailing whitespace removed, and all other whitespace replaced with
+single spaces. The value of the context node is used if the argument
+is left out.</para></entry>
+</row>
+<row>
+<entry><para><literal>substring( <replaceable>string</replaceable>,
+<replaceable>offset</replaceable>, <replaceable>range</replaceable> )
+</literal></para></entry>
+<entry><para>A substring of the
+<replaceable>string</replaceable> argument, starting
+<replaceable>offset</replaceable> characters from the beginning and
+ending <replaceable>range</replaceable> characters from the
+offset.</para></entry>
+</row>
+<row>
+<entry><para><literal>substring-after( <replaceable>string</replaceable>,
+<replaceable>to-match</replaceable> )</literal></para></entry>
+<entry><para>A substring of the
+<replaceable>string</replaceable> argument, starting at the end of the
+first occurrence of the string <replaceable>to-match</replaceable> and
+ending at the end of <replaceable>string</replaceable>.</para></entry>
+</row>
+<row>
+<entry><para><literal>substring-before( <replaceable>string</replaceable>,
+<replaceable>to-match</replaceable> )</literal></para></entry>
+<entry><para>A substring of the
+<replaceable>string</replaceable> argument, starting at the beginning
+of <replaceable>string</replaceable> and ending at the beginning of
+the first occurrence of the string
+<replaceable>to-match</replaceable>.</para></entry>
+</row>
+<row>
+<entry><para><literal>translate( <replaceable>string</replaceable>,
+<replaceable>to-match</replaceable>, <replaceable>replace-with</replaceable> )</literal></para></entry>
+<entry><para>The <replaceable>string</replaceable> with all occurrences
+of the substring <replaceable>to-match</replaceable> replaced with the
+string <replaceable>replace-with</replaceable>.</para></entry>
+</row>
+</tbody>
+</tgroup>
+</table>
+
+<para>Some functions operate on strings and return numeric or boolean
+values. These are listed in <xref linkend="xpath-table-strin"/>.</para>
+
+<table id="xpath-table-strin">
+<title>Functions That Operate on Strings</title>
+<tgroup cols="2">
+<thead>
+<row>
+<entry>Function</entry>
+<entry>Returns</entry>
+</row>
+</thead>
+<tbody>
+<row>
+<entry><para><literal>contains( <replaceable>string</replaceable>,
+<replaceable>sub</replaceable>&nbsp;)</literal></para></entry>
+<entry><para>True if the substring <replaceable>sub</replaceable> occurs
+within the <replaceable>string</replaceable>, otherwise
+false.</para></entry>
+</row>
+<row>
+<entry><para><literal>starts-with( <replaceable>string</replaceable>,
+<replaceable>sub</replaceable>&nbsp;)</literal></para></entry>
+<entry><para>True if the <replaceable>string</replaceable> begins with
+the substring <replaceable>sub</replaceable>, otherwise
+false.</para></entry>
+</row>
+<row>
+<entry><literal>string-length( <replaceable>string</replaceable> )</literal></entry>
+<entry><para>The number of characters inside
+<replaceable>string</replaceable>.</para></entry>
+</row>
+</tbody>
+</tgroup>
+</table>
+
+</sect2>
+</sect1>
+
+
+<sect1><title>XPointer</title>
+
+<para>Closely related to XPath is the XML Pointer Language
+(XPointer). It uses XPath expressions to find points inside documents
+on the Internet. The intended application for XPointer is as an
+extension to uniform resource identifiers (URIs). It could be used,
+for example, to create a link from one document to an element inside
+any other. In fact, it was designed as an important component of the
+XML Linking Language (XLink), becoming a candidate recommendation in
+late 2001 by the same W3C working group.</para>
+
+<para>An XPointer instance, which I'll just call an
+<firstterm>xpointer</firstterm>, works much like the fragment identifier
+in HTML (the part of a URL you sometimes see on the right side of a
+hash symbol). It's much more versatile than HTML's mechanism, however,
+as it can refer to any element or point inside text, not just to an
+anchor element (i.e. <sgmltag>a name="..."/</sgmltag>). By virtue of
+XPath, it has several advantages over HTML fragment
+identifiers:</para>
+
+<itemizedlist>
+<listitem><para>A link can be made to the target element itself,
+rather than to a proxy element (e.g. <sgmltag>a
+name="foo"/</sgmltag>.</para></listitem>
+<listitem><para>You don't need to have anchors in the target
+document. You're free to link to any region in any document, whether
+the author knows about it or not.</para></listitem>
+<listitem><para>The XPath language is flexible enough to reach any
+node in the target document.</para></listitem>
+</itemizedlist>
+
+<para>XPointer actually goes further than XPath. In addition to
+locating nodes, it has two new location types. A
+<firstterm>point</firstterm> is any place inside a document between
+two adjacent characters. Whereas XPath would only locate an entire
+text node, XPointer can be more granular and locate the spot in the
+middle of any sentence. The other special type introduced by XPointer
+is a <firstterm>range</firstterm>, defined as all the XML information
+between two points. This would be useful for, say, hilighting a region
+of text that may start in one paragraph and end in another.</para>
+
+<para>Because of these new types, the return value of an xpointer is
+not a node set as is the case with XPath expressions. Instead, it is a
+more general <firstterm>location set</firstterm>, where a
+<firstterm>location</firstterm> is defined as a point, range, or node.
+A point is represented by a pair of objects: a container node (the
+closest ancestor element to the point), and a numeric
+<firstterm>index</firstterm> that counts the number of characters from
+the start of container node's content to the point. A range is simply
+two points, and the information inside it is called a
+<firstterm>sub-resource</firstterm>.</para>
+
+<para>The XPointer specification makes no attempt to describe the
+behavior of an xpointer. It simply returns a list of nodes or strings
+to be processed, leaving the functionality up to the developer. This
+is a good thing because XPointer can be used in many different
+ways. When used in XLink, the information it describes may be imported
+into the source target, or left unloaded until the user actuates the
+link. A completely different application might be to use xpointers as
+hooks for annotations, stored in a local database. The user agent may
+use this information to insert icons into the formatted view of the
+target document that, when selected, bring up another window
+containing commentary. So by not explaining how XPointer is meant to
+be used, its flexibility is enhanced.</para>
+
+<sidebar><title>XLink</title>
+
+<para>The plans for XLink were announced in the early days of
+XML. There were great expectations for it. The limitations of HTML
+links were to give way to a whole new world of possibilities, from
+customizeable navigation views to 3rd-party collections of documents,
+a document soup if you will.</para>
+
+<para>The recommendation is divided into two levels: simple and
+extended. Simple covers the traditional, inline hypertext links that
+we are all familiar with. Extended links are an exciting new
+mechanism, describing links between resources from either point, or
+even a third document.</para>
+
+<para>Now it is two years after XLink reached recommendation status
+(it took four years just to reach that point), and there are hardly
+any implementations available. None of the web browsers available
+today offer extended link support, and only a few support even simple
+links.</para>
+
+<para>Why XLink failed to capture the imagination of developers and
+XML users may have to do with the popularity of embedded programming
+languages like JavaScript and Java. While XPath was slowly wending its
+way through the standards process, browser vendors quickly added
+support for various coding platforms to enable all kinds of strunts,
+including the problems XLink was meant to solve.</para>
+
+<para>Had XLink appeared sooner, its chances for success might well
+have been better, and I suspect it would have saved a lot of headaches
+for website developers. All programming languages (yes, even Java) are
+platform-dependant solutions, don't always work as expected in all
+situations, and are not well suited to archiving information for a
+long period of time.</para>
+
+<para>Perhaps XLink is an example of when the standards process
+does not work as advertized. Instead of inspiring developers to adopt
+a best practice, all it managed to inspire was a collective
+yawn. Whether it's because the recommendation fails to address the
+problem adequately, or it clashes with the marketing plans of
+commercial developers, or the new functionality does not justify the
+effort to implement it, these things do happen.</para>
+
+</sidebar>
+
+<sect2><title>Syntax</title>
+
+<para>The following is an example of an xpointer:</para>
+
+<programlisting>xpointer(id('flooby')/child::para[2])</programlisting>
+
+<para>If successful, it will return a node corresponding to the second
+<sgmltag>para</sgmltag> child of the element whose
+<literal>id</literal> attribute has the value
+<literal>'flooby'</literal>. If unsuccessful, it will return an empty
+location set.</para>
+
+<sect3><title>Schemes and Chained Xpointers</title>
+
+<para>The keyword <literal>xpointer</literal> is called a
+<firstterm>scheme</firstterm>, which serves to identify a syntax
+method and delimit the data inside. The data for an
+<literal>xpointer</literal> scheme is an XPath expression, or a
+shorthand form of one. There is no need to quote the XPath expression
+because the parentheses are sufficient to mark the start and end.</para>
+
+<para>It is possible to chain together xpointers. They will be
+evaluated in order, until one is successful. For example:</para>
+
+<programlisting>xpointer(id('flooby'))xpointer(//*[@id='flooby'])</programlisting>
+
+<para>Here, the two xpointers semantically mean the same thing, but
+the first case may fail for an XPointer processor that does not
+implement <literal>id()</literal> properly. This could happen if the
+processor requires a DTD to tell it which attributes are of type
+<literal>ID</literal>), but none is given. When the first expression
+returns an error, processing shunts over to the next xpointer as a
+fallback.</para>
+
+<para>Besides <literal>xpointer</literal>, there is another scheme
+available: <literal>xmlns</literal>. Its purpose is to update the
+current evaluation environment with a new namespace declaration. Here,
+an <literal>xmlns</literal> declaration sets up a namespace prefix
+which is used in the xpointer that follows it:</para>
+
+<programlisting>xmlns(foo=http://www.hasenpfeffer.org/)xpointer(//foo:thingy)</programlisting>
+
+<para>The <literal>xmlns</literal> returns an error status forcing
+processing to proceed on to the xpointer, which uses the definition of the
+<literal>foo</literal> namespace prefix.</para>
+
+</sect3><sect3><title>Bare words</title>
+
+<para>There are shorthand forms that simplify xpointers and make them
+more readable. A <firstterm>bare word</firstterm> xpointer is one
+which only contains a string that corresponds to the form of an
+<literal>ID</literal> type attribute. It substitutes for the
+<literal>id()</literal> term. These two xpointers are
+equivalent:</para>
+
+<programlisting>flooby
+xpointer(id('flooby'))</programlisting>
+
+<para>Another syntactic shortcut is to represent the
+<replaceable>n</replaceable>th child of an element with a bare
+number. A string of numbers like this is called a <firstterm>child
+sequence</firstterm>. To find the third child of the fifth child of
+the element whose <literal>ID</literal> is "flooby", you can use this
+xpointer:</para>
+
+<programlisting>flooby/5/3</programlisting>
+
+
+</sect3>
+</sect2>
+
+
+<sect2><title>Points</title>
+
+<para>A point inside a document is represented by two things: a
+container node and an index. The index counts the number of points
+from the start of a node, beginning with zero. If the point is inside
+text, the container is the text node in which it resides, not the
+element containing the text. The point may also lie outside of text,
+between two elements for instance.</para>
+
+<para><xref linkend="xpath-fig-points"/> shows how to find the index
+for points in a small piece of XML, listed here:</para>
+
+<programlisting>&lt;para&gt;These are &lt;emphasis&gt;strange&lt;/emphasis&gt; times.&lt;/para&gt;</programlisting>
+
+<figure id="xpath-fig-points"><title>character points</title>
+<graphic fileref="lx2_0601.jpg"/>
+</figure>
+
+<para>The <sgmltag>para</sgmltag> element has 4 points (called
+<firstterm>node points</firstterm>, since they fall between nodes,
+numbered 0 to 3. Note that for any node point whose index is zero, the
+preceding node is the container node. For any point whose non-zero
+index is <replaceable>n</replaceable>, the preceding node is the
+<replaceable>n</replaceable>th child of the container node. The three
+children of this element are, in order, a text node, an
+<sgmltag>emphasis</sgmltag> element, and another text node.</para>
+
+<para>Inside each text node (and any node without children) are points
+between text characters, or <firstterm>character
+points</firstterm>. The point to the left of the first character is
+zero. The last point follows the last character in the text node, and
+its index is equal to the length of the string. It's important to note
+what the first point in the first text node of the example above is
+not equal to the first point of the element
+<sgmltag>para</sgmltag>. These are two separate points.</para>
+
+<warning>
+<para>XPath and XPointer use UCS character encoding, whereas DOM uses
+UTF-16 and XML by default is UTF-8. This could cause some confusion
+when doing string comparisons if you aren't careful. For example, what
+is one character in an XPath string might be two in a DOM string. For
+more about character encoding, see <xref linkend="int"/>.</para>
+</warning>
+
+<para>Inside each container node, the point whose index is zero is
+called the <firstterm>start point</firstterm>. The point with the
+highest index is the <firstterm>end point</firstterm>. (In a range,
+there is also a start point and end point, but they may not come from
+the same container node.)</para>
+
+<para>Given these definitions, we can now establish the rules of
+document order for XPath nodes and the newly introduced points and
+ranges:</para>
+
+<orderedlist>
+<listitem><para>Node order is the same as for XPath. For example,
+element A precedes element B if the former's start tag comes before
+the latter's start tag in a document.</para></listitem>
+<listitem><para>A node precedes a point if it comes before or is equal
+to the immediately preceding node to the point. A container node
+precedes all of its node or character points.</para></listitem>
+<listitem><para>A node precedes a range if it precedes the start point
+of the range.</para></listitem>
+<listitem><para>Point A precedes point B if the node immediately
+preceding A comes before the node just preceding point B. If both
+points fall within the same container node, then the one with the
+lower index precedes the other. If they share the same container node
+and index, then they are equal.</para></listitem>
+<listitem><para>A point precedes a range if it precedes or is equal to
+the range's start point. If the point is equal to both the start point
+and end point of the range (this is called a <firstterm>collapsed
+range</firstterm>, then the point and range are equal.</para></listitem>
+<listitem><para>Range A comes before range B if the start point for A
+precedes the start point for B. If both ranges share the same start
+point, then the one whose end point comes first is considered to
+precede the other. If both share the same start and end points, then
+they are equal.</para></listitem>
+</orderedlist>
+
+<para>These rules for document order are necessary for axes and steps
+to work properly.</para>
+
+</sect2>
+
+
+<sect2><title>Character escaping</title>
+
+<para>Xpointers have somewhat complex character escaping rules. This
+is a side effect of the fact that they can appear in different
+contexts. Inside an XML document, for example, the well-formedness
+rules apply. So characters like &lt; and &amp; must be represented with
+appropriate character entity references.</para>
+
+<para>There are three characters in xpointers with which you always
+should be careful: parentheses (left and right) and circumflex
+(^). Parentheses mark the beginning and end of data inside a location
+term, so any parenthesis that is meant to be data is liable to confuse
+an XPointer parser. The way to escape such a character is to precede
+it with a circumflex. As circumflex is the escaping character, it too
+must be escaped if it appears on its own. Simply precede it with
+another circumflex.</para>
+
+<para>If the xpointer is to be used inside a URI reference, then you
+need to respect the character escaping rules laid out in IETF RFC
+2396.  In this scheme, certain characters are represented with a
+percent symbol (%) and a hexadecimal number. For example, a space
+character would be replaced by %20 and a percent symbol by %25.</para>
+
+<para>Here is an xpointer before escaping:</para>
+
+<programlisting>xpointer(string-range(//para,"I use parentheses (a lot)."))</programlisting>
+
+<para>You must at minimum escape it like so:</para>
+
+<programlisting>xpointer(string-range(//para,"I use parentheses ^(a lot^)."))</programlisting>
+
+<para>If the xpointer appears in an URI reference, some other
+characters need to be escaped, including the circumflexes:</para>
+
+<programlisting>xpointer(string-range(//para,"I%20use%20parentheses%20%5E(a%20lot%5E)."))</programlisting>
+
+</sect2>
+
+
+<sect2><title>XPointer Functions</title>
+
+<para>XPointer inherits from XPath all the functions and tests defined
+in that recommendation. To that set it adds a few specific to points
+and ranges.</para>
+
+<sect3><title>Constructing ranges</title>
+
+<para>The function <literal>range-to()</literal> creates a range
+starting from the context node, and extending to the point given as
+its argument. In other words, it creates a range from the last step to
+the next step.</para>
+
+<para>For example, suppose you have a document that defines
+index terms that each spans several pages. The element marking the start
+of the range is <sgmltag>indexterm</sgmltag> and has the attribute
+<literal>class="startofrange"</literal>. The one ending the range is
+the same element type, but has an attribute
+<literal>class="endofrange"</literal>. The following xpointer would
+create a range for each pair of such elements:</para>
+
+<programlisting>xpointer(indexterm[@class='startofrange']/range-to(following::indexterm[@class='endofrange']))</programlisting>
+
+</sect3><sect3><title>Ranges from points and nodes</title>
+
+<para>The function <literal>range()</literal> returns the covering
+range for every location in its argument, the location set.  A
+<firstterm>covering range</firstterm> is the range that exactly
+contains a location. For a point, the range's start and end points
+would equal that point (a zero-length, or
+<firstterm>collapsed</firstterm> range). The covering range for a
+range is the range itself (same start and end points). For any other
+object, the covering range starts at the point preceding it and ends
+at the point following it, both of which belong to the object's
+container node.</para>
+
+<para>The function <literal>range-inside()</literal> changes nodes
+into ranges. For each node in a given location set, the function
+treats it as a container node and finds the start and end
+points. Ranges and points are passed through unchanged.</para>
+
+</sect3><sect3><title>Ranges from Strings</title>
+
+<para>To create ranges for arbitrary regions of text, you can use
+<literal>string-range()</literal>. This function takes up to four
+arguments:</para>
+
+<orderedlist>
+<listitem><para>A location set, positions from which to search for
+strings.</para></listitem>
+<listitem><para>A string, the pattern to match against.</para></listitem>
+<listitem><para>An offset from the start of the match (default is
+1).</para></listitem>
+<listitem><para>The length of the result string, default being the
+length of the pattern in the second argument.</para></listitem>
+</orderedlist>
+
+<para>For example, this xpointer would locate the ninth occurance of
+the word "excelsior" in a document:</para>
+
+<programlisting>xpointer(string-range(/,"excelsior")[9])</programlisting>
+
+<para>And this next xpointer would return a range for the 8 characters
+following the string "username:" (with one space for padding) inside
+an element with <literal>id="user123"</literal>. (Note that the
+indexing for characters is different from that for points. Here, the
+first character's position is 1, not zero.)</para>
+
+<programlisting>xpointer(string-range(id('user123'),"username",1,8))</programlisting>
+
+<para>Note that setting the length (the last argument) to zero would
+result in a range for a zero-length string. This collapsed range is
+effectively the same as a single point.</para>
+
+<para>An interesting thing about <literal>string-range()</literal> is
+that it ignores the boundaries of nodes. It's as if all the content
+were dumped into a plain text file without XML tags. Effectively, text
+nodes are concatenated together into one long string of text. So in
+the following markup:</para>
+
+<programlisting>free as in &lt;em&gt;freedom&lt;/em&gt;</programlisting>
+
+<para>This xpointer would match it whether the <sgmltag>em</sgmltag>
+tags were there or not:</para>
+
+<programlisting>xpointer(string-range(//,"free as in freedom")</programlisting>
+
+</sect3><sect3><title>Finding range endpoints</title>
+
+<para>The functions <literal>start-range()</literal> and
+<literal>end-range()</literal> locate the points at the beginning and
+end of a range, respectively. Each takes one argument, a location
+set. For points in that set, the returned value is the point
+itself. For nodes, the value would be the start or end point for the
+covering range of that node. These functions fail, however, for nodes
+of type attribute and namespace.</para>
+
+</sect3><sect3><title>Returning points from documents</title>
+
+<para>If the xpointer is inside an XML document, it can use the
+function <literal>here()</literal> to represent its location. This
+would be useful for, say, specifying the origin of a link. If the
+xpointer occurs inside a text node within an element, the return value
+is the element. Otherwise, the node that directly contains the
+xpointer is returned. Because the xpointer can only be at one place at
+any time, only one item is returned in the location set.</para>
+
+</sect3>
+
+</sect2>
+
+</sect1>
+
+</chapter>

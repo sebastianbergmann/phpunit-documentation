@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="database">
+  <title>データベースのテスト</title>
+
+  <para>
+    <indexterm><primary>Database</primary></indexterm>
+    <indexterm><primary>DbUnit</primary></indexterm>
+
+    作成中のソフトウェアのテストを書いているうちに、
+    データベースに関するコードをテストする必要が出てくることもあるでしょう。
+    データベース拡張を使用すると、
+    データベースを特定の状態にしてからデータベース関連のコードを実行し、
+    データベースのデータが期待通りになっているかどうかを確かめることができます。
+  </para>
+
+  <para>
+    データベース関連のユニットテストを作成するもっとも手っ取り早い方法は、
+    <literal>PHPUnit_Extensions_Database_TestCase</literal> クラスを継承することです。
+    このクラスには、データベース接続を作成したり
+    データベースにデータを送信したり、
+    テストの実行後にデータベースの中身を様々な形式のデータセットと比較したりする機能があります。
+    <xref linkend="database.examples.DatabaseTestSetup.php" />
+    に、<literal>getConnection()</literal> と <literal>getDataSet()
+    </literal> の実装例を示します。
+  </para>
+
+  <example id="database.examples.DatabaseTestSetup.php">
+    <title>データベーステストケースの準備</title>
+    <programlisting><![CDATA[<?php
+require_once 'PHPUnit/Extensions/Database/TestCase.php';
+
+class DatabaseTest extends PHPUnit_Extensions_Database_TestCase
+{
+    protected function getConnection()
+    {
+        $pdo = new PDO('mysql:host=localhost;dbname=testdb', 'root', '');
+        return $this->createDefaultDBConnection($pdo, 'testdb');
+    }
+
+    protected function getDataSet()
+    {
+        return $this->createFlatXMLDataSet(dirname(__FILE__).'/_files/bank-account-seed.xml');
+    }
+}
+?>]]></programlisting>
+  </example>
+
+  <para>
+    <literal>getConnection()</literal> メソッドは、
+    <literal>PHPUnit_Extensions_Database_DB_IDatabaseConnection</literal>
+    インターフェイスの実装を返す必要があります。
+    <literal>createDefaultDBConnection()</literal>
+    メソッドを使用して、データベース接続を返すことができます。
+    このメソッドの最初のパラメータには <literal>PDO</literal> 
+    オブジェクトを渡し、2 番目のパラメータにはテスト対象のスキーマの名前を渡します。
+  </para>
+
+  <para>
+    <literal>getDataSet()</literal> メソッドは、
+    <literal>PHPUnit_Extensions_Database_DataSet_IDataSet</literal>
+    インターフェイスの実装を返す必要があります。
+    現在、PHPUnit では 3 種類のデータセットが使用できます。
+    データセットについては <xref linkend="database.datasets" />
+    で説明します。
+  </para>
+
+  <table id="database.tables.testcase.api">
+    <title>データベーステストケースのメソッド</title>
+
+    <tgroup cols="2" align="left" colsep="1" rowsep="1">
+      <thead>
+        <row>
+	  <entry>メソッド</entry>
+	  <entry>意味</entry>
+	</row>
+      </thead>
+      <tbody>
+        <row>
+	  <entry><literal>PHPUnit_Extensions_Database_DB_IDatabaseConnection getConnection()</literal></entry>
+	  <entry>データベース接続を返すように実装します。これを用いて、期待するデータセットやテーブルを調べます。</entry>
+	</row>
+	<row>
+	  <entry><literal>PHPUnit_Extensions_Database_DataSet_IDataSet getDataSet()</literal></entry>
+	  <entry>データセットを返すように実装します。データベースの初期設定 (setup) や後始末 (teardown) の際にこれを使用します。</entry>
+	</row>
+	<row>
+	  <entry><literal>PHPUnit_Extensions_Database_Operation_DatabaseOperation getSetUpOperation()</literal></entry>
+	  <entry>オーバーライドして、各テストの最初に実行する特定の操作を返すようにします。操作の詳細については <xref linkend="database.operations" /> を参照ください。</entry>
+	</row>
+	<row>
+	  <entry><literal>PHPUnit_Extensions_Database_Operation_DatabaseOperation getTearDownOperation()</literal></entry>
+	  <entry>オーバーライドして、各テストの最後に実行する特定の操作を返すようにします。操作の詳細については <xref linkend="database.operations" /> を参照ください。</entry>
+	</row>
+	<row>
+	  <entry><literal>PHPUnit_Extensions_Database_DB_DefaultDatabaseConnection createDefaultDBConnection(PDO $connection, string $schema)</literal></entry>
+	  <entry><literal>$connection</literal> <literal>PDO</literal> オブジェクトのデータベース接続ラッパーを返します。テスト対象のデータベーススキーマを <literal>$schema</literal> で指定します。このメソッドの結果を <literal>getConnection()</literal> の返り値として使用することができます。</entry>
+	</row>
+	<row>
+	  <entry><literal>PHPUnit_Extensions_Database_DataSet_FlatXmlDataSet createFlatXMLDataSet(string $xmlFile)</literal></entry>
+	  <entry><literal>$xmlFile</literal> で指定した絶対パスにある xml ファイルから作成したフラット xml データセットを返します。xml ファイルについての詳細は <xref linkend="database.datasets.flatxml" /> を参照ください。このメソッドの結果を <literal>getDataSet()</literal> の返り値として使用することができます。</entry>
+	</row>
+	<row>
+	  <entry><literal>PHPUnit_Extensions_Database_DataSet_XmlDataSet createXMLDataSet(string $xmlFile)</literal></entry>
+	  <entry><literal>$xmlFile</literal> で指定した絶対パスにある xml ファイルから作成した xml データセットを返します。xml ファイルについての詳細は <xref linkend="database.datasets.xml" /> を参照ください。このメソッドの結果を <literal>getDataSet()</literal> の返り値として使用することができます。</entry>
+	</row>
+	<row>
+	  <entry><literal>void assertTablesEqual(PHPUnit_Extensions_Database_DataSet_ITable $expected, PHPUnit_Extensions_Database_DataSet_ITable $actual)</literal></entry>
+	  <entry><literal>$expected</literal> テーブルの内容が <literal>$actual</literal> テーブルの内容と一致しないときにエラーを報告します。</entry>
+	</row>
+	<row>
+	  <entry><literal>void assertDataSetsEqual(PHPUnit_Extensions_Database_DataSet_IDataSet $expected, PHPUnit_Extensions_Database_DataSet_IDataSet $actual)</literal></entry>
+	  <entry><literal>$expected</literal> データセットの内容が <literal>$actual</literal> データセットの内容と一致しないときにエラーを報告します。</entry>
+	</row>
+      </tbody>
+    </tgroup>
+  </table>
+
+  <section id="database.datasets">
+    <title>データセット</title>
+
+    <para>
+      ...
+    </para>
+
+    <section id="database.datasets.flatxml">
+      <title>Flat XML データセット</title>
+      <para>
+        ...
+      </para>
+    </section>
+
+    <section id="database.datasets.xml">
+      <title>XML データセット</title>
+      <para>
+        ...
+      </para>
+    </section>
+
+  </section>
+
+  <section id="database.operations">
+    <title>操作</title>
+
+    <para>
+      ...
+    </para>
+
+  </section>
+
+  <section id="database.bestpractices">
+    <title>データベースのテストのコツ</title>
+
+    <para>
+      ...
+    </para>
+
+  </section>
+</chapter>

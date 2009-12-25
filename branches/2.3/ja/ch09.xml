@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="code-coverage-analysis">
+  <title>コードカバレッジ解析</title>
+
+  <para>
+    ユニットテストでコードをテストする方法はわかりました。でも、
+    テストそのものをテストするにはどうしたらいいのでしょう?
+    テストされていないコードを見つけるには? 言い換えれば、まだテストで
+    <emphasis>カバーされていない</emphasis>部分を見つけるには?
+    完全にテストができたことをどうやって確認するの?
+    これらのすべての疑問に対する答えとなるのが、コードカバレッジ解析という手法です。
+    コードカバレッジ解析を行うと、
+    コードのどの部分がテストされたのかを調べることができるようになります。
+  </para>
+
+  <para>
+    <indexterm><primary>Code-Coverage (コードカバレッジ)</primary></indexterm>
+
+    PHPUnit のコードカバレッジ解析では、<ulink url="http://www.xdebug.org/">Xdebug</ulink>
+    拡張モジュールが提供するステートメントカバレッジ機能を利用しています。
+    ステートメントカバレッジというのは、たとえば
+    100 行のコードで構成されるメソッドがあった場合に、
+    もしテストで実際に実行されたのがそのうちの 75 行だけだったなら、
+    そのメソッドのコードカバレッジは 75 パーセントだと考えるということです。
+  </para>
+
+  <para>
+    <xref linkend="code-coverage-analysis.figures.CodeCoverage.png" />
+    は、<literal>BankAccount</literal> クラス
+    (<xref linkend="test-first-programming.bankaccount-example.examples.BankAccount2.php" />
+    を参照ください) のコードカバレッジレポートを、PHPUnit
+    のコマンドライン版テストランナーで <literal>--coverage-html</literal>
+    を指定することによって HTML 形式で出力したものです。実行可能な行は黒、
+    実行可能でない行はグレーで表示されており、実際に実行された行が強調表示されています。
+  </para>
+
+  <figure id="code-coverage-analysis.figures.CodeCoverage.png">
+    <title>テストで完全にカバーできていない BankAccount クラス</title>
+
+    <graphic fileref="figures/CodeCoverage.png" />
+  </figure>
+
+  <para>
+    このコードカバレッジレポートからわかることは、テストを完璧にするには
+    <literal>setBalance()</literal>、<literal>depositMoney()</literal>
+    および <literal>withdrawMoney()</literal>
+    に正当な値を渡した場合のテストを追加する必要があるということです。
+    <literal>BankAccountTest</literal> クラスに追加すべきテストを
+    <xref linkend="code-coverage-analysis.examples.BankAccountTest.php" />
+    に示します。これによって、<literal>BankAccount</literal>
+    クラスのテストケースを完全に網羅できるようになります。
+  </para>
+
+  <example id="code-coverage-analysis.examples.BankAccountTest.php">
+    <title>テストで完全にカバーされている BankAccount クラス</title>
+    <programlisting><![CDATA[<?php
+require_once 'PHPUnit2/Framework/TestCase.php';
+require_once 'BankAccount.php';
+
+class BankAccountTest extends PHPUnit2_Framework_TestCase {
+    // ...
+
+    public function testSetBalance() {
+        $this->ba->setBalance(1);
+        $this->assertEquals(1, $this->ba->getBalance());
+    }
+
+    public function testDepositAndWidthdrawMoney() {
+        $this->ba->depositMoney(1);
+        $this->assertEquals(1, $this->ba->getBalance());
+
+        $this->ba->withdrawMoney(1);
+        $this->assertEquals(0, $this->ba->getBalance());
+    }
+}
+?>]]></programlisting>
+  </example>
+
+  <para>
+    <xref linkend="code-coverage-analysis.figures.CodeCoverage2.png" />
+    を見ると、<literal>BankAccount</literal>
+    クラスのコードが完全にテストされていることがわかります。
+  </para>
+
+  <figure id="code-coverage-analysis.figures.CodeCoverage2.png">
+    <title>完全にテストでカバーされた BankAccount クラス</title>
+
+    <graphic fileref="figures/CodeCoverage2.png" />
+  </figure>
+
+  <para>
+    Phing を使用してより詳細なコードカバレッジレポートを生成する方法を、
+    <xref linkend="phing" /> で説明します。
+  </para>
+</chapter>

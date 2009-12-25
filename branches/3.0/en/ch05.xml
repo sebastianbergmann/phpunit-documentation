@@ -1,0 +1,339 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+
+<chapter id="textui">
+  <title>The Command-Line Test Runner</title>
+
+  <para>
+    The PHPUnit command-line test runner can be invoked through the
+    <filename>phpunit</filename> command. The following code shows how to run
+    tests with the PHPUnit command-line test runner:
+  </para>
+
+  <screen><userinput>phpunit ArrayTest</userinput>
+PHPUnit 3.0.0 by Sebastian Bergmann.
+
+..
+
+Time: 00:00
+
+OK (2 tests)</screen>
+
+  <para>
+    For each test run, the PHPUnit command-line tool prints one character to
+    indicate progress:
+  </para>
+
+  <variablelist>
+    <varlistentry>
+      <term><literal>.</literal></term>
+      <listitem>
+        <para>
+          Printed when the test succeeds.
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><literal>F</literal></term>
+      <listitem>
+        <para>
+          Printed when an assertion fails while running the test method.
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><literal>E</literal></term>
+      <listitem>
+        <para>
+          Printed when an error occurs while running the test method.
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><literal>S</literal></term>
+      <listitem>
+        <para>
+          Printed when the test has been skipped (see
+          <xref linkend="incomplete-and-skipped-tests" />).
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><literal>I</literal></term>
+      <listitem>
+        <para>
+          Printed when the test is marked as being incomplete or not yet
+          implemented (see <xref linkend="incomplete-and-skipped-tests" />).
+        </para>
+      </listitem>
+    </varlistentry>
+  </variablelist>
+
+  <para>
+    <indexterm><primary>Error</primary></indexterm>
+    <indexterm><primary>Failure</primary></indexterm>
+
+    PHPUnit distinguishes between <emphasis>failures</emphasis> and
+    <emphasis>errors</emphasis>. A failure is a violated PHPUnit
+    assertion such as a failing <literal>assertEquals()</literal> call.
+    An error is an unexpected exception or a PHP error. Sometimes
+    this distinction proves useful since errors tend to be easier to fix
+    than failures. If you have a big list of problems, it is best to
+    tackle the errors first and see if you have any failures left when
+    they are all fixed.
+  </para>
+
+  <para>
+    Let's take a look at the command-line test runner's switches in
+    the following code:
+  </para>
+
+  <screen><userinput>phpunit --help</userinput>
+<![CDATA[PHPUnit 3.0.0 by Sebastian Bergmann.
+
+Usage: phpunit [switches] UnitTest [UnitTest.php]
+
+  --log-graphviz <file>  Log test execution in GraphViz markup.
+  --log-json <file>      Log test execution in JSON format.
+  --log-tap <file>       Log test execution in TAP format to file.
+  --log-xml <file>       Log test execution in XML format to file.
+
+  --report <dir>         Generate combined test/coverage report in HTML format.
+  --testdox-html <file>  Write agile documentation in HTML format to file.
+  --testdox-text <file>  Write agile documentation in Text format to file.
+
+  --filter <pattern>     Filter which tests to run.
+  --loader <loader>      TestSuiteLoader implementation to use.
+  --repeat <times>       Runs the test(s) repeatedly.
+  --tap                  Report test execution progress in TAP format.
+  --verbose              Output more verbose information.
+  --wait                 Waits for a keystroke after each test.
+
+  --skeleton             Generate skeleton UnitTest class for Unit in Unit.php.
+
+  --help                 Prints this usage information.
+  --version              Prints the version and exits.
+
+  -d key[=value]         Sets a php.ini value.]]></screen>
+
+  <variablelist>
+    <varlistentry>
+      <term><literal>phpunit UnitTest</literal></term>
+      <listitem>
+        <para>
+          Runs the tests that are provided by the class
+          <literal>UnitTest</literal>. This class is expected to be declared
+          in the <filename>UnitTest.php</filename> sourcefile.
+        </para>
+
+        <para>
+          <literal>UnitTest</literal> must be either a class that inherits
+          from <literal>PHPUnit_Framework_TestCase</literal> or a class that
+          provides a <literal>public static suite()</literal> method which
+          returns an <literal>PHPUnit_Framework_Test</literal> object, for
+          example an instance of the
+          <literal>PHPUnit_Framework_TestSuite</literal> class.
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><literal>phpunit UnitTest UnitTest.php</literal></term>
+      <listitem>
+        <para>
+          Runs the tests that are provided by the class
+          <literal>UnitTest</literal>. This class is expected to be declared
+          in the specified sourcefile.
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <indexterm><primary>Logfile</primary></indexterm>
+      <term><literal>--log-graphviz</literal></term>
+      <listitem>
+        <para>
+          Generates a logfile using the <ulink url="http://www.graphviz.org/">GraphViz</ulink>
+          markup for the tests run. The generated logfile can be rendered using the
+          <literal>dot</literal> tool, for instance.
+          See <xref linkend="logging" /> for more details.
+        </para>
+        <para>
+          Please note that this parameter is only available when the
+          <literal>Image_GraphViz</literal> PEAR package is installed.
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <indexterm><primary>JSON</primary></indexterm>
+      <term><literal>--log-json</literal></term>
+      <listitem>
+        <para>
+          Generates a logfile using the
+          <ulink url="http://www.json.org/">JSON</ulink> format.
+          See <xref linkend="logging" /> for more details.
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <indexterm><primary>Logfile</primary></indexterm>
+      <term><literal>--log-tap</literal></term>
+      <listitem>
+        <para>
+          Generates a logfile using the <ulink url="http://search.cpan.org/dist/Test-Harness/lib/Test/Harness/TAP.pod">Test Anything Protocol (TAP)</ulink>
+          format for the tests run. See <xref linkend="logging" /> for more
+          details.
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <indexterm><primary>Logfile</primary></indexterm>
+      <term><literal>--log-xml</literal></term>
+      <listitem>
+        <para>
+          Generates a logfile in XML format for the tests run.
+          See <xref linkend="logging" /> for more details.
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <indexterm><primary>Code Coverage</primary></indexterm>
+      <term><literal>--report</literal></term>
+      <listitem>
+        <para>
+          Generates a report. When the Xdebug extension for PHP is available,
+          the report will be a combined test result and code-coverage report.
+          See <xref linkend="code-coverage-analysis" /> for more details.
+        </para>
+        <para>
+          Please note that this parameter is only available when the
+          Xdebug extension is installed.
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <indexterm><primary>Agile Documentation</primary></indexterm>
+      <term><literal>--testdox-html</literal> and <literal>--testdox-text</literal></term>
+      <listitem>
+        <para>
+          Generates agile documentation in HTML or plain text format for the
+          tests that are run. See <xref linkend="other-uses-for-tests" /> for
+          more details.
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><literal>--filter</literal></term>
+      <listitem>
+        <para>
+          Only runs tests whose name matches the given pattern. The pattern
+          can be either the name of a single test or a
+          <ulink url="http://www.php.net/pcre">regular expression</ulink>
+          that matches multiple test names.
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <indexterm><primary>PHPUnit_Runner_TestSuiteLoader</primary></indexterm>
+      <term><literal>--loader</literal></term>
+      <listitem>
+        <para>
+          Specifies the <literal>PHPUnit_Runner_TestSuiteLoader</literal>
+          implementation to use.
+        </para>
+
+        <para>
+          The standard test suite loader will look for the sourcefile in the
+          current working directory and in each directory that is specified in
+          PHP's <literal>include_path</literal> configuration directive.
+          Following the PEAR Naming Conventions, a class name such as
+          <literal>Project_Package_Class</literal> is mapped to the
+          sourcefile name <filename>Project/Package/Class.php</filename>.
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><literal>--repeat</literal></term>
+      <listitem>
+        <para>
+          Repeatedly runs the test(s) the specified number of times.
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><literal>--tap</literal></term>
+      <listitem>
+        <para>
+          Reports the test progress using the <ulink url="http://search.cpan.org/dist/Test-Harness/lib/Test/Harness/TAP.pod">Test Anything Protocol (TAP)</ulink>.
+          See <xref linkend="logging" /> for more details.
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><literal>--verbose</literal></term>
+      <listitem>
+        <para>
+          Output more verbose information, for instance the names of tests
+          that were incomplete or have been skipped.
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><literal>--wait</literal></term>
+      <listitem>
+        <para>
+          Waits for a keystroke after each test. This is useful if you are
+          running the tests in a window that stays open only as long as the
+          test runner is active.
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <indexterm><primary>Skeleton Generator</primary></indexterm>
+      <term><literal>--skeleton</literal></term>
+      <listitem>
+        <para>
+          Generates a skeleton test-case class <literal>UnitTest</literal>
+          (in <filename>UnitTest.php</filename>) for a class
+          <literal>Unit</literal> (in <filename>Unit.php</filename>).
+          See <xref linkend="skeleton-generator" /> for more details.
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><literal>-d</literal></term>
+      <listitem>
+        <para>
+          Sets the value of the given PHP configuration option.
+        </para>
+      </listitem>
+    </varlistentry>
+  </variablelist>
+
+  <note>
+    <para>
+      <indexterm><primary>Syntax Check</primary></indexterm>
+
+      When the tested code contains PHP syntax errors, the TextUI test runner
+      might exit without printing error information. The standard test suite
+      loader will check the test suite sourcefile for PHP syntax errors, but
+      not sourcefiles included by the test suite sourcefile.
+    </para>
+  </note>
+</chapter>

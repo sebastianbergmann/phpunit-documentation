@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+
+<appendix id="appendixes.phpunit1">
+  <title>PHPUnit für PHP 4</title>
+
+  <para>
+    Es gibt eine Versionsreihe von PHPUnit, die auf PHP 4 ausgelegt ist
+    und nicht auf PHP 5 angewiesen ist. Auf Grund des eingeschränkten
+    Objektmodells von PHP 4 ist PHPUnit für PHP 4 im Gegensatz zu PHPUnit
+    für PHP 5 keine vollständige Portierung von JUnit. Darüber hinaus
+    fehlen einige Leistungsmerkmale wie beispielsweise die
+    Code-Coverage-Analyse.
+  </para>
+
+  <para>
+    Die folgende Befehlszeile zeigt die Installation von PHPUnit für PHP 4
+    mit dem PEAR Installer:
+  </para>
+
+  <screen><userinput>pear install -f http://pear.phpunit.de/get/PHPUnit-1.3.3.tgz</userinput></screen>
+
+  <para>
+    Eine Testklasse, die mit PHPUnit für PHP 4 verwendet werden kann, sieht
+    eine Testklasse, die mit PHPUnit für PHP 5 verwendet werden kann, ähnlich.
+    Der wichtigste Unterschied ist, dass sich die Testklasse von
+    <literal>PHPUnit_TestCase</literal> ableitet. Diese Klasse ist ihrerseits
+    eine Kindklasse der Klasse <literal>PHPUnit_Assert</literal>, die die
+    Zusicherungsmethoden zur Verfügung stellt.
+  </para>
+
+  <para>
+    <xref linkend="appendixes.phpunit1.examples.ArrayTest.php" />
+    zeigt eine Fassung der Testklasse <literal>ArrayTest</literal>, die mit
+    PHPUnit für PHP 4 verwendet werden kann.
+  </para>
+
+  <example id="appendixes.phpunit1.examples.ArrayTest.php">
+    <title>Eine Testklasse für PHPUnit 1.x schreiben</title>
+    <programlisting><![CDATA[<?php
+require_once 'PHPUnit/TestCase.php';
+
+class ArrayTest extends PHPUnit_TestCase {
+    var $_fixture;
+
+    function setUp() {
+        $this->_fixture = array();
+    }
+
+    function testNewArrayIsEmpty() {
+        $this->assertEquals(0, sizeof($this->_fixture));
+    }
+
+    function testArrayContainsAnElement() {
+        $this->_fixture[] = 'Element';
+        $this->assertEquals(1, sizeof($this->_fixture));
+    }
+}
+?>]]></programlisting>
+  </example>
+
+  <para>
+    PHPUnit für PHP 4 verfügt über kein Kommandozeilen-Werkzeug. Die
+    Ausführung der Tests erfolgt üblicherweise durch Schreiben einer
+    Testsuite "von Hand", wie in
+    <xref linkend="appendixes.phpunit1.examples.suite.php" /> gezeigt.
+  </para>
+
+  <example id="appendixes.phpunit1.examples.suite.php">
+    <title>Tests mit PHPUnit 1.x ausführen</title>
+    <programlisting><![CDATA[<?php
+require_once 'ArrayTest.php';
+require_once 'PHPUnit.php';
+
+$suite  = new PHPUnit_TestSuite('ArrayTest');
+$result = PHPUnit::run($suite);
+
+print $result->toString();
+?>]]></programlisting>
+
+<screen>TestCase arraytest->testnewarrayisempty() passed
+TestCase arraytest->testarraycontainsanelement() passed</screen>
+  </example>
+
+  <para>
+    <xref linkend="appendixes.phpunit1.figures.PHPUnit-Gtk.png" /> zeigt
+    das einzige Leistungsmermal, das PHPUnit for PHP 5 noch nicht bietet:
+    ein grafisches Werkzeug für die Testausführung auf Basis von PHP-GTK.
+  </para>
+
+  <figure id="appendixes.phpunit1.figures.PHPUnit-Gtk.png">
+    <title>Testausführung mit dem PHP-GTK-basierten Werkzeug</title>
+
+    <graphic fileref="figures/PHPUnit-Gtk.png" />
+  </figure>
+</appendix>

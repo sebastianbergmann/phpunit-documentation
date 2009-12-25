@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="other-uses-for-tests">
+  <title>テストのその他の使用法</title>
+
+  <para>
+    自動テストに慣れてくると、
+    ほかの目的のためにもテストを使いたくなってくることでしょう。
+    ここではそんな例を説明します。
+  </para>
+
+  <section id="other-uses-for-tests.agile-documentation">
+    <title>アジャイルな文書作成</title>
+
+    <para>
+      <indexterm><primary>Agile Documentation (アジャイルな文書作成)</primary></indexterm>
+      <indexterm><primary>Automated Documentation</primary></indexterm>
+      <indexterm><primary>Extreme Programming (エクストリームプログラミング)</primary></indexterm>
+      <indexterm><primary>TestDox</primary></indexterm>
+
+      一般的に、エクストリームプログラミングのようなアジャイルプロセスを採用しているプロジェクトでは、
+      ドキュメントの内容が実際の設計やコードに追いついていないことが多いものです。
+      エクストリームプログラミングでは <emphasis>コードの共同所有
+      (collective code ownership)</emphasis> を要求しており、
+      すべての開発者がシステム全体の動作を知っておく必要があります。
+      作成するテストに対して、そのクラスが何を行うべきなのかを示すような
+      「わかりやすい」名前をつけられるようにさえしておけば、PHPUnit の
+      TestDox 機能を使用して自動的にドキュメントを生成することができます。
+      このドキュメントにより、開発者たちはプロジェクト内の各クラスが
+      どのようにふるまうべきなのかを知ることができます。
+    </para>
+
+    <para>
+      PHPUnit の TestDox 機能は、テストクラス内のすべてのテストメソッドの名前を抽出し、
+      それを PHP 風のキャメルケースから通常の文に変換します。つまり
+      <literal>testBalanceIsInitiallyZero()</literal> が "Balance is initially zero"
+      のようになるわけです。最後のほうの数字のみが違うメソッド、例えば
+      <literal>testBalanceCannotBecomeNegative()</literal> と
+      <literal>testBalanceCannotBecomeNegative2()</literal> のようなものが存在した場合は、
+      文 "Balance cannot become negative" は一度のみ表示され、
+      全てのテストが成功したことを表します。
+    </para>
+
+    <para>
+      以下のコードは、<userinput>phpunit --testdox-text BankAccountTest.txt BankAccountTest</userinput>
+      を実行させて出力した、<literal>BankAccount</literal> クラス
+      (<xref linkend="test-first-programming.bankaccount-example.examples.BankAccountTest.php" />
+      を参照ください) のアジャイルな文書の例です。
+    </para>
+
+    <screen>BankAccount
+ - Balance is initially zero
+ - Balance cannot become negative</screen>
+
+    <para>
+      また、<literal>--testdox-html BankAccountTest.htm</literal>
+      を使用することで、アジャイルな文書を HTML 形式で作成することもできます。
+    </para>
+
+    <para>
+      <indexterm><primary>Documenting Assumptions</primary></indexterm>
+
+      アジャイルな文書は、プロジェクト内であなたが作成しようとしている外部パッケージについて、
+      このように動作するであるという期待をまとめた文書にもなります。
+      外部のパッケージを使用するときには、
+      そのパッケージが期待通りに動作しなくなるというリスクに常にさらされています。
+      パッケージのバージョンアップにより知らないうちに挙動が変わってしまい、
+      あなたのコードが動作しなくなる可能性もあります。そのようなことを避けるため、
+      「このパッケージはこのように動作するはず」
+      ということを常にテストケースで記述しておくようにします。テストが成功すれば、
+      期待通りに動作していることがわかります。もし動作仕様をすべてテストで記述できているのなら、
+      外部パッケージが将来バージョンアップされたとしても何の心配もいりません。
+      テストをクリアしたということは、システムは期待通りに動作するということだからです。
+    </para>
+  </section>
+
+  <section id="other-uses-for-tests.cross-team-tests">
+    <title>複数チームでのテスト</title>
+
+    <para>
+      あるパッケージについての機能を文書化するためにテストを書いているとき、
+      そのテストの所有者はあなたです。今あなたがテストを作成しているパッケージの作者は、
+      そのテストのことについては何も知りません。パッケージの作者とよりつながりを深めるため、
+      作成したテストを使用してコミュニケートしたり、
+      そのテストを使用して共同作業をしたりすることができるでしょう。
+    </para>
+
+    <para>
+      あなたが作成したテストを使用してパッケージの作者と共同作業をすることになれば、
+      テストも共同で書くことになります。そうすることで、
+      より多くのテストケースを挙げられるようになるでしょう。
+      「暗黙の了解」などに頼っていては、共同作業はできません。
+      テストと同時に、あなたはそのパッケージに対して期待していることを正確に文書化することになります。
+      また、すべてのテストにクリアした時点で、
+      作者はパッケージが完成したことを知ることになります。
+    </para>
+
+    <para>
+      <indexterm><primary>Stubs (スタブ)</primary></indexterm>
+
+      スタブ (本書の前のほうで説明した "スタブ" の章を参照ください)
+      を使用することで、パッケージの作者と別れても作業できるようになります。
+      パッケージ作者の仕事は、パッケージの実際の実装でテストをクリアするようにすること。
+      そしてあなたの仕事はあなたが書いたコードでテストをクリアするようにすることです。
+      この段階になれば、あなたはスタブオブジェクトを使用すればよいのです。
+      このやり方により、2 つのチームが独立して開発できるようになります。
+    </para>
+  </section>
+
+  <section id="other-uses-for-tests.debugging-tests">
+    <title>デバッグのためのテスト</title>
+
+    <para>
+      不具合の報告を受けたら、すぐにでもそれを修正したいと思われることでしょう。
+      しかし、あせって修正しようとしても、経験上なかなかうまくいきません。
+      不具合を修正したつもりが新たな不具合を引き起こしていたなんてこともありがちですね。
+    </para>
+
+    <para>
+      はやる気持ちを抑えて、以下のようにしてみましょう。
+    </para>
+
+    <orderedlist>
+      <listitem>
+        <para>
+          不具合を再現できるかどうかを確認します。
+        </para>
+      </listitem>
+
+      <listitem>
+        <para>
+          不具合が発生する最小限のコードを見つけます。例えば、
+          もしおかしな数値が出力されるのなら、
+          その数値を計算しているオブジェクトが何なのかを探します。
+        </para>
+      </listitem>
+
+      <listitem>
+        <para>
+          その不具合のせいで今は失敗する (そして、不具合が修正されたら成功する)
+          テストを書きます。
+        </para>
+      </listitem>
+
+      <listitem>
+        <para>
+          不具合を修正します。
+        </para>
+      </listitem>
+    </orderedlist>
+
+    <para>
+      不具合が再現する最小限のコードを見つける過程で、
+      不具合の原因がわかるかもしれません。テストを書くことによって、
+      不具合を真の意味で修正できる可能性が高まるでしょう。なぜなら、
+      テストを書くことで、将来同じ間違いをする可能性を減らせるからです。
+      これまでに書いたすべてのテストが、
+      不注意によって別の問題を発生させる可能性を減らすために役立っているのです。
+    </para>
+  </section>
+
+  <section id="other-uses-for-tests.refactoring">
+    <title>リファクタリング</title>
+
+    <para>
+      <indexterm><primary>Refactoring (リファクタリング)</primary></indexterm>
+
+      リファクタリングとは既存のコードの設計をよりよくするためのテクニックですが、
+      これを安全に行えるのは、きちんとしたテストスイートを持っている場合のみです。
+      さもないと、リファクタリングによってシステムを壊してしまっても
+      あなたはそれに気づかないでしょう。リファクタリングは、
+      振る舞いを保持したままの細かい変更の繰り返しと考えることができます。
+    </para>
+
+    <para>
+      以下の条件が、あなたのプロジェクトのコードや設計を改善するための助けとなるでしょう。
+      また、単体テストを使用することで、リファクタリングによって振る舞いが変化していないこと・
+      エラーが発生していないことが確認できます。
+    </para>
+
+    <orderedlist>
+      <listitem>
+        <para>すべての単体テストが正常に動作すること。</para>
+      </listitem>
+
+      <listitem>
+        <para>コードが設計指針を満たしていること。</para>
+      </listitem>
+
+      <listitem>
+        <para>コードに冗長性がないこと。</para>
+      </listitem>
+
+      <listitem>
+        <para>コードには最小限のクラスおよびメソッドのみが含まれていること。</para>
+      </listitem>
+    </orderedlist>
+  </section>
+</chapter>

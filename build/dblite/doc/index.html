@@ -1,0 +1,251 @@
+<html>
+<head>
+<title>Tools: DBLite</title>
+<style>
+body {
+  background-color: wheat;
+  font-family: sans-serif;
+}
+.note {
+  font-size: small;
+}
+</style>
+</head>
+<body>
+<h1>O'Reilly DocBook Lite</h1>
+<h4>O'Reilly Production Tools Group Documentation</h4>
+
+<p>Erik Ray (<a href="mailto:eray@oreilly.com">eray@oreilly.com</a>)</p> 
+
+<h2>Contents</h2>
+<ol>
+<li><a href="#intro">Introduction</a></li>
+<li><a href="#package">DBLite Package</a></li>
+<li><a href="#authoring">Authoring Documents</a></li>
+<li><a href="#style">Style Guide</a></li>
+<li><a href="#checking">Checking Documents</a></li>
+<li><a href="#viewing">Viewing Documents</a></li>
+<li><a href="#resources">Resources</a></li>
+<li><a href="#license">License Information</a></li>
+<li><a href="#ack">Acknowledgements</a></li>
+</ol>
+
+<a name="into"/>
+<h2>1. Introduction</h2>
+
+<p>This document describes the O'Reilly customization of DocBook-XML
+for marking up manuscripts. We call this customization <i>DocBook
+Lite</i> because it's a subset of DocBook tailored and augmented to
+fit our particular style of books. The DTD is an extension of
+DocBook-XML version 4.1 by Norm Walsh, available at the <a
+href="http://www.oasis-open.org/committees/docbook/">OASIS Group's
+website</a>.</p>
+
+<p>For any questions that this document doesn't cover, please contact
+the Tools Group at <a
+href="mailto:tools@oreilly.com">tools@oreilly.com</a>. Any feedback or
+contributions are enthusiastically accepted.</p>
+
+<a name="package"/>
+<h2>2. DBLite Package</h2>
+
+<p>The DBLite package is available from our FTP server at <a
+href="ftp://ftp.ora.com/pub/dblite/dblite.tar.gz">ftp://ftp.ora.com/pub/dblite/dblite.tar.gz</a>.
+The tables below describe the details of the package.</p>
+
+<h3>Files and Directories</h3>
+<blockquote>
+<table border="0">
+<tr><td>install</td><td width="30"></td><td>Command to install files
+onto your system.</td></tr>
+<tr><td>catalog</td><td></td><td>Catalog file to support public
+identifiers, if you need them.</td></tr>
+<tr><td>dblite.dtd</td><td></td><td>The DTD for DBLite.</td></tr>
+<tr><td>dblite_htmlents.dtd</td><td></td><td>Variant of DTD using HTML
+character entities instead of standard Unicode entities.</td></tr>
+<tr><td>dblite_noents.dtd</td><td></td><td>Variant of DTD without any
+character entities defined.</td></tr>
+<tr><td>dblite_safari.dtd</td><td></td><td>An older version of the DTD
+for backwards compatibility with Safari project.</td></tr>
+<tr><td>html.ent</td><td></td><td>A substitute definition of entities
+with ISO-8879 names (HTML instead of Unicode).</td></tr>
+<tr><td>sdblite.dtd</td><td></td><td>An SGML version of the dblite
+DTD.</td></tr>
+<tr><td>bin/</td><td></td><td>Tools for processing DBLite
+documents.</td></tr>
+<tr><td>css/dblite.css</td><td></td><td>A CSS stylesheet suitable for
+XML editors like XMetaL.</td></tr>
+<tr><td>doc/</td><td></td><td>Documentation for DBLite.</td></tr>
+<tr><td>docbook41/</td><td></td><td>DocBook-XML 4.1 distribution on
+which DBLite is based.</td></tr>
+<tr><td>test/lx/</td><td></td><td>A sample book in DBLite XML.</td></tr>
+<tr><td>xsl/</td><td></td><td>XSLT stylesheets for use by some
+tools.</td></tr> 
+</table>
+</blockquote>
+
+<h3>Tools</h3>
+<blockquote>
+<table border="0">
+<tr><td>db2h</td><td width="50"></td><td>A simple DocBook to HTML conversion
+tool.</td></tr>
+<tr><td>db2html</td><td></td><td>A more complex DocBook to HTML
+conversion program for CD-ROM titles.</td></tr>
+<tr><td>db2htmlindex</td><td></td><td>Used with db2html to generate
+online indexes.</td></tr> 
+<tr><td>db2htmlindexproc</td><td></td><td>Helper for db2htmlindex.</td></tr>
+<tr><td>dbnormspace</td><td></td><td>Normalizes space so that
+documents are easier on human eyes.</td></tr>
+<tr><td>dbtest</td><td></td><td>Tests DBLite installation.</td></tr>
+<tr><td>dtdinfo</td><td></td><td>Reads a DTD and outputs useful
+information.</td></tr> 
+<tr><td>dtdx2s</td><td></td><td>Converts an XML DTD into an SGML
+DTD.</td></tr> 
+<tr><td>xtrans</td><td></td><td>Transforms an XML file using an XSLT
+transformation script.</td></tr>
+<tr><td>xval</td><td></td><td>Validates an XML file.</td></tr>
+<tr><td>xwf</td><td></td><td>Checks well-formedness of
+files.</td></tr>
+</table>
+</blockquote>
+
+<h3>Dependencies</h3>
+<p>Things you need, not included in the package.</p>
+<blockquote>
+<table border="0">
+<tr><th>Library</th><td width="30"></td>
+<th>Source</th><td width="30"></td><th>Purpose</th></tr>
+<tr><td>libxml2</td><td></td><td>gnome.org*</td><td></td><td>C Library 
+for parsing XML documents. Used by db2h, db2html, dbtest, xtrans,
+xval, xwf.</td></tr>
+<tr><td>libxslt</td><td></td><td>gnome.org*</td><td></td><td>C Library
+for running XSLT transformations. Used by db2h, db2html,
+xtrans.</td></tr>
+<tr><td>XML::LibXML</td><td></td><td>cpan.org*</td><td></td><td>Perl
+module for XML parsing. Used by db2h, db2html, dbtest, xtrans, xval,
+xwf.</td></tr>
+<tr><td>XML::LibXSLT</td><td></td><td>cpan.org*</td><td></td><td>Perl
+module for XSLT transformation. Used by db2h, db2html,
+xtrans.</td></tr>
+<tr><td>XML::DOMHandler</td><td></td><td>cpan.org*</td><td></td><td>Perl
+module used by db2html.</td></tr>
+</table>
+<p class="note">*Note: if you are running MacOS X, you should obtain
+these libraries through the Fink (<a
+href="http://fink.sf.net/">http://fink.sf.net/</a>) packaging
+system.</p>
+</blockquote>
+
+<a name="authoring"/>
+<h2>3. Authoring Documents</h2>
+
+<p>There are lot of ways to edit XML. You can use a basic editor such
+as vi or emacs. Both have versions and/or modes that give special
+support to XML markup. For emacs, there is a package called psgml that
+adds an XML/SGML major mode which integrates an XML parser for in-situ
+parsing. These tools, however, do not give you any kind of special
+formatted view other than possibly hilighting tags in color.</p>
+
+<p>For a nicer, formatted view of text, and a GUI interface, you can
+opt for one of the many graphical XML editors available. Several
+authors have said good things about XMetaL, a Windows-only editor, for
+example. I have enjoyed working with Morphon XML Editor, an editor
+written in Java that supports MacOS, Windows, and Linux. Most XML
+editors that provide formatted viewing use Cascading Stylesheets (CSS)
+to render styles. This package includes a sample CSS stylesheet that
+you can use.</p>
+
+<a name="style"/>
+<h2>4. Style guide</h2>
+
+<p>For hints at how to tag documents, read the included <a
+href="dblite.html">DocBook Lite Style Guide</a>.</p>
+
+<a name="checking"/>
+<h2>5. Checking Documents</h2>
+
+<p>It's a good idea periodically to check your XML files to make sure
+they are well-formed (i.e. no syntax errors in the markup). Use the
+tool <i>xwf</i> included in this package to locate errors and fix
+them. For arguments, it takes individual XML files in the book
+like so:</p>
+
+<blockquote><pre>xwf ch01.xml ch02.xml ...</pre></blockquote>
+
+<p>For more thorough error checking, use the <i>xval</i> tool to run a
+validation test. This compares the document against the DTD which has
+grammar rules for XML elements. Apply it only to the <i>book.xml</i> file
+(top level XML file for the book):</p>
+
+<blockquote><pre>xval book.xml</pre></blockquote>
+
+<p>Note that for <i>xval</i> to work correctly, you need to set up a
+file called <i>book.xml</i> which contains a Doctype declaration. To
+learn how to do that, see the <a href="dblite.html">DocBook Lite Style
+Guide</a> included in this package.</p>
+
+<a name="viewing"/>
+<h2>6. Viewing Documents</h2>
+
+<p>Besides the formatted viewing capability in graphical XML editors,
+I've provided another way you can format books for viewing. The tool
+<i>db2h</i> transforms the DocBook-XML into HTML for viewing in a web
+browser. Each chapter will be converted into a separate HTML file. You
+can run it on the whole book (using <i>book.xml</i> as the argument)
+or on individual XML files.</p>
+
+<a name="resources"/>
+<h2>7. Resources</h2>
+
+<p>For more information about DocBook, including tools and
+documentation, these resources should be of help.</p>
+
+<ul>
+<li><p>Norman Walsh and Leonard Muellner, <a href="http://www.oreilly.com/catalog/docbook/"><i>DocBook, The Definitive Guide</i></a>, O'Reilly and
+Associates.</p></li>
+<li><p>The OASIS Group <a
+href="http://www.oasis-open.org/committees/docbook/">DocBook Project
+page</a>.</p></li>
+<li><p>The O'Reilly Tools Group (<a
+href="mailto:tools@oreilly.com">tools@oreilly.com</a>).</p>
+<li><p>The <a
+href="https://intranet.oreilly.com/production/tools/">Tools Intranet Page</a>
+(if you are inside the O'Reilly firewall).</p></li>
+</ul>
+
+<a name="license"/>
+<h2>8. License Information</h2>
+
+<p>Permission is granted to use and distribute the DBLite DTD and
+materials, but not to modify it any way. All content in this package
+is copyright &copy; 1995-2002 O'Reilly &amp; Associates.</p>
+
+<a name="ack"/>
+<h2>9. Acknowledgements</h2>
+
+<p>Thanks to the following people for contributing to the use of DocBook
+at O'Reilly:</p>
+
+<ul>
+<li>Norm Walsh</li>
+<li>Leonard Muellner</li>
+<li>Dale Dougherty</li>
+<li>Neil Walls</li>
+<li>Mike Sierra</li>
+<li>Joe Wizda</li>
+<li>Ellie Cutler</li>
+<li>John Chodacki</li>
+<li>Benn Salter</li>
+<li>Cliff Dyer</li>
+<li>Anne-Marie Vaduva</li>
+<li>Mela Meyer</li>
+<li>Joe Johnson</li>
+<li>Jessica Hekman</li>
+</ul>
+
+<p>And anyone else I haven't thought of :-) ...</p>
+
+</body>
+</html>
+
+

@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+
+<chapter id="testing-exceptions-and-performance-regressions">
+  <title>Testing Exceptions and Performance Regressions</title>
+
+  <para>
+    PHPUnit provides two extensions to the standard base-class for test
+    classes, <literal>PHPUnit2_Framework_TestCase</literal>, that aid in the
+    writing of tests for exceptions and performance regressions.
+  </para>
+
+  <section id="testing-exceptions-and-performance-regressions.exceptions">
+    <title>Exceptions</title>
+
+    <para>
+      How do you test exceptions? You cannot directly assert that they are
+      raised. Instead you have to use PHP's exception handling facilities to
+      write the test. The following example demonstrates testing exceptions:
+    </para>
+
+    <programlisting><![CDATA[<?php
+require_once 'PHPUnit2/Framework/TestCase.php';
+
+class ExceptionTest extends PHPUnit2_Framework_TestCase {
+    public function testException() {
+        try {
+            // ... Code that is expected to raise an Exception ...
+        }
+
+        catch (Exception $expected) {
+            return;
+        }
+
+        $this->fail('An expected Exception has not been raised.');
+    }
+}
+?>]]></programlisting>
+
+    <para>
+      If the code that is expected to raise an exception does not raise an
+      exception, the subsequent call to <literal>fail()</literal>
+      (see <xref linkend="api.assert.tables.bottleneck-methods" />)
+      will halt the test and signal a problem with the test. If the expected
+      exception is raised, the <literal>catch</literal> block will be executed,
+      and the test will end successfully.
+    </para>
+
+    <para>
+      <indexterm><primary>PHPUnit2_Extensions_ExceptionTestCase</primary></indexterm>
+
+      Alternatively, you can extend your test class from
+      <literal>PHPUnit2_Extensions_ExceptionTestCase</literal> to test whether
+      an exception is thrown inside the tested code.
+      <xref linkend="testing-exceptions-and-performance-regressions.exceptions.examples.ExceptionTest2.php" />
+      shows how to subclass <literal>PHPUnit2_Extensions_ExceptionTestCase</literal>
+      and use its <literal>setExpectedException()</literal> method to set the
+      expected exception. If this expected exception is not thrown, the test
+      will be counted as a failure.
+    </para>
+
+    <example id="testing-exceptions-and-performance-regressions.exceptions.examples.ExceptionTest2.php">
+      <title>Using PHPUnit2_Extensions_ExceptionTestCase</title>
+      <programlisting><![CDATA[<?php
+require_once 'PHPUnit2/Extensions/ExceptionTestCase.php';
+
+class ExceptionTest extends PHPUnit2_Extensions_ExceptionTestCase {
+    public function testException() {
+        $this->setExpectedException('Exception');
+    }
+}
+?>]]></programlisting>
+      <screen><userinput>phpunit ExceptionTest</userinput>
+PHPUnit 2.3.0 by Sebastian Bergmann.
+
+F
+
+Time: 0.006798
+There was 1 failure:
+1) testException(ExceptionTest)
+Expected exception Exception
+
+FAILURES!!!
+Tests run: 1, Failures: 1, Errors: 0, Incomplete Tests: 0.</screen>
+    </example>
+
+    <para>
+      <xref linkend="testing-exceptions-and-performance-regressions.exceptions.tables.external-protocols" />
+      shows the external protocol implemented by
+      <literal>PHPUnit2_Extensions_ExceptionTestCase</literal>.
+    </para>
+
+    <table id="testing-exceptions-and-performance-regressions.exceptions.tables.external-protocols">
+      <title>ExceptionTestCase external protocols</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>Method</entry>
+            <entry>Meaning</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>void setExpectedException(string $exceptionName)</literal></entry>
+            <entry>Set the name of the expected exception to <literal>$exceptionName</literal>.</entry>
+          </row>
+          <row>
+            <entry><literal>String getExpectedException()</literal></entry>
+            <entry>Return the name of the expected exception.</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+  </section>
+
+  <section id="testing-exceptions-and-performance-regressions.performance-regressions">
+    <title>Performance Regressions</title>
+
+    <para>
+      <indexterm><primary>PHPUnit2_Extensions_PerformanceTestCase</primary></indexterm>
+
+      You can extend your test class from <literal>PHPUnit2_Extensions_PerformanceTestCase</literal>
+      to test whether the execution of a function or method call, for
+      instance, exceeds a specified time limit.
+    </para>
+
+    <para>
+      <xref linkend="testing-exceptions-and-performance-regressions.performance-regressions.examples.PerformanceTest.php" />
+      shows how to subclass <literal>PHPUnit2_Extensions_PerformanceTestCase</literal>
+      and use its <literal>setMaxRunningTime()</literal> method to set the
+      maximum running time for the test. If the test is not executed within
+      this time limit, it will be counted as a failure.
+    </para>
+
+    <example id="testing-exceptions-and-performance-regressions.performance-regressions.examples.PerformanceTest.php">
+      <title>Using PHPUnit2_Extensions_PerformanceTestCase</title>
+      <programlisting><![CDATA[<?php
+require_once 'PHPUnit2/Extensions/PerformanceTestCase.php';
+
+class PerformanceTest extends PHPUnit2_Extensions_PerformanceTestCase {
+    public function testPerformance() {
+        $this->setMaxRunningTime(2);
+        sleep(1);
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      <xref linkend="testing-exceptions-and-performance-regressions.performance-regressions.tables.external-protocols" />
+      shows the external protocol implemented by
+      <literal>PHPUnit2_Extensions_PerformanceTestCase</literal>.
+    </para>
+
+    <table id="testing-exceptions-and-performance-regressions.performance-regressions.tables.external-protocols">
+      <title>PerformanceTestCase external protocols</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>Method</entry>
+            <entry>Meaning</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>void setMaxRunningTime(int $maxRunningTime)</literal></entry>
+            <entry>Set the maximum running time for the test to <literal>$maxRunningTime</literal> (in seconds).</entry>
+          </row>
+          <row>
+            <entry><literal>integer getMaxRunningTime()</literal></entry>
+            <entry>Return the maximum running time allowed for the test.</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+  </section>
+</chapter>
