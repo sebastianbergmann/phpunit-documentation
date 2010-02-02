@@ -400,6 +400,48 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
       </example>
     </section>
 
+    <section id="api.assert.assertEmpty">
+      <title><literal>assertEmpty()</literal></title>
+      <indexterm><primary>assertEmpty()</primary></indexterm>
+      <indexterm><primary>assertNotEmpty()</primary></indexterm>
+      <para><literal>assertEmpty(mixed $actual[, string $message = ''])</literal></para>
+      <para>Reports an error identified by <literal>$message</literal> if <literal>$actual</literal> is not empty.</para>
+      <para><literal>assertNotEmpty()</literal> is the inverse of this assertion and takes the same arguments.</para>
+      <example id="api.assert.assertEmpty.example">
+        <title>Usage of assertEmpty()</title>
+        <programlisting><![CDATA[<?php
+class EmptyTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertEmpty(array('foo'));
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit EmptyTest</userinput><![CDATA[
+PHPUnit 3.5.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds
+
+There was 1 failure:
+
+1) EmptyTest::testFailure
+Failed asserting that
+Array
+(
+    [0] => foo
+)
+ is empty.
+
+/home/sb/EmptyTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+      </example>
+    </section>
+
     <section id="api.assert.assertEqualXMLStructure">
       <title><literal>assertEqualXMLStructure()</literal></title>
       <indexterm><primary>assertEqualXMLStructure()</primary></indexterm>
