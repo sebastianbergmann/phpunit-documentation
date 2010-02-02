@@ -1,6 +1,6 @@
 #!/usr/bin/env php
 <?php
-require_once 'PHPUnit/Framework.php';
+require_once 'PHPUnit/Framework/Assert.php';
 require_once 'PHPUnit/Util/Class.php';
 require_once 'Text/Template.php';
 
