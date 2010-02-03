@@ -269,37 +269,35 @@ Tests: 2, Assertions: 2, Failures: 1.]]></screen>
     </para>
 
     <para>
-      <xref linkend="fixtures.sharing-fixture.examples.DatabaseTestSuite.php" />
-      uses the <literal>setUp()</literal> and <literal>tearDown()</literal>
-      template methods of the <literal>PHPUnit_Framework_TestSuite</literal>
-      class (see <xref linkend="organizing-tests.testsuite"/>) to
-      connect to the database before the test suite's first test and to
-      disconnect from the database after the last test of the test suite,
-      respectively. The <literal>$sharedFixture</literal> attribute of an
-      <literal>PHPUnit_Framework_TestSuite</literal> object is available in
-      the object's aggregated <literal>PHPUnit_Framework_TestSuite</literal>
-      and <literal>PHPUnit_Framework_TestCase</literal> objects.
+      <indexterm><primary>setUpBeforeClass</primary></indexterm>
+      <indexterm><primary>tearDownAfterClass</primary></indexterm>
+
+      <xref linkend="fixtures.sharing-fixture.examples.DatabaseTest.php" />
+      uses the <literal>setUpBeforeClass()</literal> and
+      <literal>tearDownAfterClass()</literal> template methods to connect to the
+      database before the test case class' first test and to disconnect from the
+      database after the last test of the test case, respectively.
     </para>
 
-    <example id="fixtures.sharing-fixture.examples.DatabaseTestSuite.php">
+    <example id="fixtures.sharing-fixture.examples.DatabaseTest.php">
       <title>Sharing fixture between the tests of a test suite</title>
       <programlisting><![CDATA[<?php
-require_once 'PHPUnit/Framework.php';
-
-class DatabaseTestSuite extends PHPUnit_Framework_TestSuite
+class DatabaseTest extends PHPUnit_Framework_TestCase
 {
-    protected function setUp()
+    protected static $dbh;
+
+    protected function setUpBeforeClass()
     {
-        $this->sharedFixture = new PDO(
+        self::$dbh = new PDO(
           'mysql:host=wopr;dbname=test',
           'root',
           ''
         );
     }
 
-    protected function tearDown()
+    protected function tearDownAfterClass()
     {
-        $this->sharedFixture = NULL;
+        self::$dbh = NULL;
     }
 }
 ?>]]></programlisting>
