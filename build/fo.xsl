@@ -3,6 +3,11 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version='1.0'>
   <xsl:import href="docbook-xsl/fo/docbook.xsl"/>
 
+  <xsl:attribute-set name="formal.object.properties">
+     <xsl:attribute name="keep-together.within-column">auto</xsl:attribute>	
+  </xsl:attribute-set>
+
+
   <xsl:param name="paper.type">A4</xsl:param>
 
   <l:i18n xmlns:l="http://docbook.sourceforge.net/xmlns/l10n/1.0">
