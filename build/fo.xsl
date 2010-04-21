@@ -3,6 +3,9 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version='1.0'>
   <xsl:import href="docbook-xsl/fo/docbook.xsl"/>
 
+
+  <xsl:param name="default.image.width">14.25cm</xsl:param>
+
   <xsl:attribute-set name="formal.object.properties">
      <xsl:attribute name="keep-together.within-column">auto</xsl:attribute>	
   </xsl:attribute-set>
