@@ -45,12 +45,10 @@ class HighlightPDF
                 str_replace(array('&amp;' , '&gt;' , '&lt;' , '&quot;'),
                         array('&' , '' , '' , '>' , '<' , '"'),
                         $code));
-        if (substr($code, 0, 5) != '<?php') {
-            $code = '<?php ' . $code;
+        if (substr($code, 0, 5) == '<?php') {
             $codehl = highlight_string($code, true);
-            $codehl = preg_replace("/\&lt\;\?php\&nbsp\;/", '', $codehl, 1);
         } else {
-            $codehl = highlight_string($code, true);
+            $codehl = $code;
         }
         $codehl = str_replace(array('<code>' , '</code>' , '&nbsp;' , '<br />' , "\r"),
                 array('' , '' , ' ' , "\n" , "\n"),
@@ -64,29 +62,33 @@ class HighlightPDF
 
     private static function _createBlockCode($code)
     {
-        $dom = new DomDocument();
-        $dom->loadXML($code);
-        $xpath = new DomXPath($dom);
-        $parentSpan = $xpath->query('/span')->item(0);
-        $block_code = self::$_dom->createElement('fo:inline');
-        $block_code->setAttribute('color', substr($parentSpan->getAttributeNode('style')->value, 7, 7));
-        $nodes = $xpath->query('/span/node()');
-        foreach ($nodes as $node) {
-            if ($node->nodeType == XML_ELEMENT_NODE) {
-                $child = self::$_dom->createElement('fo:inline', $node->nodeValue);
-                $child->setAttribute('color',
-                        substr(
-                                $node->getAttributeNode(
-                                        'style')->value,
-                                7,
-                                7));
-            } else {
-                $child = self::$_dom->importNode($node, true);
+        if (substr($code, 0, 5) == '<span') {
+            $dom = new DomDocument();
+            $dom->loadXML($code);
+            $xpath = new DomXPath($dom);
+            $parentSpan = $xpath->query('/span')->item(0);
+            $block_code = self::$_dom->createElement('fo:inline');
+            $block_code->setAttribute('color', substr($parentSpan->getAttributeNode('style')->value, 7, 7));
+            $nodes = $xpath->query('/span/node()');
+            foreach ($nodes as $node) {
+                if ($node->nodeType == XML_ELEMENT_NODE) {
+                    $child = self::$_dom->createElement('fo:inline', $node->nodeValue);
+                    $child->setAttribute('color',
+                            substr(
+                                    $node->getAttributeNode(
+                                            'style')->value,
+                                    7,
+                                    7));
+                } else {
+                    $child = self::$_dom->importNode($node, true);
+                }
+                $block_code->appendChild($child);
             }
-            $block_code->appendChild($child);
-        }
-        if (preg_match("/^\s+$/", $block_code->firstChild->textContent)) {
-            $block_code->removeChild($block_code->firstChild);
+            if (preg_match("/^\s+$/", $block_code->firstChild->textContent)) {
+                $block_code->removeChild($block_code->firstChild);
+            }
+        } else {
+            $block_code = self::$_dom->createElement('fo:inline', $code);
         }
         return $block_code;
     }
