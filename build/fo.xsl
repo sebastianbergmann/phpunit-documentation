@@ -3,9 +3,20 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version='1.0'>
   <xsl:import href="docbook-xsl/fo/docbook.xsl"/>
 
+
+  <xsl:param name="default.image.width">14.25cm</xsl:param>
+
   <xsl:attribute-set name="formal.object.properties">
      <xsl:attribute name="keep-together.within-column">auto</xsl:attribute>	
   </xsl:attribute-set>
+
+  <xsl:template match="entry/literal/text()|entrytbl/literal/text()">
+    <xsl:call-template name="string.subst">
+      <xsl:with-param name="string" select="." />
+      <xsl:with-param name="target" select="'_'" />
+      <xsl:with-param name="replacement" select="'_&#8203;'" />
+    </xsl:call-template>        
+  </xsl:template>
 
 
   <xsl:param name="paper.type">A4</xsl:param>
