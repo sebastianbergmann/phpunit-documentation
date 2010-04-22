@@ -1,6 +1,10 @@
 <?xml version='1.0'?>
 
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version='1.0'>
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
+                xmlns:fo="http://www.w3.org/1999/XSL/Format"   
+                xmlns:xslthl="http://xslthl.sf.net"
+                exclude-result-prefixes="xslthl"
+				version="1.0">
   <xsl:import href="docbook-xsl/fo/docbook.xsl"/>
 
 
@@ -68,4 +72,66 @@
       <l:gentext key="index" text=""/>
     </l:l10n>
   </l:i18n>
+
+    <xsl:param name="shade.verbatim" select="1"/>
+    <xsl:attribute-set name="shade.verbatim.style">
+      <xsl:attribute name="background-color">#EDF7FF</xsl:attribute>
+      <xsl:attribute name="border-width">0.5pt</xsl:attribute>
+      <xsl:attribute name="border-style">solid</xsl:attribute>
+      <xsl:attribute name="border-color">#D3E0EB</xsl:attribute>
+      <xsl:attribute name="padding">3pt</xsl:attribute>
+      <xsl:attribute name="font-size">9pt</xsl:attribute>
+    </xsl:attribute-set>
+
+    <xsl:template match="programlisting|screen|synopsis">
+      <xsl:param name="suppress-numbers" select="'0'"/>
+      <xsl:variable name="id"><xsl:call-template name="object.id"/></xsl:variable>
+
+      <xsl:variable name="content">
+        <xsl:choose>
+          <xsl:when test="$suppress-numbers = '0'
+                          and @linenumbering = 'numbered'
+                          and $use.extensions != '0'
+                          and $linenumbering.extension != '0'">
+            <xsl:call-template name="number.rtf.lines">
+              <xsl:with-param name="rtf">
+            <xsl:call-template name="apply-highlighting"/>
+              </xsl:with-param>
+            </xsl:call-template>
+          </xsl:when>
+          <xsl:otherwise>
+        <xsl:call-template name="apply-highlighting"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:variable>
+
+      <xsl:choose>
+        <xsl:when test="$shade.verbatim != 0">
+          <fo:block id="{$id}"
+                    xsl:use-attribute-sets="monospace.verbatim.properties shade.verbatim.style" codehl="php">
+            <xsl:choose>
+              <xsl:when test="$hyphenate.verbatim != 0 and function-available('exsl:node-set')">
+                <xsl:apply-templates select="exsl:node-set($content)" mode="hyphenate.verbatim"/>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:copy-of select="$content"/>
+              </xsl:otherwise>
+            </xsl:choose>
+          </fo:block>
+        </xsl:when>
+        <xsl:otherwise>
+          <fo:block id="{$id}"
+                    xsl:use-attribute-sets="monospace.verbatim.properties" codehl="php">
+            <xsl:choose>
+              <xsl:when test="$hyphenate.verbatim != 0 and function-available('exsl:node-set')">
+                <xsl:apply-templates select="exsl:node-set($content)" mode="hyphenate.verbatim"/>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:copy-of select="$content"/>
+              </xsl:otherwise>
+            </xsl:choose>
+          </fo:block>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:template>
 </xsl:stylesheet>
