@@ -237,41 +237,53 @@ class BankAccountTest extends PHPUnit_Framework_TestCase
 
     <para>
       <indexterm><primary>Annotation</primary></indexterm>
+      <indexterm><primary>@codeCoverageIgnore</primary></indexterm>
       <indexterm><primary>@codeCoverageIgnoreStart</primary></indexterm>
       <indexterm><primary>@codeCoverageIgnoreEnd</primary></indexterm>
 
       Sometimes you have blocks of code that you cannot test and that you may
       want to ignore during code coverage analysis. PHPUnit lets you do this
-      using the <literal>@codeCoverageIgnoreStart</literal> and
+      using the <literal>@codeCoverageIgnore</literal>,
+      <literal>@codeCoverageIgnoreStart</literal> and
       <literal>@codeCoverageIgnoreEnd</literal> annotations as shown in
       <xref linkend="code-coverage-analysis.ignoring-code-blocks.examples.Sample.php"/>.
     </para>
 
     <example id="code-coverage-analysis.ignoring-code-blocks.examples.Sample.php">
-      <title>Using the <literal>@codeCoverageIgnoreStart</literal> and <literal>@codeCoverageIgnoreEnd</literal> annotations</title>
+      <title>Using the <literal>@codeCoverageIgnore</literal>, <literal>@codeCoverageIgnoreStart</literal> and <literal>@codeCoverageIgnoreEnd</literal> annotations</title>
         <programlisting><![CDATA[<?php
-class Sample
+/**
+ * @codeCoverageIgnore
+ */
+class Foo
 {
-    // ...
-
-    public function doSomething()
+    public function bar()
     {
-        if (0) {
-            // @codeCoverageIgnoreStart
-            $this->doSomethingElse();
-            // @codeCoverageIgnoreEnd
-        }
     }
+}
 
-    // ...
+class Bar
+{
+    /**
+     * @codeCoverageIgnore
+     */
+    public function foo()
+    {
+    }
+}
+
+if (FALSE) {
+    // @codeCoverageIgnoreStart
+    print '*';
+    // @codeCoverageIgnoreEnd
 }
 ?>]]></programlisting>
     </example>
 
     <para>
-      The lines of code between the <literal>@codeCoverageIgnoreStart</literal>
-      and <literal>@codeCoverageIgnoreEnd</literal> annotations are counted as
-      executed (if they are executable) and will not be highlighted.
+      The lines of code that are markes as to be ignored using the annotations
+      are counted as executed (if they are executable) and will not be
+      highlighted.
     </para>
   </section>
 
