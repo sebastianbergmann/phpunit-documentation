@@ -102,7 +102,8 @@
       <literal>PHPUnit_Framework_TestCase</literal> クラス (<xref
       linkend="api.testcase.tables.api" /> を参照ください) の
       <literal>getMock()</literal> メソッドを用いて
-      <literal>SomeClass</literal> オブジェクトのスタブを作成します。
+      <literal>SomeClass</literal> オブジェクトのスタブを作成します
+      (<xref linkend="test-doubles.stubs.examples.SomeClass.php" />)。
       次に、PHPUnit が提供する、いわゆる
       <ulink url="http://martinfowler.com/bliki/FluentInterface.html">Fluent Interface</ulink>
       (<ulink url="http://capsctrl.que.jp/kdmsnr/wiki/bliki/?FluentInterface">流れるようなインターフェイス</ulink>)
@@ -113,6 +114,19 @@
       このほうが、より読みやすく "流れるような" コードとなります。
     </para>
 
+    <example id="test-doubles.stubs.examples.SomeClass.php">
+      <title>スタブを作りたいクラス</title>
+      <programlisting><![CDATA[<?php
+class SomeClass
+{
+    public function doSomething()
+    {
+        // なにかをします
+    }
+}
+?>]]></programlisting>
+    </example>
+
     <example id="test-doubles.stubs.examples.StubTest.php">
       <indexterm><primary>getMock()</primary></indexterm>
       <indexterm><primary>expects()</primary></indexterm>
@@ -121,15 +135,7 @@
       <indexterm><primary>returnValue()</primary></indexterm>
       <title>メソッドに固定値を返させるスタブ</title>
       <programlisting><![CDATA[<?php
-require_once 'PHPUnit/Framework.php';
- 
-class SomeClass
-{
-    public function doSomething()
-    {
-        // なにかをします
-    }
-}
+require_once 'SomeClass.php';
 
 class StubTest extends PHPUnit_Framework_TestCase
 {
@@ -185,13 +191,7 @@ class StubTest extends PHPUnit_Framework_TestCase
       <indexterm><primary>returnArgument()</primary></indexterm>
       <title>メソッドに引数のひとつを返させるスタブ</title>
       <programlisting><![CDATA[<?php
-class SomeClass
-{
-    public function doSomething($argument)
-    {
-        // なにかをします
-    }
-}
+require_once 'SomeClass.php';
 
 class StubTest extends PHPUnit_Framework_TestCase
 {
@@ -234,13 +234,7 @@ class StubTest extends PHPUnit_Framework_TestCase
       <indexterm><primary>returnCallback()</primary></indexterm>
       <title>メソッドにコールバックからの値を返させるスタブ</title>
       <programlisting><![CDATA[<?php
-class SomeClass
-{
-    public function doSomething($argument)
-    {
-        // なにかをします
-    }
-}
+require_once 'SomeClass.php';
 
 class StubTest extends PHPUnit_Framework_TestCase
 {
@@ -275,13 +269,7 @@ class StubTest extends PHPUnit_Framework_TestCase
       <indexterm><primary>throwException()</primary></indexterm>
       <title>メソッドに例外をスローさせるスタブ</title>
       <programlisting><![CDATA[<?php
-class SomeClass
-{
-    public function doSomething()
-    {
-        // なにかをします
-    }
-}
+require_once 'SomeClass.php';
 
 class StubTest extends PHPUnit_Framework_TestCase
 {
@@ -401,7 +389,7 @@ class Observer
     <para>
       <indexterm><primary>Mock Object</primary></indexterm>
 
-      <xref linkend="test-doubles.mock-objects.examples.ObserverTest.php" />
+      <xref linkend="test-doubles.mock-objects.examples.SubjectTest.php" />
       では、モックオブジェクトを作成して
       <literal>Subject</literal> オブジェクトと <literal>Observer</literal>
       オブジェクトの対話をテストする方法を説明します。
@@ -418,14 +406,12 @@ class Observer
       クラスの中の <literal>update()</literal> メソッドについてのみモック実装が作成されます。
     </para>
 
-    <example id="test-doubles.mock-objects.examples.ObserverTest.php">
+    <example id="test-doubles.mock-objects.examples.SubjectTest.php">
       <title>あるメソッドが、指定したパラメータで一度だけコールされることを確かめるテスト</title>
       <programlisting><![CDATA[<?php
-require_once 'PHPUnit/Framework.php';
-
-class ObserverTest extends PHPUnit_Framework_TestCase
+class SubjectTest extends PHPUnit_Framework_TestCase
 {
-    public function testUpdateIsCalledOnce()
+    public function testObserversAreUpdated()
     {
         // Observer クラスのモックを作成します。
         // update() メソッドのみのモックです。
@@ -561,8 +547,6 @@ class AbstractClassTest extends PHPUnit_Framework_TestCase
     <example id="test-doubles.stubbing-and-mocking-web-services.examples.GoogleTest.php">
       <title>Stubbing a web service</title>
       <programlisting><![CDATA[<?php
-require_once 'PHPUnit/Framework.php';
-
 class GoogleTest extends PHPUnit_Framework_TestCase
 {
     public function testSearch()
