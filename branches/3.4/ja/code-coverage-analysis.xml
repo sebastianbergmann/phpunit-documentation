@@ -3,26 +3,57 @@
 <chapter id="code-coverage-analysis">
   <title>コードカバレッジ解析</title>
 
-  <para>
-    ユニットテストでコードをテストする方法はわかりました。でも、
-    テストそのものをテストするにはどうしたらいいのでしょう?
-    テストされていないコードを見つけるには? 言い換えれば、まだテストで
-    <emphasis>カバーされていない</emphasis>部分を見つけるには?
-    完全にテストができたことをどうやって確認するの?
-    これらのすべての疑問に対する答えとなるのが、コードカバレッジ解析という手法です。
-    コードカバレッジ解析を行うと、
-    コードのどの部分がテストされたのかを調べることができるようになります。
-  </para>
+  <blockquote>
+    <attribution>Murali Nandigama</attribution>
+    <para>
+      The beauty of testing is found not in the effort but in the effiency.
+    </para>
+    <para>
+      - テストの美学は、どれだけ汗を流したかではなく
+      どれだけ効率的であるかである。
+    </para>
+    <para>
+      Knowing what should be tested is beautiful, and knowing what is being
+      tested is beautiful.
+    </para>
+    <para>
+      - 何をテストすべきなのかを知ること、何がテストされているのかを知ること。
+      これが大切だ。
+    </para>
+  </blockquote>
 
   <para>
     <indexterm><primary>Code Coverage (コードカバレッジ)</primary></indexterm>
 
-    PHPUnit のコードカバレッジ解析では、<ulink url="http://www.xdebug.org/">Xdebug</ulink>
-    拡張モジュールが提供するステートメントカバレッジ機能を利用しています。
+    この章では、PHPUnit のコードカバレッジ機能について学びます。
+    これは、テストを実行したときに、実装コードのどの部分が実行されたかを調べるものです。
+    次のような疑問に対する答えとなるでしょう。
+  </para>
+
+  <itemizedlist>
+    <listitem>
+      <para>
+        テストされていないコードを見つけるには? 言い換えれば、まだテストで
+        <emphasis>カバーされていない</emphasis>部分を見つけるには?
+      </para>
+    </listitem>
+    <listitem>
+      <para>完全にテストができたことをどうやって確認するの?</para>
+    </listitem>
+  </itemizedlist>
+
+  <para>
     ステートメントカバレッジというのは、たとえば
     100 行のコードで構成されるメソッドがあった場合に、
     もしテストで実際に実行されたのがそのうちの 75 行だけだったなら、
     そのメソッドのコードカバレッジは 75 パーセントだと考えるということです。
+  </para>
+
+  <para>
+    <indexterm><primary>Xdebug</primary></indexterm>
+
+    PHPUnit のコードカバレッジ解析では、<ulink url="http://www.xdebug.org/">Xdebug</ulink>
+    拡張モジュールが提供するステートメントカバレッジ機能を利用しています。
   </para>
 
   <para>
@@ -47,7 +78,7 @@ Generating report, this may take a moment.</screen>
     は、コードカバレッジレポートの一部を抜粋したものです。
     テスト時に実行された行は、緑色で強調表示されます。
     実行可能なコードであるにもかかわらず実行されなかった行については赤色で強調表示されます。
-    また、"無意味なコード" についてはオレンジ色で強調表示されます。
+    また、"無意味なコード" についてはグレーで強調表示されます。
     行の左にある数字は、その行をカバーするテストの数を表します。
   </para>
 
@@ -249,78 +280,12 @@ class Sample
       <indexterm><primary>Code Coverage</primary></indexterm>
       <indexterm><primary>Blacklist</primary></indexterm>
       <indexterm><primary>Whitelist</primary></indexterm>
-      <indexterm><primary>PHPUnit_Util_Filter</primary></indexterm>
 
       デフォルトでは、1 行でもコードが実行されたソースコードファイルはすべて
       (そしてそのようなファイルのみが) レポートに含められます。
-      レポートにどのようなソースコードファイルを含めるかを設定するには
-      <literal>PHPUnit_Util_Filter</literal> API を使用します
-      (<xref linkend="code-coverage-analysis.including-excluding-files.tables.filter-api"/>
-      を参照ください)。
+      レポートに含まれるソースコードファイルは、
+      ホワイトリスト方式あるいはブラックリスト方式でフィルタリングすることができます。
     </para>
-
-    <table id="code-coverage-analysis.including-excluding-files.tables.filter-api">
-      <title><literal>PHPUnit_Util_Filter</literal> の API</title>
-
-      <tgroup cols="2" align="left" colsep="1" rowsep="1">
-        <thead>
-          <row>
-            <entry>メソッド</entry>
-            <entry>意味</entry>
-          </row>
-        </thead>
-        <tbody>
-          <row>
-            <entry><literal>void addDirectoryToFilter(string $directory)</literal></entry>
-            <entry>あるディレクトリ内でファイル名の最後が <literal>.php</literal> であるすべてのファイルを (再帰的に) ブラックリストに追加します。</entry>
-          </row>
-          <row>
-            <entry><literal>void addDirectoryToFilter(string $directory, string $suffix)</literal></entry>
-            <entry>あるディレクトリ内でファイル名の最後が <literal>$suffix</literal> であるすべてのファイルを (再帰的に) ブラックリストに追加します。</entry>
-          </row>
-          <row>
-            <entry><literal>void addFileToFilter(string $filename)</literal></entry>
-            <entry>ファイルをブラックリストに追加します。</entry>
-          </row>
-          <row>
-            <entry><literal>void removeDirectoryFromFilter(string $directory)</literal></entry>
-            <entry>あるディレクトリ内でファイル名の最後が <literal>.php</literal> であるすべてのファイルを (再帰的に) ブラックリストから削除します。</entry>
-          </row>
-          <row>
-            <entry><literal>void removeDirectoryFromFilter(string $directory, string $suffix)</literal></entry>
-            <entry>あるディレクトリ内でファイル名の最後が <literal>$suffix</literal> であるすべてのファイルを (再帰的に) ブラックリストから削除します。</entry>
-          </row>
-          <row>
-            <entry><literal>void removeFileFromFilter(string $filename)</literal></entry>
-            <entry>ファイルをブラックリストから削除します。</entry>
-          </row>
-          <row>
-            <entry><literal>void addDirectoryToWhitelist(string $directory)</literal></entry>
-          <entry>あるディレクトリ内でファイル名の最後が <literal>.php</literal> であるすべてのファイルを (再帰的に) ホワイトリストに追加します。</entry>
-          </row>
-          <row>
-            <entry><literal>void addDirectoryToWhitelist(string $directory, string $suffix)</literal></entry>
-          <entry>あるディレクトリ内でファイル名の最後が <literal>$suffix</literal> であるすべてのファイルを (再帰的に) ホワイトリストに追加します。</entry>
-          </row>
-          <row>
-            <entry><literal>void addFileToWhitelist(string $filename)</literal></entry>
-            <entry>ファイルをホワイトリストに追加します。</entry>
-          </row>
-          <row>
-            <entry><literal>void removeDirectoryFromWhitelist(string $directory)</literal></entry>
-            <entry>あるディレクトリ内でファイル名の最後が <literal>.php</literal> であるすべてのファイルを (再帰的に) ホワイトリストから削除します。</entry>
-          </row>
-          <row>
-            <entry><literal>void removeDirectoryFromWhitelist(string $directory, string $suffix)</literal></entry>
-            <entry>あるディレクトリ内でファイル名の最後が <literal>$suffix</literal> であるすべてのファイルを (再帰的に) ホワイトリストから削除します。</entry>
-          </row>
-          <row>
-            <entry><literal>void removeFileFromWhitelist(string $filename)</literal></entry>
-            <entry>ファイルをホワイトリストから削除します。</entry>
-          </row>
-        </tbody>
-      </tgroup>
-    </table>
 
     <para>
       ブラックリストには、PHPUnit
@@ -329,6 +294,20 @@ class Sample
       ホワイトリストが空でない場合はホワイトリストを使用します。
       ホワイトリストを使用する場合は、そのファイルが実行されるかどうかにかかわらず
       リスト内のすべてのファイルがコードカバレッジレポートに追加されます。
+    </para>
+
+    <para>
+      PHPUnit の XML 設定ファイル (<xref linkend="appendixes.configuration.blacklist-whitelist"/> を参照ください)
+      を使って、ブラックリストやホワイトリストを制御することができます。
+      おすすめの方法は、ホワイトリスト方式を使ってコードカバレッジレポートに含めるファイルを制御することです。
+    </para>
+
+    <para>
+      <indexterm><primary>PHPUnit_Util_Filter</primary></indexterm>
+
+      別の方法として、
+      レポートにどのようなソースコードファイルを含めるかを設定するために
+      <literal>PHPUnit_Util_Filter</literal> API を使うことができます。
     </para>
   </section>
 </chapter>
