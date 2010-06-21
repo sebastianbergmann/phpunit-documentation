@@ -400,9 +400,12 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
       <title><literal>assertEmpty()</literal></title>
       <indexterm><primary>assertEmpty()</primary></indexterm>
       <indexterm><primary>assertNotEmpty()</primary></indexterm>
+      <indexterm><primary>assertAttributeEmpty()</primary></indexterm>
+      <indexterm><primary>assertAttributeNotEmpty()</primary></indexterm>
       <para><literal>assertEmpty(mixed $actual[, string $message = ''])</literal></para>
       <para>Reports an error identified by <literal>$message</literal> if <literal>$actual</literal> is not empty.</para>
       <para><literal>assertNotEmpty()</literal> is the inverse of this assertion and takes the same arguments.</para>
+      <para><literal>assertAttributeEmpty()</literal> and <literal>assertAttributeNotEmpty()</literal> are convenience wrappers that can be applied to a <literal>public</literal>, <literal>protected</literal>, or <literal>private</literal> attribute of a class or object.</para>
       <example id="api.assert.assertEmpty.example">
         <title>Usage of assertEmpty()</title>
         <programlisting><![CDATA[<?php
@@ -876,6 +879,84 @@ There was 1 failure:
 1) GreatThanOrEqualTest::testFailure
 Failed asserting that <integer:1> is equal to <integer:2> or is greater than <integer:2>.
 /home/sb/GreaterThanOrEqualTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+      </example>
+    </section>
+
+    <section id="api.assert.assertInstanceOf">
+      <title><literal>assertInstanceOf()</literal></title>
+      <indexterm><primary>assertInstanceOf()</primary></indexterm>
+      <indexterm><primary>assertNotInstanceOf()</primary></indexterm>
+      <indexterm><primary>assertAttributeInstanceOf()</primary></indexterm>
+      <indexterm><primary>assertAttributeNotInstanceOf()</primary></indexterm>
+      <para><literal>assertInstanceOf($expected, $actual[, $message = ''])</literal></para>
+      <para>Reports an error identified by <literal>$message</literal> if <literal>$actual</literal> is not an instance of <literal>$expected</literal>.</para>
+      <para><literal>assertNotInstanceOf()</literal> is the inverse of this assertion and takes the same arguments.</para>
+      <para><literal>assertAttributeInstanceOf()</literal> and <literal>assertAttributeNotInstanceOf()</literal> are convenience wrappers that can be applied to a <literal>public</literal>, <literal>protected</literal>, or <literal>private</literal> attribute of a class or object.</para>
+      <example id="api.assert.assertInstanceOf.example">
+        <title>Usage of assertInstanceOf()</title>
+        <programlisting><![CDATA[<?php
+class InstanceOfTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertInstanceOf('RuntimeException', new Exception);
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit InstanceOfTest</userinput><![CDATA[
+PHPUnit 3.5.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds
+
+There was 1 failure:
+
+1) InstanceOfTest::testFailure
+Failed asserting that <Exception> is an instance of class "RuntimeException".
+/home/sb/InstanceOfTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+      </example>
+    </section>
+
+    <section id="api.assert.assertInternalType">
+      <title><literal>assertInternalType()</literal></title>
+      <indexterm><primary>assertInternalType()</primary></indexterm>
+      <indexterm><primary>assertNotInternalType()</primary></indexterm>
+      <indexterm><primary>assertAttributeInternalType()</primary></indexterm>
+      <indexterm><primary>assertAttributeNotInternalType()</primary></indexterm>
+      <para><literal>assertInternalType($expected, $actual[, $message = ''])</literal></para>
+      <para>Reports an error identified by <literal>$message</literal> if <literal>$actual</literal> is not of the <literal>$expected</literal> type.</para>
+      <para><literal>assertNotInternalType()</literal> is the inverse of this assertion and takes the same arguments.</para>
+      <para><literal>assertAttributeInternalType()</literal> and <literal>assertAttributeNotInternalType()</literal> are convenience wrappers that can be applied to a <literal>public</literal>, <literal>protected</literal>, or <literal>private</literal> attribute of a class or object.</para>
+      <example id="api.assert.assertInternalType.example">
+        <title>Usage of assertInternalType()</title>
+        <programlisting><![CDATA[<?php
+class InternalTypeTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertInternalType('string', 42);
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit InternalTypeTest</userinput><![CDATA[
+PHPUnit 3.5.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds
+
+There was 1 failure:
+
+1) InternalTypeTest::testFailure
+Failed asserting that <integer:42> is of type "string".
+/home/sb/InstanceOfTest.php:6
 
 FAILURES!
 Tests: 1, Assertions: 1, Failures: 1.]]></screen>
