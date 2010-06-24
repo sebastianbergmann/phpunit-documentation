@@ -401,9 +401,12 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
       <title><literal>assertEmpty()</literal></title>
       <indexterm><primary>assertEmpty()</primary></indexterm>
       <indexterm><primary>assertNotEmpty()</primary></indexterm>
+      <indexterm><primary>assertAttributeEmpty()</primary></indexterm>
+      <indexterm><primary>assertAttributeNotEmpty()</primary></indexterm>
       <para><literal>assertEmpty(mixed $actual[, string $message = ''])</literal></para>
       <para><literal>$actual</literal> が空でない場合にエラー <literal>$message</literal> を報告します。</para>
       <para><literal>assertNotEmpty()</literal> はこのアサーションの逆で、同じ引数をとります。</para>
+      <para><literal>assertAttributeEmpty()</literal> および <literal>assertAttributeNotEmpty()</literal> は便利なラッパーで、クラスやオブジェクトの <literal>public</literal>、<literal>protected</literal>、<literal>private</literal> 属性に対して使えます。</para>
       <example id="api.assert.assertEmpty.example">
         <title>assertEmpty() の使用法</title>
         <programlisting><![CDATA[<?php
@@ -877,6 +880,84 @@ There was 1 failure:
 1) GreatThanOrEqualTest::testFailure
 Failed asserting that <integer:1> is equal to <integer:2> or is greater than <integer:2>.
 /home/sb/GreaterThanOrEqualTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+      </example>
+    </section>
+
+    <section id="api.assert.assertInstanceOf">
+      <title><literal>assertInstanceOf()</literal></title>
+      <indexterm><primary>assertInstanceOf()</primary></indexterm>
+      <indexterm><primary>assertNotInstanceOf()</primary></indexterm>
+      <indexterm><primary>assertAttributeInstanceOf()</primary></indexterm>
+      <indexterm><primary>assertAttributeNotInstanceOf()</primary></indexterm>
+      <para><literal>assertInstanceOf($expected, $actual[, $message = ''])</literal></para>
+      <para><literal>$actual</literal> が <literal>$expected</literal> のインスタンスでない場合にエラー <literal>$message</literal> を報告します。</para>
+      <para><literal>assertNotInstanceOf()</literal> はこのアサーションの逆で、同じ引数をとります。</para>
+      <para><literal>assertAttributeInstanceOf()</literal> および <literal>assertAttributeNotInstanceOf()</literal> は便利なラッパーで、クラスやオブジェクトの <literal>public</literal>、<literal>protected</literal>、<literal>private</literal> 属性に対して使えます。</para>
+      <example id="api.assert.assertInstanceOf.example">
+        <title>assertInstanceOf() の使用法</title>
+        <programlisting><![CDATA[<?php
+class InstanceOfTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertInstanceOf('RuntimeException', new Exception);
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit InstanceOfTest</userinput><![CDATA[
+PHPUnit 3.5.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds
+
+There was 1 failure:
+
+1) InstanceOfTest::testFailure
+Failed asserting that <Exception> is an instance of class "RuntimeException".
+/home/sb/InstanceOfTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+      </example>
+    </section>
+
+    <section id="api.assert.assertInternalType">
+      <title><literal>assertInternalType()</literal></title>
+      <indexterm><primary>assertInternalType()</primary></indexterm>
+      <indexterm><primary>assertNotInternalType()</primary></indexterm>
+      <indexterm><primary>assertAttributeInternalType()</primary></indexterm>
+      <indexterm><primary>assertAttributeNotInternalType()</primary></indexterm>
+      <para><literal>assertInternalType($expected, $actual[, $message = ''])</literal></para>
+      <para><literal>$actual</literal> の型が <literal>$expected</literal> でない場合にエラー <literal>$message</literal> を報告します。</para>
+      <para><literal>assertNotInternalType()</literal> はこのアサーションの逆で、同じ引数をとります。</para>
+      <para><literal>assertAttributeInternalType()</literal> および <literal>assertAttributeNotInternalType()</literal> は便利なラッパーで、クラスやオブジェクトの <literal>public</literal>、<literal>protected</literal>、<literal>private</literal> 属性に対して使えます。</para>
+      <example id="api.assert.assertInternalType.example">
+        <title>assertInternalType() の使用法</title>
+        <programlisting><![CDATA[<?php
+class InternalTypeTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertInternalType('string', 42);
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit InternalTypeTest</userinput><![CDATA[
+PHPUnit 3.5.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds
+
+There was 1 failure:
+
+1) InternalTypeTest::testFailure
+Failed asserting that <integer:42> is of type "string".
+/home/sb/InstanceOfTest.php:6
 
 FAILURES!
 Tests: 1, Assertions: 1, Failures: 1.]]></screen>
