@@ -233,12 +233,14 @@ class BankAccountTest extends PHPUnit_Framework_TestCase
 
     <para>
       <indexterm><primary>Annotation</primary></indexterm>
+      <indexterm><primary>@codeCoverageIgnore</primary></indexterm>
       <indexterm><primary>@codeCoverageIgnoreStart</primary></indexterm>
       <indexterm><primary>@codeCoverageIgnoreEnd</primary></indexterm>
 
       どうしてもテストができないコードブロックなどを、
       コードカバレッジ解析時に無視させたいこともあるでしょう。
       PHPUnit でこれを実現するには、
+      <literal>@codeCoverageIgnore</literal>、
       <literal>@codeCoverageIgnoreStart</literal> および
       <literal>@codeCoverageIgnoreEnd</literal> アノテーションを
       <xref linkend="code-coverage-analysis.ignoring-code-blocks.examples.Sample.php"/>
@@ -246,29 +248,38 @@ class BankAccountTest extends PHPUnit_Framework_TestCase
     </para>
 
     <example id="code-coverage-analysis.ignoring-code-blocks.examples.Sample.php">
-      <title><literal>@codeCoverageIgnoreStart</literal> および <literal>@codeCoverageIgnoreEnd</literal> アノテーションの使用法</title>
+      <title><literal>@codeCoverageIgnore</literal>、<literal>@codeCoverageIgnoreStart</literal> および <literal>@codeCoverageIgnoreEnd</literal> アノテーションの使用法</title>
         <programlisting><![CDATA[<?php
-class Sample
+/**
+ * @codeCoverageIgnore
+ */
+class Foo
 {
-    // ...
-
-    public function doSomething()
+    public function bar()
     {
-        if (0) {
-            // @codeCoverageIgnoreStart
-            $this->doSomethingElse();
-            // @codeCoverageIgnoreEnd
-        }
     }
+}
 
-    // ...
+class Bar
+{
+    /**
+     * @codeCoverageIgnore
+     */
+    public function foo()
+    {
+    }
+}
+
+if (FALSE) {
+    // @codeCoverageIgnoreStart
+    print '*';
+    // @codeCoverageIgnoreEnd
 }
 ?>]]></programlisting>
     </example>
 
     <para>
-      <literal>@codeCoverageIgnoreStart</literal> アノテーションから
-      <literal>@codeCoverageIgnoreEnd</literal> アノテーションまでの間の行は、
+      これらのアノテーションを使って無視するよう指定された行は、
       (たとえ実行されなかったとしても) 実行されたものとみなされ、
       強調表示されません。
     </para>
