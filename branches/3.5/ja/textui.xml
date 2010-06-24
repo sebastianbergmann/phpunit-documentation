@@ -100,11 +100,11 @@ Usage: phpunit [switches] UnitTest [UnitTest.php]
 
   --log-junit <file>       Log test execution in JUnit XML format to file.
   --log-tap <file>         Log test execution in TAP format to file.
+  --log-dbus               Log test execution to DBUS.
   --log-json <file>        Log test execution in JSON format.
 
   --coverage-html <dir>    Generate code coverage report in HTML format.
   --coverage-clover <file> Write code coverage data in Clover XML format.
-  --coverage-source <dir>  Write code coverage / source data in XML format.
 
   --story-html <file>      Write Story/BDD results in HTML format to file.
   --story-text <file>      Write Story/BDD results in Text format to file.
@@ -118,6 +118,7 @@ Usage: phpunit [switches] UnitTest [UnitTest.php]
   --list-groups            List available test groups.
 
   --loader <loader>        TestSuiteLoader implementation to use.
+  --repeat <times>         Runs the test(s) repeatedly.
 
   --story                  Report test execution progress in Story/BDD format.
   --tap                    Report test execution progress in TAP format.
@@ -125,7 +126,10 @@ Usage: phpunit [switches] UnitTest [UnitTest.php]
 
   --colors                 Use colors in output.
   --stderr                 Write to STDERR instead of STDOUT.
+  --stop-on-error          Stop execution upon first error.
   --stop-on-failure        Stop execution upon first error or failure.
+  --stop-on-skipped        Stop execution upon first skipped test.
+  --stop-on-incomplete     Stop execution upon first incomplete test.
   --verbose                Output more verbose information.
   --wait                   Waits for a keystroke after each test.
 
@@ -177,18 +181,6 @@ Usage: phpunit [switches] UnitTest [UnitTest.php]
     </varlistentry>
 
     <varlistentry>
-      <indexterm><primary>JSON</primary></indexterm>
-      <term><literal>--log-json</literal></term>
-      <listitem>
-        <para>
-          <ulink url="http://www.json.org/">JSON</ulink>
-          フォーマットを使用して、ログファイルを作成します。
-          詳細は <xref linkend="logging" /> を参照ください。
-        </para>
-      </listitem>
-    </varlistentry>
-
-    <varlistentry>
       <indexterm><primary>Logfile</primary></indexterm>
       <term><literal>--log-junit</literal></term>
       <listitem>
@@ -206,6 +198,30 @@ Usage: phpunit [switches] UnitTest [UnitTest.php]
         <para>
           <ulink url="http://testanything.org/">Test Anything Protocol (TAP)</ulink>
           フォーマットを使用して、テストの実行結果のログを作成します。
+          詳細は <xref linkend="logging" /> を参照ください。
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <indexterm><primary>DBUS</primary></indexterm>
+      <term><literal>--log-dbus</literal></term>
+      <listitem>
+        <para>
+          テストの実行を、
+          <ulink url="http://www.freedesktop.org/wiki/Software/dbus">DBUS</ulink>
+          を使って記録します。
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <indexterm><primary>JSON</primary></indexterm>
+      <term><literal>--log-json</literal></term>
+      <listitem>
+        <para>
+          <ulink url="http://www.json.org/">JSON</ulink>
+          フォーマットを使用して、ログファイルを作成します。
           詳細は <xref linkend="logging" /> を参照ください。
         </para>
       </listitem>
@@ -235,23 +251,6 @@ Usage: phpunit [switches] UnitTest [UnitTest.php]
           テスト結果から XML 形式のログファイルを作成し、
           コードカバレッジ情報もそこに含めます。
           詳細は <xref linkend="logging" /> を参照ください。
-        </para>
-        <para>
-          この機能は、tokenizer 拡張モジュールおよび Xdebug
-          拡張モジュールがインストールされている場合にのみ使用可能となることに注意しましょう。
-        </para>
-      </listitem>
-    </varlistentry>
-
-    <varlistentry>
-      <indexterm><primary>Code Coverage</primary></indexterm>
-      <term><literal>--coverage-source</literal></term>
-      <listitem>
-        <para>
-          カバーする PHP ソースファイルごとにひとつずつの XML
-          ファイルを、指定したディレクトリに作成します。
-          各 <![CDATA[<line>]]> 要素には、コードカバレッジ情報がついた
-          PHP ソースコードの行が保持されます。
         </para>
         <para>
           この機能は、tokenizer 拡張モジュールおよび Xdebug
@@ -299,6 +298,7 @@ Usage: phpunit [switches] UnitTest [UnitTest.php]
     <varlistentry>
       <indexterm><primary>Test Groups</primary></indexterm>
       <indexterm><primary>Annotation</primary></indexterm>
+      <indexterm><primary>@author</primary></indexterm>
       <indexterm><primary>@group</primary></indexterm>
       <term><literal>--group</literal></term>
       <listitem>
@@ -307,8 +307,13 @@ Usage: phpunit [switches] UnitTest [UnitTest.php]
           あるテストを特定のグループに所属させるには、
           <literal>@group</literal> アノテーションを使用します。
         </para>
+        <para>
+          <literal>@author</literal> アノテーションは
+          <literal>@group</literal> のエイリアスで、
+          テストの作者に基づいてテストをフィルタリングします。
+        </para>
       </listitem>
-    </varlistentry>Behaviour-Driven Development
+    </varlistentry>
 
     <varlistentry>
       <indexterm><primary>Test Groups</primary></indexterm>
@@ -408,15 +413,6 @@ Usage: phpunit [switches] UnitTest [UnitTest.php]
     </varlistentry>
 
     <varlistentry>
-      <term><literal>--syntax-check</literal></term>
-      <listitem>
-        <para>
-          テストソースファイルの構文チェックを有効にします。
-        </para>
-      </listitem>
-    </varlistentry>
-
-    <varlistentry>
       <term><literal>--stderr</literal></term>
       <listitem>
         <para>
@@ -427,10 +423,37 @@ Usage: phpunit [switches] UnitTest [UnitTest.php]
     </varlistentry>
 
     <varlistentry>
+      <term><literal>--stop-on-error</literal></term>
+      <listitem>
+        <para>
+          最初にエラーが発生した時点で実行を停止します。
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
       <term><literal>--stop-on-failure</literal></term>
       <listitem>
         <para>
           最初にエラーあるいは失敗が発生した時点で実行を停止します。
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><literal>--stop-on-skipped</literal></term>
+      <listitem>
+        <para>
+          最初にテストのスキップが発生した時点で実行を停止します。
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><literal>--stop-on-skipped</literal></term>
+      <listitem>
+        <para>
+          最初に不完全なテストがあらわれた時点で実行を停止します。
         </para>
       </listitem>
     </varlistentry>
@@ -516,6 +539,15 @@ Usage: phpunit [switches] UnitTest [UnitTest.php]
     </varlistentry>
 
     <varlistentry>
+      <term><literal>--syntax-check</literal></term>
+      <listitem>
+        <para>
+          テストソースファイルの構文チェックを有効にします。
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
       <term><literal>--bootstrap</literal></term>
       <listitem>
         <para>
@@ -527,6 +559,7 @@ Usage: phpunit [switches] UnitTest [UnitTest.php]
     <varlistentry>
       <indexterm><primary>Configuration</primary></indexterm>
       <term><literal>--configuration</literal></term>
+      <term><literal>-c</literal></term>
       <listitem>
         <para>
           設定を XML ファイルから読み込みます。
