@@ -269,40 +269,35 @@ Tests: 2, Assertions: 2, Failures: 1.]]></screen>
     </para>
 
     <para>
-      <xref linkend="fixtures.sharing-fixture.examples.DatabaseTestSuite.php" />
-      は、<literal>PHPUnit_Framework_TestSuite</literal> クラス
-      (<xref linkend="organizing-tests.testsuite"/> を参照ください)
-      のテンプレートメソッド
-      <literal>setUp()</literal> および <literal>tearDown()</literal> を使用します。
-      これらを使用して、
-      最初のテストの前にデータベースとの接続を行い、
-      最後のテストが終わった後にデータベースとの接続を解除します。
-      <literal>PHPUnit_Framework_TestSuite</literal> オブジェクトの属性
-      <literal>$sharedFixture</literal> が、
-      <literal>PHPUnit_Framework_TestSuite</literal>
-      および <literal>PHPUnit_Framework_TestCase</literal>
-      オブジェクトから使用できます。
+      <indexterm><primary>setUpBeforeClass</primary></indexterm>
+      <indexterm><primary>tearDownAfterClass</primary></indexterm>
+
+      <xref linkend="fixtures.sharing-fixture.examples.DatabaseTest.php" />
+      では、テンプレートメソッド <literal>setUpBeforeClass()</literal> および
+      <literal>tearDownAfterClass()</literal> を用いて、
+      テストケースクラス内の最初のテストを実行する前にデータベースに接続し、
+      最後のテストが終わってから接続を切断するようにしています。
     </para>
 
-    <example id="fixtures.sharing-fixture.examples.DatabaseTestSuite.php">
+    <example id="fixtures.sharing-fixture.examples.DatabaseTest.php">
       <title>テストスイートの複数テスト間での fixture の共有</title>
       <programlisting><![CDATA[<?php
-require_once 'PHPUnit/Framework.php';
-
-class DatabaseTestSuite extends PHPUnit_Framework_TestSuite
+class DatabaseTest extends PHPUnit_Framework_TestCase
 {
-    protected function setUp()
+    protected static $dbh;
+
+    protected function setUpBeforeClass()
     {
-        $this->sharedFixture = new PDO(
+        self::$dbh = new PDO(
           'mysql:host=wopr;dbname=test',
           'root',
           ''
         );
     }
 
-    protected function tearDown()
+    protected function tearDownAfterClass()
     {
-        $this->sharedFixture = NULL;
+        self::$dbh = NULL;
     }
 }
 ?>]]></programlisting>
