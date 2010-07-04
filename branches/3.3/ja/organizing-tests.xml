@@ -15,26 +15,26 @@
   </para>
 
   <para>
-    <!-- TODO: to be translated -->
-    PHPUnit supports different ways of organizing tests and composing them into
-    a test suite. This chapter shows the most commonly used approaches.
+    PHPUnit では、さまざまな方法でテストを組み合わせてテストスイートにまとめることができます。
+    本章では、その中でもよく使われる手法を説明します。
   </para>
 
   <section id="organizing-tests.filesystem">
-    <title>Composing a Test Suite Using the Filesystem</title>
+    <title>ファイルシステムを用いたテストスイートの構成</title>
 
     <para>
-      Probably the easiest way to compose a test suite is to keep all test case
-      source files in a test directory. PHPUnit can automatically discover and
-      run the tests by recursively traversing the test directory.
+      おそらく、テストスイートをとりまとめるもっとも簡単な方法は
+      すべてのテストケースのソースファイルを一つのテストディレクトリにまとめることでしょう。
+      PHPUnit はテストディレクトリを再帰的に探索し、
+      テストを自動的に見つけて実行します。
     </para>
 
     <para>
-      Lets take a look at the test suite of the <ulink url="http://github.com/sebastianbergmann/php-object-freezer/">Object_Freezer</ulink>
-      library. Looking at this project's directory structure, we see that the
-      test case classes in the <filename>Tests</filename> directory mirror the
-      package and class structure of the System Under Test (SUT) in the
-      <filename>Object</filename> directory:
+      <ulink url="http://github.com/sebastianbergmann/php-object-freezer/">Object_Freezer</ulink>
+      ライブラリのテストスイートを見てみましょう。このプロジェクトのディレクトリ構成を見ると、
+      テストケースクラスが <filename>Tests</filename> ディレクトリにまとめられていることがわかります。
+      その中のディレクトリの構造は、テスト対象のシステム (SUT) がある
+      <filename>Object</filename> ディレクトリ以下の構造と同じになっています。
     </para>
 
     <screen>Object                              Tests
@@ -55,8 +55,9 @@
 `-- Freezer.php                     `-- FreezerTest.php</screen>
 
     <para>
-      To run all tests for the library we just need to point the PHPUnit
-      command-line test runner to the test directory:
+      PHPUnit のコマンドラインテストランナーに
+      テストディレクトリの場所を指示してやるだけで、
+      このライブラリのすべてのテストを実行できます。
     </para>
 
     <screen><userinput>phpunit Tests</userinput>
@@ -70,9 +71,9 @@ Time: 0 seconds
 OK (75 tests, 164 assertions)</screen>
 
     <para>
-      To run only the tests that are declared in the <literal>Object_FreezerTest</literal>
-      test case class in <filename>Tests/FreezerTest.php</filename> we can use
-      the following command:
+      <filename>Tests/FreezerTest.php</filename> にあるテストケースクラス
+      <literal>Object_FreezerTest</literal> で宣言されているテストだけを実行するには、
+      次のコマンドを実行します。
     </para>
 
     <screen><userinput>phpunit Tests/FreezerTest</userinput>
@@ -85,8 +86,8 @@ Time: 0 seconds
 OK (28 tests, 60 assertions)</screen>
 
     <para>
-      For more fine-grained control of which tests to run we can use the
-      <literal>--filter</literal> switch:
+      実行したいテストをより細かく指示するには
+      <literal>--filter</literal> スイッチを使います。
     </para>
 
     <screen><userinput>phpunit --filter testFreezingAnObjectWorks Tests</userinput>
@@ -100,13 +101,13 @@ OK (1 test, 2 assertions)</screen>
 
     <note>
       <para>
-        A drawback of this approach is that we have no control over the order in
-        which the test are run.
+        この方式の欠点は、テストの実行順を制御できないことです。
       </para>
     </note>
   </section>
 
   <section id="organizing-tests.xml-configuration">
+    <!-- TODO: to be translated -->
     <title>Composing a Test Suite Using XML Configuration</title>
     <indexterm><primary>XML Configuration</primary></indexterm>
 
