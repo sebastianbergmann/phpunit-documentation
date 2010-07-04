@@ -428,39 +428,37 @@ class ObserverTest extends PHPUnit_Framework_TestCase
   </section>
 
   <section id="test-doubles.mocking-the-filesystem">
-    <title>Mocking the Filesystem</title>
-    <!-- TODO: to be translated -->
+    <title>ファイルシステムのモック</title>
 
     <para>
-      <ulink url="http://code.google.com/p/bovigo/wiki/vfsStream">vfsStream</ulink>
-      is a <ulink url="http://www.php.net/streams">stream wrapper</ulink> for a
-      <ulink url="http://en.wikipedia.org/wiki/Virtual_file_system">virtual
-      filesystem</ulink> that may be helpful in unit tests to mock the real
-      filesystem.
+      <ulink url="http://code.google.com/p/bovigo/wiki/vfsStream">vfsStream</ulink> は
+      <ulink url="http://ja.wikipedia.org/wiki/仮想ファイルシステム">仮想ファイルシステム</ulink>
+      用の <ulink url="http://www.php.net/streams">ストリームラッパー</ulink> で、
+      ユニットテストにおいて実際のファイルシステムのモックを作るときに有用です。
     </para>
 
     <para>
-      To install vfsStream, the PEAR channel
-      (<systemitem role="URL">pear.php-tools.net</systemitem>) that is used for
-      its distribution needs to be registered with the local PEAR environment:
+      vfsStream をインストールするには、配布元の PEAR チャンネル
+      (<systemitem role="URL">pear.php-tools.net</systemitem>)
+      をローカルの PEAR 環境に登録しなければなりません。
     </para>
 
     <screen><userinput>pear channel-discover pear.php-tools.net</userinput></screen>
 
     <para>
-      This has to be done only once. Now the PEAR Installer can be used to
-      install vfsStream:
+      これが必要なのは最初の一度だけです。これで、
+      PEAR インストーラを使って vfsStream をインストールできるようになりました。
     </para>
 
     <screen><userinput>pear install pat/vfsStream-alpha</userinput></screen>
 
     <para>
       <xref linkend="test-doubles.mocking-the-filesystem.examples.Example.php"/>
-      shows a class that interacts with the filesystem.
+      は、ファイルシステムを操作するクラスの例です。
     </para>
 
     <example id="test-doubles.mocking-the-filesystem.examples.Example.php">
-      <title>A class that interacts with the filesystem</title>
+      <title>ファイルシステムを操作するクラス</title>
       <programlisting><![CDATA[<?php
 class Example
 {
@@ -484,14 +482,14 @@ class Example
     </example>
 
     <para>
-      Without a virtual filesystem such as vfsStream we cannot test the
-      <literal>setDirectory()</literal> method in isolation from external
-      influence (see <xref
-      linkend="test-doubles.mocking-the-filesystem.examples.ExampleTest.php"/>).
+      vfsStream のような仮想ファイルシステムがなければ、外部への影響なしに
+      <literal>setDirectory()</literal> メソッドを個別にテストすることができません
+      (<xref linkend="test-doubles.mocking-the-filesystem.examples.ExampleTest.php"/>
+      を参照ください)。
     </para>
 
     <example id="test-doubles.mocking-the-filesystem.examples.ExampleTest.php">
-      <title>Testing a class that interacts with the filesystem</title>
+      <title>ファイルシステムを操作するクラスのテスト</title>
       <programlisting><![CDATA[<?php
 require_once 'Example.php';
 
@@ -524,23 +522,23 @@ class ExampleTest extends PHPUnit_Framework_TestCase
     </example>
 
     <para>
-      The approach above has several drawbacks:
+      この方式には、次のような問題があります。
     </para>
 
     <itemizedlist>
-      <listitem><para>As with any external resource, there might be intermittent problems with the filesystem. This makes tests interacting with it flaky.</para></listitem>
-      <listitem><para>In the <literal>setUp()</literal> and <literal>tearDown()</literal> methods we have to ensure that the directory does not exist before and after the test.</para></listitem>
-      <listitem><para>When the test execution terminates before the <literal>tearDown()</literal> method is invoked the directory will stay in the filesystem.</para></listitem>
+      <listitem><para>外部のリソースを使うため、ファイルシステムのテストが断続的になる可能性があります。その結果、テストがあまり当てにならないものになります。</para></listitem>
+      <listitem><para><literal>setUp()</literal> と <literal>tearDown()</literal> で、テストの前後にそのディレクトリがないことを確認する必要があります。</para></listitem>
+      <listitem><para><literal>tearDown()</literal> メソッドを実行する前にテストが異常終了したときに、ファイルシステム上にディレクトリが残ったままとなります。</para></listitem>
     </itemizedlist>
 
     <para>
       <xref linkend="test-doubles.mocking-the-filesystem.examples.ExampleTest2.php"/>
-      shows how vfsStream can be used to mock the filesystem in a test for a
-      class that interacts with the filesystem.
+      は、vfsStream を使ってファイルシステムのモックを作成し、
+      ファイルシステムを操作するクラスのテストを行う例です。
     </para>
 
     <example id="test-doubles.mocking-the-filesystem.examples.ExampleTest2.php">
-      <title>Mocking the filesystem in a test for a class that interacts with the filesystem</title>
+      <title>ファイルシステムを操作するクラスのテストにおけるファイルシステムのモックの作成</title>
       <programlisting><![CDATA[<?php
 require_once 'vfsStream/vfsStream.php';
 require_once 'Example.php';
@@ -566,13 +564,13 @@ class ExampleTest extends PHPUnit_Framework_TestCase
     </example>
 
     <para>
-      This has several advantages:
+      この方式には次のような利点があります。
     </para>
 
     <itemizedlist>
-      <listitem><para>The test itself is more concise.</para></listitem>
-      <listitem><para>vfsStream gives the test developer full control over what the filesystem environment looks like to the tested code.</para></listitem>
-      <listitem><para>Since the filesystem operations do not operate on the real filesystem anymore, cleanup operations in a <literal>tearDown()</literal> method are no longer required.</para></listitem>
+      <listitem><para>テストが簡潔になります。</para></listitem>
+      <listitem><para>vfsStream が、テスト対象のコードから操作するファイルシステム環境を用意してくれるので、開発者はそれを自由に扱えるようになります。</para></listitem>
+      <listitem><para>実際のファイルシステムを操作することがなくなるので、<literal>tearDown()</literal> メソッドでの後始末が不要になります。</para></listitem>
     </itemizedlist>
   </section>
 </chapter>
