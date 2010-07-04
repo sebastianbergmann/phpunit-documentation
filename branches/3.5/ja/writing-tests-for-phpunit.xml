@@ -83,7 +83,6 @@ class StackTest extends PHPUnit_Framework_TestCase
 
   <section id="writing-tests-for-phpunit.test-dependencies">
     <title>テストの依存性</title>
-    <!-- TODO: to be translated -->
 
     <blockquote>
       <attribution>Adrian Kuhn et. al.</attribution>
@@ -97,33 +96,44 @@ class StackTest extends PHPUnit_Framework_TestCase
         there are implicit dependencies between test methods, hidden in the
         implementation scenario of a test.
       </para>
+      <para>
+        ユニットテストを書くそもそもの目的は、バグを発見と修正や
+        コードのリファクタリングを開発者がやりやすくすること。
+        そしてテスト対象のソフトウェアのドキュメントとしての役割を果たすことだ。
+        これらの目的を達成するためには、
+        ユニットテストがプログラム内のすべてのルートをカバーしていることが理想である。
+        ひとつのユニットテストがカバーするのは、
+        通常はひとつの関数やメソッド内の特定のルートだけとなる。
+        しかし、テストメソッドは必ずしもカプセル化して独立させる必要はない。
+        複数のテストメソッドの間に暗黙の依存性があって、
+        隠された実装シナリオがテストの中にあるのもよくあることだ。
+      </para>
     </blockquote>
 
     <para>
       <indexterm><primary>Test Dependencies</primary></indexterm>
 
-      PHPUnit supports the declaration of explicit dependencies between test
-      methods. Such dependencies do not define the order in which the test
-      methods are to be executed but they allow the returning of an instance of
-      the test fixture by a produces and passing it to the dependent consumers.
+      PHPUnit は、テストメソッド間の依存性の明示的な宣言をサポートしています。
+      この依存性とは、テストメソッドが実行される順序を定義するものではありません。
+      プロデューサーがテストフィクスチャを作ってそのインスタンスを返し、
+      依存するコンシューマーがそれを受け取って利用するというものです。
     </para>
 
     <itemizedlist>
-      <listitem><para>A producer is a test method that yields its unit under test as return value.</para></listitem>
-      <listitem><para>A consumer is a test method that depends on one or more producers and their return values.</para></listitem>
+      <listitem><para>プロデューサーとは、返り値としてテスト対象のユニットを生成するテストメソッドのこと。</para></listitem>
+      <listitem><para>コンシューマーとは、プロデューサーの返り値に依存するテストメソッドのこと。</para></listitem>
     </itemizedlist>
 
     <para>
       <indexterm><primary>Annotation</primary></indexterm>
       <indexterm><primary>@depends</primary></indexterm>
 
-      <xref linkend="writing-tests-for-phpunit.examples.StackTest3.php"/> shows
-      how to use the <literal>@depends</literal> annotation to express
-      dependencies between test methods.
+      <xref linkend="writing-tests-for-phpunit.examples.StackTest3.php"/>
+      は、<literal>@depends</literal> アノテーションを使ってテストメソッドの依存性をあらわす例です。
     </para>
 
     <example id="writing-tests-for-phpunit.examples.StackTest3.php">
-      <title>Using the <literal>@depends</literal> annotation to express dependencies</title>
+      <title><literal>@depends</literal> アノテーションを使った依存性の表現</title>
       <programlisting><![CDATA[<?php
 class StackTest extends PHPUnit_Framework_TestCase
 {
@@ -160,26 +170,29 @@ class StackTest extends PHPUnit_Framework_TestCase
     </example>
 
     <para>
-      In the example above, the first test, <literal>testEmpty()</literal>,
-      creates a new array and asserts that it is empty. The test then returns
-      the fixture as its result. The second test, <literal>testPush()</literal>,
-      depends on <literal>testEmpty()</literal> and is passed the result of that
-      depended-upon test as its argument. Finally, <literal>testPop()</literal>
-      depends upons <literal>testPush()</literal>.
+      上の例では、まず最初のテスト <literal>testEmpty()</literal>
+      で新しい配列を作り、それが空であることを確かめます。
+      このテストは、フィクスチャを返します。
+      二番目のテスト <literal>testPush()</literal> は
+      <literal>testEmpty()</literal> に依存しており、
+      依存するテストの結果を引数として受け取ります。
+      最後の <literal>testPop()</literal> は
+      <literal>testPush()</literal> に依存しています。
     </para>
 
     <para>
       <indexterm><primary>Defect Localization</primary></indexterm>
 
-      To quickly localize defects, we want our attention to be focussed on
-      relevant failing tests. This is why PHPUnit skips the execution of a test
-      when a depended-upon test has failed. This improves defect localization by
-      exploiting the dependencies between tests as shown in
-      <xref linkend="writing-tests-for-phpunit.examples.DependencyFailureTest.php"/>.
+      問題の局所化を手早く行うには、失敗したテストに目を向けやすくしたいものです。
+      そのため PHPUnit では、
+      あるテストが失敗したときにはそのテストに依存する他のテストの実行をスキップします。
+      テスト間の依存性を活用して問題点を見つけやすくしている例を
+      <xref linkend="writing-tests-for-phpunit.examples.DependencyFailureTest.php"/>
+      に示します。
     </para>
 
     <example id="writing-tests-for-phpunit.examples.DependencyFailureTest.php">
-      <title>Exploiting the dependencies between tests</title>
+      <title>テストの依存性の活用</title>
       <programlisting><![CDATA[<?php
 class DependencyFailureTest extends PHPUnit_Framework_TestCase
 {
@@ -220,10 +233,9 @@ Tests: 2, Assertions: 1, Failures: 1, Skipped: 1.]]></screen>
     </example>
 
     <para>
-      A test may have more than one <literal>@depends</literal> annotation.
-      PHPUnit does not change the order in which tests are executed, you have to
-      ensure that the dependencies of a test can actually be met before the test
-      is run.
+      ひとつのテストに複数の <literal>@depends</literal> アノテーションをつけることもできます。
+      PHPUnit はテストが実行される順序を変更しないので、
+      テストが実行されるときに確実に依存性が満たされているようにしておく必要があります。
     </para>
   </section>
 
