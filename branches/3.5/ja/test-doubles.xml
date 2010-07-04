@@ -53,29 +53,26 @@
   </blockquote>
 
   <para>
-      <!-- TODO: to be translated -->
-    The <literal>getMock($className)</literal> method provided by PHPUnit can be
-    used in a test to automatically generate an object that can act as a test
-    double for the specified original class. This test double object can be used
-    in every context where an object of the original class is expected.
+    PHPUnit の <literal>getMock($className)</literal> メソッドを使うと、
+    指定した元クラスのテストダブルとして振る舞うオブジェクトを自動的に生成することができます。
+    このテストダブルオブジェクトは、元クラスのオブジェクトを要するすべての場面で使うことができます。
   </para>
 
   <para>
-    By default, all methods of the original class are replaced with a dummy
-    implementation that just returns <literal>NULL</literal> (without calling
-    the original method). Using the <literal>will($this->returnValue()</literal>
-    method, for instance, you can configure these dummy implementations to
-    return a value when called.
+    デフォルトでは、元クラスのすべてのメソッドが置き換えられて、
+    (元のメソッドは呼び出さずに) 単に <literal>NULL</literal>
+    を返すだけのダミー実装になります。たとえば
+    <literal>will($this->returnValue()</literal> メソッドを使うと、
+    ダミー実装がコールされたときに値を返すよう設定することができます。
   </para>
 
   <note>
-    <title>Limitations</title>
+    <title>制限</title>
 
     <para>
-      Please note that <literal>final</literal>, <literal>private</literal>
-      and <literal>static</literal> methods cannot be stubbed or mocked. They
-      are ignored by PHPUnit's test double functionality and retain their
-      original behavior.
+      <literal>final</literal>, <literal>private</literal> および
+      <literal>static</literal> メソッドのスタブやモックは作れないことに注意しましょう。
+      PHPUnit のテストダブル機能ではこれらを無視し、元のメソッドの振る舞いをそのまま維持します。
     </para>
   </note>
 
@@ -85,9 +82,9 @@
     <para>
       <indexterm><primary>Stub</primary></indexterm>
 
-      The practice of replacing an object with a test double that (optionally)
-      returns configured return values is refered to as
-      <emphasis>stubbing</emphasis>. 
+      実際のオブジェクトを置き換えて、
+      設定した何らかの値を (オプションで) 返すようなテストダブルのことを
+      <emphasis>スタブ</emphasis> といいます。
       <emphasis>スタブ</emphasis> を使うと、
       「SUT が依存している実際のコンポーネントを置き換え、
       SUT の入力を間接的にコントロールできるようにすることができます。
