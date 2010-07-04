@@ -518,28 +518,29 @@ class AbstractClassTest extends PHPUnit_Framework_TestCase
   </section>
 
   <section id="test-doubles.stubbing-and-mocking-web-services">
-    <title>Stubbing and Mocking Web Services</title>
+    <title>ウェブサービスのスタブおよびモック</title>
 
     <para>
       <indexterm><primary>getMockFromWsdl()</primary></indexterm>
 
-      When your application interacts with a web service you want to test it
-      without actually interacting with the web service. To make the stubbing
-      and mocking of web services easy, the <literal>getMockFromWsdl()</literal>
-      can be used just like <literal>getMock()</literal> (see above). The only
-      difference is that <literal>getMockFromWsdl()</literal> returns a stub or
-      mock based on a web service description in WSDL and <literal>getMock()</literal>
-      returns a stub or mock based on a PHP class or interface.
+      ウェブサービスとのやりとりを行うアプリケーションを、
+      実際にウェブサービスとやりとりすることなくテストしたくなることもあるでしょう。
+      ウェブサービスのスタブやモックを作りやすくするために <literal>getMockFromWsdl()</literal>
+      メソッドが用意されており、これは <literal>getMock()</literal> (上を参照ください)
+      とほぼ同様に使うことができます。唯一の違いは、
+      <literal>getMockFromWsdl()</literal> が返すスタブやモックが WSDL
+      のウェブサービス記述にもとづくものであるのに対して <literal>getMock()</literal>
+      が返すスタブやモックが PHP のクラスやインターフェイスにもとづくものであるという点です。
     </para>
 
     <para>
       <xref linkend="test-doubles.stubbing-and-mocking-web-services.examples.GoogleTest.php"/>
-      shows how <literal>getMockFromWsdl()</literal> can be used to stub, for
-      example, the web service described in <filename>GoogleSearch.wsdl</filename>.
+      は、<literal>getMockFromWsdl()</literal> を使って
+      <filename>GoogleSearch.wsdl</filename> に記述されたウェブサービスのスタブを作る例です。
     </para>
 
     <example id="test-doubles.stubbing-and-mocking-web-services.examples.GoogleTest.php">
-      <title>Stubbing a web service</title>
+      <title>ウェブサービスのスタブ</title>
       <programlisting><![CDATA[<?php
 class GoogleTest extends PHPUnit_Framework_TestCase
 {
@@ -582,8 +583,8 @@ class GoogleTest extends PHPUnit_Framework_TestCase
                      ->will($this->returnValue($result));
  
         /**
-         * $googleSearch->doGoogleSearch() will now return a stubbed result and
-         * the web service's doGoogleSearch() method will not be invoked.
+         * $googleSearch->doGoogleSearch() はスタブが用意した結果を返し、
+         * ウェブサービスの doGoogleSearch() が呼び出されることはありません
          */
         $this->assertEquals(
           $result,
