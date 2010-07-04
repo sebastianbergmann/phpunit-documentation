@@ -4,22 +4,23 @@
   <title>アノテーション</title>
 
   <para>
-    <!-- TODO: to be translated -->
     <indexterm><primary>Annotation</primary></indexterm>
 
-    An annotation is a special form of syntactic metadata that can be added to
-    the source code of some programming languages. While PHP has no dedicated
-    language feature for annotating source code, the usage of tags such as
-    <literal>@annotation arguments</literal> in documentation block has been
-    established in the PHP community to annotate source code. In PHP
-    documentation blocks are reflective: they can be accessed through the
-    Reflection API's <literal>getDocComment()</literal> method on the function,
-    class, method, and attribute level. Applications such as PHPUnit use this
-    information at runtime to configure their behaviour.    
+    アノテーションとはメタデータを表す特別な構文のことで、
+    プログラミング言語のソースコードに追加することができます。
+    PHP そのものにはソースコードにアノテーションする専用の仕組みはありませんが、
+    ドキュメンテーションブロックに <literal>@アノテーション名 引数</literal>
+    のようなタグを書くことでアノテーションを表すという記法が
+    PHP コミュニティ内で一般に使われています。
+    PHP では、リフレクション API の <literal>getDocComment()</literal>
+    メソッドを使えば関数、クラス、メソッド、属性
+    それぞれのドキュメンテーションブロックにアクセスすることができます。
+    PHPUnit などのアプリケーションでは、
+    この情報をもとに実行時の振る舞いを設定するのです。
   </para>
 
   <para>
-    This appendix shows all the varieties of annotations supported by PHPUnit.
+    本章では、PHPUnit がサポートするすべてのアノテーションについて解説します。
   </para>
 
   <section id="appendixes.annotations.assert">
@@ -29,16 +30,16 @@
       <indexterm><primary>Assertion</primary></indexterm>
       <indexterm><primary>@assert</primary></indexterm>
 
-      You can use the <literal>@assert</literal> annotation in the
-      documentation block of a method to automatically generate simple,
-      yet meaningful tests instead of incomplete test cases when using the
-      Skeleton Generator (see <xref linkend="skeleton-generator"/>):<programlisting>/**
+      <literal>@assert</literal> アノテーションをメソッドのドキュメンテーションブロックで使うと、
+      雛形ジェネレータ (<xref linkend="skeleton-generator"/> を参照ください)
+      を実行したときに、不完全なテストケースではなく
+      シンプルながらも意味のあるテストを自動生成することができます。<programlisting>/**
  * @assert (0, 0) == 0
  */
 public function add($a, $b)
 {
     return $a + $b;
-}</programlisting>These annotations are transformed into test code such as <programlisting>/**
+}</programlisting>このアノテーションは、次のようなテストコードとなります。<programlisting>/**
  * Generated from @assert (0, 0) == 0.
  */
 public function testAdd() {
@@ -54,8 +55,8 @@ public function testAdd() {
     <para>
       <indexterm><primary><literal>@backupGlobals</literal></primary></indexterm>
 
-      The backup and restore operations for global variables can be completely
-      disabled for all tests of a test case class like this <programlisting>/**
+      グローバル変数の保存や復元を、テストケースクラスのすべてのテストで完全に無効にすることができます。
+      このように使います。<programlisting>/**
  * @backupGlobals disabled
  */
 class MyTest extends PHPUnit_Framework_TestCase
@@ -67,9 +68,8 @@ class MyTest extends PHPUnit_Framework_TestCase
     <para>
       <indexterm><primary><literal>@backupGlobals</literal></primary></indexterm>
 
-      The <literal>@backupGlobals</literal> annotation can also be used on the
-      test method level. This allows for a fine-grained configuration of the
-      backup and restore operations: <programlisting>/**
+      <literal>@backupGlobals</literal> アノテーションは、テストメソッドレベルで使うこともできます。
+      これによって、保存と復元の操作をより細やかに制御できるようになります。<programlisting>/**
  * @backupGlobals disabled
  */
 class MyTest extends PHPUnit_Framework_TestCase
@@ -91,8 +91,8 @@ class MyTest extends PHPUnit_Framework_TestCase
     <para>
       <indexterm><primary><literal>@backupStaticAttributes</literal></primary></indexterm>
 
-      The backup and restore operations for static attributes of classes can be
-      completely disabled for all tests of a test case class like this
+      クラスの静的属性の保存や復元を、テストケースクラスのすべてのテストで完全に無効にすることができます。
+      このように使います。
       <programlisting>/**
  * @backupStaticAttributes disabled
  */
@@ -105,9 +105,8 @@ class MyTest extends PHPUnit_Framework_TestCase
     <para>
       <indexterm><primary><literal>@backupStaticAttributes</literal></primary></indexterm>
 
-      The <literal>@backupStaticAttributes</literal> annotation can also be used
-      on the test method level. This allows for a fine-grained configuration of
-      the backup and restore operations: <programlisting>/**
+      <literal>@backupStaticAttributes</literal> アノテーションは、テストメソッドレベルで使うこともできます。
+      これによって、保存と復元の操作をより細やかに制御できるようになります。<programlisting>/**
  * @backupStaticAttributes disabled
  */
 class MyTest extends PHPUnit_Framework_TestCase
@@ -130,8 +129,8 @@ class MyTest extends PHPUnit_Framework_TestCase
       <indexterm><primary>Code Coverage</primary></indexterm>
       <indexterm><primary>@covers</primary></indexterm>
 
-      The <literal>@covers</literal> annotation can be used in the test code to
-      specify which method(s) a test method wants to test: <programlisting>/**
+      <literal>@covers</literal> アノテーションをテストコードで使うと、
+      そのテストメソッドがどのメソッドをテストするのかを指定することができます。<programlisting>/**
  * @covers BankAccount::getBalance
  */
 public function testBalanceIsInitiallyZero()
@@ -141,13 +140,12 @@ public function testBalanceIsInitiallyZero()
     </para>
 
     <para>
-      If provided, only the code coverage information for the specified
-      method(s) will be considered.
+      これを指定した場合は、指定したメソッドのみのコードカバレッジ情報を考慮することになります。
     </para>
 
     <para>
-      <xref linkend="appendixes.annotations.covers.tables.annotations"/> shows
-      the syntax of the <literal>@covers</literal> annotation.
+      <xref linkend="appendixes.annotations.covers.tables.annotations"/>
+      に <literal>@covers</literal> アノテーションの構文を示します。
     </para>
 
     <table id="appendixes.annotations.covers.tables.annotations">
@@ -203,22 +201,22 @@ public function testBalanceIsInitiallyZero()
   </section>
 
   <section id="appendixes.annotations.dataProvider">
-    <!-- TODO: to be translated -->
     <title><literal>@dataProvider</literal></title>
 
     <para>
       <indexterm><primary>@dataProvider</primary></indexterm>
 
-      A test method can accept arbitrary arguments. These arguments are to be
-      provided by a data provider method (<literal>provider()</literal> in
-      <xref linkend="writing-tests-for-phpunit.data-providers.examples.DataTest.php" />).
-      The data provider method to be used is specified using the
-      <literal>@dataProvider</literal> annotation.
+      テストメソッドには任意の引数を渡すことができます。
+      引数は、データプロバイダメソッド
+      (<xref linkend="writing-tests-for-phpunit.data-providers.examples.DataTest.php" /> の
+      <literal>provider()</literal>) から渡されます。
+      使用するデータプロバイダメソッドを指定するには
+      <literal>@dataProvider</literal> アノテーションを使います。
     </para>
 
     <para>
-      See <xref linkend="writing-tests-for-phpunit.data-providers"/> for more
-      details.
+      詳細は <xref linkend="writing-tests-for-phpunit.data-providers"/>
+      を参照ください。
     </para>
   </section>
 
@@ -228,18 +226,17 @@ public function testBalanceIsInitiallyZero()
     <para>
       <indexterm><primary>@depends</primary></indexterm>
 
-      PHPUnit supports the declaration of explicit dependencies between test
-      methods. Such dependencies do not define the order in which the test
-      methods are to be executed but they allow the returning of an instance of
-      the test fixture by a producer and passing it to the dependent consumers.
-      <xref linkend="writing-tests-for-phpunit.examples.StackTest2.php"/> shows
-      how to use the <literal>@depends</literal> annotation to express
-      dependencies between test methods.
+      PHPUnit は、テストメソッド間の依存性の明示的な宣言をサポートしています。
+      この依存性とは、テストメソッドが実行される順序を定義するものではありません。
+      プロデューサーがテストフィクスチャを作ってそのインスタンスを返し、
+      依存するコンシューマーがそれを受け取って利用するというものです。
+      <xref linkend="writing-tests-for-phpunit.examples.StackTest2.php"/>
+      は、<literal>@depends</literal> アノテーションを使ってテストメソッドの依存性をあらわす例です。
     </para>
 
     <para>
-      See <xref linkend="writing-tests-for-phpunit.test-dependencies"/> for more
-      details.
+      詳細は <xref linkend="writing-tests-for-phpunit.test-dependencies"/>
+      を参照ください。
     </para>
   </section>
 
@@ -250,13 +247,13 @@ public function testBalanceIsInitiallyZero()
       <indexterm><primary>@expectedException</primary></indexterm>
 
       <xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest.php" />
-      shows how to use the <literal>@expectedException</literal> annotation to
-      test whether an exception is thrown inside the tested code.
+      は、テストするコード内で例外がスローされたかどうかを
+      <literal>@expectedException</literal> アノテーションを使用して調べる方法を示すものです。
     </para>
 
     <para>
-      See <xref linkend="writing-tests-for-phpunit.exceptions"/> for more
-      details.
+      詳細は <xref linkend="writing-tests-for-phpunit.exceptions"/>
+      を参照ください。
     </para>
   </section>
 
@@ -266,8 +263,8 @@ public function testBalanceIsInitiallyZero()
     <para>
       <indexterm><primary>@group</primary></indexterm>
 
-      A test can be tagged as belonging to one or more groups using the
-      <literal>@group</literal> annotation like this <programlisting>class MyTest extends PHPUnit_Framework_TestCase
+      あるテストを、ひとつあるいは複数のグループに属するものとすることができます。
+      <literal>@group</literal> アノテーションをこのように使用します。<programlisting>class MyTest extends PHPUnit_Framework_TestCase
 {
     /**
      * @group specification
@@ -287,10 +284,11 @@ public function testBalanceIsInitiallyZero()
     </para>
 
     <para>
-      Tests can be selected for execution based on groups using the
-      <literal>--group</literal> and <literal>--exclude-group</literal> switches
-      of the command-line test runner or using the respective directives of the
-      XML configuration file.
+      特定のグループに属するテストのみを選んで実行するには、
+      コマンドラインのテストランナーの場合は
+      <literal>--group</literal> スイッチあるいは <literal>--exclude-group</literal>
+      スイッチを指定します。XML 設定ファイルの場合は、
+      それぞれ対応するディレクティブを指定します。
     </para>
   </section>
 
@@ -300,9 +298,9 @@ public function testBalanceIsInitiallyZero()
     <para>
       <indexterm><primary><literal>@outputBuffering</literal></primary></indexterm>
 
-      The <literal>@outputBuffering</literal> annotation can be used to control
-      PHP's <ulink url="http://www.php.net/manual/en/intro.outcontrol.php">output buffering</ulink>
-      like this <programlisting>/**
+      <literal>@outputBuffering</literal> アノテーションを使うと、PHP の
+      <ulink url="http://www.php.net/manual/ja/intro.outcontrol.php">出力バッファリング</ulink>
+      をこのように制御することができます。<programlisting>/**
  * @outputBuffering enabled
  */
 class MyTest extends PHPUnit_Framework_TestCase
@@ -314,9 +312,8 @@ class MyTest extends PHPUnit_Framework_TestCase
     <para>
       <indexterm><primary><literal>@outputBuffering</literal></primary></indexterm>
 
-      The <literal>@outputBuffering</literal> annotation can also be used on the
-      test method level. This allows for fine-grained control over the output
-      buffering: <programlisting>/**
+      <literal>@outputBuffering</literal> アノテーションは、テストメソッドレベルで使うこともできます。
+      これによって、出力バッファリングをより細やかに制御できるようになります。<programlisting>/**
  * @outputBuffering disabled
  */
 class MyTest extends PHPUnit_Framework_TestCase
@@ -358,9 +355,9 @@ class MyTest extends PHPUnit_Framework_TestCase
     <para>
       <indexterm><primary>@test</primary></indexterm>
 
-      As an alternative to prefixing your test method names with
-      <literal>test</literal>, you can use the <literal>@test</literal>
-      annotation in a method's docblock to mark it as a test method. <programlisting>/**
+      テストメソッド名の先頭に <literal>test</literal>
+      をつけるかわりに、メソッドのドキュメンテーションブロックで <literal>@test</literal>
+      アノテーションを使ってそのメソッドがテストメソッドであることを指定することができます。<programlisting>/**
  * @test
  */
 public function initialBalanceShouldBe0()
