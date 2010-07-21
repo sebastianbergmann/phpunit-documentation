@@ -13,7 +13,9 @@ REM  distributed under the License is distributed on an "AS IS" BASIS,
 REM  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 REM  See the License for the specific language governing permissions and
 REM  limitations under the License.
-REM  $Id: fop.bat 960618 2010-07-05 15:05:55Z spepping $
+REM  $Id: fop.cmd 697152 2008-09-19 17:01:03Z adelmelle $
+
+SETLOCAL ENABLEDELAYEDEXPANSION
 
 rem %~dp0 is the expanded pathname of the current script under NT
 set LOCAL_FOP_HOME=
@@ -53,22 +55,8 @@ rem set LOGLEVEL=-Dorg.apache.commons.logging.simplelog.defaultlog=INFO
 
 set LIBDIR=%LOCAL_FOP_HOME%lib
 
-set LOCALCLASSPATH=%LOCAL_FOP_HOME%build\fop.jar
-set LOCALCLASSPATH=%LOCALCLASSPATH%;%LOCAL_FOP_HOME%build\fop-sandbox.jar
-set LOCALCLASSPATH=%LOCALCLASSPATH%;%LOCAL_FOP_HOME%build\fop-hyph.jar
-set LOCALCLASSPATH=%LOCALCLASSPATH%;%LIBDIR%\xml-apis-1.3.04.jar
-set LOCALCLASSPATH=%LOCALCLASSPATH%;%LIBDIR%\xml-apis-ext-1.3.04.jar
-set LOCALCLASSPATH=%LOCALCLASSPATH%;%LIBDIR%\xercesImpl-2.7.1.jar
-set LOCALCLASSPATH=%LOCALCLASSPATH%;%LIBDIR%\xalan-2.7.0.jar
-set LOCALCLASSPATH=%LOCALCLASSPATH%;%LIBDIR%\serializer-2.7.0.jar
-set LOCALCLASSPATH=%LOCALCLASSPATH%;%LIBDIR%\batik-all-1.7.jar
-set LOCALCLASSPATH=%LOCALCLASSPATH%;%LIBDIR%\xmlgraphics-commons-1.4.jar
-set LOCALCLASSPATH=%LOCALCLASSPATH%;%LIBDIR%\avalon-framework-4.2.0.jar
-set LOCALCLASSPATH=%LOCALCLASSPATH%;%LIBDIR%\commons-io-1.3.1.jar
-set LOCALCLASSPATH=%LOCALCLASSPATH%;%LIBDIR%\commons-logging-1.0.4.jar
-set LOCALCLASSPATH=%LOCALCLASSPATH%;%LIBDIR%\jai_imageio.jar
-set LOCALCLASSPATH=%LOCALCLASSPATH%;%LIBDIR%\fop-hyph.jar
-set LOCALCLASSPATH=%LOCALCLASSPATH%;%FOP_HYPHENATION_PATH%
+set LOCALCLASSPATH=%FOP_HYPHENATION_PATH%
+for %%l in (%LOCAL_FOP_HOME%build\*.jar %LIBDIR%\*.jar) do set LOCALCLASSPATH=!LOCALCLASSPATH!;%%l
 
 set JAVAOPTS=-Denv.windir=%WINDIR%
 
@@ -81,5 +69,7 @@ goto runFop
 if "%JAVACMD%" == "" set JAVACMD=java
 
 :runFop
-rem ECHO "%JAVACMD%" %JAVAOPTS% %LOGCHOICE% %LOGLEVEL% -cp "%LOCALCLASSPATH%" %FOP_OPTS% org.apache.fop.cli.Main %FOP_CMD_LINE_ARGS%
+rem echo "%JAVACMD%" %LOGCHOICE% %LOGLEVEL% -cp "%LOCALCLASSPATH%" org.apache.fop.cli.Main %FOP_CMD_LINE_ARGS%
 "%JAVACMD%" %JAVAOPTS% %LOGCHOICE% %LOGLEVEL% -cp "%LOCALCLASSPATH%" %FOP_OPTS% org.apache.fop.cli.Main %FOP_CMD_LINE_ARGS%
+
+ENDLOCAL
