@@ -335,6 +335,13 @@ class Subject
         $this->notify('something');
     }
 
+    public function doSomethingBad()
+    {
+        foreach ($this->observers as $observer) {
+            $observer->reportError(42, 'Something bad happened', $this);
+        }
+    }
+
     protected function notify($argument)
     {
         foreach ($this->observers as $observer) {
@@ -350,6 +357,11 @@ class Observer
     public function update($argument)
     {
         // Do something.
+    }
+
+    public function reportError($errorCode, $errorMessage, Subject $subject)
+    {
+        // Do something
     }
 
     // Other methods.
@@ -406,6 +418,42 @@ class SubjectTest extends PHPUnit_Framework_TestCase
 }
 ?>]]></programlisting>
     </example>
+
+	<para>
+	  The <literal>with()</literal> method can take any number of
+	  arguments, corresponding to the number of parameters to the
+	  method being mocked. You can specify more advanced constraints
+	  on the method argument than a simple match.
+	</para>
+
+	<example id="test-doubles.mock-objects.examples.MultiParameterTest.php">
+	  <title>Testing that a method gets called with a number of
+	  arguments constrained in different ways</title>
+	  <programlisting><![CDATA[<?php
+class SubjectTest extends PHPUnit_Framework_TestCase
+{
+    public function testErrorReported()
+    {
+        // Create a mock for the Observer class, mocking the
+        // reportError() method
+        $observer = $this->getMock('Observer', array('reportError'));
+
+        $observer->expects($this->once())
+                 ->method('reportError')
+                 ->with($this->greaterThan(0),
+                        $this->stringContains('Something'),
+                        $this->anything());
+ 
+        $subject = new Subject;
+        $subject->attach($observer);
+
+        // The doSomethingBad() method should report an error to the observer
+        // via the reportError() method
+        $subject->doSomethingBad();
+    }
+}
+?>]]></programlisting>
+	</example>
 
     <para>
       <xref linkend="api.assert.assertThat.tables.constraints"/> shows
