@@ -7,20 +7,20 @@
     <indexterm><primary>Database</primary></indexterm>
     <indexterm><primary>DbUnit</primary></indexterm>
 
-    While creating tests for your software you may come across database code 
-    that needs to be unit tested. The database extension has been created to 
-    provide an easy way to place your database in a known state, execute your 
-    database-effecting code, and ensure that the expected data is found in the 
+    While creating tests for your software you may come across database code
+    that needs to be unit tested. The database extension has been created to
+    provide an easy way to place your database in a known state, execute your
+    database-effecting code, and ensure that the expected data is found in the
     database.
   </para>
 
   <para>
-    The quickest way to create a new Database Unit Test is to extend the 
-    <literal>PHPUnit_Extensions_Database_TestCase</literal> class. This class 
-    provides the functionality to create a database connection, seed your 
-    database with data, and after executing a test comparing the contents of 
-    your database with a data set that can be built in a variety of formats. In 
-    <xref linkend="database.examples.DatabaseTestSetup.php" /> you can see 
+    The quickest way to create a new Database Unit Test is to extend the
+    <literal>PHPUnit_Extensions_Database_TestCase</literal> class. This class
+    provides the functionality to create a database connection, seed your
+    database with data, and after executing a test comparing the contents of
+    your database with a data set that can be built in a variety of formats. In
+    <xref linkend="database.examples.DatabaseTestSetup.php" /> you can see
     examples of <literal>getConnection()</literal> and <literal>getDataSet()
     </literal> implementations.
   </para>
@@ -47,18 +47,18 @@ class DatabaseTest extends PHPUnit_Extensions_Database_TestCase
   </example>
 
   <para>
-    The <literal>getConnection()</literal> method must return an 
+    The <literal>getConnection()</literal> method must return an
     implementation of the <literal>PHPUnit_Extensions_Database_DB_IDatabaseConnection</literal>
-    interface. The <literal>createDefaultDBConnection()</literal> method can 
-    be used to return a database connection. It accepts a <literal>PDO</literal> 
-    object as the first parameter and the name of the schema you are testing 
+    interface. The <literal>createDefaultDBConnection()</literal> method can
+    be used to return a database connection. It accepts a <literal>PDO</literal>
+    object as the first parameter and the name of the schema you are testing
     against as the second parameter.
   </para>
 
   <para>
-    The <literal>getDataSet()</literal> method must return an implementation of 
-    the <literal>PHPUnit_Extensions_Database_DataSet_IDataSet</literal> 
-    interface. There are currently three different data sets available in 
+    The <literal>getDataSet()</literal> method must return an implementation of
+    the <literal>PHPUnit_Extensions_Database_DataSet_IDataSet</literal>
+    interface. There are currently three different data sets available in
     PHPUnit. These data sets are discussed in <xref linkend="database.datasets" />
   </para>
 
@@ -117,58 +117,58 @@ class DatabaseTest extends PHPUnit_Extensions_Database_TestCase
     <title>Data Sets</title>
 
     <para>
-      Data sets are the basic building blocks for both your database fixture as 
-      well as the assertions you may make at the end of your test. When 
+      Data sets are the basic building blocks for both your database fixture as
+      well as the assertions you may make at the end of your test. When
       returning a data set as a fixture from the <literal>PHPUnit_Extensions_Database_TestCase::getDataSet()</literal>
-      method, the default implementation in PHPUnit will automatically truncate 
-      all tables specified and then insert the data from your data set in the 
-      order specified by the data set. For your convenience there are several 
+      method, the default implementation in PHPUnit will automatically truncate
+      all tables specified and then insert the data from your data set in the
+      order specified by the data set. For your convenience there are several
       different types of data sets that can be used at your convenience.
     </para>
 
     <section id="database.datasets.flatxml">
       <title>Flat XML Data Set</title>
       <para>
-        The flat XML data set is a very simple XML format that uses a single 
-        XML element for each row in your data set. An example of a flat XML 
-        data set is shown in <xref linkend="database.examples.flatxmldataset.xml" />. 
+        The flat XML data set is a very simple XML format that uses a single
+        XML element for each row in your data set. An example of a flat XML
+        data set is shown in <xref linkend="database.examples.flatxmldataset.xml" />.
       </para>
       <example id="database.examples.flatxmldataset.xml">
         <title>A Flat XML Data Set</title>
         <programlisting><![CDATA[<?xml version="1.0" encoding="UTF-8" ?>
 <dataset>
-  <post 
-    post_id="1" 
-    title="My First Post" 
-    date_created="2008-12-01 12:30:29" 
+  <post
+    post_id="1"
+    title="My First Post"
+    date_created="2008-12-01 12:30:29"
     contents="This is my first post" rating="5"
   />
-  <post 
-    post_id="2" 
-    title="My Second Post" 
-    date_created="2008-12-04 15:35:25" 
-    contents="This is my second post" 
+  <post
+    post_id="2"
+    title="My Second Post"
+    date_created="2008-12-04 15:35:25"
+    contents="This is my second post"
   />
-  <post 
-    post_id="3" 
-    title="My Third Post" 
-    date_created="2008-12-09 03:17:05" 
-    contents="This is my third post" 
-    rating="3" 
+  <post
+    post_id="3"
+    title="My Third Post"
+    date_created="2008-12-09 03:17:05"
+    contents="This is my third post"
+    rating="3"
   />
 
-  <post_comment 
-    post_comment_id="2" 
-    post_id="2" 
-    author="Frank" 
-    content="That is because this is simply an example." 
-    url="http://phpun.it/" 
+  <post_comment
+    post_comment_id="2"
+    post_id="2"
+    author="Frank"
+    content="That is because this is simply an example."
+    url="http://phpun.it/"
   />
-  <post_comment 
-    post_comment_id="1" 
-    post_id="2" 
-    author="Tom" 
-    content="While the topic seemed interesting the content was lacking." 
+  <post_comment
+    post_comment_id="1"
+    post_id="2"
+    author="Tom"
+    content="While the topic seemed interesting the content was lacking."
   />
 
   <current_visitors />
@@ -176,72 +176,72 @@ class DatabaseTest extends PHPUnit_Extensions_Database_TestCase
 ]]></programlisting>
       </example>
       <para>
-        As you can see the formatting is extremely simple. Each of the elements 
-        within the root <literal>&lt;dataset&gt;</literal> element represents a 
-        row in the test database with the exception of the last 
-        <literal>&lt;current_visitors /&gt;</literal> element (this will be 
-        discussed shortly.) The name of the element is the equivalent of a 
-        table name in your database. The name of each attribute is the 
-        equivalent of a column name in your databases. The value of each 
+        As you can see the formatting is extremely simple. Each of the elements
+        within the root <literal>&lt;dataset&gt;</literal> element represents a
+        row in the test database with the exception of the last
+        <literal>&lt;current_visitors /&gt;</literal> element (this will be
+        discussed shortly.) The name of the element is the equivalent of a
+        table name in your database. The name of each attribute is the
+        equivalent of a column name in your databases. The value of each
         attribute is the equivalent of the value of that column in that row.
       </para>
       <para>
-        This format, while simple, does have some special considerations. The 
-        first of these is how you deal with empty tables. With the default 
-        operation of <literal>CLEAN_INSERT</literal> you can specify that you 
-        want to truncate a table and not insert any values by listing that 
-        table as an element without any attributes. This can be seen in 
-        <xref linkend="database.examples.flatxmldataset.xml" /> with the 
-        <literal>&lt;current_visitors /&gt;</literal> element. The most common 
-        reason you would want to ensure an empty table as a part of your 
-        fixture is when your test should be inserting data to that table. The 
-        less data your database has, the quicker your tests will run. So if I 
-        where testing my simple blogging software's ability to add comments to 
-        a post, I would likely change 
-        <xref linkend="database.examples.flatxmldataset.xml" /> to specify 
-        <literal>post_comment</literal> as an empty table. When dealing with 
-        assertions it is often useful to ensure that a table is not being 
-        unexpectedly written to, which could also be accomplished in FlatXML 
+        This format, while simple, does have some special considerations. The
+        first of these is how you deal with empty tables. With the default
+        operation of <literal>CLEAN_INSERT</literal> you can specify that you
+        want to truncate a table and not insert any values by listing that
+        table as an element without any attributes. This can be seen in
+        <xref linkend="database.examples.flatxmldataset.xml" /> with the
+        <literal>&lt;current_visitors /&gt;</literal> element. The most common
+        reason you would want to ensure an empty table as a part of your
+        fixture is when your test should be inserting data to that table. The
+        less data your database has, the quicker your tests will run. So if I
+        where testing my simple blogging software's ability to add comments to
+        a post, I would likely change
+        <xref linkend="database.examples.flatxmldataset.xml" /> to specify
+        <literal>post_comment</literal> as an empty table. When dealing with
+        assertions it is often useful to ensure that a table is not being
+        unexpectedly written to, which could also be accomplished in FlatXML
         using the empty table format.
       </para>
       <para>
-        The second consideration is how <literal>NULL</literal> values are 
-        defined. The nature of the flat XML format only allows you to 
-        explicitly specify strings for column values. Of course your database 
-        will convert a string representation of a number or date into the 
-        appropriate data type. However, there are no string representations of 
-        <literal>NULL</literal>. You can imply a <literal>NULL</literal> value 
-        by leaving a column out of your element's attribute list. This will 
-        cause a NULL value to be inserted into the database for that column. 
-        This leads me right into my next consideration that makes implicit 
+        The second consideration is how <literal>NULL</literal> values are
+        defined. The nature of the flat XML format only allows you to
+        explicitly specify strings for column values. Of course your database
+        will convert a string representation of a number or date into the
+        appropriate data type. However, there are no string representations of
+        <literal>NULL</literal>. You can imply a <literal>NULL</literal> value
+        by leaving a column out of your element's attribute list. This will
+        cause a NULL value to be inserted into the database for that column.
+        This leads me right into my next consideration that makes implicit
         <literal>NULL</literal> values somewhat difficult to deal with.
       </para>
       <para>
-        The third consideration is how columns are defined. The column list for 
-        a given table is determined by the attributes in the first element for 
-        any given table. 
-        In <xref linkend="database.examples.flatxmldataset.xml" /> the 
-        <literal>post</literal> table would be considered to have the columns 
-        <literal>post_id</literal>, <literal>title</literal>, 
-        <literal>date_created</literal>, <literal>contents</literal> and 
-        <literal>rating</literal>. If the first <literal>&lt;post&gt;</literal> 
-        were removed then the <literal>post</literal> would no longer be 
-        considered to have the rating column. This means that the first element 
-        of a given name defines the structure of that table. In the simplest of 
-        examples, this means that your first defined row must have a value for 
-        every column that you expect to have values for in the rest of rows for 
-        that table. If an element further into your data set specifies a column 
-        that was not specified in the first element then that value will be 
-        ignored. You can see how this influenced the order of elements in my 
-        dataset in <xref linkend="database.examples.flatxmldataset.xml" />. 
-        I had to specify the second <literal>&lt;post_comment&gt;</literal> 
-        element first due to the non-NULL value in the <literal>url</literal> 
+        The third consideration is how columns are defined. The column list for
+        a given table is determined by the attributes in the first element for
+        any given table.
+        In <xref linkend="database.examples.flatxmldataset.xml" /> the
+        <literal>post</literal> table would be considered to have the columns
+        <literal>post_id</literal>, <literal>title</literal>,
+        <literal>date_created</literal>, <literal>contents</literal> and
+        <literal>rating</literal>. If the first <literal>&lt;post&gt;</literal>
+        were removed then the <literal>post</literal> would no longer be
+        considered to have the rating column. This means that the first element
+        of a given name defines the structure of that table. In the simplest of
+        examples, this means that your first defined row must have a value for
+        every column that you expect to have values for in the rest of rows for
+        that table. If an element further into your data set specifies a column
+        that was not specified in the first element then that value will be
+        ignored. You can see how this influenced the order of elements in my
+        dataset in <xref linkend="database.examples.flatxmldataset.xml" />.
+        I had to specify the second <literal>&lt;post_comment&gt;</literal>
+        element first due to the non-NULL value in the <literal>url</literal>
         column.
       </para>
       <para>
-        There is a way to work around the inability to explicitly set 
-        <literal>NULL</literal> in a flat XML data using the Replacement data 
-        set type. This will be discussed further in 
+        There is a way to work around the inability to explicitly set
+        <literal>NULL</literal> in a flat XML data using the Replacement data
+        set type. This will be discussed further in
         <xref linkend="database.datasets.replacement" />.
       </para>
     </section>
@@ -249,12 +249,12 @@ class DatabaseTest extends PHPUnit_Extensions_Database_TestCase
     <section id="database.datasets.xml">
       <title>XML Data Set</title>
       <para>
-        While the flat XML data set is simple it also proves to be limiting. A 
-        more powerful xml alternative is the XML data set. It is a more 
-        structured xml format that allows you to be much more explicit with 
-        your data set. An example of the XML data set equivalent to the previous 
-        flat XML example is shown in 
-        <xref linkend="database.examples.xmldataset.xml" />. 
+        While the flat XML data set is simple it also proves to be limiting. A
+        more powerful xml alternative is the XML data set. It is a more
+        structured xml format that allows you to be much more explicit with
+        your data set. An example of the XML data set equivalent to the previous
+        flat XML example is shown in
+        <xref linkend="database.examples.xmldataset.xml" />.
       </para>
 
       <example id="database.examples.xmldataset.xml">
@@ -319,41 +319,41 @@ class DatabaseTest extends PHPUnit_Extensions_Database_TestCase
       </example>
 
       <para>
-        The formatting is more verbose than that of the Flat XML data set but 
-        in some ways much easier to understand. The root element is again the 
-        <literal>&lt;dataset&gt;</literal> element. Then directly under that 
-        element you will have one or more <literal>&lt;table&gt;</literal> 
-        elements. Each <literal>&lt;table&gt;</literal> element must have a 
-        <literal>name</literal> attribute with a value equivalent to the name 
-        of the table being represented. The <literal>&lt;table&gt;</literal> 
-        element will then include one or more <literal>&lt;column&gt;</literal> 
-        elements containing the name of a column in that table. The 
-        <literal>&lt;table&gt;</literal> element will also include any number 
-        (including zero) of <literal>&lt;row&gt;</literal> elements. The 
-        <literal>&lt;row&gt;</literal> element will be what ultimately 
-        specifies the data to store/remove/update in the database or to check 
-        the current database against. The <literal>&lt;row&gt;</literal> 
-        element must have the same number of children as there are 
-        <literal>&lt;column&gt;</literal> elements in that 
-        <literal>&lt;table&gt;</literal> element. The order of your child 
-        elements is also determined by the order of your 
-        <literal>&lt;column&gt;</literal> elements for that table. There are 
-        two different elements that can be used as children of the 
-        <literal>&lt;row&gt;</literal> element. You may use the 
-        <literal>&lt;value&gt;</literal> element to specify the value of that 
-        column in much the same way you can use attributes in the flat XML data 
-        set. The content of the <literal>&lt;value&gt;</literal> element will 
-        be considered the content of that column for that row. You may also use 
-        the <literal>&lt;null&gt;</literal> element to explicitly indicate 
-        that the column is to be given a <literal>NULL</literal> value. The 
-        <literal>&lt;null&gt;</literal> element does not contain any attributes 
+        The formatting is more verbose than that of the Flat XML data set but
+        in some ways much easier to understand. The root element is again the
+        <literal>&lt;dataset&gt;</literal> element. Then directly under that
+        element you will have one or more <literal>&lt;table&gt;</literal>
+        elements. Each <literal>&lt;table&gt;</literal> element must have a
+        <literal>name</literal> attribute with a value equivalent to the name
+        of the table being represented. The <literal>&lt;table&gt;</literal>
+        element will then include one or more <literal>&lt;column&gt;</literal>
+        elements containing the name of a column in that table. The
+        <literal>&lt;table&gt;</literal> element will also include any number
+        (including zero) of <literal>&lt;row&gt;</literal> elements. The
+        <literal>&lt;row&gt;</literal> element will be what ultimately
+        specifies the data to store/remove/update in the database or to check
+        the current database against. The <literal>&lt;row&gt;</literal>
+        element must have the same number of children as there are
+        <literal>&lt;column&gt;</literal> elements in that
+        <literal>&lt;table&gt;</literal> element. The order of your child
+        elements is also determined by the order of your
+        <literal>&lt;column&gt;</literal> elements for that table. There are
+        two different elements that can be used as children of the
+        <literal>&lt;row&gt;</literal> element. You may use the
+        <literal>&lt;value&gt;</literal> element to specify the value of that
+        column in much the same way you can use attributes in the flat XML data
+        set. The content of the <literal>&lt;value&gt;</literal> element will
+        be considered the content of that column for that row. You may also use
+        the <literal>&lt;null&gt;</literal> element to explicitly indicate
+        that the column is to be given a <literal>NULL</literal> value. The
+        <literal>&lt;null&gt;</literal> element does not contain any attributes
         or children.
       </para>
 
       <para>
-        You can use the DTD in 
-        <xref linkend="database.examples.xmldatasetdtd.xml" /> to validate your 
-        XML data set files. A reference of the valid elements in an XML data 
+        You can use the DTD in
+        <xref linkend="database.examples.xmldatasetdtd.xml" /> to validate your
+        XML data set files. A reference of the valid elements in an XML data
         set can be found in <xref linkend="database.tables.xmldataset.elements" />
       </para>
 
@@ -371,7 +371,7 @@ class DatabaseTest extends PHPUnit_Extensions_Database_TestCase
 <!ELEMENT null EMPTY>
 ]]></programlisting>
       </example>
-  
+
       <table id="database.tables.xmldataset.elements">
         <title>XML Data Set Element Description</title>
 
@@ -489,7 +489,7 @@ class DatabaseTest extends PHPUnit_Extensions_Database_TestCase
       <para>
         Unfortunately, while the CSV dataset is appealing from the aspect of edit-ability, it has the same problems with <literal>NULL</literal> values as the flat XML dataset. There is no native way to explicitly specify a null value. If you do not specify a value (as I have done with some of the fields above) then the value will actually be set to that data type's equivalent of an empty string. Which in most cases will not be what you want. I will address this shortcoming of both the CSV and the flat XML data sets shortly.
       </para>
-    
+
     </section>
 
     <section id="database.datasets.replacement">

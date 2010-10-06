@@ -92,7 +92,7 @@
       <title>メソッドに固定値を返させるスタブ</title>
       <programlisting><![CDATA[<?php
 require_once 'PHPUnit/Framework.php';
- 
+
 class SomeClass
 {
     public function doSomething()
@@ -112,7 +112,7 @@ class StubTest extends PHPUnit_Framework_TestCase
         $stub->expects($this->any())
              ->method('doSomething')
              ->will($this->returnValue('foo'));
- 
+
         // $stub->doSomething() をコールすると
         // 'foo' を返すようになります
         $this->assertEquals('foo', $stub->doSomething());
@@ -156,7 +156,7 @@ class StubTest extends PHPUnit_Framework_TestCase
         $stub->expects($this->any())
              ->method('doSomething')
              ->will($this->returnArgument(0));
- 
+
         // $stub->doSomething('foo') は 'foo' を返します
         $this->assertEquals('foo', $stub->doSomething('foo'));
 
@@ -205,7 +205,7 @@ class StubTest extends PHPUnit_Framework_TestCase
         $stub->expects($this->any())
              ->method('doSomething')
              ->will($this->returnCallback('str_rot13'));
- 
+
         // $stub->doSomething($argument) は str_rot13($argument) を返します
         $this->assertEquals('fbzrguvat', $stub->doSomething('something'));
     }
@@ -246,7 +246,7 @@ class StubTest extends PHPUnit_Framework_TestCase
         $stub->expects($this->any())
              ->method('doSomething')
              ->will($this->throwException(new Exception));
- 
+
         // $stub->doSomething() は例外をスローします
         $stub->doSomething();
     }
