@@ -359,6 +359,13 @@ class Subject
         $this->notify('something');
     }
 
+    public function doSomethingBad()
+    {
+        foreach ($this->observers as $observer) {
+            $observer->reportError(42, 'Something bad happened', $this);
+        }
+    }
+
     protected function notify($argument)
     {
         foreach ($this->observers as $observer) {
@@ -372,6 +379,11 @@ class Subject
 class Observer
 {
     public function update($argument)
+    {
+        // なにかをします
+    }
+
+    public function reportError($errorCode, $errorMessage, Subject $subject)
     {
         // なにかをします
     }
@@ -428,6 +440,40 @@ class SubjectTest extends PHPUnit_Framework_TestCase
         // これは、Observer オブジェクトのモックの update() メソッドを、
         // 文字列 'something' を引数としてコールすることを期待されています。
         $subject->doSomething();
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      <literal>with()</literal> メソッドには任意の数の引数を渡すことができます。
+      これは、モック対象のメソッドのパラメータ数に対応します。
+      メソッドの引数に対して、単なるマッチだけでなくより高度な制約を指定することもできます。
+    </para>
+
+    <example id="test-doubles.mock-objects.examples.MultiParameterTest.php">
+      <title>メソッドが引数つきでコールされることを、さまざまな制約の下でテストする例</title>
+      <programlisting><![CDATA[<?php
+class SubjectTest extends PHPUnit_Framework_TestCase
+{
+    public function testErrorReported()
+    {
+        // Observer クラスのモックを作成します。
+        // reportError() メソッドをモックします。
+        $observer = $this->getMock('Observer', array('reportError'));
+
+        $observer->expects($this->once())
+                 ->method('reportError')
+                 ->with($this->greaterThan(0),
+                        $this->stringContains('Something'),
+                        $this->anything());
+
+        $subject = new Subject;
+        $subject->attach($observer);
+
+        // doSomethingBad() メソッドは、
+        // reportError() メソッドを通じてオブザーバにエラーを報告しなければなりません。
+        $subject->doSomethingBad();
     }
 }
 ?>]]></programlisting>
