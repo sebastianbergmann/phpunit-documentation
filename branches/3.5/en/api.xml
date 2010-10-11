@@ -1822,7 +1822,36 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
       <indexterm><primary>assertAttributeNotType()</primary></indexterm>
       <para><literal>assertType(string $expected, mixed $actual[, string $message = ''])</literal></para>
       <para>Reports an error identified by <literal>$message</literal> if the variable <literal>$actual</literal> is not of type <literal>$expected</literal>.</para>
-      <para><literal>$expected</literal> can be one of these constants:</para>
+      <para><literal>assertNotType()</literal> is the inverse of this assertion and takes the same arguments.</para>
+      <para><literal>assertAttributeType()</literal> and <literal>assertAttributeNotType()</literal> are convenience wrappers that use a <literal>public</literal>, <literal>protected</literal>, or <literal>private</literal> attribute of a class or object as the actual value.</para>
+      <example id="api.assert.assertType.example">
+        <title>Usage of assertType()</title>
+        <programlisting><![CDATA[<?php
+class TypeTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertType('Exception', new stdClass);
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit TypeTest</userinput><![CDATA[
+PHPUnit 3.5.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds
+
+There was 1 failure:
+
+3) TypeTest::testFailure
+Failed asserting that <stdClass> is an instance of class "Exception".
+/home/sb/TypeTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+      </example>
+      <para>Alternatively, <literal>$expected</literal> can be one of these constants to indicate an internal type:</para>
       <itemizedlist>
         <listitem><literal>PHPUnit_Framework_Constraint_IsType::TYPE_ARRAY</literal> (<literal>"array"</literal>)</listitem>
         <listitem><literal>PHPUnit_Framework_Constraint_IsType::TYPE_BOOL</literal> (<literal>"bool"</literal>)</listitem>
@@ -1834,9 +1863,7 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
         <listitem><literal>PHPUnit_Framework_Constraint_IsType::TYPE_RESOURCE</literal> (<literal>"resource"</literal>)</listitem>
         <listitem><literal>PHPUnit_Framework_Constraint_IsType::TYPE_STRING</literal> (<literal>"string"</literal>)</listitem>
       </itemizedlist>
-      <para><literal>assertNotType()</literal> is the inverse of this assertion and takes the same arguments.</para>
-      <para><literal>assertAttributeType()</literal> and <literal>assertAttributeNotType()</literal> are convenience wrappers that use a <literal>public</literal>, <literal>protected</literal>, or <literal>private</literal> attribute of a class or object as the actual value.</para>
-      <example id="api.assert.assertType.example">
+      <example id="api.assert.assertType.example2">
         <title>Usage of assertType()</title>
         <programlisting><![CDATA[<?php
 class TypeTest extends PHPUnit_Framework_TestCase
@@ -1845,42 +1872,25 @@ class TypeTest extends PHPUnit_Framework_TestCase
     {
         $this->assertType(PHPUnit_Framework_Constraint_IsType::TYPE_STRING, 2204);
     }
-
-    public function testFailure2()
-    {
-        $this->assertType('string', 2204);
-    }
-
-    public function testFailure3()
-    {
-        $this->assertType('Exception', new stdClass);
-    }
 }
 ?>]]></programlisting>
         <screen><userinput>phpunit TypeTest</userinput><![CDATA[
 PHPUnit 3.5.0 by Sebastian Bergmann.
 
-FFF
+F
 
 Time: 0 seconds
 
-There were 3 failures:
+There was 1 failure:
 
 1) TypeTest::testFailure
 Failed asserting that <integer:2204> is of type "string".
 /home/sb/TypeTest.php:6
 
-2) TypeTest::testFailure2
-Failed asserting that <integer:2204> is of type "string".
-/home/sb/TypeTest.php:11
-
-3) TypeTest::testFailure3
-Failed asserting that <stdClass> is an instance of class "Exception".
-/home/sb/TypeTest.php:16
-
 FAILURES!
-Tests: 3, Assertions: 3, Failures: 3.]]></screen>
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
       </example>
+      <note><para>It is recommended to use <literal>assertInternalType</literal> (see <xref linkend="api.assert.assertInternalType"/>) instead to check for internal types.</para></note>
     </section>
 
     <section id="api.assert.assertXmlFileEqualsXmlFile">
