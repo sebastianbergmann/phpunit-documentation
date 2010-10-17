@@ -43,7 +43,7 @@
   <para>
     By default, all methods of the original class are replaced with a dummy
     implementation that just returns <literal>NULL</literal> (without calling
-    the original method). Using the <literal>will($this->returnValue()</literal>
+    the original method). Using the <literal>will($this->returnValue())</literal>
     method, for instance, you can configure these dummy implementations to
     return a value when called.
   </para>
@@ -228,13 +228,54 @@ class StubTest extends PHPUnit_Framework_TestCase
 ?>]]></programlisting>
     </example>
 
+	<para>
+	  A simpler alternative to setting up a callback method may be to
+	  specify a list of desired return values. You can do this with
+	  the <literal>onConsecutiveCalls()</literal> method. See
+	  <xref linkend="test-doubles.stubs.examples.StubTest4.php"/> for
+	  an example.
+	</para>
+
+    <example id="test-doubles.stubs.examples.StubTest4.php">
+      <indexterm><primary>getMock()</primary></indexterm>
+      <indexterm><primary>expects()</primary></indexterm>
+      <indexterm><primary>method()</primary></indexterm>
+      <indexterm><primary>will()</primary></indexterm>
+      <indexterm><primary>onConsecutiveCalls()</primary></indexterm>
+      <title>Stubbing a method call to return a list of values in the
+      specified order</title>
+      <programlisting><![CDATA[<?php
+require_once 'SomeClass.php';
+
+class StubTest extends PHPUnit_Framework_TestCase
+{
+    public function testOnConsecutiveCallsStub()
+    {
+        // Create a stub for the SomeClass class.
+        $stub = $this->getMock('SomeClass');
+
+        // Configure the stub.
+        $stub->expects($this->any())
+             ->method('doSomething')
+             ->will($this->onConsecutiveCalls(2, 3, 5, 7));
+
+        // $stub->doSomething() returns a different value each time
+        $this->assertEquals(2, $stub->doSomething());
+        $this->assertEquals(3, $stub->doSomething());
+        $this->assertEquals(5, $stub->doSomething());
+    }
+}
+?>]]></programlisting>
+    </example>
+
+
     <para>
       Instead of returning a value, a stubbed method can also raise an
-      exception. <xref linkend="test-doubles.stubs.examples.StubTest4.php"/>
+      exception. <xref linkend="test-doubles.stubs.examples.StubTest5.php"/>
       shows how to use <literal>throwException()</literal> to do this.
     </para>
 
-    <example id="test-doubles.stubs.examples.StubTest4.php">
+    <example id="test-doubles.stubs.examples.StubTest5.php">
       <indexterm><primary>getMock()</primary></indexterm>
       <indexterm><primary>expects()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
