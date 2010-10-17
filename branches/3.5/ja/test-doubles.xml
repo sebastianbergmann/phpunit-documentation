@@ -251,12 +251,52 @@ class StubTest extends PHPUnit_Framework_TestCase
     </example>
 
     <para>
-      値を返すのではなく、スタブメソッドで例外を発生させることもできます。
+      コールバックメソッドを設定するよりももう少しシンプルな方法として、
+      希望する返り値のリストを指定することもできます。この場合に使うのは
+      <literal>onConsecutiveCalls()</literal> メソッドです。
       <xref linkend="test-doubles.stubs.examples.StubTest4.php"/>
-      に、<literal>throwException()</literal> でこれを行う方法を示します。
+      の例を参照ください。
     </para>
 
     <example id="test-doubles.stubs.examples.StubTest4.php">
+      <indexterm><primary>getMock()</primary></indexterm>
+      <indexterm><primary>expects()</primary></indexterm>
+      <indexterm><primary>method()</primary></indexterm>
+      <indexterm><primary>will()</primary></indexterm>
+      <indexterm><primary>onConsecutiveCalls()</primary></indexterm>
+      <title>メソッドに、リストで指定した値をその順で返させるスタブ</title>
+      <programlisting><![CDATA[<?php
+require_once 'SomeClass.php';
+
+class StubTest extends PHPUnit_Framework_TestCase
+{
+    public function testOnConsecutiveCallsStub()
+    {
+        // SomeClass クラスのスタブを作成します
+        $stub = $this->getMock('SomeClass');
+
+        // スタブの設定を行います
+        $stub->expects($this->any())
+             ->method('doSomething')
+             ->will($this->onConsecutiveCalls(2, 3, 5, 7));
+
+        // $stub->doSomething() は毎回異なる値を返します
+        $this->assertEquals(2, $stub->doSomething());
+        $this->assertEquals(3, $stub->doSomething());
+        $this->assertEquals(5, $stub->doSomething());
+    }
+}
+?>]]></programlisting>
+    </example>
+
+
+    <para>
+      値を返すのではなく、スタブメソッドで例外を発生させることもできます。
+      <xref linkend="test-doubles.stubs.examples.StubTest5.php"/>
+      に、<literal>throwException()</literal> でこれを行う方法を示します。
+    </para>
+
+    <example id="test-doubles.stubs.examples.StubTest5.php">
       <indexterm><primary>getMock()</primary></indexterm>
       <indexterm><primary>expects()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
