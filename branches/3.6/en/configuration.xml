@@ -1,0 +1,343 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<appendix id="appendixes.configuration">
+  <title>The XML Configuration File</title>
+
+  <section id="appendixes.configuration.phpunit">
+    <title>PHPUnit</title>
+
+    <para>
+      The attributes of the <literal><![CDATA[<phpunit>]]></literal> element can
+      be used to configure PHPUnit's core functionality.
+    </para>
+
+    <screen><![CDATA[<phpunit backupGlobals="false"
+         backupStaticAttributes="true"
+         bootstrap="/path/to/bootstrap.php"
+         colors="false"
+         convertErrorsToExceptions="true"
+         convertNoticesToExceptions="true"
+         convertWarningsToExceptions="true"
+         processIsolation="true"
+         stopOnFailure="true"
+         syntaxCheck="false"
+         testSuiteLoaderClass="PHPUnit_Runner_StandardTestSuiteLoader"
+         verbose="true"
+         strict="true">
+  <!-- ... -->
+</phpunit>]]></screen>
+
+    <para>
+      The XML configuration above corresponds to invoking the TextUI test runner
+      with the following switches:
+    </para>
+
+    <itemizedlist>
+      <listitem><para><literal>--no-globals-backup</literal></para></listitem>
+      <listitem><para><literal>--static-backup</literal></para></listitem>
+      <listitem><para><literal>--bootstrap /path/to/bootstrap.php</literal></para></listitem>
+      <listitem><para><literal>--colors</literal></para></listitem>
+      <listitem><para><literal>--process-isolation</literal></para></listitem>
+      <listitem><para><literal>--stop-on-failure</literal></para></listitem>
+      <listitem><para><literal>--no-syntax-check</literal></para></listitem>
+      <listitem><para><literal>--loader PHPUnit_Runner_StandardTestSuiteLoader</literal></para></listitem>
+      <listitem><para><literal>--verbose</literal></para></listitem>
+      <listitem><para><literal>--strict</literal></para></listitem>
+    </itemizedlist>
+
+    <para>
+      The <literal>convertErrorsToExceptions</literal>,
+      <literal>convertNoticesToExceptions</literal>, and
+      <literal>convertWarningsToExceptions</literal> attributes have no
+      equivalent TextUI test runner switch.
+    </para>
+  </section>
+
+  <section id="appendixes.configuration.testsuites">
+    <title>Test Suites</title>
+
+    <para>
+      <indexterm><primary>Test Suite</primary></indexterm>
+
+      The <literal><![CDATA[<testsuites>]]></literal> element and its
+      one or more <literal><![CDATA[<testsuite>]]></literal> children can be
+      used to compose a test suite out of test suites and test cases.
+    </para>
+
+    <screen><![CDATA[<testsuites>
+  <testsuite name="My Test Suite">
+    <directory>/path/to/*Test.php files</directory>
+    <file>/path/to/MyTest.php</file>
+  </testsuite>
+</testsuites>]]></screen>
+  </section>
+
+  <section id="appendixes.configuration.groups">
+    <title>Groups</title>
+
+    <para>
+      <indexterm><primary>Test Groups</primary></indexterm>
+
+      The <literal><![CDATA[<groups>]]></literal> element and its
+      <literal><![CDATA[<include>]]></literal>,
+      <literal><![CDATA[<exclude>]]></literal>, and
+      <literal><![CDATA[<group>]]></literal> children can be used to select
+      groups of tests from a suite of tests that should (not) be run.
+    </para>
+
+    <screen><![CDATA[<groups>
+  <include>
+    <group>name</group>
+  </include>
+  <exclude>
+    <group>name</group>
+  </exclude>
+</groups>]]></screen>
+
+    <para>
+      The XML configuration above corresponds to invoking the TextUI test runner
+      with the following switches:
+    </para>
+
+    <itemizedlist>
+      <listitem><para><literal>--group name</literal></para></listitem>
+      <listitem><para><literal>--exclude-group name</literal></para></listitem>
+    </itemizedlist>
+  </section>
+
+  <section id="appendixes.configuration.blacklist-whitelist">
+    <title>Including and Excluding Files for Code Coverage</title>
+
+    <para>
+      <indexterm><primary>Code Coverage</primary></indexterm>
+      <indexterm><primary>Blacklist</primary></indexterm>
+      <indexterm><primary>Whitelist</primary></indexterm>
+      <indexterm><primary>PHP_CodeCoverage_Filter</primary></indexterm>
+
+      The <literal><![CDATA[<filter>]]></literal> element and its children can
+      be used to configure the blacklist and whitelist for the code coverage
+      reporting.
+    </para>
+
+    <screen><![CDATA[<filter>
+  <blacklist>
+    <directory suffix=".php">/path/to/files</directory>
+    <file>/path/to/file</file>
+    <exclude>
+      <directory suffix=".php">/path/to/files</directory>
+      <file>/path/to/file</file>
+    </exclude>
+  </blacklist>
+  <whitelist>
+    <directory suffix=".php">/path/to/files</directory>
+    <file>/path/to/file</file>
+    <exclude>
+      <directory suffix=".php">/path/to/files</directory>
+      <file>/path/to/file</file>
+    </exclude>
+  </whitelist>
+</filter>]]></screen>
+
+    <para>
+      The XML configuration above corresponds to using the
+      <literal>PHP_CodeCoverage_Filter</literal> class as follows:
+    </para>
+
+    <screen><![CDATA[PHP_CodeCoverage_Filter::getInstance()->addDirectoryToBlacklist(
+  '/path/to/files', '.php'
+);
+
+PHP_CodeCoverage_Filter::getInstance()->addFileToBlacklist('/path/to/file');
+
+PHP_CodeCoverage_Filter::getInstance()->removeDirectoryFromBlacklist(
+  '/path/to/files', '.php'
+);
+
+PHP_CodeCoverage_Filter::getInstance()->removeFileFromBlacklist('/path/to/file');
+
+PHP_CodeCoverage_Filter::getInstance()->addDirectoryToWhitelist(
+  '/path/to/files', '.php'
+);
+
+PHP_CodeCoverage_Filter::getInstance()->addFileToWhitelist('/path/to/file');
+
+PHP_CodeCoverage_Filter::getInstance()->removeDirectoryFromWhitelist(
+  '/path/to/files', '.php'
+);
+
+PHP_CodeCoverage_Filter::getInstance()->removeFileFromWhitelist('/path/to/file');]]></screen>
+  </section>
+
+  <section id="appendixes.configuration.logging">
+    <title>Logging</title>
+
+    <para>
+      <indexterm><primary>Logging</primary></indexterm>
+
+      The <literal><![CDATA[<logging>]]></literal> element and its
+      <literal><![CDATA[<log>]]></literal> children can be used to configure the
+      logging of the test execution.
+    </para>
+
+    <screen><![CDATA[<logging>
+  <log type="coverage-html" target="/tmp/report" charset="UTF-8"
+       yui="true" highlight="false"
+       lowUpperBound="35" highLowerBound="70"/>
+  <log type="coverage-xml" target="/tmp/coverage.xml"/>
+  <log type="json" target="/tmp/logfile.json"/>
+  <log type="tap" target="/tmp/logfile.tap"/>
+  <log type="junit" target="/tmp/logfile.xml" logIncompleteSkipped="false"/>
+  <log type="testdox-html" target="/tmp/testdox.html"/>
+  <log type="testdox-text" target="/tmp/testdox.txt"/>
+</logging>]]></screen>
+
+    <para>
+      The XML configuration above corresponds to invoking the TextUI test runner
+      with the following switches:
+    </para>
+
+    <itemizedlist>
+      <listitem><para><literal>--coverage-html /tmp/report</literal></para></listitem>
+      <listitem><para><literal>--coverage-xml /tmp/coverage.xml</literal></para></listitem>
+      <listitem><para><literal>--log-json /tmp/logfile.json</literal></para></listitem>
+      <listitem><para><literal><![CDATA[>]]> /tmp/logfile.txt</literal></para></listitem>
+      <listitem><para><literal>--log-tap /tmp/logfile.tap</literal></para></listitem>
+      <listitem><para><literal>--log-junit /tmp/logfile.xml</literal></para></listitem>
+      <listitem><para><literal>--testdox-html /tmp/testdox.html</literal></para></listitem>
+      <listitem><para><literal>--testdox-text /tmp/testdox.txt</literal></para></listitem>
+    </itemizedlist>
+
+    <para>
+      The <literal>charset</literal>, <literal>yui</literal>,
+      <literal>highlight</literal>, <literal>lowUpperBound</literal>,
+      <literal>highLowerBound</literal>, and <literal>logIncompleteSkipped</literal>
+      attributes have no equivalent TextUI test runner switch.
+    </para>
+  </section>
+
+  <section id="appendixes.configuration.test-listeners">
+    <title>Test Listeners</title>
+
+    <para>
+      <indexterm><primary>PHPUnit_Framework_TestListener</primary></indexterm>
+      <indexterm><primary>Test Listener</primary></indexterm>
+
+      The <literal><![CDATA[<listeners>]]></literal> element and its
+      <literal><![CDATA[<listener>]]></literal> children can be used to attach
+      additional test listeners to the test execution.
+    </para>
+
+    <screen><![CDATA[<listeners>
+  <listener class="MyListener" file="/optional/path/to/MyListener.php">
+    <arguments>
+      <array>
+        <element key="0">
+          <string>Sebastian</string>
+        </element>
+      </array>
+      <integer>22</integer>
+      <string>April</string>
+      <double>19.78</double>
+      <null/>
+      <object class="stdClass"/>
+    </arguments>
+  </listener>
+</listeners>]]></screen>
+
+    <para>
+      The XML configuration above corresponds to attaching the
+      <literal>$listener</literal> object (see below) to the test execution:
+    </para>
+
+    <screen><![CDATA[$listener = new MyListener(
+  array('Sebastian'),
+  22,
+  'April',
+  19.78,
+  NULL,
+  new stdClass
+);]]></screen>
+  </section>
+
+  <section id="appendixes.configuration.php-ini-constants-variables">
+    <title>Setting PHP INI settings, Constants and Global Variables</title>
+
+    <para>
+      <indexterm><primary>Constant</primary></indexterm>
+      <indexterm><primary>Global Variable</primary></indexterm>
+      <indexterm><primary><literal>php.ini</literal></primary></indexterm>
+
+      The <literal><![CDATA[<php>]]></literal> element and its children can be
+      used to configure PHP settings, constants, and global variables. It can
+      also be used to prepend the <literal>include_path</literal>.
+    </para>
+
+    <screen><![CDATA[<php>
+  <includePath>.</includePath>
+  <ini name="foo" value="bar"/>
+  <const name="foo" value="bar"/>
+  <var name="foo" value="bar"/>
+  <env name="foo" value="bar"/>
+  <post name="foo" value="bar"/>
+  <get name="foo" value="bar"/>
+  <cookie name="foo" value="bar"/>
+  <server name="foo" value="bar"/>
+  <files name="foo" value="bar"/>
+  <request name="foo" value="bar"/>
+</php>]]></screen>
+
+    <para>
+      The XML configuration above corresponds to the following PHP code:
+    </para>
+
+    <screen><![CDATA[ini_set('foo', 'bar');
+define('foo', 'bar');
+$GLOBALS['foo'] = 'bar';
+$_ENV['foo'] = 'bar';
+$_POST['foo'] = 'bar';
+$_GET['foo'] = 'bar';
+$_COOKIE['foo'] = 'bar';
+$_SERVER['foo'] = 'bar';
+$_FILES['foo'] = 'bar';
+$_REQUEST['foo'] = 'bar';]]></screen>
+  </section>
+
+  <section id="appendixes.configuration.selenium-rc">
+    <title>Configuring Browsers for Selenium RC</title>
+
+    <para>
+      <indexterm><primary>Selenium RC</primary></indexterm>
+
+      The <literal><![CDATA[<selenium>]]></literal> element and its
+      <literal><![CDATA[<browser>]]></literal> children can be used to
+      configure a list of Selenium RC servers.
+    </para>
+
+    <screen><![CDATA[<selenium>
+  <browser name="Firefox on Linux"
+           browser="*firefox /usr/lib/firefox/firefox-bin"
+           host="my.linux.box"
+           port="4444"
+           timeout="30000"/>
+</selenium>]]></screen>
+
+    <para>
+      The XML configuration above corresponds to the following PHP code:
+    </para>
+
+    <screen><![CDATA[class WebTest extends PHPUnit_Extensions_SeleniumTestCase
+{
+    public static $browsers = array(
+      array(
+        'name'    => 'Firefox on Linux',
+        'browser' => '*firefox /usr/lib/firefox/firefox-bin',
+        'host'    => 'my.linux.box',
+        'port'    => 4444,
+        'timeout' => 30000
+      )
+    );
+
+    // ...
+}]]></screen>
+  </section>
+</appendix>

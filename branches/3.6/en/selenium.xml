@@ -1,0 +1,400 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="selenium">
+  <title>PHPUnit and Selenium</title>
+
+  <section id="selenium.selenium-rc">
+    <title>Selenium RC</title>
+
+    <para>
+      <indexterm><primary>Selenium RC</primary></indexterm>
+
+      <ulink url="http://seleniumhq.org/projects/remote-control/">Selenium RC</ulink> is a
+      test tool that allows you to write automated user-interface tests for
+      web applications in any programming language against any HTTP website
+      using any mainstream browser. It uses
+      <ulink url="http://seleniumhq.org/">Selenium Core</ulink>, a
+      library that performs automated browser tasks using JavaScript. Selenium
+      tests run directly in a browser, just as real users do. These tests can
+      be used for both <emphasis>acceptance testing</emphasis> (by performing
+      higher-level tests on the integrated system instead of just testing each
+      unit of the system independently) and <emphasis>browser compatibility
+      testing</emphasis> (by testing the web application on different
+      operating systems and browsers).
+    </para>
+
+    <para>
+      Let us take a look at how Selenium RC is installed:
+    </para>
+
+    <orderedlist>
+      <listitem>Download a distribution archive of <ulink url="http://seleniumhq.org/projects/remote-control/">Selenium RC</ulink>.</listitem>
+      <listitem>Unzip the distribution archive and copy <filename>server/selenium-server.jar</filename> to <filename>/usr/local/bin</filename>, for instance.</listitem>
+      <listitem>Start the Selenium RC server by running <userinput>java -jar /usr/local/bin/selenium-server.jar</userinput>.</listitem>
+    </orderedlist>
+
+    <para>
+      Now we can send commands to the Selenium RC server using its client/server
+      protocol.
+    </para>
+  </section>
+
+  <section id="selenium.seleniumtestcase">
+    <title>PHPUnit_Extensions_SeleniumTestCase</title>
+
+    <para>
+      <indexterm><primary><literal>PHPUnit_Extensions_SeleniumTestCase</literal></primary></indexterm>
+
+      The <literal>PHPUnit_Extensions_SeleniumTestCase</literal> test case
+      extension implements the client/server protocol to talk to Selenium RC as
+      well as specialized assertion methods for web testing.
+    </para>
+
+    <para>
+      <xref linkend="selenium.seleniumtestcase.examples.WebTest.php" /> shows
+      how to test the contents of the <literal><![CDATA[<title>]]></literal>
+      element of the <systemitem role="URL">http://www.example.com/</systemitem>
+      website.
+    </para>
+
+    <example id="selenium.seleniumtestcase.examples.WebTest.php">
+      <title>Usage example for PHPUnit_Extensions_SeleniumTestCase</title>
+      <programlisting><![CDATA[<?php
+require_once 'PHPUnit/Extensions/SeleniumTestCase.php';
+
+class WebTest extends PHPUnit_Extensions_SeleniumTestCase
+{
+    protected function setUp()
+    {
+        $this->setBrowser('*firefox');
+        $this->setBrowserUrl('http://www.example.com/');
+    }
+
+    public function testTitle()
+    {
+        $this->open('http://www.example.com/');
+        $this->assertTitle('Example WWW Page');
+    }
+}
+?>]]></programlisting>
+      <screen><userinput>phpunit WebTest</userinput><![CDATA[
+PHPUnit 3.6.0 by Sebastian Bergmann.
+
+F
+
+Time: 5 seconds
+
+There was 1 failure:
+
+1) testTitle(WebTest)
+Current URL: http://www.example.com/
+
+Failed asserting that two strings are equal.
+expected string <Example WWW Page>
+difference      <         xx>
+got string      <Example Web Page>
+/home/sb/WebTest.php:30
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+    </example>
+
+    <para>
+      Unlike with the <literal>PHPUnit_Framework_TestCase</literal> class,
+      test case classes that extend <literal>PHPUnit_Extensions_SeleniumTestCase</literal>
+      have to provide a <literal>setUp()</literal> method. This method is used
+      to configure the Selenium RC session. See
+      <xref linkend="selenium.seleniumtestcase.tables.seleniumrc-api.setup" />
+      for the list of methods that are available for this.
+    </para>
+
+    <table id="selenium.seleniumtestcase.tables.seleniumrc-api.setup">
+      <title>Selenium RC API: Setup</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>Method</entry>
+            <entry>Meaning</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>void setBrowser(string $browser)</literal></entry>
+            <entry>Set the browser to be used by the Selenium RC server.</entry>
+          </row>
+          <row>
+            <entry><literal>void setBrowserUrl(string $browserUrl)</literal></entry>
+            <entry>Set the base URL for the tests.</entry>
+          </row>
+          <row>
+            <entry><literal>void setHost(string $host)</literal></entry>
+            <entry>Set the hostname for the connection to the Selenium RC server.</entry>
+          </row>
+          <row>
+            <entry><literal>void setPort(int $port)</literal></entry>
+            <entry>Set the port for the connection to the Selenium RC server.</entry>
+          </row>
+          <row>
+            <entry><literal>void setTimeout(int $timeout)</literal></entry>
+            <entry>Set the timeout for the connection to the Selenium RC server.</entry>
+          </row>
+          <row>
+            <entry><literal>void setSleep(int $seconds)</literal></entry>
+            <entry>Set the number of seconds the Selenium RC client should sleep between sending action commands to the Selenium RC server.</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <para>
+      PHPUnit can optionally capture a screenshot when a Selenium test fails. To
+      enable this, set <literal>$captureScreenshotOnFailure</literal>,
+      <literal>$screenshotPath</literal>, and <literal>$screenshotUrl</literal>
+      in your test case class as shown in
+      <xref linkend="selenium.seleniumtestcase.examples.WebTest2.php"/>.
+    </para>
+
+    <example id="selenium.seleniumtestcase.examples.WebTest2.php">
+      <title>Capturing a screenshot when a test fails</title>
+      <programlisting><![CDATA[<?php
+require_once 'PHPUnit/Extensions/SeleniumTestCase.php';
+
+class WebTest extends PHPUnit_Extensions_SeleniumTestCase
+{
+    protected $captureScreenshotOnFailure = TRUE;
+    protected $screenshotPath = '/var/www/localhost/htdocs/screenshots';
+    protected $screenshotUrl = 'http://localhost/screenshots';
+
+    protected function setUp()
+    {
+        $this->setBrowser('*firefox');
+        $this->setBrowserUrl('http://www.example.com/');
+    }
+
+    public function testTitle()
+    {
+        $this->open('http://www.example.com/');
+        $this->assertTitle('Example WWW Page');
+    }
+}
+?>]]></programlisting>
+      <screen><userinput>phpunit WebTest</userinput><![CDATA[
+PHPUnit 3.6.0 by Sebastian Bergmann.
+
+F
+
+Time: 5 seconds
+
+There was 1 failure:
+
+1) testTitle(WebTest)
+Current URL: http://www.example.com/
+Screenshot: http://localhost/screenshots/6c8e1e890fff864bd56db436cd0f309e.png
+
+Failed asserting that two strings are equal.
+expected string <Example WWW Page>
+difference      <         xx>
+got string      <Example Web Page>
+/home/sb/WebTest.php:30
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+    </example>
+
+    <para>
+      You can run each test using a set of browsers: Instead of using
+      <literal>setBrowser()</literal> to set up one browser you declare a
+      <literal>public static</literal> array named <literal>$browsers</literal>
+      in your test case class. Each item in this array describes one browser
+      configuration. Each of these browsers can be hosted by different
+      Selenium RC servers.
+      <xref linkend="selenium.seleniumtestcase.examples.WebTest3.php"/> shows
+      an example.
+    </para>
+
+    <example id="selenium.seleniumtestcase.examples.WebTest3.php">
+      <title>Setting up multiple browser configurations</title>
+      <programlisting><![CDATA[<?php
+require_once 'PHPUnit/Extensions/SeleniumTestCase.php';
+
+class WebTest extends PHPUnit_Extensions_SeleniumTestCase
+{
+    public static $browsers = array(
+      array(
+        'name'    => 'Firefox on Linux',
+        'browser' => '*firefox',
+        'host'    => 'my.linux.box',
+        'port'    => 4444,
+        'timeout' => 30000,
+      ),
+      array(
+        'name'    => 'Safari on MacOS X',
+        'browser' => '*safari',
+        'host'    => 'my.macosx.box',
+        'port'    => 4444,
+        'timeout' => 30000,
+      ),
+      array(
+        'name'    => 'Safari on Windows XP',
+        'browser' => '*custom C:\Program Files\Safari\Safari.exe -url',
+        'host'    => 'my.windowsxp.box',
+        'port'    => 4444,
+        'timeout' => 30000,
+      ),
+      array(
+        'name'    => 'Internet Explorer on Windows XP',
+        'browser' => '*iexplore',
+        'host'    => 'my.windowsxp.box',
+        'port'    => 4444,
+        'timeout' => 30000,
+      )
+    );
+
+    protected function setUp()
+    {
+        $this->setBrowserUrl('http://www.example.com/');
+    }
+
+    public function testTitle()
+    {
+        $this->open('http://www.example.com/');
+        $this->assertTitle('Example Web Page');
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      <literal>PHPUnit_Extensions_SeleniumTestCase</literal> can collect code
+      coverage information for tests run through Selenium:
+    </para>
+
+    <orderedlist>
+      <listitem>Copy <filename>PHPUnit/Extensions/SeleniumTestCase/phpunit_coverage.php</filename> into your webserver's document root directory.</listitem>
+      <listitem>In your webserver's <filename>php.ini</filename> configuration file, configure <filename>PHPUnit/Extensions/SeleniumTestCase/prepend.php</filename> and <filename>PHPUnit/Extensions/SeleniumTestCase/append.php</filename> as the <literal>auto_prepend_file</literal> and <literal>auto_append_file</literal>, respectively.</listitem>
+      <listitem>In your test case class that extends <literal>PHPUnit_Extensions_SeleniumTestCase</literal>, use <programlisting>protected $coverageScriptUrl = 'http://host/phpunit_coverage.php';</programlisting> to configure the URL for the <filename>phpunit_coverage.php</filename> script.</listitem>
+    </orderedlist>
+
+    <para>
+      <xref linkend="selenium.seleniumtestcase.tables.assertions" /> lists the
+      various assertion methods that <literal>PHPUnit_Extensions_SeleniumTestCase</literal>
+      provides.
+    </para>
+
+    <table id="selenium.seleniumtestcase.tables.assertions">
+      <title>Assertions</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>Assertion</entry>
+            <entry>Meaning</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>void assertElementValueEquals(string $locator, string $text)</literal></entry>
+            <entry>Reports an error if the value of the element identified by <literal>$locator</literal> is not equal to the given <literal>$text</literal>.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertElementValueNotEquals(string $locator, string $text)</literal></entry>
+            <entry>Reports an error if the value of the element identified by <literal>$locator</literal> is equal to the given <literal>$text</literal>.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertElementValueContains(string $locator, string $text)</literal></entry>
+            <entry>Reports an error if the value of the element identified by <literal>$locator</literal> does not contain the given <literal>$text</literal>.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertElementValueNotContains(string $locator, string $text)</literal></entry>
+            <entry>Reports an error if the value of the element identified by <literal>$locator</literal> contains the given <literal>$text</literal>.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertElementContainsText(string $locator, string $text)</literal></entry>
+            <entry>Reports an error if the element identified by <literal>$locator</literal> does not contain the given <literal>$text</literal>.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertElementNotContainsText(string $locator, string $text)</literal></entry>
+            <entry>Reports an error if the element identified by <literal>$locator</literal> contains the given <literal>$text</literal>.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertSelectHasOption(string $selectLocator, string $option)</literal></entry>
+            <entry>Reports an error if the given option is not available.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertSelectNotHasOption(string $selectLocator, string $option)</literal></entry>
+            <entry>Reports an error if the given option is available.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertSelected($selectLocator, $option)</literal></entry>
+            <entry>Reports an error if the given label is not selected.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertNotSelected($selectLocator, $option)</literal></entry>
+            <entry>Reports an error if the given label is selected.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertIsSelected(string $selectLocator, string $value)</literal></entry>
+            <entry>Reports an error if the given value is not selected.</entry>
+          </row>
+          <row>
+            <entry><literal>void assertIsNotSelected(string $selectLocator, string $value)</literal></entry>
+            <entry>Reports an error if the given value is selected.</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <para>
+      <xref linkend="selenium.seleniumtestcase.tables.template-methods" /> shows
+      the template method of <literal>PHPUnit_Extensions_SeleniumTestCase</literal>:
+    </para>
+
+    <table id="selenium.seleniumtestcase.tables.template-methods">
+      <title>Template Methods</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>Method</entry>
+            <entry>Meaning</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>void defaultAssertions()</literal></entry>
+            <entry>Override to perform assertions that are shared by all tests of a test case. This method is called after each command that is sent to the Selenium RC server.</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <para>
+      Please refer to the <ulink url="http://seleniumhq.org/docs/04_selenese_commands.html">documentation of Selenium commands</ulink>
+      for a reference of the commands available and how they are used.
+    </para>
+
+    <para>
+      Using the <literal>runSelenese($filename)</literal> method, you can also
+      run a Selenium test from its Selenese/HTML specification. Furthermore,
+      using the static attribute <literal>$seleneseDirectory</literal>, you can
+      automatically create test objects from a directory that contains
+      Selenese/HTML files. The specified directory is recursively searched for
+      <literal>.htm</literal> files that are expected to contain Selenese/HTML.
+      <xref linkend="selenium.seleniumtestcase.examples.WebTest4.php"/> shows an
+      example.
+    </para>
+
+    <example id="selenium.seleniumtestcase.examples.WebTest4.php">
+      <title>Use a directory of Selenese/HTML files as tests</title>
+      <programlisting><![CDATA[<?php
+require_once 'PHPUnit/Extensions/SeleniumTestCase.php';
+
+class SeleneseTests extends PHPUnit_Extensions_SeleniumTestCase
+{
+    public static $seleneseDirectory = '/path/to/files';
+}
+?>]]></programlisting>
+    </example>
+  </section>
+</chapter>

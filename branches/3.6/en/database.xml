@@ -1,0 +1,521 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="database">
+  <title>Database Testing</title>
+
+  <para>
+    <indexterm><primary>Database</primary></indexterm>
+    <indexterm><primary>DbUnit</primary></indexterm>
+
+    While creating tests for your software you may come across database code
+    that needs to be unit tested. The database extension has been created to
+    provide an easy way to place your database in a known state, execute your
+    database-affecting code, and ensure that the expected data is found in the
+    database.
+  </para>
+
+  <para>
+    The quickest way to create a new Database Unit Test is to extend the
+    <literal>PHPUnit_Extensions_Database_TestCase</literal> class. This class
+    provides the functionality to create a database connection, seed your
+    database with data, and after executing a test comparing the contents of
+    your database with a data set that can be built in a variety of formats. In
+    <xref linkend="database.examples.DatabaseTestSetup.php" /> you can see
+    examples of <literal>getConnection()</literal> and <literal>getDataSet()
+    </literal> implementations.
+  </para>
+
+  <example id="database.examples.DatabaseTestSetup.php">
+    <title>Setting up a database test case</title>
+    <programlisting><![CDATA[<?php
+require_once 'PHPUnit/Extensions/Database/TestCase.php';
+
+class DatabaseTest extends PHPUnit_Extensions_Database_TestCase
+{
+    protected function getConnection()
+    {
+        $pdo = new PDO('mysql:host=localhost;dbname=testdb', 'root', '');
+        return $this->createDefaultDBConnection($pdo, 'testdb');
+    }
+
+    protected function getDataSet()
+    {
+        return $this->createFlatXMLDataSet(dirname(__FILE__).'/_files/bank-account-seed.xml');
+    }
+}
+?>]]></programlisting>
+  </example>
+
+  <para>
+    The <literal>getConnection()</literal> method must return an
+    implementation of the <literal>PHPUnit_Extensions_Database_DB_IDatabaseConnection</literal>
+    interface. The <literal>createDefaultDBConnection()</literal> method can
+    be used to return a database connection. It accepts a <literal>PDO</literal>
+    object as the first parameter and the name of the schema you are testing
+    against as the second parameter.
+  </para>
+
+  <para>
+    The <literal>getDataSet()</literal> method must return an implementation of
+    the <literal>PHPUnit_Extensions_Database_DataSet_IDataSet</literal>
+    interface. There are currently three different data sets available in
+    PHPUnit. These data sets are discussed in <xref linkend="database.datasets" />
+  </para>
+
+  <table id="database.tables.testcase.api">
+    <title>Database Test Case Methods</title>
+
+    <tgroup cols="2" align="left" colsep="1" rowsep="1">
+      <thead>
+        <row>
+	  <entry>Method</entry>
+	  <entry>Meaning</entry>
+	</row>
+      </thead>
+      <tbody>
+        <row>
+	  <entry><literal>PHPUnit_Extensions_Database_DB_IDatabaseConnection getConnection()</literal></entry>
+	  <entry>Implement to return the database connection that will be checked for expected data sets and tables.</entry>
+	</row>
+	<row>
+	  <entry><literal>PHPUnit_Extensions_Database_DataSet_IDataSet getDataSet()</literal></entry>
+	  <entry>Implement to return the data set that will be used in in database set up and tear down operations.</entry>
+	</row>
+	<row>
+	  <entry><literal>PHPUnit_Extensions_Database_Operation_DatabaseOperation getSetUpOperation()</literal></entry>
+	  <entry>Override to return a specific operation that should be performed on the test database at the beginning of each test. The various operations are detailed in <xref linkend="database.operations" />.</entry>
+	</row>
+	<row>
+	  <entry><literal>PHPUnit_Extensions_Database_Operation_DatabaseOperation getTearDownOperation()</literal></entry>
+	  <entry>Override to return a specific operation that should be performed on the test database at the end of each test. The various operations are detailed in <xref linkend="database.operations" />.</entry>
+	</row>
+	<row>
+	  <entry><literal>PHPUnit_Extensions_Database_DB_DefaultDatabaseConnection createDefaultDBConnection(PDO $connection, string $schema)</literal></entry>
+	  <entry>Return a database connection wrapper around the <literal>$connection</literal> <literal>PDO</literal> object. The database schema being tested against should be specified by <literal>$schema</literal>. The result of this method can be returned from <literal>getConnection()</literal>.</entry>
+	</row>
+	<row>
+	  <entry><literal>PHPUnit_Extensions_Database_DataSet_FlatXmlDataSet createFlatXMLDataSet(string $xmlFile)</literal></entry>
+	  <entry>Returns a flat XML data set that is created from the XML file located at the absolute path specified in <literal>$xmlFile</literal>. More details about flat XML files can be found in <xref linkend="database.datasets.flatxml" />. The result of this method can be returned from <literal>getDataSet()</literal>.</entry>
+	</row>
+	<row>
+	  <entry><literal>PHPUnit_Extensions_Database_DataSet_XmlDataSet createXMLDataSet(string $xmlFile)</literal></entry>
+	  <entry>Returns a XML data set that is created from the XML file located at the absolute path specified in <literal>$xmlFile</literal>. More details about XML files can be found in <xref linkend="database.datasets.xml" />. The result of this method can be returned from <literal>getDataSet()</literal>.</entry>
+	</row>
+	<row>
+	  <entry><literal>void assertTablesEqual(PHPUnit_Extensions_Database_DataSet_ITable $expected, PHPUnit_Extensions_Database_DataSet_ITable $actual)</literal></entry>
+	  <entry>Reports an error if the contents of the <literal>$expected</literal> table do not match the contents in the <literal>$actual</literal> table.</entry>
+	</row>
+	<row>
+	  <entry><literal>void assertDataSetsEqual(PHPUnit_Extensions_Database_DataSet_IDataSet $expected, PHPUnit_Extensions_Database_DataSet_IDataSet $actual)</literal></entry>
+	  <entry>Reports an error if the contents of the <literal>$expected</literal> data set do not match the contents in the <literal>$actual</literal> data set.</entry>
+	</row>
+      </tbody>
+    </tgroup>
+  </table>
+
+  <section id="database.datasets">
+    <title>Data Sets</title>
+
+    <para>
+      Data sets are the basic building blocks for both your database fixture as
+      well as the assertions you may make at the end of your test. When
+      returning a data set as a fixture from the <literal>PHPUnit_Extensions_Database_TestCase::getDataSet()</literal>
+      method, the default implementation in PHPUnit will automatically truncate
+      all tables specified and then insert the data from your data set in the
+      order specified by the data set. For your convenience there are several
+      different types of data sets that can be used at your convenience.
+    </para>
+
+    <section id="database.datasets.flatxml">
+      <title>Flat XML Data Set</title>
+      <para>
+        The flat XML data set is a very simple XML format that uses a single
+        XML element for each row in your data set. An example of a flat XML
+        data set is shown in <xref linkend="database.examples.flatxmldataset.xml" />.
+      </para>
+      <example id="database.examples.flatxmldataset.xml">
+        <title>A Flat XML Data Set</title>
+        <programlisting><![CDATA[<?xml version="1.0" encoding="UTF-8" ?>
+<dataset>
+  <post
+    post_id="1"
+    title="My First Post"
+    date_created="2008-12-01 12:30:29"
+    contents="This is my first post" rating="5"
+  />
+  <post
+    post_id="2"
+    title="My Second Post"
+    date_created="2008-12-04 15:35:25"
+    contents="This is my second post"
+  />
+  <post
+    post_id="3"
+    title="My Third Post"
+    date_created="2008-12-09 03:17:05"
+    contents="This is my third post"
+    rating="3"
+  />
+
+  <post_comment
+    post_comment_id="2"
+    post_id="2"
+    author="Frank"
+    content="That is because this is simply an example."
+    url="http://phpun.it/"
+  />
+  <post_comment
+    post_comment_id="1"
+    post_id="2"
+    author="Tom"
+    content="While the topic seemed interesting the content was lacking."
+  />
+
+  <current_visitors />
+</dataset>
+]]></programlisting>
+      </example>
+      <para>
+        As you can see the formatting is extremely simple. Each of the elements
+        within the root <literal>&lt;dataset&gt;</literal> element represents a
+        row in the test database with the exception of the last
+        <literal>&lt;current_visitors /&gt;</literal> element (this will be
+        discussed shortly.) The name of the element is the equivalent of a
+        table name in your database. The name of each attribute is the
+        equivalent of a column name in your databases. The value of each
+        attribute is the equivalent of the value of that column in that row.
+      </para>
+      <para>
+        This format, while simple, does have some special considerations. The
+        first of these is how you deal with empty tables. With the default
+        operation of <literal>CLEAN_INSERT</literal> you can specify that you
+        want to truncate a table and not insert any values by listing that
+        table as an element without any attributes. This can be seen in
+        <xref linkend="database.examples.flatxmldataset.xml" /> with the
+        <literal>&lt;current_visitors /&gt;</literal> element. The most common
+        reason you would want to ensure an empty table as a part of your
+        fixture is when your test should be inserting data to that table. The
+        less data your database has, the quicker your tests will run. So if I
+        where testing my simple blogging software's ability to add comments to
+        a post, I would likely change
+        <xref linkend="database.examples.flatxmldataset.xml" /> to specify
+        <literal>post_comment</literal> as an empty table. When dealing with
+        assertions it is often useful to ensure that a table is not being
+        unexpectedly written to, which could also be accomplished in FlatXML
+        using the empty table format.
+      </para>
+      <para>
+        The second consideration is how <literal>NULL</literal> values are
+        defined. The nature of the flat XML format only allows you to
+        explicitly specify strings for column values. Of course your database
+        will convert a string representation of a number or date into the
+        appropriate data type. However, there are no string representations of
+        <literal>NULL</literal>. You can imply a <literal>NULL</literal> value
+        by leaving a column out of your element's attribute list. This will
+        cause a NULL value to be inserted into the database for that column.
+        This leads me right into my next consideration that makes implicit
+        <literal>NULL</literal> values somewhat difficult to deal with.
+      </para>
+      <para>
+        The third consideration is how columns are defined. The column list for
+        a given table is determined by the attributes in the first element for
+        any given table.
+        In <xref linkend="database.examples.flatxmldataset.xml" /> the
+        <literal>post</literal> table would be considered to have the columns
+        <literal>post_id</literal>, <literal>title</literal>,
+        <literal>date_created</literal>, <literal>contents</literal> and
+        <literal>rating</literal>. If the first <literal>&lt;post&gt;</literal>
+        were removed then the <literal>post</literal> would no longer be
+        considered to have the rating column. This means that the first element
+        of a given name defines the structure of that table. In the simplest of
+        examples, this means that your first defined row must have a value for
+        every column that you expect to have values for in the rest of rows for
+        that table. If an element further into your data set specifies a column
+        that was not specified in the first element then that value will be
+        ignored. You can see how this influenced the order of elements in my
+        dataset in <xref linkend="database.examples.flatxmldataset.xml" />.
+        I had to specify the second <literal>&lt;post_comment&gt;</literal>
+        element first due to the non-NULL value in the <literal>url</literal>
+        column.
+      </para>
+      <para>
+        There is a way to work around the inability to explicitly set
+        <literal>NULL</literal> in a flat XML data using the Replacement data
+        set type. This will be discussed further in
+        <xref linkend="database.datasets.replacement" />.
+      </para>
+    </section>
+
+    <section id="database.datasets.xml">
+      <title>XML Data Set</title>
+      <para>
+        While the flat XML data set is simple it also proves to be limiting. A
+        more powerful xml alternative is the XML data set. It is a more
+        structured xml format that allows you to be much more explicit with
+        your data set. An example of the XML data set equivalent to the previous
+        flat XML example is shown in
+        <xref linkend="database.examples.xmldataset.xml" />.
+      </para>
+
+      <example id="database.examples.xmldataset.xml">
+        <title>A XML Data Set</title>
+        <programlisting><![CDATA[<?xml version="1.0" encoding="UTF-8" ?>
+<dataset>
+  <table name="post">
+    <column>post_id</column>
+    <column>title</column>
+    <column>date_created</column>
+    <column>contents</column>
+    <column>rating</column>
+    <row>
+      <value>1</value>
+      <value>My First Post</value>
+      <value>2008-12-01 12:30:29</value>
+      <value>This is my first post</value>
+      <value>5</value>
+    </row>
+    <row>
+      <value>2</value>
+      <value>My Second Post</value>
+      <value>2008-12-04 15:35:25</value>
+      <value>This is my second post</value>
+      <null />
+    </row>
+    <row>
+      <value>3</value>
+      <value>My Third Post</value>
+      <value>2008-12-09 03:17:05</value>
+      <value>This is my third post</value>
+      <value>3</value>
+    </row>
+  </table>
+  <table name="post_comment">
+    <column>post_comment_id</column>
+    <column>post_id</column>
+    <column>author</column>
+    <column>content</column>
+    <column>url</column>
+    <row>
+      <value>1</value>
+      <value>2</value>
+      <value>Tom</value>
+      <value>While the topic seemed interesting the content was lacking.</value>
+      <null />
+    </row>
+    <row>
+      <value>2</value>
+      <value>2</value>
+      <value>Frank</value>
+      <value>That is because this is simply an example.</value>
+      <value>http://phpun.it</value>
+    </row>
+  </table>
+  <table name="current_visitors">
+    <column>current_visitors_id</column>
+    <column>ip</column>
+  </table>
+</dataset>
+]]></programlisting>
+      </example>
+
+      <para>
+        The formatting is more verbose than that of the Flat XML data set but
+        in some ways much easier to understand. The root element is again the
+        <literal>&lt;dataset&gt;</literal> element. Then directly under that
+        element you will have one or more <literal>&lt;table&gt;</literal>
+        elements. Each <literal>&lt;table&gt;</literal> element must have a
+        <literal>name</literal> attribute with a value equivalent to the name
+        of the table being represented. The <literal>&lt;table&gt;</literal>
+        element will then include one or more <literal>&lt;column&gt;</literal>
+        elements containing the name of a column in that table. The
+        <literal>&lt;table&gt;</literal> element will also include any number
+        (including zero) of <literal>&lt;row&gt;</literal> elements. The
+        <literal>&lt;row&gt;</literal> element will be what ultimately
+        specifies the data to store/remove/update in the database or to check
+        the current database against. The <literal>&lt;row&gt;</literal>
+        element must have the same number of children as there are
+        <literal>&lt;column&gt;</literal> elements in that
+        <literal>&lt;table&gt;</literal> element. The order of your child
+        elements is also determined by the order of your
+        <literal>&lt;column&gt;</literal> elements for that table. There are
+        two different elements that can be used as children of the
+        <literal>&lt;row&gt;</literal> element. You may use the
+        <literal>&lt;value&gt;</literal> element to specify the value of that
+        column in much the same way you can use attributes in the flat XML data
+        set. The content of the <literal>&lt;value&gt;</literal> element will
+        be considered the content of that column for that row. You may also use
+        the <literal>&lt;null&gt;</literal> element to explicitly indicate
+        that the column is to be given a <literal>NULL</literal> value. The
+        <literal>&lt;null&gt;</literal> element does not contain any attributes
+        or children.
+      </para>
+
+      <para>
+        You can use the DTD in
+        <xref linkend="database.examples.xmldatasetdtd.xml" /> to validate your
+        XML data set files. A reference of the valid elements in an XML data
+        set can be found in <xref linkend="database.tables.xmldataset.elements" />
+      </para>
+
+      <example id="database.examples.xmldatasetdtd.xml">
+        <title>The XML Data Set DTD</title>
+        <programlisting><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<!ELEMENT dataset (table+) | ANY>
+<!ELEMENT table (column*, row*)>
+<!ATTLIST table
+    name CDATA #REQUIRED
+>
+<!ELEMENT column (#PCDATA)>
+<!ELEMENT row (value | null | none)*>
+<!ELEMENT value (#PCDATA)>
+<!ELEMENT null EMPTY>
+]]></programlisting>
+      </example>
+
+      <table id="database.tables.xmldataset.elements">
+        <title>XML Data Set Element Description</title>
+
+        <tgroup cols="4" align="left" colsep="1" rowsep="1">
+          <thead>
+            <row>
+              <entry>Element</entry>
+              <entry>Purpose</entry>
+              <entry>Contents</entry>
+              <entry>Attributes</entry>
+            </row>
+          </thead>
+          <tbody>
+            <row>
+              <entry><literal>&lt;dataset&gt;</literal></entry>
+	      <entry>The root element of the xml data set file.</entry>
+              <entry>One or more <literal>&lt;table&gt;</literal> elements.</entry>
+              <entry>None</entry>
+	    </row>
+            <row>
+              <entry><literal>&lt;table&gt;</literal></entry>
+	      <entry>Defines a table in the dataset.</entry>
+              <entry>One or more <literal>&lt;column&gt;</literal> elements and zero or more <literal>&lt;row&gt;</literal> elements.</entry>
+              <entry><literal>name</literal> - The name of the table.</entry>
+	    </row>
+            <row>
+              <entry><literal>&lt;column&gt;</literal></entry>
+	      <entry>Defines a column in the current table.</entry>
+              <entry>A text node containing the name of the column.</entry>
+              <entry>None</entry>
+	    </row>
+            <row>
+              <entry><literal>&lt;row&gt;</literal></entry>
+	      <entry>Defines a row in the table.</entry>
+              <entry>One or more <literal>&lt;value&gt;</literal> or <literal>&lt;null&gt;</literal> elements.</entry>
+              <entry>None</entry>
+	    </row>
+            <row>
+              <entry><literal>&lt;value&gt;</literal></entry>
+	      <entry>Sets the value of the column in the same position as this value.</entry>
+              <entry>A text node containing the value of the corresponding column.</entry>
+              <entry>None</entry>
+	    </row>
+            <row>
+              <entry><literal>&lt;null&gt;</literal></entry>
+	      <entry>Sets the value of the column in the same position of this value to <literal>NULL</literal>.</entry>
+              <entry>None</entry>
+              <entry>None</entry>
+	    </row>
+          </tbody>
+        </tgroup>
+      </table>
+    </section>
+
+    <section id="database.datasets.csv">
+      <title>CSV Data Set</title>
+      <para>
+        While XML data sets provide a convenient way to structure your data, in many cases they can be time consuming to hand edit as there are not very many XML editors that provide an easy way to edit tabular data via xml. In these cases you may find the CSV data set to be much more useful. The CSV data set is very simple to understand. Each CSV file represents a table. The first row in the CSV file must contain the column names and all subsequent rows will contain the data for those columns.
+      </para>
+
+      <para>
+        To construct a CSV data set you must instantiate the <literal>PHPUnit_Extensions_Database_DataSet_CsvDataSet</literal> class. The constructor takes three parameters: <literal>$delimiter</literal>, <literal>$enclosure</literal> and <literal>$escape</literal>. These parameters allow you to specify the exact formatting of rows within your CSV file. So this of course means it doesn't have to really be a CSV file. You can also provide a tab delimited file. The default constructor will specify a comma delimited file with fields enclosed by a double quote. If there is a double quote within a value it will be escaped by an additional double quote. This is as close to an accepted standard for CSV as there is.
+      </para>
+
+      <para>
+        Once your CSV data set class is instantiated you can use the method <literal>addTable()</literal> to add CSV files as tables to your data set. The <literal>addTable</literal> method takes two parameters. The first is <literal>$tableName</literal> and contains the name of the table you are adding. The second is <literal>$csvFile</literal> and contains the path to the CSV you will be using to set the data for that table. You can call <literal>addTable()</literal> for each table you would like to add to your data set.
+      </para>
+
+      <para>
+        In <xref linkend="database.examples.csvdataset" /> you can see an example of how three CSV files can be combined into the database fixture for a database test case.
+      </para>
+
+      <example id="database.examples.csvdataset">
+        <title>CSV Data Set Example</title>
+          <programlisting><![CDATA[
+--- fixture/post.csv ---
+post_id,title,date_created,contents,rating
+1,My First Post,2008-12-01 12:30:29,This is my first post,5
+2,My Second Post,2008-12-04 15:35:25,This is my second post,
+3,My Third Post,2008-12-09 03:17:05,This is my third post,3
+
+--- fixture/post_comment.csv ---
+post_comment_id,post_id,author,content,url
+1,2,Tom,While the topic seemed interesting the content was lacking.,
+2,2,Frank,That is because this is simply an example.,http://phpun.it
+
+--- fixture/current_visitors.csv ---
+current_visitors_id,ip
+
+--- DatabaseTest.php ---
+<?php
+require_once 'PHPUnit/Extensions/Database/TestCase.php';
+require_once 'PHPUnit/Extensions/Database/DataSet/CsvDataSet.php';
+
+class DatabaseTest extends PHPUnit_Extensions_Database_TestCase
+{
+    protected function getConnection()
+    {
+        $pdo = new PDO('mysql:host=localhost;dbname=testdb', 'root', '');
+        return $this->createDefaultDBConnection($pdo, 'testdb');
+    }
+
+    protected function getDataSet()
+    {
+	$dataSet = new PHPUnit_Extensions_Database_DataSet_CsvDataSet();
+	$dataSet->addTable('post', 'fixture/post.csv');
+	$dataSet->addTable('post_comment', 'fixture/post_comment.csv');
+	$dataSet->addTable('current_visitors', 'fixture/current_visitors.csv');
+        return $dataSet;
+    }
+}
+?>]]></programlisting>
+      </example>
+
+      <para>
+        Unfortunately, while the CSV dataset is appealing from the aspect of edit-ability, it has the same problems with <literal>NULL</literal> values as the flat XML dataset. There is no native way to explicitly specify a null value. If you do not specify a value (as I have done with some of the fields above) then the value will actually be set to that data type's equivalent of an empty string. Which in most cases will not be what you want. I will address this shortcoming of both the CSV and the flat XML data sets shortly.
+      </para>
+
+    </section>
+
+    <section id="database.datasets.replacement">
+      <title>Replacement Data Set</title>
+      <para>
+        ...
+      </para>
+    </section>
+
+  </section>
+
+  <section id="database.operations">
+    <title>Operations</title>
+
+    <para>
+      ...
+    </para>
+
+  </section>
+
+  <section id="database.bestpractices">
+    <title>Database Testing Best Practices</title>
+
+    <para>
+      ...
+    </para>
+
+  </section>
+</chapter>

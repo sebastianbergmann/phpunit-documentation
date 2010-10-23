@@ -1,0 +1,424 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<appendix id="appendixes.annotations">
+  <title>Annotations</title>
+
+  <para>
+    <indexterm><primary>Annotation</primary></indexterm>
+
+    An annotation is a special form of syntactic metadata that can be added to
+    the source code of some programming languages. While PHP has no dedicated
+    language feature for annotating source code, the usage of tags such as
+    <literal>@annotation arguments</literal> in documentation block has been
+    established in the PHP community to annotate source code. In PHP
+    documentation blocks are reflective: they can be accessed through the
+    Reflection API's <literal>getDocComment()</literal> method on the function,
+    class, method, and attribute level. Applications such as PHPUnit use this
+    information at runtime to configure their behaviour.
+  </para>
+
+  <para>
+    This appendix shows all the varieties of annotations supported by PHPUnit.
+  </para>
+
+  <section id="appendixes.annotations.assert">
+    <title><literal>@assert</literal></title>
+
+    <para>
+      <indexterm><primary>Assertion</primary></indexterm>
+      <indexterm><primary>@assert</primary></indexterm>
+
+      You can use the <literal>@assert</literal> annotation in the
+      documentation block of a method to automatically generate simple,
+      yet meaningful tests instead of incomplete test cases when using the
+      Skeleton Generator (see <xref linkend="skeleton-generator"/>):<programlisting>/**
+ * @assert (0, 0) == 0
+ */
+public function add($a, $b)
+{
+    return $a + $b;
+}</programlisting>These annotations are transformed into test code such as <programlisting>/**
+ * Generated from @assert (0, 0) == 0.
+ */
+public function testAdd() {
+    $o = new Calculator;
+    $this->assertEquals(0, $o->add(0, 0));
+}</programlisting>
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.author">
+    <title><literal>@author</literal></title>
+
+    <para>
+      <indexterm><primary>@author</primary></indexterm>
+
+      The <literal>@author</literal> annotation is an alias for the
+      <literal>@group</literal> annotation (see <xref
+      linkend="appendixes.annotations.group"/>) and allows to filter tests based
+      on their authors.
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.backupGlobals">
+    <title><literal>@backupGlobals</literal></title>
+
+    <para>
+      <indexterm><primary><literal>@backupGlobals</literal></primary></indexterm>
+
+      The backup and restore operations for global variables can be completely
+      disabled for all tests of a test case class like this <programlisting>/**
+ * @backupGlobals disabled
+ */
+class MyTest extends PHPUnit_Framework_TestCase
+{
+    // ...
+}</programlisting>
+    </para>
+
+    <para>
+      <indexterm><primary><literal>@backupGlobals</literal></primary></indexterm>
+
+      The <literal>@backupGlobals</literal> annotation can also be used on the
+      test method level. This allows for a fine-grained configuration of the
+      backup and restore operations: <programlisting>/**
+ * @backupGlobals disabled
+ */
+class MyTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @backupGlobals enabled
+     */
+    public function testThatInteractsWithGlobalVariables()
+    {
+        // ...
+    }
+}</programlisting>
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.backupStaticAttributes">
+    <title><literal>@backupStaticAttributes</literal></title>
+
+    <para>
+      <indexterm><primary><literal>@backupStaticAttributes</literal></primary></indexterm>
+
+      The backup and restore operations for static attributes of classes can be
+      completely disabled for all tests of a test case class like this
+      <programlisting>/**
+ * @backupStaticAttributes disabled
+ */
+class MyTest extends PHPUnit_Framework_TestCase
+{
+    // ...
+}</programlisting>
+    </para>
+
+    <para>
+      <indexterm><primary><literal>@backupStaticAttributes</literal></primary></indexterm>
+
+      The <literal>@backupStaticAttributes</literal> annotation can also be used
+      on the test method level. This allows for a fine-grained configuration of
+      the backup and restore operations: <programlisting>/**
+ * @backupStaticAttributes disabled
+ */
+class MyTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @backupStaticAttributes enabled
+     */
+    public function testThatInteractsWithStaticAttributes()
+    {
+        // ...
+    }
+}</programlisting>
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.covers">
+    <title><literal>@covers</literal></title>
+
+    <para>
+      <indexterm><primary>Code Coverage</primary></indexterm>
+      <indexterm><primary>@covers</primary></indexterm>
+
+      The <literal>@covers</literal> annotation can be used in the test code to
+      specify which method(s) a test method wants to test: <programlisting>/**
+ * @covers BankAccount::getBalance
+ */
+public function testBalanceIsInitiallyZero()
+{
+    $this->assertEquals(0, $this->ba->getBalance());
+}</programlisting>
+    </para>
+
+    <para>
+      If provided, only the code coverage information for the specified
+      method(s) will be considered.
+    </para>
+
+    <para>
+      <xref linkend="appendixes.annotations.covers.tables.annotations"/> shows
+      the syntax of the <literal>@covers</literal> annotation.
+    </para>
+
+    <table id="appendixes.annotations.covers.tables.annotations">
+      <title>Annotations for specifying which methods are covered by a test</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>Annotation</entry>
+            <entry>Description</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal><![CDATA[@covers ClassName::methodName]]></literal></entry>
+            <entry><literal>Specifies that the annotated test method covers the specified method.</literal></entry>
+          </row>
+          <row>
+            <entry><literal><![CDATA[@covers ClassName]]></literal></entry>
+            <entry><literal>Specifies that the annotated test method covers all methods of a given class.</literal></entry>
+          </row>
+          <row>
+            <entry><literal><![CDATA[@covers ClassName<extended>]]></literal></entry>
+            <entry><literal>Specifies that the annotated test method covers all methods of a given class and its parent class(es) and interface(s).</literal></entry>
+          </row>
+          <row>
+            <entry><literal><![CDATA[@covers ClassName::<public>]]></literal></entry>
+            <entry><literal>Specifies that the annotated test method covers all public methods of a given class.</literal></entry>
+          </row>
+          <row>
+            <entry><literal><![CDATA[@covers ClassName::<protected>]]></literal></entry>
+            <entry><literal>Specifies that the annotated test method covers all protected methods of a given class.</literal></entry>
+          </row>
+          <row>
+            <entry><literal><![CDATA[@covers ClassName::<private>]]></literal></entry>
+            <entry><literal>Specifies that the annotated test method covers all private methods of a given class.</literal></entry>
+          </row>
+          <row>
+            <entry><literal><![CDATA[@covers ClassName::<!public>]]></literal></entry>
+            <entry><literal>Specifies that the annotated test method covers all methods of a given class that are not public.</literal></entry>
+          </row>
+          <row>
+            <entry><literal><![CDATA[@covers ClassName::<!protected>]]></literal></entry>
+            <entry><literal>Specifies that the annotated test method covers all methods of a given class that are not protected.</literal></entry>
+          </row>
+          <row>
+            <entry><literal><![CDATA[@covers ClassName::<!private>]]></literal></entry>
+            <entry><literal>Specifies that the annotated test method covers all methods of a given class that are not private.</literal></entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+  </section>
+
+  <section id="appendixes.annotations.dataProvider">
+    <title><literal>@dataProvider</literal></title>
+
+    <para>
+      <indexterm><primary>@dataProvider</primary></indexterm>
+
+      A test method can accept arbitrary arguments. These arguments are to be
+      provided by a data provider method (<literal>provider()</literal> in
+      <xref linkend="writing-tests-for-phpunit.data-providers.examples.DataTest.php" />).
+      The data provider method to be used is specified using the
+      <literal>@dataProvider</literal> annotation.
+    </para>
+
+    <para>
+      See <xref linkend="writing-tests-for-phpunit.data-providers"/> for more
+      details.
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.depends">
+    <title><literal>@depends</literal></title>
+
+    <para>
+      <indexterm><primary>@depends</primary></indexterm>
+
+      PHPUnit supports the declaration of explicit dependencies between test
+      methods. Such dependencies do not define the order in which the test
+      methods are to be executed but they allow the returning of an instance of
+      the test fixture by a producer and passing it to the dependent consumers.
+      <xref linkend="writing-tests-for-phpunit.examples.StackTest2.php"/> shows
+      how to use the <literal>@depends</literal> annotation to express
+      dependencies between test methods.
+    </para>
+
+    <para>
+      See <xref linkend="writing-tests-for-phpunit.test-dependencies"/> for more
+      details.
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.expectedException">
+    <title><literal>@expectedException</literal></title>
+
+    <para>
+      <indexterm><primary>@expectedException</primary></indexterm>
+
+      <xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest.php" />
+      shows how to use the <literal>@expectedException</literal> annotation to
+      test whether an exception is thrown inside the tested code.
+    </para>
+
+    <para>
+      See <xref linkend="writing-tests-for-phpunit.exceptions"/> for more
+      details.
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.expectedExceptionCode">
+    <title><literal>@expectedExceptionCode</literal></title>
+
+    <para>
+      <indexterm><primary>@expectedExceptionCode</primary></indexterm>
+
+      ...
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.expectedExceptionMessage">
+    <title><literal>@expectedExceptionMessage</literal></title>
+
+    <para>
+      <indexterm><primary>@expectedExceptionMessage</primary></indexterm>
+
+      ...
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.group">
+    <title><literal>@group</literal></title>
+
+    <para>
+      <indexterm><primary>@group</primary></indexterm>
+
+      A test can be tagged as belonging to one or more groups using the
+      <literal>@group</literal> annotation like this <programlisting>class MyTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @group specification
+     */
+    public function testSomething()
+    {
+    }
+
+    /**
+     * @group regresssion
+     * @group bug2204
+     */
+    public function testSomethingElse()
+    {
+    }
+}</programlisting>
+    </para>
+
+    <para>
+      Tests can be selected for execution based on groups using the
+      <literal>--group</literal> and <literal>--exclude-group</literal> switches
+      of the command-line test runner or using the respective directives of the
+      XML configuration file.
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.outputBuffering">
+    <title><literal>@outputBuffering</literal></title>
+
+    <para>
+      <indexterm><primary><literal>@outputBuffering</literal></primary></indexterm>
+
+      The <literal>@outputBuffering</literal> annotation can be used to control
+      PHP's <ulink url="http://www.php.net/manual/en/intro.outcontrol.php">output buffering</ulink>
+      like this <programlisting>/**
+ * @outputBuffering enabled
+ */
+class MyTest extends PHPUnit_Framework_TestCase
+{
+    // ...
+}</programlisting>
+    </para>
+
+    <para>
+      <indexterm><primary><literal>@outputBuffering</literal></primary></indexterm>
+
+      The <literal>@outputBuffering</literal> annotation can also be used on the
+      test method level. This allows for fine-grained control over the output
+      buffering: <programlisting>/**
+ * @outputBuffering disabled
+ */
+class MyTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @outputBuffering enabled
+     */
+    public function testThatPrintsSomething()
+    {
+        // ...
+    }
+}</programlisting>
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.runTestsInSeparateProcesses">
+    <title><literal>@runTestsInSeparateProcesses</literal></title>
+
+    <para>
+      <indexterm><primary>@runTestsInSeparateProcesses</primary></indexterm>
+    </para>
+
+    <programlisting></programlisting>
+  </section>
+
+  <section id="appendixes.annotations.runInSeparateProcess">
+    <title><literal>@runInSeparateProcess</literal></title>
+
+    <para>
+      <indexterm><primary>@runInSeparateProcess</primary></indexterm>
+    </para>
+
+    <programlisting></programlisting>
+  </section>
+
+  <section id="appendixes.annotations.test">
+    <title><literal>@test</literal></title>
+
+    <para>
+      <indexterm><primary>@test</primary></indexterm>
+
+      As an alternative to prefixing your test method names with
+      <literal>test</literal>, you can use the <literal>@test</literal>
+      annotation in a method's docblock to mark it as a test method. <programlisting>/**
+ * @test
+ */
+public function initialBalanceShouldBe0()
+{
+    $this->assertEquals(0, $this->ba->getBalance());
+}</programlisting>
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.testdox">
+    <title><literal>@testdox</literal></title>
+
+    <para>
+      <indexterm><primary>TestDox</primary></indexterm>
+      <indexterm><primary>@testdox</primary></indexterm>
+    </para>
+
+    <programlisting></programlisting>
+  </section>
+
+  <section id="appendixes.annotations.ticket">
+    <title><literal>@ticket</literal></title>
+
+    <para>
+      <indexterm><primary>@ticket</primary></indexterm>
+    </para>
+
+    <programlisting></programlisting>
+  </section>
+</appendix>

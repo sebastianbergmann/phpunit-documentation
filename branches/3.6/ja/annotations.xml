@@ -1,0 +1,423 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<appendix id="appendixes.annotations">
+  <title>アノテーション</title>
+
+  <para>
+    <indexterm><primary>Annotation</primary></indexterm>
+
+    アノテーションとはメタデータを表す特別な構文のことで、
+    プログラミング言語のソースコードに追加することができます。
+    PHP そのものにはソースコードにアノテーションする専用の仕組みはありませんが、
+    ドキュメンテーションブロックに <literal>@アノテーション名 引数</literal>
+    のようなタグを書くことでアノテーションを表すという記法が
+    PHP コミュニティ内で一般に使われています。
+    PHP では、リフレクション API の <literal>getDocComment()</literal>
+    メソッドを使えば関数、クラス、メソッド、属性
+    それぞれのドキュメンテーションブロックにアクセスすることができます。
+    PHPUnit などのアプリケーションでは、
+    この情報をもとに実行時の振る舞いを設定するのです。
+  </para>
+
+  <para>
+    本章では、PHPUnit がサポートするすべてのアノテーションについて解説します。
+  </para>
+
+  <section id="appendixes.annotations.assert">
+    <title><literal>@assert</literal></title>
+
+    <para>
+      <indexterm><primary>Assertion</primary></indexterm>
+      <indexterm><primary>@assert</primary></indexterm>
+
+      <literal>@assert</literal> アノテーションをメソッドのドキュメンテーションブロックで使うと、
+      雛形ジェネレータ (<xref linkend="skeleton-generator"/> を参照ください)
+      を実行したときに、不完全なテストケースではなく
+      シンプルながらも意味のあるテストを自動生成することができます。<programlisting>/**
+ * @assert (0, 0) == 0
+ */
+public function add($a, $b)
+{
+    return $a + $b;
+}</programlisting>このアノテーションは、次のようなテストコードとなります。<programlisting>/**
+ * Generated from @assert (0, 0) == 0.
+ */
+public function testAdd() {
+    $o = new Calculator;
+    $this->assertEquals(0, $o->add(0, 0));
+}</programlisting>
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.author">
+    <title><literal>@author</literal></title>
+
+    <para>
+      <indexterm><primary>@author</primary></indexterm>
+
+      <literal>@author</literal> アノテーションは
+      <literal>@group</literal> アノテーション (<xref
+      linkend="appendixes.annotations.group"/> を参照ください) のエイリアスで、
+      テストの作者にもとづいたフィルタリングができるようになります。
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.backupGlobals">
+    <title><literal>@backupGlobals</literal></title>
+
+    <para>
+      <indexterm><primary><literal>@backupGlobals</literal></primary></indexterm>
+
+      グローバル変数の保存や復元を、テストケースクラスのすべてのテストで完全に無効にすることができます。
+      このように使います。<programlisting>/**
+ * @backupGlobals disabled
+ */
+class MyTest extends PHPUnit_Framework_TestCase
+{
+    // ...
+}</programlisting>
+    </para>
+
+    <para>
+      <indexterm><primary><literal>@backupGlobals</literal></primary></indexterm>
+
+      <literal>@backupGlobals</literal> アノテーションは、テストメソッドレベルで使うこともできます。
+      これによって、保存と復元の操作をより細やかに制御できるようになります。<programlisting>/**
+ * @backupGlobals disabled
+ */
+class MyTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @backupGlobals enabled
+     */
+    public function testThatInteractsWithGlobalVariables()
+    {
+        // ...
+    }
+}</programlisting>
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.backupStaticAttributes">
+    <title><literal>@backupStaticAttributes</literal></title>
+
+    <para>
+      <indexterm><primary><literal>@backupStaticAttributes</literal></primary></indexterm>
+
+      クラスの静的属性の保存や復元を、テストケースクラスのすべてのテストで完全に無効にすることができます。
+      このように使います。
+      <programlisting>/**
+ * @backupStaticAttributes disabled
+ */
+class MyTest extends PHPUnit_Framework_TestCase
+{
+    // ...
+}</programlisting>
+    </para>
+
+    <para>
+      <indexterm><primary><literal>@backupStaticAttributes</literal></primary></indexterm>
+
+      <literal>@backupStaticAttributes</literal> アノテーションは、テストメソッドレベルで使うこともできます。
+      これによって、保存と復元の操作をより細やかに制御できるようになります。<programlisting>/**
+ * @backupStaticAttributes disabled
+ */
+class MyTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @backupStaticAttributes enabled
+     */
+    public function testThatInteractsWithStaticAttributes()
+    {
+        // ...
+    }
+}</programlisting>
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.covers">
+    <title><literal>@covers</literal></title>
+
+    <para>
+      <indexterm><primary>Code Coverage</primary></indexterm>
+      <indexterm><primary>@covers</primary></indexterm>
+
+      <literal>@covers</literal> アノテーションをテストコードで使うと、
+      そのテストメソッドがどのメソッドをテストするのかを指定することができます。<programlisting>/**
+ * @covers BankAccount::getBalance
+ */
+public function testBalanceIsInitiallyZero()
+{
+    $this->assertEquals(0, $this->ba->getBalance());
+}</programlisting>
+    </para>
+
+    <para>
+      これを指定した場合は、指定したメソッドのみのコードカバレッジ情報を考慮することになります。
+    </para>
+
+    <para>
+      <xref linkend="appendixes.annotations.covers.tables.annotations"/>
+      に <literal>@covers</literal> アノテーションの構文を示します。
+    </para>
+
+    <table id="appendixes.annotations.covers.tables.annotations">
+      <title>カバーするメソッドを指定するためのアノテーション</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>アノテーション</entry>
+            <entry>説明</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal><![CDATA[@covers ClassName::methodName]]></literal></entry>
+            <entry><literal>そのテストメソッドが指定したメソッドをカバーすることを表します。</literal></entry>
+          </row>
+          <row>
+            <entry><literal><![CDATA[@covers ClassName]]></literal></entry>
+            <entry><literal>そのテストメソッドが指定したクラスのすべてのメソッドをカバーすることを表します。</literal></entry>
+          </row>
+          <row>
+            <entry><literal><![CDATA[@covers ClassName<extended>]]></literal></entry>
+            <entry><literal>そのテストメソッドが、指定したクラスとその親クラスおよびインターフェイスのすべてのメソッドをカバーすることを表します。</literal></entry>
+          </row>
+          <row>
+            <entry><literal><![CDATA[@covers ClassName::<public>]]></literal></entry>
+            <entry><literal>そのテストメソッドが、指定したクラスのすべての public メソッドをカバーすることを表します。</literal></entry>
+          </row>
+          <row>
+            <entry><literal><![CDATA[@covers ClassName::<protected>]]></literal></entry>
+            <entry><literal>そのテストメソッドが、指定したクラスのすべての protected メソッドをカバーすることを表します。</literal></entry>
+          </row>
+          <row>
+            <entry><literal><![CDATA[@covers ClassName::<private>]]></literal></entry>
+            <entry><literal>そのテストメソッドが、指定したクラスのすべての private メソッドをカバーすることを表します。</literal></entry>
+          </row>
+          <row>
+            <entry><literal><![CDATA[@covers ClassName::<!public>]]></literal></entry>
+            <entry><literal>そのテストメソッドが、指定したクラスのすべての非 public メソッドをカバーすることを表します。</literal></entry>
+          </row>
+          <row>
+            <entry><literal><![CDATA[@covers ClassName::<!protected>]]></literal></entry>
+            <entry><literal>そのテストメソッドが、指定したクラスのすべての非 protected メソッドをカバーすることを表します。</literal></entry>
+          </row>
+          <row>
+            <entry><literal><![CDATA[@covers ClassName::<!private>]]></literal></entry>
+            <entry><literal>そのテストメソッドが、指定したクラスのすべての非 private メソッドをカバーすることを表します。</literal></entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+  </section>
+
+  <section id="appendixes.annotations.dataProvider">
+    <title><literal>@dataProvider</literal></title>
+
+    <para>
+      <indexterm><primary>@dataProvider</primary></indexterm>
+
+      テストメソッドには任意の引数を渡すことができます。
+      引数は、データプロバイダメソッド
+      (<xref linkend="writing-tests-for-phpunit.data-providers.examples.DataTest.php" /> の
+      <literal>provider()</literal>) から渡されます。
+      使用するデータプロバイダメソッドを指定するには
+      <literal>@dataProvider</literal> アノテーションを使います。
+    </para>
+
+    <para>
+      詳細は <xref linkend="writing-tests-for-phpunit.data-providers"/>
+      を参照ください。
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.depends">
+    <title><literal>@depends</literal></title>
+
+    <para>
+      <indexterm><primary>@depends</primary></indexterm>
+
+      PHPUnit は、テストメソッド間の依存性の明示的な宣言をサポートしています。
+      この依存性とは、テストメソッドが実行される順序を定義するものではありません。
+      プロデューサーがテストフィクスチャを作ってそのインスタンスを返し、
+      依存するコンシューマーがそれを受け取って利用するというものです。
+      <xref linkend="writing-tests-for-phpunit.examples.StackTest2.php"/>
+      は、<literal>@depends</literal> アノテーションを使ってテストメソッドの依存性をあらわす例です。
+    </para>
+
+    <para>
+      詳細は <xref linkend="writing-tests-for-phpunit.test-dependencies"/>
+      を参照ください。
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.expectedException">
+    <title><literal>@expectedException</literal></title>
+
+    <para>
+      <indexterm><primary>@expectedException</primary></indexterm>
+
+      <xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest.php" />
+      は、テストするコード内で例外がスローされたかどうかを
+      <literal>@expectedException</literal> アノテーションを使用して調べる方法を示すものです。
+    </para>
+
+    <para>
+      詳細は <xref linkend="writing-tests-for-phpunit.exceptions"/>
+      を参照ください。
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.expectedExceptionCode">
+    <title><literal>@expectedExceptionCode</literal></title>
+
+    <para>
+      <indexterm><primary>@expectedExceptionCode</primary></indexterm>
+
+      ...
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.expectedExceptionMessage">
+    <title><literal>@expectedExceptionMessage</literal></title>
+
+    <para>
+      <indexterm><primary>@expectedExceptionMessage</primary></indexterm>
+
+      ...
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.group">
+    <title><literal>@group</literal></title>
+
+    <para>
+      <indexterm><primary>@group</primary></indexterm>
+
+      あるテストを、ひとつあるいは複数のグループに属するものとすることができます。
+      <literal>@group</literal> アノテーションをこのように使用します。<programlisting>class MyTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @group specification
+     */
+    public function testSomething()
+    {
+    }
+
+    /**
+     * @group regresssion
+     * @group bug2204
+     */
+    public function testSomethingElse()
+    {
+    }
+}</programlisting>
+    </para>
+
+    <para>
+      特定のグループに属するテストのみを選んで実行するには、
+      コマンドラインのテストランナーの場合は
+      <literal>--group</literal> スイッチあるいは <literal>--exclude-group</literal>
+      スイッチを指定します。XML 設定ファイルの場合は、
+      それぞれ対応するディレクティブを指定します。
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.outputBuffering">
+    <title><literal>@outputBuffering</literal></title>
+
+    <para>
+      <indexterm><primary><literal>@outputBuffering</literal></primary></indexterm>
+
+      <literal>@outputBuffering</literal> アノテーションを使うと、PHP の
+      <ulink url="http://www.php.net/manual/ja/intro.outcontrol.php">出力バッファリング</ulink>
+      をこのように制御することができます。<programlisting>/**
+ * @outputBuffering enabled
+ */
+class MyTest extends PHPUnit_Framework_TestCase
+{
+    // ...
+}</programlisting>
+    </para>
+
+    <para>
+      <indexterm><primary><literal>@outputBuffering</literal></primary></indexterm>
+
+      <literal>@outputBuffering</literal> アノテーションは、テストメソッドレベルで使うこともできます。
+      これによって、出力バッファリングをより細やかに制御できるようになります。<programlisting>/**
+ * @outputBuffering disabled
+ */
+class MyTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @outputBuffering enabled
+     */
+    public function testThatPrintsSomething()
+    {
+        // ...
+    }
+}</programlisting>
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.runTestsInSeparateProcesses">
+    <title><literal>@runTestsInSeparateProcesses</literal></title>
+
+    <para>
+      <indexterm><primary>@runTestsInSeparateProcesses</primary></indexterm>
+    </para>
+
+    <programlisting></programlisting>
+  </section>
+
+  <section id="appendixes.annotations.runInSeparateProcess">
+    <title><literal>@runInSeparateProcess</literal></title>
+
+    <para>
+      <indexterm><primary>@runInSeparateProcess</primary></indexterm>
+    </para>
+
+    <programlisting></programlisting>
+  </section>
+
+  <section id="appendixes.annotations.test">
+    <title><literal>@test</literal></title>
+
+    <para>
+      <indexterm><primary>@test</primary></indexterm>
+
+      テストメソッド名の先頭に <literal>test</literal>
+      をつけるかわりに、メソッドのドキュメンテーションブロックで <literal>@test</literal>
+      アノテーションを使ってそのメソッドがテストメソッドであることを指定することができます。<programlisting>/**
+ * @test
+ */
+public function initialBalanceShouldBe0()
+{
+    $this->assertEquals(0, $this->ba->getBalance());
+}</programlisting>
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.testdox">
+    <title><literal>@testdox</literal></title>
+
+    <para>
+      <indexterm><primary>TestDox</primary></indexterm>
+      <indexterm><primary>@testdox</primary></indexterm>
+    </para>
+
+    <programlisting></programlisting>
+  </section>
+
+  <section id="appendixes.annotations.ticket">
+    <title><literal>@ticket</literal></title>
+
+    <para>
+      <indexterm><primary>@ticket</primary></indexterm>
+    </para>
+
+    <programlisting></programlisting>
+  </section>
+</appendix>

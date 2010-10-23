@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="organizing-tests">
+  <title>テストの構成</title>
+
+  <para>
+    <indexterm><primary>Test Suite</primary></indexterm>
+
+    PHPUnit の目指すところ (<xref linkend="goals" /> を参照ください) のひとつに
+    「自由に組み合わせられる」ということがあります。つまり、
+    例えば「そのプロジェクトのすべてのテストを実行する」「プロジェクトの中の
+    ある部品を構成するすべてのクラスについて、すべてのテストを実行する」
+    「特定のひとつのクラスのテストのみを実行する」など、
+    数や組み合わせにとらわれずに好きなテストを一緒に実行できるということです。
+  </para>
+
+  <para>
+    PHPUnit では、さまざまな方法でテストを組み合わせてテストスイートにまとめることができます。
+    本章では、その中でもよく使われる手法を説明します。
+  </para>
+
+  <section id="organizing-tests.filesystem">
+    <title>ファイルシステムを用いたテストスイートの構成</title>
+
+    <para>
+      おそらく、テストスイートをとりまとめるもっとも簡単な方法は
+      すべてのテストケースのソースファイルを一つのテストディレクトリにまとめることでしょう。
+      PHPUnit はテストディレクトリを再帰的に探索し、
+      テストを自動的に見つけて実行します。
+    </para>
+
+    <para>
+      <ulink url="http://github.com/sebastianbergmann/php-object-freezer/">Object_Freezer</ulink>
+      ライブラリのテストスイートを見てみましょう。このプロジェクトのディレクトリ構成を見ると、
+      テストケースクラスが <filename>Tests</filename> ディレクトリにまとめられていることがわかります。
+      その中のディレクトリの構造は、テスト対象のシステム (SUT) がある
+      <filename>Object</filename> ディレクトリ以下の構造と同じになっています。
+    </para>
+
+    <screen>Object                              Tests
+|-- Freezer                         |-- Freezer
+|   |-- HashGenerator               |   |-- HashGenerator
+|   |   `-- NonRecursiveSHA1.php    |   |   `-- NonRecursiveSHA1Test.php
+|   |-- HashGenerator.php           |   |
+|   |-- IdGenerator                 |   |-- IdGenerator
+|   |   `-- UUID.php                |   |   `-- UUIDTest.php
+|   |-- IdGenerator.php             |   |
+|   |-- LazyProxy.php               |   |
+|   |-- Storage                     |   |-- Storage
+|   |   `-- CouchDB.php             |   |   `-- CouchDB
+|   |                               |   |       |-- WithLazyLoadTest.php
+|   |                               |   |       `-- WithoutLazyLoadTest.php
+|   |-- Storage.php                 |   |-- StorageTest.php
+|   `-- Util.php                    |   `-- UtilTest.php
+`-- Freezer.php                     `-- FreezerTest.php</screen>
+
+    <para>
+      PHPUnit のコマンドラインテストランナーに
+      テストディレクトリの場所を指示してやるだけで、
+      このライブラリのすべてのテストを実行できます。
+    </para>
+
+    <screen><userinput>phpunit Tests</userinput>
+PHPUnit 3.6.0 by Sebastian Bergmann.
+
+............................................................ 60 / 75
+...............
+
+Time: 0 seconds
+
+OK (75 tests, 164 assertions)</screen>
+
+    <para>
+      <filename>Tests/FreezerTest.php</filename> にあるテストケースクラス
+      <literal>Object_FreezerTest</literal> で宣言されているテストだけを実行するには、
+      次のコマンドを実行します。
+    </para>
+
+    <screen><userinput>phpunit Tests/FreezerTest</userinput>
+PHPUnit 3.6.0 by Sebastian Bergmann.
+
+............................
+
+Time: 0 seconds
+
+OK (28 tests, 60 assertions)</screen>
+
+    <para>
+      実行したいテストをより細かく指示するには
+      <literal>--filter</literal> スイッチを使います。
+    </para>
+
+    <screen><userinput>phpunit --filter testFreezingAnObjectWorks Tests</userinput>
+PHPUnit 3.6.0 by Sebastian Bergmann.
+
+.
+
+Time: 0 seconds
+
+OK (1 test, 2 assertions)</screen>
+
+    <note>
+      <para>
+        この方式の欠点は、テストの実行順を制御できないことです。
+        そのため、テストの依存性に関する問題を引き起こすことがあります。
+        <xref linkend="writing-tests-for-phpunit.test-dependencies"/>
+        を参照ください。
+      </para>
+    </note>
+  </section>
+
+  <section id="organizing-tests.xml-configuration">
+    <title>XML 設定ファイルを用いたテストスイートの構成</title>
+    <indexterm><primary>XML Configuration</primary></indexterm>
+
+    <para>
+      PHPUnit の XML 設定ファイル (<xref linkend="appendixes.configuration"/>)
+      を使ってテストスイートを構成することもできます。
+      <xref linkend="organizing-tests.xml-configuration.examples.phpunit.xml"/>
+      に、最小限の例を示します。これは、
+      <filename>Tests</filename> を再帰的に探索して
+      <filename>*Test.php</filename> というファイルにある
+      <literal>*Test</literal> クラスをすべて追加する設定です。
+    </para>
+
+    <example id="organizing-tests.xml-configuration.examples.phpunit.xml">
+      <title>XML 設定ファイルを用いたテストスイートの構成</title>
+      <programlisting><![CDATA[<phpunit>
+  <testsuites>
+    <testsuite name="Object_Freezer">
+      <directory>Tests</directory>
+    </testsuite>
+  </testsuites>
+</phpunit>]]></programlisting>
+    </example>
+
+    <note>
+      <para>
+        この方式の欠点は、テストの実行順を制御できないことです。
+        そのため、テストの依存性に関する問題を引き起こすことがあります。
+        <xref linkend="writing-tests-for-phpunit.test-dependencies"/>
+        を参照ください。
+      </para>
+    </note>
+
+    <para>
+      どのテストを実行するのかを明示的に指定することもできます。
+    </para>
+
+    <example id="organizing-tests.xml-configuration.examples.phpunit.xml2">
+      <title>XML 設定ファイルを用いたテストスイートの構成</title>
+      <programlisting><![CDATA[<phpunit>
+  <testsuites>
+    <testsuite name="Object_Freezer">
+      <file>Tests/Freezer/HashGenerator/NonRecursiveSHA1Test.php</file>
+      <file>Tests/Freezer/IdGenerator/UUIDTest.php</file>
+      <file>Tests/Freezer/UtilTest.php</file>
+      <file>Tests/FreezerTest.php</file>
+      <file>Tests/Freezer/StorageTest.php</file>
+      <file>Tests/Freezer/Storage/CouchDB/WithLazyLoadTest.php</file>
+      <file>Tests/Freezer/Storage/CouchDB/WithoutLazyLoadTest.php</file>
+    </testsuite>
+  </testsuites>
+</phpunit>]]></programlisting>
+    </example>
+  </section>
+
+  <section id="organizing-tests.testsuite">
+    <title>テストケースクラスの使用法</title>
+    <indexterm><primary>PHPUnit_Framework_TestSuite</primary></indexterm>
+
+    <para>
+      PHPUnit フレームワークの <literal>PHPUnit_Framework_TestSuite</literal>
+      クラスを使うと、テストスイートオブジェクトの階層としてテストを管理することができます。
+    </para>
+
+    <para>
+      <xref linkend="organizing-tests.testsuite.examples.AllTests.php"/>
+      は、<literal>Package</literal> というパッケージを含むプロジェクトのトップレベルの
+      <literal>AllTests</literal> クラスの例です。
+    </para>
+
+    <example id="organizing-tests.testsuite.examples.AllTests.php">
+      <title>トップレベルの AllTests クラス</title>
+      <programlisting><![CDATA[<?php
+require_once 'Package/AllTests.php';
+// ...
+
+class AllTests
+{
+    public static function suite()
+    {
+        $suite = new PHPUnit_Framework_TestSuite('Project');
+
+        $suite->addTest(Package_AllTests::suite());
+        // ...
+
+        return $suite;
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      トップレベルの <literal>AllTests</literal> クラスがパッケージレベルの
+      <literal>Package_AllTests</literal> クラスを集約し、
+      さらにそれがパッケージ内のクラス群のテストケースクラスを集約します。
+    </para>
+
+    <example id="organizing-tests.testsuite.examples.Package_AllTests.php">
+      <title>Package_AllTests クラス</title>
+      <programlisting><![CDATA[<?php
+require_once 'Framework/ClassTest.php';
+// ...
+
+class Package_AllTests
+{
+    public static function suite()
+    {
+        $suite = new PHPUnit_Framework_TestSuite('Package');
+
+        $suite->addTestSuite('Package_ClassTest');
+        // ...
+
+        return $suite;
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      <literal>Package_ClassTest</literal> クラスは、
+      基底クラス <literal>PHPUnit_Framework_TestCase</literal>
+      を継承した標準的なテストケースクラスです。
+    </para>
+
+    <itemizedlist>
+      <listitem>
+        <para>
+          <literal>phpunit AllTests</literal> を
+          <filename>Tests</filename> ディレクトリで実行すると、すべてのテストを実行します。
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          <literal>phpunit AllTests</literal> を
+          <filename>Tests/Package</filename> ディレクトリで実行すると、
+          <literal>Package_*</literal> クラスのテストのみを実行します。
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          <literal>phpunit ClassTest</literal> を
+          <filename>Tests/Package</filename> ディレクトリで実行すると、
+          <literal>Package_Class</literal> クラスのテストのみを実行します
+          (これは <literal>Package_ClassTest</literal> クラスで宣言されています)。
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          <literal>phpunit --filter testSomething ClassTest</literal> を
+          <filename>Tests/Package</filename> ディレクトリで実行すると、
+          <literal>Package_ClassTest</literal> クラスの
+          <literal>testSomething</literal> という名前のテストのみを実行します。
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <para>
+      <indexterm><primary>Template Method</primary></indexterm>
+      <indexterm><primary>setUp()</primary></indexterm>
+      <indexterm><primary>tearDown()</primary></indexterm>
+
+      <literal>PHPUnit_Framework_TestSuite</literal> クラスには二つのテンプレートメソッド
+      <literal>setUp()</literal> および <literal>tearDown()</literal> が用意されています。
+      これらはそれぞれ、テストスイート内の最初のテストを実行する前と
+      最後のテストを実行した後にコールされます。
+    </para>
+
+    <example id="organizing-tests.testsuite.examples.MySuite.php">
+      <title>MySuite クラス</title>
+      <programlisting><![CDATA[<?php
+require_once 'MyTest.php';
+
+class MySuite extends PHPUnit_Framework_TestSuite
+{
+    public static function suite()
+    {
+        return new MySuite('MyTest');
+    }
+
+    protected function setUp()
+    {
+        print __METHOD__ . "\n";
+    }
+
+    protected function tearDown()
+    {
+        print __METHOD__ . "\n";
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      <xref linkend="organizing-tests.testsuite.examples.MySuite.php"/> にあるテストスイート
+      <literal>MySuite</literal> に追加されたテストケースクラス
+      <literal>MyTest</literal> には、二つのメソッド
+      <literal>testOne()</literal> および <literal>testTwo()</literal> があり、さらに
+      <literal>setUp()</literal> メソッドと <literal>tearDown()</literal>
+      メソッドもあります。この出力結果を見れば、これらのメソッドがどの順でコールされるかがわかります。
+    </para>
+
+    <screen>MySuite::setUp()
+MyTest::setUp()
+MyTest::testOne()
+MyTest::tearDown()
+MyTest::setUp()
+MyTest::testTwo()
+MyTest::tearDown()
+MySuite::tearDown()</screen>
+
+    <note>
+      <para>
+        <literal>TestSuite</literal> の <literal>setUp()</literal> メソッドと
+        <literal>tearDown()</literal> メソッドは、
+        フィルタリングなどによってスイート内のテストがひとつも実行されなかった場合でもコールされます。
+      </para>
+    </note>
+  </section>
+</chapter>

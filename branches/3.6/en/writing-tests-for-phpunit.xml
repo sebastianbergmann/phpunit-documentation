@@ -1,0 +1,475 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="writing-tests-for-phpunit">
+  <title>Writing Tests for PHPUnit</title>
+
+  <para>
+    <indexterm><primary>PHPUnit_Framework_TestCase</primary></indexterm>
+
+    <xref linkend="writing-tests-for-phpunit.examples.StackTest.php" /> shows
+    how we can write tests using PHPUnit that exercice PHP's array operations.
+    The example introduces the basic conventions and steps for writing tests
+    with PHPUnit:
+  </para>
+
+  <orderedlist>
+    <listitem><para>The tests for a class <literal>Class</literal> go into a class <literal>ClassTest</literal>.</para></listitem>
+    <listitem><para><literal>ClassTest</literal> inherits (most of the time) from <literal>PHPUnit_Framework_TestCase</literal>.</para></listitem>
+    <listitem><indexterm><primary>Annotation</primary></indexterm><indexterm><primary>@test</primary></indexterm><para>The tests are public methods that are named <literal>test*</literal>.</para><para><indexterm><primary>Annotation</primary></indexterm>Alternatively, you can use the <literal>@test</literal> annotation in a method's docblock to mark it as a test method.</para></listitem>
+    <listitem><para>Inside the test methods, assertion methods such as <literal>assertEquals()</literal> (see <xref linkend="api.assert" />) are used to assert that an actual value matches an expected value.</para></listitem>
+  </orderedlist>
+
+  <example id="writing-tests-for-phpunit.examples.StackTest.php">
+    <title>Testing array operations with PHPUnit</title>
+    <programlisting><![CDATA[<?php
+class StackTest extends PHPUnit_Framework_TestCase
+{
+    public function testPushAndPop()
+    {
+        $stack = array();
+        $this->assertEquals(0, count($stack));
+
+        array_push($stack, 'foo');
+        $this->assertEquals('foo', $stack[count($stack)-1]);
+        $this->assertEquals(1, count($stack));
+
+        $this->assertEquals('foo', array_pop($stack));
+        $this->assertEquals(0, count($stack));
+    }
+}
+?>]]></programlisting>
+  </example>
+
+  <blockquote>
+    <attribution>Martin Fowler</attribution>
+    <para>
+      Whenever you are tempted to type something into a
+      <literal>print</literal> statement or a debugger expression, write it
+      as a test instead.
+    </para>
+  </blockquote>
+
+  <section id="writing-tests-for-phpunit.test-dependencies">
+    <title>Test Dependencies</title>
+
+    <blockquote>
+      <attribution>Adrian Kuhn et. al.</attribution>
+      <para>
+        Unit Tests are primarily written as a good practice to help developers
+        identify and fix bugs, to refactor code and to serve as documentation
+        for a unit of software under test. To achieve these benefits, unit tests
+        ideally should cover all the possible paths in a program. One unit test
+        usually covers one specific path in one function or method. However a
+        test method is not necessary an encapsulated, independent entity. Often
+        there are implicit dependencies between test methods, hidden in the
+        implementation scenario of a test.
+      </para>
+    </blockquote>
+
+    <para>
+      <indexterm><primary>Test Dependencies</primary></indexterm>
+
+      PHPUnit supports the declaration of explicit dependencies between test
+      methods. Such dependencies do not define the order in which the test
+      methods are to be executed but they allow the returning of an instance of
+      the test fixture by a producer and passing it to the dependent consumers.
+    </para>
+
+    <itemizedlist>
+      <listitem><para>A producer is a test method that yields its unit under test as return value.</para></listitem>
+      <listitem><para>A consumer is a test method that depends on one or more producers and their return values.</para></listitem>
+    </itemizedlist>
+
+    <para>
+      <indexterm><primary>Annotation</primary></indexterm>
+      <indexterm><primary>@depends</primary></indexterm>
+
+      <xref linkend="writing-tests-for-phpunit.examples.StackTest2.php"/> shows
+      how to use the <literal>@depends</literal> annotation to express
+      dependencies between test methods.
+    </para>
+
+    <example id="writing-tests-for-phpunit.examples.StackTest2.php">
+      <title>Using the <literal>@depends</literal> annotation to express dependencies</title>
+      <programlisting><![CDATA[<?php
+class StackTest extends PHPUnit_Framework_TestCase
+{
+    public function testEmpty()
+    {
+        $stack = array();
+        $this->assertEmpty($stack);
+
+        return $stack;
+    }
+
+    /**
+     * @depends testEmpty
+     */
+    public function testPush(array $stack)
+    {
+        array_push($stack, 'foo');
+        $this->assertEquals('foo', $stack[count($stack)-1]);
+        $this->assertNotEmpty($stack);
+
+        return $stack;
+    }
+
+    /**
+     * @depends testPush
+     */
+    public function testPop(array $stack)
+    {
+        $this->assertEquals('foo', array_pop($stack));
+        $this->assertEmpty($stack);
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      In the example above, the first test, <literal>testEmpty()</literal>,
+      creates a new array and asserts that it is empty. The test then returns
+      the fixture as its result. The second test, <literal>testPush()</literal>,
+      depends on <literal>testEmpty()</literal> and is passed the result of that
+      depended-upon test as its argument. Finally, <literal>testPop()</literal>
+      depends upons <literal>testPush()</literal>.
+    </para>
+
+    <para>
+      <indexterm><primary>Defect Localization</primary></indexterm>
+
+      To quickly localize defects, we want our attention to be focussed on
+      relevant failing tests. This is why PHPUnit skips the execution of a test
+      when a depended-upon test has failed. This improves defect localization by
+      exploiting the dependencies between tests as shown in
+      <xref linkend="writing-tests-for-phpunit.examples.DependencyFailureTest.php"/>.
+    </para>
+
+    <example id="writing-tests-for-phpunit.examples.DependencyFailureTest.php">
+      <title>Exploiting the dependencies between tests</title>
+      <programlisting><![CDATA[<?php
+class DependencyFailureTest extends PHPUnit_Framework_TestCase
+{
+    public function testOne()
+    {
+        $this->assertTrue(FALSE);
+    }
+
+    /**
+     * @depends testOne
+     */
+    public function testTwo()
+    {
+    }
+}
+?>]]></programlisting>
+      <screen><userinput>phpunit --verbose DependencyFailureTest</userinput><![CDATA[
+PHPUnit 3.6.0 by Sebastian Bergmann.
+
+DependencyFailureTest
+FS
+
+Time: 0 seconds
+
+There was 1 failure:
+
+1) testOne(DependencyFailureTest)
+Failed asserting that <boolean:false> is true.
+/home/sb/DependencyFailureTest.php:6
+
+There was 1 skipped test:
+
+1) testTwo(DependencyFailureTest)
+This test depends on "DependencyFailureTest::testOne" to pass.
+
+FAILURES!
+Tests: 2, Assertions: 1, Failures: 1, Skipped: 1.]]></screen>
+    </example>
+
+    <para>
+      A test may have more than one <literal>@depends</literal> annotation.
+      PHPUnit does not change the order in which tests are executed, you have to
+      ensure that the dependencies of a test can actually be met before the test
+      is run.
+    </para>
+  </section>
+
+  <section id="writing-tests-for-phpunit.data-providers">
+    <title>Data Providers</title>
+
+    <para>
+      <indexterm><primary>Annotation</primary></indexterm>
+      <indexterm><primary>@dataProvider</primary></indexterm>
+      A test method can accept arbitrary arguments. These arguments are to be
+      provided by a data provider method (<literal>provider()</literal> in
+      <xref linkend="writing-tests-for-phpunit.data-providers.examples.DataTest.php" />).
+      The data provider method to be used is specified using the
+      <literal>@dataProvider</literal> annotation.
+    </para>
+
+    <para>
+      A data provider method must be <literal>public</literal> and either return
+      an array of arrays or an object that implements the <literal>Iterator</literal>
+      interface and yields an array for each iteration step. For each array that
+      is part of the collection the test method will be called with the contents
+      of the array as its arguments.
+    </para>
+
+    <example id="writing-tests-for-phpunit.data-providers.examples.DataTest.php">
+      <title>Using data providers</title>
+      <programlisting><![CDATA[<?php
+class DataTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @dataProvider provider
+     */
+    public function testAdd($a, $b, $c)
+    {
+        $this->assertEquals($c, $a + $b);
+    }
+
+    public function provider()
+    {
+        return array(
+          array(0, 0, 0),
+          array(0, 1, 1),
+          array(1, 0, 1),
+          array(1, 1, 3)
+        );
+    }
+}
+?>]]></programlisting>
+
+    <screen><userinput>phpunit DataTest</userinput>
+<![CDATA[PHPUnit 3.6.0 by Sebastian Bergmann.
+
+...F
+
+Time: 0 seconds
+
+There was 1 failure:
+
+1) testAdd(DataTest) with data (1, 1, 3)
+Failed asserting that <integer:2> matches expected value <integer:3>.
+/home/sb/DataTest.php:21
+
+FAILURES!
+Tests: 4, Assertions: 4, Failures: 1.
+]]></screen>
+    </example>
+
+    <note>
+      <para>
+        <indexterm><primary>Annotation</primary></indexterm>
+        <indexterm><primary>@dataProvider</primary></indexterm>
+        <indexterm><primary>@depends</primary></indexterm>
+
+        When a test receives input from both a <literal>@dataProvider</literal>
+        method and from one or more tests it <literal>@depends</literal> on, the
+        arguments from the data provider will come before the ones from
+        depended-upon tests.
+      </para>
+    </note>
+
+    <note>
+      <para>
+        <indexterm><primary>Annotation</primary></indexterm>
+        <indexterm><primary>@dataProvider</primary></indexterm>
+        <indexterm><primary>@depends</primary></indexterm>
+
+        When a test depends on a test that uses data providers, the depending
+        test will be executed when the test it depends upon is successful for at
+        least one data set. The result of a test that uses data providers cannot
+        be injected into a depending test.
+      </para>
+    </note>
+  </section>
+
+  <section id="writing-tests-for-phpunit.exceptions">
+    <title>Testing Exceptions</title>
+
+    <para>
+      <indexterm><primary>Annotation</primary></indexterm>
+      <indexterm><primary>@expectedException</primary></indexterm>
+
+      <xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest.php" />
+      shows how to use the <literal>@expectedException</literal> annotation to
+      test whether an exception is thrown inside the tested code.
+    </para>
+
+    <example id="writing-tests-for-phpunit.exceptions.examples.ExceptionTest.php">
+      <title>Using the @expectedException annotation</title>
+      <programlisting><![CDATA[<?php
+class ExceptionTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testException()
+    {
+    }
+}
+?>]]></programlisting>
+      <screen><userinput>phpunit ExceptionTest</userinput>
+PHPUnit 3.6.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds
+
+There was 1 failure:
+
+1) testException(ExceptionTest)
+Expected exception InvalidArgumentException
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.</screen>
+    </example>
+
+    <para>
+      Alternatively, you can use the <literal>setExpectedException()</literal>
+      method to set the expected exception as shown in <xref
+      linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest2.php"/>.
+    </para>
+
+    <example id="writing-tests-for-phpunit.exceptions.examples.ExceptionTest2.php">
+      <title>Expecting an exception to be raised by the tested code</title>
+      <programlisting><![CDATA[<?php
+class ExceptionTest extends PHPUnit_Framework_TestCase
+{
+    public function testException()
+    {
+        $this->setExpectedException('InvalidArgumentException');
+    }
+}
+?>]]></programlisting>
+      <screen><userinput>phpunit ExceptionTest</userinput>
+PHPUnit 3.6.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds
+
+There was 1 failure:
+
+1) testException(ExceptionTest)
+Expected exception InvalidArgumentException
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.</screen>
+    </example>
+
+    <para>
+      <xref linkend="writing-tests-for-phpunit.exceptions.tables.api" />
+      shows the methods provided for testing exceptions.
+    </para>
+
+    <table id="writing-tests-for-phpunit.exceptions.tables.api">
+      <title>Methods for testing exceptions</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>Method</entry>
+            <entry>Meaning</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>void setExpectedException(string $exceptionName)</literal></entry>
+            <entry>Set the name of the expected exception to <literal>$exceptionName</literal>.</entry>
+          </row>
+          <row>
+            <entry><literal>String getExpectedException()</literal></entry>
+            <entry>Return the name of the expected exception.</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <para>
+      You can also use the approach shown in
+      <xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest3.php" />
+      to test exceptions.
+    </para>
+
+    <example id="writing-tests-for-phpunit.exceptions.examples.ExceptionTest3.php">
+      <title>Alternative approach to testing exceptions</title>
+      <programlisting><![CDATA[<?php
+class ExceptionTest extends PHPUnit_Framework_TestCase {
+    public function testException() {
+        try {
+            // ... Code that is expected to raise an exception ...
+        }
+
+        catch (InvalidArgumentException $expected) {
+            return;
+        }
+
+        $this->fail('An expected exception has not been raised.');
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      If the code that is expected to raise an exception in
+      <xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest3.php" />
+      does not raise the expected exception, the subsequent call to
+      <literal>fail()</literal> (see
+      <xref linkend="api.assert.tables.bottleneck-methods" />) will halt the
+      test and signal a problem with the test. If the expected exception is
+      raised, the <literal>catch</literal> block will be executed, and the
+      test will end successfully.
+    </para>
+  </section>
+
+  <section id="writing-tests-for-phpunit.errors">
+    <title>Testing PHP Errors</title>
+    <para>
+      <indexterm><primary>Error Handler</primary></indexterm>
+      <indexterm><primary>PHP Error</primary></indexterm>
+      <indexterm><primary>PHP Notice</primary></indexterm>
+      <indexterm><primary>PHP Warning</primary></indexterm>
+      <indexterm><primary>PHPUnit_Framework_Error</primary></indexterm>
+
+      By default, PHPUnit converts PHP errors, warnings, and notices that are
+      triggered during the execution of a test to an exception. Using these
+      exceptions, you can, for instance, expect a test to trigger a PHP error as
+      shown in <xref linkend="writing-tests-for-phpunit.exceptions.examples.ErrorTest.php"/>.
+    </para>
+
+    <example id="writing-tests-for-phpunit.exceptions.examples.ErrorTest.php">
+      <title>Expecting a PHP error using @expectedException</title>
+      <programlisting><![CDATA[<?php
+class ExpectedErrorTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @expectedException PHPUnit_Framework_Error
+     */
+    public function testFailingInclude()
+    {
+        include 'not_existing_file.php';
+    }
+}
+?>]]></programlisting>
+      <screen><userinput>phpunit ExpectedErrorTest</userinput>
+PHPUnit 3.6.0 by Sebastian Bergmann.
+
+.
+
+Time: 0 seconds
+
+OK (1 test, 1 assertion)</screen>
+    </example>
+
+    <para>
+      <indexterm><primary>PHPUnit_Framework_Error_Notice</primary></indexterm>
+      <indexterm><primary>PHPUnit_Framework_Error_Warning</primary></indexterm>
+
+      <literal>PHPUnit_Framework_Error_Notice</literal> and
+      <literal>PHPUnit_Framework_Error_Warning</literal> represent PHP notices
+      and warnings, respectively.
+    </para>
+  </section>
+</chapter>

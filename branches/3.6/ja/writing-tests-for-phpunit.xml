@@ -1,0 +1,491 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="writing-tests-for-phpunit">
+  <title>PHPUnit 用のテストの書き方</title>
+
+  <para>
+    <indexterm><primary>PHPUnit_Framework_TestCase</primary></indexterm>
+
+    <xref linkend="writing-tests-for-phpunit.examples.StackTest.php" /> で、
+    PHP の配列操作のテストを PHPUnit 用に書く方法を示します。
+    この例では、PHPUnit を使ったテストを書く際の基本的な決まり事や手順を紹介します。
+  </para>
+
+  <orderedlist>
+    <listitem><para><literal>Class</literal> という名前のクラスのテストは、<literal>ClassTest</literal> という名前のクラスに記述します。</para></listitem>
+    <listitem><para><literal>ClassTest</literal> は、(ほとんどの場合) <literal>PHPUnit_Framework_TestCase</literal> を継承します。</para></listitem>
+    <listitem><indexterm><primary>Annotation</primary></indexterm><indexterm><primary>@test</primary></indexterm><para>テストは、<literal>test*</literal> という名前のパブリックメソッドとなります。</para><para><indexterm><primary>Annotation</primary></indexterm>あるいは、<literal>@test</literal> アノテーションをメソッドのコメント部で使用することで、それがテストメソッドであることを示すこともできます。</para></listitem>
+    <listitem><para>テストメソッドの中で <literal>assertEquals()</literal> のようなアサーションメソッド (<xref linkend="api.assert" /> を参照ください) を使用して、期待される値と実際の値が等しいことを確かめます。</para></listitem>
+  </orderedlist>
+
+  <example id="writing-tests-for-phpunit.examples.StackTest.php">
+    <title>PHPUnit での配列操作のテスト</title>
+    <programlisting><![CDATA[<?php
+class StackTest extends PHPUnit_Framework_TestCase
+{
+    public function testPushAndPop()
+    {
+        $stack = array();
+        $this->assertEquals(0, count($stack));
+
+        array_push($stack, 'foo');
+        $this->assertEquals('foo', $stack[count($stack)-1]);
+        $this->assertEquals(1, count($stack));
+
+        $this->assertEquals('foo', array_pop($stack));
+        $this->assertEquals(0, count($stack));
+    }
+}
+?>]]></programlisting>
+  </example>
+
+  <blockquote>
+    <attribution>Martin Fowler</attribution>
+    <para>
+      Whenever you are tempted to type something into a
+      <literal>print</literal> statement or a debugger expression, write it
+      as a test instead.
+    </para>
+    <para>
+      何かを <literal>print</literal> 文やデバッガの式に書きたくなったときは、
+      代わりにその内容をテストに書くようにするんだ。
+    </para>
+  </blockquote>
+
+  <section id="writing-tests-for-phpunit.test-dependencies">
+    <title>テストの依存性</title>
+
+    <blockquote>
+      <attribution>Adrian Kuhn et. al.</attribution>
+      <para>
+        Unit Tests are primarily written as a good practice to help developers
+        identify and fix bugs, to refactor code and to serve as documentation
+        for a unit of software under test. To achieve these benefits, unit tests
+        ideally should cover all the possible paths in a program. One unit test
+        usually covers one specific path in one function or method. However a
+        test method is not necessary an encapsulated, independent entity. Often
+        there are implicit dependencies between test methods, hidden in the
+        implementation scenario of a test.
+      </para>
+      <para>
+        ユニットテストを書くそもそもの目的は、バグを発見と修正や
+        コードのリファクタリングを開発者がやりやすくすること。
+        そしてテスト対象のソフトウェアのドキュメントとしての役割を果たすことだ。
+        これらの目的を達成するためには、
+        ユニットテストがプログラム内のすべてのルートをカバーしていることが理想である。
+        ひとつのユニットテストがカバーするのは、
+        通常はひとつの関数やメソッド内の特定のルートだけとなる。
+        しかし、テストメソッドは必ずしもカプセル化して独立させる必要はない。
+        複数のテストメソッドの間に暗黙の依存性があって、
+        隠された実装シナリオがテストの中にあるのもよくあることだ。
+      </para>
+    </blockquote>
+
+    <para>
+      <indexterm><primary>Test Dependencies</primary></indexterm>
+
+      PHPUnit は、テストメソッド間の依存性の明示的な宣言をサポートしています。
+      この依存性とは、テストメソッドが実行される順序を定義するものではありません。
+      プロデューサーがテストフィクスチャを作ってそのインスタンスを返し、
+      依存するコンシューマーがそれを受け取って利用するというものです。
+    </para>
+
+    <itemizedlist>
+      <listitem><para>プロデューサーとは、返り値としてテスト対象のユニットを生成するテストメソッドのこと。</para></listitem>
+      <listitem><para>コンシューマーとは、プロデューサーの返り値に依存するテストメソッドのこと。</para></listitem>
+    </itemizedlist>
+
+    <para>
+      <indexterm><primary>Annotation</primary></indexterm>
+      <indexterm><primary>@depends</primary></indexterm>
+
+      <xref linkend="writing-tests-for-phpunit.examples.StackTest2.php"/>
+      は、<literal>@depends</literal> アノテーションを使ってテストメソッドの依存性をあらわす例です。
+    </para>
+
+    <example id="writing-tests-for-phpunit.examples.StackTest2.php">
+      <title><literal>@depends</literal> アノテーションを使った依存性の表現</title>
+      <programlisting><![CDATA[<?php
+class StackTest extends PHPUnit_Framework_TestCase
+{
+    public function testEmpty()
+    {
+        $stack = array();
+        $this->assertEmpty($stack);
+
+        return $stack;
+    }
+
+    /**
+     * @depends testEmpty
+     */
+    public function testPush(array $stack)
+    {
+        array_push($stack, 'foo');
+        $this->assertEquals('foo', $stack[count($stack)-1]);
+        $this->assertNotEmpty($stack);
+
+        return $stack;
+    }
+
+    /**
+     * @depends testPush
+     */
+    public function testPop(array $stack)
+    {
+        $this->assertEquals('foo', array_pop($stack));
+        $this->assertEmpty($stack);
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      上の例では、まず最初のテスト <literal>testEmpty()</literal>
+      で新しい配列を作り、それが空であることを確かめます。
+      このテストは、フィクスチャを返します。
+      二番目のテスト <literal>testPush()</literal> は
+      <literal>testEmpty()</literal> に依存しており、
+      依存するテストの結果を引数として受け取ります。
+      最後の <literal>testPop()</literal> は
+      <literal>testPush()</literal> に依存しています。
+    </para>
+
+    <para>
+      <indexterm><primary>Defect Localization</primary></indexterm>
+
+      問題の局所化を手早く行うには、失敗したテストに目を向けやすくしたいものです。
+      そのため PHPUnit では、
+      あるテストが失敗したときにはそのテストに依存する他のテストの実行をスキップします。
+      テスト間の依存性を活用して問題点を見つけやすくしている例を
+      <xref linkend="writing-tests-for-phpunit.examples.DependencyFailureTest.php"/>
+      に示します。
+    </para>
+
+    <example id="writing-tests-for-phpunit.examples.DependencyFailureTest.php">
+      <title>テストの依存性の活用</title>
+      <programlisting><![CDATA[<?php
+class DependencyFailureTest extends PHPUnit_Framework_TestCase
+{
+    public function testOne()
+    {
+        $this->assertTrue(FALSE);
+    }
+
+    /**
+     * @depends testOne
+     */
+    public function testTwo()
+    {
+    }
+}
+?>]]></programlisting>
+      <screen><userinput>phpunit --verbose DependencyFailureTest</userinput><![CDATA[
+PHPUnit 3.6.0 by Sebastian Bergmann.
+
+DependencyFailureTest
+FS
+
+Time: 0 seconds
+
+There was 1 failure:
+
+1) testOne(DependencyFailureTest)
+Failed asserting that <boolean:false> is true.
+/home/sb/DependencyFailureTest.php:6
+
+There was 1 skipped test:
+
+1) testTwo(DependencyFailureTest)
+This test depends on "DependencyFailureTest::testOne" to pass.
+
+FAILURES!
+Tests: 2, Assertions: 1, Failures: 1, Skipped: 1.]]></screen>
+    </example>
+
+    <para>
+      ひとつのテストに複数の <literal>@depends</literal> アノテーションをつけることもできます。
+      PHPUnit はテストが実行される順序を変更しないので、
+      テストが実行されるときに確実に依存性が満たされているようにしておく必要があります。
+    </para>
+  </section>
+
+  <section id="writing-tests-for-phpunit.data-providers">
+    <title>データプロバイダ</title>
+
+    <para>
+      <indexterm><primary>Annotation</primary></indexterm>
+      <indexterm><primary>@dataProvider</primary></indexterm>
+      テストメソッドには任意の引数を渡すことができます。
+      この引数は、データプロバイダメソッド
+      (<xref linkend="writing-tests-for-phpunit.data-providers.examples.DataTest.php" />
+      の <literal>provider()</literal>)
+      で指定します。使用するデータプロバイダメソッドを指定するには
+      <literal>@dataProvider</literal> アノテーションを使用します。
+    </para>
+
+    <para>
+      データプロバイダメソッドは、<literal>public</literal>
+      でなければなりません。また、
+      メソッドの返り値の型は、配列の配列あるいはオブジェクト
+      (<literal>Iterator</literal> インターフェイスを実装しており、
+      反復処理の際に配列を返すもの) である必要があります。
+      この返り値の各要素に対して、その配列の中身を引数としてテストメソッドがコールされます。
+    </para>
+
+    <example id="writing-tests-for-phpunit.data-providers.examples.DataTest.php">
+      <title>データプロバイダの使用</title>
+      <programlisting><![CDATA[<?php
+class DataTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @dataProvider provider
+     */
+    public function testAdd($a, $b, $c)
+    {
+        $this->assertEquals($c, $a + $b);
+    }
+
+    public function provider()
+    {
+        return array(
+          array(0, 0, 0),
+          array(0, 1, 1),
+          array(1, 0, 1),
+          array(1, 1, 3)
+        );
+    }
+}
+?>]]></programlisting>
+
+    <screen><userinput>phpunit DataTest</userinput>
+<![CDATA[PHPUnit 3.6.0 by Sebastian Bergmann.
+
+...F
+
+Time: 0 seconds
+
+There was 1 failure:
+
+1) testAdd(DataTest) with data (1, 1, 3)
+Failed asserting that <integer:2> matches expected value <integer:3>.
+/home/sb/DataTest.php:21
+
+FAILURES!
+Tests: 4, Assertions: 4, Failures: 1.
+]]></screen>
+    </example>
+
+    <note>
+      <para>
+        <indexterm><primary>Annotation</primary></indexterm>
+        <indexterm><primary>@dataProvider</primary></indexterm>
+        <indexterm><primary>@depends</primary></indexterm>
+
+        <literal>@dataProvider</literal> で指定したメソッドと
+        <literal>@depends</literal> で指定したテストの両方からの入力を受け取るテストの場合、
+        データプロバイダからの引数のほうが依存するテストからの引数より先にきます。
+      </para>
+    </note>
+
+    <note>
+      <para>
+        <indexterm><primary>Annotation</primary></indexterm>
+        <indexterm><primary>@dataProvider</primary></indexterm>
+        <indexterm><primary>@depends</primary></indexterm>
+
+        あるテストがデータプロバイダを使う別のテストに依存している場合、
+        別のテストで少なくともひとつのデータセットに対するテストが成功すれば
+        そのテストも実行されます。
+        データプロバイダを使ったテストの結果をそのテストに注入することはできません。
+      </para>
+    </note>
+  </section>
+
+  <section id="writing-tests-for-phpunit.exceptions">
+    <title>例外のテスト</title>
+
+    <para>
+      <indexterm><primary>Annotation</primary></indexterm>
+      <indexterm><primary>@expectedException</primary></indexterm>
+
+      <xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest.php" />
+      は、テストするコード内で例外がスローされたかどうかを
+      <literal>@expectedException</literal> アノテーションを使用して調べる方法を示すものです。
+    </para>
+
+    <example id="writing-tests-for-phpunit.exceptions.examples.ExceptionTest.php">
+      <title>@expectedException アノテーションの使用法</title>
+      <programlisting><![CDATA[<?php
+class ExceptionTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testException()
+    {
+    }
+}
+?>]]></programlisting>
+      <screen><userinput>phpunit ExceptionTest</userinput>
+PHPUnit 3.6.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds
+
+There was 1 failure:
+
+1) testException(ExceptionTest)
+Expected exception InvalidArgumentException
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.</screen>
+    </example>
+
+    <para>
+      一方、<literal>setExpectedException()</literal>
+      メソッドを使用して、発生するであろう例外を指定することもできます。この方法を
+      <xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest2.php"/>
+      に示します。
+    </para>
+
+    <example id="writing-tests-for-phpunit.exceptions.examples.ExceptionTest2.php">
+      <title>テスト対象のコードで発生するであろう例外の指定</title>
+      <programlisting><![CDATA[<?php
+class ExceptionTest extends PHPUnit_Framework_TestCase
+{
+    public function testException()
+    {
+        $this->setExpectedException('InvalidArgumentException');
+    }
+}
+?>]]></programlisting>
+      <screen><userinput>phpunit ExceptionTest</userinput>
+PHPUnit 3.6.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds
+
+There was 1 failure:
+
+1) testException(ExceptionTest)
+Expected exception InvalidArgumentException
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.</screen>
+    </example>
+
+    <para>
+      <xref linkend="writing-tests-for-phpunit.exceptions.tables.api" />
+      は、例外をテストするために用意されているメソッドをまとめたものです。
+    </para>
+
+    <table id="writing-tests-for-phpunit.exceptions.tables.api">
+      <title>例外のテスト用のメソッド</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>メソッド</entry>
+            <entry>意味</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>void setExpectedException(string $exceptionName)</literal></entry>
+            <entry>発生することを期待する例外の名前を <literal>$exceptionName</literal> に設定します。</entry>
+          </row>
+          <row>
+            <entry><literal>String getExpectedException()</literal></entry>
+            <entry>発生することを期待する例外の名前を返します。</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <para>
+      一方、
+      <xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest3.php" />
+      のような方法で例外をテストすることもできます。
+    </para>
+
+    <example id="writing-tests-for-phpunit.exceptions.examples.ExceptionTest3.php">
+      <title>例外をテストするための、別の方法</title>
+      <programlisting><![CDATA[<?php
+class ExceptionTest extends PHPUnit_Framework_TestCase {
+    public function testException() {
+        try {
+            // ... 例外が発生するであろうコード ...
+        }
+
+        catch (InvalidArgumentException $expected) {
+            return;
+        }
+
+        $this->fail('期待通りの例外が発生しませんでした。');
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      例外が発生するはずの
+      <xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest3.php" />
+      のコードで例外が発生しなかった場合、それに続く
+      <literal>fail()</literal> (<xref linkend="api.assert.tables.bottleneck-methods" /> を参照ください)
+      によってテストが終了し、問題を報告します。期待通りに例外が発生すると、
+      <literal>catch</literal> ブロックが実行されてテストは正常終了します。
+    </para>
+  </section>
+
+  <section id="writing-tests-for-phpunit.errors">
+    <title>PHP のエラーのテスト</title>
+    <para>
+      <indexterm><primary>Error Handler</primary></indexterm>
+      <indexterm><primary>PHP Error</primary></indexterm>
+      <indexterm><primary>PHP Notice</primary></indexterm>
+      <indexterm><primary>PHP Warning</primary></indexterm>
+      <indexterm><primary>PHPUnit_Framework_Error</primary></indexterm>
+
+      デフォルトでは、PHPUnit はテストの実行中に発生した PHP のエラーや警告そして notice
+      を例外に変換します。これらの例外を用いて、たとえば
+      <xref linkend="writing-tests-for-phpunit.exceptions.examples.ErrorTest.php"/>
+      のように PHP のエラーが発生することをテストできます。
+    </para>
+
+    <example id="writing-tests-for-phpunit.exceptions.examples.ErrorTest.php">
+      <title>@expectedException を用いた、PHP エラーが発生することのテスト</title>
+      <programlisting><![CDATA[<?php
+class ExpectedErrorTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @expectedException PHPUnit_Framework_Error
+     */
+    public function testFailingInclude()
+    {
+        include 'not_existing_file.php';
+    }
+}
+?>]]></programlisting>
+      <screen><userinput>phpunit ExpectedErrorTest</userinput>
+PHPUnit 3.6.0 by Sebastian Bergmann.
+
+.
+
+Time: 0 seconds
+
+OK (1 test, 1 assertion)</screen>
+    </example>
+
+    <para>
+      <indexterm><primary>PHPUnit_Framework_Error_Notice</primary></indexterm>
+      <indexterm><primary>PHPUnit_Framework_Error_Warning</primary></indexterm>
+
+      <literal>PHPUnit_Framework_Error_Notice</literal> および
+      <literal>PHPUnit_Framework_Error_Warning</literal> は、
+      それぞれ PHP の notice と警告に対応します。
+    </para>
+  </section>
+</chapter>

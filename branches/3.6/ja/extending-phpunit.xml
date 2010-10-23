@@ -1,0 +1,371 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="extending-phpunit">
+  <title>PHPUnit の拡張</title>
+
+  <para>
+    テストを書きやすくする、あるいはテストの実行結果の表示方法を変更するなど、
+    PHPUnit はさまざまな方法で拡張することができます。
+    PHPUnit を拡張するための第一歩をここで説明します。
+  </para>
+
+  <section id="extending-phpunit.PHPUnit_Framework_TestCase">
+    <title>PHPUnit_Framework_TestCase のサブクラスの作成</title>
+
+    <para>
+      <indexterm><primary>PHPUnit_Framework_TestCase</primary></indexterm>
+
+      <literal>PHPUnit_Framework_TestCase</literal>
+      を継承した抽象サブクラスにユーティリティメソッドを書き、
+      そのクラスをさらに継承してテストクラスを作成します。
+      これが、PHPUnit を拡張するための一番簡単な方法です。
+    </para>
+  </section>
+
+  <section id="extending-phpunit.Assert">
+    <title>アサートクラスの作成</title>
+
+    <para>
+      <indexterm><primary>PHPUnit_Framework_Assert</primary></indexterm>
+      <indexterm><primary>Assertions</primary></indexterm>
+
+      あなたの目的に合った独自のアサーションを実装したクラスを作成します。
+    </para>
+  </section>
+
+  <section id="extending-phpunit.PHPUnit_Extensions_TestDecorator">
+    <title>PHPUnit_Extensions_TestDecorator のサブクラスの作成</title>
+
+    <para>
+      <indexterm><primary>PHPUnit_Extensions_TestDecorator</primary></indexterm>
+
+      <literal>PHPUnit_Extensions_TestDecorator</literal>
+      のサブクラスでテストケースあるいはテストスイートをラッピングし、
+      デコレータパターンを使用することで
+      各テストの実行前後に何らかの処理をさせることができます。
+    </para>
+
+    <para>
+      <indexterm><primary>PHPUnit_Extensions_RepeatedTest</primary></indexterm>
+      <indexterm><primary>PHPUnit_Extensions_TestSetup</primary></indexterm>
+
+      PHPUnit には、<literal>PHPUnit_Extensions_RepeatedTest</literal>
+      および <literal>PHPUnit_Extensions_TestSetup</literal>
+      という 2 つの具象テストデコレータが付属しています。
+      前者はテストを繰り返し実行し、それらが全て成功した場合にのみ成功とみなします。
+      後者については <xref linkend="fixtures" /> で説明しました。
+    </para>
+
+    <para>
+      <xref linkend="extending-phpunit.examples.RepeatedTest.php" />
+      は、テストデコレータ <literal>PHPUnit_Extensions_RepeatedTest</literal>
+      の一部を抜粋したものです。独自のデコレータを作成するための参考にしてください。
+    </para>
+
+    <example id="extending-phpunit.examples.RepeatedTest.php">
+      <title>RepeatedTest デコレータ</title>
+      <programlisting><![CDATA[<?php
+require_once 'PHPUnit/Extensions/TestDecorator.php';
+
+class PHPUnit_Extensions_RepeatedTest extends PHPUnit_Extensions_TestDecorator
+{
+    private $timesRepeat = 1;
+
+    public function __construct(PHPUnit_Framework_Test $test, $timesRepeat = 1)
+    {
+        parent::__construct($test);
+
+        if (is_integer($timesRepeat) &&
+            $timesRepeat >= 0) {
+            $this->timesRepeat = $timesRepeat;
+        }
+    }
+
+    public function count()
+    {
+        return $this->timesRepeat * $this->test->count();
+    }
+
+    public function run(PHPUnit_Framework_TestResult $result = NULL)
+    {
+        if ($result === NULL) {
+            $result = $this->createResult();
+        }
+
+        for ($i = 0; $i < $this->timesRepeat && !$result->shouldStop(); $i++) {
+            $this->test->run($result);
+        }
+
+        return $result;
+    }
+}
+?>]]></programlisting>
+    </example>
+  </section>
+
+  <section id="extending-phpunit.PHPUnit_Framework_Test">
+    <title>PHPUnit_Framework_Test の実装</title>
+
+    <para>
+      <indexterm><primary>PHPUnit_Framework_Test</primary></indexterm>
+      <indexterm><primary>Data-Driven Tests</primary></indexterm>
+
+      <literal>PHPUnit_Framework_Test</literal> インターフェイスの機能は限られており、
+      実装するのは簡単です。<literal>PHPUnit_Framework_Test</literal>
+      を実装するのは <literal>PHPUnit_Framework_TestCase</literal> の実装より単純で、
+      これを用いて例えば <emphasis>データ駆動のテスト (data-driven tests)</emphasis>
+      などを実行します。
+    </para>
+
+    <para>
+      カンマ区切り (CSV) ファイルの値と比較する、データ駆動のテストを
+      <xref linkend="extending-phpunit.examples.DataDrivenTest.php" />
+      に示します。このファイルの各行は <literal>foo;bar</literal>
+      のような形式になっており (訳注: CSV じゃない……)、
+      最初の値が期待値で 2 番目の値が実際の値です。
+    </para>
+
+    <example id="extending-phpunit.examples.DataDrivenTest.php">
+      <title>データ駆動のテスト</title>
+      <programlisting><![CDATA[<?php
+require_once 'PHPUnit/Util/Timer.php';
+require_once 'PHPUnit/TextUI/TestRunner.php';
+
+class DataDrivenTest implements PHPUnit_Framework_Test
+{
+    private $lines;
+
+    public function __construct($dataFile)
+    {
+        $this->lines = file($dataFile);
+    }
+
+    public function count()
+    {
+        return 1;
+    }
+
+    public function run(PHPUnit_Framework_TestResult $result = NULL)
+    {
+        if ($result === NULL) {
+            $result = new PHPUnit_Framework_TestResult;
+        }
+
+        foreach ($this->lines as $line) {
+            $result->startTest($this);
+            PHPUnit_Util_Timer::start();
+
+            list($expected, $actual) = explode(';', $line);
+
+            try {
+                PHPUnit_Framework_Assert::assertEquals(trim($expected), trim($actual));
+            }
+
+            catch (PHPUnit_Framework_AssertionFailedError $e) {
+                $result->addFailure($this, $e, PHPUnit_Util_Timer::stop());
+            }
+
+            catch (Exception $e) {
+                $result->addError($this, $e, PHPUnit_Util_Timer::stop());
+            }
+
+            $result->endTest($this, PHPUnit_Util_Timer::stop());
+        }
+
+        return $result;
+    }
+}
+
+$test = new DataDrivenTest('data_file.csv');
+$result = PHPUnit_TextUI_TestRunner::run($test);
+?>]]></programlisting>
+
+      <screen><![CDATA[PHPUnit 3.6.0 by Sebastian Bergmann.
+
+.F
+
+Time: 0 seconds
+
+There was 1 failure:
+
+1) DataDrivenTest
+Failed asserting that two strings are equal.
+expected string <bar>
+difference      <  x>
+got string      <baz>
+/home/sb/DataDrivenTest.php:32
+/home/sb/DataDrivenTest.php:53
+
+FAILURES!
+Tests: 2, Failures: 1.]]></screen>
+    </example>
+  </section>
+
+  <section id="extending-phpunit.PHPUnit_Framework_TestResult">
+    <title>PHPUnit_Framework_TestResult のサブクラスの作成</title>
+
+    <para>
+      <indexterm><primary>PHPUnit_Framework_TestResult</primary></indexterm>
+
+      独自の <literal>PHPUnit_Framework_TestResult</literal> オブジェクトを
+      <literal>run()</literal> メソッドに渡すと、
+      テストの実行方法や収集されるテスト結果を変更することができます。
+    </para>
+  </section>
+
+  <section id="extending-phpunit.PHPUnit_Framework_TestListener">
+    <title>PHPUnit_Framework_TestListener の実装</title>
+
+    <para>
+      <indexterm><primary>PHPUnit_Framework_TestListener</primary></indexterm>
+      <indexterm><primary>PHPUnit_Framework_TestResult</primary></indexterm>
+
+      テスト結果をカスタマイズするために、必ず <literal>PHPUnit_Framework_TestResult</literal>
+      のサブクラスを書かなければならないというわけではありません。たいていは、
+      新しい <literal>PHPUnit_Framework_TestListener</literal> を実装して
+      (<xref linkend="api.testresult.tables.testlistener" /> を参照ください)、
+      テストの前にそれを <literal>PHPUnit_Framework_TestResult</literal>
+      オブジェクトにアタッチするだけで十分です。
+    </para>
+
+    <para>
+      <xref linkend="extending-phpunit.examples.SimpleTestListener.php" />
+      は、<literal>PHPUnit_Framework_TestListener</literal>
+      インターフェイスを実装する単純な例です。
+    </para>
+
+    <example id="extending-phpunit.examples.SimpleTestListener.php">
+      <title>シンプルなテストリスナー</title>
+      <programlisting><![CDATA[<?php
+class SimpleTestListener
+implements PHPUnit_Framework_TestListener
+{
+  public function
+  addError(PHPUnit_Framework_Test $test,
+           Exception $e,
+           $time)
+  {
+    printf(
+      "テスト '%s' の実行中にエラーが発生しました。\n",
+      $test->getName()
+    );
+  }
+
+  public function
+  addFailure(PHPUnit_Framework_Test $test,
+             PHPUnit_Framework_AssertionFailedError $e,
+             $time)
+  {
+    printf(
+      "テスト '%s' に失敗しました。\n",
+      $test->getName()
+    );
+  }
+
+  public function
+  addIncompleteTest(PHPUnit_Framework_Test $test,
+                    Exception $e,
+                    $time)
+  {
+    printf(
+      "テスト '%s' は未完了です。\n",
+      $test->getName()
+    );
+  }
+
+  public function
+  addSkippedTest(PHPUnit_Framework_Test $test,
+                 Exception $e,
+                 $time)
+  {
+    printf(
+      "テスト '%s' は省略されました。\n",
+      $test->getName()
+    );
+  }
+
+  public function startTest(PHPUnit_Framework_Test $test)
+  {
+    printf(
+      "テスト '%s' が開始されました。\n",
+      $test->getName()
+    );
+  }
+
+  public function endTest(PHPUnit_Framework_Test $test, $time)
+  {
+    printf(
+      "テスト '%s' が終了しました。\n",
+      $test->getName()
+    );
+  }
+
+  public function
+  startTestSuite(PHPUnit_Framework_TestSuite $suite)
+  {
+    printf(
+      "テストスイート '%s' が開始されました。\n",
+      $suite->getName()
+    );
+  }
+
+  public function
+  endTestSuite(PHPUnit_Framework_TestSuite $suite)
+  {
+    printf(
+      "テストスイート '%s' が終了しました。\n",
+      $suite->getName()
+    );
+  }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      <indexterm><primary>PHPUnit_Framework_TestResult</primary></indexterm>
+      <indexterm><primary>PHPUnit_Framework_TestSuite</primary></indexterm>
+
+      <xref linkend="extending-phpunit.examples.SimpleTestListener-example.php" />
+      は、テストスイートを実行して監視する方法を示したものです。
+    </para>
+
+    <example id="extending-phpunit.examples.SimpleTestListener-example.php">
+      <title>テストスイートの実行と監視</title>
+      <programlisting><![CDATA[<?php
+require_once 'ArrayTest.php';
+require_once 'SimpleTestListener.php';
+
+// ArrayTest クラスのテストを含む
+// テストスイートを作成します。
+$suite = new PHPUnit_Framework_TestSuite('ArrayTest');
+
+// テスト結果オブジェクトを作成し、そこにオブザーバとして
+// SimpleTestListener をアタッチします。
+$result = new PHPUnit_Framework_TestResult;
+$result->addListener(new SimpleTestListener);
+
+// テストを実行します。
+$suite->run($result);
+?>]]></programlisting>
+
+<screen>テストスイート 'ArrayTest' が開始されました。
+テスト 'testNewArrayIsEmpty' が開始されました。
+テスト 'testNewArrayIsEmpty' が終了しました。
+テスト 'testArrayContainsAnElement' が開始されました。
+テスト 'testArrayContainsAnElement' が終了しました。
+テストスイート 'ArrayTest' が終了しました。</screen>
+    </example>
+  </section>
+
+  <section id="extending-phpunit.TestRunner">
+    <title>新しいテストランナーの作成</title>
+
+    <para>
+      テストの実行結果を異なる方法で受け取りたい場合には、
+      独自のテストランナーを作成します。その際の初めの一歩となるのが、
+      <literal>PHPUnit_TextUI_TestRunner</literal> クラス (PHPUnit
+      のコマンドライン版テストランナー) の親クラスである抽象クラス
+      <literal>PHPUnit_Runner_BaseTestRunner</literal> です。
+    </para>
+  </section>
+</chapter>

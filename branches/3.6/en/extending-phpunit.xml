@@ -1,0 +1,373 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="extending-phpunit">
+  <title>Extending PHPUnit</title>
+
+  <para>
+    PHPUnit can be extended in various ways to make the writing of tests
+    easier and customize the feedback you get from running tests. Here are
+    common starting points to extend PHPUnit.
+  </para>
+
+  <section id="extending-phpunit.PHPUnit_Framework_TestCase">
+    <title>Subclass PHPUnit_Framework_TestCase</title>
+
+    <para>
+      <indexterm><primary>PHPUnit_Framework_TestCase</primary></indexterm>
+
+      Write utility methods in an abstract subclass of
+      <literal>PHPUnit_Framework_TestCase</literal> and derive your test case
+      classes from that class. This is one of the easiest ways to extend
+      PHPUnit.
+    </para>
+  </section>
+
+  <section id="extending-phpunit.Assert">
+    <title>Assert Classes</title>
+
+    <para>
+      <indexterm><primary>PHPUnit_Framework_Assert</primary></indexterm>
+      <indexterm><primary>Assertions</primary></indexterm>
+
+      Write your own class with assertions special to your purpose.
+    </para>
+  </section>
+
+  <section id="extending-phpunit.PHPUnit_Extensions_TestDecorator">
+    <title>Subclass PHPUnit_Extensions_TestDecorator</title>
+
+    <para>
+      <indexterm><primary>PHPUnit_Extensions_TestDecorator</primary></indexterm>
+
+      You can wrap test cases or test suites in a subclass of
+      <literal>PHPUnit_Extensions_TestDecorator</literal> and use the
+      Decorator design pattern to perform some actions before and after the
+      test runs.
+    </para>
+
+    <para>
+      <indexterm><primary>PHPUnit_Extensions_RepeatedTest</primary></indexterm>
+      <indexterm><primary>PHPUnit_Extensions_TestSetup</primary></indexterm>
+
+      PHPUnit ships with two concrete test decorators:
+      <literal>PHPUnit_Extensions_RepeatedTest</literal> and
+      <literal>PHPUnit_Extensions_TestSetup</literal>. The former is used to
+      run a test repeatedly and only count it as a success if all iterations
+      are successful. The latter was discussed in <xref linkend="fixtures" />.
+    </para>
+
+    <para>
+      <xref linkend="extending-phpunit.examples.RepeatedTest.php" />
+      shows a cut-down version of the <literal>PHPUnit_Extensions_RepeatedTest</literal>
+      test decorator that illustrates how to write your own test decorators.
+    </para>
+
+    <example id="extending-phpunit.examples.RepeatedTest.php">
+      <title>The RepeatedTest Decorator</title>
+      <programlisting><![CDATA[<?php
+require_once 'PHPUnit/Extensions/TestDecorator.php';
+
+class PHPUnit_Extensions_RepeatedTest extends PHPUnit_Extensions_TestDecorator
+{
+    private $timesRepeat = 1;
+
+    public function __construct(PHPUnit_Framework_Test $test, $timesRepeat = 1)
+    {
+        parent::__construct($test);
+
+        if (is_integer($timesRepeat) &&
+            $timesRepeat >= 0) {
+            $this->timesRepeat = $timesRepeat;
+        }
+    }
+
+    public function count()
+    {
+        return $this->timesRepeat * $this->test->count();
+    }
+
+    public function run(PHPUnit_Framework_TestResult $result = NULL)
+    {
+        if ($result === NULL) {
+            $result = $this->createResult();
+        }
+
+        for ($i = 0; $i < $this->timesRepeat && !$result->shouldStop(); $i++) {
+            $this->test->run($result);
+        }
+
+        return $result;
+    }
+}
+?>]]></programlisting>
+    </example>
+  </section>
+
+  <section id="extending-phpunit.PHPUnit_Framework_Test">
+    <title>Implement PHPUnit_Framework_Test</title>
+
+    <para>
+      <indexterm><primary>PHPUnit_Framework_Test</primary></indexterm>
+      <indexterm><primary>Data-Driven Tests</primary></indexterm>
+
+      The <literal>PHPUnit_Framework_Test</literal> interface is narrow and
+      easy to implement. You can write an implementation of
+      <literal>PHPUnit_Framework_Test</literal> that is simpler than
+      <literal>PHPUnit_Framework_TestCase</literal> and that runs
+      <emphasis>data-driven tests</emphasis>, for instance.
+    </para>
+
+    <para>
+      <xref linkend="extending-phpunit.examples.DataDrivenTest.php" />
+      shows a data-driven test case class that compares values from a file
+      with Comma-Separated Values (CSV). Each line of such a file looks like
+      <literal>foo;bar</literal>, where the first value is the one we expect
+      and the second value is the actual one.
+    </para>
+
+    <example id="extending-phpunit.examples.DataDrivenTest.php">
+      <title>A data-driven test</title>
+      <programlisting><![CDATA[<?php
+require_once 'PHPUnit/Util/Timer.php';
+require_once 'PHPUnit/TextUI/TestRunner.php';
+
+class DataDrivenTest implements PHPUnit_Framework_Test
+{
+    private $lines;
+
+    public function __construct($dataFile)
+    {
+        $this->lines = file($dataFile);
+    }
+
+    public function count()
+    {
+        return 1;
+    }
+
+    public function run(PHPUnit_Framework_TestResult $result = NULL)
+    {
+        if ($result === NULL) {
+            $result = new PHPUnit_Framework_TestResult;
+        }
+
+        foreach ($this->lines as $line) {
+            $result->startTest($this);
+            PHPUnit_Util_Timer::start();
+
+            list($expected, $actual) = explode(';', $line);
+
+            try {
+                PHPUnit_Framework_Assert::assertEquals(trim($expected), trim($actual));
+            }
+
+            catch (PHPUnit_Framework_AssertionFailedError $e) {
+                $result->addFailure($this, $e, PHPUnit_Util_Timer::stop());
+            }
+
+            catch (Exception $e) {
+                $result->addError($this, $e, PHPUnit_Util_Timer::stop());
+            }
+
+            $result->endTest($this, PHPUnit_Util_Timer::stop());
+        }
+
+        return $result;
+    }
+}
+
+$test = new DataDrivenTest('data_file.csv');
+$result = PHPUnit_TextUI_TestRunner::run($test);
+?>]]></programlisting>
+
+      <screen><![CDATA[PHPUnit 3.6.0 by Sebastian Bergmann.
+
+.F
+
+Time: 0 seconds
+
+There was 1 failure:
+
+1) DataDrivenTest
+Failed asserting that two strings are equal.
+expected string <bar>
+difference      <  x>
+got string      <baz>
+/home/sb/DataDrivenTest.php:32
+/home/sb/DataDrivenTest.php:53
+
+FAILURES!
+Tests: 2, Failures: 1.]]></screen>
+    </example>
+  </section>
+
+  <section id="extending-phpunit.PHPUnit_Framework_TestResult">
+    <title>Subclass PHPUnit_Framework_TestResult</title>
+
+    <para>
+      <indexterm><primary>PHPUnit_Framework_TestResult</primary></indexterm>
+
+      By passing a special-purpose <literal>PHPUnit_Framework_TestResult</literal>
+      object to the <literal>run()</literal> method, you can change the way
+      tests are run and what result data gets collected.
+    </para>
+  </section>
+
+  <section id="extending-phpunit.PHPUnit_Framework_TestListener">
+    <title>Implement PHPUnit_Framework_TestListener</title>
+
+    <para>
+      <indexterm><primary>PHPUnit_Framework_TestListener</primary></indexterm>
+      <indexterm><primary>PHPUnit_Framework_TestResult</primary></indexterm>
+
+      You do not necessarily need to write a whole subclass of
+      <literal>PHPUnit_Framework_TestResult</literal> in order to customize
+      it. Most of the time, it will suffice to implement a new
+      <literal>PHPUnit_Framework_TestListener</literal>
+      (see <xref linkend="api.testresult.tables.testlistener" />) and attach
+      it to the <literal>PHPUnit_Framework_TestResult</literal> object, before
+      running the tests.
+    </para>
+
+    <para>
+      <xref linkend="extending-phpunit.examples.SimpleTestListener.php" />
+      shows a simple implementation of the <literal>PHPUnit_Framework_TestListener</literal>
+      interface.
+    </para>
+
+    <example id="extending-phpunit.examples.SimpleTestListener.php">
+      <title>A simple test listener</title>
+      <programlisting><![CDATA[<?php
+class SimpleTestListener
+implements PHPUnit_Framework_TestListener
+{
+  public function
+  addError(PHPUnit_Framework_Test $test,
+           Exception $e,
+           $time)
+  {
+    printf(
+      "Error while running test '%s'.\n",
+      $test->getName()
+    );
+  }
+
+  public function
+  addFailure(PHPUnit_Framework_Test $test,
+             PHPUnit_Framework_AssertionFailedError $e,
+             $time)
+  {
+    printf(
+      "Test '%s' failed.\n",
+      $test->getName()
+    );
+  }
+
+  public function
+  addIncompleteTest(PHPUnit_Framework_Test $test,
+                    Exception $e,
+                    $time)
+  {
+    printf(
+      "Test '%s' is incomplete.\n",
+      $test->getName()
+    );
+  }
+
+  public function
+  addSkippedTest(PHPUnit_Framework_Test $test,
+                 Exception $e,
+                 $time)
+  {
+    printf(
+      "Test '%s' has been skipped.\n",
+      $test->getName()
+    );
+  }
+
+  public function startTest(PHPUnit_Framework_Test $test)
+  {
+    printf(
+      "Test '%s' started.\n",
+      $test->getName()
+    );
+  }
+
+  public function endTest(PHPUnit_Framework_Test $test, $time)
+  {
+    printf(
+      "Test '%s' ended.\n",
+      $test->getName()
+    );
+  }
+
+  public function
+  startTestSuite(PHPUnit_Framework_TestSuite $suite)
+  {
+    printf(
+      "TestSuite '%s' started.\n",
+      $suite->getName()
+    );
+  }
+
+  public function
+  endTestSuite(PHPUnit_Framework_TestSuite $suite)
+  {
+    printf(
+      "TestSuite '%s' ended.\n",
+      $suite->getName()
+    );
+  }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      <indexterm><primary>PHPUnit_Framework_TestResult</primary></indexterm>
+      <indexterm><primary>PHPUnit_Framework_TestSuite</primary></indexterm>
+
+      <xref linkend="extending-phpunit.examples.SimpleTestListener-example.php" />
+      shows how to run and observe a test suite.
+    </para>
+
+    <example id="extending-phpunit.examples.SimpleTestListener-example.php">
+      <title>Running and observing a test suite</title>
+      <programlisting><![CDATA[<?php
+require_once 'ArrayTest.php';
+require_once 'SimpleTestListener.php';
+
+// Create a test suite that contains the tests
+// from the ArrayTest class.
+$suite = new PHPUnit_Framework_TestSuite('ArrayTest');
+
+// Create a test result and attach a SimpleTestListener
+// object as an observer to it.
+$result = new PHPUnit_Framework_TestResult;
+$result->addListener(new SimpleTestListener);
+
+// Run the tests.
+$suite->run($result);
+?>]]></programlisting>
+
+<screen>TestSuite 'ArrayTest' started.
+Test 'testNewArrayIsEmpty' started.
+Test 'testNewArrayIsEmpty' ended.
+Test 'testArrayContainsAnElement' started.
+Test 'testArrayContainsAnElement' ended.
+TestSuite 'ArrayTest' ended.</screen>
+    </example>
+  </section>
+
+  <section id="extending-phpunit.TestRunner">
+    <title>New Test Runner</title>
+
+    <para>
+      If you need different feedback from the test execution, write your own
+      test runner, interactive or not. The abstract
+      <literal>PHPUnit_Runner_BaseTestRunner</literal> class, which the
+      <literal>PHPUnit_TextUI_TestRunner</literal> class (the PHPUnit
+      command-line test runner) inherits from, can be a starting point for
+      this.
+    </para>
+  </section>
+</chapter>

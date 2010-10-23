@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="testcase-extensions">
+  <title>TestCase Extensions</title>
+
+  <para>
+    PHPUnit provides extensions to the standard base-class for test classes,
+    <literal>PHPUnit_Framework_TestCase</literal>.
+  </para>
+
+  <section id="testcase-extensions.output">
+    <title>Testing Output</title>
+
+    <para>
+      <indexterm><primary>PHPUnit_Extensions_OutputTestCase</primary></indexterm>
+
+      Sometimes you want to assert that the execution of a method, for
+      instance, generates an expected output (via <literal>echo</literal> or
+      <literal>print</literal>, for example). The
+      <literal>PHPUnit_Extensions_OutputTestCase</literal> class uses PHP's
+      <ulink url="http://www.php.net/manual/en/ref.outcontrol.php">Output
+      Buffering</ulink> feature to provide the functionality that is
+      necessary for this.
+    </para>
+
+    <para>
+      <xref linkend="testcase-extensions.output.examples.OutputTest.php" />
+      shows how to subclass <literal>PHPUnit_Extensions_OutputTestCase</literal>
+      and use its <literal>expectOutputString()</literal> method to set the
+      expected output. If this expected output is not generated, the test
+      will be counted as a failure.
+    </para>
+
+    <example id="testcase-extensions.output.examples.OutputTest.php">
+      <title>Using PHPUnit_Extensions_OutputTestCase</title>
+      <programlisting><![CDATA[<?php
+require_once 'PHPUnit/Extensions/OutputTestCase.php';
+
+class OutputTest extends PHPUnit_Extensions_OutputTestCase
+{
+    public function testExpectFooActualFoo()
+    {
+        $this->expectOutputString('foo');
+        print 'foo';
+    }
+
+    public function testExpectBarActualBaz()
+    {
+        $this->expectOutputString('bar');
+        print 'baz';
+    }
+}
+?>]]></programlisting>
+      <screen><userinput>phpunit OutputTest</userinput><![CDATA[
+PHPUnit 3.6.0 by Sebastian Bergmann.
+
+.F
+
+Time: 0 seconds
+
+There was 1 failure:
+
+1) OutputTest::testExpectBarActualBaz
+Failed asserting that two strings are equal.
+--- Expected
++++ Actual
+@@ -1 +1 @@
+-bar
++baz
+
+FAILURES!
+Tests: 2, Assertions: 2, Failures: 1.]]></screen>
+    </example>
+
+    <para>
+      <xref linkend="testcase-extensions.output.tables.api" />
+      shows the methods provided by
+      <literal>PHPUnit_Extensions_OutputTestCase</literal>.
+    </para>
+
+    <table id="testcase-extensions.output.tables.api">
+      <title>OutputTestCase</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>Method</entry>
+            <entry>Meaning</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>void expectOutputRegex(string $regularExpression)</literal></entry>
+            <entry>Set up the expectation that the output matches a <literal>$regularExpression</literal>.</entry>
+          </row>
+          <row>
+            <entry><literal>void expectOutputString(string $expectedString)</literal></entry>
+            <entry>Set up the expectation that the output is equal to an <literal>$expectedString</literal>.</entry>
+          </row>
+          <row>
+            <entry><literal>bool setOutputCallback(callable $callback)</literal></entry>
+            <entry>Sets up a callback that is used to, for instance, normalize the actual output.</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <para>
+      There are two other extensions to <literal>PHPUnit_Framework_TestCase</literal>,
+      <literal>PHPUnit_Extensions_Database_TestCase</literal> and
+      <literal>PHPUnit_Extensions_SeleniumTestCase</literal>, that are covered
+      in <xref linkend="database" /> and <xref linkend="selenium" />,
+      respectively.
+    </para>
+  </section>
+</chapter>

@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="build-automation">
+  <title>ビルドの自動化</title>
+
+  <para>
+    この章では、PHPUnit とともに一般的に用いられるビルド自動化ツールについての概要を説明します。
+  </para>
+
+  <section id="build-automation.ant">
+    <title>Apache Ant</title>
+
+    <para>
+      <indexterm><primary>Apache Ant</primary></indexterm>
+
+      <ulink url="http://ant.apache.org/">Apache Ant</ulink> は Java
+      ベースのビルドツールです。理論的には <emphasis>make</emphasis>
+      と同じような種類のツールで、<emphasis>make</emphasis>
+      の古くさい部分を取り除いたものです。Apache Ant
+      のビルドファイルは XML 形式で、さまざまなタスクを定義したターゲットツリーを呼び出します。
+    </para>
+
+    <para>
+      <xref linkend="build-automation.ant.examples.build.xml"/> は
+      Apache Ant の build.xml ファイルの例です。これは、組み込みの
+      <literal><![CDATA[<exec>]]></literal> タスクで PHPUnit を実行します。
+      テストに失敗した場合は、ビルド処理を中断します
+      (<literal>failonerror="true"</literal>)。
+    </para>
+
+    <example id="build-automation.ant.examples.build.xml">
+      <title>PHPUnit を実行する Apache Ant build.xml ファイル</title>
+      <programlisting><![CDATA[<project name="Money" default="build">
+ <target name="clean">
+  <delete dir="${basedir}/build"/>
+ </target>
+
+ <target name="prepare">
+  <mkdir dir="${basedir}/build/logs"/>
+ </target>
+
+ <target name="phpunit">
+  <exec dir="${basedir}" executable="phpunit" failonerror="true">
+   <arg line="--log-xml ${basedir}/build/logs/phpunit.xml MoneyTest" />
+  </exec>
+ </target>
+
+ <target name="build" depends="clean,prepare,phpunit"/>
+</project>]]></programlisting>
+    </example>
+
+    <screen><userinput>ant</userinput>
+Buildfile: build.xml
+
+clean:
+
+prepare:
+    [mkdir] Created dir: /home/sb/Money/build/logs
+
+phpunit:
+     [exec] PHPUnit 3.6.0 by Sebastian Bergmann.
+     [exec]
+     [exec] ......................
+     [exec]
+     [exec] Time: 0 seconds
+     [exec]
+     [exec] OK (22 tests, 34 assertions)
+
+build:
+
+BUILD SUCCESSFUL
+Total time: 0 seconds</screen>
+
+    <para>
+      PHPUnit が作成する XML 形式のテスト結果ログファイル (<xref
+      linkend="logging.xml"/> を参照ください) は、Apache Ant の <ulink
+      url="http://ant.apache.org/manual/OptionalTasks/junit.html"><literal><![CDATA[<junit>]]></literal></ulink>
+      タスクが使用しているものにもとづいています。
+    </para>
+  </section>
+
+  <section id="build-automation.maven">
+    <title>Apache Maven</title>
+
+    <para>
+      <indexterm><primary>Apache Maven</primary></indexterm>
+
+      <ulink url="http://maven.apache.org/">Apache Maven</ulink>
+      は、ソフトウェアプロジェクトの管理や理解のためのツールです。
+      プロジェクト指向モデル (POM) にもとづいた Apache Maven は、
+      プロジェクトのビルドやレポート、ドキュメントの作成を共通の情報から行います。
+      <ulink url="http://www.php-maven.org/">Maven for PHP</ulink>
+      は、Maven の威力を用いて PHP プロジェクトのビルドやテスト、ドキュメント作成を行います。
+    </para>
+  </section>
+
+  <section id="build-automation.phing">
+    <title>Phing</title>
+
+    <para>
+      <indexterm><primary>Phing</primary></indexterm>
+      <indexterm><primary>Apache Ant</primary></indexterm>
+
+      <ulink url="http://www.phing.info/">Phing</ulink> (PHing Is Not GNU make)
+      は、Apache Ant をベースとしたプロジェクトビルドシステムです。
+      GNU make のような伝統的なビルドシステムができることなら何でもこなせます。
+      また、シンプルな XML 形式のビルドファイルおよび拡張可能な PHP の
+      "タスク" クラスを採用しており、
+      使いやすく柔軟なビルドフレームワークとなっています。
+      機能としては、ファイルの変換 (トークンの置換や XSLT 変換、
+      Smarty テンプレートによる変換など) やファイルシステム上の操作、
+      対話的なビルドのサポート、SQL の実行、CVS の操作、
+      PEAR パッケージの作成用のツールなどがあります。
+    </para>
+
+    <para>
+      <xref linkend="build-automation.phing.examples.build.xml"/> は
+      Phing の build.xml ファイルの例です。これは、組み込みの
+      <literal><![CDATA[<phpunit>]]></literal> タスクで PHPUnit を実行します。
+      テストに失敗した場合は、ビルド処理を中断します
+      (<literal>haltonfailure="true"</literal>)。
+    </para>
+
+    <example id="build-automation.phing.examples.build.xml">
+      <title>PHPUnit を実行する Phing build.xml ファイル</title>
+      <programlisting><![CDATA[<project name="Money" default="build">
+ <target name="clean">
+  <delete dir="build"/>
+ </target>
+
+ <target name="prepare">
+  <mkdir dir="build/logs"/>
+ </target>
+
+ <target name="phpunit">
+  <phpunit printsummary="true" haltonfailure="true">
+    <formatter todir="build/logs" type="xml"/>
+    <batchtest>
+      <fileset dir=".">
+        <include name="*Test.php"/>
+      </fileset>
+    </batchtest>
+  </phpunit>
+ </target>
+
+ <target name="build" depends="clean,prepare,phpunit"/>
+</project>]]></programlisting>
+    </example>
+
+    <screen><userinput>phing</userinput>
+Buildfile: /home/sb/Money/build.xml
+
+Money > clean:
+
+
+Money > prepare:
+
+    [mkdir] Created dir: /home/sb/Money/build/logs
+
+Money > phpunit:
+
+  [phpunit] Test: MoneyTest, Run: 22, Failures: 0, Errors: 0,
+            Incomplete: 0, Skipped: 0, Time elapsed: 0.06887 s
+
+Money > build:
+
+
+BUILD FINISHED
+
+Total time: 0.2632 seconds</screen>
+  </section>
+</chapter>

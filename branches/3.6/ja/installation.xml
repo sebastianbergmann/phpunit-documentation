@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="installation">
+  <title>PHPUnit のインストール</title>
+
+  <para>
+    PHPUnit をインストールするには、
+    <ulink url="http://pear.php.net/">PEAR インストーラ</ulink>
+    を使用します。このインストーラは PEAR の根幹をなすものであり、
+    PHP のパッケージを配布する仕組みを提供しています。また、バージョン
+    4.3.0 以降のすべての PHP に同梱されています。
+  </para>
+
+  <note>
+    <para>
+      PHPUnit 3.6 は PHP 5.2.7 以降のバージョンで動作しますが、PHP 5.3.3
+      以降を使うことを強く推奨します。
+    </para>
+
+    <para>
+      PHPUnit 3.6 では PHP_CodeCoverage というライブラリを使ってコードカバレッジ情報を処理していますが、
+      このライブラリを使うには Xdebug 2.0.5 以降が必要です。
+      しかし、Xdebug 2.1.0 以降を使うことを強く推奨します。
+    </para>
+  </note>
+
+  <para>
+    PHPUnit の配布に使用する PEAR チャネル (<systemitem role="URL">pear.phpunit.de</systemitem>)
+    を、ローカルの PEAR 環境に登録する必要があります。
+    さらに、PHPUnit が依存しているコンポーネントの中には
+    Symfony Components PEAR channel (<systemitem role="URL">pear.symfony-project.com</systemitem>)
+    に登録されているものもあります。
+  </para>
+
+  <screen><userinput>pear channel-discover pear.phpunit.de</userinput></screen>
+  <screen><userinput>pear channel-discover components.ez.no</userinput></screen>
+  <screen><userinput>pear channel-discover pear.symfony-project.com</userinput></screen>
+
+  <para>
+    これを行う必要があるのは最初の一度だけです。これで、PEAR
+    インストーラは PHPUnit チャネルからパッケージをインストールできるようになります。
+  </para>
+
+  <screen><userinput>pear install phpunit/PHPUnit</userinput></screen>
+
+  <para>
+    インストールすると、PHPUnit のソースファイルがローカルの PEAR
+    ディレクトリに格納されます。場所は、通常は
+    <filename>/usr/lib/php/PHPUnit</filename> です。
+  </para>
+
+  <para>
+    PHPUnit がサポートしているのは PEAR インストーラを使用する方法のみですが、
+    PHPUnit を手動でインストールすることも可能です。そのためには、
+    以下の手順に従ってください。
+  </para>
+
+  <orderedlist>
+    <listitem>
+      <para>
+        <literal>http://pear.phpunit.de/get/</literal>
+        からアーカイブをダウンロードし、それを <filename>php.ini</filename>
+        設定ファイルの <literal>include_path</literal>
+        で指定したディレクトリに展開します。
+      </para>
+    </listitem>
+
+    <listitem>
+      <para>
+        <filename>phpunit</filename> スクリプトを準備します。
+      </para>
+
+      <orderedlist>
+        <listitem>
+          <para>
+            <filename>phpunit.php</filename> スクリプトの名前を
+            <filename>phpunit</filename> に変更します。
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            その中の <literal>@php_bin@</literal> という文字列を、
+            PHP コマンドラインインタプリタへのパス (通常は
+            <filename>/usr/bin/php</filename>) に変更します。
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            それをパスの通ったディレクトリにコピーし、
+            実行可能属性を付与します (<literal>chmod +x phpunit</literal>)。
+          </para>
+        </listitem>
+      </orderedlist>
+    </listitem>
+
+    <listitem>
+      <para>
+        <filename>PHPUnit/Util/PHP.php</filename> スクリプトを準備します。
+      </para>
+
+      <orderedlist>
+        <listitem>
+          <para>
+            その中の <literal>@php_bin@</literal> という文字列を、
+            PHP コマンドラインインタプリタへのパス (通常は
+            <filename>/usr/bin/php</filename>) に変更します。
+          </para>
+        </listitem>
+      </orderedlist>
+    </listitem>
+  </orderedlist>
+</chapter>
