@@ -397,6 +397,43 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
       </example>
     </section>
 
+    <section id="api.assert.assertCount">
+      <title><literal>assertCount()</literal></title>
+      <indexterm><primary>assertCount()</primary></indexterm>
+      <indexterm><primary>assertNotCount()</primary></indexterm>
+      <para><literal>assertCount($expectedCount, $haystack[, string $message = ''])</literal></para>
+      <para><literal>$haystack</literal> の要素数が <literal>$expectedCount</literal> でない場合にエラー <literal>$message</literal> を報告します。</para>
+      <para><literal>assertNotCount()</literal> はこのアサーションの逆で、同じ引数をとります。</para>
+      <example id="api.assert.assertCount.example">
+        <title>assertCount() の使用法</title>
+        <programlisting><![CDATA[<?php
+class CountTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertCount(0, array('foo'));
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit CountTest</userinput><![CDATA[
+PHPUnit 3.6.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds
+
+There was 1 failure:
+
+1) CountTest::testFailure
+Count of 1 does not match expected count of 0.
+
+/home/sb/CountTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+      </example>
+    </section>
+
     <section id="api.assert.assertEmpty">
       <title><literal>assertEmpty()</literal></title>
       <indexterm><primary>assertEmpty()</primary></indexterm>
