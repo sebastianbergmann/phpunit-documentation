@@ -171,14 +171,62 @@ class StubTest extends PHPUnit_Framework_TestCase
     </itemizedlist>
 
     <para>
+      もうひとつのやり方として、生成されたテストダブルクラスの設定を
+      モックビルダー API で行うことができます。
+      <xref linkend="test-doubles.stubs.examples.StubTest2.php"/> に例を示します。
+      モックビルダーで使えるメソッドの一覧は次のとおりです。
+    </para>
+
+    <itemizedlist>
+      <listitem><para><literal>setMethods(array $methods)</literal> をモックビルダーオブジェクト上でコールすると、テストダブルで置き換えるメソッドを指定することができます。その他のメソッドの挙動は変更しません。</para></listitem>
+      <listitem><para><literal>setConstructorArgs(array $args)</literal> をコールしてパラメータの配列を渡すと、それを元クラスのコンストラクタに渡すことができます (デフォルトのダミー実装では、コンストラクタは置き換えません)。</para></listitem>
+      <listitem><para><literal>setMockClassName($name)</literal> を使うと、生成されるテストダブルクラスのクラス名を指定することができます。</para></listitem>
+      <listitem><para><literal>disableOriginalConstructor()</literal> を使うと、元クラスのコンストラクタを無効にすることができます。</para></listitem>
+      <listitem><para><literal>disableOriginalClone()</literal> を使うと、元クラスのクローンコンストラクタを無効にすることができます。</para></listitem>
+      <listitem><para><literal>disableAutoload()</literal> を使うと、テストダブルクラスを生成するときに <literal>__autoload()</literal> を無効にすることができます。</para></listitem>
+    </itemizedlist>
+
+    <example id="test-doubles.stubs.examples.StubTest2.php">
+      <indexterm><primary>getMockBuilder()</primary></indexterm>
+      <indexterm><primary>expects()</primary></indexterm>
+      <indexterm><primary>method()</primary></indexterm>
+      <indexterm><primary>will()</primary></indexterm>
+      <indexterm><primary>returnValue()</primary></indexterm>
+      <title>モックビルダー API を使った、生成されるテストダブルクラスの変更</title>
+      <programlisting><![CDATA[<?php
+require_once 'SomeClass.php';
+
+class StubTest extends PHPUnit_Framework_TestCase
+{
+    public function testStub()
+    {
+        // SomeClass クラスのスタブを作成します
+        $stub = $this->getMockBuilder('SomeClass')
+                     ->disableOriginalConstructor()
+                     ->getMock();
+
+        // スタブの設定を行います
+        $stub->expects($this->any())
+             ->method('doSomething')
+             ->will($this->returnValue('foo'));
+
+        // $stub->doSomething() をコールすると
+        // 'foo' を返すようになります
+        $this->assertEquals('foo', $stub->doSomething());
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
       時には、メソッドをコールした際の引数のひとつを
       (そのまま) スタブメソッドコールの返り値としたいこともあるでしょう。
-      <xref linkend="test-doubles.stubs.examples.StubTest2.php"/> は、
+      <xref linkend="test-doubles.stubs.examples.StubTest3.php"/> は、
       <literal>returnValue()</literal> のかわりに
       <literal>returnArgument()</literal> を用いてこれを実現する例です。
     </para>
 
-    <example id="test-doubles.stubs.examples.StubTest2.php">
+    <example id="test-doubles.stubs.examples.StubTest3.php">
       <indexterm><primary>getMock()</primary></indexterm>
       <indexterm><primary>expects()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
@@ -217,11 +265,11 @@ class StubTest extends PHPUnit_Framework_TestCase
       ではなく計算した値を返したい場合は、
       <literal>returnCallback()</literal> を使用します。
       これは、スタブメソッドからコールバック関数やメソッドの結果を返させます。
-      <xref linkend="test-doubles.stubs.examples.StubTest3.php"/>
+      <xref linkend="test-doubles.stubs.examples.StubTest4.php"/>
       を参照ください。
     </para>
 
-    <example id="test-doubles.stubs.examples.StubTest3.php">
+    <example id="test-doubles.stubs.examples.StubTest4.php">
       <indexterm><primary>getMock()</primary></indexterm>
       <indexterm><primary>expects()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
@@ -254,11 +302,11 @@ class StubTest extends PHPUnit_Framework_TestCase
       コールバックメソッドを設定するよりももう少しシンプルな方法として、
       希望する返り値のリストを指定することもできます。この場合に使うのは
       <literal>onConsecutiveCalls()</literal> メソッドです。
-      <xref linkend="test-doubles.stubs.examples.StubTest4.php"/>
+      <xref linkend="test-doubles.stubs.examples.StubTest5.php"/>
       の例を参照ください。
     </para>
 
-    <example id="test-doubles.stubs.examples.StubTest4.php">
+    <example id="test-doubles.stubs.examples.StubTest5.php">
       <indexterm><primary>getMock()</primary></indexterm>
       <indexterm><primary>expects()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
@@ -292,11 +340,11 @@ class StubTest extends PHPUnit_Framework_TestCase
 
     <para>
       値を返すのではなく、スタブメソッドで例外を発生させることもできます。
-      <xref linkend="test-doubles.stubs.examples.StubTest5.php"/>
+      <xref linkend="test-doubles.stubs.examples.StubTest6.php"/>
       に、<literal>throwException()</literal> でこれを行う方法を示します。
     </para>
 
-    <example id="test-doubles.stubs.examples.StubTest5.php">
+    <example id="test-doubles.stubs.examples.StubTest6.php">
       <indexterm><primary>getMock()</primary></indexterm>
       <indexterm><primary>expects()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
