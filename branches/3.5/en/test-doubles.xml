@@ -151,14 +151,62 @@ class StubTest extends PHPUnit_Framework_TestCase
     </itemizedlist>
 
     <para>
+      Alternatively, the Mock Builder API can be used to configure the generated
+      test double class. <xref linkend="test-doubles.stubs.examples.StubTest2.php"/>
+      shows an example. Here's a list of the methods that can be used with the
+      Mock Builder's fluent interface:
+    </para>
+
+    <itemizedlist>
+      <listitem><para><literal>setMethods(array $methods)</literal> can be called on the Mock Builder object to specify the methods that are to be replaced with a configurable test double. The behavior of the other methods is not changed.</para></listitem>
+      <listitem><para><literal>setConstructorArgs(array $args)</literal> can be called to provide a parameter array that is passed to the original class' constructor (which is not replaced with a dummy implementation by default).</para></listitem>
+      <listitem><para><literal>setMockClassName($name)</literal> can be used to specify a class name for the generated test double class.</para></listitem>
+      <listitem><para><literal>disableOriginalConstructor()</literal> can be used to disable the call to the original class' constructor.</para></listitem>
+      <listitem><para><literal>disableOriginalClone()</literal> can be used to disable the call to the original class' clone constructor.</para></listitem>
+      <listitem><para><literal>disableAutoload()</literal> can be used to disable <literal>__autoload()</literal> during the generation of the test double class.</para></listitem>
+    </itemizedlist>
+
+    <example id="test-doubles.stubs.examples.StubTest2.php">
+      <indexterm><primary>getMockBuilder()</primary></indexterm>
+      <indexterm><primary>expects()</primary></indexterm>
+      <indexterm><primary>method()</primary></indexterm>
+      <indexterm><primary>will()</primary></indexterm>
+      <indexterm><primary>returnValue()</primary></indexterm>
+      <title>Using the Mock Builder API can be used to configure the generated test double class</title>
+      <programlisting><![CDATA[<?php
+require_once 'SomeClass.php';
+
+class StubTest extends PHPUnit_Framework_TestCase
+{
+    public function testStub()
+    {
+        // Create a stub for the SomeClass class.
+        $stub = $this->getMockBuilder('SomeClass')
+                     ->disableOriginalConstructor()
+                     ->getMock();
+
+        // Configure the stub.
+        $stub->expects($this->any())
+             ->method('doSomething')
+             ->will($this->returnValue('foo'));
+
+        // Calling $stub->doSomething() will now return
+        // 'foo'.
+        $this->assertEquals('foo', $stub->doSomething());
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
       Sometimes you want to return one of the arguments of a method call
       (unchanged) as the result of a stubbed method call.
-      <xref linkend="test-doubles.stubs.examples.StubTest2.php"/> shows how you
+      <xref linkend="test-doubles.stubs.examples.StubTest3.php"/> shows how you
       can achieve this using <literal>returnArgument()</literal> instead of
       <literal>returnValue()</literal>.
     </para>
 
-    <example id="test-doubles.stubs.examples.StubTest2.php">
+    <example id="test-doubles.stubs.examples.StubTest3.php">
       <indexterm><primary>getMock()</primary></indexterm>
       <indexterm><primary>expects()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
@@ -196,10 +244,10 @@ class StubTest extends PHPUnit_Framework_TestCase
       argument (see <literal>returnArgument()</literal>), you can use
       <literal>returnCallback()</literal> to have the stubbed method return the
       result of a callback function or method. See
-      <xref linkend="test-doubles.stubs.examples.StubTest3.php"/> for an example.
+      <xref linkend="test-doubles.stubs.examples.StubTest4.php"/> for an example.
     </para>
 
-    <example id="test-doubles.stubs.examples.StubTest3.php">
+    <example id="test-doubles.stubs.examples.StubTest4.php">
       <indexterm><primary>getMock()</primary></indexterm>
       <indexterm><primary>expects()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
@@ -232,11 +280,11 @@ class StubTest extends PHPUnit_Framework_TestCase
 	  A simpler alternative to setting up a callback method may be to
 	  specify a list of desired return values. You can do this with
 	  the <literal>onConsecutiveCalls()</literal> method. See
-	  <xref linkend="test-doubles.stubs.examples.StubTest4.php"/> for
+	  <xref linkend="test-doubles.stubs.examples.StubTest5.php"/> for
 	  an example.
 	</para>
 
-    <example id="test-doubles.stubs.examples.StubTest4.php">
+    <example id="test-doubles.stubs.examples.StubTest5.php">
       <indexterm><primary>getMock()</primary></indexterm>
       <indexterm><primary>expects()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
@@ -271,11 +319,11 @@ class StubTest extends PHPUnit_Framework_TestCase
 
     <para>
       Instead of returning a value, a stubbed method can also raise an
-      exception. <xref linkend="test-doubles.stubs.examples.StubTest5.php"/>
+      exception. <xref linkend="test-doubles.stubs.examples.StubTest6.php"/>
       shows how to use <literal>throwException()</literal> to do this.
     </para>
 
-    <example id="test-doubles.stubs.examples.StubTest5.php">
+    <example id="test-doubles.stubs.examples.StubTest6.php">
       <indexterm><primary>getMock()</primary></indexterm>
       <indexterm><primary>expects()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
