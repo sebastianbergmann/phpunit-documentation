@@ -181,7 +181,7 @@
 
 <xsl:template match="partintro/subtitle" mode="partintro.title.mode">
   <h3>
-    <i><xsl:apply-templates/></i>
+    <em xmlns:xslo="http://www.w3.org/1999/XSL/Transform"><xsl:apply-templates/></em>
   </h3>
 </xsl:template>
 

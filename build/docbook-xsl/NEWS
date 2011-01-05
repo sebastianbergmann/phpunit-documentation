@@ -1,6 +1,6 @@
-Changes since the 1.75.1 release
+Changes since the 1.76.0 release
 
-Note: This document lists changes only since the 1.75.1 release. If you instead
+Note: This document lists changes only since the 1.76.0 release. If you instead
 want a record of the complete list of changes for the codebase over its entire
 history, you can obtain one by running the following commands:
 
@@ -11,149 +11,129 @@ history, you can obtain one by running the following commands:
 
 Table of Contents
 
-Release Notes: 1.75.2
+Release Notes: 1.76.1
 
-    Gentext
     Common
     FO
     HTML
-    Manpages
     Epub
+    Webhelp
     Params
-    Profiling
-    XSL-Saxon
-    XSL-Xalan
+    Extensions
 
-Release Notes: 1.75.2
+Release Notes: 1.76.1
 
-The following is a list of changes that have been made since the 1.75.1
+The following is a list of changes that have been made since the 1.76.0
 release.
-
-Gentext
-
-The following changes have been made to the gentext code since the 1.75.1
-release.
-
-  ● Keith Fahlgren: Makefile
-
-    Add Icelandic
-
-  ● dleidert: locale/ja.xml
-
-    Improved Japanese translation for Note(s). Closes bug #2823965.
-
-  ● dleidert: locale/pl.xml
-
-    Polish alphabet contains O with acute accent, not with grave accent. Closes bug #2823964.
-
-  ● Robert Stayton: locale/ja.xml
-
-    Fix translation of "index", per bug report 2796064.
-
-  ● Robert Stayton: locale/is.xml
-
-    New Icelandic locale file.
 
 Common
 
-The following changes have been made to the common code since the 1.75.1
+The following changes have been made to the common code since the 1.76.0
 release.
 
-  ● Keith Fahlgren: Makefile
+  ● Mauritz Jeanson: Makefile
 
-    Add Icelandic
+    Added eu.xml and gl.xml to SOURCES.
 
-  ● Norman Walsh: stripns.xsl
+  ● Jirka Kosek: l10n.xsl
 
-    Support more downconvert cases
-
-  ● Robert Stayton: titles.xsl
-
-    Make sure title inside info is used if no other title.
+    Fixed bug when context was lost due to usage of xsl:key
 
 FO
 
-The following changes have been made to the fo code since the 1.75.1 release.
+The following changes have been made to the fo code since the 1.76.0 release.
 
-  ● Robert Stayton: pi.xsl
+  ● Robert Stayton: docbook.xsl; xref.xsl; fop1.xsl
 
-    Turn off dbfo-need for fop1.extensions also, per bug #2816141.
+    Apply patch to support named destination in fop1.xsl, per Sourceforge
+    bug report #3029845.
+
+  ● dleidert: pagesetup.xsl
+
+    Remove the namespace mistakingly added with the last upload.
 
 HTML
 
-The following changes have been made to the html code since the 1.75.1 release.
+The following changes have been made to the html code since the 1.76.0 release.
 
-  ● Mauritz Jeanson: titlepage.xsl
+  ● Keith Fahlgren: highlight.xsl
 
-    Output "Copyright" heading in XHTML too.
-
-  ● Mauritz Jeanson: titlepage.xsl
-
-    Added stylesheet.result.type test for copyright. Closes bug #2813289.
-
-  ● Norman Walsh: htmltbl.xsl
-
-    Remove ambiguity wrt @span, @rowspan, and @colspan
-
-Manpages
-
-The following changes have been made to the manpages code since the 1.75.1
-release.
-
-  ● Mauritz Jeanson: endnotes.xsl
-
-    Added normalize-space() for ulink content. Closes bug #2793877.
-
-  ● Mauritz Jeanson: docbook.xsl
-
-    Added stylesheet.result.type test for copyright. Closes bug #2813289.
+    Implementing handling for <b> and <i>: transform to <strong> and <em> for XHTML outputs and do not use in the highliting output (per Mauritz Jeanson)
 
 Epub
 
-The following changes have been made to the epub code since the 1.75.1 release.
+The following changes have been made to the epub code since the 1.76.0 release.
+
+  ● Keith Fahlgren: docbook.xsl
+
+    Bugfix for [#3071521] to ensure that NCX navPoints are generated for d:book root nodes with the -NS version of the stylesheets
+
+  ● Keith Fahlgren: docbook.xsl
+
+    Remove unused NCX metadata elements
+
+  ● Keith Fahlgren: bin/spec/epub_regressions_spec.rb; docbook.xsl; bin/spec/
+    files/test_cust.x⋯
+
+    Normalizing identifier lookup between NCX and OPF
+
+  ● Keith Fahlgren: bin/dbtoepub
+
+    Reduce logging verbosity
 
   ● Keith Fahlgren: bin/dbtoepub; bin/lib/docbook.rb
 
-    Corrected bugs caused by path and file assumptions were not met
+    Only copy images once for the DocBook to EPUB tool to correct Windows bug reported in [#3065489]
 
-  ● Keith Fahlgren: bin/lib/docbook.rb; docbook.xsl
+Webhelp
 
-    Cleaning up hardcoded values into parameters and fixing Ruby library to pass them properly; all thanks to patch from Liza Daly
+The following changes have been made to the webhelp code since the 1.76.0
+release.
+
+  ● David Cramer: indexer
+
+    More webhelp indexer refactoring
+
+  ● David Cramer: build.xml
+
+    Removed cruft from before webhelp indexer refactoring
+
+  ● David Cramer: indexer/src
+
+    Refactoring webhelp to separate more cleanly the xsl and java code.
+
+  ● David Cramer: indexer/lib
+
+    Refactoring webhelp to separate more cleanly the xsl and java code.
+
+  ● David Cramer: Makefile; build.xml
+
+    Refactoring webhelp to separate more cleanly the xsl and java code.
+
+  ● David Cramer: indexer/src/com/nexwave/nquindexer/IndexerTask.java;
+    build.xml; indexer/src/⋯
+
+    Merged in changes from webhelp branch to address issue #3058244 regarding the xx.html temp file that was being created
 
 Params
 
-The following changes have been made to the params code since the 1.75.1
+The following changes have been made to the params code since the 1.76.0
 release.
 
-  ● Mauritz Jeanson: highlight.source.xml
+  ● Robert Stayton: draft.mode.xml
 
-    Fixed typo.
+    Change default for draft.mode to 'no'.
 
-Profiling
+Extensions
 
-The following changes have been made to the profiling code since the 1.75.1
+The following changes have been made to the extensions code since the 1.76.0
 release.
 
-  ● Robert Stayton: profile.xsl
+  ● David Cramer: Makefile
 
-    Fix bug 2815493 missing exsl.node.set.available parameter.
+    More webhelp refactoring
 
-XSL-Saxon
+  ● David Cramer: Makefile
 
-The following changes have been made to the xsl-saxon code since the 1.75.1
-release.
-
-  ● Mauritz Jeanson: src/com/nwalsh/saxon/ColumnUpdateEmitter.java; src/com/
-    nwalsh/saxon/Colum⋯
-
-    Added fixes so that colgroups in the XHTML namespace are processed properly.
-
-XSL-Xalan
-
-The following changes have been made to the xsl-xalan code since the 1.75.1
-release.
-
-  ● Mauritz Jeanson: nbproject/project.xml
-
-    Added missing NetBeans configuration.
+    Refactoring webhelp to separate more cleanly the xsl and java code.
 

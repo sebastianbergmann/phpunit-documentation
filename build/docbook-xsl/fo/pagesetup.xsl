@@ -4,7 +4,7 @@
                 version="1.0">
 
 <!-- ********************************************************************
-     $Id: pagesetup.xsl 8320 2009-03-12 17:43:44Z mzjn $
+     $Id: pagesetup.xsl 8900 2010-08-29 20:04:32Z dleidert $
      ********************************************************************
 
      This file is part of the DocBook XSL Stylesheet distribution.
@@ -2445,6 +2445,7 @@
     <xsl:when test="$element = 'toc' and self::book">i</xsl:when>
     <xsl:when test="$element = 'preface'">i</xsl:when>
     <xsl:when test="$element = 'dedication'">i</xsl:when>
+    <xsl:when test="$element = 'acknowledgements'">i</xsl:when>
     <xsl:otherwise>1</xsl:otherwise>
   </xsl:choose>
 </xsl:template>
@@ -2463,6 +2464,7 @@
                               self::bookinfo or
                               self::info or
                               self::dedication or
+                              self::acknowledgements or
                               self::preface or
                               self::toc or
                               self::lot)][1]"/>

@@ -3,7 +3,7 @@
                 version='1.0'>
 
 <!-- ********************************************************************
-     $Id: lists.xsl 8435 2009-05-11 08:14:54Z bobstayton $
+     $Id: lists.xsl 8524 2009-10-10 02:45:47Z abdelazer $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -426,24 +426,24 @@
       <xsl:call-template name="anchor"/>
       <xsl:choose>
         <xsl:when test="$presentation = 'bold'">
-          <b>
+          <strong>
             <xsl:apply-templates select="term"/>
             <xsl:value-of select="$separator"/>
-          </b>
+          </strong>
         </xsl:when>
         <xsl:when test="$presentation = 'italic'">
-          <i>
+          <em>
             <xsl:apply-templates select="term"/>
             <xsl:value-of select="$separator"/>
-          </i>
+          </em>
         </xsl:when>
         <xsl:when test="$presentation = 'bold-italic'">
-          <b>
-            <i>
+          <strong>
+            <em>
               <xsl:apply-templates select="term"/>
               <xsl:value-of select="$separator"/>
-            </i>
-          </b>
+            </em>
+          </strong>
         </xsl:when>
         <xsl:otherwise>
           <xsl:apply-templates select="term"/>

@@ -10,7 +10,7 @@
                 version='1.0'>
 
 <!-- ********************************************************************
-     $Id: inline.xsl 8421 2009-05-04 07:49:49Z bobstayton $
+     $Id: inline.xsl 8811 2010-08-09 20:24:45Z mzjn $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -18,6 +18,10 @@
      copyright and other information.
 
      ******************************************************************** -->
+
+<xsl:key name="glossentries" match="glossentry" use="normalize-space(glossterm)"/>
+<xsl:key name="glossentries" match="glossentry" use="normalize-space(glossterm/@baseform)"/>
+
 <xsl:template name="simple.xlink">
   <xsl:param name="node" select="."/>
   <xsl:param name="content">
@@ -145,16 +149,18 @@
               </xsl:if>
 
               <!-- For URIs, use @xlink:show if defined, otherwise use ulink.target -->
-              <xsl:attribute name="target">
-                <xsl:choose>
-                  <xsl:when test="$target.show !=''">
+              <xsl:choose>
+                <xsl:when test="$target.show !=''">
+                  <xsl:attribute name="target">
                     <xsl:value-of select="$target.show"/>
-                  </xsl:when>
-                  <xsl:otherwise>
-                  <xsl:value-of select="$ulink.target"/>
-                  </xsl:otherwise>
-                </xsl:choose>
-              </xsl:attribute>
+                  </xsl:attribute>
+                </xsl:when>
+                <xsl:when test="$ulink.target !=''">
+                  <xsl:attribute name="target">
+                    <xsl:value-of select="$ulink.target"/>
+                  </xsl:attribute>
+                </xsl:when>
+              </xsl:choose>
               
               <xsl:copy-of select="$content"/>
             </a>
@@ -1012,8 +1018,7 @@
         </xsl:choose>
       </xsl:variable>
       <xsl:variable name="targets"
-                    select="//glossentry[normalize-space(glossterm)=$term
-                              or normalize-space(glossterm/@baseform)=$term]"/>
+                    select="key('glossentries', $term)"/>
       <xsl:variable name="target" select="$targets[1]"/>
 
       <xsl:choose>
@@ -1329,7 +1334,7 @@
 
 <xsl:template match="comment[&comment.block.parents;]|remark[&comment.block.parents;]">
   <xsl:if test="$show.comments != 0">
-    <p class="remark"><i><xsl:call-template name="inline.charseq"/></i></p>
+    <p class="remark"><em><xsl:call-template name="inline.charseq"/></em></p>
   </xsl:if>
 </xsl:template>
 

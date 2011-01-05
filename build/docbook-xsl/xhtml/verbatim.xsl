@@ -4,7 +4,7 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:sverb="http://nwalsh.com/xslt/ext/com.nwalsh.saxon.Verbatim" xmlns:xverb="xalan://com.nwalsh.xalan.Verbatim" xmlns:lxslt="http://xml.apache.org/xslt" xmlns:exsl="http://exslt.org/common" xmlns="http://www.w3.org/1999/xhtml" exclude-result-prefixes="sverb xverb lxslt exsl" version="1.0">
 
 <!-- ********************************************************************
-     $Id: verbatim.xsl 8421 2009-05-04 07:49:49Z bobstayton $
+     $Id: verbatim.xsl 8807 2010-08-09 18:57:41Z bobstayton $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -28,6 +28,13 @@
   </xsl:variable>
 
   <xsl:call-template name="anchor"/>
+
+  <xsl:variable name="div.element">
+    <xsl:choose>
+      <xsl:when test="$make.clean.html != 0">div</xsl:when>
+      <xsl:otherwise>pre</xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
 
   <xsl:if test="$shade.verbatim != 0">
     <xsl:message>
@@ -53,7 +60,7 @@
           </xsl:otherwise>
         </xsl:choose>
       </xsl:variable>
-      <pre>
+      <xsl:element name="{$div.element}" namespace="http://www.w3.org/1999/xhtml">
         <xsl:apply-templates select="." mode="common.html.attributes"/>
         <xsl:if test="@width != ''">
           <xsl:attribute name="width">
@@ -63,10 +70,10 @@
         <xsl:call-template name="number.rtf.lines">
           <xsl:with-param name="rtf" select="$rtf"/>
         </xsl:call-template>
-      </pre>
+      </xsl:element>
     </xsl:when>
     <xsl:otherwise>
-      <pre>
+      <xsl:element name="{$div.element}" namespace="http://www.w3.org/1999/xhtml">
         <xsl:apply-templates select="." mode="common.html.attributes"/>
         <xsl:if test="@width != ''">
           <xsl:attribute name="width">
@@ -81,7 +88,7 @@
             <xsl:apply-templates/>
           </xsl:otherwise>
         </xsl:choose>
-      </pre>
+      </xsl:element>
     </xsl:otherwise>
   </xsl:choose>
 </xsl:template>

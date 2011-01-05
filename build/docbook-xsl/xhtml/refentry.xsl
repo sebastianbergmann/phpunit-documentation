@@ -192,13 +192,13 @@
 
 <xsl:template match="refclass">
   <xsl:if test="$refclass.suppress = 0">
-  <b>
+  <strong xmlns:xslo="http://www.w3.org/1999/XSL/Transform">
     <xsl:if test="@role">
       <xsl:value-of select="@role"/>
       <xsl:text>: </xsl:text>
     </xsl:if>
     <xsl:apply-templates/>
-  </b>
+  </strong>
   </xsl:if>
 </xsl:template>
 

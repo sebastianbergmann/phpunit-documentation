@@ -3,7 +3,7 @@
                 version='1.0'>
 
 <!-- ********************************************************************
-     $Id: autotoc.xsl 8315 2009-03-11 21:33:31Z bobstayton $
+     $Id: autotoc.xsl 8558 2009-12-11 00:33:17Z bobstayton $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -36,13 +36,24 @@
 
   <xsl:variable name="toc.title">
     <xsl:if test="$toc.title.p">
-      <p>
-        <b>
-          <xsl:call-template name="gentext">
-            <xsl:with-param name="key">TableofContents</xsl:with-param>
-          </xsl:call-template>
-        </b>
-      </p>
+      <xsl:choose>
+        <xsl:when test="$make.clean.html != 0">
+          <div class="toc-title">
+            <xsl:call-template name="gentext">
+              <xsl:with-param name="key">TableofContents</xsl:with-param>
+            </xsl:call-template>
+          </div>
+        </xsl:when>
+        <xsl:otherwise>
+          <p>
+            <b>
+              <xsl:call-template name="gentext">
+                <xsl:with-param name="key">TableofContents</xsl:with-param>
+              </xsl:call-template>
+            </b>
+          </p>
+        </xsl:otherwise>
+      </xsl:choose>
     </xsl:if>
   </xsl:variable>
 
@@ -611,22 +622,42 @@
 
   <xsl:if test="$nodes">
     <div class="list-of-{$titles}s">
-      <p>
-        <b>
-          <xsl:call-template name="gentext">
-            <xsl:with-param name="key">
-              <xsl:choose>
-                <xsl:when test="$titles='table'">ListofTables</xsl:when>
-                <xsl:when test="$titles='figure'">ListofFigures</xsl:when>
-                <xsl:when test="$titles='equation'">ListofEquations</xsl:when>
-                <xsl:when test="$titles='example'">ListofExamples</xsl:when>
-                <xsl:when test="$titles='procedure'">ListofProcedures</xsl:when>
-                <xsl:otherwise>ListofUnknown</xsl:otherwise>
-              </xsl:choose>
-            </xsl:with-param>
-          </xsl:call-template>
-        </b>
-      </p>
+      <xsl:choose>
+        <xsl:when test="$make.clean.html != 0">
+          <div class="toc-title">
+            <xsl:call-template name="gentext">
+              <xsl:with-param name="key">
+                <xsl:choose>
+                  <xsl:when test="$titles='table'">ListofTables</xsl:when>
+                  <xsl:when test="$titles='figure'">ListofFigures</xsl:when>
+                  <xsl:when test="$titles='equation'">ListofEquations</xsl:when>
+                  <xsl:when test="$titles='example'">ListofExamples</xsl:when>
+                  <xsl:when test="$titles='procedure'">ListofProcedures</xsl:when>
+                  <xsl:otherwise>ListofUnknown</xsl:otherwise>
+                </xsl:choose>
+              </xsl:with-param>
+            </xsl:call-template>
+          </div>
+        </xsl:when>
+        <xsl:otherwise>
+          <p>
+            <b>
+              <xsl:call-template name="gentext">
+                <xsl:with-param name="key">
+                  <xsl:choose>
+                    <xsl:when test="$titles='table'">ListofTables</xsl:when>
+                    <xsl:when test="$titles='figure'">ListofFigures</xsl:when>
+                    <xsl:when test="$titles='equation'">ListofEquations</xsl:when>
+                    <xsl:when test="$titles='example'">ListofExamples</xsl:when>
+                    <xsl:when test="$titles='procedure'">ListofProcedures</xsl:when>
+                    <xsl:otherwise>ListofUnknown</xsl:otherwise>
+                  </xsl:choose>
+                </xsl:with-param>
+              </xsl:call-template>
+            </b>
+          </p>
+        </xsl:otherwise>
+      </xsl:choose>
 
       <xsl:element name="{$toc.list.type}">
         <xsl:apply-templates select="$nodes" mode="toc">

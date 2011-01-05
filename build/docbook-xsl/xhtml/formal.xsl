@@ -4,7 +4,7 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns="http://www.w3.org/1999/xhtml" version="1.0">
 
 <!-- ********************************************************************
-     $Id: formal.xsl 8310 2009-03-11 08:29:45Z bobstayton $
+     $Id: formal.xsl 8806 2010-08-09 18:25:58Z bobstayton $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -90,11 +90,22 @@
     </xsl:apply-templates>
   </xsl:param>
 
-  <p class="title">
-    <b>
-      <xsl:copy-of select="$title"/>
-    </b>
-  </p>
+
+  <xsl:choose>
+    <xsl:when test="$make.clean.html != 0">
+      <xsl:variable name="html.class" select="concat(local-name($object),'-title')"/>
+      <div class="{$html.class}">
+        <xsl:copy-of select="$title"/>
+      </div>
+    </xsl:when>
+    <xsl:otherwise>
+      <p class="title">
+        <strong xmlns:xslo="http://www.w3.org/1999/XSL/Transform">
+          <xsl:copy-of select="$title"/>
+        </strong>
+      </p>
+    </xsl:otherwise>
+  </xsl:choose>
 </xsl:template>
 
 <xsl:template name="informal.object">
@@ -141,7 +152,7 @@
   <xsl:param name="class" select="local-name(.)"/>
 
   <xsl:choose>
-    <xsl:when test="title">
+    <xsl:when test="title or info/title">
       <xsl:call-template name="formal.object">
         <xsl:with-param name="placement" select="$placement"/>
         <xsl:with-param name="class" select="$class"/>
@@ -235,6 +246,16 @@
   </xsl:if>
 
   <xsl:apply-templates mode="htmlTable"/>
+
+  <xsl:if test=".//footnote|../title//footnote">
+    <tbody class="footnotes">
+      <tr>
+        <td colspan="50">
+          <xsl:apply-templates select=".//footnote|../title//footnote" mode="table.footnote.mode"/>
+        </td>
+      </tr>
+    </tbody>
+  </xsl:if>
 </xsl:template>
 
 <xsl:template match="example">

@@ -320,7 +320,7 @@ to be incomplete. Don't forget to read the source, too :-)</para>
 </xsl:template>
 
 <xsl:template match="constraintdef/title">
-  <p><b><xsl:apply-templates/></b></p>
+  <p><strong xmlns:xslo="http://www.w3.org/1999/XSL/Transform"><xsl:apply-templates/></strong></p>
 </xsl:template>
 
 <!-- ==================================================================== -->

@@ -9,7 +9,7 @@
   <xsl:import href="html-synop.xsl"/>
   <xsl:output method="text" encoding="UTF-8" indent="no"/>
   <!-- ********************************************************************
-       $Id: docbook.xsl 8486 2009-07-14 19:33:56Z mzjn $
+       $Id: docbook.xsl 8841 2010-08-14 07:21:25Z mzjn $
        ********************************************************************
 
        This file is part of the XSL DocBook Stylesheet distribution.
@@ -201,6 +201,7 @@
       <!-- * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
       <!-- * (re)define some macros -->
       <!-- * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+      <xsl:call-template name="define.portability.macros"/>
       <xsl:if test="not($man.output.better.ps.enabled = 0)">
         <xsl:call-template name="define.macros"/>
       </xsl:if>

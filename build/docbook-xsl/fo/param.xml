@@ -3,7 +3,7 @@
 <info>
 <title>FO Parameter Reference</title>
 <releaseinfo role="meta">
-$Id: param.xweb 8392 2009-04-01 08:47:55Z bobstayton $
+$Id: param.xweb 8543 2009-12-02 06:05:24Z bobstayton $
 </releaseinfo>
 <author>
   <personname>
@@ -543,7 +543,7 @@ only 10102 is supported in the stylesheets for this parameter.
 <refsection><info><title>Description</title></info>
 
 <para>The callouts extension processes <tag>areaset</tag>
-elements in <tag>ProgramListingCO</tag> and other text-based
+elements in <tag>programlistingco</tag> and other text-based
 callout elements.
 </para>
 
@@ -1430,7 +1430,7 @@ because not all processors support expressions.</para>
 </refmeta>
 <refnamediv>
 <refname>toc.line.properties</refname>
-<refpurpose>Properties for lines in ToC and LoTs</refpurpose>
+<refpurpose>Properties for lines in ToCs and LoTs</refpurpose>
 </refnamediv>
 
 <refsynopsisdiv>
@@ -1448,13 +1448,15 @@ because not all processors support expressions.</para>
 
 <para>Properties which are applied to every line in ToC (or LoT). You can
 modify them in order to change appearance of all, or some lines. For
-example in order to make lines for chapters in bold specify the
-following in your customization layer.</para>
+example, in order to make lines for chapters bold, specify the
+following in your customization layer:</para>
 
 <programlisting>&lt;xsl:attribute-set name="toc.line.properties"&gt;
   &lt;xsl:attribute name="font-weight"&gt;
-    &lt;xsl:when test="self::chapter | self::preface | self::appendix"&gt;bold&lt;/xsl:when&gt;
+   &lt;xsl:choose&gt;
+    &lt;xsl:when test="self::chapter"&gt;bold&lt;/xsl:when&gt;
     &lt;xsl:otherwise&gt;normal&lt;/xsl:otherwise&gt;
+   &lt;/xsl:choose&gt;
   &lt;/xsl:attribute&gt;
 &lt;/xsl:attribute-set&gt;</programlisting>
 
@@ -1791,11 +1793,7 @@ equations in your document.</para>
     <parameter>passivetex.extensions</parameter>,
     <parameter>tex.math.file</parameter></para>
 </refsection>
-<refsection><info><title>More information</title></info>
-  <para>For how-to documentation on embedding TeX equations and
-    generating output from them, see
-    <link xmlns:xlink="http://www.w3.org/1999/xlink" role="tcg" xlink:href="TexMath.html">DBTeXMath</link>.</para>
-</refsection>
+
 </refentry>
 
 <refentry version="5.0" xml:id="tex.math.delims">
@@ -1820,6 +1818,12 @@ surrounded by math mode delimiters?</refpurpose>
 <para>For compatibility with DSSSL based DBTeXMath from Allin Cottrell
 you should set this parameter to 0.</para>
 
+<warning>
+  <para>This feature is useful for print/PDF output only if you
+  use the obsolete and now unsupported PassiveTeX XSL-FO
+  engine.</para>
+</warning>
+
 </refsection>
 <refsection><info><title>Related Parameters</title></info>
   <para><parameter>tex.math.in.alt</parameter>,
@@ -1830,11 +1834,8 @@ you should set this parameter to 0.</para>
   <para>You can also use the <tag class="xmlpi">dbtex delims</tag> processing
     instruction to control whether delimiters are output.</para>
 </refsection>
-<refsection><info><title>More information</title></info>
-  <para>For how-to documentation on embedding TeX equations and
-    generating output from them, see
-    <link xmlns:xlink="http://www.w3.org/1999/xlink" role="tcg" xlink:href="TexMath.html">DBTeXMath</link>.</para>
-</refsection>
+
+
 </refentry>
 
 <refentry version="5.0" xml:id="xep.extensions">
@@ -6860,6 +6861,12 @@ an XSLT 2.0 processor it is not guaranteed to work with DocBook XSL in all circu
 
 <para>This location has precedence over the corresponding Java property.</para>
 
+<para>Please note that usually you have to specify location as URL not
+just as a simple path on the local
+filesystem. E.g. <filename>file:///home/user/xslthl/my-xslthl-config.xml</filename>.</para>
+
+
+
 </refsection>
 </refentry>
 
@@ -7144,10 +7151,8 @@ and the <tag class="attribute">format</tag> attribute is
 <refsection><info><title>Description</title></info>
 
 <para>If specified, this value will be used for the
-<tag class="attribute">width</tag> attribute on
-images that do not specify any
-<link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://docbook.org/tdg/en/html/imagedata.html#viewport.area">viewport
-dimensions</link>.</para>
+<tag class="attribute">width</tag> attribute on images that do not specify any 
+<emphasis xmlns:xlink="http://www.w3.org/1999/xlink" xlink:title="DocBook 5: The Definitive Guide" xlink:href="http://docbook.org/tdg5/en/html/imagedata.html#viewport.area">viewport dimensions</emphasis>.</para>
 
 </refsection>
 </refentry>
@@ -7784,6 +7789,8 @@ edge of the physical page.
 <refmiscinfo class="other" otherclass="list-type">open</refmiscinfo>
 <refmiscinfo class="other" otherclass="value">USletter<alt>8.5x11in</alt></refmiscinfo>
 <refmiscinfo class="other" otherclass="value">USlandscape<alt>11x8.5in</alt></refmiscinfo>
+<refmiscinfo class="other" otherclass="value">USlegal<alt>8.5inx14in</alt></refmiscinfo>
+<refmiscinfo class="other" otherclass="value">USlegallandscape<alt>14inx8.5in</alt></refmiscinfo>
 <refmiscinfo class="other" otherclass="value">4A0<alt>2378x1682mm</alt></refmiscinfo>
 <refmiscinfo class="other" otherclass="value">2A0<alt>1682x1189mm</alt></refmiscinfo>
 <refmiscinfo class="other" otherclass="value">A0<alt>1189x841mm</alt></refmiscinfo>
@@ -8639,7 +8646,7 @@ the FO processor will report errors.
 
 <refsynopsisdiv>
 <programlisting xml:id="draft.mode.frag">
-&lt;xsl:param name="draft.mode"&gt;maybe&lt;/xsl:param&gt;
+&lt;xsl:param name="draft.mode"&gt;no&lt;/xsl:param&gt;
 </programlisting>
 </refsynopsisdiv>
 
@@ -8668,7 +8675,7 @@ on how their <literal>status</literal> attribute is set.
 
 <refsynopsisdiv>
 <programlisting xml:id="draft.watermark.image.frag">
-&lt;xsl:param name="draft.watermark.image"&gt;http://docbook.sourceforge.net/release/images/draft.png&lt;/xsl:param&gt;
+&lt;xsl:param name="draft.watermark.image"&gt;images/draft.png&lt;/xsl:param&gt;
 </programlisting>
 </refsynopsisdiv>
 
@@ -10465,6 +10472,30 @@ general <tag>section.properties</tag> attribute set.
 </refsection>
 </refentry>
 
+<refentry version="5.0" xml:id="equation.number.properties">
+<refmeta>
+<refentrytitle>equation.number.properties</refentrytitle>
+<refmiscinfo class="other" otherclass="datatype">attribute set</refmiscinfo>
+</refmeta>
+<refnamediv>
+<refname>equation.number.properties</refname>
+<refpurpose>Properties that apply to the <tag>fo:table-cell</tag> containing the number
+of an <tag>equation</tag> that does not have a title.</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv>
+<programlisting xml:id="equation.number.properties.frag">&lt;xsl:attribute-set name="equation.number.properties"&gt;
+  &lt;xsl:attribute name="text-align"&gt;end&lt;/xsl:attribute&gt;
+  &lt;xsl:attribute name="display-align"&gt;center&lt;/xsl:attribute&gt;
+&lt;/xsl:attribute-set&gt;</programlisting>
+</refsynopsisdiv>
+<refsection><info><title>Description</title></info>
+<para>Properties that apply to the fo:table-cell containing the number
+of an equation when it has no title. The number in an equation with a
+title is formatted along with the title, and this attribute-set does not apply.</para>
+</refsection>
+</refentry>
+
 <refentry version="5.0" xml:id="table.properties">
 <refmeta>
 <refentrytitle>table.properties</refentrytitle>
@@ -12054,7 +12085,7 @@ around all these parameters.</para>
 &lt;!-- This file is generated from param.xweb --&gt;
 
 &lt;!-- ********************************************************************
-     $Id: param.xweb 8392 2009-04-01 08:47:55Z bobstayton $
+     $Id: param.xweb 8543 2009-12-02 06:05:24Z bobstayton $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -12144,6 +12175,7 @@ around all these parameters.</para>
 &lt;src:fragref linkend="email.delimiters.enabled.frag"&gt;&lt;/src:fragref&gt;
 &lt;src:fragref linkend="email.mailto.enabled.frag"&gt;&lt;/src:fragref&gt;
 &lt;src:fragref linkend="equation.properties.frag"&gt;&lt;/src:fragref&gt;
+&lt;src:fragref linkend="equation.number.properties.frag"&gt;&lt;/src:fragref&gt;
 &lt;src:fragref linkend="example.properties.frag"&gt;&lt;/src:fragref&gt;
 &lt;src:fragref linkend="exsl.node.set.available.frag"&gt;&lt;/src:fragref&gt;
 &lt;src:fragref linkend="figure.properties.frag"&gt;&lt;/src:fragref&gt;

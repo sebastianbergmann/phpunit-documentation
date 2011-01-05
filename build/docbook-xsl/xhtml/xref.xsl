@@ -1260,9 +1260,9 @@
 
   <xsl:choose>
     <xsl:when test="$purpose = 'xref'">
-      <i>
+      <em xmlns:xslo="http://www.w3.org/1999/XSL/Transform">
         <xsl:copy-of select="$title"/>
-      </i>
+      </em>
     </xsl:when>
     <xsl:otherwise>
       <xsl:copy-of select="$title"/>

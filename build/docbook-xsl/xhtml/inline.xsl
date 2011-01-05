@@ -4,7 +4,7 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:suwl="http://nwalsh.com/xslt/ext/com.nwalsh.saxon.UnwrapLinks" xmlns="http://www.w3.org/1999/xhtml" exclude-result-prefixes="xlink suwl" version="1.0">
 
 <!-- ********************************************************************
-     $Id: inline.xsl 8421 2009-05-04 07:49:49Z bobstayton $
+     $Id: inline.xsl 8811 2010-08-09 20:24:45Z mzjn $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -12,6 +12,10 @@
      copyright and other information.
 
      ******************************************************************** -->
+
+<xsl:key name="glossentries" match="glossentry" use="normalize-space(glossterm)"/>
+<xsl:key name="glossentries" match="glossentry" use="normalize-space(glossterm/@baseform)"/>
+
 <xsl:template name="simple.xlink">
   <xsl:param name="node" select="."/>
   <xsl:param name="content">
@@ -132,16 +136,18 @@
               </xsl:if>
 
               <!-- For URIs, use @xlink:show if defined, otherwise use ulink.target -->
-              <xsl:attribute name="target">
-                <xsl:choose>
-                  <xsl:when test="$target.show !=''">
+              <xsl:choose>
+                <xsl:when test="$target.show !=''">
+                  <xsl:attribute name="target">
                     <xsl:value-of select="$target.show"/>
-                  </xsl:when>
-                  <xsl:otherwise>
-                  <xsl:value-of select="$ulink.target"/>
-                  </xsl:otherwise>
-                </xsl:choose>
-              </xsl:attribute>
+                  </xsl:attribute>
+                </xsl:when>
+                <xsl:when test="$ulink.target !=''">
+                  <xsl:attribute name="target">
+                    <xsl:value-of select="$ulink.target"/>
+                  </xsl:attribute>
+                </xsl:when>
+              </xsl:choose>
               
               <xsl:copy-of select="$content"/>
             </a>
@@ -976,7 +982,7 @@
           </xsl:otherwise>
         </xsl:choose>
       </xsl:variable>
-      <xsl:variable name="targets" select="//glossentry[normalize-space(glossterm)=$term                               or normalize-space(glossterm/@baseform)=$term]"/>
+      <xsl:variable name="targets" select="key('glossentries', $term)"/>
       <xsl:variable name="target" select="$targets[1]"/>
 
       <xsl:choose>
@@ -1290,7 +1296,7 @@
 
 <xsl:template match="comment[parent::answer|parent::appendix|parent::article|parent::bibliodiv|&#10;                                parent::bibliography|parent::blockquote|parent::caution|parent::chapter|&#10;                                parent::glossary|parent::glossdiv|parent::important|parent::index|&#10;                                parent::indexdiv|parent::listitem|parent::note|parent::orderedlist|&#10;                                parent::partintro|parent::preface|parent::procedure|parent::qandadiv|&#10;                                parent::qandaset|parent::question|parent::refentry|parent::refnamediv|&#10;                                parent::refsect1|parent::refsect2|parent::refsect3|parent::refsection|&#10;                                parent::refsynopsisdiv|parent::sect1|parent::sect2|parent::sect3|parent::sect4|&#10;                                parent::sect5|parent::section|parent::setindex|parent::sidebar|&#10;                                parent::simplesect|parent::taskprerequisites|parent::taskrelated|&#10;                                parent::tasksummary|parent::warning]|remark[parent::answer|parent::appendix|parent::article|parent::bibliodiv|&#10;                                parent::bibliography|parent::blockquote|parent::caution|parent::chapter|&#10;                                parent::glossary|parent::glossdiv|parent::important|parent::index|&#10;                                parent::indexdiv|parent::listitem|parent::note|parent::orderedlist|&#10;                                parent::partintro|parent::preface|parent::procedure|parent::qandadiv|&#10;                                parent::qandaset|parent::question|parent::refentry|parent::refnamediv|&#10;                                parent::refsect1|parent::refsect2|parent::refsect3|parent::refsection|&#10;                                parent::refsynopsisdiv|parent::sect1|parent::sect2|parent::sect3|parent::sect4|&#10;                                parent::sect5|parent::section|parent::setindex|parent::sidebar|&#10;                                parent::simplesect|parent::taskprerequisites|parent::taskrelated|&#10;                                parent::tasksummary|parent::warning]">
   <xsl:if test="$show.comments != 0">
-    <p class="remark"><i><xsl:call-template name="inline.charseq"/></i></p>
+    <p class="remark"><em><xsl:call-template name="inline.charseq"/></em></p>
   </xsl:if>
 </xsl:template>
 

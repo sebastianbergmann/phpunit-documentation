@@ -2,6 +2,16 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 version="1.0">
 
+<!-- ********************************************************************
+     $Id: olink.xsl 8592 2010-03-16 16:40:43Z bobstayton $
+     ********************************************************************
+
+     This file is part of the DocBook XSL Stylesheet distribution.
+     See ../README or http://docbook.sf.net/ for copyright
+     copyright and other information.
+
+     ******************************************************************** -->
+
 <!-- Create keys for quickly looking up olink targets -->
 <xsl:key name="targetdoc-key" match="document" use="@targetdoc" />
 <xsl:key name="targetptr-key"  match="div|obj"
@@ -857,7 +867,7 @@
               <xsl:for-each select="$target.database" >
                 <xsl:call-template name="insert.targetdb.data">
                   <xsl:with-param name="data"
-                                  select="key('targetptr-key', $olink.key)/ttl" />
+                                  select="key('targetptr-key', $olink.key)/ttl/node()"/>
                 </xsl:call-template>
               </xsl:for-each>
             </xsl:with-param>
@@ -877,7 +887,7 @@
               <xsl:for-each select="$target.database" >
                 <xsl:call-template name="insert.targetdb.data">
                   <xsl:with-param name="data"
-                       select="key('targetdoc-key', $targetdoc)[1]/div[1]/ttl" />
+                       select="key('targetdoc-key', $targetdoc)[1]/div[1]/ttl/node()" />
                 </xsl:call-template>
               </xsl:for-each>
             </xsl:with-param>
@@ -946,7 +956,7 @@
               <xsl:for-each select="$target.database" >
                 <xsl:call-template name="insert.targetdb.data">
                   <xsl:with-param name="data"
-                                  select="key('targetptr-key', $olink.key)[1]/ttl" />
+                               select="key('targetptr-key', $olink.key)[1]/ttl/node()" />
                 </xsl:call-template>
               </xsl:for-each>
             </xsl:with-param>
@@ -1156,7 +1166,7 @@
     <xsl:for-each select="$target.database" >
       <xsl:call-template name="insert.targetdb.data">
         <xsl:with-param name="data"
-             select="key('targetdoc-key', $targetdoc)[1]/div[1]/ttl" />
+             select="key('targetdoc-key', $targetdoc)[1]/div[1]/ttl/node()" />
       </xsl:call-template>
     </xsl:for-each>
   </xsl:variable>

@@ -4,7 +4,7 @@
                 version='1.0'>
 
 <!-- ********************************************************************
-     $Id: block.xsl 8441 2009-05-24 02:14:56Z abdelazer $
+     $Id: block.xsl 8597 2010-03-20 04:56:04Z bobstayton $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -543,15 +543,26 @@
       <fo:table-row>
         <fo:table-cell number-columns-spanned="3" xsl:use-attribute-sets="revhistory.table.cell.properties">
           <fo:block xsl:use-attribute-sets="revhistory.title.properties">
-            <xsl:call-template name="gentext">
-              <xsl:with-param name="key" select="'RevHistory'"/>
-            </xsl:call-template>
+            <xsl:choose>
+              <xsl:when test="title|info/title">
+                <xsl:apply-templates select="title|info/title" mode="titlepage.mode"/>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:call-template name="gentext">
+                  <xsl:with-param name="key" select="'RevHistory'"/>
+                </xsl:call-template>
+              </xsl:otherwise>
+            </xsl:choose>
           </fo:block>
         </fo:table-cell>
       </fo:table-row>
       <xsl:apply-templates/>
     </fo:table-body>
   </fo:table>
+</xsl:template>
+
+<xsl:template match="revhistory/title">
+  <!-- Handled in titlepage.mode -->
 </xsl:template>
 
 <xsl:template match="revhistory/revision">

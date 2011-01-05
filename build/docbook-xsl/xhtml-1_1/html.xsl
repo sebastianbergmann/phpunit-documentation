@@ -4,7 +4,7 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns="http://www.w3.org/1999/xhtml" version="1.0">
 
 <!-- ********************************************************************
-     $Id: html.xsl 8421 2009-05-04 07:49:49Z bobstayton $
+     $Id: html.xsl 8556 2009-12-11 00:05:45Z bobstayton $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -165,7 +165,7 @@
       <xsl:with-param name="object" select="$node"/>
     </xsl:call-template>
   </xsl:variable>
-  <xslo:if xmlns:xslo="http://www.w3.org/1999/XSL/Transform" xmlns:saxon="http://icl.com/saxon" test="not($node[parent::blockquote])"><xsl:if test="$conditional = 0 or $node/@id or $node/@xml:id">
+  <xslo:if xmlns:xslo="http://www.w3.org/1999/XSL/Transform" test="not($node[parent::blockquote])"><xsl:if test="$conditional = 0 or $node/@id or $node/@xml:id">
     <a id="{$id}"/>
   </xsl:if></xslo:if>
 </xsl:template>
@@ -359,6 +359,240 @@
       </xsl:attribute>
     </xsl:when>
   </xsl:choose>
+</xsl:template>
+
+<!-- ==================================================================== -->
+<!-- Insert link to css or insert literal CSS in head element -->
+<xsl:template name="generate.css">
+  <xsl:choose>
+    <xsl:when test="$generate.css.header = 0">
+      <xsl:call-template name="generate.css.links"/>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:call-template name="generate.css.headers"/>
+    </xsl:otherwise>
+  </xsl:choose>
+</xsl:template>
+
+<xsl:template name="generate.css.headers">
+  <xsl:call-template name="generate.default.css.header"/>
+  <xsl:call-template name="generate.custom.css.header"/>
+</xsl:template>
+
+<xsl:template name="generate.default.css.header">
+  <xsl:if test="$make.clean.html != 0 and                  $docbook.css.source != ''">
+    <!-- Select default file relative to stylesheet -->
+    <xsl:variable name="css.node" select="document($docbook.css.source)/*[1]"/>
+
+    <xsl:call-template name="output.css.header">
+      <xsl:with-param name="css.node" select="$css.node"/>
+    </xsl:call-template>
+  </xsl:if>
+</xsl:template>
+
+<xsl:template name="generate.custom.css.header">
+  <xsl:if test="$custom.css.source != ''">
+    <!-- Select custom file relative to document -->
+    <xsl:variable name="css.node" select="document($custom.css.source,.)/*[1]"/>
+
+    <xsl:call-template name="output.css.header">
+      <xsl:with-param name="css.node" select="$css.node"/>
+    </xsl:call-template>
+  </xsl:if>
+</xsl:template>
+
+<xsl:template name="output.css.header">
+  <xsl:param name="css.node"/> 
+
+  <xsl:choose>
+    <xsl:when test="count($css.node) = 0">
+    </xsl:when>
+    <xsl:otherwise>
+      <style type="text/css">
+        <xsl:copy-of select="$css.node/text()"/>
+      </style>
+    </xsl:otherwise>
+  </xsl:choose>
+</xsl:template>
+
+<!-- ==================================================================== -->
+<xsl:template name="generate.css.links">
+  <xsl:call-template name="generate.default.css.link"/>
+  <xsl:call-template name="generate.custom.css.link"/>
+</xsl:template>
+
+<xsl:template name="generate.default.css.link">
+  <xsl:if test="$make.clean.html != 0 and                  $docbook.css.link != 0 and                 $docbook.css.source != ''">
+    <xsl:variable name="filename">
+      <xsl:call-template name="css.output.filename">
+        <xsl:with-param name="src" select="$docbook.css.source"/>
+      </xsl:call-template>
+    </xsl:variable>
+
+    <xsl:call-template name="make.css.link">
+      <xsl:with-param name="css.filename" select="$filename"/>
+    </xsl:call-template>
+  </xsl:if>
+</xsl:template>
+
+<xsl:template name="generate.custom.css.link">
+  <xsl:if test="$custom.css.source != ''">
+    <xsl:variable name="filename">
+      <xsl:call-template name="css.output.filename">
+        <xsl:with-param name="src" select="$custom.css.source"/>
+      </xsl:call-template>
+    </xsl:variable>
+
+    <xsl:call-template name="make.css.link">
+      <xsl:with-param name="css.filename" select="$filename"/>
+    </xsl:call-template>
+  </xsl:if>
+</xsl:template>
+
+<!-- a CSS link reference must take into account the relative
+     path to a CSS file when chunked HTML is output to more than one directory -->
+<xsl:template name="make.css.link">
+  <xsl:param name="css.filename" select="''"/>
+
+  <xsl:variable name="href.to.uri" select="$css.filename"/>
+
+  <xsl:variable name="href.from.uri">
+    <xsl:call-template name="href.target.uri">
+      <xsl:with-param name="object" select="."/>
+    </xsl:call-template>
+  </xsl:variable>
+
+  <xsl:variable name="href.to">
+    <xsl:call-template name="trim.common.uri.paths">
+      <xsl:with-param name="uriA" select="$href.to.uri"/>
+      <xsl:with-param name="uriB" select="$href.from.uri"/>
+      <xsl:with-param name="return" select="'A'"/>
+    </xsl:call-template>
+  </xsl:variable>
+
+  <xsl:variable name="href.from">
+    <xsl:call-template name="trim.common.uri.paths">
+      <xsl:with-param name="uriA" select="$href.to.uri"/>
+      <xsl:with-param name="uriB" select="$href.from.uri"/>
+      <xsl:with-param name="return" select="'B'"/>
+    </xsl:call-template>
+  </xsl:variable>
+  <xsl:variable name="depth">
+    <xsl:call-template name="count.uri.path.depth">
+      <xsl:with-param name="filename" select="$href.from"/>
+    </xsl:call-template>
+  </xsl:variable>
+  <xsl:variable name="href">
+    <xsl:call-template name="copy-string">
+      <xsl:with-param name="string" select="'../'"/>
+      <xsl:with-param name="count" select="$depth"/>
+    </xsl:call-template>
+    <xsl:value-of select="$href.to"/>
+  </xsl:variable>
+
+  <xsl:if test="string-length($css.filename) != 0">
+    <link rel="stylesheet" type="text/css" href="{$href}"/>
+  </xsl:if>
+</xsl:template>
+
+<!-- ==================================================================== -->
+
+<xsl:template name="generate.css.files">
+  <xsl:call-template name="generate.default.css.file"/>
+  <xsl:call-template name="generate.custom.css.file"/>
+</xsl:template>
+
+<xsl:template name="generate.default.css.file">
+  <xsl:if test="$make.clean.html != 0 and                  $generate.css.header = 0 and                 $docbook.css.source != ''">
+    <!-- Select default file relative to stylesheet -->
+    <xsl:variable name="css.node" select="document($docbook.css.source)/*[1]"/>
+
+    <xsl:call-template name="generate.css.file">
+      <xsl:with-param name="src" select="$docbook.css.source"/>
+      <xsl:with-param name="css.node" select="$css.node"/>
+    </xsl:call-template>
+  </xsl:if>
+</xsl:template>
+
+<xsl:template name="generate.custom.css.file">
+  <xsl:if test="$custom.css.source != '' and                 $generate.css.header = 0">
+    <!-- Select custom file relative to document -->
+    <xsl:variable name="css.node" select="document($custom.css.source,.)/*[1]"/>
+
+    <xsl:call-template name="generate.css.file">
+      <xsl:with-param name="src" select="$custom.css.source"/>
+      <xsl:with-param name="css.node" select="$css.node"/>
+    </xsl:call-template>
+  </xsl:if>
+</xsl:template>
+
+<xsl:template name="generate.css.file">
+  <xsl:param name="css.node"/> 
+  <xsl:param name="src" select="''"/> 
+
+  <xsl:variable name="css.text" select="$css.node/text()"/>
+
+  <xsl:choose>
+    <xsl:when test="count($css.node) = 0">
+      <xsl:message>
+        <xsl:text>ERROR: no root element for CSS source file'</xsl:text>
+        <xsl:value-of select="$src"/>
+        <xsl:text>'.</xsl:text>
+      </xsl:message>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:variable name="filename">
+        <xsl:call-template name="css.output.pathname">
+          <xsl:with-param name="src" select="$src"/>
+          <xsl:with-param name="content" select="$css.node"/>
+        </xsl:call-template>
+      </xsl:variable>
+
+      <xsl:call-template name="write.text.chunk">
+        <xsl:with-param name="filename" select="$filename"/>
+        <xsl:with-param name="content" select="$css.text"/>
+      </xsl:call-template>
+
+    </xsl:otherwise>
+  </xsl:choose>
+</xsl:template>
+
+<xsl:template name="css.output.filename">
+  <xsl:param name="content"/>
+  <xsl:param name="src" select="''"/>
+  
+  <xsl:variable name="candidate">
+    <xsl:choose>
+      <xsl:when test="string-length($src) = 0">
+        <xsl:message>
+          <xsl:text>ERROR: missing CSS input filename.</xsl:text>
+        </xsl:message>
+      </xsl:when>
+      <xsl:when test="substring($src,string-length($src)-3) = '.xml'">
+        <xsl:value-of select="substring($src, 1, string-length($src) - 4)"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="$src"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+  <xsl:value-of select="$candidate"/>
+</xsl:template>
+
+<xsl:template name="css.output.pathname">
+  <xsl:param name="content"/>
+  <xsl:param name="src" select="''"/>
+
+  <xsl:variable name="file">
+    <xsl:call-template name="css.output.filename">
+      <xsl:with-param name="content" select="$content"/>
+      <xsl:with-param name="src" select="$src"/>
+    </xsl:call-template>
+  </xsl:variable>
+
+  <xsl:variable name="path" select="concat($base.dir, $file)"/>
+  <xsl:value-of select="$path"/>
+  
 </xsl:template>
 
 </xsl:stylesheet>

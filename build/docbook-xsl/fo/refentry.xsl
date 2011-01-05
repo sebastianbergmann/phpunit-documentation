@@ -5,7 +5,7 @@
                 version='1.0'>
 
 <!-- ********************************************************************
-     $Id: refentry.xsl 7564 2007-11-19 18:38:43Z mzjn $
+     $Id: refentry.xsl 8598 2010-03-20 09:59:03Z mzjn $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -268,6 +268,7 @@
 </xsl:template>
 
 <xsl:template match="refmeta">
+  <xsl:apply-templates select=".//indexterm"/>
 </xsl:template>
 
 <xsl:template match="manvolnum">

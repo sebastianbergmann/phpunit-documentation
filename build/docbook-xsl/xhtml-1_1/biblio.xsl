@@ -377,7 +377,7 @@
       <xsl:call-template name="gentext.endquote"/>
     </xsl:when>
     <xsl:otherwise>
-      <i><xsl:apply-templates/></i>
+      <em xmlns:xslo="http://www.w3.org/1999/XSL/Transform"><xsl:apply-templates/></em>
     </xsl:otherwise>
   </xsl:choose>
   <xsl:copy-of select="$biblioentry.item.separator"/>
@@ -775,7 +775,7 @@
 <xsl:template match="title" mode="bibliography.mode">
   <span>
     <xsl:call-template name="common.html.attributes"/>
-    <i><xsl:apply-templates mode="bibliography.mode"/></i>
+    <em xmlns:xslo="http://www.w3.org/1999/XSL/Transform"><xsl:apply-templates mode="bibliography.mode"/></em>
     <xsl:copy-of select="$biblioentry.item.separator"/>
   </span>
 </xsl:template>
@@ -919,7 +919,7 @@
       <xsl:call-template name="gentext.endquote"/>
     </xsl:when>
     <xsl:otherwise>
-      <i><xsl:apply-templates/></i>
+      <em xmlns:xslo="http://www.w3.org/1999/XSL/Transform"><xsl:apply-templates/></em>
     </xsl:otherwise>
   </xsl:choose>
 </xsl:template>

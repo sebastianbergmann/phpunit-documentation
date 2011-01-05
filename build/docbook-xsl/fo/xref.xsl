@@ -7,7 +7,7 @@
                 version='1.0'>
 
 <!-- ********************************************************************
-     $Id: xref.xsl 8398 2009-04-07 14:40:25Z dcramer $
+     $Id: xref.xsl 8913 2010-10-01 04:44:57Z bobstayton $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -791,6 +791,15 @@
       </xsl:apply-templates>
     </xsl:when>
     <xsl:otherwise>
+      <xsl:if test="$verbose != 0">
+        <xsl:message>
+          <xsl:text>WARNING: xref to &lt;</xsl:text>
+          <xsl:value-of select="local-name()"/>
+          <xsl:text> id="</xsl:text>
+          <xsl:value-of select="@id|@xml:id"/>
+          <xsl:text>"&gt; has no generated text. Trying its ancestor elements.</xsl:text>
+        </xsl:message>
+      </xsl:if>
       <xsl:apply-templates select="$context" mode="xref-to">
         <xsl:with-param name="xrefstyle" select="$xrefstyle"/>
         <xsl:with-param name="referrer" select="$referrer"/>
@@ -912,7 +921,7 @@
   <fo:basic-link xsl:use-attribute-sets="xref.properties"
                  external-destination="{$ulink.url}">
     <xsl:choose>
-      <xsl:when test="count(child::node())=0">
+      <xsl:when test="count(child::node())=0 or (string(.) = $url)">
         <xsl:call-template name="hyphenate-url">
           <xsl:with-param name="url" select="$url"/>
         </xsl:call-template>
@@ -1062,8 +1071,6 @@
   <!-- olink content may be passed in from xlink olink -->
   <xsl:param name="content" select="NOTANELEMENT"/>
 
-  <xsl:call-template name="anchor"/>
-
   <xsl:variable name="localinfo" select="@localinfo"/>
 
   <xsl:choose>
@@ -1193,15 +1200,27 @@
         <xsl:when test="$linkend != ''">
           <fo:basic-link internal-destination="{$linkend}"
                        xsl:use-attribute-sets="xref.properties">
+            <xsl:call-template name="anchor"/>
             <xsl:copy-of select="$hottext"/>
             <xsl:copy-of select="$olink.page.citation"/>
           </fo:basic-link>
         </xsl:when>
         <xsl:when test="$href != ''">
           <xsl:choose>
+            <xsl:when test="$fop1.extensions != 0">
+              <xsl:variable name="mybeg" select="substring-before($href,'#')"/>
+              <xsl:variable name="myend" select="substring-after($href,'#')"/>
+              <fo:basic-link external-destination="url({concat($mybeg,'#dest=',$myend)})"
+                             xsl:use-attribute-sets="olink.properties">
+                <xsl:copy-of select="$hottext"/>
+              </fo:basic-link>
+              <xsl:copy-of select="$olink.page.citation"/>
+              <xsl:copy-of select="$olink.docname.citation"/>
+            </xsl:when>
             <xsl:when test="$xep.extensions != 0">
               <fo:basic-link external-destination="url({$href})"
                              xsl:use-attribute-sets="olink.properties">
+                <xsl:call-template name="anchor"/>
                 <xsl:copy-of select="$hottext"/>
               </fo:basic-link>
               <xsl:copy-of select="$olink.page.citation"/>

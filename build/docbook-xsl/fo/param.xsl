@@ -4,7 +4,7 @@
 <!-- This file is generated from param.xweb -->
 
 <!-- ********************************************************************
-     $Id: param.xweb 8392 2009-04-01 08:47:55Z bobstayton $
+     $Id: param.xweb 8543 2009-12-02 06:05:24Z bobstayton $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -165,8 +165,8 @@
 <xsl:param name="default.units">pt</xsl:param>
 <xsl:param name="dingbat.font.family">serif</xsl:param>
 <xsl:param name="double.sided" select="0"/>
-<xsl:param name="draft.mode">maybe</xsl:param>
-<xsl:param name="draft.watermark.image">http://docbook.sourceforge.net/release/images/draft.png</xsl:param>
+<xsl:param name="draft.mode">no</xsl:param>
+<xsl:param name="draft.watermark.image">images/draft.png</xsl:param>
 
 <xsl:param name="ebnf.assignment">
   <fo:inline xmlns:fo="http://www.w3.org/1999/XSL/Format" font-family="{$monospace.font.family}">
@@ -178,6 +178,10 @@
 <xsl:param name="email.delimiters.enabled" select="1"/>
 <xsl:param name="email.mailto.enabled" select="0"/>
 <xsl:attribute-set name="equation.properties" use-attribute-sets="formal.object.properties"/>
+<xsl:attribute-set name="equation.number.properties">
+  <xsl:attribute name="text-align">end</xsl:attribute>
+  <xsl:attribute name="display-align">center</xsl:attribute>
+</xsl:attribute-set>
 <xsl:attribute-set name="example.properties" use-attribute-sets="formal.object.properties"/>
 <xsl:param name="exsl.node.set.available"> 
   <xsl:choose>

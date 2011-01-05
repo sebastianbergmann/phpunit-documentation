@@ -7,7 +7,7 @@
                 version='1.0'>
 
 <!-- ********************************************************************
-     $Id: common.xsl 8274 2009-02-27 07:02:45Z bobstayton $
+     $Id: common.xsl 8784 2010-07-28 12:32:54Z mzjn $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -20,7 +20,7 @@
   <info>
     <title>Common » Base Template Reference</title>
     <releaseinfo role="meta">
-      $Id: common.xsl 8274 2009-02-27 07:02:45Z bobstayton $
+      $Id: common.xsl 8784 2010-07-28 12:32:54Z mzjn $
     </releaseinfo>
   </info>
   <!-- * yes, partintro is a valid child of a reference... -->
@@ -1316,8 +1316,8 @@ pointed to by the link is one of the elements listed in
   <xsl:choose>
     <xsl:when test="not($list/@continuation = 'continues')">
       <xsl:choose>
-        <xsl:when test="@startingnumber">
-          <xsl:value-of select="@startingnumber"/>
+        <xsl:when test="$list/@startingnumber">
+          <xsl:value-of select="$list/@startingnumber"/>
         </xsl:when>
         <xsl:when test="$pi-start != ''">
           <xsl:value-of select="$pi-start"/>

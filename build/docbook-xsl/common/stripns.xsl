@@ -10,7 +10,7 @@
                 version='1.0'>
 
 <!-- ********************************************************************
-     $Id: stripns.xsl 8488 2009-07-15 19:45:55Z nwalsh $
+     $Id: stripns.xsl 8728 2010-07-15 14:37:33Z mzjn $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -184,6 +184,11 @@
 
 <xsl:template match="db:link[@xlink:href]" mode="stripNS">
   <ulink url="{@xlink:href}">
+    <xsl:if test="@role">
+      <xsl:attribute name="role">
+        <xsl:value-of select="@role"/>
+      </xsl:attribute>
+    </xsl:if>
     <xsl:apply-templates mode="stripNS"/>
   </ulink>
 </xsl:template>
@@ -312,9 +317,26 @@
 </xsl:template>
 
 <xsl:template match="/" priority="-1">
+  <!-- need a local version of this variable because this module imported many places-->
+  <xsl:variable name="local.exsl.node.set.available">
+    <xsl:choose>
+      <xsl:when exsl:foo="" xmlns:exsl="http://exslt.org/common"
+        test="function-available('exsl:node-set') or
+                         contains(system-property('xsl:vendor'),
+                           'Apache Software Foundation')">1</xsl:when>
+      <xsl:otherwise>0</xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
   <xsl:choose>
-    <xsl:when test="(*/self::ng:* or */self::db:*)">
-      <xsl:message>Stripping namespace from DocBook 5 document.</xsl:message>
+    <xsl:when test="$local.exsl.node.set.available != 0
+                    and (*/self::ng:* or */self::db:*)">
+      <xsl:message>
+        <xsl:text>Stripping namespace from DocBook 5 document. </xsl:text>
+        <xsl:text>It is suggested to use namespaced version of the stylesheets </xsl:text>
+        <xsl:text>available in distribution file 'docbook-xsl-ns' </xsl:text>
+        <xsl:text>at //http://sourceforge.net/projects/docbook/files/</xsl:text>
+        <xsl:text> which does not require namespace stripping step.</xsl:text>
+      </xsl:message>
       <xsl:variable name="nons">
         <xsl:apply-templates mode="stripNS"/>
       </xsl:variable>
