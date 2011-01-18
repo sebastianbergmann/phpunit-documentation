@@ -239,15 +239,51 @@ class StubTest extends PHPUnit_Framework_TestCase
     </example>
 
     <para>
+      When testing a fluent interface, it is sometimes useful to have a stubbed
+      method return a reference to the stubbed object.
+      <xref linkend="test-doubles.stubs.examples.StubTest4.php"/> shows how you
+      can use <literal>returnSelf()</literal> to achiveve this.
+    </para>
+
+    <example id="test-doubles.stubs.examples.StubTest4.php">
+      <indexterm><primary>getMock()</primary></indexterm>
+      <indexterm><primary>expects()</primary></indexterm>
+      <indexterm><primary>method()</primary></indexterm>
+      <indexterm><primary>will()</primary></indexterm>
+      <indexterm><primary>returnSelf()</primary></indexterm>
+      <title>Stubbing a method call to return a reference to the stub object</title>
+      <programlisting><![CDATA[<?php
+require_once 'SomeClass.php';
+
+class StubTest extends PHPUnit_Framework_TestCase
+{
+    public function testReturnSelf()
+    {
+        // Create a stub for the SomeClass class.
+        $stub = $this->getMock('SomeClass');
+
+        // Configure the stub.
+        $stub->expects($this->any())
+             ->method('doSomething')
+             ->will($this->returnSelf());
+
+        // $stub->doSomething() returns $stub
+        $this->assertSame($stub, $stub->doSomething());
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
       When the stubbed method call should return a calculated value instead of
       a fixed one (see <literal>returnValue()</literal>) or an (unchanged)
       argument (see <literal>returnArgument()</literal>), you can use
       <literal>returnCallback()</literal> to have the stubbed method return the
       result of a callback function or method. See
-      <xref linkend="test-doubles.stubs.examples.StubTest4.php"/> for an example.
+      <xref linkend="test-doubles.stubs.examples.StubTest5.php"/> for an example.
     </para>
 
-    <example id="test-doubles.stubs.examples.StubTest4.php">
+    <example id="test-doubles.stubs.examples.StubTest5.php">
       <indexterm><primary>getMock()</primary></indexterm>
       <indexterm><primary>expects()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
@@ -280,11 +316,11 @@ class StubTest extends PHPUnit_Framework_TestCase
 	  A simpler alternative to setting up a callback method may be to
 	  specify a list of desired return values. You can do this with
 	  the <literal>onConsecutiveCalls()</literal> method. See
-	  <xref linkend="test-doubles.stubs.examples.StubTest5.php"/> for
+	  <xref linkend="test-doubles.stubs.examples.StubTest6.php"/> for
 	  an example.
 	</para>
 
-    <example id="test-doubles.stubs.examples.StubTest5.php">
+    <example id="test-doubles.stubs.examples.StubTest6.php">
       <indexterm><primary>getMock()</primary></indexterm>
       <indexterm><primary>expects()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
@@ -319,11 +355,11 @@ class StubTest extends PHPUnit_Framework_TestCase
 
     <para>
       Instead of returning a value, a stubbed method can also raise an
-      exception. <xref linkend="test-doubles.stubs.examples.StubTest6.php"/>
+      exception. <xref linkend="test-doubles.stubs.examples.StubTest7.php"/>
       shows how to use <literal>throwException()</literal> to do this.
     </para>
 
-    <example id="test-doubles.stubs.examples.StubTest6.php">
+    <example id="test-doubles.stubs.examples.StubTest7.php">
       <indexterm><primary>getMock()</primary></indexterm>
       <indexterm><primary>expects()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
