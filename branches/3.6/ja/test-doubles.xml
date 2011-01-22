@@ -259,17 +259,53 @@ class StubTest extends PHPUnit_Framework_TestCase
     </example>
 
     <para>
+      流れるようなインターフェイスをテストするときには、
+      スタブメソッドがオブジェクト自身への参照を返すようにできると便利です。
+      <xref linkend="test-doubles.stubs.examples.StubTest4.php"/> は、
+      <literal>returnSelf()</literal> を使ってこれを実現する例です。
+    </para>
+
+    <example id="test-doubles.stubs.examples.StubTest4.php">
+      <indexterm><primary>getMock()</primary></indexterm>
+      <indexterm><primary>expects()</primary></indexterm>
+      <indexterm><primary>method()</primary></indexterm>
+      <indexterm><primary>will()</primary></indexterm>
+      <indexterm><primary>returnSelf()</primary></indexterm>
+      <title>スタブオブジェクトへの参照を返すメソッドのスタブ</title>
+      <programlisting><![CDATA[<?php
+require_once 'SomeClass.php';
+
+class StubTest extends PHPUnit_Framework_TestCase
+{
+    public function testReturnSelf()
+    {
+        // SomeClass クラスのスタブを作成します
+        $stub = $this->getMock('SomeClass');
+
+        // スタブの設定を行います
+        $stub->expects($this->any())
+             ->method('doSomething')
+             ->will($this->returnSelf());
+
+        // $stub->doSomething() は $stub を返します
+        $this->assertSame($stub, $stub->doSomething());
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
       スタブメソッドをコールした結果として固定値
       (<literal>returnValue()</literal> を参照ください) や (不変の) 引数
       (<literal>returnArgument()</literal> を参照ください)
       ではなく計算した値を返したい場合は、
       <literal>returnCallback()</literal> を使用します。
       これは、スタブメソッドからコールバック関数やメソッドの結果を返させます。
-      <xref linkend="test-doubles.stubs.examples.StubTest4.php"/>
+      <xref linkend="test-doubles.stubs.examples.StubTest5.php"/>
       を参照ください。
     </para>
 
-    <example id="test-doubles.stubs.examples.StubTest4.php">
+    <example id="test-doubles.stubs.examples.StubTest5.php">
       <indexterm><primary>getMock()</primary></indexterm>
       <indexterm><primary>expects()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
@@ -302,11 +338,11 @@ class StubTest extends PHPUnit_Framework_TestCase
       コールバックメソッドを設定するよりももう少しシンプルな方法として、
       希望する返り値のリストを指定することもできます。この場合に使うのは
       <literal>onConsecutiveCalls()</literal> メソッドです。
-      <xref linkend="test-doubles.stubs.examples.StubTest5.php"/>
+      <xref linkend="test-doubles.stubs.examples.StubTest6.php"/>
       の例を参照ください。
     </para>
 
-    <example id="test-doubles.stubs.examples.StubTest5.php">
+    <example id="test-doubles.stubs.examples.StubTest6.php">
       <indexterm><primary>getMock()</primary></indexterm>
       <indexterm><primary>expects()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
@@ -340,11 +376,11 @@ class StubTest extends PHPUnit_Framework_TestCase
 
     <para>
       値を返すのではなく、スタブメソッドで例外を発生させることもできます。
-      <xref linkend="test-doubles.stubs.examples.StubTest6.php"/>
+      <xref linkend="test-doubles.stubs.examples.StubTest7.php"/>
       に、<literal>throwException()</literal> でこれを行う方法を示します。
     </para>
 
-    <example id="test-doubles.stubs.examples.StubTest6.php">
+    <example id="test-doubles.stubs.examples.StubTest7.php">
       <indexterm><primary>getMock()</primary></indexterm>
       <indexterm><primary>expects()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
