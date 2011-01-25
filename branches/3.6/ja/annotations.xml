@@ -276,7 +276,22 @@ public function testBalanceIsInitiallyZero()
     <para>
       <indexterm><primary>@expectedExceptionCode</primary></indexterm>
 
-      ...
+      <literal>@expectedExceptionCode</literal> アノテーションを
+      <literal>@expectedException</literal> と組み合わせて使うと、
+      スローされた例外のエラーコードについてのアサーションが可能となり、
+      例外をより狭い範囲に特定できるようになります。
+
+      <programlisting>class MyTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @expectedException     Exception
+     * @expectedExceptionCode 20
+     */
+    public function testExceptionHasErrorcode20()
+    {
+        throw new Exception('Some Message', 20);
+    }
+}</programlisting>
     </para>
   </section>
 
@@ -286,7 +301,21 @@ public function testBalanceIsInitiallyZero()
     <para>
       <indexterm><primary>@expectedExceptionMessage</primary></indexterm>
 
-      ...
+      <literal>@expectedExceptionMessage</literal> アノテーションは
+      <literal>@expectedExceptionCode</literal> と似ており、
+      例外のエラーメッセージに関するアサーションを行います。
+
+      <programlisting>class MyTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @expectedException        Exception
+     * @expectedExceptionMessage Some Message
+     */
+    public function testExceptionHasRightMessage()
+    {
+        throw new Exception('Some Message', 20);
+    }
+}</programlisting>
     </para>
   </section>
 
