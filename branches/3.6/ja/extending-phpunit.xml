@@ -16,20 +16,75 @@
       <indexterm><primary>PHPUnit_Framework_TestCase</primary></indexterm>
 
       <literal>PHPUnit_Framework_TestCase</literal>
-      を継承した抽象サブクラスにユーティリティメソッドを書き、
+      を継承した抽象サブクラスにカスタムアサーションやユーティリティメソッドを書き、
       そのクラスをさらに継承してテストクラスを作成します。
       これが、PHPUnit を拡張するための一番簡単な方法です。
     </para>
   </section>
 
-  <section id="extending-phpunit.Assert">
-    <title>アサートクラスの作成</title>
+  <!-- TODO: To be translated -->
+  <section id="extending-phpunit.PHPUnit_Framework_TestListener">
+    <title>Implement PHPUnit_Framework_TestListener</title>
 
     <para>
-      <indexterm><primary>PHPUnit_Framework_Assert</primary></indexterm>
-      <indexterm><primary>Assertions</primary></indexterm>
+      <indexterm><primary>PHPUnit_Framework_TestListener</primary></indexterm>
 
-      あなたの目的に合った独自のアサーションを実装したクラスを作成します。
+      <xref linkend="extending-phpunit.examples.SimpleTestListener.php" />
+      shows a simple implementation of the <literal>PHPUnit_Framework_TestListener</literal>
+      interface.
+    </para>
+
+    <example id="extending-phpunit.examples.SimpleTestListener.php">
+      <title>A simple test listener</title>
+      <programlisting><![CDATA[<?php
+class SimpleTestListener implements PHPUnit_Framework_TestListener
+{
+    public function addError(PHPUnit_Framework_Test $test, Exception $e, $time)
+    {
+        printf("Error while running test '%s'.\n", $test->getName());
+    }
+
+    public function addFailure(PHPUnit_Framework_Test $test, PHPUnit_Framework_AssertionFailedError $e, $time)
+    {
+        printf("Test '%s' failed.\n", $test->getName());
+    }
+
+    public function addIncompleteTest(PHPUnit_Framework_Test $test, Exception $e, $time)
+    {
+        printf("Test '%s' is incomplete.\n", $test->getName());
+    }
+
+    public function addSkippedTest(PHPUnit_Framework_Test $test, Exception $e, $time)
+    {
+        printf("Test '%s' has been skipped.\n", $test->getName());
+    }
+
+    public function startTest(PHPUnit_Framework_Test $test)
+    {
+        printf("Test '%s' started.\n", $test->getName());
+    }
+
+    public function endTest(PHPUnit_Framework_Test $test, $time)
+    {
+        printf("Test '%s' ended.\n", $test->getName());
+    }
+
+    public function startTestSuite(PHPUnit_Framework_TestSuite $suite)
+    {
+        printf("TestSuite '%s' started.\n", $suite->getName());
+    }
+
+    public function endTestSuite(PHPUnit_Framework_TestSuite $suite)
+    {
+        printf("TestSuite '%s' ended.\n", $suite->getName());
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      <xref linkend="appendixes.configuration.test-listeners"/> shows how you
+      can configure PHPUnit to attach your test listener to the test execution.
     </para>
   </section>
 
@@ -128,9 +183,6 @@ class PHPUnit_Extensions_RepeatedTest extends PHPUnit_Extensions_TestDecorator
     <example id="extending-phpunit.examples.DataDrivenTest.php">
       <title>データ駆動のテスト</title>
       <programlisting><![CDATA[<?php
-require_once 'PHPUnit/Util/Timer.php';
-require_once 'PHPUnit/TextUI/TestRunner.php';
-
 class DataDrivenTest implements PHPUnit_Framework_Test
 {
     private $lines;
@@ -153,23 +205,25 @@ class DataDrivenTest implements PHPUnit_Framework_Test
 
         foreach ($this->lines as $line) {
             $result->startTest($this);
-            PHPUnit_Util_Timer::start();
+            PHP_Timer::start();
 
             list($expected, $actual) = explode(';', $line);
 
             try {
-                PHPUnit_Framework_Assert::assertEquals(trim($expected), trim($actual));
+                PHPUnit_Framework_Assert::assertEquals(
+                  trim($expected), trim($actual)
+                );
             }
 
             catch (PHPUnit_Framework_AssertionFailedError $e) {
-                $result->addFailure($this, $e, PHPUnit_Util_Timer::stop());
+                $result->addFailure($this, $e, PHP_Timer::stop());
             }
 
             catch (Exception $e) {
-                $result->addError($this, $e, PHPUnit_Util_Timer::stop());
+                $result->addError($this, $e, PHP_Timer::stop()());
             }
 
-            $result->endTest($this, PHPUnit_Util_Timer::stop());
+            $result->endTest($this, PHP_Timer::stop());
         }
 
         return $result;
@@ -199,173 +253,5 @@ got string      <baz>
 FAILURES!
 Tests: 2, Failures: 1.]]></screen>
     </example>
-  </section>
-
-  <section id="extending-phpunit.PHPUnit_Framework_TestResult">
-    <title>PHPUnit_Framework_TestResult のサブクラスの作成</title>
-
-    <para>
-      <indexterm><primary>PHPUnit_Framework_TestResult</primary></indexterm>
-
-      独自の <literal>PHPUnit_Framework_TestResult</literal> オブジェクトを
-      <literal>run()</literal> メソッドに渡すと、
-      テストの実行方法や収集されるテスト結果を変更することができます。
-    </para>
-  </section>
-
-  <section id="extending-phpunit.PHPUnit_Framework_TestListener">
-    <title>PHPUnit_Framework_TestListener の実装</title>
-
-    <para>
-      <indexterm><primary>PHPUnit_Framework_TestListener</primary></indexterm>
-      <indexterm><primary>PHPUnit_Framework_TestResult</primary></indexterm>
-
-      テスト結果をカスタマイズするために、必ず <literal>PHPUnit_Framework_TestResult</literal>
-      のサブクラスを書かなければならないというわけではありません。たいていは、
-      新しい <literal>PHPUnit_Framework_TestListener</literal> を実装して
-      (<xref linkend="api.testresult.tables.testlistener" /> を参照ください)、
-      テストの前にそれを <literal>PHPUnit_Framework_TestResult</literal>
-      オブジェクトにアタッチするだけで十分です。
-    </para>
-
-    <para>
-      <xref linkend="extending-phpunit.examples.SimpleTestListener.php" />
-      は、<literal>PHPUnit_Framework_TestListener</literal>
-      インターフェイスを実装する単純な例です。
-    </para>
-
-    <example id="extending-phpunit.examples.SimpleTestListener.php">
-      <title>シンプルなテストリスナー</title>
-      <programlisting><![CDATA[<?php
-class SimpleTestListener
-implements PHPUnit_Framework_TestListener
-{
-  public function
-  addError(PHPUnit_Framework_Test $test,
-           Exception $e,
-           $time)
-  {
-    printf(
-      "テスト '%s' の実行中にエラーが発生しました。\n",
-      $test->getName()
-    );
-  }
-
-  public function
-  addFailure(PHPUnit_Framework_Test $test,
-             PHPUnit_Framework_AssertionFailedError $e,
-             $time)
-  {
-    printf(
-      "テスト '%s' に失敗しました。\n",
-      $test->getName()
-    );
-  }
-
-  public function
-  addIncompleteTest(PHPUnit_Framework_Test $test,
-                    Exception $e,
-                    $time)
-  {
-    printf(
-      "テスト '%s' は未完了です。\n",
-      $test->getName()
-    );
-  }
-
-  public function
-  addSkippedTest(PHPUnit_Framework_Test $test,
-                 Exception $e,
-                 $time)
-  {
-    printf(
-      "テスト '%s' は省略されました。\n",
-      $test->getName()
-    );
-  }
-
-  public function startTest(PHPUnit_Framework_Test $test)
-  {
-    printf(
-      "テスト '%s' が開始されました。\n",
-      $test->getName()
-    );
-  }
-
-  public function endTest(PHPUnit_Framework_Test $test, $time)
-  {
-    printf(
-      "テスト '%s' が終了しました。\n",
-      $test->getName()
-    );
-  }
-
-  public function
-  startTestSuite(PHPUnit_Framework_TestSuite $suite)
-  {
-    printf(
-      "テストスイート '%s' が開始されました。\n",
-      $suite->getName()
-    );
-  }
-
-  public function
-  endTestSuite(PHPUnit_Framework_TestSuite $suite)
-  {
-    printf(
-      "テストスイート '%s' が終了しました。\n",
-      $suite->getName()
-    );
-  }
-}
-?>]]></programlisting>
-    </example>
-
-    <para>
-      <indexterm><primary>PHPUnit_Framework_TestResult</primary></indexterm>
-      <indexterm><primary>PHPUnit_Framework_TestSuite</primary></indexterm>
-
-      <xref linkend="extending-phpunit.examples.SimpleTestListener-example.php" />
-      は、テストスイートを実行して監視する方法を示したものです。
-    </para>
-
-    <example id="extending-phpunit.examples.SimpleTestListener-example.php">
-      <title>テストスイートの実行と監視</title>
-      <programlisting><![CDATA[<?php
-require_once 'ArrayTest.php';
-require_once 'SimpleTestListener.php';
-
-// ArrayTest クラスのテストを含む
-// テストスイートを作成します。
-$suite = new PHPUnit_Framework_TestSuite('ArrayTest');
-
-// テスト結果オブジェクトを作成し、そこにオブザーバとして
-// SimpleTestListener をアタッチします。
-$result = new PHPUnit_Framework_TestResult;
-$result->addListener(new SimpleTestListener);
-
-// テストを実行します。
-$suite->run($result);
-?>]]></programlisting>
-
-<screen>テストスイート 'ArrayTest' が開始されました。
-テスト 'testNewArrayIsEmpty' が開始されました。
-テスト 'testNewArrayIsEmpty' が終了しました。
-テスト 'testArrayContainsAnElement' が開始されました。
-テスト 'testArrayContainsAnElement' が終了しました。
-テストスイート 'ArrayTest' が終了しました。</screen>
-    </example>
-  </section>
-
-  <section id="extending-phpunit.TestRunner">
-    <title>新しいテストランナーの作成</title>
-
-    <para>
-      テストの実行結果を異なる方法で受け取りたい場合には、
-      独自のテストランナーを作成します。その際の初めの一歩となるのが、
-      <literal>PHPUnit_TextUI_TestRunner</literal> クラス (PHPUnit
-      のコマンドライン版テストランナー) の親クラスである抽象クラス
-      <literal>PHPUnit_Runner_BaseTestRunner</literal> です。
-    </para>
   </section>
 </chapter>
