@@ -216,7 +216,7 @@ Tests: 2, Assertions: 1, Failures: 1, Skipped: 1.]]></screen>
     </para>
 
     <example id="writing-tests-for-phpunit.data-providers.examples.DataTest.php">
-      <title>Using data providers</title>
+      <title>Using a data provider that returns an array of arrays</title>
       <programlisting><![CDATA[<?php
 class DataTest extends PHPUnit_Framework_TestCase
 {
@@ -245,7 +245,7 @@ class DataTest extends PHPUnit_Framework_TestCase
 
 ...F
 
-Time: 0 seconds
+Time: 0 seconds, Memory: 4.00Mb
 
 There was 1 failure:
 
@@ -256,6 +256,94 @@ Failed asserting that <integer:2> matches expected value <integer:3>.
 FAILURES!
 Tests: 4, Assertions: 4, Failures: 1.
 ]]></screen>
+    </example>
+
+    <example id="writing-tests-for-phpunit.data-providers.examples.DataTest2.php">
+      <title>Using a data provider that returns an Iterator object</title>
+      <programlisting><![CDATA[<?php
+require 'CsvFileIterator.php';
+
+class DataTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @dataProvider provider
+     */
+    public function testAdd($a, $b, $c)
+    {
+        $this->assertEquals($c, $a + $b);
+    }
+
+    public function provider()
+    {
+        return new CsvFileIterator('data.csv');
+    }
+}
+?>]]></programlisting>
+
+    <screen><userinput>phpunit DataTest</userinput>
+<![CDATA[PHPUnit 3.5.0 by Sebastian Bergmann.
+
+...F
+
+Time: 0 seconds, Memory: 4.00Mb
+
+There was 1 failure:
+
+1) DataTest::testAdd with data set #3 ('1', '1', '3')
+Failed asserting that two strings are equal.
+--- Expected
++++ Actual
+@@ @@
+-3
++2
+
+/home/sb/DataTest.php:11
+
+FAILURES!
+Tests: 4, Assertions: 4, Failures: 1.
+]]></screen>
+    </example>
+
+    <example id="writing-tests-for-phpunit.data-providers.examples.CsvFileIterator.php">
+      <title>The CsvFileIterator class</title>
+      <programlisting><![CDATA[<?php
+class CsvFileIterator implements Iterator {
+    protected $file;
+    protected $key = 0;
+    protected $current;
+
+    public function __construct($file) {
+        $this->file = fopen($file, 'r');
+    }
+
+    public function __destruct() {
+        fclose($this->file);
+    }
+
+    public function rewind() {
+        rewind($this->file);
+        $this->current = fgetcsv($this->file);
+        $this->key = 0;
+    }
+
+    public function valid() {
+        return !feof($this->file);
+    }
+
+    public function key() {
+        return $this->key;
+    }
+
+    public function current() {
+        return $this->current;
+    }
+
+    public function next() {
+        $this->current = fgetcsv($this->file);
+        $this->key++;
+    }
+}
+?>]]></programlisting>
     </example>
 
     <note>
