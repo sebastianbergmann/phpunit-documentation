@@ -112,6 +112,7 @@ OK (1 test, 2 assertions)</screen>
         そのため、テストの依存性に関する問題を引き起こすことがあります。
         <xref linkend="writing-tests-for-phpunit.test-dependencies"/>
         を参照ください。
+        次の節では、テストの実行順序を XML 設定ファイルで明示的に指定する方法を説明します。
       </para>
     </note>
   </section>
@@ -141,17 +142,8 @@ OK (1 test, 2 assertions)</screen>
 </phpunit>]]></programlisting>
     </example>
 
-    <note>
-      <para>
-        この方式の欠点は、テストの実行順を制御できないことです。
-        そのため、テストの依存性に関する問題を引き起こすことがあります。
-        <xref linkend="writing-tests-for-phpunit.test-dependencies"/>
-        を参照ください。
-      </para>
-    </note>
-
     <para>
-      どのテストを実行するのかを明示的に指定することもできます。
+      どのテストを実行するのかを明示的に指定することができます。
     </para>
 
     <example id="organizing-tests.xml-configuration.examples.phpunit.xml2">
@@ -170,169 +162,5 @@ OK (1 test, 2 assertions)</screen>
   </testsuites>
 </phpunit>]]></programlisting>
     </example>
-  </section>
-
-  <section id="organizing-tests.testsuite">
-    <title>テストケースクラスの使用法</title>
-    <indexterm><primary>PHPUnit_Framework_TestSuite</primary></indexterm>
-
-    <para>
-      PHPUnit フレームワークの <literal>PHPUnit_Framework_TestSuite</literal>
-      クラスを使うと、テストスイートオブジェクトの階層としてテストを管理することができます。
-    </para>
-
-    <para>
-      <xref linkend="organizing-tests.testsuite.examples.AllTests.php"/>
-      は、<literal>Package</literal> というパッケージを含むプロジェクトのトップレベルの
-      <literal>AllTests</literal> クラスの例です。
-    </para>
-
-    <example id="organizing-tests.testsuite.examples.AllTests.php">
-      <title>トップレベルの AllTests クラス</title>
-      <programlisting><![CDATA[<?php
-require_once 'Package/AllTests.php';
-// ...
-
-class AllTests
-{
-    public static function suite()
-    {
-        $suite = new PHPUnit_Framework_TestSuite('Project');
-
-        $suite->addTest(Package_AllTests::suite());
-        // ...
-
-        return $suite;
-    }
-}
-?>]]></programlisting>
-    </example>
-
-    <para>
-      トップレベルの <literal>AllTests</literal> クラスがパッケージレベルの
-      <literal>Package_AllTests</literal> クラスを集約し、
-      さらにそれがパッケージ内のクラス群のテストケースクラスを集約します。
-    </para>
-
-    <example id="organizing-tests.testsuite.examples.Package_AllTests.php">
-      <title>Package_AllTests クラス</title>
-      <programlisting><![CDATA[<?php
-require_once 'Framework/ClassTest.php';
-// ...
-
-class Package_AllTests
-{
-    public static function suite()
-    {
-        $suite = new PHPUnit_Framework_TestSuite('Package');
-
-        $suite->addTestSuite('Package_ClassTest');
-        // ...
-
-        return $suite;
-    }
-}
-?>]]></programlisting>
-    </example>
-
-    <para>
-      <literal>Package_ClassTest</literal> クラスは、
-      基底クラス <literal>PHPUnit_Framework_TestCase</literal>
-      を継承した標準的なテストケースクラスです。
-    </para>
-
-    <itemizedlist>
-      <listitem>
-        <para>
-          <literal>phpunit AllTests</literal> を
-          <filename>Tests</filename> ディレクトリで実行すると、すべてのテストを実行します。
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          <literal>phpunit AllTests</literal> を
-          <filename>Tests/Package</filename> ディレクトリで実行すると、
-          <literal>Package_*</literal> クラスのテストのみを実行します。
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          <literal>phpunit ClassTest</literal> を
-          <filename>Tests/Package</filename> ディレクトリで実行すると、
-          <literal>Package_Class</literal> クラスのテストのみを実行します
-          (これは <literal>Package_ClassTest</literal> クラスで宣言されています)。
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          <literal>phpunit --filter testSomething ClassTest</literal> を
-          <filename>Tests/Package</filename> ディレクトリで実行すると、
-          <literal>Package_ClassTest</literal> クラスの
-          <literal>testSomething</literal> という名前のテストのみを実行します。
-        </para>
-      </listitem>
-    </itemizedlist>
-
-    <para>
-      <indexterm><primary>Template Method</primary></indexterm>
-      <indexterm><primary>setUp()</primary></indexterm>
-      <indexterm><primary>tearDown()</primary></indexterm>
-
-      <literal>PHPUnit_Framework_TestSuite</literal> クラスには二つのテンプレートメソッド
-      <literal>setUp()</literal> および <literal>tearDown()</literal> が用意されています。
-      これらはそれぞれ、テストスイート内の最初のテストを実行する前と
-      最後のテストを実行した後にコールされます。
-    </para>
-
-    <example id="organizing-tests.testsuite.examples.MySuite.php">
-      <title>MySuite クラス</title>
-      <programlisting><![CDATA[<?php
-require_once 'MyTest.php';
-
-class MySuite extends PHPUnit_Framework_TestSuite
-{
-    public static function suite()
-    {
-        return new MySuite('MyTest');
-    }
-
-    protected function setUp()
-    {
-        print __METHOD__ . "\n";
-    }
-
-    protected function tearDown()
-    {
-        print __METHOD__ . "\n";
-    }
-}
-?>]]></programlisting>
-    </example>
-
-    <para>
-      <xref linkend="organizing-tests.testsuite.examples.MySuite.php"/> にあるテストスイート
-      <literal>MySuite</literal> に追加されたテストケースクラス
-      <literal>MyTest</literal> には、二つのメソッド
-      <literal>testOne()</literal> および <literal>testTwo()</literal> があり、さらに
-      <literal>setUp()</literal> メソッドと <literal>tearDown()</literal>
-      メソッドもあります。この出力結果を見れば、これらのメソッドがどの順でコールされるかがわかります。
-    </para>
-
-    <screen>MySuite::setUp()
-MyTest::setUp()
-MyTest::testOne()
-MyTest::tearDown()
-MyTest::setUp()
-MyTest::testTwo()
-MyTest::tearDown()
-MySuite::tearDown()</screen>
-
-    <note>
-      <para>
-        <literal>TestSuite</literal> の <literal>setUp()</literal> メソッドと
-        <literal>tearDown()</literal> メソッドは、
-        フィルタリングなどによってスイート内のテストがひとつも実行されなかった場合でもコールされます。
-      </para>
-    </note>
   </section>
 </chapter>
