@@ -108,6 +108,8 @@ OK (1 test, 2 assertions)</screen>
         A drawback of this approach is that we have no control over the order in
         which the test are run. This can lead to problems with regard to test
         dependencies, see <xref linkend="writing-tests-for-phpunit.test-dependencies"/>.
+        In the next section you will see how you can make the test execution
+        order explicit by using the XML configuration file.
       </para>
     </note>
   </section>
@@ -136,16 +138,8 @@ OK (1 test, 2 assertions)</screen>
 </phpunit>]]></programlisting>
     </example>
 
-    <note>
-      <para>
-        A drawback of this approach is that we have no control over the order in
-        which the test are run. This can lead to problems with regard to test
-        dependencies, see <xref linkend="writing-tests-for-phpunit.test-dependencies"/>.
-      </para>
-    </note>
-
     <para>
-      Alternatively, we can make the order in which tests are executed explicit:
+      The order in which tests are executed can be made explicit:
     </para>
 
     <example id="organizing-tests.xml-configuration.examples.phpunit.xml2">
@@ -164,170 +158,5 @@ OK (1 test, 2 assertions)</screen>
   </testsuites>
 </phpunit>]]></programlisting>
     </example>
-  </section>
-
-  <section id="organizing-tests.testsuite">
-    <title>Using the TestSuite Class</title>
-    <indexterm><primary>PHPUnit_Framework_TestSuite</primary></indexterm>
-
-    <para>
-      The <literal>PHPUnit_Framework_TestSuite</literal> class of the PHPUnit
-      framework allows us to organize tests into a hierarchy of test suite
-      objects.
-    </para>
-
-    <para>
-      <xref linkend="organizing-tests.testsuite.examples.AllTests.php"/> shows
-      the top-level <literal>AllTests</literal> class for a project that has a
-      package named <literal>Package</literal>.
-    </para>
-
-    <example id="organizing-tests.testsuite.examples.AllTests.php">
-      <title>The top-level AllTests class</title>
-      <programlisting><![CDATA[<?php
-require_once 'Package/AllTests.php';
-// ...
-
-class AllTests
-{
-    public static function suite()
-    {
-        $suite = new PHPUnit_Framework_TestSuite('Project');
-
-        $suite->addTest(Package_AllTests::suite());
-        // ...
-
-        return $suite;
-    }
-}
-?>]]></programlisting>
-    </example>
-
-    <para>
-      The top-level <literal>AllTests</literal> class aggregates the
-      package-level <literal>Package_AllTests</literal> class that in turn
-      aggregates the test case classes for the classes of said package.
-    </para>
-
-    <example id="organizing-tests.testsuite.examples.Package_AllTests.php">
-      <title>The Package_AllTests class</title>
-      <programlisting><![CDATA[<?php
-require_once 'Framework/ClassTest.php';
-// ...
-
-class Package_AllTests
-{
-    public static function suite()
-    {
-        $suite = new PHPUnit_Framework_TestSuite('Package');
-
-        $suite->addTestSuite('Package_ClassTest');
-        // ...
-
-        return $suite;
-    }
-}
-?>]]></programlisting>
-    </example>
-
-    <para>
-      The <literal>Package_ClassTest</literal> class is a normal test case
-      class that extends the <literal>PHPUnit_Framework_TestCase</literal> base
-      class.
-    </para>
-
-    <itemizedlist>
-      <listitem>
-        <para>
-          Executing <literal>phpunit AllTests</literal> in the
-          <filename>Tests</filename> directory will run all tests.
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Executing <literal>phpunit AllTests</literal> in the
-          <filename>Tests/Package</filename> directory will run only the tests
-          for the <literal>Package_*</literal> classes.
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Executing <literal>phpunit ClassTest</literal> in the
-          <filename>Tests/Package</filename> directory will run only the tests
-          for the <literal>Package_Class</literal> class (which are declared in
-          the <literal>Package_ClassTest</literal> class).
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Executing <literal>phpunit --filter testSomething ClassTest</literal>
-          in the <filename>Tests/Package</filename> directory will run only the
-          test named <literal>testSomething</literal> from the
-          <literal>Package_ClassTest</literal> class.
-        </para>
-      </listitem>
-    </itemizedlist>
-
-    <para>
-      <indexterm><primary>Template Method</primary></indexterm>
-      <indexterm><primary>setUp()</primary></indexterm>
-      <indexterm><primary>tearDown()</primary></indexterm>
-
-      The <literal>PHPUnit_Framework_TestSuite</literal> class offers two
-      template methods, <literal>setUp()</literal> and <literal>tearDown()</literal>,
-      that are called before the first test of the test suite and after the last
-      test of the test suite, respectively.
-    </para>
-
-    <example id="organizing-tests.testsuite.examples.MySuite.php">
-      <title>The MySuite class</title>
-      <programlisting><![CDATA[<?php
-require_once 'MyTest.php';
-
-class MySuite extends PHPUnit_Framework_TestSuite
-{
-    public static function suite()
-    {
-        return new MySuite('MyTest');
-    }
-
-    protected function setUp()
-    {
-        print __METHOD__ . "\n";
-    }
-
-    protected function tearDown()
-    {
-        print __METHOD__ . "\n";
-    }
-}
-?>]]></programlisting>
-    </example>
-
-    <para>
-      The <literal>MyTest</literal> test case class that is added to the test
-      suite <literal>MySuite</literal> in
-      <xref linkend="organizing-tests.testsuite.examples.MySuite.php"/>
-      has two test methods, <literal>testOne()</literal> and <literal>testTwo()</literal>
-      as well as the <literal>setUp()</literal> and <literal>tearDown()</literal>
-      methods. The output shows in which order these eight methods are called:
-    </para>
-
-    <screen>MySuite::setUp()
-MyTest::setUp()
-MyTest::testOne()
-MyTest::tearDown()
-MyTest::setUp()
-MyTest::testTwo()
-MyTest::tearDown()
-MySuite::tearDown()</screen>
-
-    <note>
-      <para>
-        A <literal>TestSuite</literal>'s <literal>setUp()</literal> and
-        <literal>tearDown()</literal> methods will be called even if no test of
-        the test suite is run because it is, for instance, filtered.
-      </para>
-    </note>
   </section>
 </chapter>
