@@ -1005,12 +1005,97 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
       <title><literal>assertEqualXMLStructure()</literal></title>
       <indexterm><primary>assertEqualXMLStructure()</primary></indexterm>
       <para><literal>assertEqualXMLStructure(DOMNode $expectedNode, DOMNode $actualNode[, boolean $checkAttributes = FALSE, string $message = ''])</literal></para>
-      <para>XXX</para>
+      <para><literal>$actualNode</literal> の DOMNode の XML 構造が <literal>$expectedNode</literal> の DOMNode の XML 構造と等しくない場合にエラー <literal>$message</literal> を報告します。</para>
       <example id="writing-tests-for-phpunit.assertions.assertEqualXMLStructure.example">
         <title>assertEqualXMLStructure() の使用法</title>
         <programlisting><![CDATA[<?php
+class EqualXMLStructureTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailureWithDifferentNodeNames()
+    {
+        $expected = new DOMElement('foo');
+        $actual = new DOMElement('bar');
+
+        $this->assertEqualXMLStructure($expected, $actual);
+    }
+
+    public function testFailureWithDifferentNodeAttributes()
+    {
+        $expected = new DOMDocument;
+        $expected->loadXML('<foo bar="true"/>');
+
+        $actual = new DOMDocument;
+        $actual->loadXML('<foo/>');
+
+        $this->assertEqualXMLStructure($expected, $actual, TRUE);
+    }
+
+    public function testFailureWithDifferentChildrenCount()
+    {
+        $expected = new DOMDocument;
+        $expected->loadXML('<foo><bar/><bar/><bar/></foo>');
+
+        $actual = new DOMDocument;
+        $actual->loadXML('<foo><bar/></foo>');
+
+        $this->assertEqualXMLStructure($expected, $actual);
+    }
+
+    public function testFailureWithDifferentChildren()
+    {
+        $expected = new DOMDocument;
+        $expected->loadXML('<foo><bar/><bar/><bar/></foo>');
+
+        $actual = new DOMDocument;
+        $actual->loadXML('<foo><baz/><baz/><baz/></foo>');
+
+        $this->assertEqualXMLStructure($expected, $actual);
+    }
+}
 ?>]]></programlisting>
         <screen><userinput>phpunit EqualXMLStructureTest</userinput><![CDATA[
+PHPUnit 3.5.13 by Sebastian Bergmann.
+
+FFFF
+
+Time: 0 seconds, Memory: 5.75Mb
+
+There were 4 failures:
+
+1) EqualXMLStructureTest::testFailureWithDifferentNodeNames
+Failed asserting that two strings are equal.
+--- Expected
++++ Actual
+@@ @@
+-foo
++bar
+
+/home/sb/EqualXMLStructureTest.php:9
+
+2) EqualXMLStructureTest::testFailureWithDifferentNodeAttributes
+Number of attributes on node "foo" does not match
+Failed asserting that <integer:0> matches expected <integer:1>.
+
+/home/sb/EqualXMLStructureTest.php:20
+
+3) EqualXMLStructureTest::testFailureWithDifferentChildrenCount
+Number of child nodes of "foo" differs
+Failed asserting that <integer:1> matches expected <integer:3>.
+
+/home/sb/EqualXMLStructureTest.php:31
+
+4) EqualXMLStructureTest::testFailureWithDifferentChildren
+Failed asserting that two strings are equal.
+--- Expected
++++ Actual
+@@ @@
+-bar
++baz
+
+/home/sb/EqualXMLStructureTest.php:42
+
+FAILURES!
+Tests: 4, Assertions: 15, Failures: 4.
 ]]></screen>
       </example>
     </section>
@@ -1875,12 +1960,76 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
       <title><literal>assertSelectCount()</literal></title>
       <indexterm><primary>assertSelectCount()</primary></indexterm>
       <para><literal>assertSelectCount(array $selector, integer $count, mixed $actual[, string $message = '', boolean $isHtml = TRUE])</literal></para>
-      <para>XXX</para>
+      <para>CSS セレクタ <literal>$selector</literal> が DOMNode <literal>$actual</literal> の <literal>$count</literal> 要素にマッチしない場合にエラー <literal>$message</literal> を報告します。</para>
+      <para><literal>$count</literal> には次の型のいずれかを指定できます。</para>
+      <itemizedlist>
+        <listitem><literal>boolean</literal>: セレクタにマッチする要素が存在する (<literal>TRUE</literal>) か存在しない (<literal>FALSE</literal>) かを調べます。</listitem>
+        <listitem><literal>integer</literal>: 要素の数を調べます。</listitem>
+        <listitem><literal>array</literal>: 要素の数が指定した範囲にあるかどうかを調べます。<literal>&lt;</literal>, <literal>&gt;</literal>, <literal>&lt;=</literal>, および <literal>&gt;=</literal> をキーとして範囲を指定します。</listitem>
+      </itemizedlist>
       <example id="writing-tests-for-phpunit.assertions.assertSelectCount.example">
         <title>assertSelectCount() の使用法</title>
         <programlisting><![CDATA[<?php
+class SelectCountTest extends PHPUnit_Framework_TestCase
+{
+    protected function setUp()
+    {
+        $this->xml = new DomDocument;
+        $this->xml->loadXML('<foo><bar/><bar/><bar/></foo>');
+    }
+
+    public function testAbsenceFailure()
+    {
+        $this->assertSelectCount('foo bar', FALSE, $this->xml);
+    }
+
+    public function testPresenceFailure()
+    {
+        $this->assertSelectCount('foo baz', TRUE, $this->xml);
+    }
+
+    public function testExactCountFailure()
+    {
+        $this->assertSelectCount('foo bar', 5, $this->xml);
+    }
+
+    public function testRangeFailure()
+    {
+        $this->assertSelectCount('foo bar', array('>'=>6, '<'=>8), $this->xml);
+    }
+}
 ?>]]></programlisting>
         <screen><userinput>phpunit SelectCountTest</userinput><![CDATA[
+PHPUnit 3.5.13 by Sebastian Bergmann.
+
+FFFF
+
+Time: 0 seconds, Memory: 5.75Mb
+
+There were 4 failures:
+
+1) SelectCountTest::testAbsenceFailure
+Failed asserting that <boolean:true> is false.
+
+/home/sb/SelectCountTest.php:12
+
+2) SelectCountTest::testPresenceFailure
+Failed asserting that <boolean:false> is true.
+
+/home/sb/SelectCountTest.php:17
+
+3) SelectCountTest::testExactCountFailure
+Failed asserting that <integer:3> matches expected <integer:5>.
+
+/home/sb/SelectCountTest.php:22
+
+4) SelectCountTest::testRangeFailure
+Failed asserting that <boolean:false> is true.
+
+/home/sb/SelectCountTest.php:27
+
+FAILURES!
+Tests: 4, Assertions: 4, Failures: 4.
 ]]></screen>
       </example>
     </section>
@@ -1889,12 +2038,76 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
       <title><literal>assertSelectEquals()</literal></title>
       <indexterm><primary>assertSelectEquals()</primary></indexterm>
       <para><literal>assertSelectEquals(array $selector, string $content, integer $count, mixed $actual[, string $message = '', boolean $isHtml = TRUE])</literal></para>
-      <para>XXX</para>
+      <para>CSS セレクタ <literal>$selector</literal> が DOMNode <literal>$actual</literal> の値 <literal>$content</literal> の <literal>$count</literal> 要素にマッチしない場合にエラー <literal>$message</literal> を報告します。</para>
+      <para><literal>$count</literal> には次の型のいずれかを指定できます。</para>
+      <itemizedlist>
+        <listitem><literal>boolean</literal>: セレクタにマッチする要素が存在する (<literal>TRUE</literal>) か存在しない (<literal>FALSE</literal>) かを調べます。</listitem>
+        <listitem><literal>integer</literal>: 要素の数を調べます。</listitem>
+        <listitem><literal>array</literal>: 要素の数が指定した範囲にあるかどうかを調べます。<literal>&lt;</literal>, <literal>&gt;</literal>, <literal>&lt;=</literal>, および <literal>&gt;=</literal> をキーとして範囲を指定します。</listitem>
+      </itemizedlist>
       <example id="writing-tests-for-phpunit.assertions.assertSelectEquals.example">
         <title>assertSelectEquals() の使用法</title>
         <programlisting><![CDATA[<?php
+class SelectEqualsTest extends PHPUnit_Framework_TestCase
+{
+    protected function setUp()
+    {
+        $this->xml = new DomDocument;
+        $this->xml->loadXML('<foo><bar>Baz</bar><bar>Baz</bar></foo>');
+    }
+
+    public function testAbsenceFailure()
+    {
+        $this->assertSelectEquals('foo bar', 'Baz', FALSE, $this->xml);
+    }
+
+    public function testPresenceFailure()
+    {
+        $this->assertSelectEquals('foo bar', 'Bat', TRUE, $this->xml);
+    }
+
+    public function testExactCountFailure()
+    {
+        $this->assertSelectEquals('foo bar', 'Baz', 5, $this->xml);
+    }
+
+    public function testRangeFailure()
+    {
+        $this->assertSelectEquals('foo bar', 'Baz', array('>'=>6, '<'=>8), $this->xml);
+    }
+}
 ?>]]></programlisting>
         <screen><userinput>phpunit SelectEqualsTest</userinput><![CDATA[
+PHPUnit 3.5.13 by Sebastian Bergmann.
+
+FFFF
+
+Time: 0 seconds, Memory: 5.75Mb
+
+There were 4 failures:
+
+1) SelectEqualsTest::testAbsenceFailure
+Failed asserting that <boolean:true> is false.
+
+/home/sb/SelectEqualsTest.php:12
+
+2) SelectEqualsTest::testPresenceFailure
+Failed asserting that <boolean:false> is true.
+
+/home/sb/SelectEqualsTest.php:17
+
+3) SelectEqualsTest::testExactCountFailure
+Failed asserting that <integer:2> matches expected <integer:5>.
+
+/home/sb/SelectEqualsTest.php:22
+
+4) SelectEqualsTest::testRangeFailure
+Failed asserting that <boolean:false> is true.
+
+/home/sb/SelectEqualsTest.php:27
+
+FAILURES!
+Tests: 4, Assertions: 4, Failures: 4.
 ]]></screen>
       </example>
     </section>
@@ -1903,12 +2116,76 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
       <title><literal>assertSelectRegExp()</literal></title>
       <indexterm><primary>assertSelectRegExp()</primary></indexterm>
       <para><literal>assertSelectRegExp(array $selector, string $pattern, integer $count, mixed $actual[, string $message = '', boolean $isHtml = TRUE])</literal></para>
-      <para>XXX</para>
+      <para>CSS セレクタ <literal>$selector</literal> が DOMNode <literal>$actual</literal> のパターン <literal>$pattern</literal> にマッチする値の <literal>$count</literal> 要素にマッチしない場合にエラー <literal>$message</literal> を報告します。</para>
+      <para><literal>$count</literal> には次の型のいずれかを指定できます。</para>
+      <itemizedlist>
+        <listitem><literal>boolean</literal>: セレクタにマッチする要素が存在する (<literal>TRUE</literal>) か存在しない (<literal>FALSE</literal>) かを調べます。</listitem>
+        <listitem><literal>integer</literal>: 要素の数を調べます。</listitem>
+        <listitem><literal>array</literal>: 要素の数が指定した範囲にあるかどうかを調べます。<literal>&lt;</literal>, <literal>&gt;</literal>, <literal>&lt;=</literal>, および <literal>&gt;=</literal> をキーとして範囲を指定します。</listitem>
+      </itemizedlist>
       <example id="writing-tests-for-phpunit.assertions.assertSelectRegExp.example">
         <title>assertSelectRegExp() の使用法</title>
         <programlisting><![CDATA[<?php
+class SelectRegExpTest extends PHPUnit_Framework_TestCase
+{
+    protected function setUp()
+    {
+        $this->xml = new DomDocument;
+        $this->xml->loadXML('<foo><bar>Baz</bar><bar>Baz</bar></foo>');
+    }
+
+    public function testAbsenceFailure()
+    {
+        $this->assertSelectRegExp('foo bar', '/Ba.*/', FALSE, $this->xml);
+    }
+
+    public function testPresenceFailure()
+    {
+        $this->assertSelectRegExp('foo bar', '/B[oe]z]/', TRUE, $this->xml);
+    }
+
+    public function testExactCountFailure()
+    {
+        $this->assertSelectRegExp('foo bar', '/Ba.*/', 5, $this->xml);
+    }
+
+    public function testRangeFailure()
+    {
+        $this->assertSelectRegExp('foo bar', '/Ba.*/', array('>'=>6, '<'=>8), $this->xml);
+    }
+}
 ?>]]></programlisting>
         <screen><userinput>phpunit SelectRegExpTest</userinput><![CDATA[
+PHPUnit 3.5.13 by Sebastian Bergmann.
+
+FFFF
+
+Time: 0 seconds, Memory: 5.75Mb
+
+There were 4 failures:
+
+1) SelectRegExpTest::testAbsenceFailure
+Failed asserting that <boolean:true> is false.
+
+/home/sb/SelectRegExpTest.php:12
+
+2) SelectRegExpTest::testPresenceFailure
+Failed asserting that <boolean:false> is true.
+
+/home/sb/SelectRegExpTest.php:17
+
+3) SelectRegExpTest::testExactCountFailure
+Failed asserting that <integer:2> matches expected <integer:5>.
+
+/home/sb/SelectRegExpTest.php:22
+
+4) SelectRegExpTest::testRangeFailure
+Failed asserting that <boolean:false> is true.
+
+/home/sb/SelectRegExpTest.php:27
+
+FAILURES!
+Tests: 4, Assertions: 4, Failures: 4.
 ]]></screen>
       </example>
     </section>
