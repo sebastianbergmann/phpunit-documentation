@@ -1004,8 +1004,8 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
     <section id="writing-tests-for-phpunit.assertions.assertEqualXMLStructure">
       <title><literal>assertEqualXMLStructure()</literal></title>
       <indexterm><primary>assertEqualXMLStructure()</primary></indexterm>
-      <para><literal>assertEqualXMLStructure(DOMNode $expectedNode, DOMNode $actualNode[, boolean $checkAttributes = FALSE, string $message = ''])</literal></para>
-      <para><literal>$actualNode</literal> の DOMNode の XML 構造が <literal>$expectedNode</literal> の DOMNode の XML 構造と等しくない場合にエラー <literal>$message</literal> を報告します。</para>
+      <para><literal>assertEqualXMLStructure(DOMElement $expectedElement, DOMElement $actualElement[, boolean $checkAttributes = FALSE, string $message = ''])</literal></para>
+      <para><literal>$actualElement</literal> の DOMElement の XML 構造が <literal>$expectedElement</literal> の DOMElement の XML 構造と等しくない場合にエラー <literal>$message</literal> を報告します。</para>
       <example id="writing-tests-for-phpunit.assertions.assertEqualXMLStructure.example">
         <title>assertEqualXMLStructure() の使用法</title>
         <programlisting><![CDATA[<?php
@@ -1027,7 +1027,9 @@ class EqualXMLStructureTest extends PHPUnit_Framework_TestCase
         $actual = new DOMDocument;
         $actual->loadXML('<foo/>');
 
-        $this->assertEqualXMLStructure($expected, $actual, TRUE);
+        $this->assertEqualXMLStructure(
+          $expected->firstChild, $actual->firstChild, TRUE
+        );
     }
 
     public function testFailureWithDifferentChildrenCount()
@@ -1038,7 +1040,9 @@ class EqualXMLStructureTest extends PHPUnit_Framework_TestCase
         $actual = new DOMDocument;
         $actual->loadXML('<foo><bar/></foo>');
 
-        $this->assertEqualXMLStructure($expected, $actual);
+        $this->assertEqualXMLStructure(
+          $expected->firstChild, $actual->firstChild
+        );
     }
 
     public function testFailureWithDifferentChildren()
@@ -1049,7 +1053,9 @@ class EqualXMLStructureTest extends PHPUnit_Framework_TestCase
         $actual = new DOMDocument;
         $actual->loadXML('<foo><baz/><baz/><baz/></foo>');
 
-        $this->assertEqualXMLStructure($expected, $actual);
+        $this->assertEqualXMLStructure(
+          $expected->firstChild, $actual->firstChild
+        );
     }
 }
 ?>]]></programlisting>
