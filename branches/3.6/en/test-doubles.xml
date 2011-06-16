@@ -274,15 +274,61 @@ class StubTest extends PHPUnit_Framework_TestCase
     </example>
 
     <para>
+      Sometimes a stubbed method should return different values depending on
+      a predefined list of arguments.  You can use
+      <literal>returnValueMap()</literal> to create a map that associates
+      arguments with corresponding return values. See
+      <xref linkend="test-doubles.stubs.examples.StubTest5.php"/> for
+      an example.
+    </para>
+
+    <example id="test-doubles.stubs.examples.StubTest5.php">
+      <indexterm><primary>getMock()</primary></indexterm>
+      <indexterm><primary>expects()</primary></indexterm>
+      <indexterm><primary>method()</primary></indexterm>
+      <indexterm><primary>will()</primary></indexterm>
+      <indexterm><primary>returnValueMap()</primary></indexterm>
+      <title>Stubbing a method call to return the value from a map</title>
+      <programlisting><![CDATA[<?php
+require_once 'SomeClass.php';
+
+class StubTest extends PHPUnit_Framework_TestCase
+{
+    public function testReturnValueMapStub()
+    {
+        // Create a stub for the SomeClass class.
+        $stub = $this->getMock('SomeClass');
+
+        // Create a map of arguments to return values.
+        $map = array(
+          array('a', 'b', 'c', 'd'),
+          array('e', 'f', 'g', 'h')
+        );
+
+        // Configure the stub.
+        $stub->expects($this->any())
+             ->method('doSomething')
+             ->will($this->returnValueMap($map));
+
+        // $stub->doSomething() returns different values depending on
+        // the provided arguments.
+        $this->assertEquals('d', $stub->doSomething('a', 'b', 'c'));
+        $this->assertEquals('h', $stub->doSomething('e', 'f', 'g'));
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
       When the stubbed method call should return a calculated value instead of
       a fixed one (see <literal>returnValue()</literal>) or an (unchanged)
       argument (see <literal>returnArgument()</literal>), you can use
       <literal>returnCallback()</literal> to have the stubbed method return the
       result of a callback function or method. See
-      <xref linkend="test-doubles.stubs.examples.StubTest5.php"/> for an example.
+      <xref linkend="test-doubles.stubs.examples.StubTest6.php"/> for an example.
     </para>
 
-    <example id="test-doubles.stubs.examples.StubTest5.php">
+    <example id="test-doubles.stubs.examples.StubTest6.php">
       <indexterm><primary>getMock()</primary></indexterm>
       <indexterm><primary>expects()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
@@ -311,15 +357,15 @@ class StubTest extends PHPUnit_Framework_TestCase
 ?>]]></programlisting>
     </example>
 
-	<para>
-	  A simpler alternative to setting up a callback method may be to
-	  specify a list of desired return values. You can do this with
-	  the <literal>onConsecutiveCalls()</literal> method. See
-	  <xref linkend="test-doubles.stubs.examples.StubTest6.php"/> for
-	  an example.
-	</para>
+    <para>
+      A simpler alternative to setting up a callback method may be to
+      specify a list of desired return values. You can do this with
+      the <literal>onConsecutiveCalls()</literal> method. See
+      <xref linkend="test-doubles.stubs.examples.StubTest7.php"/> for
+      an example.
+    </para>
 
-    <example id="test-doubles.stubs.examples.StubTest6.php">
+    <example id="test-doubles.stubs.examples.StubTest7.php">
       <indexterm><primary>getMock()</primary></indexterm>
       <indexterm><primary>expects()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
@@ -354,11 +400,11 @@ class StubTest extends PHPUnit_Framework_TestCase
 
     <para>
       Instead of returning a value, a stubbed method can also raise an
-      exception. <xref linkend="test-doubles.stubs.examples.StubTest7.php"/>
+      exception. <xref linkend="test-doubles.stubs.examples.StubTest8.php"/>
       shows how to use <literal>throwException()</literal> to do this.
     </para>
 
-    <example id="test-doubles.stubs.examples.StubTest7.php">
+    <example id="test-doubles.stubs.examples.StubTest8.php">
       <indexterm><primary>getMock()</primary></indexterm>
       <indexterm><primary>expects()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
@@ -542,17 +588,17 @@ class SubjectTest extends PHPUnit_Framework_TestCase
 ?>]]></programlisting>
     </example>
 
-	<para>
-	  The <literal>with()</literal> method can take any number of
-	  arguments, corresponding to the number of parameters to the
-	  method being mocked. You can specify more advanced constraints
-	  on the method argument than a simple match.
-	</para>
+    <para>
+      The <literal>with()</literal> method can take any number of
+      arguments, corresponding to the number of parameters to the
+      method being mocked. You can specify more advanced constraints
+      on the method argument than a simple match.
+    </para>
 
-	<example id="test-doubles.mock-objects.examples.MultiParameterTest.php">
-	  <title>Testing that a method gets called with a number of
-	  arguments constrained in different ways</title>
-	  <programlisting><![CDATA[<?php
+    <example id="test-doubles.mock-objects.examples.MultiParameterTest.php">
+      <title>Testing that a method gets called with a number of
+      arguments constrained in different ways</title>
+      <programlisting><![CDATA[<?php
 class SubjectTest extends PHPUnit_Framework_TestCase
 {
     public function testErrorReported()
@@ -576,7 +622,7 @@ class SubjectTest extends PHPUnit_Framework_TestCase
     }
 }
 ?>]]></programlisting>
-	</example>
+    </example>
 
     <para>
       <xref linkend="writing-tests-for-phpunit.assertions.assertThat.tables.constraints"/>
