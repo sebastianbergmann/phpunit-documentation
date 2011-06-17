@@ -294,17 +294,61 @@ class StubTest extends PHPUnit_Framework_TestCase
     </example>
 
     <para>
+      スタブメソッドをコールした結果として、
+      定義済みの引数リストにあわせて異なる値を返さなければならないこともあるでしょう。
+      <literal>returnValueMap()</literal> を使えば、
+      マップを作って引数と関連付け、それを返り値に対応させることができます。
+      <xref linkend="test-doubles.stubs.examples.StubTest5.php"/> を参照ください。
+    </para>
+
+    <example id="test-doubles.stubs.examples.StubTest5.php">
+      <indexterm><primary>getMock()</primary></indexterm>
+      <indexterm><primary>expects()</primary></indexterm>
+      <indexterm><primary>method()</primary></indexterm>
+      <indexterm><primary>will()</primary></indexterm>
+      <indexterm><primary>returnValueMap()</primary></indexterm>
+      <title>メソッドにマップからの値を返させるスタブ</title>
+      <programlisting><![CDATA[<?php
+require_once 'SomeClass.php';
+
+class StubTest extends PHPUnit_Framework_TestCase
+{
+    public function testReturnValueMapStub()
+    {
+        // SomeClass クラスのスタブを作成します
+        $stub = $this->getMock('SomeClass');
+
+        // 値を返すための、引数のマップを作製します
+        $map = array(
+          array('a', 'b', 'c', 'd'),
+          array('e', 'f', 'g', 'h')
+        );
+
+        // スタブの設定を行います
+        $stub->expects($this->any())
+             ->method('doSomething')
+             ->will($this->returnValueMap($map));
+
+        // $stub->doSomething() は、渡した引数に応じて異なる値を返します
+        $this->assertEquals('d', $stub->doSomething('a', 'b', 'c'));
+        $this->assertEquals('h', $stub->doSomething('e', 'f', 'g'));
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
       スタブメソッドをコールした結果として固定値
       (<literal>returnValue()</literal> を参照ください) や (不変の) 引数
       (<literal>returnArgument()</literal> を参照ください)
       ではなく計算した値を返したい場合は、
       <literal>returnCallback()</literal> を使用します。
       これは、スタブメソッドからコールバック関数やメソッドの結果を返させます。
-      <xref linkend="test-doubles.stubs.examples.StubTest5.php"/>
+      <xref linkend="test-doubles.stubs.examples.StubTest6.php"/>
       を参照ください。
     </para>
 
-    <example id="test-doubles.stubs.examples.StubTest5.php">
+    <example id="test-doubles.stubs.examples.StubTest6.php">
       <indexterm><primary>getMock()</primary></indexterm>
       <indexterm><primary>expects()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
@@ -337,11 +381,11 @@ class StubTest extends PHPUnit_Framework_TestCase
       コールバックメソッドを設定するよりももう少しシンプルな方法として、
       希望する返り値のリストを指定することもできます。この場合に使うのは
       <literal>onConsecutiveCalls()</literal> メソッドです。
-      <xref linkend="test-doubles.stubs.examples.StubTest6.php"/>
+      <xref linkend="test-doubles.stubs.examples.StubTest7.php"/>
       の例を参照ください。
     </para>
 
-    <example id="test-doubles.stubs.examples.StubTest6.php">
+    <example id="test-doubles.stubs.examples.StubTest7.php">
       <indexterm><primary>getMock()</primary></indexterm>
       <indexterm><primary>expects()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
@@ -375,11 +419,11 @@ class StubTest extends PHPUnit_Framework_TestCase
 
     <para>
       値を返すのではなく、スタブメソッドで例外を発生させることもできます。
-      <xref linkend="test-doubles.stubs.examples.StubTest7.php"/>
+      <xref linkend="test-doubles.stubs.examples.StubTest8.php"/>
       に、<literal>throwException()</literal> でこれを行う方法を示します。
     </para>
 
-    <example id="test-doubles.stubs.examples.StubTest7.php">
+    <example id="test-doubles.stubs.examples.StubTest8.php">
       <indexterm><primary>getMock()</primary></indexterm>
       <indexterm><primary>expects()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
