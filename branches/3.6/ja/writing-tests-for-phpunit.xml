@@ -99,7 +99,7 @@ class StackTest extends PHPUnit_Framework_TestCase
       <indexterm><primary>Annotation</primary></indexterm>
       <indexterm><primary>@depends</primary></indexterm>
 
-      <xref linkend="writing-tests-for-phpunit.examples.StackTest2.php"/>
+      <xref linkend="writing-tests-for-phpunit.examples.StackTest2.php" />
       は、<literal>@depends</literal> アノテーションを使ってテストメソッドの依存性をあらわす例です。
     </para>
 
@@ -158,7 +158,7 @@ class StackTest extends PHPUnit_Framework_TestCase
       そのため PHPUnit では、
       あるテストが失敗したときにはそのテストに依存する他のテストの実行をスキップします。
       テスト間の依存性を活用して問題点を見つけやすくしている例を
-      <xref linkend="writing-tests-for-phpunit.examples.DependencyFailureTest.php"/>
+      <xref linkend="writing-tests-for-phpunit.examples.DependencyFailureTest.php" />
       に示します。
     </para>
 
@@ -186,12 +186,12 @@ PHPUnit 3.6.0 by Sebastian Bergmann.
 
 FS
 
-Time: 0 seconds, Memory: 4.00Mb
+Time: 0 seconds, Memory: 5.00Mb
 
 There was 1 failure:
 
 1) DependencyFailureTest::testOne
-Failed asserting that <boolean:false> is true.
+Failed asserting that false is true.
 
 /home/sb/DependencyFailureTest.php:6
 
@@ -199,6 +199,7 @@ There was 1 skipped test:
 
 1) DependencyFailureTest::testTwo
 This test depends on "DependencyFailureTest::testOne" to pass.
+
 
 FAILURES!
 Tests: 1, Assertions: 1, Failures: 1, Skipped: 1.]]></screen>
@@ -260,21 +261,21 @@ class DataTest extends PHPUnit_Framework_TestCase
 ?>]]></programlisting>
 
     <screen><userinput>phpunit DataTest</userinput>
-<![CDATA[PHPUnit 3.6.0 by Sebastian Bergmann.
+PHPUnit 3.6.0 by Sebastian Bergmann.
 
 ...F
 
-Time: 0 seconds, Memory: 4.00Mb
+Time: 0 seconds, Memory: 5.75Mb
 
 There was 1 failure:
 
-1) testAdd(DataTest) with data (1, 1, 3)
-Failed asserting that <integer:2> matches expected value <integer:3>.
-/home/sb/DataTest.php:21
+1) DataTest::testAdd with data set #3 (1, 1, 3)
+Failed asserting that 2 matches expected 3.
+
+/home/sb/DataTest.php:9
 
 FAILURES!
-Tests: 4, Assertions: 4, Failures: 1.
-]]></screen>
+Tests: 4, Assertions: 4, Failures: 1.</screen>
     </example>
 
     <example id="writing-tests-for-phpunit.data-providers.examples.DataTest2.php">
@@ -300,27 +301,21 @@ class DataTest extends PHPUnit_Framework_TestCase
 ?>]]></programlisting>
 
     <screen><userinput>phpunit DataTest</userinput>
-<![CDATA[PHPUnit 3.6.0 by Sebastian Bergmann.
+PHPUnit 3.6.0 by Sebastian Bergmann.
 
 ...F
 
-Time: 0 seconds, Memory: 4.00Mb
+Time: 0 seconds, Memory: 5.75Mb
 
 There was 1 failure:
 
 1) DataTest::testAdd with data set #3 ('1', '1', '3')
-Failed asserting that two strings are equal.
---- Expected
-+++ Actual
-@@ @@
--3
-+2
+Failed asserting that 2 matches expected '3'.
 
 /home/sb/DataTest.php:11
 
 FAILURES!
-Tests: 4, Assertions: 4, Failures: 1.
-]]></screen>
+Tests: 4, Assertions: 4, Failures: 1.</screen>
     </example>
 
     <example id="writing-tests-for-phpunit.data-providers.examples.CsvFileIterator.php">
@@ -421,12 +416,13 @@ PHPUnit 3.6.0 by Sebastian Bergmann.
 
 F
 
-Time: 0 seconds
+Time: 0 seconds, Memory: 4.75Mb
 
 There was 1 failure:
 
-1) testException(ExceptionTest)
+1) ExceptionTest::testException
 Expected exception InvalidArgumentException
+
 
 FAILURES!
 Tests: 1, Assertions: 1, Failures: 1.</screen>
@@ -435,7 +431,7 @@ Tests: 1, Assertions: 1, Failures: 1.</screen>
     <para>
       一方、<literal>setExpectedException()</literal>
       メソッドを使用して、発生するであろう例外を指定することもできます。この方法を
-      <xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest2.php"/>
+      <xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest2.php" />
       に示します。
     </para>
 
@@ -455,12 +451,14 @@ PHPUnit 3.6.0 by Sebastian Bergmann.
 
 F
 
-Time: 0 seconds
+Time: 0 seconds, Memory: 4.75Mb
 
 There was 1 failure:
 
-1) testException(ExceptionTest)
+1) ExceptionTest::testException
 Expected exception InvalidArgumentException
+
+/home/sb/ExceptionTest.php:6
 
 FAILURES!
 Tests: 1, Assertions: 1, Failures: 1.</screen>
@@ -540,7 +538,7 @@ class ExceptionTest extends PHPUnit_Framework_TestCase {
 
       デフォルトでは、PHPUnit はテストの実行中に発生した PHP のエラーや警告そして notice
       を例外に変換します。これらの例外を用いて、たとえば
-      <xref linkend="writing-tests-for-phpunit.exceptions.examples.ErrorTest.php"/>
+      <xref linkend="writing-tests-for-phpunit.exceptions.examples.ErrorTest.php" />
       のように PHP のエラーが発生することをテストできます。
     </para>
 
@@ -627,12 +625,12 @@ class OutputTest extends PHPUnit_Framework_TestCase
     }
 }
 ?>]]></programlisting>
-      <screen><userinput>phpunit OutputTest</userinput><![CDATA[
+      <screen><userinput>phpunit OutputTest</userinput>
 PHPUnit 3.6.0 by Sebastian Bergmann.
 
 .F
 
-Time: 0 seconds
+Time: 0 seconds, Memory: 5.75Mb
 
 There was 1 failure:
 
@@ -640,12 +638,13 @@ There was 1 failure:
 Failed asserting that two strings are equal.
 --- Expected
 +++ Actual
-@@ -1 +1 @@
--bar
-+baz
+@@ @@
+-'bar'
++'baz'
+
 
 FAILURES!
-Tests: 2, Assertions: 2, Failures: 1.]]></screen>
+Tests: 2, Assertions: 2, Failures: 1.</screen>
     </example>
 
     <para>
@@ -713,21 +712,22 @@ class ArrayHasKeyTest extends PHPUnit_Framework_TestCase
     }
 }
 ?>]]></programlisting>
-        <screen><userinput>phpunit ArrayHasKeyTest</userinput><![CDATA[
+        <screen><userinput>phpunit ArrayHasKeyTest</userinput>
 PHPUnit 3.6.0 by Sebastian Bergmann.
 
 F
 
-Time: 0 seconds
+Time: 0 seconds, Memory: 5.00Mb
 
 There was 1 failure:
 
 1) ArrayHasKeyTest::testFailure
-Failed asserting that an array has the key <string:foo>.
+Failed asserting that an array has the key 'foo'.
+
 /home/sb/ArrayHasKeyTest.php:6
 
 FAILURES!
-Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+Tests: 1, Assertions: 1, Failures: 1.</screen>
       </example>
     </section>
 
@@ -754,12 +754,13 @@ PHPUnit 3.6.0 by Sebastian Bergmann.
 
 F
 
-Time: 0 seconds
+Time: 0 seconds, Memory: 4.75Mb
 
 There was 1 failure:
 
 1) ClassHasAttributeTest::testFailure
 Failed asserting that class "stdClass" has attribute "foo".
+
 /home/sb/ClassHasAttributeTest.php:6
 
 FAILURES!
@@ -790,12 +791,13 @@ PHPUnit 3.6.0 by Sebastian Bergmann.
 
 F
 
-Time: 0 seconds
+Time: 0 seconds, Memory: 4.75Mb
 
 There was 1 failure:
 
 1) ClassHasStaticAttributeTest::testFailure
 Failed asserting that class "stdClass" has static attribute "foo".
+
 /home/sb/ClassHasStaticAttributeTest.php:6
 
 FAILURES!
@@ -824,21 +826,22 @@ class ContainsTest extends PHPUnit_Framework_TestCase
     }
 }
 ?>]]></programlisting>
-        <screen><userinput>phpunit ContainsTest</userinput><![CDATA[
+        <screen><userinput>phpunit ContainsTest</userinput>
 PHPUnit 3.6.0 by Sebastian Bergmann.
 
 F
 
-Time: 0 seconds
+Time: 0 seconds, Memory: 5.00Mb
 
 There was 1 failure:
 
 1) ContainsTest::testFailure
-Failed asserting that an array contains <integer:4>.
+Failed asserting that an array contains 4.
+
 /home/sb/ContainsTest.php:6
 
 FAILURES!
-Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+Tests: 1, Assertions: 1, Failures: 1.</screen>
       </example>
 
       <para><literal>assertContains(string $needle, string $haystack[, string $message = ''])</literal></para>
@@ -859,12 +862,13 @@ PHPUnit 3.6.0 by Sebastian Bergmann.
 
 F
 
-Time: 0 seconds
+Time: 0 seconds, Memory: 5.00Mb
 
 There was 1 failure:
 
 1) ContainsTest::testFailure
-Failed asserting that <string:foobar> contains "baz".
+Failed asserting that 'foobar' contains "baz".
+
 /home/sb/ContainsTest.php:6
 
 FAILURES!
@@ -899,19 +903,17 @@ PHPUnit 3.6.0 by Sebastian Bergmann.
 
 F
 
-Time: 0 seconds
+Time: 0 seconds, Memory: 5.00Mb
 
 There was 1 failure:
 
 1) ContainsOnlyTest::testFailure
-Failed asserting that
-Array
-(
-    [0] => 1
-    [1] => 2
-    [2] => 3
-)
- contains only values of type "string".
+Failed asserting that Array (
+    0 => '1'
+    1 => '2'
+    2 => 3
+) contains only values of type "string".
+
 /home/sb/ContainsOnlyTest.php:6
 
 FAILURES!
@@ -937,22 +939,22 @@ class CountTest extends PHPUnit_Framework_TestCase
     }
 }
 ?>]]></programlisting>
-        <screen><userinput>phpunit CountTest</userinput><![CDATA[
+        <screen><userinput>phpunit CountTest</userinput>
 PHPUnit 3.6.0 by Sebastian Bergmann.
 
 F
 
-Time: 0 seconds
+Time: 0 seconds, Memory: 4.75Mb
 
 There was 1 failure:
 
 1) CountTest::testFailure
-Count of 1 does not match expected count of 0.
+Failed asserting that actual size 1 matches expected size 0.
 
 /home/sb/CountTest.php:6
 
 FAILURES!
-Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+Tests: 1, Assertions: 1, Failures: 1.</screen>
       </example>
     </section>
 
@@ -977,27 +979,22 @@ class EmptyTest extends PHPUnit_Framework_TestCase
     }
 }
 ?>]]></programlisting>
-        <screen><userinput>phpunit EmptyTest</userinput><![CDATA[
+        <screen><userinput>phpunit EmptyTest</userinput>
 PHPUnit 3.6.0 by Sebastian Bergmann.
 
 F
 
-Time: 0 seconds
+Time: 0 seconds, Memory: 4.75Mb
 
 There was 1 failure:
 
 1) EmptyTest::testFailure
-Failed asserting that
-Array
-(
-    [0] => foo
-)
- is empty.
+Failed asserting that an array is empty.
 
 /home/sb/EmptyTest.php:6
 
 FAILURES!
-Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+Tests: 1, Assertions: 1, Failures: 1.</screen>
       </example>
     </section>
 
@@ -1022,7 +1019,7 @@ class EqualXMLStructureTest extends PHPUnit_Framework_TestCase
     public function testFailureWithDifferentNodeAttributes()
     {
         $expected = new DOMDocument;
-        $expected->loadXML('<foo bar="true"/>');
+        $expected->loadXML('<foo bar="true" />');
 
         $actual = new DOMDocument;
         $actual->loadXML('<foo/>');
@@ -1073,36 +1070,35 @@ Failed asserting that two strings are equal.
 --- Expected
 +++ Actual
 @@ @@
--foo
-+bar
+-'foo'
++'bar'
 
 /home/sb/EqualXMLStructureTest.php:9
 
 2) EqualXMLStructureTest::testFailureWithDifferentNodeAttributes
 Number of attributes on node "foo" does not match
-Failed asserting that <integer:0> matches expected <integer:1>.
+Failed asserting that 0 matches expected 1.
 
-/home/sb/EqualXMLStructureTest.php:20
+/home/sb/EqualXMLStructureTest.php:22
 
 3) EqualXMLStructureTest::testFailureWithDifferentChildrenCount
 Number of child nodes of "foo" differs
-Failed asserting that <integer:1> matches expected <integer:3>.
+Failed asserting that 1 matches expected 3.
 
-/home/sb/EqualXMLStructureTest.php:31
+/home/sb/EqualXMLStructureTest.php:35
 
 4) EqualXMLStructureTest::testFailureWithDifferentChildren
 Failed asserting that two strings are equal.
 --- Expected
 +++ Actual
 @@ @@
--bar
-+baz
+-'bar'
++'baz'
 
-/home/sb/EqualXMLStructureTest.php:42
+/home/sb/EqualXMLStructureTest.php:48
 
 FAILURES!
-Tests: 4, Assertions: 15, Failures: 4.
-]]></screen>
+Tests: 4, Assertions: 8, Failures: 4.]]></screen>
       </example>
     </section>
 
@@ -1137,40 +1133,45 @@ class EqualsTest extends PHPUnit_Framework_TestCase
     }
 }
 ?>]]></programlisting>
-        <screen><userinput>phpunit EqualsTest</userinput><![CDATA[
+        <screen><userinput>phpunit EqualsTest</userinput>
 PHPUnit 3.6.0 by Sebastian Bergmann.
 
 FFF
 
-Time: 0 seconds
+Time: 0 seconds, Memory: 5.25Mb
 
 There were 3 failures:
 
 1) EqualsTest::testFailure
-Failed asserting that <integer:0> matches expected value <integer:1>.
-/home/sb/EqualsTest.php:11
+Failed asserting that 0 matches expected 1.
+
+/home/sb/EqualsTest.php:6
 
 2) EqualsTest::testFailure2
 Failed asserting that two strings are equal.
-expected string <bar>
-difference      <  x>
-got string      <baz>
-/home/sb/EqualsTest.php:16
+--- Expected
++++ Actual
+@@ @@
+-'bar'
++'baz'
+
+/home/sb/EqualsTest.php:11
 
 3) EqualsTest::testFailure3
 Failed asserting that two strings are equal.
 --- Expected
 +++ Actual
-@@ -1,3 +1,3 @@
- foo
+@@ @@
+ 'foo
 -bar
 +bah
  baz
+ '
 
-/home/sb/EqualsTest.php:21
+/home/sb/EqualsTest.php:16
 
 FAILURES!
-Tests: 3, Assertions: 3, Failures: 3.]]></screen>
+Tests: 3, Assertions: 3, Failures: 3.</screen>
       </example>
 
       <para>引数 <literal>$expected</literal> と <literal>$actual</literal> の型により特化した比較については、以下を参照ください。</para>
@@ -1194,21 +1195,22 @@ class EqualsTest extends PHPUnit_Framework_TestCase
     }
 }
 ?>]]></programlisting>
-        <screen><userinput>phpunit EqualsTest</userinput><![CDATA[
+        <screen><userinput>phpunit EqualsTest</userinput>
 PHPUnit 3.6.0 by Sebastian Bergmann.
 
 .F
 
-Time: 0 seconds
+Time: 0 seconds, Memory: 5.75Mb
 
 There was 1 failure:
 
 1) EqualsTest::testFailure
-Failed asserting that <double:1.1> matches expected value <double:1>.
+Failed asserting that 1.1 matches expected 1.0.
+
 /home/sb/EqualsTest.php:11
 
 FAILURES!
-Tests: 2, Assertions: 2, Failures: 1.]]></screen>
+Tests: 2, Assertions: 2, Failures: 1.</screen>
       </example>
 
       <para><literal>assertEquals(DOMDocument $expected, DOMDocument $actual[, string $message = ''])</literal></para>
@@ -1235,15 +1237,15 @@ PHPUnit 3.6.0 by Sebastian Bergmann.
 
 F
 
-Time: 0 seconds
+Time: 0 seconds, Memory: 5.00Mb
 
 There was 1 failure:
 
 1) EqualsTest::testFailure
-Failed asserting that two strings are equal.
+Failed asserting that two DOM documents are equal.
 --- Expected
 +++ Actual
-@@ -1,4 +1,4 @@
+@@ @@
  <?xml version="1.0"?>
 -<foo>
 -  <bar/>
@@ -1284,7 +1286,7 @@ PHPUnit 3.6.0 by Sebastian Bergmann.
 
 F
 
-Time: 0 seconds
+Time: 0 seconds, Memory: 5.25Mb
 
 There was 1 failure:
 
@@ -1292,13 +1294,12 @@ There was 1 failure:
 Failed asserting that two objects are equal.
 --- Expected
 +++ Actual
-@@ -1,5 +1,5 @@
- stdClass Object
- (
--    [foo] => foo
--    [bar] => bar
-+    [foo] => bar
-+    [baz] => bar
+@@ @@
+ stdClass Object (
+-    'foo' => 'foo'
+-    'bar' => 'bar'
++    'foo' => 'bar'
++    'baz' => 'bar'
  )
 
 /home/sb/EqualsTest.php:14
@@ -1326,7 +1327,7 @@ PHPUnit 3.6.0 by Sebastian Bergmann.
 
 F
 
-Time: 0 seconds
+Time: 0 seconds, Memory: 5.25Mb
 
 There was 1 failure:
 
@@ -1334,14 +1335,13 @@ There was 1 failure:
 Failed asserting that two arrays are equal.
 --- Expected
 +++ Actual
-@@ -1,6 +1,6 @@
- Array
- (
-     [0] => a
--    [1] => b
--    [2] => c
-+    [1] => c
-+    [2] => d
+@@ @@
+ Array (
+     0 => 'a'
+-    1 => 'b'
+-    2 => 'c'
++    1 => 'c'
++    2 => 'd'
  )
 
 /home/sb/EqualsTest.php:6
@@ -1367,21 +1367,22 @@ class FalseTest extends PHPUnit_Framework_TestCase
     }
 }
 ?>]]></programlisting>
-        <screen><userinput>phpunit FalseTest</userinput><![CDATA[
+        <screen><userinput>phpunit FalseTest</userinput>
 PHPUnit 3.6.0 by Sebastian Bergmann.
 
 F
 
-Time: 0 seconds
+Time: 0 seconds, Memory: 5.00Mb
 
 There was 1 failure:
 
 1) FalseTest::testFailure
-Failed asserting that <boolean:true> is false.
-/home/sb/FalseTest.php:11
+Failed asserting that true is false.
+
+/home/sb/FalseTest.php:6
 
 FAILURES!
-Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+Tests: 1, Assertions: 1, Failures: 1.</screen>
       </example>
     </section>
 
@@ -1403,12 +1404,12 @@ class FileEqualsTest extends PHPUnit_Framework_TestCase
     }
 }
 ?>]]></programlisting>
-        <screen><userinput>phpunit FileEqualsTest</userinput><![CDATA[
+        <screen><userinput>phpunit FileEqualsTest</userinput>
 PHPUnit 3.6.0 by Sebastian Bergmann.
 
 F
 
-Time: 0 seconds
+Time: 0 seconds, Memory: 5.25Mb
 
 There was 1 failure:
 
@@ -1416,15 +1417,15 @@ There was 1 failure:
 Failed asserting that two strings are equal.
 --- Expected
 +++ Actual
-@@ -1,2 +1,2 @@
--expected
-+actual
-
+@@ @@
+-'expected
++'actual
+ '
 
 /home/sb/FileEqualsTest.php:6
 
 FAILURES!
-Tests: 1, Assertions: 3, Failures: 1.]]></screen>
+Tests: 1, Assertions: 3, Failures: 1.</screen>
       </example>
     </section>
 
@@ -1451,12 +1452,13 @@ PHPUnit 3.6.0 by Sebastian Bergmann.
 
 F
 
-Time: 0 seconds
+Time: 0 seconds, Memory: 4.75Mb
 
 There was 1 failure:
 
 1) FileExistsTest::testFailure
 Failed asserting that file "/path/to/file" exists.
+
 /home/sb/FileExistsTest.php:6
 
 FAILURES!
@@ -1482,21 +1484,22 @@ class GreaterThanTest extends PHPUnit_Framework_TestCase
     }
 }
 ?>]]></programlisting>
-        <screen><userinput>phpunit GreaterThanTest</userinput><![CDATA[
+        <screen><userinput>phpunit GreaterThanTest</userinput>
 PHPUnit 3.6.0 by Sebastian Bergmann.
 
 F
 
-Time: 0 seconds
+Time: 0 seconds, Memory: 5.00Mb
 
 There was 1 failure:
 
 1) GreaterThanTest::testFailure
-Failed asserting that <integer:1> is greater than <integer:2>.
+Failed asserting that 1 is greater than 2.
+
 /home/sb/GreaterThanTest.php:6
 
 FAILURES!
-Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+Tests: 1, Assertions: 1, Failures: 1.</screen>
       </example>
     </section>
 
@@ -1518,21 +1521,22 @@ class GreatThanOrEqualTest extends PHPUnit_Framework_TestCase
     }
 }
 ?>]]></programlisting>
-        <screen><userinput>phpunit GreaterThanOrEqualTest</userinput><![CDATA[
+        <screen><userinput>phpunit GreaterThanOrEqualTest</userinput>
 PHPUnit 3.6.0 by Sebastian Bergmann.
 
 F
 
-Time: 0 seconds
+Time: 0 seconds, Memory: 5.25Mb
 
 There was 1 failure:
 
 1) GreatThanOrEqualTest::testFailure
-Failed asserting that <integer:1> is equal to <integer:2> or is greater than <integer:2>.
+Failed asserting that 1 is equal to 2 or is greater than 2.
+
 /home/sb/GreaterThanOrEqualTest.php:6
 
 FAILURES!
-Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+Tests: 1, Assertions: 2, Failures: 1.</screen>
       </example>
     </section>
 
@@ -1562,12 +1566,13 @@ PHPUnit 3.6.0 by Sebastian Bergmann.
 
 F
 
-Time: 0 seconds
+Time: 0 seconds, Memory: 5.00Mb
 
 There was 1 failure:
 
 1) InstanceOfTest::testFailure
-Failed asserting that <Exception> is an instance of class "RuntimeException".
+Failed asserting that Exception Object (...) is an instance of class "RuntimeException".
+
 /home/sb/InstanceOfTest.php:6
 
 FAILURES!
@@ -1601,13 +1606,14 @@ PHPUnit 3.6.0 by Sebastian Bergmann.
 
 F
 
-Time: 0 seconds
+Time: 0 seconds, Memory: 5.00Mb
 
 There was 1 failure:
 
 1) InternalTypeTest::testFailure
-Failed asserting that <integer:42> is of type "string".
-/home/sb/InstanceOfTest.php:6
+Failed asserting that 42 is of type "string".
+
+/home/sb/InternalTypeTest.php:6
 
 FAILURES!
 Tests: 1, Assertions: 1, Failures: 1.]]></screen>
@@ -1632,21 +1638,22 @@ class LessThanTest extends PHPUnit_Framework_TestCase
     }
 }
 ?>]]></programlisting>
-        <screen><userinput>phpunit LessThanTest</userinput><![CDATA[
+        <screen><userinput>phpunit LessThanTest</userinput>
 PHPUnit 3.6.0 by Sebastian Bergmann.
 
 F
 
-Time: 0 seconds
+Time: 0 seconds, Memory: 5.00Mb
 
 There was 1 failure:
 
 1) LessThanTest::testFailure
-Failed asserting that <integer:2> is less than <integer:1>.
+Failed asserting that 2 is less than 1.
+
 /home/sb/LessThanTest.php:6
 
 FAILURES!
-Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+Tests: 1, Assertions: 1, Failures: 1.</screen>
       </example>
     </section>
 
@@ -1668,21 +1675,22 @@ class LessThanOrEqualTest extends PHPUnit_Framework_TestCase
     }
 }
 ?>]]></programlisting>
-        <screen><userinput>phpunit LessThanOrEqualTest</userinput><![CDATA[
+        <screen><userinput>phpunit LessThanOrEqualTest</userinput>
 PHPUnit 3.6.0 by Sebastian Bergmann.
 
 F
 
-Time: 0 seconds
+Time: 0 seconds, Memory: 5.25Mb
 
 There was 1 failure:
 
 1) LessThanOrEqualTest::testFailure
-Failed asserting that <integer:2> is equal to <integer:1> or is less than <integer:1>.
+Failed asserting that 2 is equal to 1 or is less than 1.
+
 /home/sb/LessThanOrEqualTest.php:6
 
 FAILURES!
-Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+Tests: 1, Assertions: 2, Failures: 1.</screen>
       </example>
     </section>
 
@@ -1704,21 +1712,22 @@ class NullTest extends PHPUnit_Framework_TestCase
     }
 }
 ?>]]></programlisting>
-        <screen><userinput>phpunit NotNullTest</userinput><![CDATA[
+        <screen><userinput>phpunit NotNullTest</userinput>
 PHPUnit 3.6.0 by Sebastian Bergmann.
 
 F
 
-Time: 0 seconds
+Time: 0 seconds, Memory: 5.00Mb
 
 There was 1 failure:
 
 1) NullTest::testFailure
-Failed asserting that <string:foo> is null.
-/home/sb/NullTest.php:6
+Failed asserting that 'foo' is null.
+
+/home/sb/NotNullTest.php:6
 
 FAILURES!
-Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+Tests: 1, Assertions: 1, Failures: 1.</screen>
       </example>
     </section>
 
@@ -1727,7 +1736,7 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
       <indexterm><primary>assertObjectHasAttribute()</primary></indexterm>
       <indexterm><primary>assertObjectNotHasAttribute()</primary></indexterm>
       <para><literal>assertObjectHasAttribute(string $attributeName, object $object[, string $message = ''])</literal></para>
-      <para><literal>$object->attributeName</literal> が存在しない場合にエラー <literal>$message</literal> を報告します。</para>
+      <para><literal>$object-&gt;attributeName</literal> が存在しない場合にエラー <literal>$message</literal> を報告します。</para>
       <para><literal>assertObjectNotHasAttribute()</literal> はこのアサーションの逆で、同じ引数をとります。</para>
       <example id="writing-tests-for-phpunit.assertions.assertObjectHasAttribute.example">
         <title>assertObjectHasAttribute() の使用法</title>
@@ -1745,12 +1754,13 @@ PHPUnit 3.6.0 by Sebastian Bergmann.
 
 F
 
-Time: 0 seconds
+Time: 0 seconds, Memory: 4.75Mb
 
 There was 1 failure:
 
 1) ObjectHasAttributeTest::testFailure
 Failed asserting that object of class "stdClass" has attribute "foo".
+
 /home/sb/ObjectHasAttributeTest.php:6
 
 FAILURES!
@@ -1781,12 +1791,13 @@ PHPUnit 3.6.0 by Sebastian Bergmann.
 
 F
 
-Time: 0 seconds
+Time: 0 seconds, Memory: 5.00Mb
 
 There was 1 failure:
 
 1) RegExpTest::testFailure
-Failed asserting that <string:bar> matches PCRE pattern "/foo/".
+Failed asserting that 'bar' matches PCRE pattern "/foo/".
+
 /home/sb/RegExpTest.php:6
 
 FAILURES!
@@ -1817,17 +1828,12 @@ PHPUnit 3.6.0 by Sebastian Bergmann.
 
 F
 
-Time: 0 seconds
+Time: 0 seconds, Memory: 5.00Mb
 
 There was 1 failure:
 
 1) StringMatchesFormatTest::testFailure
-Failed asserting that two strings are equal.
---- Expected
-+++ Actual
-@@ @@
--%i
-+foo
+Failed asserting that 'foo' matches PCRE pattern "/^[+-]?\d+$/s".
 
 /home/sb/StringMatchesFormatTest.php:6
 
@@ -1873,22 +1879,18 @@ PHPUnit 3.6.0 by Sebastian Bergmann.
 
 F
 
-Time: 0 seconds
+Time: 0 seconds, Memory: 5.00Mb
 
 There was 1 failure:
 
 1) StringMatchesFormatFileTest::testFailure
-Failed asserting that two strings are equal.
---- Expected
-+++ Actual
-@@ @@
--%i
-+foo
+Failed asserting that 'foo' matches PCRE pattern "/^[+-]?\d+
+$/s".
 
 /home/sb/StringMatchesFormatFileTest.php:6
 
 FAILURES!
-Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+Tests: 1, Assertions: 2, Failures: 1.]]></screen>
       </example>
     </section>
 
@@ -1913,21 +1915,22 @@ class SameTest extends PHPUnit_Framework_TestCase
     }
 }
 ?>]]></programlisting>
-        <screen><userinput>phpunit SameTest</userinput><![CDATA[
+        <screen><userinput>phpunit SameTest</userinput>
 PHPUnit 3.6.0 by Sebastian Bergmann.
 
 F
 
-Time: 0 seconds
+Time: 0 seconds, Memory: 5.00Mb
 
 There was 1 failure:
 
 1) SameTest::testFailure
-<integer:2204> does not match expected type "string".
+Failed asserting that 2204 is identical to '2204'.
+
 /home/sb/SameTest.php:6
 
 FAILURES!
-Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+Tests: 1, Assertions: 1, Failures: 1.</screen>
       </example>
 
       <para><literal>assertSame(object $expected, object $actual[, string $message = ''])</literal></para>
@@ -1944,21 +1947,22 @@ class SameTest extends PHPUnit_Framework_TestCase
     }
 }
 ?>]]></programlisting>
-        <screen><userinput>phpunit SameTest</userinput><![CDATA[
+        <screen><userinput>phpunit SameTest</userinput>
 PHPUnit 3.6.0 by Sebastian Bergmann.
 
 F
 
-Time: 0 seconds
+Time: 0 seconds, Memory: 4.75Mb
 
 There was 1 failure:
 
 1) SameTest::testFailure
 Failed asserting that two variables reference the same object.
+
 /home/sb/SameTest.php:6
 
 FAILURES!
-Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+Tests: 1, Assertions: 1, Failures: 1.</screen>
       </example>
     </section>
 
@@ -2005,38 +2009,37 @@ class SelectCountTest extends PHPUnit_Framework_TestCase
     }
 }
 ?>]]></programlisting>
-        <screen><userinput>phpunit SelectCountTest</userinput><![CDATA[
+        <screen><userinput>phpunit SelectCountTest</userinput>
 PHPUnit 3.6.0 by Sebastian Bergmann.
 
 FFFF
 
-Time: 0 seconds, Memory: 5.75Mb
+Time: 0 seconds, Memory: 5.50Mb
 
 There were 4 failures:
 
 1) SelectCountTest::testAbsenceFailure
-Failed asserting that <boolean:true> is false.
+Failed asserting that true is false.
 
 /home/sb/SelectCountTest.php:12
 
 2) SelectCountTest::testPresenceFailure
-Failed asserting that <boolean:false> is true.
+Failed asserting that false is true.
 
 /home/sb/SelectCountTest.php:17
 
 3) SelectCountTest::testExactCountFailure
-Failed asserting that <integer:3> matches expected <integer:5>.
+Failed asserting that 3 matches expected 5.
 
 /home/sb/SelectCountTest.php:22
 
 4) SelectCountTest::testRangeFailure
-Failed asserting that <boolean:false> is true.
+Failed asserting that false is true.
 
 /home/sb/SelectCountTest.php:27
 
 FAILURES!
-Tests: 4, Assertions: 4, Failures: 4.
-]]></screen>
+Tests: 4, Assertions: 4, Failures: 4.</screen>
       </example>
     </section>
 
@@ -2083,38 +2086,37 @@ class SelectEqualsTest extends PHPUnit_Framework_TestCase
     }
 }
 ?>]]></programlisting>
-        <screen><userinput>phpunit SelectEqualsTest</userinput><![CDATA[
+        <screen><userinput>phpunit SelectEqualsTest</userinput>
 PHPUnit 3.6.0 by Sebastian Bergmann.
 
 FFFF
 
-Time: 0 seconds, Memory: 5.75Mb
+Time: 0 seconds, Memory: 5.50Mb
 
 There were 4 failures:
 
 1) SelectEqualsTest::testAbsenceFailure
-Failed asserting that <boolean:true> is false.
+Failed asserting that true is false.
 
 /home/sb/SelectEqualsTest.php:12
 
 2) SelectEqualsTest::testPresenceFailure
-Failed asserting that <boolean:false> is true.
+Failed asserting that false is true.
 
 /home/sb/SelectEqualsTest.php:17
 
 3) SelectEqualsTest::testExactCountFailure
-Failed asserting that <integer:2> matches expected <integer:5>.
+Failed asserting that 2 matches expected 5.
 
 /home/sb/SelectEqualsTest.php:22
 
 4) SelectEqualsTest::testRangeFailure
-Failed asserting that <boolean:false> is true.
+Failed asserting that false is true.
 
 /home/sb/SelectEqualsTest.php:27
 
 FAILURES!
-Tests: 4, Assertions: 4, Failures: 4.
-]]></screen>
+Tests: 4, Assertions: 4, Failures: 4.</screen>
       </example>
     </section>
 
@@ -2161,38 +2163,37 @@ class SelectRegExpTest extends PHPUnit_Framework_TestCase
     }
 }
 ?>]]></programlisting>
-        <screen><userinput>phpunit SelectRegExpTest</userinput><![CDATA[
+        <screen><userinput>phpunit SelectRegExpTest</userinput>
 PHPUnit 3.6.0 by Sebastian Bergmann.
 
 FFFF
 
-Time: 0 seconds, Memory: 5.75Mb
+Time: 0 seconds, Memory: 5.50Mb
 
 There were 4 failures:
 
 1) SelectRegExpTest::testAbsenceFailure
-Failed asserting that <boolean:true> is false.
+Failed asserting that true is false.
 
 /home/sb/SelectRegExpTest.php:12
 
 2) SelectRegExpTest::testPresenceFailure
-Failed asserting that <boolean:false> is true.
+Failed asserting that false is true.
 
 /home/sb/SelectRegExpTest.php:17
 
 3) SelectRegExpTest::testExactCountFailure
-Failed asserting that <integer:2> matches expected <integer:5>.
+Failed asserting that 2 matches expected 5.
 
 /home/sb/SelectRegExpTest.php:22
 
 4) SelectRegExpTest::testRangeFailure
-Failed asserting that <boolean:false> is true.
+Failed asserting that false is true.
 
 /home/sb/SelectRegExpTest.php:27
 
 FAILURES!
-Tests: 4, Assertions: 4, Failures: 4.
-]]></screen>
+Tests: 4, Assertions: 4, Failures: 4.</screen>
       </example>
     </section>
 
@@ -2219,12 +2220,13 @@ PHPUnit 3.6.0 by Sebastian Bergmann.
 
 F
 
-Time: 0 seconds
+Time: 1 second, Memory: 5.00Mb
 
 There was 1 failure:
 
 1) StringEndsWithTest::testFailure
-Failed asserting that <string:foo> ends with "suffix".
+Failed asserting that 'foo' ends with "suffix".
+
 /home/sb/StringEndsWithTest.php:6
 
 FAILURES!
@@ -2250,12 +2252,12 @@ class StringEqualsFileTest extends PHPUnit_Framework_TestCase
     }
 }
 ?>]]></programlisting>
-        <screen><userinput>phpunit StringEqualsFileTest</userinput><![CDATA[
+        <screen><userinput>phpunit StringEqualsFileTest</userinput>
 PHPUnit 3.6.0 by Sebastian Bergmann.
 
 F
 
-Time: 0 seconds
+Time: 0 seconds, Memory: 5.25Mb
 
 There was 1 failure:
 
@@ -2263,16 +2265,15 @@ There was 1 failure:
 Failed asserting that two strings are equal.
 --- Expected
 +++ Actual
-@@ -1,2 +1 @@
--expected
--
-+actual
-\ No newline at end of file
+@@ @@
+-'expected
+-'
++'actual'
 
 /home/sb/StringEqualsFileTest.php:6
 
 FAILURES!
-Tests: 1, Assertions: 2, Failures: 1.]]></screen>
+Tests: 1, Assertions: 2, Failures: 1.</screen>
       </example>
     </section>
 
@@ -2299,12 +2300,13 @@ PHPUnit 3.6.0 by Sebastian Bergmann.
 
 F
 
-Time: 0 seconds
+Time: 0 seconds, Memory: 5.00Mb
 
 There was 1 failure:
 
 1) StringStartsWithTest::testFailure
-Failed asserting that <string:foo> starts with "prefix".
+Failed asserting that 'foo' starts with "prefix".
+
 /home/sb/StringStartsWithTest.php:6
 
 FAILURES!
@@ -2433,7 +2435,7 @@ $this->assertTag($matcher, $xml, '', FALSE);
         もっと複雑なアサーションを行う場合には、
         <literal>PHPUnit_Framework_Constraint</literal> クラスを使用します。
         これらは、<literal>assertThat()</literal> メソッドを使用して評価されます。
-        <xref linkend="writing-tests-for-phpunit.assertions.assertThat.example"/> は、
+        <xref linkend="writing-tests-for-phpunit.assertions.assertThat.example" /> は、
         <literal>logicalNot()</literal> と <literal>equalTo()</literal>
         を用いて <literal>assertNotEquals()</literal>
         と同じアサーションを行う方法を示すものです。
@@ -2639,21 +2641,22 @@ class TrueTest extends PHPUnit_Framework_TestCase
     }
 }
 ?>]]></programlisting>
-        <screen><userinput>phpunit TrueTest</userinput><![CDATA[
+        <screen><userinput>phpunit TrueTest</userinput>
 PHPUnit 3.6.0 by Sebastian Bergmann.
 
 F
 
-Time: 0 seconds
+Time: 0 seconds, Memory: 5.00Mb
 
 There was 1 failure:
 
 1) TrueTest::testFailure
-Failed asserting that <boolean:false> is true.
-/home/sb/TrueTest.php:11
+Failed asserting that false is true.
+
+/home/sb/TrueTest.php:6
 
 FAILURES!
-Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+Tests: 1, Assertions: 1, Failures: 1.</screen>
       </example>
     </section>
 
@@ -2681,15 +2684,15 @@ PHPUnit 3.6.0 by Sebastian Bergmann.
 
 F
 
-Time: 0 seconds
+Time: 0 seconds, Memory: 5.25Mb
 
 There was 1 failure:
 
 1) XmlFileEqualsXmlFileTest::testFailure
-Failed asserting that two strings are equal.
+Failed asserting that two DOM documents are equal.
 --- Expected
 +++ Actual
-@@ -1,4 +1,4 @@
+@@ @@
  <?xml version="1.0"?>
  <foo>
 -  <bar/>
@@ -2727,15 +2730,15 @@ PHPUnit 3.6.0 by Sebastian Bergmann.
 
 F
 
-Time: 0 seconds
+Time: 0 seconds, Memory: 5.25Mb
 
 There was 1 failure:
 
 1) XmlStringEqualsXmlFileTest::testFailure
-Failed asserting that two strings are equal.
+Failed asserting that two DOM documents are equal.
 --- Expected
 +++ Actual
-@@ -1,4 +1,4 @@
+@@ @@
  <?xml version="1.0"?>
  <foo>
 -  <bar/>
@@ -2773,15 +2776,15 @@ PHPUnit 3.6.0 by Sebastian Bergmann.
 
 F
 
-Time: 0 seconds
+Time: 0 seconds, Memory: 5.00Mb
 
 There was 1 failure:
 
 1) XmlStringEqualsXmlStringTest::testFailure
-Failed asserting that two strings are equal.
+Failed asserting that two DOM documents are equal.
 --- Expected
 +++ Actual
-@@ -1,4 +1,4 @@
+@@ @@
  <?xml version="1.0"?>
  <foo>
 -  <bar/>
