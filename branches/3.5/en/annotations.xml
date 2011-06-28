@@ -277,7 +277,22 @@ public function testBalanceIsInitiallyZero()
     <para>
       <indexterm><primary>@expectedExceptionCode</primary></indexterm>
 
-      ...
+      The <literal>@expectedExceptionCode</literal> annotation, in conjunction
+      with the <literal>@expectedException</literal> allows making assertions on
+      the error code of a thrown exception thus being able to narrow down a
+      specific exception.
+
+      <programlisting>class MyTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @expectedException     Exception
+     * @expectedExceptionCode 20
+     */
+    public function testExceptionHasErrorcode20()
+    {
+        throw new Exception('Some Message', 20);
+    }
+}</programlisting>
     </para>
   </section>
 
@@ -287,7 +302,40 @@ public function testBalanceIsInitiallyZero()
     <para>
       <indexterm><primary>@expectedExceptionMessage</primary></indexterm>
 
-      ...
+      The <literal>@expectedExceptionMessage</literal> annotation works similar
+      to <literal>@expectedExceptionCode</literal> as it lets you make an
+      assertion on the error message of an exception.
+
+      <programlisting>class MyTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @expectedException        Exception
+     * @expectedExceptionMessage Some Message
+     */
+    public function testExceptionHasRightMessage()
+    {
+        throw new Exception('Some Message', 20);
+    }
+}</programlisting>
+
+      The expected message can be a substring of the exception Message.
+      This can be useful to only assert that a certain name or parameter that
+      was passed in shows up in the exception and not fixate the whole
+      exception message in the test.
+
+      <programlisting>class MyTest extends PHPUnit_Framework_TestCase
+{
+     /**
+      * @expectedException        Exception
+      * @expectedExceptionMessage broken
+      */
+     public function testExceptionHasRightMessage()
+     {
+         $param = "broken";
+         throw new Exception('Invalid parameter "'.$param.'".', 20);
+     }
+}</programlisting>
+
     </para>
   </section>
 
