@@ -41,7 +41,7 @@
   <para>
     In <xref linkend="writing-tests-for-phpunit.examples.StackTest2.php" /> we
     used the producer-consumer relationship between tests to share fixture. This
-    is not always desired or even possible. <xref linkend="fixtures.examples.StackTest.php"/>
+    is not always desired or even possible. <xref linkend="fixtures.examples.StackTest.php" />
     shows how we can write the tests of the <literal>StackTest</literal> in such
     a way that not the fixture itself is reused but the code that creates it.
     First we declare the instance variable, <literal>$stack</literal>, that we
@@ -49,7 +49,7 @@
     creation of the <literal>array</literal> fixture into the
     <literal>setUp()</literal> method. Finally, we remove the redundant code
     from the test methods and use the newly introduced instance variable,
-    <literal>$this->stack</literal>, instead of the method-local variable
+    <literal>$this-&gt;stack</literal>, instead of the method-local variable
     <literal>$stack</literal> with the <literal>assertEquals()</literal>
     assertion method.
   </para>
@@ -178,7 +178,7 @@ class TemplateMethodsTest extends PHPUnit_Framework_TestCase
 }
 ?>]]></programlisting>
      <screen><userinput>phpunit TemplateMethodsTest</userinput><![CDATA[
-PHPUnit 3.5.13 by Sebastian Bergmann.
+PHPUnit 3.5.14 by Sebastian Bergmann.
 
 TemplateMethodsTest::setUpBeforeClass
 TemplateMethodsTest::setUp
@@ -194,13 +194,14 @@ TemplateMethodsTest::onNotSuccessfulTest
 FTemplateMethodsTest::tearDownAfterClass
 
 
-Time: 0 seconds
+Time: 0 seconds, Memory: 5.25Mb
 
 There was 1 failure:
 
 1) TemplateMethodsTest::testTwo
 Failed asserting that <boolean:false> is true.
-/home/sb/TemplateMethodsTest.php:30
+
+/home/sb/TemplateMethodsTest.php:28
 
 FAILURES!
 Tests: 2, Assertions: 2, Failures: 1.]]></screen>
@@ -371,7 +372,7 @@ class DatabaseTest extends PHPUnit_Framework_TestCase
       <indexterm><primary><literal>$backupGlobalsBlacklist</literal></primary></indexterm>
 
       The <literal>@backupGlobals</literal> annotation that is discussed in
-      <xref linkend="appendixes.annotations.backupGlobals"/> can be used to
+      <xref linkend="appendixes.annotations.backupGlobals" /> can be used to
       control the backup and restore operations for global variables.
       Alternatively, you can provide a blacklist of global variables that are to
       be excluded from the backup and restore operations like this
@@ -396,14 +397,14 @@ class DatabaseTest extends PHPUnit_Framework_TestCase
       <indexterm><primary><literal>$backupStaticAttributesBlacklist</literal></primary></indexterm>
 
       The <literal>@backupStaticAttributes</literal> annotation that is
-      discussed in <xref linkend="appendixes.annotations.backupStaticAttributes"/>
+      discussed in <xref linkend="appendixes.annotations.backupStaticAttributes" />
       can be used to control the backup and restore operations for static
       attributes. Alternatively, you can provide a blacklist of static
       attributes that are to be excluded from the backup and restore operations
       like this <programlisting>class MyTest extends PHPUnit_Framework_TestCase
 {
     protected $backupStaticAttributesBlacklist = array(
-      'className' => array('attributeName')
+      'className' =&gt; array('attributeName')
     );
 
     // ...
