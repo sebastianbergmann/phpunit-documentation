@@ -41,7 +41,7 @@
     <xref linkend="writing-tests-for-phpunit.examples.StackTest2.php" />
     producer-consumer の関係を使って複数のテストで fixture を共有しました。
     これは常に要求されるというものではありませんし、常に可能だとも限りません。
-    <xref linkend="fixtures.examples.StackTest.php"/> では、
+    <xref linkend="fixtures.examples.StackTest.php" /> では、
     fixture を再利用するのではなくコードで作成する方式で
     <literal>StackTest</literal> にテストを書く方法をごらんいただきましょう。
     まずインスタンス変数 <literal>$stack</literal> を宣言し、
@@ -51,7 +51,7 @@
     最後に、冗長なコードをテストメソッドから削除し、
     アサーションメソッド <literal>assertEquals()</literal>
     ではメソッド変数 <literal>$stack</literal> のかわりに
-    新たに導入したインスタンス変数 <literal>$this->stack</literal>
+    新たに導入したインスタンス変数 <literal>$this-&gt;stack</literal>
     を使うようにします。
   </para>
 
@@ -178,7 +178,7 @@ class TemplateMethodsTest extends PHPUnit_Framework_TestCase
 }
 ?>]]></programlisting>
      <screen><userinput>phpunit TemplateMethodsTest</userinput><![CDATA[
-PHPUnit 3.5.13 by Sebastian Bergmann.
+PHPUnit 3.5.14 by Sebastian Bergmann.
 
 TemplateMethodsTest::setUpBeforeClass
 TemplateMethodsTest::setUp
@@ -194,13 +194,14 @@ TemplateMethodsTest::onNotSuccessfulTest
 FTemplateMethodsTest::tearDownAfterClass
 
 
-Time: 0 seconds
+Time: 0 seconds, Memory: 5.25Mb
 
 There was 1 failure:
 
 1) TemplateMethodsTest::testTwo
 Failed asserting that <boolean:false> is true.
-/home/sb/TemplateMethodsTest.php:30
+
+/home/sb/TemplateMethodsTest.php:28
 
 FAILURES!
 Tests: 2, Assertions: 2, Failures: 1.]]></screen>
@@ -369,7 +370,7 @@ class DatabaseTest extends PHPUnit_Framework_TestCase
       <indexterm><primary><literal>@backupGlobals</literal></primary></indexterm>
       <indexterm><primary><literal>$backupGlobalsBlacklist</literal></primary></indexterm>
 
-      <xref linkend="appendixes.annotations.backupGlobals"/> で説明している
+      <xref linkend="appendixes.annotations.backupGlobals" /> で説明している
       <literal>@backupGlobals</literal> アノテーションを使用すると、
       グローバル変数のバックアップ・リストア操作を制御することができます。
       あるいは、グローバル変数のブラックリストを指定して、
@@ -394,7 +395,7 @@ class DatabaseTest extends PHPUnit_Framework_TestCase
       <indexterm><primary><literal>@backupStaticAttributes</literal></primary></indexterm>
       <indexterm><primary><literal>$backupStaticAttributesBlacklist</literal></primary></indexterm>
 
-      <xref linkend="appendixes.annotations.backupStaticAttributes"/>
+      <xref linkend="appendixes.annotations.backupStaticAttributes" />
       で説明する <literal>@backupStaticAttributes</literal> アノテーションを使って、
       静的属性の保存と復元を制御することができます。また、静的属性のブラックリストを渡せば
       保存と復元の対象からそれらを除外することもできます。
@@ -402,7 +403,7 @@ class DatabaseTest extends PHPUnit_Framework_TestCase
       <programlisting>class MyTest extends PHPUnit_Framework_TestCase
 {
     protected $backupStaticAttributesBlacklist = array(
-      'className' => array('attributeName')
+      'className' =&gt; array('attributeName')
     );
 
     // ...
