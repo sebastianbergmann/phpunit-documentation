@@ -429,13 +429,72 @@ Tests: 1, Assertions: 1, Failures: 1.</screen>
     </example>
 
     <para>
-      一方、<literal>setExpectedException()</literal>
-      メソッドを使用して、発生するであろう例外を指定することもできます。この方法を
+      <indexterm><primary>Annotation</primary></indexterm>
+      <indexterm><primary>@expectedException</primary></indexterm>
+      <indexterm><primary>@expectedExceptionMessage</primary></indexterm>
+      <indexterm><primary>@expectedExceptionCode</primary></indexterm>
+
+      さらに、<literal>@expectedExceptionMessage</literal> や
+      <literal>@expectedExceptionCode</literal> を
+      <literal>@expectedException</literal> と組み合わせて使うと、
+      例外メッセージや例外コードを
       <xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest2.php" />
-      に示します。
+      のようにテストできます。
     </para>
 
     <example id="writing-tests-for-phpunit.exceptions.examples.ExceptionTest2.php">
+      <title>@expectedExceptionMessage および @expectedExceptionCode アノテーションの使用法</title>
+      <programlisting><![CDATA[<?php
+class ExceptionTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @expectedException        InvalidArgumentException
+     * @expectedExceptionMessage Right Message
+     */
+    public function testExceptionHasRightMessage()
+    {
+        throw new InvalidArgumentException('Some Message', 10);
+    }
+
+    /**
+     * @expectedException     InvalidArgumentException
+     * @expectedExceptionCode 20
+     */
+    public function testExceptionHasRightCode()
+    {
+        throw new InvalidArgumentException('Some Message', 10);
+    }
+}
+?>]]></programlisting>
+      <screen><userinput>phpunit ExceptionTest</userinput><![CDATA[
+PHPUnit 3.6.0 by Sebastian Bergmann.
+
+FF
+
+Time: 0 seconds, Memory: 5.25Mb
+
+There were 2 failures:
+
+1) ExceptionTest::testExceptionHasRightMessage
+Failed asserting that 'Some Message' contains "Right Message".
+
+
+2) ExceptionTest::testExceptionHasRightCode
+Failed asserting that 10 matches expected 20.
+
+
+FAILURES!
+Tests: 2, Assertions: 2, Failures: 2.]]></screen>
+    </example>
+
+    <para>
+      一方、<literal>setExpectedException()</literal>
+      メソッドを使用して、発生するであろう例外を指定することもできます。この方法を
+      <xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest3.php" />
+      に示します。
+    </para>
+
+    <example id="writing-tests-for-phpunit.exceptions.examples.ExceptionTest3.php">
       <title>テスト対象のコードで発生するであろう例外の指定</title>
       <programlisting><![CDATA[<?php
 class ExceptionTest extends PHPUnit_Framework_TestCase
@@ -444,24 +503,48 @@ class ExceptionTest extends PHPUnit_Framework_TestCase
     {
         $this->setExpectedException('InvalidArgumentException');
     }
+
+    public function testExceptionHasRightMessage()
+    {
+        $this->setExpectedException(
+          'InvalidArgumentException', 'Right Message'
+        );
+        throw new InvalidArgumentException('Some Message', 10);
+    }
+
+    public function testExceptionHasRightCode()
+    {
+        $this->setExpectedException(
+          'InvalidArgumentException', 'Right Message', 20
+        );
+        throw new InvalidArgumentException('The Right Message', 10);
+    }
 }
 ?>]]></programlisting>
-      <screen><userinput>phpunit ExceptionTest</userinput>
+      <screen><userinput>phpunit ExceptionTest</userinput><![CDATA[
 PHPUnit 3.6.0 by Sebastian Bergmann.
 
-F
+FFF
 
-Time: 0 seconds, Memory: 4.75Mb
+Time: 0 seconds, Memory: 5.25Mb
 
-There was 1 failure:
+There were 3 failures:
 
 1) ExceptionTest::testException
 Expected exception InvalidArgumentException
 
 /home/sb/ExceptionTest.php:6
 
+2) ExceptionTest::testExceptionHasRightMessage
+Failed asserting that 'Some Message' contains "Right Message".
+
+
+3) ExceptionTest::testExceptionHasRightCode
+Failed asserting that 10 matches expected 20.
+
+
 FAILURES!
-Tests: 1, Assertions: 1, Failures: 1.</screen>
+Tests: 3, Assertions: 4, Failures: 3.]]></screen>
     </example>
 
     <para>
@@ -481,8 +564,8 @@ Tests: 1, Assertions: 1, Failures: 1.</screen>
         </thead>
         <tbody>
           <row>
-            <entry><literal>void setExpectedException(string $exceptionName)</literal></entry>
-            <entry>発生することを期待する例外の名前を <literal>$exceptionName</literal> に設定します。</entry>
+            <entry><literal>void setExpectedException(string $exceptionName[, string $exceptionMessage = '', integer $exceptionCode = 0])</literal></entry>
+            <entry>期待する <literal>$exceptionName</literal>、<literal>$exceptionMessage</literal> および <literal>$exceptionCode</literal> を設定します。</entry>
           </row>
           <row>
             <entry><literal>String getExpectedException()</literal></entry>
@@ -494,11 +577,11 @@ Tests: 1, Assertions: 1, Failures: 1.</screen>
 
     <para>
       一方、
-      <xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest3.php" />
+      <xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest4.php" />
       のような方法で例外をテストすることもできます。
     </para>
 
-    <example id="writing-tests-for-phpunit.exceptions.examples.ExceptionTest3.php">
+    <example id="writing-tests-for-phpunit.exceptions.examples.ExceptionTest4.php">
       <title>例外をテストするための、別の方法</title>
       <programlisting><![CDATA[<?php
 class ExceptionTest extends PHPUnit_Framework_TestCase {
@@ -519,7 +602,7 @@ class ExceptionTest extends PHPUnit_Framework_TestCase {
 
     <para>
       例外が発生するはずの
-      <xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest3.php" />
+      <xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest4.php" />
       のコードで例外が発生しなかった場合、それに続く
       <literal>fail()</literal>
       によってテストが終了し、問題を報告します。期待通りに例外が発生すると、
