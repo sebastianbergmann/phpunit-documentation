@@ -316,6 +316,24 @@ public function testBalanceIsInitiallyZero()
         throw new Exception('Some Message', 20);
     }
 }</programlisting>
+
+      期待するメッセージを、例外メッセージの一部にすることもできます。
+      これは、特定の名前や渡したパラメータが例外に表示されることを確かめたいけれども
+      例外メッセージ全体は固定していない場合に便利です。
+
+      <programlisting>class MyTest extends PHPUnit_Framework_TestCase
+{
+     /**
+      * @expectedException        Exception
+      * @expectedExceptionMessage broken
+      */
+     public function testExceptionHasRightMessage()
+     {
+         $param = "broken";
+         throw new Exception('Invalid parameter "'.$param.'".', 20);
+     }
+}</programlisting>
+
     </para>
   </section>
 
