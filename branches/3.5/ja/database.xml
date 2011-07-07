@@ -1,216 +1,209 @@
 <?xml version="1.0" encoding="utf-8" ?>
 
 <chapter id="database">
-  <title>Database Testing</title>
+  <title>データベースのテスト</title>
   <para>
-    Many beginner and intermediate unit-testing examples in any
-    programming language suggest its perfectly easy test your
-    applications logic with simple tests. For CMS, CRUD or in general
-    database centric applications this is far away from the reality.
-    Start using Wordpress, TYPO3 or Symfony with Doctrine/Propel for
-    example and you will easily experience considerable problems with
-    PHPUnit, only because the database is so tightly coupled to these
-    libraries.
+    初級者・中級者向けのユニットテストのサンプルは、
+    どんな言語を対象としたものであっても、
+    テストしやすいようなロジックに対してシンプルなテストをしているものばかりです。
+    CMS や CRUD、あるいは一般的なデータベースアプリケーションを考えると、
+    これはまったく現実離れしています。
+    Wordpress や TYPO3、あるいは Symfony で Doctrine/Propel などを使い始めるとすぐに、
+    PHPUnit でのテストがやりづらいことを実感するはずです。
+    原因は、データベースとこれらのライブラリが密結合になっているからです。
   </para>
   <para>
-    You probably know this scenario from your daily work and projects,
-    where you want to put your fresh or experienced PHPUnit skills to
-    work and get stuck by one of the following problems:
+    きっと日々の業務やプロジェクトでも身に覚えがあることでしょう。
+    自分の持つ PHPUnit に関する知識を駆使して作業を進めようとしたのに、
+    こんな問題のせいで行き詰ってしまうことが。
   </para>
   <orderedlist numeration="arabic">
     <listitem>
       <para>
-        The method you want to test executes a rather large join and uses
-        the data to calculate some important results.
+        テストしたいメソッドがかなり大きめの join を実行し、
+        データを使って重要な結果を算出している。
       </para>
     </listitem>
     <listitem>
       <para>
-        Your business logic performs a mix of selects, inserts, updates and
-        delete statements.
+        ひとつのビジネスロジックの中で select、insert、update そして delete
+        を組み合わせて実行している。
       </para>
     </listitem>
     <listitem>
       <para>
-        You need to setup test-data in (possibly much) more than 2 tables
-        to get reasonable initial data for the methods you want to test.
+        ふたつ以上の (おそらくもっと多い) テーブルから初期データを準備しないと
+        そのメソッドのテストができない。
       </para>
     </listitem>
   </orderedlist>
   <para>
-    The DBUnit Extension extension considerably simplifies the setup of
-    a database for testing purposes and allows to verify the contents
-    of a database after performing a series of operations.
+    DBUnit Extension を使うと、テスト用のデータベースのセットアップを単純化でき、
+    データベース操作後の内容の検証もすることができます。
   </para>
   <section id="supported-vendors-for-database-testing">
-    <title>Supported Vendors for Database Testing</title>
+    <title>データベースのテストに対応しているベンダー</title>
     <para>
-      The Database Extension of PHPUnit currently supports the MySql,
-      PostgreSql, Oracle and Sqlite for database testing. Through
-      <ulink url="http://framework.zend.com">Zend Framework</ulink> or
+      PHPUnit の Database Extension が現在サポートしているのは、MySQL および
+      PostgreSQL、Oracle、SQLite を使ったデータベースのテストです。しかし、
+      <ulink url="http://framework.zend.com">Zend Framework</ulink> や
       <ulink url="http://www.doctrine-project.org">Doctrine 2</ulink>
-      integrations the Database Extension has access to other vendor
-      systems such as IBM Db2 or SQL Server.
+      に組み込まれた Database Extension を使うと、
+      IBM DB2 や SQL Server のような他のデータベースにもアクセスできます。
     </para>
   </section>
   <section id="difficulties-in-database-testing">
-    <title>Difficulties in Database-Testing</title>
+    <title>データベースのテストの難しさ</title>
     <para>
-      There is a good reason why all the examples on unit-testing found
-      on the web don't include interactions with the database: These kind
-      of tests are both complex to setup and maintain. While testing
-      against your database you need to take care of the following
-      variables:
+      ウェブ上にあるユニットテストのサンプルの中にデータベースを扱うものが全く見当たらない理由はなぜか。
+      それは、データベースを扱うテストは準備するのも保守するのもたいへんだからです。
+      データベースを使うテストをするには、このようなことに気をつける必要があります。
     </para>
     <itemizedlist>
       <listitem>
         <para>
-          The database schema and tables
+          データベースのスキーマやテーブル
         </para>
       </listitem>
       <listitem>
         <para>
-          Inserting the rows required for the test into these tables
+          テーブルへの、テストで必要となるレコードの追加
         </para>
       </listitem>
       <listitem>
         <para>
-          Verifying the state of the database after your test has run
+          テスト実行後のデータベースの状態の検証
         </para>
       </listitem>
       <listitem>
         <para>
-          Clean-Up the database for each new test
+          テスト実行ごとのデータベースの後始末
         </para>
       </listitem>
     </itemizedlist>
     <para>
-      Because many database APIs like PDO, ext/mysqli or OCI8 are
-      cumbersome to use and verbose in writing doing these steps manually
-      is an absolute nightmare.
+      PDO や ext/mysqli あるいは OCI8 といったデータベース API はどれも使いにくい上に、
+      こういった処理を自分で書こうとすると長ったらしくなってしまって面倒です。
     </para>
     <para>
-      Test-code should be as short and precise as possible for several
-      reasons:
+      テストコードはできる限り簡潔に、そして明確に書かねばなりません。その理由は次のとおりです。
     </para>
     <itemizedlist>
       <listitem>
         <para>
-          You don't want to modifiy considerable amount of test-code for
-          little changes in your production code.
+          製品コードにちょっと手を加えるたびに大量のテストコードを変更する羽目になるのは困る。
         </para>
       </listitem>
       <listitem>
         <para>
-          You want to be able to read and understand the test-code easily,
-          even months after writing it.
+          数ヵ月後に改めて読み直したときにも
+          読みやすく理解しやすいテストコードであってほしい。
         </para>
       </listitem>
     </itemizedlist>
     <para>
-      Additionally you have to realize that the database is essentially a
-      global input variable to your code. Two tests in your testsuite
-      will run against the same database, possibly re-using data multiple
-      times. Failures in one test can easily affect the result of the
-      following tests making your testing experience very difficult. The
-      previously mentioned Clean-Up bullet point is of major importance
-      to solve the <quote>database is a global input</quote> problem.
+      さらに知っておく必要があることは、
+      データベースは基本的に、自分のコードへのグローバルな入力変数であるということです。
+      テストスイート内にあるふたつのテストを同じデータベースに対して実行すると、
+      おそらくデータを複数回再利用することになります。あるテストが失敗すると
+      それ以降のテストの結果にも影響を及ぼしやすく、テストを進めるのが非常に難しくなります。
+      先ほど箇条書きでまとめた中の「後始末」こそが、この
+      <quote>データベースがグローバルな入力になる</quote>
+      問題を解決するために重要です。
     </para>
     <para>
-      PHPUnits own Database Extension helps to simplify all these
-      problems with database-testing in an elegant way.
+      PHPUnits の Database Extension を使うと、
+      データベースのテストにおけるこれらの問題をシンプルにする助けになります。
     </para>
     <para>
-      What PHPUnit can't help you with is the fact that database tests
-      are very slow compared to tests not using the database. Depending
-      on how large the interactions with your database are your tests
-      could run a considerable amount of time, I have heard of suites
-      running as long as 40 minutes. However if you keep the amount of
-      data used for each test small and try to test as much code using
-      non-database tests you can easily get away in under a minute even
-      for large testsuites.
+      PHPUnit では助けようにもどうにもならないことが、
+      データベースのテストはデータベースを使わないものに比べてとても遅くなるという事実です。
+      テストの実行時間がどれくらいになるかはデータベースとのやりとりの量に依存しますが、
+      今まで聞いた例ではテストスイートの実行に 40 分かかったということがありました。
+      しかし、各テストで使うデータの量を少なめにしておいて
+      可能な限りはデータベースを使わないテストで済ませるようにすれば、
+      巨大なテストスイートであっても 1 分未満で実行させるのは容易です。
     </para>
     <para>
-      Take for example the <ulink url="http://www.doctrine-project.org">Doctrine 2 project</ulink> which implement a
-      powerful Object-Relational Mapper currently has a testsuite of
-      about 1000 tests where nearly half of them accesses the database
-      and still runs in 15 seconds against a MySQL database on a standard
-      desktop computer.
+      <ulink url="http://www.doctrine-project.org">Doctrine 2 プロジェクト</ulink> がよい例です。
+      Doctrine 2 は強力なオブジェクト-リレーショナル マッパーを実装しており、
+      テストスイートには現時点で約 1000 件のテストが含まれています。
+      そのほぼ半数がデータベースを扱うテストですが、
+      標準的なデスクトップコンピューター上の MySQL
+      を使ってテストスイートを実行しても 15 秒程度でテストが完了します。
     </para>
   </section>
   <section id="the-four-stages-of-a-database-test">
-    <title>The four stages of a database test</title>
+    <title>データベーステストの四段階</title>
     <para>
-      In his book on xUnit Test Patterns Gerard Meszaros lists the four
-      stages of a unit-test:
+      Gerard Meszaros は、著書 xUnit Test Patterns でユニットテストを次の四段階に分類しています。
     </para>
     <orderedlist numeration="arabic">
       <listitem>
         <para>
-          Set up fixture
+          フィクスチャのセットアップ (Setup)
         </para>
       </listitem>
       <listitem>
         <para>
-          Exercise System Under Test
+          テストしたいシステムの実行 (Exercise)
         </para>
       </listitem>
       <listitem>
         <para>
-          Verify outcome
+          結果の検証 (Verify)
         </para>
       </listitem>
       <listitem>
         <para>
-          Teardown
+          後始末 (Teardown)
         </para>
       </listitem>
     </orderedlist>
     <blockquote>
       <para>
-        <emphasis role="strong">What is a Fixture?</emphasis>
+        <emphasis role="strong">フィクスチャとは?</emphasis>
       </para>
       <para>
-        A fixture describes the initial state your application and database
-        are in when you execute a test.
+        フィクスチャとは、アプリケーションやデータベースの初期状態のことです。
+        テストを実行する前に用意します。
       </para>
     </blockquote>
     <para>
-      Testing the database requires you to hook into at at least the
-      setup and teardown to clean-up and write the required fixture data
-      into your tables. However the database extension has good reason to
-      revert the four stages in a database test to resemble the following
-      workflow that is executed for each single test:
+      データベースをテストするには、少なくとも setup と teardown
+      のときにはテーブルに接続してフィクスチャのクリーンアップや書き込みをしなければなりません。
+      しかし、データベース拡張には、
+      データベーステストの四段階を次のようなワークフローに振り向ける十分な理由があります。
+      このフローは、個々のテストに対して実行します。
     </para>
     <section id="clean-up-database">
-      <title>1. Clean-Up Database</title>
+      <title>1. データベースのクリーンアップ</title>
       <para>
-        Since there is always a first test that runs against the database
-        you don't know exactly if there is already data in the tables.
-        PHPUnit will execute a TRUNCATE against all the tables you
-        specified to reset their status to empty.
+        データベースを扱う最初のテストというのはいつでも存在します。
+        実際のところ、そのときテーブルにデータが存在するのかどうかはわかりません。
+        PHPUnit は指定した全テーブルに対して TRUNCATE を実行し、
+        テーブルの中身を空にします。
       </para>
     </section>
     <section id="set-up-fixture">
-      <title>2. Set up fixture</title>
+      <title>2. フィクスチャの準備</title>
       <para>
-        PHPUnit will then iterate over all the fixture rows specified and
-        insert them into their respective tables.
+        その後、PHPUnit はフィクスチャの各行を順次処理し、対応するテーブルに書き込みます。
       </para>
     </section>
     <section id="run-test-verify-outcome-and-teardown">
-      <title>3–5. Run Test, Verify outcome and Teardown</title>
+      <title>3–5. テストの実行、結果の検証、そして後始末</title>
       <para>
-        After the database is reset and loaded with its initial state the
-        actual test is executed by PHPUnit. This part of the test-code does
-        not require to be aware of the Database Extension at all, you can
-        go on and test whatever you like with your code.
+        データベースをリセットして初期状態を読み込んだら、
+        実際のテストを PHPUnit が実行します。
+        テストコードのこの部分は Database Extension の存在を知っている必要はなく、
+        コードに対してなんでもお好みのテストをすることができます。
       </para>
       <para>
-        In your test use a special assertion called
-        <literal>assertDataSetsEqual()</literal> for verification purposes,
-        however this is entirely optional. This feature will be explained
-        in the section <quote>Database Assertions</quote>.
+        テストの中で <literal>assertDataSetsEqual()</literal>
+        という特殊なアサーションを使って検証しているかもしれません。
+        しかし、この機能は完全なオプションです。
+        この機能は <quote>データベースアサーション</quote> で説明します。
       </para>
     </section>
   </section>
