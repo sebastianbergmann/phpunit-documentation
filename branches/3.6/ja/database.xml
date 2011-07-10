@@ -208,11 +208,11 @@
     </section>
   </section>
   <section id="configuration-of-a-phpunit-database-testcase">
-    <title>Configuration of a PHPUnit Database TestCase</title>
+    <title>PHPUnit のデータベーステストケースの設定</title>
     <para>
-      Usually when using PHPUnit your testcases would extend the
-      <literal>PHPUnit_Framework_TestCase</literal> class in the
-      following way:
+      通常、PHPUnit を使うテストケースでは
+      <literal>PHPUnit_Framework_TestCase</literal>
+      クラスを継承してこのようにします。
     </para>
     <screen>
 require_once &quot;PHPUnit/Framework/TestCase.php&quot;;
@@ -226,11 +226,10 @@ class MyTest extends PHPUnit_Framework_TestCase
 }
 </screen>
     <para>
-      If you want to test code that works with the Database Extension the
-      setup is a bit more complex and you have to extend a different
-      abstract TestCase requiring you to implement two abstract methods
-      <literal>getConnection()</literal> and
-      <literal>getDataSet()</literal>:
+      テストコードで Database Extension を使う場合は少しだけ複雑になり、
+      別の抽象テストケースを継承しなければなりません。そして、二つの抽象メソッド
+      <literal>getConnection()</literal> と
+      <literal>getDataSet()</literal> を実装します。
     </para>
     <screen>
 require_once &quot;PHPUnit/Extensions/Database/TestCase.php&quot;;
@@ -256,103 +255,98 @@ class MyGuestbookTest extends PHPUnit_Extensions_Database_TestCase
 }
 </screen>
     <section id="implementing-getconnection">
-      <title>Implementing <literal>getConnection()</literal></title>
+      <title><literal>getConnection()</literal> の実装</title>
       <para>
-        To allow the clean-up and fixture loading functionalities to work
-        the PHPUnit Database Extension requires access to a database
-        connection abstracted accross vendors through the PDO library. It
-        is important to note that your application does not need to be
-        based of PDO to use PHPUnit's database extension, the connection is
-        merely used for the clean-up and fixture setup.
+        クリーンアップとフィクスチャの読み込みの機能を動かすには、
+        PHPUnit Database Extension からデータベース接続にアクセスできなければなりません。
+        データベース接続の抽象化には PDO ライブラリを使います。
+        重要なのは、PHPUnit のデータベース拡張を使うためだけに
+        わざわざアプリケーションを PDO ベースにする必要はないということです。
+        この接続を使うのは、単にクリーンアップとフィクスチャの準備のためだけです。
       </para>
       <para>
-        In the previous example we create an in-memory Sqlite connection
-        and pass it to the <literal>createDefaultDBConnection</literal>
-        method which wraps the PDO instance and the second parameter (the
-        database-name) in a very simple abstraction layer for database
-        connections of the type
-        <literal>PHPUnit_Extensions_Database_DB_IDatabaseConnection</literal>.
+        先ほどの例では、インメモリの SQLite 接続を作って
+        <literal>createDefaultDBConnection</literal> メソッドに渡しました。
+        このメソッドは PDO のインスタンスをラップしたもので、二番目のパラメータ
+        (データベース名) に非常にシンプルなデータベース接続の抽象化レイヤーを渡します。このパラメータの型は
+        <literal>PHPUnit_Extensions_Database_DB_IDatabaseConnection</literal> です。
       </para>
       <para>
-        The section <quote>Using the Database Connection</quote> explains
-        the API of this interface and how you can make the best use of it.
+        <quote>データベース接続の使い方</quote>で、このインターフェイスの API
+        と、その活用法について説明します。
       </para>
     </section>
     <section id="implementing-getdataset">
-      <title>Implementing <literal>getDataSet()</literal></title>
+      <title><literal>getDataSet()</literal> の実装</title>
       <para>
-        The <literal>getDataSet()</literal> method defines how the initial
-        state of the database should look like before each test is
-        executed. The state of a database is abstracted through the
-        concepts DataSet and DataTable both being represented by the
-        interfaces
-        <literal>PHPUnit_Extensions_Database_DataSet_IDataSet</literal> and
-        <literal>PHPUnit_Extensions_Database_DataSet_IDataTable</literal>.
-        The next section will describe in detail how these concepts work
-        and what the benefits are for using them in database testing.
+        <literal>getDataSet()</literal> メソッドで定義するのは、
+        個々のテストを実行する前のデータベースの初期状態がどうあるべきかということです。
+        データベースの状態の抽象化は DataSet と DataTable
+        という概念を使って行い、これらをそれぞれ
+        <literal>PHPUnit_Extensions_Database_DataSet_IDataSet</literal> および
+        <literal>PHPUnit_Extensions_Database_DataSet_IDataTable</literal>
+        というインターフェイスで表します。次の節でこれらの概念を詳しく説明し、
+        これをデータベースのテストに使うと何がうれしいのかについても示します。
       </para>
       <para>
-        For the implementation we only need to know that the
-        <literal>getDataSet()</literal> method is called once during
-        <literal>setUp()</literal> to retrieve the fixture data-set and
-        insert it into the database. In the example we are using a factory
-        method <literal>createFlatXMLDataSet($filename)</literal> that
-        represents a data-set through an XML representation.
+        実装するために最低限知っておくべきことは、
+        <literal>getDataSet()</literal> メソッドがコールされるのが
+        <literal>setUp()</literal> の中で一度だけであり、
+        ここでフィクスチャのデータセットを取得してデータベースに挿入するということです。
+        先ほどの例では、ファクトリメソッド
+        <literal>createFlatXMLDataSet($filename)</literal>
+        を使って XML 形式のデータセットを表しました。
       </para>
     </section>
     <section id="what-about-the-datatabase-schema-ddl">
-      <title>What about the Datatabase Schema (DDL)?</title>
+      <title>データベーススキーマ (DDL) とは?</title>
       <para>
-        PHPUnit assumes that the database schema with all its tables,
-        triggers, sequences and views is created before a test is run. This
-        means you as developer have to make sure that the database is
-        correctly setup before running the suite.
+        PHPUnit は、テストの実行前にデータベーススキーマ
+        (すべてのテーブル、トリガー、シーケンス、ビューを含むもの)
+        ができあがっていることを想定しています。つまり開発者としては、
+        テストスイートを実行する前にデータベースを正しく準備しておかねばならないということです。
       </para>
       <para>
-        There are several means to achieve this pre-condition to database
-        testing.
+        データベースのテストにおけるこの事前条件を満たす方法には、次のようなものがあります。
       </para>
       <orderedlist numeration="arabic">
         <listitem>
           <para>
-            If you are using a persistent database (not Sqlite Memory) you can
-            easily setup the database once with tools such as phpMyAdmin for
-            MySQL and re-use the database for every test-run.
+            インメモリの SQLite ではなく永続化したデータベースを使うのなら、
+            最初に一度 phpMyAdmin (MySQL の場合) などのツールでデータベースを用意しておけば、
+            あとはテストを実行するたびにそれを再利用できます。
           </para>
         </listitem>
         <listitem>
           <para>
-            If you are using libraries such as
-            <ulink url="http://www.doctrine-project.org">Doctrine 2</ulink> or
+            <ulink url="http://www.doctrine-project.org">Doctrine 2</ulink> や
             <ulink url="http://www.propelorm.org/">Propel</ulink>
-            you can use their APIs to create the database schema you
-            need once before you run the tests. You can utilize
-            <ulink url="http://www.phpunit.de/manual/current/en/textui.html">PHPUnits Bootstrap and Configuration</ulink>
-            capabilities to execute this code whenever your tests are run.
+            といったライブラリを使っている場合は、その API を使えばテストの実行前に必要なデータベーススキーマを作ることができます。
+            <ulink url="http://www.phpunit.de/manual/current/en/textui.html">PHPUnit のブートストラップ</ulink>
+            機能を使うと、そのコードをテスト実行時に毎回実行させることもできます。
           </para>
         </listitem>
       </orderedlist>
     </section>
     <section id="tip:-use-your-own-abstract-database-testcase">
-      <title>Tip: Use your own Abstract Database TestCase</title>
+      <title>ヒント: 自前でのデータベーステストケースの抽象化</title>
       <para>
-        From the previous implementation example you can easily see that
-        <literal>getConnection()</literal> method is pretty static and
-        could be re-used in different database test-cases. Additionally to
-        keep performance of your tests good and database overhead low you
-        can refactor the code a little bit to get a generic abstract test
-        case for your application, which still allows to specifiy a
-        different data-fixture for each test case:
+        先の実装例を見ればすぐにわかるでしょうが、
+        <literal>getConnection()</literal> メソッドはきわめて静的なものであり、
+        さまざまなデータベーステストケースで再利用することができます。
+        さらに、テストのパフォーマンスを良好に保ちつつデータベースのオーバーヘッドを下げるために、
+        ちょっとしたリファクタリングを施して汎用的な抽象テストケースを用意しましょう。
+        このようにしても、テストケースごとに異なるデータフィクスチャを指定することができます。
       </para>
       <screen>
 require_once &quot;PHPUnit/Extensions/Database/TestCase.php&quot;;
 
 abstract class MyApp_Tests_DatabaseTestCase extends PHPUnit_Framework_TestCase
 {
-    // only instantiate pdo once for test clean-up/fixture load
+    // PDO のインスタンス生成は、クリーンアップおよびフィクスチャ読み込みのときに一度だけ
     static private $pdo = null;
 
-    // only instantiate PHPUnit_Extensions_Database_DB_IDatabaseConnection once per test
+    // PHPUnit_Extensions_Database_DB_IDatabaseConnection のインスタンス生成は、テストごとに一度だけ
     private $conn = null;
 
     final public fucntion getConnection()
@@ -369,13 +363,13 @@ abstract class MyApp_Tests_DatabaseTestCase extends PHPUnit_Framework_TestCase
 }
 </screen>
       <para>
-        This has the database connection hardcoded in the PDO connection
-        though. PHPUnit has another awesome feature that could make this
-        testcase even more generic. If you use the
-        <ulink url="http://www.phpunit.de/manual/current/en/appendixes.configuration.html#appendixes.configuration.php-ini-constants-variables">XML Configuration</ulink>
-        you could make the database connection configurable per test-run.
-        First lets create a <quote>phpunit.xml</quote> file in our tests/
-        directory of the application that looks like:
+        しかし、これはまだデータベースへの接続情報を
+        PDO 接続の設定にハードコードしてしまっています。
+        PHPUnit にはさらにすばらしい機能があるので、それを使ってテストケースをより汎用的にしましょう。
+        <ulink url="http://www.phpunit.de/manual/current/en/appendixes.configuration.html#appendixes.configuration.php-ini-constants-variables">XML 設定ファイル</ulink>
+        を使えば、テストの実行のたびにデータベース接続を設定できます。
+        まずは <quote>phpunit.xml</quote> というファイルをアプリケーションの tests/ ディレクトリに作り、
+        中身をこのようにします。
       </para>
       <screen>
 &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;
@@ -389,15 +383,15 @@ abstract class MyApp_Tests_DatabaseTestCase extends PHPUnit_Framework_TestCase
 &lt;/phpunit&gt;
 </screen>
       <para>
-        We can now modify our test-case to look like:
+        テストケースはこのように書き直せます。
       </para>
       <screen>
 abstract class Generic_Tests_DatabaseTestCase extends PHPUnit_Framework_TestCase
 {
-    // only instantiate pdo once for test clean-up/fixture load
+    // PDO のインスタンス生成は、クリーンアップおよびフィクスチャ読み込みのときに一度だけ
     static private $pdo = null;
 
-    // only instantiate PHPUnit_Extensions_Database_DB_IDatabaseConnection once per test
+    // PHPUnit_Extensions_Database_DB_IDatabaseConnection のインスタンス生成は、テストごとに一度だけ
     private $conn = null;
 
     final public fucntion getConnection()
@@ -414,19 +408,18 @@ abstract class Generic_Tests_DatabaseTestCase extends PHPUnit_Framework_TestCase
 }
 </screen>
       <para>
-        We can now run the database testsuite using different
-        configurations from the command-line interface:
+        データベースの設定情報を切り替えてテストスイートを実行するには、
+        コマンドラインから次のようにします。
       </para>
       <screen>
 user@desktop&gt; phpunit --configuration developer-a.xml MyTests/
 user@desktop&gt; phpunit --configuration developer-b.xml MyTests/
 </screen>
       <para>
-        The possibility to run the database tests against different
-        database targets easily is very important if you are developing on
-        the development machine. If several developers run the database
-        tests against the same database connection you can easily
-        experience test-failures because of race-conditions.
+        データベースのテストを実行するときにターゲットデータベースを切り替えられるようにしておくことは、
+        開発機で作業をしている場合などは特に重要です。
+        複数の開発者が同じデータベース接続を使ってデータベースのテストを実行したりすると、
+        レースコンディション (競合条件) によるテストの失敗が頻発するでしょう。
       </para>
     </section>
   </section>
