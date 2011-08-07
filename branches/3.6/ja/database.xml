@@ -424,101 +424,103 @@ user@desktop&gt; phpunit --configuration developer-b.xml MyTests/
     </section>
   </section>
   <section id="understanding-datasets-and-datatables">
-    <title>Understanding DataSets and DataTables</title>
+    <title>データセットとデータテーブルについて知る</title>
     <para>
-      A central concept of PHPUnits Database Extension are DataSets and
-      DataTables. You should try to understand this simple concept to
-      master database testing with PHPUnit. The DataSet and DataTable are
-      an abstraction layer around your datatabse tables, rows and
-      columns. A simple API hides the underlying database contents in an
-      object structure, which can also be implemented by other
-      non-datatabase sources.
+      PHPUnit Database Extension の中心となる概念が
+      データセットとデータテーブルです。まずはこの考え方を理解することが、
+      PHPUnit でのデータベースのテストをマスターする近道です。
+      データセットとデータテーブルは、データベースのテーブルや行、
+      そしてカラムの抽象化レイヤーです。シンプルな API
+      によってデータベースの内容をオブジェクト構造に隠蔽できるだけでなく、
+      データベース以外のソースによる実装もできるようになっています。
     </para>
     <para>
-      This abstraction is necessary to compare the actual contents of a
-      database against the expected contents. Expectations can be
-      represented as XML, YAML, CSV files or PHP array for example. The
-      DataSet and DataTable interfaces enable the comparison of this
-      conceptually different sources, emulating relational database
-      storage in a semantically simliar approach.
+      この抽象化を使って、データベースの実際の中身と我々が期待する内容を比較します。
+      期待する内容は XML や YAML そして CSV などのファイルでも表せるし、
+      PHP の配列として表すこともできます。
+      DataSet インターフェイスと DataTable インターフェイスのおかげで、
+      これらの全く異なる概念のソースをリレーショナルデータベースに見立てて
+      同様に扱えるようになります。
     </para>
     <para>
-      A workflow for database assertions in your tests then consists of
-      three simple steps:
+      データベースのアサーションをテストの中で行う流れは、
+      次のようにシンプルな三段階となります。
     </para>
     <itemizedlist>
       <listitem>
         <para>
-          Specify one or more tables in your database by table name (actual
-          dataset)
+          ひとつあるいは複数のテーブルをデータベース内から指定する
+          (実際のデータセット)。
         </para>
       </listitem>
       <listitem>
         <para>
-          Specify the expected dataset in your preferred format (YAML, XML,
-          ..)
+          期待するデータセットをお好みのフォーマット (YAML, XML など)
+          で用意する。
         </para>
       </listitem>
       <listitem>
         <para>
-          Assert that both dataset representations equal each other.
+          両者がお互いに等しいことを確認する。
         </para>
       </listitem>
     </itemizedlist>
     <para>
-      Assertions are not the only use-case for the DataSet and DataTable
-      in PHPUnit's Database Extension. As shown in the previous section
-      they also describe the initial contents of a database. You are
-      forced to define a fixture dataset by the Database TestCase, which
-      is then used to:
+      データセットやデータテーブルの
+      PHPUnit Database Extension における使い道は、
+      何もアサーションだけだというわけではありません。先ほどの節で見たように、
+      これらを使ってデータベースの初期状態の内容を記述することもできます。
+      フィクスチャとなるデータセットを Database TestCase
+      で定義すると、それをこのように使うことができます。
     </para>
     <itemizedlist>
       <listitem>
         <para>
-          Delete all the rows from the tables specified in the dataset.
+          データセットで指定したテーブルのすべての行を削除する。
         </para>
       </listitem>
       <listitem>
         <para>
-          Write all the rows in the data-tables into the database.
+          データテーブルのすべての行をデータベースに書き込む。
         </para>
       </listitem>
     </itemizedlist>
     <section id="available-implementations">
-      <title>Available Implementations</title>
+      <title>利用できる実装</title>
       <para>
-        There are three different types of datasets/datatables:
+        これら三種類のデータセット/データテーブルが用意されています。
       </para>
       <itemizedlist>
         <listitem>
           <para>
-            File-Based DataSets and DataTables
+            ファイルベースのデータセットやデータテーブル
           </para>
         </listitem>
         <listitem>
           <para>
-            Query-Based DataSet and DataTable
+            クエリベースのデータセットやデータテーブル
           </para>
         </listitem>
         <listitem>
           <para>
-            Filter and Composition DataSets and DataTables
+            フィルタ用や合成用のデータセットやデータテーブル
           </para>
         </listitem>
       </itemizedlist>
       <para>
-        The file-based datasets and tables are generally used for the
-        initial fixture and to describe the expected state of the database.
+        ファイルベースのデータセットやデータテーブルは、
+        初期状態のフィクスチャを定義したり期待する状態を定義したりするときによく使います。
       </para>
       <section id="flat-xml-dataset">
-        <title>Flat XML DataSet</title>
+        <title>フラット XML データセット</title>
         <para>
-          The most common dataset is called Flat XML. It is a very simple xml
-          format where a tag inside the root node
-          <literal>&lt;dataset&gt;</literal> represents exactly one row in the
-          database. The tags name equals the table to insert the row into and
-          an attribute represents the column. An example for a simple guestbook
-          application could look like this:
+          最も一般的なデータセットは、フラット XML と呼ばれるものです。
+          これは非常にシンプルな xml 形式で、ルートノード
+          <literal>&lt;dataset&gt;</literal>
+          の中のタグがデータベースのひとつの行を表します。
+          テーブルと同じ名前のタグが追加する行を表し、
+          その属性がカラムを表します。
+          単純な掲示板アプリケーションの例は、このようになります。
         </para>
         <screen>
 &lt;?xml version=&quot;1.0&quot; ?&gt;
@@ -528,20 +530,19 @@ user@desktop&gt; phpunit --configuration developer-b.xml MyTests/
 &lt;/dataset&gt;
 </screen>
         <para>
-          This is obviously easy to write. Here
-          <literal>&lt;guestbook&gt;</literal> is the table name where two rows
-          are inserted into each with four columns <quote>id</quote>,
-          <quote>content</quote>, <quote>user</quote> and
-          <quote>created</quote> with their respective values.
+          見るからに書きやすそうですね。この場合は
+          <literal>&lt;guestbook&gt;</literal> がテーブル名で、
+          2 行が追加されます。そして、四つのカラム <quote>id</quote>、
+          <quote>content</quote>、<quote>user</quote> そして
+          <quote>created</quote> に、それぞれ対応する値が設定されています。
         </para>
         <para>
-          However this simplicity comes at a cost.
+          しかし、この単純性による問題もあります。
         </para>
         <para>
-          From the previous example it isn't obvious how you would specify an
-          empty table. You can insert a tag with no attributes with the name
-          of the empty table. A flat xml file for an empty guestbook table
-          would then look like:
+          たとえば、先ほどの例で空のテーブルはどうやって指定すればいいのかがよくわかりません。
+          実は、何も属性を指定せずにテーブルと同じ名前のタグを追加すれば、空のテーブルを表すことができます。
+          空の guestbook テーブルを表すフラット xml ファイルは、このようになります。
         </para>
         <screen>
 &lt;?xml version=&quot;1.0&quot; ?&gt;
@@ -550,14 +551,14 @@ user@desktop&gt; phpunit --configuration developer-b.xml MyTests/
 &lt;/dataset&gt;
 </screen>
         <para>
-          The handling of NULL values with the flat xml dataset is tedious. A
-          NULL value is different than an empty string value in almost any
-          database (Oracle being an exception), something that is difficult
-          to describe in the flat xml format. You can represent a NULLs value
-          by omitting the attribute from the row specification. If our
-          guestbook would allow anonymous entries represented by a NULL value
-          in the user column, a hypothetical state of the guestbook table
-          could look like:
+          フラット xml データセットでの NULL 値の処理は、あまりおもしろいものではありません。
+          ほとんどのデータベースでは、NULL 値と空文字列は別のものとして扱います
+          (例外のひとつは Oracle です) が、これをフラット xml
+          形式で表すのは困難です。NULL 値を表すには、
+          行の指定のときに属性を省略します。
+          この例の掲示板で、匿名の投稿を許可し、そのときには
+          user カラムに NULL を指定することにしましょう。
+          guestbook テーブルの状態は、このようになります。
         </para>
         <screen>
 &lt;?xml version=&quot;1.0&quot; ?&gt;
@@ -567,49 +568,49 @@ user@desktop&gt; phpunit --configuration developer-b.xml MyTests/
 &lt;/dataset&gt;
 </screen>
         <para>
-          In this case the second entry is posted anonymously. However this
-          leads to a serious problem with column recognition. During dataset
-          equality assertions each dataset has to specify what columns a
-          table holds. If an attribute is NULL for all the rows of a
-          data-table, how would the Database Extension know that the column
-          should be part of the table?
+          この例では、二番目のエントリが匿名の投稿を表します。
+          しかし、これはカラムの認識において深刻な問題につながります。
+          データセットが等しいことを確認するアサーションでは、各データセットでテーブルの持つカラムを指定しなければなりません。
+          ある属性がデータテーブルのすべての行で NULL だったなら、
+          Database Extension はそのカラムがテーブルに存在することをどうやって知るというのでしょう?
         </para>
         <para>
-          The flat xml dataset makes a crucial assumption now, defining that
-          the attributes on the first defined row of a table define the
-          columns of this table. In the previous example this would mean
-          <quote>id</quote>, <quote>content</quote>, <quote>user</quote> and
-          <quote>created</quote> are columns of the guestbook table. For the
-          second row where <quote>user</quote> is not defined a NULL would be
-          inserted into the database.
+          フラット XML データセットはここで、重大な前提を使っています。
+          テーブルの最初の行で定義されている属性が、そのテーブルのカラムを定義しているものと見なすのです。
+          先ほどの例では、guestbook テーブルのカラムが
+          <quote>id</quote> と <quote>content</quote>、<quote>user</quote> そして
+          <quote>created</quote> であると見なすということです。二番目の行には
+          <quote>user</quote> が定義されていないので、データベースには
+          NULL を挿入します。
         </para>
         <para>
-          When the first guestbook entry is deleted from the dataset only
-          <quote>id</quote>, <quote>content</quote> and
-          <quote>created</quote> would be columns of the guestbook table,
-          since <quote>user</quote> is not specified.
+          guestbook の最初のエントリをデータセットから削除すると、guestbook テーブルのカラムは
+          <quote>id</quote>、<quote>content</quote> そして
+          <quote>created</quote> だけになってしまいます。
+          <quote>user</quote> が指定されていないからです。
         </para>
         <para>
-          To use the Flat XML dataset effectivly when NULL values are
-          relevant the first row of each table must not contain any NULL
-          value and only successive rows are allowed to omit attributes. This
-          can be awkward, since the order of the rows is a relevant factor
-          for database assertions.
+          フラット XML データセットを効率的に使うには、NULL 値がからむ場合は
+          各テーブルの最初の行には NULL を含まないようにします。
+          それ以降の行では、属性を省略して NULL を表すことができます。
+          これはあまりスマートなやり方ではありません。
+          というのも、データベースのアサーションで行の順番が影響してしまうからです。
         </para>
         <para>
-          In turn, if you specify only a subset of the table columns in the
-          Flat XML dataset all the omitted values are set to their default
-          values. This will lead to errors if one of the omitted columns is
-          defined as <quote>NOT NULL DEFAULT NULL</quote>.
+          一方、テーブルのカラムの一部だけをフラット XML データセットで指定すると、
+          それ以外のカラムにはデフォルト値が設定されます。
+          そのため、もし省略したカラムの定義が
+          <quote>NOT NULL DEFAULT NULL</quote>
+          などの場合はエラーになります。
         </para>
         <para>
-          In conclusion I can only advice to use the Flat XML datasets if you
-          don't need NULL values.
+          結論として言えるのは、フラット XML データセットを使うなら
+          NULL 値が不要な場合だけにしておいたほうがよい、ということだけです。
         </para>
         <para>
-          You can create a flat xml dataset instance from within your
-          Database TestCase by calling the
-          <literal>createFlatXmlDataSet($filename)</literal> method:
+          フラット XML データセットのインスタンスを
+          Database TestCase から作るには、
+          <literal>createFlatXmlDataSet($filename)</literal> メソッドを使います。
         </para>
         <screen>
 class MyTestCase extends PHPUnit_Extensions_Database_TestCase
