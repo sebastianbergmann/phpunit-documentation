@@ -2,9 +2,9 @@
 <?php
 require dirname(__FILE__) . DIRECTORY_SEPARATOR . 'HTMLFilterIterator.php';
 
-function webifyDirectory($directory, $edition)
+function webify_directory($directory, $edition)
 {
-    $toc = getSubstring(
+    $toc = get_substring(
       file_get_contents($directory . DIRECTORY_SEPARATOR . 'index.html'),
       '<dl>',
       '</dl>',
@@ -57,11 +57,11 @@ function webifyDirectory($directory, $edition)
     }
 
     foreach (new HTMLFilterIterator(new DirectoryIterator($directory)) as $file) {
-        webifyFile($file->getPathName(), $toc, $_editions);
+        webify_file($file->getPathName(), $toc, $_editions);
     }
 }
 
-function webifyFile($file, $toc, $editions)
+function webify_file($file, $toc, $editions)
 {
     $filename = basename($file);
 
@@ -98,10 +98,10 @@ function webifyFile($file, $toc, $editions)
         }
 
         $buffer  = file_get_contents($file);
-        $title   = getSubstring($buffer, '<title>', '</title>', FALSE, FALSE);
-        $content = getSubstring($buffer, '<div class="' . $type . '"', '<div class="navfooter">', TRUE, FALSE);
-        $prev    = getSubstring($buffer, '<link rel="prev" href="', '" title', FALSE, FALSE);
-        $next    = getSubstring($buffer, '<link rel="next" href="', '" title', FALSE, FALSE);
+        $title   = get_substring($buffer, '<title>', '</title>', FALSE, FALSE);
+        $content = get_substring($buffer, '<div class="' . $type . '"', '<div class="navfooter">', TRUE, FALSE);
+        $prev    = get_substring($buffer, '<link rel="prev" href="', '" title', FALSE, FALSE);
+        $next    = get_substring($buffer, '<link rel="next" href="', '" title', FALSE, FALSE);
 
         if (!empty($prev)) {
             $prev = '<a accesskey="p" href="' . $prev . '">Prev</a>';
@@ -112,7 +112,7 @@ function webifyFile($file, $toc, $editions)
         }
     }
 
-    $buffer =  str_replace(
+    $buffer = str_replace(
       array('{title}', '{content}', '{toc}', '{editions}', '{prev}', '{next}'),
       array($title, $content, $toc, $editions, $prev, $next),
       $template
@@ -133,7 +133,7 @@ function webifyFile($file, $toc, $editions)
     file_put_contents($file, $buffer);
 }
 
-function getSubstring($buffer, $start, $end, $includeStart = TRUE, $includeEnd = TRUE, $strrpos = FALSE)
+function get_substring($buffer, $start, $end, $includeStart = TRUE, $includeEnd = TRUE, $strrpos = FALSE)
 {
     if ($includeStart) {
         $prefix = 0;
@@ -166,4 +166,4 @@ function getSubstring($buffer, $start, $end, $includeStart = TRUE, $includeEnd =
     }
 }
 
-webifyDirectory($argv[1], $argv[2]);
+webify_directory($argv[1], $argv[2]);
