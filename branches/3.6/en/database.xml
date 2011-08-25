@@ -682,9 +682,9 @@ class MyTestCase extends PHPUnit_Extensions_Database_TestCase
           that the value is NULL.
         </para>
         <para>
-          You can create a flat xml dataset instance from within your
+          You can create a xml dataset instance from within your
           Database TestCase by calling the
-          <literal>createFlatXmlDataSet($filename)</literal> method:
+          <literal>createXmlDataSet($filename)</literal> method:
         </para>
         <screen>
 class MyTestCase extends PHPUnit_Extensions_Database_TestCase
@@ -1123,9 +1123,9 @@ interface PHPUnit_Extensions_Database_DataSet_IDataSet extends IteratorAggregate
           To understand the need for a reverse iterator think of a two tables
           (<emphasis>TableA</emphasis> and <emphasis>TableB</emphasis>) where
           <emphasis>TableB</emphasis> holds a foreign key on a column of
-          <emphasis>TableA</emphasis>. If for fixture setup a row is inserted
-          <emphasis>into TableA</emphasis> and then a dependant record into
-          Table B, then it is obvious that for deleting all the tables
+          <emphasis>TableA</emphasis>. If for fixture setup a row is inserted into
+          <emphasis>TableA</emphasis> and then a dependant record into
+          <emphasis>TableB</emphasis>, then it is obvious that for deleting all the tables
           contents the reverse order run you into trouble with foreign key
           constraints.
         </para>
@@ -1209,12 +1209,16 @@ interface PHPUnit_Extensions_Database_DB_IDatabaseConnection
           The <literal>createDataSet()</literal> method creates a Database
           (DB) DataSet as described in the DataSet implementations section.
         </para>
-        <para>
-          class ConnectionTest extends PHPUnit_Extensions_Database_TestCase {
-          public function testCreateDataSet() { $tableNames =
-          array(<quote>guestbook</quote>); $dataSet =
-          $this-&gt;getConnection()-&gt;createDataSet(); } }
-        </para>
+        <screen>
+class ConnectionTest extends PHPUnit_Extensions_Database_TestCase
+{
+    public function testCreateDataSet()
+    {
+        $tableNames = array('guestbook');
+        $dataSet = $this-&gt;getConnection()-&gt;createDataSet();
+    }
+}
+</screen>
       </listitem>
       <listitem>
         <para>
@@ -1224,14 +1228,16 @@ interface PHPUnit_Extensions_Database_DB_IDatabaseConnection
           assertions as will be shown in the next section on the Database
           Assertions API.
         </para>
-        <para>
-          class ConnectionTest extends PHPUnit_Extensions_Database_TestCase {
-          public function testCreateQueryTable() { $tableNames =
-          array(<quote>guestbook</quote>); $queryTable =
-          $this-&gt;getConnection()-&gt;createQueryTable(
-          <quote>guestbook</quote>, <quote>SELECT * FROM guestbook</quote> );
-          } }
-        </para>
+        <screen>
+class ConnectionTest extends PHPUnit_Extensions_Database_TestCase
+{
+    public function testCreateQueryTable()
+    {
+        $tableNames = array('guestbook');
+        $queryTable = $this-&gt;getConnection()-&gt;createQueryTable('guestbook', 'SELECT * FROM guestbook');
+    }
+}
+</screen>
       </listitem>
       <listitem>
         <para>
@@ -1240,12 +1246,15 @@ interface PHPUnit_Extensions_Database_DB_IDatabaseConnection
           additional where clause. This can be used with a simple equality
           assertion:
         </para>
-        <para>
-          class ConnectionTest extends PHPUnit_Extensions_Database_TestCase {
-          public function testGetRowCount() { $this-&gt;assertEquals(2,
-          $this-&gt;getConnection()-&gt;getRowCount(<quote>guestbook</quote>));
-          } }
-        </para>
+        <screen>
+class ConnectionTest extends PHPUnit_Extensions_Database_TestCase
+{
+    public function testGetRowCount()
+    {
+        $this-&gt;assertEquals(2, $this-&gt;getConnection()-&gt;getRowCount('guestbook'));
+    }
+}
+</screen>
       </listitem>
     </orderedlist>
   </section>
@@ -1388,44 +1397,35 @@ class ComplexQueryTest extends PHPUnit_Extensions_Database_TestCase
             You can use the Database (DB) DataSet from the Connection and
             compare it to a File-Based DataSet.
           </para>
-          <para>
-            class DataSetAssertionsTest extends
-            PHPUnit_Extensions_Database_TestCase { public function
-            testCreateDataSetAssertion() { $dataSet =
-            $this-&gt;getConnection()-&gt;createDataSet(array(<quote>guestbook</quote>));
-            $expectedDataSet =
-            $this-&gt;createFlatXmlDataSet(<quote>guestbook.xml</quote>);
-          </para>
           <screen>
-    $this-&gt;assertDataSetsEqual($exepctedDataSet, $dataSet);
+class DataSetAssertionsTest extends PHPUnit_Extensions_Database_TestCase
+{
+    public function testCreateDataSetAssertion()
+    {
+        $dataSet = $this-&gt;getConnection()-&gt;createDataSet(array('guestbook'));
+        $expectedDataSet = $this-&gt;createFlatXmlDataSet('guestbook.xml');
+        $this-&gt;assertDataSetsEqual($exepctedDataSet, $dataSet);
+    }
 }
 </screen>
-          <para>
-            }
-          </para>
         </listitem>
         <listitem>
           <para>
             You can construct the DataSet on your own:
           </para>
-          <para>
-            class DataSetAssertionsTest extends
-            PHPUnit_Extensions_Database_TestCase { public function
-            testManualDataSetAssertion() { $dataSet = new
-            PHPUnit_Extensions_Database_DataSet_QueryDataSet();
-            $dataSet-&gt;addTable(<quote>guestbook</quote>,
-            <quote>SELECT id, content, user FROM guestbook</quote>); //
-            additional tables
-          </para>
           <screen>
-    $expectedDataSet = $this-&gt;createFlatXmlDataSet(&quot;guestbook.xml&quot;);
+class DataSetAssertionsTest extends PHPUnit_Extensions_Database_TestCase
+{
+    public function testManualDataSetAssertion()
+    {
+        $dataSet = new PHPUnit_Extensions_Database_DataSet_QueryDataSet();
+        $dataSet-&gt;addTable('guestbook', 'SELECT id, content, user FROM guestbook'); // additional tables
+        $expectedDataSet = $this-&gt;createFlatXmlDataSet('guestbook.xml');
 
-    $this-&gt;assertDataSetsEqual($exepctedDataSet, $dataSet);
+        $this-&gt;assertDataSetsEqual($exepctedDataSet, $dataSet);
+    }
 }
 </screen>
-          <para>
-            }
-          </para>
         </listitem>
       </orderedlist>
     </section>
