@@ -3,14 +3,12 @@
 <chapter id="database">
   <title>Database Testing</title>
   <para>
-    Many beginner and intermediate unit-testing examples in any
-    programming language suggest its perfectly easy test your
-    applications logic with simple tests. For CMS, CRUD or in general
-    database centric applications this is far away from the reality.
-    Start using Wordpress, TYPO3 or Symfony with Doctrine/Propel for
-    example and you will easily experience considerable problems with
-    PHPUnit, only because the database is so tightly coupled to these
-    libraries.
+    Many beginner and intermediate unit testing examples in any programming
+    language suggest that is is perfectly easy test your applications logic with
+    simple tests. For database-centric applications this is far away from the
+    reality. Start using Wordpress, TYPO3 or Symfony with Doctrine or Propel,
+    for example, and you will easily experience considerable problems with
+    PHPUnit: just because the database is so tightly coupled to these libraries.
   </para>
   <para>
     You probably know this scenario from your daily work and projects,
@@ -20,49 +18,46 @@
   <orderedlist numeration="arabic">
     <listitem>
       <para>
-        The method you want to test executes a rather large join and uses
-        the data to calculate some important results.
+        The method you want to test executes a rather large JOIN operation and
+        uses the data to calculate some important results.
       </para>
     </listitem>
     <listitem>
       <para>
-        Your business logic performs a mix of selects, inserts, updates and
-        delete statements.
+        Your business logic performs a mix of SELECT, INSERT, UPDATE and
+        DELETE statements.
       </para>
     </listitem>
     <listitem>
       <para>
-        You need to setup test-data in (possibly much) more than 2 tables
+        You need to setup test data in (possibly much) more than two tables
         to get reasonable initial data for the methods you want to test.
       </para>
     </listitem>
   </orderedlist>
   <para>
-    The DBUnit Extension extension considerably simplifies the setup of
-    a database for testing purposes and allows to verify the contents
-    of a database after performing a series of operations. It can be installed
-    like this:
+    The DbUnit extension considerably simplifies the setup of a database for
+    testing purposes and allows to verify the contents of a database after
+    performing a series of operations. It can be installed like this:
   </para>
   <screen><userinput>pear install phpunit/DbUnit</userinput></screen>
   <section id="supported-vendors-for-database-testing">
     <title>Supported Vendors for Database Testing</title>
     <para>
-      The Database Extension of PHPUnit currently supports the MySql,
-      PostgreSql, Oracle and Sqlite for database testing. Through
+      DbUnit currently supports MySQL, PostgreSQL, Oracle and SQLite. Through
       <ulink url="http://framework.zend.com">Zend Framework</ulink> or
       <ulink url="http://www.doctrine-project.org">Doctrine 2</ulink>
-      integrations the Database Extension has access to other vendor
-      systems such as IBM Db2 or SQL Server.
+      integrations it has access to other database systems such as IBM DB2 or
+      Microsoft SQL Server.
     </para>
   </section>
   <section id="difficulties-in-database-testing">
-    <title>Difficulties in Database-Testing</title>
+    <title>Difficulties in Database Testing</title>
     <para>
-      There is a good reason why all the examples on unit-testing found
-      on the web don't include interactions with the database: These kind
-      of tests are both complex to setup and maintain. While testing
-      against your database you need to take care of the following
-      variables:
+      There is a good reason why all the examples on unit testing do not include
+      interactions with the database: these kind of tests are both complex to
+      setup and maintain. While testing against your database you need to take
+      care of the following variables:
     </para>
     <itemizedlist>
       <listitem>
@@ -82,59 +77,57 @@
       </listitem>
       <listitem>
         <para>
-          Clean-Up the database for each new test
+          Cleanup the database for each new test
         </para>
       </listitem>
     </itemizedlist>
     <para>
-      Because many database APIs like PDO, ext/mysqli or OCI8 are
-      cumbersome to use and verbose in writing doing these steps manually
-      is an absolute nightmare.
+      Because many database APIs such as PDO, MySQLi or OCI8 are cumbersome to
+      use and verbose in writing doing these steps manually is an absolute
+      nightmare.
     </para>
     <para>
-      Test-code should be as short and precise as possible for several
-      reasons:
+      Test code should be as short and precise as possible for several reasons:
     </para>
     <itemizedlist>
       <listitem>
         <para>
-          You don't want to modifiy considerable amount of test-code for
-          little changes in your production code.
+          You do not want to modifiy considerable amount of test code for little
+          changes in your production code.
         </para>
       </listitem>
       <listitem>
         <para>
-          You want to be able to read and understand the test-code easily,
+          You want to be able to read and understand the test code easily,
           even months after writing it.
         </para>
       </listitem>
     </itemizedlist>
     <para>
       Additionally you have to realize that the database is essentially a
-      global input variable to your code. Two tests in your testsuite
-      will run against the same database, possibly re-using data multiple
+      global input variable to your code. Two tests in your test suite
+      will run against the same database, possibly reusing data multiple
       times. Failures in one test can easily affect the result of the
       following tests making your testing experience very difficult. The
-      previously mentioned Clean-Up bullet point is of major importance
+      previously mentioned cleanup step is of major importance
       to solve the <quote>database is a global input</quote> problem.
     </para>
     <para>
-      PHPUnits own Database Extension helps to simplify all these
-      problems with database-testing in an elegant way.
+      DbUnit helps to simplify all these problems with database testing in an
+      elegant way.
     </para>
     <para>
-      What PHPUnit can't help you with is the fact that database tests
+      What PHPUnit cannot help you with is the fact that database tests
       are very slow compared to tests not using the database. Depending
       on how large the interactions with your database are your tests
-      could run a considerable amount of time, I have heard of suites
-      running as long as 40 minutes. However if you keep the amount of
+      could run a considerable amount of time. However if you keep the amount of
       data used for each test small and try to test as much code using
       non-database tests you can easily get away in under a minute even
-      for large testsuites.
+      for large test suites.
     </para>
     <para>
-      Take for example the <ulink url="http://www.doctrine-project.org">Doctrine 2 project</ulink> which implement a
-      powerful Object-Relational Mapper currently has a testsuite of
+      The <ulink url="http://www.doctrine-project.org">Doctrine 2
+      project</ulink>'s test suite, for example, currently has a test suite of
       about 1000 tests where nearly half of them accesses the database
       and still runs in 15 seconds against a MySQL database on a standard
       desktop computer.
@@ -188,7 +181,7 @@
       <title>1. Clean-Up Database</title>
       <para>
         Since there is always a first test that runs against the database
-        you don't know exactly if there is already data in the tables.
+        you do not know exactly if there is already data in the tables.
         PHPUnit will execute a TRUNCATE against all the tables you
         specified to reset their status to empty.
       </para>
@@ -204,7 +197,7 @@
       <title>3–5. Run Test, Verify outcome and Teardown</title>
       <para>
         After the database is reset and loaded with its initial state the
-        actual test is executed by PHPUnit. This part of the test-code does
+        actual test is executed by PHPUnit. This part of the test code does
         not require to be aware of the Database Extension at all, you can
         go on and test whatever you like with your code.
       </para>
@@ -423,7 +416,7 @@ abstract class Generic_Tests_DatabaseTestCase extends PHPUnit_Framework_TestCase
 }
 </screen>
       <para>
-        We can now run the database testsuite using different
+        We can now run the database test suite using different
         configurations from the command-line interface:
       </para>
       <screen>
@@ -620,7 +613,7 @@ user@desktop&gt; phpunit --configuration developer-b.xml MyTests/
         </para>
         <para>
           In conclusion I can only advice to use the Flat XML datasets if you
-          don't need NULL values.
+          do not need NULL values.
         </para>
         <para>
           You can create a flat xml dataset instance from within your
@@ -884,7 +877,7 @@ class MyApp_DbUnit_ArrayDataSet extends PHPUnit_Extensions_Database_DataSet_Abst
       <section id="query-sql-dataset">
         <title>Query (SQL) DataSet</title>
         <para>
-          For database assertions you don't only need the file-based datasets
+          For database assertions you do not only need the file-based datasets
           but also a Query/SQL based Dataset that contains the actual
           contents of the database. This is where the Query DataSet shines:
         </para>
@@ -1097,7 +1090,7 @@ class CompositeTest extends PHPUnit_Extensions_Database_TestCase
       <para>
         To understand the internals of DataSets and DataTables, lets have a
         look at the interface of a DataSet. You can skip this part if you
-        don't plan to implement your own DataSet or DataTable.
+        do not plan to implement your own DataSet or DataTable.
       </para>
       <screen>
 interface PHPUnit_Extensions_Database_DataSet_IDataSet extends IteratorAggregate
@@ -1440,7 +1433,7 @@ class DataSetAssertionsTest extends PHPUnit_Extensions_Database_TestCase
       <para>
         No, PHPUnit requires all database objects to be available when the
         suite is started. The Database, tables, sequences, triggers and
-        views have to be created before you run the testsuite.
+        views have to be created before you run the test suite.
       </para>
       <para>
         <ulink url="http://www.doctrine-project.org">Doctrine 2</ulink> or
@@ -1469,7 +1462,7 @@ class DataSetAssertionsTest extends PHPUnit_Extensions_Database_TestCase
       <title>What can I do, when I get a
              <quote>Too much Connections</quote> Error?</title>
       <para>
-        If you don't cache the PDO instance that is created from the
+        If you do not cache the PDO instance that is created from the
         TestCase <literal>getConnection()</literal> method the number of
         connections to the database is increasing by one or more with each
         database test. With default configuration MySql only allows 100
@@ -1486,7 +1479,7 @@ class DataSetAssertionsTest extends PHPUnit_Extensions_Database_TestCase
     <section id="how-to-handle-null-with-flat-xml-csv-datasets">
       <title>How to handle NULL with Flat XML / CSV Datasets?</title>
       <para>
-        Don't. For this you should use either the XML or the YAML DataSets.
+        do not. For this you should use either the XML or the YAML DataSets.
       </para>
     </section>
   </section>
