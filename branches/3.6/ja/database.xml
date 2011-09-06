@@ -6,11 +6,10 @@
     初級者・中級者向けのユニットテストのサンプルは、
     どんな言語を対象としたものであっても、
     テストしやすいようなロジックに対してシンプルなテストをしているものばかりです。
-    CMS や CRUD、あるいは一般的なデータベースアプリケーションを考えると、
-    これはまったく現実離れしています。
-    Wordpress や TYPO3、あるいは Symfony で Doctrine/Propel などを使い始めるとすぐに、
+    データベースを扱う一般的なアプリケーションを考えると、これはまったく現実離れしています。
+    たとえば Wordpress や TYPO3、あるいは Symfony で Doctrine や Propel などを使い始めるとすぐに、
     PHPUnit でのテストがやりづらいことを実感するはずです。
-    原因は、データベースとこれらのライブラリが密結合になっているからです。
+    データベースとこれらのライブラリが密結合になっているからです。
   </para>
   <para>
     きっと日々の業務やプロジェクトでも身に覚えがあることでしょう。
@@ -20,13 +19,13 @@
   <orderedlist numeration="arabic">
     <listitem>
       <para>
-        テストしたいメソッドがかなり大きめの join を実行し、
+        テストしたいメソッドがかなり大きめの JOIN 操作を実行し、
         データを使って重要な結果を算出している。
       </para>
     </listitem>
     <listitem>
       <para>
-        ひとつのビジネスロジックの中で select、insert、update そして delete
+        ひとつのビジネスロジックの中で SELECT、INSERT、UPDATE そして DELETE
         を組み合わせて実行している。
       </para>
     </listitem>
@@ -38,18 +37,18 @@
     </listitem>
   </orderedlist>
   <para>
-    DBUnit Extension を使うと、テスト用のデータベースのセットアップを単純化でき、
-    データベース操作後の内容の検証もすることができます。
+    DBUnit 拡張を使うと、テスト用のデータベースのセットアップを単純化でき、
+    データベース操作後の内容の検証もすることができます。次のようにインストールします。
   </para>
+  <screen><userinput>pear install phpunit/DbUnit</userinput></screen>
   <section id="supported-vendors-for-database-testing">
     <title>データベースのテストに対応しているベンダー</title>
     <para>
-      PHPUnit の Database Extension が現在サポートしているのは、MySQL および
-      PostgreSQL、Oracle、SQLite を使ったデータベースのテストです。しかし、
+      DBUnit が現在サポートしているのは、MySQL および
+      PostgreSQL、Oracle、SQLite です。
       <ulink url="http://framework.zend.com">Zend Framework</ulink> や
       <ulink url="http://www.doctrine-project.org">Doctrine 2</ulink>
-      に組み込まれた Database Extension を使うと、
-      IBM DB2 や SQL Server のような他のデータベースにもアクセスできます。
+      を使うと、IBM DB2 や Microsoft SQL Server のような他のデータベースにもアクセスできます。
     </para>
   </section>
   <section id="difficulties-in-database-testing">
@@ -82,7 +81,7 @@
       </listitem>
     </itemizedlist>
     <para>
-      PDO や ext/mysqli あるいは OCI8 といったデータベース API はどれも使いにくい上に、
+      PDO や MySQLi あるいは OCI8 といったデータベース API はどれも使いにくい上に、
       こういった処理を自分で書こうとすると長ったらしくなってしまって面倒です。
     </para>
     <para>
@@ -112,22 +111,20 @@
       問題を解決するために重要です。
     </para>
     <para>
-      PHPUnits の Database Extension を使うと、
+      DbUnit を使うと、
       データベースのテストにおけるこれらの問題をシンプルにする助けになります。
     </para>
     <para>
       PHPUnit では助けようにもどうにもならないことが、
       データベースのテストはデータベースを使わないものに比べてとても遅くなるという事実です。
       テストの実行時間がどれくらいになるかはデータベースとのやりとりの量に依存しますが、
-      今まで聞いた例ではテストスイートの実行に 40 分かかったということがありました。
-      しかし、各テストで使うデータの量を少なめにしておいて
+      各テストで使うデータの量を少なめにしておいて
       可能な限りはデータベースを使わないテストで済ませるようにすれば、
       巨大なテストスイートであっても 1 分未満で実行させるのは容易です。
     </para>
     <para>
       <ulink url="http://www.doctrine-project.org">Doctrine 2 プロジェクト</ulink> がよい例です。
-      Doctrine 2 は強力なオブジェクト-リレーショナル マッパーを実装しており、
-      テストスイートには現時点で約 1000 件のテストが含まれています。
+      このプロジェクトのテストスイートには現時点で約 1000 件のテストが含まれています。
       そのほぼ半数がデータベースを扱うテストですが、
       標準的なデスクトップコンピューター上の MySQL
       を使ってテストスイートを実行しても 15 秒程度でテストが完了します。
