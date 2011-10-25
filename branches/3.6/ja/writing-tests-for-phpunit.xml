@@ -669,6 +669,50 @@ OK (1 test, 1 assertion)</screen>
         クラスのテストはできないようにしました。
       </para>
     </note>
+
+    <para>
+        エラーを引き起こすような PHP の関数、たとえば <literal>fopen</literal>
+        などに依存するテストを行うときには、テスト中にエラーを抑制できれば便利なことがあります。
+        そうすれば、notice のせいで
+        <literal>PHPUnit_Framework_Error_Notice</literal>
+        が出てしまうことなく、返り値だけをチェックできるようになります。
+        <example id="writing-tests-for-phpunit.exceptions.examples.TriggerErrorReturnValue.php">
+
+            <title>PHP のエラーが発生するコードの返り値のテスト</title>
+            <programlisting><![CDATA[<?php
+class ErrorSuppressionTest extends PHPUnit_Framework_TestCase
+{
+    public function testFileWriting() {
+        $writer = new FileWriter;
+        $this->assertFalse(@$writer->write('/is-not-writeable/file', 'stuff'));
+    }
+}
+class FileWriter
+{
+    public function write($file, $content) {
+        $file = fopen($file, 'w');
+        if($file == false) {
+            return false;
+        }
+        // ...
+    }
+}
+
+?>]]></programlisting>
+      <screen><userinput>phpunit ErrorSuppressionTest</userinput>
+PHPUnit 3.6.0 by Sebastian Bergmann.
+
+.
+
+Time: 1 seconds, Memory: 5.25Mb
+
+OK (1 test, 1 assertion)</screen>
+        </example>
+    もしエラーを抑制しなければ、このテストは失敗して
+    <literal>fopen(/is-not-writeable/file): failed to open stream:
+    No such file or directory</literal> となります。
+
+    </para>
   </section>
 
   <section id="writing-tests-for-phpunit.output">
