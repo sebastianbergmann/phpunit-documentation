@@ -316,4 +316,34 @@ if (FALSE) {
       おすすめの方法は、ホワイトリスト方式を使ってコードカバレッジレポートに含めるファイルを制御することです。
     </para>
   </section>
+  <section id="code-coverage-analysis.edge-cases">
+    <title>エッジケース</title>
+
+    <para>
+      ほとんどの場面では、PHPUnit が「行単位の」コードカバレッジ情報を提供してくれると考えて間違いないでしょう。
+      しかし、その情報収集の方法が原因で、特筆すべきエッジケースもいくつか存在します。
+    </para>
+
+    <example id="code-coverage-analysis.edge-cases.examples.Sample.php">
+      <programlisting><![CDATA[<?php
+// カバレッジは「行単位」であって文単位ではないので、
+// 一行にまとめられた行はひとつのカバレッジ状態しか持ちません
+if(false) this_function_call_shows_up_as_covered();
+
+// コードカバレッジの内部動作上、これら 2 行は特別です。
+// 次の行は「実行されていない」となります
+if(false)
+    // 次の行は「実行されている」となります
+    // 実際のところ、ひとつ上の if 文のカバレッジ情報がここに表示されることになるからです!
+    will_also_show_up_as_coveraged();
+
+// これを避けるには、必ず波括弧を使わなければなりません
+if(false) {
+    this_call_will_never_show_up_as_covered();
+}
+?>]]></programlisting>
+    </example>      
+        
+  </section>
+
 </chapter>
