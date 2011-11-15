@@ -317,4 +317,35 @@ if (FALSE) {
       the code coverage report.
     </para>
   </section>
+  <section id="code-coverage-analysis.edge-cases">
+    <title>Edge cases</title>
+
+    <para>
+      For the most part it can safely be said that PHPUnit offers you "line
+      based" code coverage information but due to how that information is
+      collected there are some noteworthy edge cases.
+    </para>
+
+    <example id="code-coverage-analysis.edge-cases.examples.Sample.php">
+      <programlisting><![CDATA[<?php
+// Because it is "line based" and not statement base coverage
+// one line will always have one coverage status
+if(false) this_function_call_shows_up_as_covered();
+
+// Due to how code coverage works internally these two lines are special.
+// This line will show up as non executable
+if(false)
+    // This line will show up as covered because it is actually the 
+    // coverage of the if statement in the line above that gets shown here!
+    will_also_show_up_as_coveraged();
+
+// To avoid this it is necessary that braces are used
+if(false) {
+    this_call_will_never_show_up_as_covered();
+}
+?>]]></programlisting>
+    </example>      
+        
+  </section>
+
 </chapter>
