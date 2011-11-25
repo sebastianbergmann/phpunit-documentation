@@ -4,37 +4,43 @@
   <title>PHPUnit and Selenium</title>
 
   <section id="selenium.selenium-rc">
-    <title>Selenium RC</title>
+    <title>Selenium Server</title>
 
     <para>
-      <indexterm><primary>Selenium RC</primary></indexterm>
+      <indexterm><primary>Selenium Server</primary></indexterm>
 
-      <ulink url="http://seleniumhq.org/projects/remote-control/">Selenium RC</ulink> is a
+      <ulink url="http://seleniumhq.org/">Selenium Server</ulink> is a
       test tool that allows you to write automated user-interface tests for
       web applications in any programming language against any HTTP website
-      using any mainstream browser. It uses
-      <ulink url="http://seleniumhq.org/">Selenium Core</ulink>, a
-      library that performs automated browser tasks using JavaScript. Selenium
-      tests run directly in a browser, just as real users do. These tests can
-      be used for both <emphasis>acceptance testing</emphasis> (by performing
-      higher-level tests on the integrated system instead of just testing each
-      unit of the system independently) and <emphasis>browser compatibility
-      testing</emphasis> (by testing the web application on different
-      operating systems and browsers).
+      using any mainstream browser. It performs automated browser tasks 
+      by driving the browser's process through the operating system.
+      Selenium tests run directly in a browser, just as real users do. These 
+      tests can be used for both <emphasis>acceptance testing</emphasis> 
+      (by performing higher-level tests on the integrated system instead of
+      just testing each unit of the system independently) and <emphasis>browser 
+      compatibility testing</emphasis> (by testing the web application on
+      different operating systems and browsers).
+    </para>
+    
+    <para>
+      The only supported scenario of PHPUnit_Selenium is that of a Selenium 2.x
+      server accessed through the classic Selenium RC Api, already present in 
+      1.x. The reason behind this decision is that Selenium 2 is backward
+      compatible and Selenium RC is not maintained anymore.
     </para>
 
     <para>
-      Let us take a look at how Selenium RC is installed:
+      Let us take a look at how Selenium Server is installed:
     </para>
 
     <orderedlist>
-      <listitem>Download a distribution archive of <ulink url="http://seleniumhq.org/projects/remote-control/">Selenium RC</ulink>.</listitem>
-      <listitem>Unzip the distribution archive and copy <filename>server/selenium-server.jar</filename> to <filename>/usr/local/bin</filename>, for instance.</listitem>
-      <listitem>Start the Selenium RC server by running <userinput>java -jar /usr/local/bin/selenium-server.jar</userinput>.</listitem>
+      <listitem>Download a distribution archive of <ulink url="http://seleniumhq.org/download/">Selenium Server</ulink>.</listitem>
+      <listitem>Unzip the distribution archive and copy <filename>selenium-server-standalone-2.9.0.jar</filename> (check the version suffix) to <filename>/usr/local/bin</filename>, for instance.</listitem>
+      <listitem>Start the Selenium Server server by running <userinput>java -jar /usr/local/bin/selenium-server-standalone-2.9.0.jar</userinput>.</listitem>
     </orderedlist>
 
     <para>
-      Now we can send commands to the Selenium RC server using its client/server
+      Now we can send commands to the Selenium Server using its client/server
       protocol.
     </para>
   </section>
@@ -46,7 +52,7 @@
       <indexterm><primary><literal>PHPUnit_Extensions_SeleniumTestCase</literal></primary></indexterm>
 
       The <literal>PHPUnit_Extensions_SeleniumTestCase</literal> test case
-      extension implements the client/server protocol to talk to Selenium RC as
+      extension implements the client/server protocol to talk to Selenium Server as
       well as specialized assertion methods for web testing. It can be installed
       like this:
     </para>
@@ -103,13 +109,13 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
       Unlike with the <literal>PHPUnit_Framework_TestCase</literal> class,
       test case classes that extend <literal>PHPUnit_Extensions_SeleniumTestCase</literal>
       have to provide a <literal>setUp()</literal> method. This method is used
-      to configure the Selenium RC session. See
+      to configure the Selenium Server session. See
       <xref linkend="selenium.seleniumtestcase.tables.seleniumrc-api.setup" />
       for the list of methods that are available for this.
     </para>
 
     <table id="selenium.seleniumtestcase.tables.seleniumrc-api.setup">
-      <title>Selenium RC API: Setup</title>
+      <title>Selenium Server API: Setup</title>
 
       <tgroup cols="2" align="left" colsep="1" rowsep="1">
         <thead>
@@ -121,7 +127,7 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
         <tbody>
           <row>
             <entry><literal>void setBrowser(string $browser)</literal></entry>
-            <entry>Set the browser to be used by the Selenium RC server.</entry>
+            <entry>Set the browser to be used by the Selenium Server server.</entry>
           </row>
           <row>
             <entry><literal>void setBrowserUrl(string $browserUrl)</literal></entry>
@@ -129,19 +135,19 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
           </row>
           <row>
             <entry><literal>void setHost(string $host)</literal></entry>
-            <entry>Set the hostname for the connection to the Selenium RC server.</entry>
+            <entry>Set the hostname for the connection to the Selenium Server server.</entry>
           </row>
           <row>
             <entry><literal>void setPort(int $port)</literal></entry>
-            <entry>Set the port for the connection to the Selenium RC server.</entry>
+            <entry>Set the port for the connection to the Selenium Server server.</entry>
           </row>
           <row>
             <entry><literal>void setTimeout(int $timeout)</literal></entry>
-            <entry>Set the timeout for the connection to the Selenium RC server.</entry>
+            <entry>Set the timeout for the connection to the Selenium Server server.</entry>
           </row>
           <row>
             <entry><literal>void setSleep(int $seconds)</literal></entry>
-            <entry>Set the number of seconds the Selenium RC client should sleep between sending action commands to the Selenium RC server.</entry>
+            <entry>Set the number of seconds the Selenium Server client should sleep between sending action commands to the Selenium Server server.</entry>
           </row>
         </tbody>
       </tgroup>
@@ -205,7 +211,7 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
       <literal>public static</literal> array named <literal>$browsers</literal>
       in your test case class. Each item in this array describes one browser
       configuration. Each of these browsers can be hosted by different
-      Selenium RC servers.
+      Selenium Server servers.
       <xref linkend="selenium.seleniumtestcase.examples.WebTest3.php" /> shows
       an example.
     </para>
@@ -360,7 +366,7 @@ class WebTest extends PHPUnit_Extensions_SeleniumTestCase
         <tbody>
           <row>
             <entry><literal>void defaultAssertions()</literal></entry>
-            <entry>Override to perform assertions that are shared by all tests of a test case. This method is called after each command that is sent to the Selenium RC server.</entry>
+            <entry>Override to perform assertions that are shared by all tests of a test case. This method is called after each command that is sent to the Selenium Server server.</entry>
           </row>
         </tbody>
       </tgroup>
