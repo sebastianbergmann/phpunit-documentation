@@ -301,6 +301,7 @@ class DataDrivenTest implements PHPUnit_Framework_Test
         foreach ($this->lines as $line) {
             $result->startTest($this);
             PHP_Timer::start();
+            $stopTime = NULL;
 
             list($expected, $actual) = explode(';', $line);
 
@@ -311,14 +312,20 @@ class DataDrivenTest implements PHPUnit_Framework_Test
             }
 
             catch (PHPUnit_Framework_AssertionFailedError $e) {
-                $result->addFailure($this, $e, PHP_Timer::stop());
+                $stopTime = PHP_Timer::stop();
+                $result->addFailure($this, $e, $stopTime);
             }
 
             catch (Exception $e) {
-                $result->addError($this, $e, PHP_Timer::stop()());
+                $stopTime = PHP_Timer::stop();
+                $result->addError($this, $e, $stopTime);
             }
 
-            $result->endTest($this, PHP_Timer::stop());
+            if ($stopTime === NULL) {
+                $stopTime = PHP_Timer::stop();
+            }
+
+            $result->endTest($this, $stopTime);
         }
 
         return $result;
