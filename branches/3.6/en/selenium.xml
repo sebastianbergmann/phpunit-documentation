@@ -105,6 +105,7 @@ FAILURES!
 Tests: 1, Assertions: 1, Failures: 1.]]></screen>
     </example>
 
+
     <para>
       Unlike with the <literal>PHPUnit_Framework_TestCase</literal> class,
       test case classes that extend <literal>PHPUnit_Extensions_SeleniumTestCase</literal>
@@ -376,6 +377,9 @@ class WebTest extends PHPUnit_Extensions_SeleniumTestCase
       Please refer to the <ulink url="http://release.seleniumhq.org/selenium-core/1.0.1/reference.html">documentation of Selenium commands</ulink>
       for a reference of the commands available and how they are used.
     </para>
+    <para>
+    The commands of Selenium 1 are implemented dynamically via __call. Refer also to <ulink url="https://github.com/sebastianbergmann/phpunit-selenium/blob/master/PHPUnit/Extensions/SeleniumTestCase/Driver.php#L410">the API docs for PHPUnit_Extensions_SeleniumTestCase_Driver::__call()</ulink> for a list of all the supported methods on the PHP side, along with arguments and return type where available.
+    </para>
 
     <para>
       Using the <literal>runSelenese($filename)</literal> method, you can also
@@ -399,5 +403,11 @@ class SeleneseTests extends PHPUnit_Extensions_SeleniumTestCase
 }
 ?>]]></programlisting>
     </example>
+
+    <para>
+    From Selenium 1.1.1, an experimental feature is included allowing the user to share the session between tests. The only supported case is to share the session between all tests when a single browser is used.
+    Call <literal>PHPUnit_Extensions_SeleniumTestCase::shareSession(true)</literal> in your bootstrap file to enable session sharing.
+    The session will be reset in the case of not successul tests (failed or incomplete); it is up to the user to avoid interactions between tests by resetting cookies or logging out from the application under test (with a tearDown() method).
+    </para>
   </section>
 </chapter>
