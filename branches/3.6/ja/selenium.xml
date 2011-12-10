@@ -99,6 +99,7 @@ FAILURES!
 Tests: 1, Assertions: 1, Failures: 1.]]></screen>
     </example>
 
+
     <para>
       <literal>PHPUnit_Framework_TestCase</literal> クラスとは異なり、
       <literal>PHPUnit_Extensions_SeleniumTestCase</literal> を継承したテストケースクラスは
@@ -377,6 +378,12 @@ class WebTest extends PHPUnit_Extensions_SeleniumTestCase
       <ulink url="http://release.seleniumhq.org/selenium-core/1.0.1/reference.html">Selenium のドキュメント</ulink>
       を参照ください。
     </para>
+    <para>
+     Selenium 1 のコマンドは、__call で動的に実装されています。
+     <ulink url="https://github.com/sebastianbergmann/phpunit-selenium/blob/master/PHPUnit/Extensions/SeleniumTestCase/Driver.php#L410">
+     PHPUnit_Extensions_SeleniumTestCase_Driver::__call() の API ドキュメント</ulink> に、PHP 側で対応しているすべてのメソッドの一覧があります。
+     また、引数や返り値の型も確認できます。
+    </para>
 
     <para>
       <literal>runSelenese($filename)</literal> メソッドを使用すると、
@@ -401,5 +408,15 @@ class SeleneseTests extends PHPUnit_Extensions_SeleniumTestCase
 }
 ?>]]></programlisting>
     </example>
+
+    <para>
+    Selenium 1.1.1 から取り込まれた実験的な機能として、ユーザーが複数のテストでセッションを共有できるようになりました。
+    現在サポートしているのは、ひとつのブラウザを使うときに全テストでセッションを共有するという場合だけです。
+    セッションの共有機能を使うには、ブートストラップファイルで
+    <literal>PHPUnit_Extensions_SeleniumTestCase::shareSession(true)</literal> をコールします。
+    テストが成功しなかった (失敗、あるいは不完全) 場合は、共有セッションがリセットされます。
+    クッキーをリセットしたり、(tearDown() メソッドで) テスト対象のアプリケーションからログアウトしたりして
+    テストがお互い干渉しあわないようにするのは、ユーザ側の責任となります。
+    </para>
   </section>
 </chapter>
