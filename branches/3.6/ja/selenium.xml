@@ -4,14 +4,14 @@
   <title>PHPUnit と Selenium</title>
 
   <section id="selenium.selenium-rc">
-    <title>Selenium RC</title>
+    <title>Selenium Server</title>
 
     <para>
-      <indexterm><primary>Selenium RC</primary></indexterm>
+      <indexterm><primary>Selenium Server</primary></indexterm>
 
-      <ulink url="http://seleniumhq.org/projects/remote-control/">Selenium RC</ulink>
-      はテストツールのひとつです。これを使用すると、
-      ウェブアプリケーションのユーザインターフェイスについてのテストを自動化することができます。
+      <ulink url="http://seleniumhq.org/">Selenium Server</ulink>
+      はテストツールのひとつです。これは、OS を通してブラウザのプロセスを動かし、
+      ブラウザのタスクを自動実行します。
       あらゆるプログラミング言語で稼動しているウェブサイトに対応しており、
       現在主流のあらゆるブラウザで使用することができます。Selenium RC は
       <ulink url="http://seleniumhq.org/">Selenium Core</ulink>
@@ -24,20 +24,28 @@
       (ウェブアプリケーションを、さまざまなオペレーティングシステムやブラウザでテストする)
       などがあります。
     </para>
+    
+    <para>
+      PHPUnit_Selenium がサポートしている唯一のシナリオは、
+      Selenium 2.x サーバへのアクセスを 1.0 から存在する
+      古い形式の Selenium RC API で行うというものです。
+      なぜそうしたかというと、Selenium 2 には後方互換性があり、
+      Selenium RC がもうメンテナンスされていないからです。
+    </para>
 
     <para>
-      Selenium RC のインストール手順は、次のようになります。
+      Selenium Server のインストール手順は、次のようになります。
     </para>
 
     <orderedlist>
-      <listitem><ulink url="http://seleniumhq.org/projects/remote-control/">Selenium RC</ulink> の配布アーカイブをダウンロードする。</listitem>
-      <listitem>アーカイブを展開し、<filename>server/selenium-server.jar</filename> を <filename>/usr/local/bin</filename> などにコピーする。</listitem>
-      <listitem><userinput>java -jar /usr/local/bin/selenium-server.jar</userinput> などのようにして Selenium RC サーバを起動する。</listitem>
+      <listitem><ulink url="http://seleniumhq.org/download/">Selenium Server</ulink> の配布アーカイブをダウンロードする。</listitem>
+      <listitem>アーカイブを展開し、<filename>selenium-server-standalone-2.9.0.jar</filename> (バージョンをチェックすること) を <filename>/usr/local/bin</filename> などにコピーする。</listitem>
+      <listitem><userinput>java -jar /usr/local/bin/selenium-server-standalone-2.9.0.jar</userinput> などのようにして Selenium RC サーバを起動する。</listitem>
     </orderedlist>
 
     <para>
       これで、クライアント/サーバ プロトコルを用いて
-      Selenium RC サーバにコマンドを送信できるようになりました。
+      Selenium Server にコマンドを送信できるようになりました。
     </para>
   </section>
 
@@ -48,7 +56,7 @@
       <indexterm><primary><literal>PHPUnit_Extensions_SeleniumTestCase</literal></primary></indexterm>
 
       <literal>PHPUnit_Extensions_SeleniumTestCase</literal>
-      は、Selenium RC と通信するための クライアント/サーバ プロトコルを実装したものです。
+      は、Selenium Server と通信するための クライアント/サーバ プロトコルを実装したものです。
       また、ウェブのテスト用に特化したアサーションメソッドも提供します。次のようにインストールします。
     </para>
 
@@ -104,14 +112,14 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
       <literal>PHPUnit_Framework_TestCase</literal> クラスとは異なり、
       <literal>PHPUnit_Extensions_SeleniumTestCase</literal> を継承したテストケースクラスは
       <literal>setUp()</literal> メソッドが必須となります。
-      このメソッド内で、Selenium RC セッションの設定を行います。
+      このメソッド内で、Selenium Server セッションの設定を行います。
       ここで使用できるメソッドの一覧は
       <xref linkend="selenium.seleniumtestcase.tables.seleniumrc-api.setup" />
       を参照ください。
     </para>
 
     <table id="selenium.seleniumtestcase.tables.seleniumrc-api.setup">
-      <title>Selenium RC API: セットアップ</title>
+      <title>Selenium Server API: セットアップ</title>
 
       <tgroup cols="2" align="left" colsep="1" rowsep="1">
         <thead>
@@ -123,7 +131,7 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
         <tbody>
           <row>
             <entry><literal>void setBrowser(string $browser)</literal></entry>
-            <entry>Selenium RC サーバが使用するブラウザを設定します。</entry>
+            <entry>Selenium Server が使用するブラウザを設定します。</entry>
           </row>
           <row>
             <entry><literal>void setBrowserUrl(string $browserUrl)</literal></entry>
@@ -131,19 +139,19 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
           </row>
           <row>
             <entry><literal>void setHost(string $host)</literal></entry>
-            <entry>Selenium RC サーバに接続する際のホスト名を設定します。</entry>
+            <entry>Selenium Server に接続する際のホスト名を設定します。</entry>
           </row>
           <row>
             <entry><literal>void setPort(int $port)</literal></entry>
-            <entry>Selenium RC サーバに接続する際のポートを設定します。</entry>
+            <entry>Selenium Server に接続する際のポートを設定します。</entry>
           </row>
           <row>
             <entry><literal>void setTimeout(int $timeout)</literal></entry>
-            <entry>Selenium RC サーバに接続する際のタイムアウト値を設定します。</entry>
+            <entry>Selenium Server に接続する際のタイムアウト値を設定します。</entry>
           </row>
           <row>
             <entry><literal>void setSleep(int $seconds)</literal></entry>
-            <entry>Selenium RC クライアントが、Selenium RC サーバにアクションコマンドを送信してから待機する秒数を設定します。</entry>
+            <entry>Selenium Server クライアントが、Selenium Server のサーバにアクションコマンドを送信してから待機する秒数を設定します。</entry>
           </row>
         </tbody>
       </tgroup>
@@ -208,7 +216,7 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
       テストケースクラスの中で <literal>$browsers</literal> という名前の
       <literal>public static</literal> な配列を作成します。
       この配列の各項目が個々のブラウザの設定を表します。
-      これらのブラウザは、それぞれ別の Selenium RC サーバで管理することができます。
+      これらのブラウザは、それぞれ別の Selenium Server のサーバで管理することができます。
       <xref linkend="selenium.seleniumtestcase.examples.WebTest3.php" />
       に例を示します。
     </para>
@@ -366,7 +374,7 @@ class WebTest extends PHPUnit_Extensions_SeleniumTestCase
             <entry><literal>void defaultAssertions()</literal></entry>
             <entry>
              テストケース内のすべてのテストで共有するアサーションを上書きします。
-             このメソッドは、Selenium RC サーバにコマンドが送信されるたびに (送信された後に) コールされます。
+             このメソッドは、Selenium Server のサーバにコマンドが送信されるたびに (送信された後に) コールされます。
             </entry>
           </row>
         </tbody>
