@@ -1,0 +1,968 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="test-doubles">
+  <title>テストダブル</title>
+
+  <para>
+    Gerard Meszaros は、テストダブルの概念を
+    <xref linkend="Meszaros2007" /> でこのように述べています。
+  </para>
+
+  <blockquote>
+    <attribution>Gerard Meszaros</attribution>
+    <para>
+      <indexterm><primary>System Under Test</primary></indexterm>
+
+      Sometimes it is just plain hard to test the system under test (SUT)
+      because it depends on other components that cannot be used in the test
+      environment. This could be because they aren't available, they will not
+      return the results needed for the test or because executing them would
+      have undesirable side effects. In other cases, our test strategy requires
+      us to have more control or visibility of the internal behavior of the SUT.
+    </para>
+    <para>
+      - テスト対象のシステム (SUT: system under test)
+      をテストすることは、時に非常に困難なこととなります。というのも、
+      システムが他のコンポーネントに依存しており、
+      そのコンポーネントをテスト環境で利用できないことがあるからです。
+      そもそも使用不可能であったりテストで必要な結果を返さなかったり、
+      あるいは好ましくない副作用があったりといったことです。
+      それ以外の場合も、テスト環境の内部的な振る舞いをきちんと制御して
+      目に見えるようにしておくことが必要です。
+    </para>
+
+    <para>
+      <indexterm><primary>Depended-On Component</primary></indexterm>
+      <indexterm><primary>Test Double</primary></indexterm>
+
+      When we are writing a test in which we cannot (or chose not to) use a real
+      depended-on component (DOC), we can replace it with a Test Double. The
+      Test Double doesn't have to behave exactly like the real DOC; it merely
+      has to provide the same API as the real one so that the SUT thinks it is
+      the real one!
+    </para>
+    <para>
+      - 実際に依存するコンポーネント (DOC: depended-on component)
+      を使わないテストを書く場合は、それをテストダブルで置き換えることができます。
+      テストダブルは、必ずしも実際の DOC
+      とまったく同様に動作する必要はありません。
+      単に実際のものと同じ API を提供し、
+      SUT に「これは本物だ!」と思わせるだけでいいのです。
+    </para>
+  </blockquote>
+
+  <para>
+    PHPUnit の <literal>getMock($className)</literal> メソッドを使うと、
+    指定した元クラスのテストダブルとして振る舞うオブジェクトを自動的に生成することができます。
+    このテストダブルオブジェクトは、元クラスのオブジェクトを要するすべての場面で使うことができます。
+  </para>
+
+  <para>
+    デフォルトでは、元クラスのすべてのメソッドが置き換えられて、
+    (元のメソッドは呼び出さずに) 単に <literal>NULL</literal>
+    を返すだけのダミー実装になります。たとえば
+    <literal>will($this->returnValue())</literal> メソッドを使うと、
+    ダミー実装がコールされたときに値を返すよう設定することができます。
+  </para>
+
+  <note>
+    <title>制限</title>
+
+    <para>
+      <literal>final</literal>, <literal>private</literal> および
+      <literal>static</literal> メソッドのスタブやモックは作れないことに注意しましょう。
+      PHPUnit のテストダブル機能ではこれらを無視し、元のメソッドの振る舞いをそのまま維持します。
+    </para>
+  </note>
+
+  <section id="test-doubles.stubs">
+    <title>スタブ</title>
+
+    <para>
+      <indexterm><primary>Stub</primary></indexterm>
+
+      実際のオブジェクトを置き換えて、
+      設定した何らかの値を (オプションで) 返すようなテストダブルのことを
+      <emphasis>スタブ</emphasis> といいます。
+      <emphasis>スタブ</emphasis> を使うと、
+      「SUT が依存している実際のコンポーネントを置き換え、
+      SUT の入力を間接的にコントロールできるようにすることができます。
+      これにより、SUT が他の何者も実行しないことを強制させることができます。」
+    </para>
+
+    <para>
+      <indexterm><primary>Fluent Interface</primary></indexterm>
+
+      <xref linkend="test-doubles.stubs.examples.StubTest.php" />
+      に、スタブメソッドの作成と返り値の設定の方法を示します。まず、
+      <literal>PHPUnit_Framework_TestCase</literal> クラスの
+      <literal>getMock()</literal> メソッドを用いて
+      <literal>SomeClass</literal> オブジェクトのスタブを作成します
+      (<xref linkend="test-doubles.stubs.examples.SomeClass.php" />)。
+      次に、PHPUnit が提供する、いわゆる
+      <ulink url="http://martinfowler.com/bliki/FluentInterface.html">Fluent Interface</ulink>
+      (<ulink url="http://capsctrl.que.jp/kdmsnr/wiki/bliki/?FluentInterface">流れるようなインターフェイス</ulink>)
+      を用いてスタブの振る舞いを指定します。簡単に言うと、
+      いくつもの一時オブジェクトを作成して、
+      それらを連結するといった操作は必要ないということです。
+      そのかわりに、例にあるようにメソッドの呼び出しを連結します。
+      このほうが、より読みやすく "流れるような" コードとなります。
+    </para>
+
+    <example id="test-doubles.stubs.examples.SomeClass.php">
+      <title>スタブを作りたいクラス</title>
+      <programlisting><![CDATA[<?php
+class SomeClass
+{
+    public function doSomething()
+    {
+        // なにかをします
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <example id="test-doubles.stubs.examples.StubTest.php">
+      <indexterm><primary>getMock()</primary></indexterm>
+      <indexterm><primary>expects()</primary></indexterm>
+      <indexterm><primary>method()</primary></indexterm>
+      <indexterm><primary>will()</primary></indexterm>
+      <indexterm><primary>returnValue()</primary></indexterm>
+      <title>メソッドに固定値を返させるスタブ</title>
+      <programlisting><![CDATA[<?php
+require_once 'SomeClass.php';
+
+class StubTest extends PHPUnit_Framework_TestCase
+{
+    public function testStub()
+    {
+        // SomeClass クラスのスタブを作成します
+        $stub = $this->getMock('SomeClass');
+
+        // スタブの設定を行います
+        $stub->expects($this->any())
+             ->method('doSomething')
+             ->will($this->returnValue('foo'));
+
+        // $stub->doSomething() をコールすると
+        // 'foo' を返すようになります
+        $this->assertEquals('foo', $stub->doSomething());
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      舞台裏では、<literal>getMock()</literal> メソッドが使われたときに
+      PHPUnit が自動的に、求める振る舞いを実装した新たな PHP のクラスを生成しています。
+      生成されるテストダブルクラスの設定は、
+      <literal>getMock()</literal> メソッドのオプションの引数を使って行います。
+    </para>
+
+    <itemizedlist>
+      <listitem><para>デフォルトでは、指定したクラスのすべてのメソッドが単に <literal>NULL</literal> を返すだけのテストダブルとなります。返り値を変更するには、たとえば <literal>will($this->returnValue())</literal> を使います。</para></listitem>
+      <listitem><para>オプションの第二パラメータを指定すると、その配列の中に含まれる名前のメソッドだけがテストダブルに置き換えらて、その他のメソッドはそのままとなります。</para></listitem>
+      <listitem><para>オプションの第三パラメータには、元クラスのコンストラクタに渡すパラメータの配列を渡します (デフォルトでは、コンストラクタはダミー実装に置き換えられません)。</para></listitem>
+      <listitem><para>オプションの第四パラメータを使うと、生成されるテストダブルクラスのクラス名を指定することができます。</para></listitem>
+      <listitem><para>オプションの第五パラメータを使うと、元クラスのコンストラクタを呼び出さないようにすることができます。</para></listitem>
+      <listitem><para>オプションの第六パラメータを使うと、元クラスの clone コンストラクタを呼び出さないようにすることができます。</para></listitem>
+      <listitem><para>オプションの第七パラメータを使うと、テストダブルクラスの生成時に <literal>__autoload()</literal> を無効にすることができます。</para></listitem>
+    </itemizedlist>
+
+    <para>
+      もうひとつのやり方として、生成されたテストダブルクラスの設定を
+      モックビルダー API で行うことができます。
+      <xref linkend="test-doubles.stubs.examples.StubTest2.php"/> に例を示します。
+      モックビルダーで使えるメソッドの一覧は次のとおりです。
+    </para>
+
+    <itemizedlist>
+      <listitem><para><literal>setMethods(array $methods)</literal> をモックビルダーオブジェクト上でコールすると、テストダブルで置き換えるメソッドを指定することができます。その他のメソッドの挙動は変更しません。</para></listitem>
+      <listitem><para><literal>setConstructorArgs(array $args)</literal> をコールしてパラメータの配列を渡すと、それを元クラスのコンストラクタに渡すことができます (デフォルトのダミー実装では、コンストラクタは置き換えません)。</para></listitem>
+      <listitem><para><literal>setMockClassName($name)</literal> を使うと、生成されるテストダブルクラスのクラス名を指定することができます。</para></listitem>
+      <listitem><para><literal>disableOriginalConstructor()</literal> を使うと、元クラスのコンストラクタを無効にすることができます。</para></listitem>
+      <listitem><para><literal>disableOriginalClone()</literal> を使うと、元クラスのクローンコンストラクタを無効にすることができます。</para></listitem>
+      <listitem><para><literal>disableAutoload()</literal> を使うと、テストダブルクラスを生成するときに <literal>__autoload()</literal> を無効にすることができます。</para></listitem>
+    </itemizedlist>
+
+    <example id="test-doubles.stubs.examples.StubTest2.php">
+      <indexterm><primary>getMockBuilder()</primary></indexterm>
+      <indexterm><primary>expects()</primary></indexterm>
+      <indexterm><primary>method()</primary></indexterm>
+      <indexterm><primary>will()</primary></indexterm>
+      <indexterm><primary>returnValue()</primary></indexterm>
+      <title>モックビルダー API を使った、生成されるテストダブルクラスの変更</title>
+      <programlisting><![CDATA[<?php
+require_once 'SomeClass.php';
+
+class StubTest extends PHPUnit_Framework_TestCase
+{
+    public function testStub()
+    {
+        // SomeClass クラスのスタブを作成します
+        $stub = $this->getMockBuilder('SomeClass')
+                     ->disableOriginalConstructor()
+                     ->getMock();
+
+        // スタブの設定を行います
+        $stub->expects($this->any())
+             ->method('doSomething')
+             ->will($this->returnValue('foo'));
+
+        // $stub->doSomething() をコールすると
+        // 'foo' を返すようになります
+        $this->assertEquals('foo', $stub->doSomething());
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      時には、メソッドをコールした際の引数のひとつを
+      (そのまま) スタブメソッドコールの返り値としたいこともあるでしょう。
+      <xref linkend="test-doubles.stubs.examples.StubTest3.php"/> は、
+      <literal>returnValue()</literal> のかわりに
+      <literal>returnArgument()</literal> を用いてこれを実現する例です。
+    </para>
+
+    <example id="test-doubles.stubs.examples.StubTest3.php">
+      <indexterm><primary>getMock()</primary></indexterm>
+      <indexterm><primary>expects()</primary></indexterm>
+      <indexterm><primary>method()</primary></indexterm>
+      <indexterm><primary>will()</primary></indexterm>
+      <indexterm><primary>returnArgument()</primary></indexterm>
+      <title>メソッドに引数のひとつを返させるスタブ</title>
+      <programlisting><![CDATA[<?php
+require_once 'SomeClass.php';
+
+class StubTest extends PHPUnit_Framework_TestCase
+{
+    public function testReturnArgumentStub()
+    {
+        // SomeClass クラスのスタブを作成します
+        $stub = $this->getMock('SomeClass');
+
+        // スタブの設定を行います
+        $stub->expects($this->any())
+             ->method('doSomething')
+             ->will($this->returnArgument(0));
+
+        // $stub->doSomething('foo') は 'foo' を返します
+        $this->assertEquals('foo', $stub->doSomething('foo'));
+
+        // $stub->doSomething('bar') は 'bar' を返します
+        $this->assertEquals('bar', $stub->doSomething('bar'));
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      流れるようなインターフェイスをテストするときには、
+      スタブメソッドがオブジェクト自身への参照を返すようにできると便利です。
+      <xref linkend="test-doubles.stubs.examples.StubTest4.php"/> は、
+      <literal>returnSelf()</literal> を使ってこれを実現する例です。
+    </para>
+
+    <example id="test-doubles.stubs.examples.StubTest4.php">
+      <indexterm><primary>getMock()</primary></indexterm>
+      <indexterm><primary>expects()</primary></indexterm>
+      <indexterm><primary>method()</primary></indexterm>
+      <indexterm><primary>will()</primary></indexterm>
+      <indexterm><primary>returnSelf()</primary></indexterm>
+      <title>スタブオブジェクトへの参照を返すメソッドのスタブ</title>
+      <programlisting><![CDATA[<?php
+require_once 'SomeClass.php';
+
+class StubTest extends PHPUnit_Framework_TestCase
+{
+    public function testReturnSelf()
+    {
+        // SomeClass クラスのスタブを作成します
+        $stub = $this->getMock('SomeClass');
+
+        // スタブの設定を行います
+        $stub->expects($this->any())
+             ->method('doSomething')
+             ->will($this->returnSelf());
+
+        // $stub->doSomething() は $stub を返します
+        $this->assertSame($stub, $stub->doSomething());
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      スタブメソッドをコールした結果として、
+      定義済みの引数リストにあわせて異なる値を返さなければならないこともあるでしょう。
+      <literal>returnValueMap()</literal> を使えば、
+      マップを作って引数と関連付け、それを返り値に対応させることができます。
+      <xref linkend="test-doubles.stubs.examples.StubTest5.php"/> を参照ください。
+    </para>
+
+    <example id="test-doubles.stubs.examples.StubTest5.php">
+      <indexterm><primary>getMock()</primary></indexterm>
+      <indexterm><primary>expects()</primary></indexterm>
+      <indexterm><primary>method()</primary></indexterm>
+      <indexterm><primary>will()</primary></indexterm>
+      <indexterm><primary>returnValueMap()</primary></indexterm>
+      <title>メソッドにマップからの値を返させるスタブ</title>
+      <programlisting><![CDATA[<?php
+require_once 'SomeClass.php';
+
+class StubTest extends PHPUnit_Framework_TestCase
+{
+    public function testReturnValueMapStub()
+    {
+        // SomeClass クラスのスタブを作成します
+        $stub = $this->getMock('SomeClass');
+
+        // 値を返すための、引数のマップを作製します
+        $map = array(
+          array('a', 'b', 'c', 'd'),
+          array('e', 'f', 'g', 'h')
+        );
+
+        // スタブの設定を行います
+        $stub->expects($this->any())
+             ->method('doSomething')
+             ->will($this->returnValueMap($map));
+
+        // $stub->doSomething() は、渡した引数に応じて異なる値を返します
+        $this->assertEquals('d', $stub->doSomething('a', 'b', 'c'));
+        $this->assertEquals('h', $stub->doSomething('e', 'f', 'g'));
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      スタブメソッドをコールした結果として固定値
+      (<literal>returnValue()</literal> を参照ください) や (不変の) 引数
+      (<literal>returnArgument()</literal> を参照ください)
+      ではなく計算した値を返したい場合は、
+      <literal>returnCallback()</literal> を使用します。
+      これは、スタブメソッドからコールバック関数やメソッドの結果を返させます。
+      <xref linkend="test-doubles.stubs.examples.StubTest6.php"/>
+      を参照ください。
+    </para>
+
+    <example id="test-doubles.stubs.examples.StubTest6.php">
+      <indexterm><primary>getMock()</primary></indexterm>
+      <indexterm><primary>expects()</primary></indexterm>
+      <indexterm><primary>method()</primary></indexterm>
+      <indexterm><primary>will()</primary></indexterm>
+      <indexterm><primary>returnCallback()</primary></indexterm>
+      <title>メソッドにコールバックからの値を返させるスタブ</title>
+      <programlisting><![CDATA[<?php
+require_once 'SomeClass.php';
+
+class StubTest extends PHPUnit_Framework_TestCase
+{
+    public function testReturnCallbackStub()
+    {
+        // SomeClass クラスのスタブを作成します
+        $stub = $this->getMock('SomeClass');
+
+        // スタブの設定を行います
+        $stub->expects($this->any())
+             ->method('doSomething')
+             ->will($this->returnCallback('str_rot13'));
+
+        // $stub->doSomething($argument) は str_rot13($argument) を返します
+        $this->assertEquals('fbzrguvat', $stub->doSomething('something'));
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      コールバックメソッドを設定するよりももう少しシンプルな方法として、
+      希望する返り値のリストを指定することもできます。この場合に使うのは
+      <literal>onConsecutiveCalls()</literal> メソッドです。
+      <xref linkend="test-doubles.stubs.examples.StubTest7.php"/>
+      の例を参照ください。
+    </para>
+
+    <example id="test-doubles.stubs.examples.StubTest7.php">
+      <indexterm><primary>getMock()</primary></indexterm>
+      <indexterm><primary>expects()</primary></indexterm>
+      <indexterm><primary>method()</primary></indexterm>
+      <indexterm><primary>will()</primary></indexterm>
+      <indexterm><primary>onConsecutiveCalls()</primary></indexterm>
+      <title>メソッドに、リストで指定した値をその順で返させるスタブ</title>
+      <programlisting><![CDATA[<?php
+require_once 'SomeClass.php';
+
+class StubTest extends PHPUnit_Framework_TestCase
+{
+    public function testOnConsecutiveCallsStub()
+    {
+        // SomeClass クラスのスタブを作成します
+        $stub = $this->getMock('SomeClass');
+
+        // スタブの設定を行います
+        $stub->expects($this->any())
+             ->method('doSomething')
+             ->will($this->onConsecutiveCalls(2, 3, 5, 7));
+
+        // $stub->doSomething() は毎回異なる値を返します
+        $this->assertEquals(2, $stub->doSomething());
+        $this->assertEquals(3, $stub->doSomething());
+        $this->assertEquals(5, $stub->doSomething());
+    }
+}
+?>]]></programlisting>
+    </example>
+
+
+    <para>
+      値を返すのではなく、スタブメソッドで例外を発生させることもできます。
+      <xref linkend="test-doubles.stubs.examples.StubTest8.php"/>
+      に、<literal>throwException()</literal> でこれを行う方法を示します。
+    </para>
+
+    <example id="test-doubles.stubs.examples.StubTest8.php">
+      <indexterm><primary>getMock()</primary></indexterm>
+      <indexterm><primary>expects()</primary></indexterm>
+      <indexterm><primary>method()</primary></indexterm>
+      <indexterm><primary>will()</primary></indexterm>
+      <indexterm><primary>throwException()</primary></indexterm>
+      <title>メソッドに例外をスローさせるスタブ</title>
+      <programlisting><![CDATA[<?php
+require_once 'SomeClass.php';
+
+class StubTest extends PHPUnit_Framework_TestCase
+{
+    public function testThrowExceptionStub()
+    {
+        // SomeClass クラスのスタブを作成します
+        $stub = $this->getMock('SomeClass');
+
+        // スタブの設定を行います
+        $stub->expects($this->any())
+             ->method('doSomething')
+             ->will($this->throwException(new Exception));
+
+        // $stub->doSomething() は例外をスローします
+        $stub->doSomething();
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      また、スタブを使用することで、よりよい設計を行うことができるようにもなります。
+      あちこちで使用されているリソースを単一の窓口 (façade : ファサード)
+      経由でアクセスするようにすることで、
+      それを簡単にスタブに置き換えられるようになります。例えば、
+      データベースへのアクセスのコードをそこらじゅうにちりばめるのではなく、
+      その代わりに <literal>IDatabase</literal> インターフェイスを実装した単一の
+      <literal>Database</literal> オブジェクトを使用するようにします。すると、
+      <literal>IDatabase</literal> を実装したスタブを作成することで、
+      それをテストに使用できるようになるのです。同時に、
+      テストを行う際にスタブデータベースを使用するか
+      本物のデータベースを使用するかを選択できるようになります。
+      つまり開発時にはローカル環境でテストし、
+      統合テスト時には実際のデータベースでテストするといったことができるようになるのです。
+    </para>
+
+    <para>
+      スタブ化しなければならない機能は、たいてい同一オブジェクト内で密結合しています。
+      この機能ををひとつの結合したインターフェイスにまとめることで、
+      システムのそれ以外の部分との結合を緩やかにすることができます。
+    </para>
+  </section>
+
+  <section id="test-doubles.mock-objects">
+    <title>モックオブジェクト</title>
+
+    <para>
+      実際のオブジェクトを置き換えて、
+      (メソッドがコールされたことなどの) 期待する内容を検証するテストダブルのことを
+      <emphasis>モック</emphasis> といいます。
+    </para>
+
+    <para>
+      <indexterm><primary>Mock Object</primary></indexterm>
+
+      <emphasis>モックオブジェクト</emphasis> は
+      SUT の間接的な出力の内容を検証するために使用する観測地点です。
+      一般的に、モックオブジェクトにはテスト用スタブの機能も含まれます。
+      まだテストに失敗していない場合に、間接的な出力の検証用の値を SUT に返す機能です。
+      したがって、モックオブジェクトとは
+      テスト用スタブにアサーション機能を足しただけのものとは異なります。
+      それ以外の用途にも使うことができます。
+    </para>
+
+    <para>
+      ひとつ例を示します。ここでは、別のオブジェクトを観察している
+      あるオブジェクトの特定のメソッド (この例では <literal>update()</literal>)
+      が正しくコールされたかどうかを調べるものとします。
+      <xref linkend="test-doubles.mock-objects.examples.SUT.php"/>
+      は、テスト対象のシステム (SUT) の一部である
+      <literal>Subject</literal> クラスと <literal>Observer</literal> クラスのコードです。
+    </para>
+
+    <example id="test-doubles.mock-objects.examples.SUT.php">
+      <title>テスト対象のシステム (SUT) の一部である Subject クラスと Observer クラス</title>
+      <programlisting><![CDATA[<?php
+class Subject
+{
+    protected $observers = array();
+
+    public function attach(Observer $observer)
+    {
+        $this->observers[] = $observer;
+    }
+
+    public function doSomething()
+    {
+        // なにかをします
+        // ...
+
+        // なにかしたということをオブザーバに通知します
+        $this->notify('something');
+    }
+
+    public function doSomethingBad()
+    {
+        foreach ($this->observers as $observer) {
+            $observer->reportError(42, 'Something bad happened', $this);
+        }
+    }
+
+    protected function notify($argument)
+    {
+        foreach ($this->observers as $observer) {
+            $observer->update($argument);
+        }
+    }
+
+    // その他のメソッド
+}
+
+class Observer
+{
+    public function update($argument)
+    {
+        // なにかをします
+    }
+
+    public function reportError($errorCode, $errorMessage, Subject $subject)
+    {
+        // なにかをします
+    }
+
+    // その他のメソッド
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      <indexterm><primary>Mock Object</primary></indexterm>
+
+      <xref linkend="test-doubles.mock-objects.examples.SubjectTest.php" />
+      では、モックオブジェクトを作成して
+      <literal>Subject</literal> オブジェクトと <literal>Observer</literal>
+      オブジェクトの対話をテストする方法を説明します。
+    </para>
+
+    <para>
+      まず
+      <literal>PHPUnit_Framework_TestCase</literal> クラスの
+      <literal>getMock()</literal> メソッド
+      を使用して <literal>Observer</literal> のモックオブジェクトを作成します。
+      <literal>getMock()</literal> メソッドの二番目の (オプションの)
+      パラメータに配列を指定しているので、<literal>Observer</literal>
+      クラスの中の <literal>update()</literal> メソッドについてのみモック実装が作成されます。
+    </para>
+
+    <example id="test-doubles.mock-objects.examples.SubjectTest.php">
+      <title>あるメソッドが、指定した引数で一度だけコールされることを確かめるテスト</title>
+      <programlisting><![CDATA[<?php
+class SubjectTest extends PHPUnit_Framework_TestCase
+{
+    public function testObserversAreUpdated()
+    {
+        // Observer クラスのモックを作成します。
+        // update() メソッドのみのモックです。
+        $observer = $this->getMock('Observer', array('update'));
+
+        // update() メソッドが一度だけコールされ、その際の
+        // パラメータは文字列 'something' となる、
+        // ということを期待しています。
+        $observer->expects($this->once())
+                 ->method('update')
+                 ->with($this->equalTo('something'));
+
+        // Subject オブジェクトを作成し、Observer オブジェクトの
+        // モックをアタッチします。
+        $subject = new Subject;
+        $subject->attach($observer);
+
+        // $subject オブジェクトの doSomething() メソッドをコールします。
+        // これは、Observer オブジェクトのモックの update() メソッドを、
+        // 文字列 'something' を引数としてコールすることを期待されています。
+        $subject->doSomething();
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      <literal>with()</literal> メソッドには任意の数の引数を渡すことができます。
+      これは、モック対象のメソッドのパラメータ数に対応します。
+      メソッドの引数に対して、単なるマッチだけでなくより高度な制約を指定することもできます。
+    </para>
+
+    <example id="test-doubles.mock-objects.examples.MultiParameterTest.php">
+      <title>メソッドが引数つきでコールされることを、さまざまな制約の下でテストする例</title>
+      <programlisting><![CDATA[<?php
+class SubjectTest extends PHPUnit_Framework_TestCase
+{
+    public function testErrorReported()
+    {
+        // Observer クラスのモックを作成します。
+        // reportError() メソッドをモックします。
+        $observer = $this->getMock('Observer', array('reportError'));
+
+        $observer->expects($this->once())
+                 ->method('reportError')
+                 ->with($this->greaterThan(0),
+                        $this->stringContains('Something'),
+                        $this->anything());
+
+        $subject = new Subject;
+        $subject->attach($observer);
+
+        // doSomethingBad() メソッドは、
+        // reportError() メソッドを通じてオブザーバにエラーを報告しなければなりません。
+        $subject->doSomethingBad();
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      <xref linkend="writing-tests-for-phpunit.assertions.assertThat.tables.constraints"/>
+      はメソッドの引数に適用できる制約、そして
+      <xref linkend="test-doubles.mock-objects.tables.matchers"/>
+      は起動回数を指定するために使える matcher です。
+    </para>
+
+    <table id="test-doubles.mock-objects.tables.matchers">
+      <title>Matchers</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>Matcher</entry>
+            <entry>意味</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>PHPUnit_Framework_MockObject_Matcher_AnyInvokedCount any()</literal></entry>
+            <entry>評価対象のメソッドがゼロ回以上実行された際にマッチするオブジェクトを返します。</entry>
+          </row>
+          <row>
+            <entry><literal>PHPUnit_Framework_MockObject_Matcher_InvokedCount never()</literal></entry>
+            <entry>評価対象のメソッドが実行されなかった際にマッチするオブジェクトを返します。</entry>
+          </row>
+          <row>
+            <entry><literal>PHPUnit_Framework_MockObject_Matcher_InvokedAtLeastOnce atLeastOnce()</literal></entry>
+            <entry>評価対象のメソッドが最低一回以上実行された際にマッチするオブジェクトを返します。</entry>
+          </row>
+          <row>
+            <entry><literal>PHPUnit_Framework_MockObject_Matcher_InvokedCount once()</literal></entry>
+            <entry>評価対象のメソッドが一度だけ実行された際にマッチするオブジェクトを返します。</entry>
+          </row>
+          <row>
+            <entry><literal>PHPUnit_Framework_MockObject_Matcher_InvokedCount exactly(int $count)</literal></entry>
+            <entry>評価対象のメソッドが指定した回数だけ実行された際にマッチするオブジェクトを返します。</entry>
+          </row>
+          <row>
+            <entry><literal>PHPUnit_Framework_MockObject_Matcher_InvokedAtIndex at(int $index)</literal></entry>
+            <entry>評価対象のメソッドが <literal>$index</literal> 回目に実行された際にマッチするオブジェクトを返します。</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <para>
+      <indexterm><primary>getMockForAbstractClass()</primary></indexterm>
+
+      <literal>getMockForAbstractClass()</literal> メソッドは、
+      抽象クラスのモックオブジェクトを返します。
+      そのクラスのすべての抽象メソッドがモックの対象となります。
+      これを使えば、抽象クラスにある具象メソッドをテストすることができます。
+    </para>
+
+    <example id="test-doubles.mock-objects.examples.AbstractClassTest.php">
+      <title>抽象クラスの具象メソッドのテスト</title>
+      <programlisting><![CDATA[<?php
+abstract class AbstractClass
+{
+    public function concreteMethod()
+    {
+        return $this->abstractMethod();
+    }
+
+    public abstract function abstractMethod();
+}
+
+class AbstractClassTest extends PHPUnit_Framework_TestCase
+{
+    public function testConcreteMethod()
+    {
+        $stub = $this->getMockForAbstractClass('AbstractClass');
+        $stub->expects($this->any())
+             ->method('abstractMethod')
+             ->will($this->returnValue(TRUE));
+
+        $this->assertTrue($stub->concreteMethod());
+    }
+}
+?>]]></programlisting>
+    </example>
+  </section>
+
+  <section id="test-doubles.stubbing-and-mocking-web-services">
+    <title>ウェブサービスのスタブおよびモック</title>
+
+    <para>
+      <indexterm><primary>getMockFromWsdl()</primary></indexterm>
+
+      ウェブサービスとのやりとりを行うアプリケーションを、
+      実際にウェブサービスとやりとりすることなくテストしたくなることもあるでしょう。
+      ウェブサービスのスタブやモックを作りやすくするために <literal>getMockFromWsdl()</literal>
+      メソッドが用意されており、これは <literal>getMock()</literal> (上を参照ください)
+      とほぼ同様に使うことができます。唯一の違いは、
+      <literal>getMockFromWsdl()</literal> が返すスタブやモックが WSDL
+      のウェブサービス記述にもとづくものであるのに対して <literal>getMock()</literal>
+      が返すスタブやモックが PHP のクラスやインターフェイスにもとづくものであるという点です。
+    </para>
+
+    <para>
+      <xref linkend="test-doubles.stubbing-and-mocking-web-services.examples.GoogleTest.php"/>
+      は、<literal>getMockFromWsdl()</literal> を使って
+      <filename>GoogleSearch.wsdl</filename> に記述されたウェブサービスのスタブを作る例です。
+    </para>
+
+    <example id="test-doubles.stubbing-and-mocking-web-services.examples.GoogleTest.php">
+      <title>ウェブサービスのスタブ</title>
+      <programlisting><![CDATA[<?php
+class GoogleTest extends PHPUnit_Framework_TestCase
+{
+    public function testSearch()
+    {
+        $googleSearch = $this->getMockFromWsdl(
+          'GoogleSearch.wsdl', 'GoogleSearch'
+        );
+
+        $directoryCategory = new StdClass;
+        $directoryCategory->fullViewableName = '';
+        $directoryCategory->specialEncoding = '';
+
+        $element = new StdClass;
+        $element->summary = '';
+        $element->URL = 'http://www.phpunit.de/';
+        $element->snippet = '...';
+        $element->title = '<b>PHPUnit</b>';
+        $element->cachedSize = '11k';
+        $element->relatedInformationPresent = TRUE;
+        $element->hostName = 'www.phpunit.de';
+        $element->directoryCategory = $directoryCategory;
+        $element->directoryTitle = '';
+
+        $result = new StdClass;
+        $result->documentFiltering = FALSE;
+        $result->searchComments = '';
+        $result->estimatedTotalResultsCount = 378000;
+        $result->estimateIsExact = FALSE;
+        $result->resultElements = array($element);
+        $result->searchQuery = 'PHPUnit';
+        $result->startIndex = 1;
+        $result->endIndex = 1;
+        $result->searchTips = '';
+        $result->directoryCategories = array();
+        $result->searchTime = 0.248822;
+
+        $googleSearch->expects($this->any())
+                     ->method('doGoogleSearch')
+                     ->will($this->returnValue($result));
+
+        /**
+         * $googleSearch->doGoogleSearch() はスタブが用意した結果を返し、
+         * ウェブサービスの doGoogleSearch() が呼び出されることはありません
+         */
+        $this->assertEquals(
+          $result,
+          $googleSearch->doGoogleSearch(
+            '00000000000000000000000000000000',
+            'PHPUnit',
+            0,
+            1,
+            FALSE,
+            '',
+            FALSE,
+            '',
+            '',
+            ''
+          )
+        );
+    }
+}
+?>]]></programlisting>
+    </example>
+  </section>
+
+  <section id="test-doubles.mocking-the-filesystem">
+    <title>ファイルシステムのモック</title>
+
+    <para>
+      <ulink url="http://code.google.com/p/bovigo/wiki/vfsStream">vfsStream</ulink> は
+      <ulink url="http://ja.wikipedia.org/wiki/仮想ファイルシステム">仮想ファイルシステム</ulink>
+      用の <ulink url="http://www.php.net/streams">ストリームラッパー</ulink> で、
+      ユニットテストにおいて実際のファイルシステムのモックを作るときに有用です。
+    </para>
+
+    <para>
+      vfsStream をインストールするには、配布元の PEAR チャンネル
+      (<systemitem role="URL">pear.php-tools.net</systemitem>)
+      をローカルの PEAR 環境に登録しなければなりません。
+    </para>
+
+    <screen><userinput>pear channel-discover pear.php-tools.net</userinput></screen>
+
+    <para>
+      これが必要なのは最初の一度だけです。これで、
+      PEAR インストーラを使って vfsStream をインストールできるようになりました。
+    </para>
+
+    <screen><userinput>pear install pat/vfsStream-beta</userinput></screen>
+
+    <para>
+      <xref linkend="test-doubles.mocking-the-filesystem.examples.Example.php"/>
+      は、ファイルシステムを操作するクラスの例です。
+    </para>
+
+    <example id="test-doubles.mocking-the-filesystem.examples.Example.php">
+      <title>ファイルシステムを操作するクラス</title>
+      <programlisting><![CDATA[<?php
+class Example
+{
+    protected $id;
+    protected $directory;
+
+    public function __construct($id)
+    {
+        $this->id = $id;
+    }
+
+    public function setDirectory($directory)
+    {
+        $this->directory = $directory . DIRECTORY_SEPARATOR . $this->id;
+
+        if (!file_exists($this->directory)) {
+            mkdir($this->directory, 0700, TRUE);
+        }
+    }
+}?>]]></programlisting>
+    </example>
+
+    <para>
+      vfsStream のような仮想ファイルシステムがなければ、外部への影響なしに
+      <literal>setDirectory()</literal> メソッドを個別にテストすることができません
+      (<xref linkend="test-doubles.mocking-the-filesystem.examples.ExampleTest.php"/>
+      を参照ください)。
+    </para>
+
+    <example id="test-doubles.mocking-the-filesystem.examples.ExampleTest.php">
+      <title>ファイルシステムを操作するクラスのテスト</title>
+      <programlisting><![CDATA[<?php
+require_once 'Example.php';
+
+class ExampleTest extends PHPUnit_Framework_TestCase
+{
+    protected function setUp()
+    {
+        if (file_exists(dirname(__FILE__) . '/id')) {
+            rmdir(dirname(__FILE__) . '/id');
+        }
+    }
+
+    public function testDirectoryIsCreated()
+    {
+        $example = new Example('id');
+        $this->assertFalse(file_exists(dirname(__FILE__) . '/id'));
+
+        $example->setDirectory(dirname(__FILE__));
+        $this->assertTrue(file_exists(dirname(__FILE__) . '/id'));
+    }
+
+    protected function tearDown()
+    {
+        if (file_exists(dirname(__FILE__) . '/id')) {
+            rmdir(dirname(__FILE__) . '/id');
+        }
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      この方式には、次のような問題があります。
+    </para>
+
+    <itemizedlist>
+      <listitem><para>外部のリソースを使うため、ファイルシステムのテストが断続的になる可能性があります。その結果、テストがあまり当てにならないものになります。</para></listitem>
+      <listitem><para><literal>setUp()</literal> と <literal>tearDown()</literal> で、テストの前後にそのディレクトリがないことを確認する必要があります。</para></listitem>
+      <listitem><para><literal>tearDown()</literal> メソッドを実行する前にテストが異常終了したときに、ファイルシステム上にディレクトリが残ったままとなります。</para></listitem>
+    </itemizedlist>
+
+    <para>
+      <xref linkend="test-doubles.mocking-the-filesystem.examples.ExampleTest2.php"/>
+      は、vfsStream を使ってファイルシステムのモックを作成し、
+      ファイルシステムを操作するクラスのテストを行う例です。
+    </para>
+
+    <example id="test-doubles.mocking-the-filesystem.examples.ExampleTest2.php">
+      <title>ファイルシステムを操作するクラスのテストにおけるファイルシステムのモックの作成</title>
+      <programlisting><![CDATA[<?php
+require_once 'vfsStream/vfsStream.php';
+require_once 'Example.php';
+
+class ExampleTest extends PHPUnit_Framework_TestCase
+{
+    public function setUp()
+    {
+        vfsStreamWrapper::register();
+        vfsStreamWrapper::setRoot(new vfsStreamDirectory('exampleDir'));
+    }
+
+    public function testDirectoryIsCreated()
+    {
+        $example = new Example('id');
+        $this->assertFalse(vfsStreamWrapper::getRoot()->hasChild('id'));
+
+        $example->setDirectory(vfsStream::url('exampleDir'));
+        $this->assertTrue(vfsStreamWrapper::getRoot()->hasChild('id'));
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      この方式には次のような利点があります。
+    </para>
+
+    <itemizedlist>
+      <listitem><para>テストが簡潔になります。</para></listitem>
+      <listitem><para>vfsStream が、テスト対象のコードから操作するファイルシステム環境を用意してくれるので、開発者はそれを自由に扱えるようになります。</para></listitem>
+      <listitem><para>実際のファイルシステムを操作することがなくなるので、<literal>tearDown()</literal> メソッドでの後始末が不要になります。</para></listitem>
+    </itemizedlist>
+  </section>
+</chapter>

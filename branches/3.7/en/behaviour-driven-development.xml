@@ -1,0 +1,354 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="behaviour-driven-development">
+  <title>Behaviour-Driven Development</title>
+
+  <para>
+    <indexterm><primary>Extreme Programming</primary></indexterm>
+    <indexterm><primary>Test-Driven Development</primary></indexterm>
+
+    In <xref linkend="Astels2006" />, Dave Astels makes the following points:
+  </para>
+
+  <itemizedlist>
+    <listitem>
+      <para>
+        <ulink url="http://en.wikipedia.org/wiki/Extreme_Programming">Extreme Programming</ulink>
+        originally had the rule to test everything that could possibly break.
+      </para>
+    </listitem>
+    <listitem>
+      <para>
+        Now, however, the practice of testing in Extreme Programming has evolved
+        into <ulink url="http://en.wikipedia.org/wiki/Test-driven_development">Test-Driven Development</ulink>
+        (see <xref linkend="test-driven-development" />).
+      </para>
+    </listitem>
+    <listitem>
+      <para>
+        But the tools still force developers to think in terms of tests and
+        assertions instead of specifications.
+      </para>
+    </listitem>
+  </itemizedlist>
+
+  <blockquote>
+    <attribution>Dave Astels</attribution>
+    <title>So if it's not about testing, what's it about?</title>
+    <para>
+      It's about figuring out what you are trying to do before you run off
+      half-cocked to try to do it. You write a specification that nails down a
+      small aspect of behaviour in a concise, unambiguous, and executable form.
+      It's that simple. Does that mean you write tests? No. It means you write
+      specifications of what your code will have to do. It means you specify the
+      behaviour of your code ahead of time. But not far ahead of time. In fact,
+      just before you write the code is best because that's when you have as
+      much information at hand as you will up to that point. Like well done TDD,
+      you work in tiny increments... specifying one small aspect of behaviour at
+      a time, then implementing it.
+    </para>
+    <para>
+      When you realize that it's all about specifying behaviour and not writing
+      tests, your point of view shifts. Suddenly the idea of having a Test class
+      for each of your production classes is ridiculously limiting. And the
+      thought of testing each of your methods with its own test method (in a 1-1
+      relationship) will be laughable.
+    </para>
+  </blockquote>
+
+  <para>
+    <indexterm><primary>Behaviour-Driven Development</primary></indexterm>
+    <indexterm><primary>Domain-Driven Design</primary></indexterm>
+
+    The focus of <ulink url="http://en.wikipedia.org/wiki/Behavior_driven_development">Behaviour-Driven Development</ulink>
+    is "the language and interactions used in the process of software development.
+    Behavior-driven developers use their native language in combination with the
+    ubiquitous language of <ulink url="http://en.wikipedia.org/wiki/Domain_driven_design">Domain-Driven Design</ulink>
+    to describe the purpose and benefit of their code. This allows the developers
+    to focus on why the code should be created, rather than the technical details,
+    and minimizes translation between the technical language in which the code
+    is written and the domain language spoken by the" domain experts.
+  </para>
+
+  <para>
+    <indexterm><primary><literal>PHPUnit_Extensions_Story_TestCase</literal></primary></indexterm>
+
+    The <literal>PHPUnit_Extensions_Story_TestCase</literal> class adds a story
+    framework that faciliates the definition of a
+    <ulink url="http://en.wikipedia.org/wiki/Domain-specific_programming_language">Domain-Specific Language</ulink>
+    for Behaviour-Driven Development. It can be installed like this:
+  </para>
+
+  <screen><userinput>pear install phpunit/PHPUnit_Story</userinput></screen>
+
+  <para>
+    Inside a <emphasis>scenario</emphasis>, <literal>given()</literal>,
+    <literal>when()</literal>, and <literal>then()</literal> each represent a
+    <emphasis>step</emphasis>. <literal>and()</literal> is the same kind as the
+    previous step. The following methods are declared <literal>abstract</literal>
+    in <literal>PHPUnit_Extensions_Story_TestCase</literal> and need to be
+    implemented:
+  </para>
+
+  <itemizedlist>
+    <listitem>
+      <para><literal>runGiven(&amp;$world, $action, $arguments)</literal></para>
+      <para>...</para>
+    </listitem>
+
+    <listitem>
+      <para><literal>runWhen(&amp;$world, $action, $arguments)</literal></para>
+      <para>...</para>
+    </listitem>
+
+    <listitem>
+      <para><literal>runThen(&amp;$world, $action, $arguments)</literal></para>
+      <para>...</para>
+    </listitem>
+  </itemizedlist>
+
+  <section id="behaviour-driven-development.bowlinggame-example">
+    <title>BowlingGame Example</title>
+
+    <para>
+      In this section, we will look at the example of a class that calculates
+      the score for a game of bowling. The rules for this are as follows:
+    </para>
+
+    <itemizedlist>
+      <listitem>
+        <para>The game consists of 10 frames.</para>
+      </listitem>
+      <listitem>
+        <para>In each frame the player has two opportunities to knock down 10 pins.</para>
+      </listitem>
+      <listitem>
+        <para>The score for a frame is the total number of pins knocked down, plus bonuses for strikes and spares.</para>
+      </listitem>
+      <listitem>
+        <para>A spare is when the player knocks down all 10 pins in two tries.</para>
+        <para>The bonus for that frame is the number of pins knocked down by the next roll.</para>
+      </listitem>
+      <listitem>
+        <para>A strike is when the player knocks down all 10 pins on his first try.</para>
+        <para>The bonus for that frame is the value of the next two balls rolled.</para>
+      </listitem>
+    </itemizedlist>
+
+    <para>
+      <xref linkend="behaviour-driven-development.bowlinggame-example.examples.BowlingGameSpec.php" />
+      shows how the above rules can be written down as specification scenarios
+      using <literal>PHPUnit_Extensions_Story_TestCase</literal>.
+    </para>
+
+    <example id="behaviour-driven-development.bowlinggame-example.examples.BowlingGameSpec.php">
+      <title>Specification for the BowlingGame class</title>
+      <programlisting><![CDATA[<?php
+require_once 'PHPUnit/Extensions/Story/TestCase.php';
+require_once 'BowlingGame.php';
+
+class BowlingGameSpec extends PHPUnit_Extensions_Story_TestCase
+{
+    /**
+     * @scenario
+     */
+    public function scoreForGutterGameIs0()
+    {
+        $this->given('New game')
+             ->then('Score should be', 0);
+    }
+
+    /**
+     * @scenario
+     */
+    public function scoreForAllOnesIs20()
+    {
+        $this->given('New game')
+             ->when('Player rolls', 1)
+             ->and('Player rolls', 1)
+             ->and('Player rolls', 1)
+             ->and('Player rolls', 1)
+             ->and('Player rolls', 1)
+             ->and('Player rolls', 1)
+             ->and('Player rolls', 1)
+             ->and('Player rolls', 1)
+             ->and('Player rolls', 1)
+             ->and('Player rolls', 1)
+             ->and('Player rolls', 1)
+             ->and('Player rolls', 1)
+             ->and('Player rolls', 1)
+             ->and('Player rolls', 1)
+             ->and('Player rolls', 1)
+             ->and('Player rolls', 1)
+             ->and('Player rolls', 1)
+             ->and('Player rolls', 1)
+             ->and('Player rolls', 1)
+             ->and('Player rolls', 1)
+             ->then('Score should be', 20);
+    }
+
+    /**
+     * @scenario
+     */
+    public function scoreForOneSpareAnd3Is16()
+    {
+        $this->given('New game')
+             ->when('Player rolls', 5)
+             ->and('Player rolls', 5)
+             ->and('Player rolls', 3)
+             ->then('Score should be', 16);
+    }
+
+    /**
+     * @scenario
+     */
+    public function scoreForOneStrikeAnd3And4Is24()
+    {
+        $this->given('New game')
+             ->when('Player rolls', 10)
+             ->and('Player rolls', 3)
+             ->and('Player rolls', 4)
+             ->then('Score should be', 24);
+    }
+
+    /**
+     * @scenario
+     */
+    public function scoreForPerfectGameIs300()
+    {
+        $this->given('New game')
+             ->when('Player rolls', 10)
+             ->and('Player rolls', 10)
+             ->and('Player rolls', 10)
+             ->and('Player rolls', 10)
+             ->and('Player rolls', 10)
+             ->and('Player rolls', 10)
+             ->and('Player rolls', 10)
+             ->and('Player rolls', 10)
+             ->and('Player rolls', 10)
+             ->and('Player rolls', 10)
+             ->and('Player rolls', 10)
+             ->and('Player rolls', 10)
+             ->then('Score should be', 300);
+    }
+
+    public function runGiven(&$world, $action, $arguments)
+    {
+        switch($action) {
+            case 'New game': {
+                $world['game']  = new BowlingGame;
+                $world['rolls'] = 0;
+            }
+            break;
+
+            default: {
+                return $this->notImplemented($action);
+            }
+        }
+    }
+
+    public function runWhen(&$world, $action, $arguments)
+    {
+        switch($action) {
+            case 'Player rolls': {
+                $world['game']->roll($arguments[0]);
+                $world['rolls']++;
+            }
+            break;
+
+            default: {
+                return $this->notImplemented($action);
+            }
+        }
+    }
+
+    public function runThen(&$world, $action, $arguments)
+    {
+        switch($action) {
+            case 'Score should be': {
+                for ($i = $world['rolls']; $i < 20; $i++) {
+                    $world['game']->roll(0);
+                }
+
+                $this->assertEquals($arguments[0], $world['game']->score());
+            }
+            break;
+
+            default: {
+                return $this->notImplemented($action);
+            }
+        }
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit --printer PHPUnit_Extensions_Story_ResultPrinter_Text BowlingGameSpec</userinput>
+PHPUnit 3.7.0 by Sebastian Bergmann.
+
+BowlingGameSpec
+ [x] Score for gutter game is 0
+
+   Given New game 
+    Then Score should be 0
+
+ [x] Score for all ones is 20
+
+   Given New game 
+    When Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+    Then Score should be 20
+
+ [x] Score for one spare and 3 is 16
+
+   Given New game 
+    When Player rolls 5
+     and Player rolls 5
+     and Player rolls 3
+    Then Score should be 16
+
+ [x] Score for one strike and 3 and 4 is 24
+
+   Given New game 
+    When Player rolls 10
+     and Player rolls 3
+     and Player rolls 4
+    Then Score should be 24
+
+ [x] Score for perfect game is 300
+
+   Given New game 
+    When Player rolls 10
+     and Player rolls 10
+     and Player rolls 10
+     and Player rolls 10
+     and Player rolls 10
+     and Player rolls 10
+     and Player rolls 10
+     and Player rolls 10
+     and Player rolls 10
+     and Player rolls 10
+     and Player rolls 10
+     and Player rolls 10
+    Then Score should be 300
+
+Scenarios: 5, Failed: 0, Skipped: 0, Incomplete: 0.</screen>
+    </example>
+  </section>
+</chapter>
