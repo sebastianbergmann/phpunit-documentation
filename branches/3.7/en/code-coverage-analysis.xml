@@ -304,11 +304,28 @@ if (FALSE) {
     <para>
       The blacklist is pre-filled with all sourcecode files of PHPUnit itself
       as well as the tests. When the whitelist is empty (default), blacklisting
-      is used. When the whitelist is not empty, whitelisting is used. When
-      whitelisting is used, each file on the whitelist is optionally added (by
-      setting <literal>addUncoveredFilesFromWhitelist="true"</literal>) to
-      the code coverage report regardless of whether or not it was executed.
+      is used. When the whitelist is not empty, whitelisting is used. Each file
+      on the whitelist is added to the code coverage report regardless of
+      whether or not it was executed. All lines of such a file, including those
+      that are not executable, are counted as not executed.
     </para>
+
+    <para>
+      When you set <literal>processUncoveredFilesFromWhitelist="true"</literal>
+      in your PHPUnit configuration (see <xref
+      linkend="appendixes.configuration.blacklist-whitelist"/>) then these files
+      will be included by PHP_CodeCoverage to properly calculate the number of
+      executable lines.
+    </para>
+
+    <note>
+      <para>
+        Please note that the loading of sourcecode files that is performed when
+        <literal>processUncoveredFilesFromWhitelist="true"</literal> is set can
+        cause problems when a sourcecode file contains code outside the scope of
+        a class or function, for instance.
+      </para>
+    </note>
 
     <para>
       PHPUnit's XML configuration file (see <xref linkend="appendixes.configuration.blacklist-whitelist"/>)
@@ -317,6 +334,7 @@ if (FALSE) {
       the code coverage report.
     </para>
   </section>
+
   <section id="code-coverage-analysis.edge-cases">
     <title>Edge cases</title>
 
