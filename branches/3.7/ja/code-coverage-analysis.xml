@@ -304,11 +304,25 @@ if (FALSE) {
       自身のソースコードファイルやテストファイルがデフォルトで登録されています。
       ホワイトリストが空 (デフォルト) の場合はブラックリストを使用し、
       ホワイトリストが空でない場合はホワイトリストを使用します。
-      ホワイトリストを使用する場合は、
-      (<literal>addUncoveredFilesFromWhitelist="true"</literal> と設定すれば)
-      そのファイルが実行されるかどうかにかかわらず
-      リスト内のすべてのファイルをコードカバレッジレポートに追加できます。
+      ホワイトリスト内の各ファイルは、そのファイルが実行されるかどうかにかかわらず
+      レポートに追加されます。追加されたファイルのすべての行は、
+      実行不能な行も含めて「実行されなかった行」とみなします。
     </para>
+
+    <para>
+      PHPUnit の設定で <literal>processUncoveredFilesFromWhitelist="true"</literal>
+      (<xref linkend="appendixes.configuration.blacklist-whitelist"/> を参照ください)
+      とすると、これらのファイルが PHP_CodeCoverage
+      に渡され、実行可能な行数を適切に算出します。
+    </para>
+
+    <note>
+      <para>
+        <literal>processUncoveredFilesFromWhitelist="true"</literal>
+        が設定されている場合のソースコードファイルの読み込みでは、
+        もしクラスや関数のスコープから外れるコードが含まれていたときに問題が起こる可能性があります。
+      </para>
+    </note>
 
     <para>
       PHPUnit の XML 設定ファイル (<xref linkend="appendixes.configuration.blacklist-whitelist"/> を参照ください)
@@ -316,6 +330,7 @@ if (FALSE) {
       おすすめの方法は、ホワイトリスト方式を使ってコードカバレッジレポートに含めるファイルを制御することです。
     </para>
   </section>
+
   <section id="code-coverage-analysis.edge-cases">
     <title>エッジケース</title>
 
