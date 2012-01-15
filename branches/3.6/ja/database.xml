@@ -681,6 +681,35 @@ class MyTestCase extends PHPUnit_Extensions_Database_TestCase
 }
 </screen>
       </section>
+      <section id="mysql-xml-dataset">
+        <title>MySQL XML データセット</title>
+        <para>
+          この新しい XML フォーマットは、
+          <ulink url="http://www.mysql.com">MySQL データベース</ulink> 専用です。
+          PHPUnit 3.5 以降で対応します。この形式のファイルを生成するには、
+          <ulink url="http://dev.mysql.com/doc/refman/5.0/en/mysqldump.html"><literal>mysqldump</literal></ulink>
+          を使います。<literal>mysqldump</literal> では CSV データセットも対応していますが、
+          それとは違ってこの XML 形式の場合はひとつのファイルに複数のテーブルを含めることができます。
+          この形式のファイルを作るには、
+          <literal>mysqldump</literal> を次のように実行します。
+        </para>
+        <screen>
+mysqldump --xml -t -u [username] --password=[password] [database] > /path/to/file.xml
+        </screen>
+        <para>
+          このファイルを Database TestCase で使うには、
+          <literal>createMySQLXMLDataSet($filename)</literal> メソッドをコールします。
+        </para>
+        <screen>
+class MyTestCase extends PHPUnit_Extensions_Database_TestCase
+{
+    public function getDataSet()
+    {
+        return $this-&gt;createMySQLXMLDataSet('/path/to/file.xml');
+    }
+}
+</screen>
+      </section>
       <section id="yaml-dataset">
         <title>YAML データセット</title>
         <para>
