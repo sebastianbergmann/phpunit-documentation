@@ -696,6 +696,36 @@ class MyTestCase extends PHPUnit_Extensions_Database_TestCase
 }
 </screen>
       </section>
+      <section id="mysql-xml-dataset">
+        <title>MySQL XML DataSet</title>
+        <para>
+          This new XML format is specific to the 
+          <ulink url="http://www.mysql.com">MySQL database server</ulink>.
+          Support for it was added in PHPUnit 3.5. Files in this format can 
+          be generated using the 
+          <ulink url="http://dev.mysql.com/doc/refman/5.0/en/mysqldump.html"><literal>mysqldump</literal></ulink>
+          utility. Unlike CSV datasets, which <literal>mysqldump</literal> 
+          also supports, a single file in this XML format can contain data 
+          for multiple tables. You can create a file in this format by 
+          invoking <literal>mysqldump</literal> like so: 
+        </para>
+        <screen>
+mysqldump --xml -t -u [username] --password=[password] [database] > /path/to/file.xml
+        </screen>
+        <para>
+          This file can be used in your Database TestCase by calling the 
+          <literal>createMySQLXMLDataSet($filename)</literal> method:
+        </para>
+        <screen>
+class MyTestCase extends PHPUnit_Extensions_Database_TestCase
+{
+    public function getDataSet()
+    {
+        return $this-&gt;createMySQLXMLDataSet('/path/to/file.xml');
+    }
+}
+</screen>
+      </section>
       <section id="yaml-dataset">
         <title>YAML DataSet</title>
         <para>
