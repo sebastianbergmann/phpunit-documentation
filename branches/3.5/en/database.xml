@@ -39,7 +39,7 @@
   </orderedlist>
   <para>
     The DBUnit Extension extension considerably simplifies the setup of
-    a database for testing purposes and allows to verify the contents
+    a database for testing purposes and allows you to verify the contents
     of a database after performing a series of operations.
   </para>
   <section id="supported-vendors-for-database-testing">
@@ -96,7 +96,7 @@
     <itemizedlist>
       <listitem>
         <para>
-          You don't want to modifiy considerable amount of test-code for
+          You don't want to modify considerable amount of test-code for
           little changes in your production code.
         </para>
       </listitem>
@@ -110,14 +110,14 @@
     <para>
       Additionally you have to realize that the database is essentially a
       global input variable to your code. Two tests in your testsuite
-      will run against the same database, possibly re-using data multiple
+      could run against the same database, possibly re-using data multiple
       times. Failures in one test can easily affect the result of the
       following tests making your testing experience very difficult. The
       previously mentioned Clean-Up bullet point is of major importance
       to solve the <quote>database is a global input</quote> problem.
     </para>
     <para>
-      PHPUnits own Database Extension helps to simplify all these
+      PHPUnit's own Database Extension helps to simplify all these
       problems with database-testing in an elegant way.
     </para>
     <para>
@@ -203,7 +203,7 @@
       <para>
         After the database is reset and loaded with its initial state the
         actual test is executed by PHPUnit. This part of the test-code does
-        not require to be aware of the Database Extension at all, you can
+        not require awareness of the Database Extension at all, you can
         go on and test whatever you like with your code.
       </para>
       <para>
@@ -269,7 +269,7 @@ class MyGuestbookTest extends PHPUnit_Extensions_Database_TestCase
         the PHPUnit Database Extension requires access to a database
         connection abstracted accross vendors through the PDO library. It
         is important to note that your application does not need to be
-        based of PDO to use PHPUnit's database extension, the connection is
+        based on PDO to use PHPUnit's database extension, the connection is
         merely used for the clean-up and fixture setup.
       </para>
       <para>
@@ -289,7 +289,7 @@ class MyGuestbookTest extends PHPUnit_Extensions_Database_TestCase
       <title>Implementing <literal>getDataSet()</literal></title>
       <para>
         The <literal>getDataSet()</literal> method defines how the initial
-        state of the database should look like before each test is
+        state of the database should look before each test is
         executed. The state of a database is abstracted through the
         concepts DataSet and DataTable both being represented by the
         interfaces
@@ -307,8 +307,8 @@ class MyGuestbookTest extends PHPUnit_Extensions_Database_TestCase
         represents a data-set through an XML representation.
       </para>
     </section>
-    <section id="what-about-the-datatabase-schema-ddl">
-      <title>What about the Datatabase Schema (DDL)?</title>
+    <section id="what-about-the-database-schema-ddl">
+      <title>What about the Database Schema (DDL)?</title>
       <para>
         PHPUnit assumes that the database schema with all its tables,
         triggers, sequences and views is created before a test is run. This
@@ -334,7 +334,7 @@ class MyGuestbookTest extends PHPUnit_Extensions_Database_TestCase
             <ulink url="http://www.propelorm.org/">Propel</ulink>
             you can use their APIs to create the database schema you
             need once before you run the tests. You can utilize
-            <ulink url="http://www.phpunit.de/manual/current/en/textui.html">PHPUnits Bootstrap and Configuration</ulink>
+            <ulink url="http://www.phpunit.de/manual/current/en/textui.html">PHPUnit's Bootstrap and Configuration</ulink>
             capabilities to execute this code whenever your tests are run.
           </para>
         </listitem>
@@ -348,7 +348,7 @@ class MyGuestbookTest extends PHPUnit_Extensions_Database_TestCase
         could be re-used in different database test-cases. Additionally to
         keep performance of your tests good and database overhead low you
         can refactor the code a little bit to get a generic abstract test
-        case for your application, which still allows to specifiy a
+        case for your application, which still allows you to specify a
         different data-fixture for each test case:
       </para>
       <screen>
@@ -381,7 +381,7 @@ abstract class MyApp_Tests_DatabaseTestCase extends PHPUnit_Extensions_Database_
         testcase even more generic. If you use the
         <ulink url="http://www.phpunit.de/manual/current/en/appendixes.configuration.html#appendixes.configuration.php-ini-constants-variables">XML Configuration</ulink>
         you could make the database connection configurable per test-run.
-        First lets create a <quote>phpunit.xml</quote> file in our tests/
+        First let's create a <quote>phpunit.xml</quote> file in our tests/
         directory of the application that looks like:
       </para>
       <screen>
@@ -440,13 +440,13 @@ user@desktop&gt; phpunit --configuration developer-b.xml MyTests/
   <section id="understanding-datasets-and-datatables">
     <title>Understanding DataSets and DataTables</title>
     <para>
-      A central concept of PHPUnits Database Extension are DataSets and
+      A central concept of PHPUnit's Database Extension are DataSets and
       DataTables. You should try to understand this simple concept to
       master database testing with PHPUnit. The DataSet and DataTable are
-      an abstraction layer around your datatabse tables, rows and
+      an abstraction layer around your database tables, rows and
       columns. A simple API hides the underlying database contents in an
       object structure, which can also be implemented by other
-      non-datatabase sources.
+      non-database sources.
     </para>
     <para>
       This abstraction is necessary to compare the actual contents of a
@@ -567,7 +567,7 @@ user@desktop&gt; phpunit --configuration developer-b.xml MyTests/
           The handling of NULL values with the flat xml dataset is tedious. A
           NULL value is different than an empty string value in almost any
           database (Oracle being an exception), something that is difficult
-          to describe in the flat xml format. You can represent a NULLs value
+          to describe in the flat xml format. You can represent a NULL's value
           by omitting the attribute from the row specification. If our
           guestbook would allow anonymous entries represented by a NULL value
           in the user column, a hypothetical state of the guestbook table
@@ -617,7 +617,7 @@ user@desktop&gt; phpunit --configuration developer-b.xml MyTests/
           defined as <quote>NOT NULL DEFAULT NULL</quote>.
         </para>
         <para>
-          In conclusion I can only advice to use the Flat XML datasets if you
+          In conclusion I can only advise using the Flat XML datasets if you
           don't need NULL values.
         </para>
         <para>
@@ -785,7 +785,7 @@ id;content;user;created
 </screen>
         <para>
           While this is very convenient for editing with Excel or OpenOffice,
-          you cannot specifiy NULL values with the CSV dataset. An empty
+          you cannot specify NULL values with the CSV dataset. An empty
           column will lead to the database default empty value being inserted
           into the column.
         </para>
@@ -809,7 +809,7 @@ class CsvGuestbookTest extends PHPUnit_Extensions_Database_TestCase
       <section id="array-dataset">
         <title>Array DataSet</title>
         <para>
-          There is no Array based DataSet in PHPUnits Database Extension
+          There is no Array based DataSet in PHPUnit's Database Extension
           (yet), but we can implement our own easily. Our guestbook example
           should look like:
         </para>
@@ -846,7 +846,7 @@ class ArrayGuestbookTest extends PHPUnit_Extensions_Database_TestCase
         </itemizedlist>
         <para>
           For this dataset like the Flat XML, CSV and YAML DataSets the keys
-          of the first specified row defins the tables column names, in the
+          of the first specified row define the table's column names, in the
           previous case this would be <quote>id</quote>,
           <quote>content</quote>, <quote>user</quote> and
           <quote>created</quote>.
@@ -993,7 +993,7 @@ class MySqlGuestbookTest extends PHPUnit_Extensions_Database_TestCase
         </para>
         <para>
           The Replacement DataSet is a decorator for an existing dataset and
-          allows to replace values in any column of the dataset by another
+          allows you to replace values in any column of the dataset with another
           replacement value. To get our guestbook example working with NULL
           values we specify the file like:
         </para>
@@ -1113,7 +1113,7 @@ class CompositeTest extends PHPUnit_Extensions_Database_TestCase
     <section id="beware-of-foreign-keys">
       <title>Beware of Foreign Keys</title>
       <para>
-        During Fixture SetUp PHPUnits Database Extension inserts the rows
+        During Fixture SetUp PHPUnit's Database Extension inserts the rows
         into the database in the order they are specified in your fixture.
         If your database schema uses foreign keys this means you have to
         specify the tables in an order that does not cause foreign key
