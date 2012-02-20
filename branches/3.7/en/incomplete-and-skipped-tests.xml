@@ -206,4 +206,76 @@ Tests: 1, Assertions: 0, Skipped: 1.</screen>
       </tgroup>
     </table>
   </section>
+
+  <section id="incomplete-and-skipped-tests.skipping-tests-using-requires">
+    <title>Skipping Tests using @requires</title>
+
+    <para>
+      In addition to the above methods it is also possible to use the
+      <literal>@requires</literal> annotation to express common preconditions for a test case.
+    </para>
+
+    <table id="incomplete-and-skipped-tests.requires.tables.api">
+      <title>Possible @requires usages</title>
+      <tgroup cols="4" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>Type</entry>
+            <entry>Possible Values</entry>
+            <entry>Examples</entry>
+            <entry>Another example</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>PHP</literal></entry>
+            <entry>Any PHP version identifier</entry>
+            <entry>@requires PHP 5.3.3</entry>
+            <entry>@requires PHP 5.4-dev</entry>
+          </row>
+          <row>
+            <entry><literal>PHPUnit</literal></entry>
+            <entry>Any PHPUnit version identifier</entry>
+            <entry>@requires PHPUnit 3.6.3</entry>
+            <entry>@requires PHPUnit 3.7</entry>
+          </row>
+          <row>
+            <entry><literal>function</literal></entry>
+            <entry>Any valid parameter to <ulink url="http://php.net/function_exists">function_exists</ulink></entry>
+            <entry>@requires function imap_open</entry>
+            <entry>@requires function ReflectionMethod::setAccessible</entry>
+          </row>
+          <row>
+            <entry><literal>extension</literal></entry>
+            <entry>Any extension name</entry>
+            <entry>@requires extension mysqli</entry>
+            <entry>@requires extension curl</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <example id="incomplete-and-skipped-tests.skipping-tests.examples.DatabaseClassSkippingTest.php">
+      <title>Skipping test cases using @requires</title>
+      <programlisting><![CDATA[<?php
+/**
+ * @requires extension mysqli
+ */
+class DatabaseTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @requires PHP 5.3
+     */
+    public function testConnection()
+    {
+        // Test requires the mysqli extension and PHP >= 5.3
+    }
+
+    // ... All other tests require the mysqli extension
+}
+?>]]></programlisting>
+    </example>
+
+  </section>
+
 </chapter>
