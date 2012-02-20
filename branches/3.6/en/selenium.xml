@@ -24,9 +24,10 @@
     
     <para>
       The only supported scenario of PHPUnit_Selenium is that of a Selenium 2.x
-      server accessed through the classic Selenium RC Api, already present in 
-      1.x. The reason behind this decision is that Selenium 2 is backward
-      compatible and Selenium RC is not maintained anymore.
+      server. The server can be accessed through the classic Selenium RC Api, already present in 1.x, or with the WebDriver API (partially implemented) from PHPUnit_Selenium 1.2.
+    </para>
+    <para>
+      The reason behind this decision is that Selenium 2 is backward compatible and Selenium RC is not maintained anymore.
     </para>
 
     <para>
@@ -40,9 +41,75 @@
     </orderedlist>
 
     <para>
+        The PHPUnit_Selenium package, necessary for natively accessing the Selenium Server from PHPUnit, can be installed like this:
+      <screen><userinput>pear install phpunit/PHPUnit_Selenium</userinput></screen>
+    </para>
+
+    <para>
       Now we can send commands to the Selenium Server using its client/server
       protocol.
     </para>
+  </section>
+
+  <section id="selenium.selenium2testcase">
+    <title>PHPUnit_Extensions_Selenium2TestCase</title>
+
+    <para>
+      <indexterm><primary><literal>PHPUnit_Extensions_Selenium2TestCase</literal></primary></indexterm>
+
+      The <literal>PHPUnit_Extensions_Selenium2TestCase</literal> test case lets you use the WebDriver API (partially implemented).
+    </para>
+
+    <para>
+      <xref linkend="selenium.selenium2testcase.examples.WebTest.php" /> shows
+      how to test the contents of the <literal><![CDATA[<title>]]></literal>
+      element of the <systemitem role="URL">http://www.example.com/</systemitem>
+      website.
+    </para>
+    <example id="selenium.selenium2testcase.examples.WebTest.php">
+      <title>Usage example for PHPUnit_Extensions_SeleniumTestCase</title>
+      <programlisting><![CDATA[<?php
+class WebTest extends PHPUnit_Extensions_Selenium2TestCase
+{
+    protected function setUp()
+    {
+        $this->setBrowser('firefox');
+        $this->setBrowserUrl('http://www.example.com/');
+    }
+
+    public function testTitle()
+    {
+        $this->url('http://www.example.com/');
+        $this->assertEquals('Example WWW Page', $this->title());
+    }
+
+}
+?>]]></programlisting>
+      <screen><userinput>phpunit WebTest</userinput><![CDATA[
+PHPUnit 3.6.10 by Sebastian Bergmann.
+
+F
+
+Time: 28 seconds, Memory: 3.00Mb
+
+There was 1 failure:
+
+1) WebTest::testTitle
+Failed asserting that two strings are equal.
+--- Expected
++++ Actual
+@@ @@
+-'Example WWW Page'
++'IANA — Example domains'
+
+/home/giorgio/WebTest.php:13
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen></example>
+
+  <para>    
+    The commands of Selenium2TestCare are implemented via __call(). Please refer to <ulink url="https://github.com/sebastianbergmann/phpunit-selenium/blob/master/Tests/Selenium2TestCaseTest.php">the end-to-end test for PHPUnit_Extensions_Selenium2TestCase</ulink> for a list of every supported feature.
+  </para>
   </section>
 
   <section id="selenium.seleniumtestcase">
@@ -53,11 +120,8 @@
 
       The <literal>PHPUnit_Extensions_SeleniumTestCase</literal> test case
       extension implements the client/server protocol to talk to Selenium Server as
-      well as specialized assertion methods for web testing. It can be installed
-      like this:
+      well as specialized assertion methods for web testing.
     </para>
-
-    <screen><userinput>pear install phpunit/PHPUnit_Selenium</userinput></screen>
 
     <para>
       <xref linkend="selenium.seleniumtestcase.examples.WebTest.php" /> shows
