@@ -209,4 +209,76 @@ Tests: 1, Assertions: 0, Skipped: 1.</screen>
       </tgroup>
     </table>
   </section>
+
+  <section id="incomplete-and-skipped-tests.skipping-tests-using-requires">
+    <title>@requires によるテストのスキップ</title>
+
+    <para>
+      ここまでに示したメソッドに加えて、
+      <literal>@requires</literal> アノテーションを使って共通の事前条件を記述することもできます。
+    </para>
+
+    <table id="incomplete-and-skipped-tests.requires.tables.api">
+      <title>@requires の例用例</title>
+      <tgroup cols="4" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>型</entry>
+            <entry>取り得る値</entry>
+            <entry>例</entry>
+            <entry>別の例</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>PHP</literal></entry>
+            <entry>PHP のバージョン</entry>
+            <entry>@requires PHP 5.3.3</entry>
+            <entry>@requires PHP 5.4-dev</entry>
+          </row>
+          <row>
+            <entry><literal>PHPUnit</literal></entry>
+            <entry>PHPUnit のバージョン</entry>
+            <entry>@requires PHPUnit 3.6.3</entry>
+            <entry>@requires PHPUnit 3.7</entry>
+          </row>
+          <row>
+            <entry><literal>function</literal></entry>
+            <entry><ulink url="http://php.net/function_exists">function_exists</ulink> に渡せるパラメータ</entry>
+            <entry>@requires function imap_open</entry>
+            <entry>@requires function ReflectionMethod::setAccessible</entry>
+          </row>
+          <row>
+            <entry><literal>extension</literal></entry>
+            <entry>拡張モジュール名</entry>
+            <entry>@requires extension mysqli</entry>
+            <entry>@requires extension curl</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <example id="incomplete-and-skipped-tests.skipping-tests.examples.DatabaseClassSkippingTest.php">
+      <title>@requires を使ったテストケースのスキップ</title>
+      <programlisting><![CDATA[<?php
+/**
+ * @requires extension mysqli
+ */
+class DatabaseTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @requires PHP 5.3
+     */
+    public function testConnection()
+    {
+        // このテストには mysqli 拡張モジュールと PHP 5.3 以降が必須です
+    }
+
+    // ... その他のすべてのテストには mysqli 拡張モジュールが必須です
+}
+?>]]></programlisting>
+    </example>
+
+  </section>
+
 </chapter>
