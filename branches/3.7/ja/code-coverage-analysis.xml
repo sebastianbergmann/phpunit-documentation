@@ -226,6 +226,43 @@ class BankAccountTest extends PHPUnit_Framework_TestCase
 }
 ?>]]></programlisting>
     </example>
+
+    <para>
+      <indexterm><primary>Annotation</primary></indexterm>
+      <indexterm><primary>@coversNothing</primary></indexterm>
+
+      It is also possible to specify that a test should not cover 
+      <emphasis>any</emphasis> method by using the 
+      <literal>@coversNothing</literal> annotation (see
+      <xref linkend="appendixes.annotations.coversNothing"/>). This can be
+      helpful when writing integration tests to make sure you only 
+      generate code coverage with unit tests.
+    </para>
+
+    <example id="code-coverage-analysis.specifying-covered-methods.examples.GuestbookIntegrationTest.php">
+      <title>A test that specifies that no method should be covered</title>
+      <programlisting><![CDATA[<?php
+class GuestbookIntegrationTest extends PHPUnit_Extensions_Database_TestCase
+{
+    /**
+     * @coversNothing
+     */
+    public function testAddEntry()
+    {
+        $guestbook = new Guestbook();
+        $guestbook->addEntry("suzy", "Hello world!");
+
+        $queryTable = $this->getConnection()->createQueryTable(
+            'guestbook', 'SELECT * FROM guestbook'
+        );
+        $expectedTable = $this->createFlatXmlDataSet("expectedBook.xml")
+                              ->getTable("guestbook");
+        $this->assertTablesEqual($expectedTable, $queryTable);
+    }
+}
+?>]]>
+      </programlisting>
+    </example>
   </section>
 
   <section id="code-coverage-analysis.ignoring-code-blocks">
