@@ -310,7 +310,30 @@ public function testBalanceIsInitiallyZero()
         throw new MyException('Some Message', 20);
     }
 }</programlisting>
+
+      To ease testing and reduce duplication a shortcut can be used to
+      specify a class constant as an
+      <literal>@expectedExceptionCode</literal> using the
+      "<literal>@expectedExceptionCode @ClassName::CONST</literal>" syntax.
+
+      <programlisting>class MyTest extends PHPUnit_Framework_TestCase
+{
+    /**
+      * @expectedException     MyException
+      * @expectedExceptionCode @MyClass::ERRORCODE
+      */
+    public function testExceptionHasErrorcode20()
+    {
+      throw new MyException('Some Message', 20);
+    }
+}
+class MyClass
+{
+    const ERRORCODE = 20;
+}</programlisting>
+
     </para>
+
   </section>
 
   <section id="appendixes.annotations.expectedExceptionMessage">
@@ -353,7 +376,14 @@ public function testBalanceIsInitiallyZero()
      }
 }</programlisting>
 
+      To ease testing and reduce duplication a shortcut can be used to
+      specify a class constant as an
+      <literal>@expectedExceptionMessage</literal> using the
+      "<literal>@expectedExceptionMessage @ClassName::CONST</literal>" syntax.
+
+      A sample can be found in <xref linkend="appendixes.annotations.expectedExceptionCode"/>.
     </para>
+
   </section>
 
   <section id="appendixes.annotations.group">
