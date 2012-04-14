@@ -22,7 +22,7 @@
   <example id="writing-tests-for-phpunit.examples.StackTest.php">
     <title>Tester des opérations de tableau avec PHPUnit</title>
     <programlisting><![CDATA[<?php
-class StackTest extends PHPUnit_Framework_TestCase
+class PileTest extends PHPUnit_Framework_TestCase
 {
     public function testerPushEtPop()
     {
@@ -95,22 +95,22 @@ class StackTest extends PHPUnit_Framework_TestCase
       <programlisting><![CDATA[<?php
 class PileTest extends PHPUnit_Framework_TestCase
 {
-    public function testVide()
+    public function testEmpty()
     {
         $pile = array();
-        $this->assertVide($pile);
+        $this->assertEmpty($pile);
 
         return $pile;
     }
 
     /**
-     * @depends testVide
+     * @depends testEmpty
      */
     public function testPush(array $pile)
     {
         array_push($pile, 'foo');
         $this->assertEquals('foo', $pile[count($pile)-1]);
-        $this->assertNotVide($pile);
+        $this->assertNotEmpty($pile);
 
         return $pile;
     }
@@ -121,7 +121,7 @@ class PileTest extends PHPUnit_Framework_TestCase
     public function testPop(array $pile)
     {
         $this->assertEquals('foo', array_pop($pile));
-        $this->assertVide($pile);
+        $this->assertEmpty($pile);
     }
 }
 ?>]]></programlisting>
@@ -271,7 +271,7 @@ class DataTest extends PHPUnit_Framework_TestCase
     /**
      * @dataProvider fournisseur
      */
-    public function testAddtionne($a, $b, $c)
+    public function testAdditionne($a, $b, $c)
     {
         $this->assertEquals($c, $a + $b);
     }
@@ -310,7 +310,7 @@ class CsvFileIterator implements Iterator {
     protected $current;
 
     public function __construct($fichier) {
-        $this->fichier = fopen($file, 'r');
+        $this->fichier = fopen($fichier, 'r');
     }
 
     public function __destruct() {
@@ -858,7 +858,7 @@ Tests: 1, Assertions: 1, Failures: 1.</screen>
       <example id="writing-tests-for-phpunit.assertions.assertClassHasAttribute.example">
         <title>Utilisation de assertClassHasAttribute()</title>
         <programlisting><![CDATA[<?php
-class ClassePossedeUnAttributeTest extends PHPUnit_Framework_TestCase
+class ClassePossedeUnAttributTest extends PHPUnit_Framework_TestCase
 {
     public function testEchec()
     {
@@ -1244,7 +1244,7 @@ class EqualsTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('bar', 'baz');
     }
 
-    public function testEchec()
+    public function testEchec3()
     {
         $this->assertEquals("foo\nbar\nbaz\n", "foo\nbah\nbaz\n");
     }
@@ -1517,7 +1517,7 @@ class FileEqualsTest extends PHPUnit_Framework_TestCase
 {
     public function testEchec()
     {
-        $this->assertFileEquals('/home/sb/expected', '/home/sb/actual');
+        $this->assertFileEquals('/home/sb/attendu', '/home/sb/constate');
     }
 }
 ?>]]></programlisting>
@@ -1535,8 +1535,8 @@ Failed asserting that two strings are equal.
 --- Expected
 +++ Actual
 @@ @@
--'expected
-+'actual
+-'contenu attendu
++'contenu constaté
  '
 
 /home/sb/FileEqualsTest.php:6
@@ -1560,7 +1560,7 @@ class FileExistsTest extends PHPUnit_Framework_TestCase
 {
     public function testEchec()
     {
-        $this->assertFileExists('/path/to/file');
+        $this->assertFileExists('/chemin/vers/fichier');
     }
 }
 ?>]]></programlisting>
@@ -1574,7 +1574,7 @@ Time: 0 seconds, Memory: 4.75Mb
 There was 1 failure:
 
 1) FileExistsTest::testEchec
-Failed asserting that file "/path/to/file" exists.
+Failed asserting that file "/chemin/vers/fichier" exists.
 
 /home/sb/FileExistsTest.php:6
 
@@ -1987,7 +1987,7 @@ class StringMatchesFormatFileTest extends PHPUnit_Framework_TestCase
 {
     public function testEchec()
     {
-        $this->assertStringMatchesFormatFile('/path/to/expected.txt', 'foo');
+        $this->assertStringMatchesFormatFile('/chemin/vers/attendu.txt', 'foo');
     }
 }
 ?>]]></programlisting>
@@ -2115,12 +2115,12 @@ class SelectCountTest extends PHPUnit_Framework_TestCase
         $this->assertSelectCount('foo baz', TRUE, $this->xml);
     }
 
-    public function testExactCountEchec()
+    public function testCompteExactEchec()
     {
         $this->assertSelectCount('foo bar', 5, $this->xml);
     }
 
-    public function testRangeEchec()
+    public function testPlageEchec()
     {
         $this->assertSelectCount('foo bar', array('>'=>6, '<'=>8), $this->xml);
     }
@@ -2145,12 +2145,12 @@ Failed asserting that false is true.
 
 /home/sb/SelectCountTest.php:17
 
-3) SelectCountTest::testExactCountEchec
+3) SelectCountTest::testCompteExactEchec
 Failed asserting that 3 matches expected 5.
 
 /home/sb/SelectCountTest.php:22
 
-4) SelectCountTest::testRangeEchec
+4) SelectCountTest::testPlageEchec
 Failed asserting that false is true.
 
 /home/sb/SelectCountTest.php:27
@@ -2192,12 +2192,12 @@ class SelectEqualsTest extends PHPUnit_Framework_TestCase
         $this->assertSelectEquals('foo bar', 'Bat', TRUE, $this->xml);
     }
 
-    public function testExactCountEchec()
+    public function testCompteExactEchec()
     {
         $this->assertSelectEquals('foo bar', 'Baz', 5, $this->xml);
     }
 
-    public function testRangeEchec()
+    public function testPlageEchec()
     {
         $this->assertSelectEquals('foo bar', 'Baz', array('>'=>6, '<'=>8), $this->xml);
     }
@@ -2222,12 +2222,12 @@ Failed asserting that false is true.
 
 /home/sb/SelectEqualsTest.php:17
 
-3) SelectEqualsTest::testExactCountEchec
+3) SelectEqualsTest::testCompteExactEchec
 Failed asserting that 2 matches expected 5.
 
 /home/sb/SelectEqualsTest.php:22
 
-4) SelectEqualsTest::testRangeEchec
+4) SelectEqualsTest::testPlageEchec
 Failed asserting that false is true.
 
 /home/sb/SelectEqualsTest.php:27
@@ -2269,12 +2269,12 @@ class SelectRegExpTest extends PHPUnit_Framework_TestCase
         $this->assertSelectRegExp('foo bar', '/B[oe]z]/', TRUE, $this->xml);
     }
 
-    public function testExactCountEchec()
+    public function testCompteExactEchec()
     {
         $this->assertSelectRegExp('foo bar', '/Ba.*/', 5, $this->xml);
     }
 
-    public function testRangeEchec()
+    public function testPlageEchec()
     {
         $this->assertSelectRegExp('foo bar', '/Ba.*/', array('>'=>6, '<'=>8), $this->xml);
     }
@@ -2299,12 +2299,12 @@ Failed asserting that false is true.
 
 /home/sb/SelectRegExpTest.php:17
 
-3) SelectRegExpTest::testExactCountEchec
+3) SelectRegExpTest::testCompteExactEchec
 Failed asserting that 2 matches expected 5.
 
 /home/sb/SelectRegExpTest.php:22
 
-4) SelectRegExpTest::testRangeEchec
+4) SelectRegExpTest::testPlageEchec
 Failed asserting that false is true.
 
 /home/sb/SelectRegExpTest.php:27
@@ -2328,7 +2328,7 @@ class StringEndsWithTest extends PHPUnit_Framework_TestCase
 {
     public function testEchec()
     {
-        $this->assertStringEndsWith('suffix', 'foo');
+        $this->assertStringEndsWith('suffixe', 'foo');
     }
 }
 ?>]]></programlisting>
@@ -2342,7 +2342,7 @@ Time: 1 second, Memory: 5.00Mb
 There was 1 failure:
 
 1) StringEndsWithTest::testEchec
-Failed asserting that 'foo' ends with "suffix".
+Failed asserting that 'foo' ends with "suffixe".
 
 /home/sb/StringEndsWithTest.php:6
 
@@ -2365,7 +2365,7 @@ class StringEqualsFileTest extends PHPUnit_Framework_TestCase
 {
     public function testEchec()
     {
-        $this->assertStringEqualsFile('/home/sb/expected', 'actual');
+        $this->assertStringEqualsFile('/home/sb/attendu', 'constate');
     }
 }
 ?>]]></programlisting>
@@ -2383,9 +2383,9 @@ Failed asserting that two strings are equal.
 --- Expected
 +++ Actual
 @@ @@
--'expected
+-'attendu
 -'
-+'actual'
++'constate'
 
 /home/sb/StringEqualsFileTest.php:6
 
@@ -2408,7 +2408,7 @@ class StringStartsWithTest extends PHPUnit_Framework_TestCase
 {
     public function testEchec()
     {
-        $this->assertStringStartsWith('prefix', 'foo');
+        $this->assertStringStartsWith('prefixe', 'foo');
     }
 }
 ?>]]></programlisting>
@@ -2422,7 +2422,7 @@ Time: 0 seconds, Memory: 5.00Mb
 There was 1 failure:
 
 1) StringStartsWithTest::testEchec
-Failed asserting that 'foo' starts with "prefix".
+Failed asserting that 'foo' starts with "prefixe".
 
 /home/sb/StringStartsWithTest.php:6
 
@@ -2839,7 +2839,7 @@ class XmlStringEqualsXmlFileTest extends PHPUnit_Framework_TestCase
     public function testEchec()
     {
         $this->assertXmlStringEqualsXmlFile(
-          '/home/sb/expected.xml', '<foo><baz/></foo>');
+          '/home/sb/attendu.xml', '<foo><baz/></foo>');
     }
 }
 ?>]]></programlisting>
