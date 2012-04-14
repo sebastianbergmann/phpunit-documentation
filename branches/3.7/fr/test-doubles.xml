@@ -36,7 +36,7 @@
   </blockquote>
 
   <para>
-    La méthode <literal>getMock($className)</literal> fournit par PHPUnit peut être
+    La méthode <literal>getMock($nomClasse)</literal> fournit par PHPUnit peut être
     utilisée dans un test pour générer automatiquement un objet qui peut agir comme une
     doublure de test pour une classe originelle indiquée. Cette doublure de test peut être
     utilisée dans tous les contextes où la classe originelle est attendue.
@@ -124,7 +124,7 @@ class BouchonTest extends PHPUnit_Framework_TestCase
         $bouchon = $this->getMock('UneClasse');
 
         // Configurer le bouchon.
-        $bouchon->expects($-this->any())
+        $bouchon->expects($this->any())
              ->method('faireQuelquechose')
              ->will($this->returnValue('foo'));
 
@@ -137,7 +137,7 @@ class BouchonTest extends PHPUnit_Framework_TestCase
     </example>
 
     <para>
-      "Derrière la scène", PHPUnit génére automatiquement une nouvelle classe qui
+      "Derrière la scène", PHPUnit génère automatiquement une nouvelle classe qui
       implémente le comportement souhaité quand la méthode <literal>getMock()</literal>
       est utilisée. La classe doublure de test peut être configurée via des
       paramètres optionnels de la méthode <literal>getMock()</literal>.
@@ -157,13 +157,13 @@ class BouchonTest extends PHPUnit_Framework_TestCase
       Alternativement, l'API Mock Builder peut être utilisé pour configurer la classe
       de doublure de test générée.
       <xref linkend="test-doubles.stubs.examples.StubTest2.php"/>
-      montre une exemple. Ici, il y a une liste de méthodes qui peuvent être utilisées
+      montre un exemple. Ici, il y a une liste de méthodes qui peuvent être utilisées
       avec l'interface de Mock Builder:
     </para>
 
     <itemizedlist>
       <listitem><para><literal>setMethods(array $methodes)</literal> peut être appelée sur l'objet Mock Builder pour indiquer les méthodes qui doivent être remplacées par une doublure de test configurable. Le comportement des autres méthodes n'est pas modifié.</para></listitem>
-      <listitem><para><literal>setConstructorArgs(array $args)</literal> peut être appelé pour fournir un paramètre tableau qui est passé au constructeur de la classe originelle (qui n'est pas remplacé par un implémentation fictive par défaut).</para></listitem>
+      <listitem><para><literal>setConstructorArgs(array $parametres)</literal> peut être appelé pour fournir un paramètre tableau qui est passé au constructeur de la classe originelle (qui n'est pas remplacé par une implémentation fictive par défaut).</para></listitem>
       <listitem><para><literal>setMockClassName($nom)</literal> peut être utilisée pour indiquer un nom de classe pour la classe de doublure de test générée.</para></listitem>
       <listitem><para><literal>disableOriginalConstructor()</literal> peut être utilisé pour désactiver l'appel au constructeur de la classe originelle.</para></listitem>
       <listitem><para><literal>disableOriginalClone()</literal> peut être utilisé pour désactiver l'appel au constructeur clone de la classe originelle.</para></listitem>
@@ -176,7 +176,7 @@ class BouchonTest extends PHPUnit_Framework_TestCase
       <indexterm><primary>method()</primary></indexterm>
       <indexterm><primary>will()</primary></indexterm>
       <indexterm><primary>returnValue()</primary></indexterm>
-      <title>Utiliser l'API Mock Builder peut être utilisée pour configurer la classe de doublure de test générée.</title>
+      <title>Utiliser l'API Mock Builder pour configurer la classe de doublure de test générée.</title>
       <programlisting><![CDATA[<?php
 require_once 'UneClasse.php';
 
@@ -464,7 +464,7 @@ class BouchonTest extends PHPUnit_Framework_TestCase
   </section>
 
   <section id="test-doubles.mock-objects">
-    <title>Objets simulaces (Mock Objects)</title>
+    <title>Objets simulacres (Mock Objects)</title>
 
     <para>
       La pratique consistant à remplacer un objet avec une doublure de test
@@ -476,8 +476,8 @@ class BouchonTest extends PHPUnit_Framework_TestCase
       <indexterm><primary>Objet simulacre</primary></indexterm>
 
       Vous pouvez utiliser un <emphasis>objet simulacre</emphasis> "comme un point d'observation
-      qui est utilisé pour vérifier que les sorties indirectes du système testé quand il est
-      expérimenté. Typiquement, le simulacre inclut également la fonctionnalité
+      qui est utilisé pour vérifier les sorties indirectes du système quand il est
+      testé. Typiquement, le simulacre inclut également la fonctionnalité
       d'un bouchon de test, en ce sens qu'il doit retourner les valeurs du système
       testé s'il n'a pas déjà fait échouer les tests mais l'accent est mis sur la 
       vérification des sorties indirectes. Ainsi, un simulacre est un beaucoup plus
@@ -562,12 +562,15 @@ class Observateur
       pour l'<literal>Observateur</literal>. Puisque nous donnons un tableau comme second
       paramètre (facultatif) pour la méthode <literal>getMock()</literal>,
       seule la méthode <literal>update()</literal> de la classe <literal>Observateur</literal> est
-      remplacée par une implémentation mock.
+      remplacée par une implémentation d'un simulacre.
     </para>
 
     <example id="test-doubles.mock-objects.examples.SubjectTest.php">
       <title>Tester qu'une méthode est appelée une fois et avec un paramètre indiqué</title>
       <programlisting><![CDATA[<?php
+
+require_once 'Sujet.php';
+
 class SujetTest extends PHPUnit_Framework_TestCase
 {
     public function testLesObservateursSontMisAJour()
@@ -581,12 +584,12 @@ class SujetTest extends PHPUnit_Framework_TestCase
         // comme paramètre.
         $observateur->expects($this->once())
                  ->method('update')
-                 ->with($this->equalTo('quelquechose'));
+                 ->with($this->equalTo('quelque chose'));
 
         // Créer un objet Sujet et y attacher l'objet Observateur
         // simulé
         $sujet = new Sujet;
-        $sujet->attach($observateur);
+        $sujet->attache($observateur);
 
         // Appeler la méthode faireQuelquechose() sur l'objet $sujet
         // que nous attendons voir appeler la méthode update() de l'objet
@@ -684,7 +687,7 @@ class SubjectTest extends PHPUnit_Framework_TestCase
 
       La méthode <literal>getMockForAbstractClass()</literal> retourne un simulacre
       pour une classe abstraite. Toutes les méthodes abstraites d'une classe simulacre
-      donnée sont simulées. Ceci permet de tester les méthodes concrêtes d'une classe
+      donnée sont simulées. Ceci permet de tester les méthodes concrètes d'une classe
       abstraite.
     </para>
 
@@ -821,13 +824,13 @@ class GoogleTest extends PHPUnit_Framework_TestCase
     <para>
       Pour installer vfsStream, le canal PEAR
       (<systemitem role="URL">pear.php-tools.net</systemitem>) qui est utilisé pour
-      sa distribution doit être enregistré avec l'environnement local PEAR:
+      sa distribution doit être enregistré dans l'environnement local PEAR:
     </para>
 
     <screen><userinput>pear channel-discover pear.php-tools.net</userinput></screen>
 
     <para>
-      Ceci ne doit être fait qu'une seule foix. Maintenant, l'installeur PEAR
+      Ceci ne doit être fait qu'une seule fois. Maintenant, l'installeur PEAR
       peut être utilisé pour installer vfsStream.
     </para>
 
@@ -888,7 +891,7 @@ class ExempleTest extends PHPUnit_Framework_TestCase
         $example = new Exemple('id');
         $this->assertFalse(file_exists(dirname(__FILE__) . '/id'));
 
-        $example->setDirectory(dirname(__FILE__));
+        $example->setRepertoire(dirname(__FILE__));
         $this->assertTrue(file_exists(dirname(__FILE__) . '/id'));
     }
 
@@ -903,13 +906,13 @@ class ExempleTest extends PHPUnit_Framework_TestCase
     </example>
 
     <para>
-      L'approche précédente possède plusieurs inconvénients:
+      L'approche précédente possède plusieurs inconvénients :
     </para>
 
     <itemizedlist>
       <listitem><para>Comme avec les ressources externes, il peut y a voir des problèmes intermittents avec le système de fichiers. Ceci rend les tests qui interagissent avec lui peu fiables.</para></listitem>
       <listitem><para>Dans les méthodes <literal>setUp()</literal> et <literal>tearDown()</literal>, nous avons à nous assurer que le répertoire n'existe pas avant et après le test.</para></listitem>
-      <listitem><para>Si l'exécution du test s'achève avant que la méthode <literal>tearDown()</literal> n'a été appelée, le répertoire va rester dans le système de fichiers.</para></listitem>
+      <listitem><para>Si l'exécution du test s'achève avant que la méthode <literal>tearDown()</literal> n'ait été appelée, le répertoire va rester dans le système de fichiers.</para></listitem>
     </itemizedlist>
 
     <para>
@@ -937,7 +940,7 @@ class ExempleTest extends PHPUnit_Framework_TestCase
         $exemple = new Exemple('id');
         $this->assertFalse(vfsStreamWrapper::getRoot()->hasChild('id'));
 
-        $example->setDirectory(vfsStream::url('exempleRepertoire'));
+        $exemple->setRepertoire(vfsStream::url('exempleRepertoire'));
         $this->assertTrue(vfsStreamWrapper::getRoot()->hasChild('id'));
     }
 }
@@ -945,7 +948,7 @@ class ExempleTest extends PHPUnit_Framework_TestCase
     </example>
 
     <para>
-      Ceci présente plusieurs avantages:
+      Ceci présente plusieurs avantages :
     </para>
 
     <itemizedlist>
