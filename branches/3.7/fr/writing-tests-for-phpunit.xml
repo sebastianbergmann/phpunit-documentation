@@ -16,7 +16,7 @@
     <listitem><para>Les tests pour une classe <literal>Classe</literal> vont dans une classe <literal>ClasseTest</literal>.</para></listitem>
     <listitem><para><literal>ClasseTest</literal> hérite (la plupart du temps) de <literal>PHPUnit_Framework_TestCase</literal>.</para></listitem>
     <listitem><indexterm><primary>Annotation</primary></indexterm><indexterm><primary>@test</primary></indexterm><para>Les tests sont des méthodes publiques qui sont appelées <literal>test*</literal>.</para><para><indexterm><primary>Annotation</primary></indexterm>Alternativement, vous pouvez utiliser l'annotation <literal>@test</literal> dans le bloc de documentation d'une méthode pour la marquer comme étant une méthode de test.</para></listitem>
-    <listitem><para>A l'intérieur des méthodes de test, des méthodes d'assertion telles que <literal>assertEquals()</literal> (voir <xref linkend="writing-tests-for-phpunit.assertions" />) sont utilisées pour affirmer qu'une valeur constatées correspond à une valeur attendue.</para></listitem>
+    <listitem><para>A l'intérieur des méthodes de test, des méthodes d'assertion telles que <literal>assertEquals()</literal> (voir <xref linkend="writing-tests-for-phpunit.assertions" />) sont utilisées pour affirmer qu'une valeur constatée correspond à une valeur attendue.</para></listitem>
   </orderedlist>
 
   <example id="writing-tests-for-phpunit.examples.StackTest.php">
@@ -45,7 +45,7 @@ class StackTest extends PHPUnit_Framework_TestCase
     <para>
       A chaque fois que vous avez la tentation de saisir quelque chose dans une 
       instruction <literal>print</literal> ou dans une expression de débogage, écrivez le
-      à la place dans un test.
+      plutôt dans un test.
     </para>
   </blockquote>
 
@@ -191,7 +191,7 @@ Tests: 1, Assertions: 1, Failures: 1, Skipped: 1.]]></screen>
     </example>
 
     <para>
-      Un test peut avoit plusieurs annotations <literal>@depends</literal>.
+      Un test peut avoir plusieurs annotations <literal>@depends</literal>.
       PHPUnit ne change pas l'ordre dans lequel les tests sont exécutés, vous
       devez donc vous assurer que les dépendances d'un test peuvent effectivement
       être utilisables avant que le test ne soit lancé.
@@ -661,7 +661,7 @@ OK (1 test, 1 assertion)</screen>
 
     <para>
         Quand les tests s'appuient sur des fonctions php qui déclenchent des erreurs
-        comme <literal>fopen</literal>, il peut parfois être utilse d'utiliser la
+        comme <literal>fopen</literal>, il peut parfois être utile d'utiliser la
         suppression d'erreur lors du test. Ceci permet de contrôler les valeurs de retour 
         en supprimant les remarques qui auraient conduit à une 
         <literal>PHPUnit_Framework_Error_Notice</literal> de phpunit.
@@ -714,7 +714,6 @@ OK (1 test, 1 assertion)</screen>
       <literal>PHPUnit_Framework_TestCase</literal> utilise la fonctionnalité de 
       en tampon de PHP <ulink url="http://www.php.net/manual/en/ref.outcontrol.php">mise en tampon de la sortie écran
       </ulink> de PHP pour fournir la fonctionnalité qui est nécessaire pour cela.
-      necessary for this.
     </para>
 
     <para>
@@ -892,7 +891,7 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
       <indexterm><primary>assertClassNotHasStaticAttribute()</primary></indexterm>
       <para><literal>assertClassHasStaticAttribute(string $nomAttribut, string $nomClasse[, string $message = ''])</literal></para>
       <para>Rapporte une erreur identifiée par un <literal>$message</literal> si <literal>$nomClasse::nomAttribut</literal> n'existe pas.</para>
-      <para><literal>assertClassNotHasStaticAttribute()</literal> est l'inverse de cette l'assertion et prend les mêmes arguments.</para>
+      <para><literal>assertClassNotHasStaticAttribute()</literal> est l'inverse de cette assertion et prend les mêmes arguments.</para>
       <example id="writing-tests-for-phpunit.assertions.assertClassHasStaticAttribute.example">
         <title>Utilisation de assertClassHasStaticAttribute()</title>
         <programlisting><![CDATA[<?php
@@ -1229,7 +1228,7 @@ Tests: 4, Assertions: 8, Failures: 4.]]></screen>
       <para><literal>assertEquals(mixed $attendu, mixed $constate[, string $message = ''])</literal></para>
       <para>Rapporte une erreur identifiée par le <literal>$message</literal> si les deux variables <literal>$attendu</literal> et <literal>$constate</literal> ne sont pas égales.</para>
       <para><literal>assertNotEquals()</literal> est l'inverse de cette assertion et prend les mêmes paramètres.</para>
-      <para><literal>assertAttributeEquals()</literal> et <literal>assertAttributeNotEquals()</literal> sont des enrobeurs de commidité qui utilisent un attribut <literal>public</literal>, <literal>protected</literal> ou <literal>private</literal> d'une classe ou d'un objet comme valeur constatée.</para>
+      <para><literal>assertAttributeEquals()</literal> et <literal>assertAttributeNotEquals()</literal> sont des enrobeurs de commodité qui utilisent un attribut <literal>public</literal>, <literal>protected</literal> ou <literal>private</literal> d'une classe ou d'un objet comme valeur constatée.</para>
       <example id="writing-tests-for-phpunit.assertions.assertEquals.example">
         <title>Utilisation de assertEquals()</title>
         <programlisting><![CDATA[<?php
@@ -1292,11 +1291,11 @@ FAILURES!
 Tests: 3, Assertions: 3, Failures: 3.</screen>
       </example>
 
-      <para>Des comparaisons plus spéciques sont utilisées pour des types d'arguments <literal>$attendu</literal> et <literal>$constate</literal> plus spécifiques, voir ci-dessous.</para>
+      <para>Des comparaisons plus spécifiques sont utilisées pour des types d'arguments <literal>$attendu</literal> et <literal>$constate</literal> plus spécifiques, voir ci-dessous.</para>
 
       <para><literal>assertEquals(float $attendu, float $constate[, string $message = '', float $delta = 0])</literal></para>
-      <para>Rapporte une erreur identifiée par le <literal>$message</literal> si les deux nombres à virgule flottante <literal>$attendu</literal> et <literal>$constate</literal> ne sont pas à moins de <literal>$delta</literal> l'un de l'autrer.</para>
-      <para>Merci de lire <ulink url="http://en.wikipedia.org/wiki/IEEE_754#Comparing_floating-point_numbers">comparing floating-point numbers</ulink> pour comprendre pouquoi <literal>$delta</literal> est indispensable.</para>
+      <para>Rapporte une erreur identifiée par le <literal>$message</literal> si les deux nombres à virgule flottante <literal>$attendu</literal> et <literal>$constate</literal> ne sont pas à moins de <literal>$delta</literal> l'un de l'autre.</para>
+      <para>Merci de lire <ulink url="http://en.wikipedia.org/wiki/IEEE_754#Comparing_floating-point_numbers">comparing floating-point numbers</ulink> pour comprendre pourquoi <literal>$delta</literal> est indispensable.</para>
       <example id="writing-tests-for-phpunit.assertions.assertEquals.example2">
         <title>Utilisation de assertEquals() avec des nombres à virgule flottante</title>
         <programlisting><![CDATA[<?php
@@ -1961,10 +1960,10 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
       <para>La chaîne de format peut contenir les conteneurs suivants:</para>
       <itemizedlist>
         <listitem><para><literal>%e</literal>: Représente un séparateur de répertoire, par exemple <literal>/</literal> sur Linux. </para></listitem>
-        <listitem><para><literal>%s</literal>: Un ou plusieurs caractère quelconque (y compris des espaces) à l'exception du caractère fin de ligne.</para></listitem>
-        <listitem><para><literal>%S</literal>: Zéro ou plusieurs caractère quelconque (y compris des espaces) à l'exception du caractère fin de ligne.</para></listitem>
-        <listitem><para><literal>%a</literal>: Un ou plusieurs caractère quelconque (y compris des espaces) y compris les caractères fin de ligne.</para></listitem>
-        <listitem><para><literal>%A</literal>: Zéro ou plusieurs caractère quelconque (y compris des espaces) y compris les caractères fin de ligne.</para></listitem>
+        <listitem><para><literal>%s</literal>: Un ou plusieurs caractères quelconque (y compris des espaces) à l'exception du caractère fin de ligne.</para></listitem>
+        <listitem><para><literal>%S</literal>: Zéro ou plusieurs caractères quelconque (y compris des espaces) à l'exception du caractère fin de ligne.</para></listitem>
+        <listitem><para><literal>%a</literal>: Un ou plusieurs caractères quelconque (y compris des espaces) y compris les caractères fin de ligne.</para></listitem>
+        <listitem><para><literal>%A</literal>: Zéro ou plusieurs caractères quelconque (y compris des espaces) y compris les caractères fin de ligne.</para></listitem>
         <listitem><para><literal>%w</literal>: Zéro ou plusieurs espaces.</para></listitem>
         <listitem><para><literal>%i</literal>: Une valeur entière signée, par exemple <literal>+3142</literal>, <literal>-3142</literal>.</para></listitem>
         <listitem><para><literal>%d</literal>: Une valeur entière non signée, par exemple <literal>123456</literal>.</para></listitem>
@@ -1979,7 +1978,7 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
       <indexterm><primary>assertStringMatchesFormatFile()</primary></indexterm>
       <indexterm><primary>assertStringNotMatchesFormatFile()</primary></indexterm>
       <para><literal>assertStringMatchesFormatFile(string $fichierFormat, string $chaine[, string $message = ''])</literal></para>
-      <para>Rapporte une erreur identifiée par le <literal>$message</literal> si la chaîne <literal>$chaine</literal>ne correspond pas au contenu de <literal>$fichierFormat</literal>.</para>
+      <para>Rapporte une erreur identifiée par le <literal>$message</literal> si la chaîne <literal>$chaine</literal> ne correspond pas au contenu de <literal>$fichierFormat</literal>.</para>
       <para><literal>assertStringNotMatchesFormatFile()</literal> est l'inverse de cette assertion et prend les mêmes arguments.</para>
       <example id="writing-tests-for-phpunit.assertions.assertStringMatchesFormatFile.example">
         <title>Utilisation de assertStringMatchesFormatFile()</title>
@@ -2019,7 +2018,7 @@ Tests: 1, Assertions: 2, Failures: 1.]]></screen>
       <indexterm><primary>assertAttributeSame()</primary></indexterm>
       <indexterm><primary>assertAttributeNotSame()</primary></indexterm>
       <para><literal>assertSame(mixed $attendu, mixed $constate[, string $message = ''])</literal></para>
-      <para>Rapporte une erreur identifiée par le <literal>$message</literal> if the two variables <literal>$attendu</literal> et <literal>$constate</literal> do not have the same type and value.</para>
+      <para>Rapporte une erreur identifiée par le <literal>$message</literal> si les deux variables <literal>$attendu</literal> et <literal>$constate</literal> n'ont pas le même type et la même valeur.</para>
       <para><literal>assertNotSame()</literal> est l'inverse de cette assertion et prend les mêmes arguments.</para>
       <para><literal>assertAttributeSame()</literal> et <literal>assertAttributeNotSame()</literal> sont des enrobeurs de commodité qui utilisent un attribut <literal>public</literal>, <literal>protected</literal> ou <literal>private</literal> d'une classe ou d'un objet comme valeur constatée.</para>
       <example id="writing-tests-for-phpunit.assertions.assertSame.example">
@@ -2089,7 +2088,7 @@ Tests: 1, Assertions: 1, Failures: 1.</screen>
       <indexterm><primary>assertSelectCount()</primary></indexterm>
       <para><literal>assertSelectCount(array $selecteur, integer $nombre, mixed $constate[, string $message = '', boolean $isHtml = TRUE])</literal></para>
       <para>Rapporte une erreur identifiée par le <literal>$message</literal> si le sélecteur CSS <literal>$selecteur</literal> ne correspond pas à <literal>$nombre</literal> éléments du noeud DOM <literal>$constate</literal>.</para>
-      <para><literal>$nombre</literal> peut avoir l'un des types suivants:</para>
+      <para><literal>$nombre</literal> peut avoir l'un des types suivants :</para>
       <itemizedlist>
         <listitem><literal>booléen</literal>: présuppose la présence d'éléments correspondant au sélecteur (<literal>TRUE</literal>) ou l'absence d'éléments (<literal>FALSE</literal>).</listitem>
         <listitem><literal>nombre entier</literal>: présuppose le nombre d'éléments.</listitem>
@@ -2166,7 +2165,7 @@ Tests: 4, Assertions: 4, Failures: 4.</screen>
       <indexterm><primary>assertSelectEquals()</primary></indexterm>
       <para><literal>assertSelectEquals(array $selecteur, string $contenu, integer $nombre, mixed $constate[, string $message = '', boolean $isHtml = TRUE])</literal></para>
       <para>Rapporte une erreur identifiée par le <literal>$message</literal> si le sélecteur CSS <literal>$selecteur</literal> ne correspond pas à <literal>$nombre</literal> éléments dans le noeud DOM <literal>$constate</literal> possédant la valeur <literal>$contenu</literal>.</para>
-      <para><literal>$nombre</literal> peut avoir l'un des types suivants:</para>
+      <para><literal>$nombre</literal> peut avoir l'un des types suivants :</para>
       <itemizedlist>
         <listitem><literal>booléen</literal>: présuppose la présence correspondant au sélecteur (<literal>TRUE</literal>) ou l'absence d'éléments (<literal>FALSE</literal>).</listitem>
         <listitem><literal>nombre entier</literal>: présuppose le nombre d'éléments.</listitem>
@@ -2243,7 +2242,7 @@ Tests: 4, Assertions: 4, Failures: 4.</screen>
       <indexterm><primary>assertSelectRegExp()</primary></indexterm>
       <para><literal>assertSelectRegExp(array $selecteur, string $motif, integer $nombre, mixed $constate[, string $message = '', boolean $isHtml = TRUE])</literal></para>
       <para>Rapporte une erreur identifiée par le <literal>$message</literal> si le sélecteur CSS <literal>$selecteur</literal> ne correspond pas à <literal>$nombre</literal> éléments dans le noeud DOM <literal>$constate</literal> possédant une valeur qui correspond au <literal>$motif</literal>.</para>
-      <para><literal>$nombre</literal> peut avoir l'un des types suivants:</para>
+      <para><literal>$nombre</literal> peut avoir l'un des types suivants :</para>
       <itemizedlist>
         <listitem><literal>booléen</literal>: présuppose la présence d'éléments correspondant au sélecteur (<literal>TRUE</literal>) ou l'absence d'éléments (<literal>FALSE</literal>).</listitem>
         <listitem><literal>nombre entier</literal>: présuppose le nombre d'éléments.</listitem>
@@ -2441,9 +2440,9 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
       <para><literal>$matcheur</literal> est un tableau associatif qui indique les critères de correspondance pour l'assertion:</para>
       <itemizedlist>
         <listitem><literal>id</literal>: le noeud ayant l'attribut donné <literal>id</literal> doit correspondre à la valeur indiquée.</listitem>
-        <listitem><literal>tags</literal>: le type du noueud doit correspondre à la valeur correspondante.</listitem>
+        <listitem><literal>tags</literal>: le type du noeud doit correspondre à la valeur correspondante.</listitem>
         <listitem><literal>attributes</literal>: Les attributs du noeud doivent correspondre aux valeurs correspondantes dans le tableau associatif <literal>attributes</literal>.</listitem>
-        <listitem><literal>content</literal>: le contenu du texte doit correspondreà la valeur donnée.</listitem>
+        <listitem><literal>content</literal>: le contenu du texte doit correspondre à la valeur donnée.</listitem>
         <listitem><literal>parent</literal>: le père du noeud doit correspondre au tableau associatif <literal>parent</literal>.</listitem>
         <listitem><literal>child</literal>: au moins un des fils directs du noeud doit satisfaire aux critères décrits dans le tableau associatif <literal>child</literal>.</listitem>
         <listitem><literal>ancestor</literal>: au moins l'un des ancêtres du noeud doit satisfaire aux critères décrits par le tableau associatif <literal>ancestor</literal>.</listitem>
