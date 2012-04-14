@@ -29,24 +29,24 @@
 
   <para>
     La programmation en testant d'abord, qui est une partie de l'Extreme Programming
-    et le développement dirigé par les tests, est bâti sur cette idée et la pousse
+    et le développement dirigé par les tests, sont bâtis sur cette idée et la poussent
     à l'extrême. Grâce à la puissance de calcul actuelle, nous avons l'opportunité de lancer
     des milliers de tests des milliers de fois par jour. Nous pouvons utiliser les retours
-    de tout ces tests pour programmer par petites étapes, chacune d'elles apportant
+    de tous ces tests pour programmer par petites étapes, chacune d'elles apportant
     avec elle l'assurance d'un nouveau test automatisé s'ajoutant à tous les tests venus
-    précédemment. Les tests sont commes des pitons, vous assurant que, quoi qu'il arrive,
-    une fois que vous avez progressé, vous ne pouvez pas tomber plus loin.
+    précédemment. Les tests sont comme des pitons, vous assurant que, quoi qu'il arrive,
+    une fois que vous avez progressé, vous ne pouvez pas retomber plus bas.
   </para>
 
   <para>
     Quand vous écrivez le test la première fois, il ne peut pas être exécuté, car 
-    vous faîtes appel à des objets et des méthodes qui n'ont pas encore été programmés.
+    vous faites appel à des objets et des méthodes qui n'ont pas encore été programmés.
     Ceci peut sembler étrange au premier abord, mais après un moment, vous aurez l'habitude 
     de procéder ainsi. Pensez à la programmation en testant d'abord comme à une approche
     pragmatique pour suivre le principe de programmation orientée objet consistant à 
-    programmer une interface au lieu de programmer une implémentation: quand vous écrivez
+    programmer une interface au lieu de programmer une implémentation : quand vous écrivez
     le test, vous pensez à l'interface de l'objet que vous êtes en train de tester - ce à quoi
-    ressemble cet objet vu de l'extérieur. Quand vous faîtes en sorte que le test fonctionne
+    ressemble cet objet vu de l'extérieur. Quand vous faites en sorte que le test fonctionne
     vraiment, vous réfléchissez en terme de pure implémentation. L'interface est déterminée
     par le test en échec.
   </para>
@@ -76,10 +76,10 @@
 
     <para>
       Dans cette section, nous examinerons l'exemple d'une classe qui représente
-      un compte bancaire. Le contrat pour la classe <literal>BankAccount</literal>
+      un compte bancaire. Le contrat pour la classe <literal>CompteBancaire</literal>
       n'exige pas seulement des méthodes pour obtenir et positionner la balance
       du compte bancaire, ainsi que des méthodes pour déposer et retirer de l'argent.
-      S'y ajoute les deux conditions suivantes qui doivent être vérifiées:
+      S'y ajoute les deux conditions suivantes qui doivent être vérifiées :
     </para>
 
     <itemizedlist>
@@ -153,7 +153,7 @@ class CompteBancaireTest extends PHPUnit_Framework_TestCase
 
     <para>
       Nous écrivons maintenant le volume minimum de code pour que le premier test,
-      <literal>testBalanceEstInitialementAZero()</literal>,réussise. Dans notre
+      <literal>testBalanceEstInitialementAZero()</literal>, réussisse. Dans notre
       exemple, ceci correspond à implémenter la méthode <literal>getBalance()</literal>
       de la classe <literal>CompteBancaire</literal>, comme montré dans 
       <xref linkend="test-driven-development.bankaccount-example.examples.BankAccount.php" />.
@@ -193,13 +193,15 @@ Fatal error: Call to undefined method CompteBancaire::retirerArgent()</screen>
       comme montré dans 
       <xref linkend="test-driven-development.bankaccount-example.examples.BankAccount2.php" />.
       Ces méthodes sont écrites de telle façon qu'elles lèvent une 
-      <literal>CompteBancaireException</literal> quand elle sont appelées avec des valeurs illégales
+      <literal>CompteBancaireException</literal> quand elles sont appelées avec des valeurs illégales
       qui violeraient les conditions du contrat.
     </para>
 
     <example id="test-driven-development.bankaccount-example.examples.BankAccount2.php">
       <title>La classe CompteBancaire complète</title>
       <programlisting><![CDATA[<?php
+class CompteBancaireException extends Exception { }
+
 class CompteBancaire
 {
     protected $balance = 0;
@@ -236,7 +238,7 @@ class CompteBancaire
     </example>
 
     <para>
-      Les tests qui assurent que la seconde condition du contrat réussissent maintenant aussi:
+      Les tests qui assurent que la seconde condition du contrat réussissent maintenant aussi :
     </para>
 
     <screen><userinput>phpunit CompteBancaireTest</userinput>
@@ -310,8 +312,8 @@ class CompteBancaire
       Nous avons alors écrit, suivant l'approche de la programmation en testant d'abord, le code
       nécessaire pour faire que les tests réussissent. Cependant, nous avons oublié d'écrire
       les tests qui appellent <literal>setBalance()</literal>,
-      <literal>depositMoney()</literal> et <literal>withdrawMoney()</literal>
-      avec des valeurs valident qui ne violent pas les conditions du contrat.
+      <literal>deposerArgent()</literal> et <literal>retirerArgent()</literal>
+      avec des valeurs valides qui ne violent pas les conditions du contrat.
       Nous avons besoin d'un moyen pour tester nos tests, ou au moins mesurer leur qualité.
       Un tel moyen est l'analyse de l'information de couverture de code que nous allons voir.
     </para>
