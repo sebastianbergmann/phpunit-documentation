@@ -58,7 +58,7 @@
   </para>
 
   <screen><userinput>phpunit --coverage-html ./rapport CompteBancaireTest</userinput>
-PHPUnit 3.7.0 by Sebastian Bergmann.
+PHPUnit 3.6.0 by Sebastian Bergmann.
 
 ...
 
@@ -230,43 +230,6 @@ class CompteBancaireTest extends PHPUnit_Framework_TestCase
 }
 ?>]]></programlisting>
     </example>
-
-    <para>
-      <indexterm><primary>Annotation</primary></indexterm>
-      <indexterm><primary>@coversNothing</primary></indexterm>
-
-      Il est également possible d'indiquer qu'un test ne doit couvrir
-      <emphasis>aucune</emphasis> méthode en utilisant l'annotation
-      <literal>@coversNothing</literal> (voir
-      <xref linkend="appendixes.annotations.coversNothing"/>). Ceci peut être
-      utile quand on écrit des tests d'intégration pour s'assurer que vous
-      ne générez une couverture de code avec des tests unitaires.
-    </para>
-
-    <example id="code-coverage-analysis.specifying-covered-methods.examples.GuestbookIntegrationTest.php">
-      <title>Un test qui indique qu'aucune méthode ne doit être couverte</title>
-      <programlisting><![CDATA[<?php
-class IntegrationLivreDOrTest extends PHPUnit_Extensions_Database_TestCase
-{
-    /**
-     * @coversNothing
-     */
-    public function testAjouteEntree()
-    {
-        $livre_d_or = new LivredOr();
-        $livre_d_or->addEntry("suzy", "Hello world!");
-
-        $queryTable = $this->getConnection()->createQueryTable(
-            'livre_d_or', 'SELECT * FROM livre_d_or'
-        );
-        $expectedTable = $this->createFlatXmlDataSet("expectedBook.xml")
-                              ->getTable("livre_d_or");
-        $this->assertTablesEqual($expectedTable, $queryTable);
-    }
-}
-?>]]>
-      </programlisting>
-    </example>
   </section>
 
   <section id="code-coverage-analysis.ignoring-code-blocks">
@@ -343,29 +306,11 @@ if (FALSE) {
       La liste noire est pré-remplie avec tous les fichiers de code source de
       PHPUnit lui-même ainsi que les tests. Quand la liste blanche est vide (par
       défaut), le filtrage par liste noire est utilisé. Quand la liste blanche 
-      n'est pas vide, le filtrage par liste blanche est utilisé. Chaque fichier
-      de la liste blanche est ajouté au rapport de couverture de code, qu'il ait
-      été exécuté ou pas. Toutes les lignes d'un tel fichier, incluant celles qui
-      ne sont pas exécutables, sont comptées comme non exécutées.
+      n'est pas vide, le filtrage par liste blanche est utilisé. Quand le filtrage 
+      par liste blanche est utilisé, chaque fichier de la liste blanche est optionnellement
+      ajouté (avec le réglage <literal>addUncoveredFilesFromWhiteList="true"</literal>)
+      au rapport de couverture de code sans se soucier qu'il ait été exécuté ou pas.
     </para>
-
-    <para>
-      Quand vous configurez 
-      <literal>processUncoveredFilesFromWhitelist="true"</literal>
-      dans votre configuration PHPUnit (voir <xref
-      linkend="appendixes.configuration.blacklist-whitelist"/>) alors ces fichiers
-      seront à inclure par PHP_CodeCoverage pour calculer correctement le nombre
-      de lignes exécutables.
-    </para>
-
-    <note>
-      <para>
-        Merci de noter que le chargement des fichiers de code source réalisé
-        quand <literal>processUncoveredFilesFromWhitelist="true"</literal> est positionné,
-        peut poser des problèmes quand un fichier de code source contient du code hors de la portée
-        d'une classe ou d'une fonction, par exemple.
-      </para>
-    </note>
 
     <para>
       Le fichier de configuration XML de PHPUnit (voir <xref linkend="appendixes.configuration.blacklist-whitelist"/>)
