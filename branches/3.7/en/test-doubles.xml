@@ -59,6 +59,17 @@
     </para>
   </note>
 
+  <note>
+    <title>Warning</title>
+
+    <para>
+        Please pay attention to that fact that the parameters managing has been changed.
+        The previous implementation clones all object parameters. It did not allow to check whether the same object was passed to method or not.
+        <xref linkend="test-doubles.mock-objects.examples.clone-object-parameters-usecase.php" /> shows where the new implementation could be useful.
+        <xref linkend="test-doubles.mock-objects.examples.enable-clone-object-parameters.php" /> shows how to switch back to previous behavior.
+    </para>
+  </note>
+
   <section id="test-doubles.stubs">
     <title>Stubs</title>
 
@@ -703,6 +714,52 @@ class AbstractClassTest extends PHPUnit_Framework_TestCase
              ->will($this->returnValue(TRUE));
 
         $this->assertTrue($stub->concreteMethod());
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <example id="test-doubles.mock-objects.examples.clone-object-parameters-usecase.php">
+      <title>Testing that a method gets called once and with the identical object as was passed</title>
+      <programlisting><![CDATA[<?php
+class FooTest extends PHPUnit_Framework_TestCase
+{
+    public function testIdenticalObjectPassed()
+    {
+        $expectedObject = new stdClass;
+
+        $mock = $this->getMock('stdClass', 'foo');
+        $mock->expects($this->once())
+             ->method('foo')
+             ->with($this->identicalTo($expectedObject));
+
+        $mock->foo($expectedObject);
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <example id="test-doubles.mock-objects.examples.enable-clone-object-parameters.php">
+      <title>Create a mock object with cloning parameters enabled</title>
+      <programlisting><![CDATA[<?php
+class FooTest extends PHPUnit_Framework_TestCase
+{
+    public function testIdenticalObjectPassed()
+    {
+        $enableParameterCloning = true;
+
+        $mock = $this->getMock(
+            'stdClass',
+            array(),
+            array(),
+            '',
+            TRUE,
+            TRUE,
+            TRUE,
+            $enableParameterCloning
+        );
+
+        // now your mock clones parameters so the identicalTo constraint will fail.
     }
 }
 ?>]]></programlisting>
