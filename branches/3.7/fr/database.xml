@@ -1,0 +1,1525 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="database">
+  <title>Tester des bases de données</title>
+  <para>
+    De nombreux exemples de tests unitaires de niveau débutant ou intermédiaire
+    dans de nombreux langages de programmation suggèrent qu'il est parfaitement
+    facile de tester la logique de votre application avec de simples tests. Pour 
+    les applications centrées sur une base de données, c'est loin d'être la réalité.
+    Commencez à utiliser WordPress, TYPO3 ou Symfony avec Doctrine ou Propel, par
+    exemple, et nous serez vite confrontés à des problèmes considérables avec PHPUnit :
+    juste parce que la base de données est vraiment étroitement liée à ces bibliothèques.
+  </para>
+  <para>
+    Vous connaissez probablement ce scénario rencontré tous les jours 
+    sur les projets, dans lequel vous voulez mettre à l'oeuvre votre savoir-faire tout neuf ou 
+    déjà aguerri en matière de PHPUnit et où vous vous retrouvez bloqué par l'un des problèmes suivants :
+  </para>
+  <orderedlist numeration="arabic">
+    <listitem>
+      <para>
+        La méthode que vous voulez tester exécute une opération de jointure plutôt
+        vaste et utilise les données pour calculer certains résultats importants.
+      </para>
+    </listitem>
+    <listitem>
+      <para>
+        Votre logique métier exécute un mélange d'instructions SELECT, INSERT, UPDATE et 
+        DELETE.
+      </para>
+    </listitem>
+    <listitem>
+      <para>
+        Vous devez configurer les données de test dans (éventuellement beaucoup) plus 
+        de deux tables pour obtenir des données initiales raisonnables pour les méthodes
+        que vous voulez tester.
+      </para>
+    </listitem>
+  </orderedlist>
+  <para>
+    L'extension DbUnit simplifie considérablement la configuration d'une base
+    de données à des fins de test et vous permet de vérifier le contenu d'une 
+    base de données après avoir réalisé une suite d'opérations. Elle peut être
+    installée comme ceci :
+  </para>
+  <screen><userinput>pear install phpunit/DbUnit</userinput></screen>
+  <section id="supported-vendors-for-database-testing">
+    <title>Systèmes gérés pour tester des bases de données</title>
+    <para>
+      DbUnit gère actuellement MySQL, PostgreSQL, Oracle et SQLite. Via 
+      l'intégration de <ulink url="http://framework.zend.com">Zend Framework</ulink> ou de
+      <ulink url="http://www.doctrine-project.org">Doctrine 2</ulink>
+      il est possible d'accéder à d'autres systèmes de base de données comme IBM DB2 ou
+      Microsoft SQL Server.
+    </para>
+  </section>
+  <section id="difficulties-in-database-testing">
+    <title>Difficultés pour tester les bases de données</title>
+    <para>
+      Il y a une bonne raison pour laquelle les exemples concernant le test unitaire
+      n'inclut pas d'interaction avec une base de données : ces types de test sont à la 
+      fois complexes à configurer et à maintenir. Quand vous faites des tests sur votre
+      base de données, vous devez prendre soin des variables suivantes :
+    </para>
+    <itemizedlist>
+      <listitem>
+        <para>
+          Le schéma et les tables de la base de données
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Insérer les lignes nécessaires pour le test dans ces tables
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Vérifier l'état de la base de données après que votre test a été exécuté
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Nettoyer la base de données pour chaque nouveau test
+        </para>
+      </listitem>
+    </itemizedlist>
+    <para>
+      Comme de nombreuses APIs de base de données comme PDO, MySQLi ou OCI8 sont
+      lourdes à utiliser et verbeuses à écrire, réaliser ces étapes à la main
+      est un cauchemar absolu. 
+    </para>
+    <para>
+      Le code de test doit être aussi court et précis que possible pour plusieurs raisons :
+    </para>
+    <itemizedlist>
+      <listitem>
+        <para>
+          Vous ne voulez pas modifier un volume considérable de code de test pour 
+          de petites modifications dans votre code de production.
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Vous voulez être capable de lire et de comprendre le code de test
+          facilement, même des mois après l'avoir écrit.
+        </para>
+      </listitem>
+    </itemizedlist>
+    <para>
+      De plus, vous devez prendre conscience que la base de données est 
+      essentiellement une variable globale en entrée pour votre code. Deux
+      tests de votre série de tests peuvent être exécutés sur la même base
+      de données, potentiellement en réutilisant les données plusieurs fois.
+      Un échec dans un test peut facilement affecter le résultat des tests
+      suivants rendant votre expérimentation de test très difficile. L'étape
+      de nettoyage mentionnée précédemment est d'une importance majeure pour
+      résoudre le problème posé par le fait que <quote>la base de données est
+      une variable globale en entrée</quote>.
+    </para>
+    <para>
+      DbUnit aide à simplifier tous ces problèmes avec le test de base de données
+      d'une manière élégante.
+    </para>
+    <para>
+      Là où PHPUnit ne peut pas vous aider c'est pour le fait que les tests
+      de base de données sont très lents comparés aux tests n'en utilisant pas.
+      Selon l'importance des interactions avec votre base de données, vos tests
+      peuvent s'exécuter sur une durée considérable. Cependant, si vous gardez
+      petit le volume de données utilisées pour chaque test  et que vous essayez
+      de tester le plus de code possible en utilisant des tests qui ne font pas
+      appel à une base de données, vous pouvez facilement rester très en dessous 
+      d'une minute, même pour de grandes séries de tests.
+    </para>
+    <para>
+      La suite de test du <ulink url="http://www.doctrine-project.org">projet Doctrine 2
+      </ulink>, par exemple, possède actuellement une suite de tests d'environ 1000 tests
+      dont presque la moitié accède à la base de données et continue à s'exécuter en 15
+      secondes sur une base de données MySQL sur un ordinateur de bureau standard.
+    </para>
+  </section>
+  <section id="the-four-stages-of-a-database-test">
+    <title>Les quatre phases d'un test de base de données</title>
+    <para>
+      Dans son livre sur les canevas de tests xUnit, Gerard Meszaros liste les 
+      quatre phases d'un test unitaire :
+    </para>
+    <orderedlist numeration="arabic">
+      <listitem>
+        <para>
+          Configurer une fixture
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Expérimenter le système à tester
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Vérifier les résultats
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Nettoyer
+        </para>
+      </listitem>
+    </orderedlist>
+    <blockquote>
+      <para>
+        <emphasis role="strong">Qu'est-ce qu'une fixture ?</emphasis>
+      </para>
+      <para>
+        Une fixture décrit l'état initial dans lequel se trouvent votre application
+        et votre base de données quand vous exécutez un test.
+      </para>
+    </blockquote>
+    <para>
+      Tester la base de données nécessite au moins d'intervenir dans 
+      setup et teardown pour nettoyer et écrire les données de fixture
+      nécessaires dans vos tables. Cependant, l'extension de base de données
+      possède une bonne raison de ramener les quatre phases dans un test
+      de base de données pour constituer le processus suivant qui est exécuté pour 
+      chacun des tests :
+    </para>
+    <section id="clean-up-database">
+      <title>1. Nettoyer la base de données</title>
+      <para>
+        Puisqu'il y a toujours un premier test qui s'exécute en faisant
+        appel à la base de données, vous n'êtes pas sûr qu'il y ait déjà
+        des données dans les tables. PHPUnit va exécuter un TRUNCATE sur toutes
+        les tables que vous avez indiquées pour les remettre à l'état vide.
+      </para>
+    </section>
+    <section id="set-up-fixture">
+      <title>2. Configurer les fixtures</title>
+      <para>
+        PHPUnit va parcourir toutes les lignes de fixture indiquées et les
+        insérer dans leurs tables respectives.
+      </para>
+    </section>
+    <section id="run-test-verify-outcome-and-teardown">
+      <title>3–5. Exécuter les tests, vérifier les résultats et nettoyer</title>
+      <para>
+        Une fois la base de données réinitialisée et remise dans son état de départ,
+        le test en tant que tel est exécuté par PHPUnit. Cette partie du code de test
+        ne nécessite pas du tout de s'occuper de l'extension base de données,
+        vous pouvez procéder et tester tout ce que vous voulez dans votre code.
+      </para>
+      <para>
+        Votre test peut utiliser une assertion spéciale appelée
+        <literal>assertDataSetsEqual()</literal> à des fins de vérification,
+        mais c'est totalement facultatif. Cette fonctionnalité sera expliquée
+        dans la section <quote>Assertions pour les bases de données</quote>.
+      </para>
+    </section>
+  </section>
+  <section id="configuration-of-a-phpunit-database-testcase">
+    <title>Configuration d'un cas de test de base de données PHPUnit</title>
+    <para>
+      Habituellement quand vous utilisez PHPUnit, vos cas de tests devraient
+      hériter de la classe 
+      <literal>PHPUnit_Framework_TestCase</literal> de la façon suivante :
+    </para>
+    <screen>
+require_once &quot;PHPUnit/Framework/TestCase.php&quot;;
+
+class MonTest extends PHPUnit_Framework_TestCase
+{
+    public function testCalculate()
+    {
+        $this-&gt;assertEquals(2, 1 + 1);
+    }
+}
+</screen>
+    <para>
+      Si vous voulez tester du code qui fonctionne avec l'extension base de données, 
+      le setup sera un peu plus complexe et vous devrez hériter d'un cas de test
+      abstrait différent qui nécessite que vous implémentiez deux méthodes 
+      abstraites 
+      <literal>getConnection()</literal> et
+      <literal>getDataSet()</literal>:
+    </para>
+    <screen>
+require_once &quot;PHPUnit/Extensions/Database/TestCase.php&quot;;
+
+class MonLivreDOrTest extends PHPUnit_Extensions_Database_TestCase
+{
+    /**
+     * @return PHPUnit_Extensions_Database_DB_IDatabaseConnection
+     */
+    public function getConnection()
+    {
+        $pdo = new PDO('sqlite::memory:');
+        return $this-&gt;createDefaultDBConnection($pdo, ':memory:');
+    }
+
+    /**
+     * @return PHPUnit_Extensions_Database_DataSet_IDataSet
+     */
+    public function getDataSet()
+    {
+        return $this-&gt;createFlatXMLDataSet(dirname(__FILE__).'/_files/guestbook-seed.xml');
+    }
+}
+</screen>
+    <section id="implementing-getconnection">
+      <title>Implémenter <literal>getConnection()</literal></title>
+      <para>
+        Pour permettre aux fonctionnalités de nettoyage et de chargement des fixtures
+        de fonctionner, l'extension de base de données PHPUnit nécessite 
+        d'accéder à une connexion de base de données abstraite pour les différents types
+        via la bibliothèque PDO. Il est important de noter que votre application
+        n'a pas besoin de s'appuyer sur PDO pour utiliser l'extension de base de données de PHPUnit,
+        la connexion est principalement utilisée pour le nettoyage et la configuration de setup.
+      </para>
+      <para>
+        Dans l'exemple précédent, nous avons créé une connexion Sqlite en mémoire
+        et nous l'avons passé à la méthode <literal>createDefaultDBConnection</literal>
+        qui encapsule l'instance PDO et le second paramètre (le nom de la base de données) 
+        dans une couche d'abstraction très simple pour connexion aux bases de données du type
+        <literal>PHPUnit_Extensions_Database_DB_IDatabaseConnection</literal>.
+      </para>
+      <para>
+        La section <quote>Utiliser la connexion de base de données</quote> explicite l'API
+        de cette interface et comment en faire le meilleur usage.
+      </para>
+    </section>
+    <section id="implementing-getdataset">
+      <title>Implémenter <literal>getDataSet()</literal></title>
+      <para>
+        La méthode <literal>getDataSet()</literal> définit à quoi doit ressembler
+        l'état initial de la base de données avant que chaque test ne soit exécuté.
+        L'état de la base de données est abstrait par les concepts DataSet et DataTable,
+        tous les deux représentés par les interfaces
+        <literal>PHPUnit_Extensions_Database_DataSet_IDataSet</literal> et
+        <literal>PHPUnit_Extensions_Database_DataSet_IDataTable</literal>.
+        La prochaine section décrira en détail comment ces concepts fonctionnent
+        et quels sont les avantages à les utiliser lors des tests de base de données.
+      </para>
+      <para>
+        Pour l'implémentation, nous avons seulement besoin de savoir que la méthode
+        <literal>getDataSet()</literal> est appelée une fois dans 
+        <literal>setUp()</literal> pour récupérer l'ensemble de données de la fixture
+        et l'insérer dans la base de données. Dans l'exemple, nous utilisons une méthode
+        fabrique <literal>createFlatXMLDataSet($filename)</literal> qui
+        représente un ensemble de données à l'aide d'une représentation XML.
+      </para>
+    </section>
+    <section id="what-about-the-database-schema-ddl">
+      <title>Qu'en est-il du schéma de base de données (DDL)?</title>
+      <para>
+        PHPUnit suppose que le schéma de base de données avec toutes ses tables,
+        ses triggers, séquences et vues est créé avant qu'un test soit exécuté.
+        Cela signifie que vous, en tant que développeur, devez vous assurer que la base
+        de données est correctement configurée avant de lancer la suite de tests.
+      </para>
+      <para>
+        Il y a plusieurs moyens pour satisfaire cette condition préalable
+        au test de base de données.
+      </para>
+      <orderedlist numeration="arabic">
+        <listitem>
+          <para>
+            Si vous utilisez une base de données persistante (pas Sqlite en mémoire)
+            vous pouvez facilement configure la base de données avec des outils tels
+            que phpMyAdmin pour MySQL et réutiliser la base de données pour chaque exécution
+            de test.
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            Si vous utilisez des bibliothèques comme
+            <ulink url="http://www.doctrine-project.org">Doctrine 2</ulink> ou
+            <ulink url="http://www.propelorm.org/">Propel</ulink>
+            vous pouvez utiliser leurs APIs pour créer le schéma de base de données dont
+            vous avez besoin une fois avant de lancer vos tests. Vous pouvez utiliser
+            les possibilités apportées par
+            <ulink url="http://www.phpunit.de/manual/current/en/textui.html">l'amorce et la configuration de PHPUnit</ulink>
+            pour exécuter ce code à chaque fois que vos tests sont exécutés.
+          </para>
+        </listitem>
+      </orderedlist>
+    </section>
+    <section id="tip:-use-your-own-abstract-database-testcase">
+      <title>Astuce: utilisez votre propre cas de tests abstrait de base de données</title>
+      <para>
+        En partant des exemples d'implémentation précédents, vous pouvez facilement
+        voir que la méthode 
+        <literal>getConnection()</literal> est plutôt statique et peut être
+        réutilisée dans différents cas de test de base de données. Additionnellement
+        pour conserver de bonnes performances pour vos tests et maintenir la charge de la 
+        base de données basse vous pouvez refactoriser un peu le code pour obtenir
+        un cas de test abstrait générique pour votre application, qui vous permette encore
+        d'indiquer des données de fixture différentes pour chaque cas de test :
+      </para>
+      <screen>
+require_once &quot;PHPUnit/Extensions/Database/TestCase.php&quot;;
+
+abstract class MyApp_Tests_DatabaseTestCase extends PHPUnit_Extensions_Database_TestCase
+{
+    // instancie pdo seulement une fois pour le nettoyage du test/le chargement de la fixture
+    static private $pdo = null;
+
+    // instancie PHPUnit_Extensions_Database_DB_IDatabaseConnection seulement une fois par test
+    private $conn = null;
+
+    final public function getConnection()
+    {
+        if ($this-&gt;conn === null) {
+            if (self::$pdo == null) {
+                self::$pdo = new PDO('sqlite::memory:');
+            }
+            $this-&gt;conn = $this-&gt;createDefaultDBConnection(self::$pdo, ':memory:');
+        }
+
+        return $this-&gt;conn;
+    }
+}
+</screen>
+      <para>
+        Mais la connexion à la base de données reste codée en dur dans la
+        connexion PDO. PHPUnit possède une autre fonctionnalité formidable
+        qui peut rendre ce cas de test encore plus générique. Si vous utilisez
+        <ulink url="http://www.phpunit.de/manual/current/en/appendixes.configuration.html#appendixes.configuration.php-ini-constants-variables"> la configuration XML</ulink>,
+        vous pouvez rendre la connexion à la base de données configurable pour chaque exécution de test.
+        Créons d'abord un fichier <quote>phpunit.xml</quote> dans le répertoire tests/
+        de l'application qui ressemble à ceci :
+      </para>
+      <screen>
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;
+&lt;phpunit&gt;
+    &lt;php&gt;
+        &lt;var name=&quot;DB_DSN&quot; value=&quot;mysql:dbname=myguestbook;host=localhost&quot; /&gt;
+        &lt;var name=&quot;DB_USER&quot; value=&quot;user&quot; /&gt;
+        &lt;var name=&quot;DB_PASSWD&quot; value=&quot;passwd&quot; /&gt;
+        &lt;var name=&quot;DB_DBNAME&quot; value=&quot;myguestbook&quot; /&gt;
+    &lt;/php&gt;
+&lt;/phpunit&gt;
+</screen>
+      <para>
+        Nous pouvons maintenant modifier notre cas de test pour qu'il ressemble à ça :
+      </para>
+      <screen>
+abstract class Generic_Tests_DatabaseTestCase extends PHPUnit_Extensions_Database_TestCase
+{
+    // instancie pdo seulement une fois pour le nettoyage du test/le chargement de la fixture
+    static private $pdo = null;
+
+    // instancie PHPUnit_Extensions_Database_DB_IDatabaseConnection seulement une fois par test
+    private $conn = null;
+
+    final public function getConnection()
+    {
+        if ($this-&gt;conn === null) {
+            if (self::$pdo == null) {
+                self::$pdo = new PDO( $GLOBALS['DB_DSN'], $GLOBALS['DB_USER'], $GLOBALS['DB_PASSWD'] );
+            }
+            $this-&gt;conn = $this-&gt;createDefaultDBConnection(self::$pdo, $GLOBALS['DB_DBNAME']);
+        }
+
+        return $this-&gt;conn;
+    }
+}
+</screen>
+      <para>
+        Nous pouvons maintenant lancer la suite de tests de la base de données en utilisant différentes
+        configurations depuis l'interface en ligne de commandes:
+      </para>
+      <screen>
+user@desktop&gt; phpunit --configuration developer-a.xml MesTests/
+user@desktop&gt; phpunit --configuration developer-b.xml MesTests/
+</screen>
+      <para>
+        La possibilité de lancer facilement des tests de base de données sur différentes
+        bases de données cibles est très important si vous développez sur une machine
+        de développement. Si plusieurs développeurs exécutent les tests de base de données
+        sur la même connexion de base de données, vous pouvez facilement faire l'expérience
+        d'échec de tests du fait des concurrences d'accès.
+      </para>
+    </section>
+  </section>
+  <section id="understanding-datasets-and-datatables">
+    <title>Comprendre DataSets et DataTables</title>
+    <para>
+      Un concept centre de l'extension de base de données PHPUnit sont les
+      DataSets et les DataTables. Vous devez comprendre ce simple concept
+      pour maîtriser les tests de bases de données avec PHPUnit. Les DataSets
+      et les DataTables constituent une couche d'abstraction sur les tables, 
+      les lignes et les colonnes de la base de données. Une simple API cache le contenu
+      de la base de données sous-jacente dans une structure objet, qui peut également
+      être implémentée par d'autres sources qui ne sont pas des bases de données.
+    </para>
+    <para>
+      Cette abstraction est nécessaire pour comparer le contenu constaté
+      d'une base de données avec le contenu attendu. Les attentes peuvent
+      être représentées dans des fichiers XML, YAML ou CSV ou des tableaux PHP
+      par exemple. Les interfaces DataSets et DataTables permettent de comparer
+      ces sources conceptuellement différentes en émulant un stockage en base
+      de données relationnelle dans une approche sémantiquement similaire.
+    </para>
+    <para>
+      Un processus pour des assertions de base de données dans vos tests
+      se limitera alors à trois étapes simples :
+    </para>
+    <itemizedlist>
+      <listitem>
+        <para>
+          Indiquer une ou plusieurs tables dans votre base de données via leurs
+          noms de table (ensemble de données constatées)
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Indiquez l'ensemble de données attendu dans votre format préféré (YAML, XML,
+          ..)
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Affirmez que les représentations des deux ensembles de données sont égaux.
+        </para>
+      </listitem>
+    </itemizedlist>
+    <para>
+      Les assertions ne constituent pas le seul cas d'utilisation des DataSets
+      et DataTables dans l'extension de base de données PHPUnit. Comme illustré
+      dans la section précédente, ils décrivent également le contenu initial de la
+      base de données. Vous êtes obligés de définir un ensemble de données fixture
+      avec le cas de test Database, qui est ensuite utilisé pour :
+
+    </para>
+    <itemizedlist>
+      <listitem>
+        <para>
+          Supprimer toutes les lignes des tables indiquées dans le DataSet.
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Ecrire toutes les lignes dans les tables de données dans la base de données.
+        </para>
+      </listitem>
+    </itemizedlist>
+    <section id="available-implementations">
+      <title>Implémentations disponibles</title>
+      <para>
+        Il existe trois types différents de datasets/datatables:
+      </para>
+      <itemizedlist>
+        <listitem>
+          <para>
+            DataSets et DataTables basés sur des fichiers
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            DataSets et DataTables basés sur des requêtes
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            DataSets et DataTables de filtre et de combinaison
+          </para>
+        </listitem>
+      </itemizedlist>
+      <para>
+        les datasets et les tables basés sur des fichiers sont généralement
+        utilisés pour la fixture initiale et pour décrire l'état attendu
+        d'une base de données.
+      </para>
+      <section id="flat-xml-dataset">
+        <title>DataSet en XML à plat</title>
+        <para>
+          Le dataset le plus commun est appelé XML à plat (flat XML). C'est un format
+          xml très simple dans lequel une balise à l'intérieur d'un noeud racine
+          <literal>&lt;dataset&gt;</literal> représente exactement une ligne de la base
+          de données. Les noms des balises sont ceux des tables dans lesquelles insérer les
+          lignes et un attribut représente la colonne. Un exemple pour une simple application
+          de livre d'or pourrait ressembler à ceci :
+        </para>
+        <screen>
+&lt;?xml version=&quot;1.0&quot; ?&gt;
+&lt;dataset&gt;
+    &lt;livre_d_or id=&quot;1&quot; contenu=&quot;Salut Poum!&quot; utilisateur=&quot;joe&quot; date_creation=&quot;2010-04-24 17:15:23&quot; /&gt;
+    &lt;livre_d_or id=&quot;2&quot; contenu=&quot;J'aime !&quot; utilisateur=&quot;nancy&quot; date_creation=&quot;2010-04-26 12:14:20&quot; /&gt;
+&lt;/dataset&gt;
+</screen>
+        <para>
+          C'est à l'évidence facile à écrire. Ici,
+          <literal>&lt;livre_d_or&gt;</literal> est le nom de la table dans laquelle les deux
+          lignes sont insérées, chacune avec quatre colonnes <quote>id</quote>,
+          <quote>contenu</quote>, <quote>utilisateur</quote> et
+          <quote>date_creation</quote> et leurs valeurs respectives. 
+        </para>
+        <para>
+          Cependant, cette simplicité a un coût.
+        </para>
+        <para>
+          Avec l'exemple précédent, difficile de voir comment nous devons indiquer
+          une table vide. Vous pouvez insérer une balise avec aucun attribut
+          contenant le nom de la table vide. Un fichier XML à plat pour une table
+          livre_d_or pourrait alors ressembler à ceci:
+        </para>
+        <screen>
+&lt;?xml version=&quot;1.0&quot; ?&gt;
+&lt;dataset&gt;
+    &lt;livre_d_or /&gt;
+&lt;/dataset&gt;
+</screen>
+        <para>
+          La gestion des valeurs NULL avec le dataset en XML à plat est fastidieuse.
+          Une valeur NULL est différente d'une chaîne vide dans la plupart des bases
+          de données (Oracle étant une exception), quelque chose qu'il est difficile
+          de décrire dans le format XML à plat. Vous pouvez représenter une valeur NULL
+          en omettant d'attribut indiquant la ligne. Si votre livre d'or autorise les entrées
+          anonymes représentées par une valeur NULL dans la colonne utilisateur, un état
+          hypothétique de la table livre_d_or pourrait ressembler à ceci:
+        </para>
+        <screen>
+&lt;?xml version=&quot;1.0&quot; ?&gt;
+&lt;dataset&gt;
+    &lt;livre_d_or id=&quot;1&quot; contenu=&quot;Hello Poum !&quot; utilisateur=&quot;joe&quot; date_creation=&quot;2010-04-24 17:15:23&quot; /&gt;
+    &lt;livre_d_or id=&quot;2&quot; contenu=&quot;J'aime !&quot; date_creation=&quot;2010-04-26 12:14:20&quot; /&gt;
+&lt;/dataset&gt;
+</screen>
+        <para>
+          Dans ce cas, la seconde entrée est postée anonymement. Cependant,
+          ceci conduit à un sérieux problème pour la reconnaissance de la colonne.
+          Lors des assertions d'égalité de datasets, chaque dataset doit indiquer
+          quelle colonne une table contient. Si un attribut est NULL pour toutes les
+          lignes de la data-table, comment l'extension de base de données sait que la colonne
+          doit faire partie de la table ?
+        </para>
+        <para>
+          Le dataset en XML à plat fait maintenant une hypothèse cruciale en 
+          décrétant que les attributs de la première ligne définie pour une table
+          définissent les colonnes de cette table. Dans l'exemple précédent, ceci
+          signifierait que 
+          <quote>id</quote>, <quote>contenu</quote>, <quote>utilisateur</quote> et
+          <quote>date_creation</quote> sont les colonnes de la table livre_d_or. Pour la
+          seconde ligne dans laquelle <quote>utilisateur</quote> n'est pas défini, un NULL
+          sera inséré dans la base de données.
+        </para>
+        <para>
+          Quand la première entrée du livre d'or est supprimée du dataset,
+          seuls <quote>id</quote>, <quote>contenu</quote> et 
+          <quote>date_creation</quote> seront des colonnes de la table livre_d_or,
+          puisque <quote>utilisateur</quote> n'est pas indiqué.
+        </para>
+        <para>
+          Pour utiliser efficacement le dataset au format XML à plat quand des valeurs
+          NULL sont pertinentes, la première ligne de chaque table ne doit contenir aucune  
+          valeur NULL, seules les lignes suivantes pouvant omettre des attributs.
+          Ceci peut s'avérer délicat, puisque l'ordre des lignes est un élément
+          pertinent pour les assertions de base de données.
+        </para>
+        <para>
+          A l'inverse, si vous n'indiquez qu'un sous-élément des colonnes de la table
+          dans le dataset au format XML à plat, toutes les valeurs omises sont positionnées
+          à leurs valeurs par défaut. Ceci provoquera des erreurs si l'une des valeurs omises
+          est définie par <quote>NOT NULL DEFAULT NULL</quote>.
+        </para>
+        <para>
+          En conclusion, je ne peux que vous conseiller de n'utiliser les datasets
+          au format XML à plat que si vous n'avez pas besoin des valeurs NULL.
+        </para>
+        <para>
+          Vous pouvez créer une instance de dataset au format XML à plat
+          dans votre cas de test de base de données en appelant la méthode
+          <literal>createFlatXmlDataSet($filename)</literal>:
+        </para>
+        <screen>
+class MonCasDeTest extends PHPUnit_Extensions_Database_TestCase
+{
+    public function getDataSet()
+    {
+        return $this-&gt;createFlatXmlDataSet('maFixtureAuFormatXMLaPlat.xml');
+    }
+}
+</screen>
+      </section>
+      <section id="xml-dataset">
+        <title>DataSet XML</title>
+        <para>
+          Il existe un autre dataset XML davantage structuré, qui est un peu plus
+          verbeux à écrire mais qui évite les problèmes de NULL du dataset au 
+	  format XML à plat. Dans le noeud racine <literal>&lt;dataset&gt;</literal> vous
+          pouvez indiquer les balises <literal>&lt;table&gt;</literal>,
+          <literal>&lt;column&gt;</literal>, <literal>&lt;row&gt;</literal>,
+          <literal>&lt;value&gt;</literal> et 
+          <literal>&lt;null /&gt;</literal>. Un dataset équivalent à celui
+          défini précédemment pour le livre d'or en format XML à plat ressemble à :
+        </para>
+        <screen>
+&lt;?xml version=&quot;1.0&quot; ?&gt;
+&lt;dataset&gt;
+    &lt;table name=&quot;livre_d_or&quot;&gt;
+        &lt;column&gt;id&lt;/column&gt;
+        &lt;column&gt;contenu&lt;/column&gt;
+        &lt;column&gt;utilisateur&lt;/column&gt;
+        &lt;column&gt;date_creation&lt;/column&gt;
+        &lt;row&gt;
+            &lt;value&gt;1&lt;/value&gt;
+            &lt;value&gt;Hello Poum !&lt;/value&gt;
+            &lt;value&gt;joe&lt;/value&gt;
+            &lt;value&gt;2010-04-24 17:15:23&lt;/value&gt;
+        &lt;/row&gt;
+        &lt;row&gt;
+            &lt;value&gt;2&lt;/value&gt;
+            &lt;value&gt;J'aime !&lt;/value&gt;
+            &lt;null /&gt;
+            &lt;value&gt;2010-04-26 12:14:20&lt;/value&gt;
+        &lt;/row&gt;
+    &lt;/table&gt;
+&lt;/dataset&gt;
+</screen>
+        <para>
+          Tout <literal>&lt;table&gt;</literal> défini possède un nom et nécessite
+          la définition de toutes les colonnes avec leurs noms. Il peut contenir zéro ou tout
+          nombre positif d'éléments <literal>&lt;row&gt;</literal> imbriqués.
+          Ne définir aucun élément <literal>&lt;row&gt;</literal> signifie que la table est vide.
+          Les balises <literal>&lt;value&gt;</literal> et 
+          <literal>&lt;null /&gt;</literal> doivent être indiquées dans l'ordre des éléments
+          <literal>&lt;column&gt;</literal>précédemment donnés.
+          La balise <literal>&lt;null /&gt;</literal> signifie évidemment que la valeur est NULL.
+        </para>
+        <para>
+          Vous pouvez créer une instance de dataset xml dans votre
+          cas de test de base de données en appelant la méthode
+          <literal>createXmlDataSet($filename)</literal> :
+        </para>
+        <screen>
+class MonCasdeTest extends PHPUnit_Extensions_Database_TestCase
+{
+    public function getDataSet()
+    {
+        return $this-&gt;createXMLDataSet('maFixtureyXml.xml');
+    }
+}
+</screen>
+      </section>
+      <section id="mysql-xml-dataset">
+        <title>XML DataSet XML MySQL</title>
+        <para>
+          Ce nouveau format XML est spécifique au
+          <ulink url="http://www.mysql.com">serveur de bases de données MySQL</ulink>.
+          Sa gestion a été ajoutée dans PHPUnit 3.5. Les fichiers écrits ce format peuvent
+          être générés avec l'utilitaire 
+          <ulink url="http://dev.mysql.com/doc/refman/5.0/en/mysqldump.html"><literal>mysqldump</literal></ulink>.
+          Contrairement aux datasets CSV, que <literal>mysqldump</literal> 
+          gère également, un unique fichier de ce format XML peut contenir des données
+          pour de multiples tables. Vous pouvez créer un fichier dans ce format en
+          invoquant <literal>mysqldump</literal> de cette façon :
+        </para>
+        <screen>
+mysqldump --xml -t -u [nom_utilisateur] --password=[mot_de_passe] [base_de_donnees] > /chemin/vers/fichier.xml
+        </screen>
+        <para>
+          Ce fichier peut être utilisé dans votre case de test de base de données en appelant
+          la méthode <literal>createMySQLXMLDataSet($nomdefichier)</literal>:
+        </para>
+        <screen>
+class MonCasDeTest extends PHPUnit_Extensions_Database_TestCase
+{
+    public function getDataSet()
+    {
+        return $this-&gt;createMySQLXMLDataSet('/chemin/vers/fichier.xml');
+    }
+}
+</screen>
+      </section>
+      <section id="yaml-dataset">
+        <title>DataSet YAML</title>
+        <para>
+          Nouveau depuis PHUnit 3.4, la possibilité d'indiquer un dataset
+          via le format populaire YAML. Pour que cela fonctionne, vous devez
+          installer PHPUnit 3.4 avec PEAR ainsi que sa dépendance optionnelle 
+          Symfony YAML. Vous pouvez ensuite écrire un dataset YAML pour l'exemple
+          du livre d'or:
+        </para>
+        <screen>
+livre_d_or:
+  -
+    id: 1
+    contenu: &quot;Hello Poum !&quot;
+    utilisateur: &quot;joe&quot;
+    date_creation: 2010-04-24 17:15:23
+  -
+    id: 2
+    contenu: &quot;J'aime !&quot;
+    utilisateur:
+    date_creation: 2010-04-26 12:14:20
+</screen>
+        <para>
+          C'est simple, pratique et ça règle le problème de NULL que pose le dataset
+          équivalent au format XML à plat. Un NULL en YAML s'exprime simplement
+          en donnant le nom de la colonne dans indiquer de valeur. Une chaîne vide
+          est indiquée par
+          <literal>colonne1: &quot;&quot;</literal>.
+        </para>
+        <para>
+          Le dataset YAML ne possède pas actuellement de méthode de fabrique 
+          pour le cas de tests de base de données, si bien que vous devez l'instancier
+          manuellement :
+        </para>
+        <screen>
+require_once &quot;PHPUnit/Extensions/Database/DataSet/YamlDataSet.php&quot;;
+
+class LivredOrYamlTest extends PHPUnit_Extensions_Database_TestCase
+{
+    protected function getDataSet()
+    {
+        return new PHPUnit_Extensions_Database_DataSet_YamlDataSet(
+            dirname(__FILE__).&quot;/_files/livre_d_or.yml&quot;
+        );
+    }
+}
+</screen>
+      </section>
+      <section id="csv-dataset">
+        <title>DataSet CSV</title>
+        <para>
+          Un autre dataset au format fichier est basé sur les fichiers CSV. Chaque table
+          du dataset est représenté par un fichier CSV. Pour notre exemple de livre d'or,
+          nous pourrions définir un fichier livre_d_or-table.csv:
+        </para>
+        <screen>
+id;contenu;utilisateur;date_creation
+1;&quot;Hello Poum !&quot;;&quot;joe&quot;;&quot;2010-04-24 17:15:23&quot;
+2;&quot;J'aime !&quot;&quot;nancy&quot;;&quot;2010-04-26 12:14:20&quot;
+</screen>
+        <para>
+          Bien que ce soit très pratique à éditer avec Excel ou LibreOffice,
+          vous ne pouvez pas indiquer de valeurs NULL avec le dataset CSV. Une
+          colonne vide conduira à ce que la valeur vide par défaut de la base de
+          données soit insérée dans la colonne.
+        </para>
+        <para>
+          Vous pouvez créer un dataset CSV en appelant :
+        </para>
+        <screen>
+require_once 'PHPUnit/Extensions/Database/DataSet/CsvDataSet.php';
+
+class CsvLivredOrTest extends PHPUnit_Extensions_Database_TestCase
+{
+    protected function getDataSet()
+    {
+        $dataSet = new PHPUnit_Extensions_Database_DataSet_CsvDataSet();
+        $dataSet-&gt;addTable('guestbook', dirname(__FILE__).&quot;/_files/livre_d_or.csv&quot;);
+        return $dataSet;
+    }
+}
+</screen>
+      </section>
+      <section id="array-dataset">
+        <title>DataSet tableau</title>
+        <para>
+          Il n'existe pas (encore) de DataSet basé sur les tableau dans 
+          l'extension base de données de PHPUnit, mais vous pouvez implémenter
+          facilement la vôtre. Notre exemple du Livre d'or devrait ressembler à :
+        </para>
+        <screen>
+class LivredOrTableauTest extends PHPUnit_Extensions_Database_TestCase
+{
+    protected function getDataSet()
+    {
+        return new MyApp_DbUnit_ArrayDataSet(array(
+            'livre_d_or' =&gt; array(
+                array('id' =&gt; 1, 'contenu' =&gt; 'Hello Poum !', 'utilisateur' =&gt; 'joe', 'date_creation' =&gt; '2010-04-24 17:15:23'),
+                array('id' =&gt; 2, 'contenu' =&gt; 'J\'aime !',   'utilisateur' =&gt; null,  'date_creation' =&gt; '2010-04-26 12:14:20'),
+            ),
+        ));
+    }
+}
+</screen>
+        <para>
+          Un DataSet PHP possède des avantages évidents sur les autres datasets utilisant des fichiers :
+        </para>
+        <itemizedlist>
+          <listitem>
+            <para>
+              Les tableaux PHP peuvent évidemment gérer les valeurs <literal>NULL</literal>.
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              Vous n'avez pas besoin de fichiers additionnels pour les assertions et vous pouvez
+              les renseigner directement dans les cas de test.
+            </para>
+          </listitem>
+        </itemizedlist>
+        <para>
+          Pour que ce dataset ressemble aux DataSets au format XML à plat, CSV et YAML, les clefs
+          de la première ligne spécifiée définissent les noms de colonne de la table, dans le cas
+          précédent, ce serait <quote>contenu</quote>, <quote>utilisateur</quote> et 
+          <quote>date_creation</quote>.
+        </para>
+        <para>
+          L'implémentation de ce DataSet tableau est simple et évidente:
+        </para>
+        <screen>
+require_once 'PHPUnit/Util/Filter.php';
+
+require_once 'PHPUnit/Extensions/Database/DataSet/AbstractDataSet.php';
+require_once 'PHPUnit/Extensions/Database/DataSet/DefaultTableIterator.php';
+require_once 'PHPUnit/Extensions/Database/DataSet/DefaultTable.php';
+require_once 'PHPUnit/Extensions/Database/DataSet/DefaultTableMetaData.php';
+
+PHPUnit_Util_Filter::addFileToFilter(__FILE__, 'PHPUNIT');
+
+class MyApp_DbUnit_ArrayDataSet extends PHPUnit_Extensions_Database_DataSet_AbstractDataSet
+{
+    /**
+     * @var array
+     */
+    protected $tables = array();
+
+    /**
+     * @param array $data
+     */
+    public function __construct(array $data)
+    {
+        foreach ($data AS $tableName =&gt; $rows) {
+            $columns = array();
+            if (isset($rows[0])) {
+                $columns = array_keys($rows[0]);
+            }
+
+            $metaData = new PHPUnit_Extensions_Database_DataSet_DefaultTableMetaData($tableName, $columns);
+            $table = new PHPUnit_Extensions_Database_DataSet_DefaultTable($metaData);
+
+            foreach ($rows AS $row) {
+                $table-&gt;addRow($row);
+            }
+            $this-&gt;tables[$tableName] = $table;
+        }
+    }
+
+    protected function createIterator($reverse = FALSE)
+    {
+        return new PHPUnit_Extensions_Database_DataSet_DefaultTableIterator($this-&gt;tables, $reverse);
+    }
+
+    public function getTable($tableName)
+    {
+        if (!isset($this-&gt;tables[$tableName])) {
+            throw new InvalidArgumentException(&quot;$tableName ne correspond pas à une table dans la base de données actuelle.&quot;);
+        }
+
+        return $this-&gt;tables[$tableName];
+    }
+}
+</screen>
+      </section>
+      <section id="query-sql-dataset">
+        <title>Query (SQL) DataSet</title>
+        <para>
+          Pour les assertions de base de données, vous n'avez pas seulement besoin 
+          de datasets basés sur des fichiers mais aussi de Datasets basé sur des requêtes/du SQL 
+          qui contiennent le contenu constaté de la base de données. C'est là que 
+          le DataSet Query s'illustre :
+        </para>
+        <screen>
+$ds = new PHPUnit_Extensions_Database_DataSet_QueryDataSet($this-&gt;getConnection());
+$ds-&gt;addTable('livre_d_or');
+</screen>
+        <para>
+          Ajouter une table juste par son nom est un moyen implicite de définir
+          la table de données avec la requête suivante :
+        </para>
+        <screen>
+$ds = new PHPUnit_Extensions_Database_DataSet_QueryDataSet($this-&gt;getConnection());
+$ds-&gt;addTable('livre_d_or', 'SELECT * FROM livre_d_or');
+</screen>
+        <para>
+          Vous pouvez utiliser ceci en indiquant des requêtes arbitraires pour
+          vos tables, par exemple en restreignant les lignes, les colonnes ou en
+          ajoutant des clauses <literal>ORDER BY</literal>:
+        </para>
+        <screen>
+$ds = new PHPUnit_Extensions_Database_DataSet_QueryDataSet($this-&gt;getConnection());
+$ds-&gt;addTable('livre_d_or', 'SELECT id, contenu FROM livre_d_or ORDER BY date_creation DESC');
+</screen>
+        <para>
+          La section relative aux assertions de base de données montrera plus en détails comment
+          utiliser le Query DataSet.
+        </para>
+      </section>
+      <section id="database-db-dataset">
+        <title>Dataset de base de données</title>
+        <para>
+          En accédant à la connexion de test, vous pouvez créer automatiquement
+          un DataSet constitué de toutes les tables et de leur contenu de la base
+          de données indiquée comme second paramètre de la méthode fabrique de
+          connexion.
+        </para>
+        <para>
+          Vous pouvez, soit créer un dataset pour la base de données complète
+          comme montré dans la méthode <literal>testLivredOr()</literal>, soit le restreindre
+          à un ensemble de noms de tables avec une liste blanche comme montré dans
+          la méthode <literal>testLivredOrFiltre()</literal>.
+        </para>
+        <screen>
+class MonLivredOrSqlTest extends PHPUnit_Extensions_Database_TestCase
+{
+    /**
+     * @return PHPUnit_Extensions_Database_DB_IDatabaseConnection
+     */
+    public function getConnection()
+    {
+        $base_de_donnees = 'ma_base_de_donnee';
+        $pdo = new PDO('mysql:...', $utilisateur, $mot_de_passe);
+        return $this-&gt;createDefaultDBConnection($pdo, $base_de_donnees);
+    }
+
+    public function testLivredOr()
+    {
+        $dataSet = $this-&gt;getConnection()-&gt;createDataSet();
+        // ...
+    }
+
+    public function testLivredOrFiltre()
+    {
+        $nomTables = array('livre_d_or');
+        $dataSet = $this-&gt;getConnection()-&gt;createDataSet($nomTables);
+        // ...
+    }
+}
+</screen>
+      </section>
+      <section id="replacement-dataset">
+        <title>DataSet de remplacement</title>
+        <para>
+          J'ai évoqué les problèmes de NULL avec les DataSet au format XML à
+          plat et CSV, mais il y existe un contournement légèrement compliqué
+          pour que ces deux types de datasets fonctionnent avec NULLs.
+        </para>
+        <para>
+          Le DataSet de remplacement est un décorateur pour un dataset existant
+          et vous permet de remplacer des valeurs dans toute colonne du dataset
+          par une autre valeur de remplacement. Pour que notre exemple de livre d'or
+          fonctionne avec des valeurs NULL nous indiquons le fichier comme ceci:
+        </para>
+        <screen>
+&lt;?xml version=&quot;1.0&quot; ?&gt;
+&lt;dataset&gt;
+    &lt;livre_d_or id=&quot;1&quot; contenu=&quot;Hello Poum !&quot; utilisateur=&quot;joe&quot; date_creation=&quot;2010-04-24 17:15:23&quot; /&gt;
+    &lt;livre_d_or id=&quot;2&quot; contenu=&quot;J'aime !&quot; utilisateur=&quot;##NULL##&quot; date_creation=&quot;2010-04-26 12:14:20&quot; /&gt;
+&lt;/dataset&gt;
+</screen>
+        <para>
+          Nous enrobons le DataSet au format XML à plat dans le DataSet de remplacement :
+        </para>
+        <screen>
+require_once 'PHPUnit/Extensions/Database/DataSet/ReplacementDataSet.php';
+
+class ReplacementTest extends PHPUnit_Extensions_Database_TestCase
+{
+    public function getDataSet()
+    {
+        $ds = $this-&gt;createFlatXmlDataSet('maFixtureEnXMLaPlat.xml');
+        $rds = new PHPUnit_Extensions_Database_DataSet_ReplacementDataSet($ds);
+        $rds-&gt;addFullReplacement('##NULL##', null);
+        return $rds;
+    }
+}
+</screen>
+      </section>
+      <section id="dataset-filter">
+        <title>Filtre de DataSet</title>
+        <para>
+          Si vous avez un fichier de fixture conséquent vous pouvez utiliser
+          le filtre de DataSet pour des listes blanches ou noires des tables
+          et des colonnes qui peuvent être contenues dans un sous-dataset. C'est
+          particulièrement commode en combinaison avec le DataSet de base de données
+          pour filtrer les colonnes des datasets.
+        </para>
+        <screen>
+class DataSetFilterTest extends PHPUnit_Extensions_Database_TestCase
+{
+    public function testLivredOrAvecFiltredInclusion()
+    {
+        $nomTables = array('livre_d_or');
+        $dataSet = $this-&gt;getConnection()-&gt;createDataSet();
+
+        $filterDataSet = new PHPUnit_Extensions_Database_DataSet_DataSetFilter($dataSet);
+        $filterDataSet-&gt;addIncludeTables(array('livre_d_or'));
+        $filterDataSet-&gt;setIncludeColumnsForTable('livre_d_or', array('id', 'contenu'));
+        // ..
+    }
+
+    public function testLivredOrAvecFiltredExclusion()
+    {
+        $nomTables = array('livre_d_or');
+        $dataSet = $this-&gt;getConnection()-&gt;createDataSet();
+
+        $filterDataSet = new PHPUnit_Extensions_Database_DataSet_DataSetFilter($dataSet);
+        $filterDataSet-&gt;addExcludeTables(array('foo', 'bar', 'baz')); // ne garder que la table livre_d_or !
+        $filterDataSet-&gt;setExcludeColumnsForTable('livre_d_or', array('utilisateur', 'date_creationd'));
+        // ..
+    }
+}
+</screen>
+        <blockquote>
+          <para>
+            <emphasis role="strong">NOTE</emphasis> Vous ne pouvez pas utiliser
+            en même temps le filtrage de colonne d'inclusion et d'exclusion sur
+            la même table, seulement sur des tables différentes. De plus, il est
+            seulement possible d'appliquer soit une liste blanche, soit une liste
+            noire aux tables, mais pas les deux à la fois.
+          </para>
+        </blockquote>
+      </section>
+      <section id="composite-dataset">
+        <title>DataSet composite</title>
+        <para>
+          Le DataSet composite est très utile pour agréger plusieurs
+          datasets déjà existants dans un unique dataset. Quand plusieurs
+          datasets contiennent la même table, les lignes sont ajoutées 
+          dans l'ordre indiqué. Par exemple, si nous avons deux datasets
+          <emphasis>fixture1.xml</emphasis> :
+        </para>
+        <screen>
+&lt;?xml version=&quot;1.0&quot; ?&gt;
+&lt;dataset&gt;
+    &lt;livre_d_or id=&quot;1&quot; contenu=&quot;Hello Poum !&quot; utilisateur=&quot;joe&quot; date_creation=&quot;2010-04-24 17:15:23&quot; /&gt;
+&lt;/dataset&gt;
+</screen>
+        <para>
+          et <emphasis>fixture2.xml</emphasis>:
+        </para>
+        <screen>
+&lt;?xml version=&quot;1.0&quot; ?&gt;
+&lt;dataset&gt;
+    &lt;livre_d_or id=&quot;2&quot; contenu=&quot;J'aime !&quot; utilisateur=&quot;##NULL##&quot; date_creation=&quot;2010-04-26 12:14:20&quot; /&gt;
+&lt;/dataset&gt;
+</screen>
+        <para>
+          En utiliser le DataSet composite, nous pouvons agréger les deux fichiers de fixture:
+        </para>
+        <screen>
+class CompositeTest extends PHPUnit_Extensions_Database_TestCase
+{
+    public function getDataSet()
+    {
+        $ds1 = $this-&gt;createFlatXmlDataSet('fixture1.xml');
+        $ds2 = $this-&gt;createFlatXmlDataSet('fixture2.xml');
+
+        $compositeDs = new PHPUnit_Extensions_Database_DataSet_CompositeDataSet();
+        $compositeDs-&gt;addDataSet($ds1);
+        $compositeDs-&gt;addDataSet($ds2);
+
+        return $compositeDs;
+    }
+}
+</screen>
+      </section>
+    </section>
+    <section id="beware-of-foreign-keys">
+      <title>Attention aux clefs étrangères</title>
+      <para>
+        Lors du SetUp de la fixture l'extension de base de données de PHPUnit
+        insère les lignes dans la base de données dans l'ordre où elles sont
+        indiquées dans votre fixture. Si votre schéma de base de données
+        utilise des clefs étrangères, ceci signifie que vous devez indiquer
+        les tables dans un ordre qui ne provoquera pas une violation de 
+        contrainte pour ces clefs étrangères.
+      </para>
+    </section>
+    <section id="implementing-your-own-datasetsdatatables">
+      <title>Implementer vos propres DataSets/DataTables</title>
+      <para>
+        Pour comprendre le fonctionnement interne des DataSets et des DataTables 
+        jetons un oeil sur l'interface d'un DataSet. Vous pouvez sauter cette partie
+        si vous ne projetez pas d'implémenter votre propre DataSet ou DataTable.
+      </para>
+      <screen>
+interface PHPUnit_Extensions_Database_DataSet_IDataSet extends IteratorAggregate
+{
+    public function getTableNames();
+    public function getTableMetaData($nomTable);
+    public function getTable($nomTable);
+    public function assertEquals(PHPUnit_Extensions_Database_DataSet_IDataSet $autre);
+
+    public function getReverseIterator();
+}
+</screen>
+      <para>
+        L'interface publique est utilisée en interne par l'assertion
+        <literal>assertDataSetsEqual()</literal> du cas de test de base de données 
+        pour contrôler la qualité du dataset. De l'interface 
+        <literal>IteratorAggregate</literal> le IDataSet
+        hérite la méthode <literal>getIterator()</literal> pour parcourir toutes 
+        les tables du dataset. La méthode additionnelle d'itérateur inverse est 
+        nécessaire pour réussir à tronquer les tables dans l'ordre inverse à celui indiqué.
+      </para>
+      <blockquote>
+        <para>
+          Pour comprendre le besoin d'un itérateur inverse, pensez  deux tables
+          (<emphasis>TableA</emphasis> et <emphasis>TableB</emphasis>) avec 
+          <emphasis>TableB</emphasis> qui contient une clef étrangère sur une colonne de 
+          <emphasis>TableA</emphasis>. Si pour la configuration de la fixture une ligne
+          est insérée dans <emphasis>TableA</emphasis> puis un enregistrement dépendant dans 
+          <emphasis>TableB</emphasis>, alors il est évident que pour détruire le contenu de toutes
+          les tables, l'ordre inverse va vous poser des problèmes avec les contraintes de clefs
+          étrangères.
+        </para>
+      </blockquote>
+      <para>
+        En fonction de l'implémentation, différentes approches sont prises
+        pour ajouter des instances de table dans un dataset. Par exemple,
+        les tables sont ajoutées de façon interne lors de la construction
+        depuis le fichier source dans tous les datasets basés sur les fichiers comme
+        <literal>YamlDataSet</literal>, <literal>XmlDataSet</literal> ou <literal>FlatXmlDataSet</literal>.
+      </para>
+      <para>
+        Une table est également représentée par l'interface suivante :
+      </para>
+      <screen>
+interface PHPUnit_Extensions_Database_DataSet_ITable
+{
+    public function getTableMetaData();
+    public function getRowCount();
+    public function getValue($row, $column);
+    public function getRow($row);
+    public function assertEquals(PHPUnit_Extensions_Database_DataSet_ITable $other);
+}
+</screen>
+      <para>
+        Mise à part la méthode <literal>getTableMetaData()</literal>, ça parle
+        plutôt de soi-même. Les méthodes utilisées sont toutes nécessaires pour 
+        les différentes assertions de l'extension Base de données expliquées
+        dans le chapitre suivant. La méthode 
+        <literal>getTableMetaData()</literal> doit retourner une implémentation de 
+        l'interface <literal>PHPUnit_Extensions_Database_DataSet_ITableMetaData</literal>
+        qui décrit la structure de la table. Elle contient des informations sur:
+      </para>
+      <itemizedlist>
+        <listitem>
+          <para>
+            Le nom de la table
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            Un tableau des noms de colonne de la table, classé par leur ordre
+            d'apparition dans l'ensemble résultat.
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            Un tableau des colonnes clefs primaires.
+          </para>
+        </listitem>
+      </itemizedlist>
+      <para>
+        Cette interface possède également une assertion qui contrôle si
+        deux instances des méta données des tables sont égales et qui sera
+        utilisée par l'assertion d'égalité d'ensemble de données.
+      </para>
+    </section>
+  </section>
+  <section id="the-connection-api">
+    <title>L'API de connexion</title>
+    <para>
+      Il y a trois méthodes intéressantes dans l'interface de connexion
+      qui doit être retournée par la méthode
+      <literal>getConnection()</literal> du cas de test de base de données :
+    </para>
+    <screen>
+interface PHPUnit_Extensions_Database_DB_IDatabaseConnection
+{
+    public function createDataSet(Array $tableNames = NULL);
+    public function createQueryTable($resultName, $sql);
+    public function getRowCount($tableName, $whereClause = NULL);
+
+    // ...
+}
+</screen>
+    <orderedlist numeration="arabic">
+      <listitem>
+        <para>
+          La méthode <literal>createDataSet()</literal> crée un DataSet de base de données
+          (DB) comme décrit dans la section relative aux implémentations de DataSet.
+        </para>
+        <screen>
+class ConnectionTest extends PHPUnit_Extensions_Database_TestCase
+{
+    public function testCreateDataSet()
+    {
+        $tableNames = array('livre_d_or');
+        $dataSet = $this-&gt;getConnection()-&gt;createDataSet();
+    }
+}
+</screen>
+      </listitem>
+      <listitem>
+        <para>
+          La méthode <literal>createQueryTable()</literal> peut être utilisée pour
+          créer des instances d'une QueryTable, en lui passant un nom de résultat et 
+          une requête SQL. C'est une méthode pratique quand elle est associée à des
+          assertions résultats/table comme cela sera illustré dans la prochaine section
+          relative à l'API des assertions de base de données. 
+        </para>
+        <screen>
+class ConnectionTest extends PHPUnit_Extensions_Database_TestCase
+{
+    public function testCreateQueryTable()
+    {
+        $nomTables = array('livre_d_or');
+        $queryTable = $this-&gt;getConnection()-&gt;createQueryTable('livre_d_or', 'SELECT * FROM livre_d_or');
+    }
+}
+</screen>
+      </listitem>
+      <listitem>
+        <para>
+          La méthode <literal>getRowCount()</literal> est un moyen pratique d'accéder
+          au nombre de lignes d'une table, éventuellement filtrées par une
+          clause where supplémentaire. Ceci peut être utilisé pour une simple
+          assertion d'égalité :
+        </para>
+        <screen>
+class ConnectionTest extends PHPUnit_Extensions_Database_TestCase
+{
+    public function testGetRowCount()
+    {
+        $this-&gt;assertEquals(2, $this-&gt;getConnection()-&gt;getRowCount('livre_d_or'));
+    }
+}
+</screen>
+      </listitem>
+    </orderedlist>
+  </section>
+  <section id="database-assertions-api">
+    <title>API d'assertion de base de données</title>
+    <para>
+      En tant qu'outil de test, l'extension base de données fournit 
+      certainement des assertions que vous pouvez utiliser pour vérifier
+      l'état actuel de la base de données, des tables et du nombre de lignes
+      des tables. Cette section décrit ces fonctionnalités en détail :
+    </para>
+    <section id="asserting-the-row-count-of-a-table">
+      <title>Faire une assertion sur le nombre de lignes d'une table</title>
+      <para>
+        Il est souvent très utile de vérifier si une table contient un nombre
+        déterminé de lignes. Vous pouvez facilement réaliser cela sans code
+        de liaison supplémentaire en utilisant l'API de connexion. Disons que 
+        nous voulons contrôler qu'après une insertion d'une ligne dans notre
+        livre d'or, nous n'avons plus seulement nos deux entrées initiales 
+        qui nous ont accompagnées dans tous les exemples précédents, mais aussi
+        une troisième :
+      </para>
+      <screen>
+class LivredorTest extends PHPUnit_Extensions_Database_TestCase
+{
+    public function testAddEntry()
+    {
+        $this-&gt;assertEquals(2, $this-&gt;getConnection()-&gt;getRowCount('livre_d_or'), &quot;Pré-Condition&quot;);
+
+        $livre_d_or = new Livredor();
+        $livre_d_or-&gt;addEntry(&quot;suzy&quot;, &quot;Hello world!&quot;);
+
+        $this-&gt;assertEquals(3, $this-&gt;getConnection()-&gt;getRowCount('livre_d_or'), &quot;Insertion en échec&quot;);
+    }
+}
+</screen>
+    </section>
+    <section id="asserting-the-state-of-a-table">
+      <title>Faire une assertion sur l'état d'une table</title>
+      <para>
+        L'assertion précédent est utile, mais nous voudrons certainement tester
+        le contenu présent de la table pour vérifier que toutes les valeurs ont
+        été écrites dans les bonnes colonnes. Ceci peut être réalisé avec une assertion
+        de table.
+      </para>
+      <para>
+        Pour cela, nous devons définir une instance de Query Table qui tire
+        son contenu d'un nom de table et d'une requête SQL et le compare 
+        à un DataSet basé sur un fichier/tableau.
+      </para>
+      <screen>
+class LivredorTest extends PHPUnit_Extensions_Database_TestCase
+{
+    public function testAddEntry()
+    {
+        $livre_d_or = new Livredor();
+        $livre_d_or-&gt;addEntry(&quot;suzy&quot;, &quot;Hello world!&quot;);
+
+        $requeteDeTable = $this-&gt;getConnection()-&gt;createQueryTable(
+            'livre_d_or', 'SELECT * FROM livre_d_or'
+        );
+        $tableAttendue = $this-&gt;createFlatXmlDataSet(&quot;livreAttendu.xml&quot;)
+                              -&gt;getTable(&quot;livre_d_or&quot;);
+        $this-&gt;assertTablesEqual($tableAttendue, $requeteDeTable);
+    }
+}
+</screen>
+      <para>
+        Maintenant, nous devons écrire le fichier XML à plat <emphasis>livreAttendu.xml</emphasis>
+        pour cette assertion :
+      </para>
+      <screen>
+&lt;?xml version=&quot;1.0&quot; ?&gt;
+&lt;dataset&gt;
+    &lt;livre_d_or id=&quot;1&quot; contenu=&quot;Hello Poum !&quot; utilisateur=&quot;joe&quot; date_creation=&quot;2010-04-24 17:15:23&quot; /&gt;
+    &lt;livre_d_or id=&quot;2&quot; contenu=&quot;J'aime !&quot; utilisateur=&quot;nancy&quot; date_creation=&quot;2010-04-26 12:14:20&quot; /&gt;
+    &lt;livre_d_or id=&quot;3&quot; contenu=&quot;Hello world!&quot; utilisateur=&quot;suzy&quot; date_creation=&quot;2010-05-01 21:47:08&quot; /&gt;
+&lt;/dataset&gt;
+</screen>
+      <para>
+        Cette assertion ne réussira que si elle est lancée très exactement le
+        <emphasis>2010–05–01 21:47:08</emphasis>. Les dates posent un problème spécial
+        pour le test de base de données et nous pouvons contourner l'échec 
+        en omettant la colonne <quote>date_creation</quote> de l'assertion.
+      </para>
+      <para>
+        Le fichier au format XML à plat adapté <emphasis>livreAttendu.xml</emphasis>
+        devra probablement ressembler à ce qui suit pour que l'assertion réussisse.
+      </para>
+      <screen>
+&lt;?xml version=&quot;1.0&quot; ?&gt;
+&lt;dataset&gt;
+    &lt;livre_d_or id=&quot;1&quot; contenu=&quot;Hello Poum !&quot; utilisateur=&quot;joe&quot; /&gt;
+    &lt;livre_d_or id=&quot;2&quot; contenu=&quot;J'aime !&quot; utilisateur=&quot;nancy&quot; /&gt;
+    &lt;livre_d_or id=&quot;3&quot; contenu=&quot;Hello world!&quot; utilisateur=&quot;suzy&quot; /&gt;
+&lt;/dataset&gt;
+</screen>
+      <para>
+        Nous devons corriger l'appel à Query Table:
+      </para>
+      <screen>
+$queryTable = $this-&gt;getConnection()-&gt;createQueryTable(
+    'livre_d_or', 'SELECT id, contenu, utilisateur FROM livre_d_or'
+);
+</screen>
+    </section>
+    <section id="asserting-the-result-of-a-query">
+      <title>Faire une assertion sur le résultat d'une requête</title>
+      <para>
+        Vous pouvez également faire une assertion sur le résultat de requêtes
+        complexes avec l'approche Query Table, simplement en indiquant le nom
+        d'un résultat avec une requête et en le comparant avec un ensemble de 
+        données:
+      </para>
+      <screen>
+class ComplexQueryTest extends PHPUnit_Extensions_Database_TestCase
+{
+    public function testComplexQuery()
+    {
+        $requeteTable = $this-&gt;getConnection()-&gt;createQueryTable(
+            'maRequeteComplexe', 'SELECT requeteComplexe..'
+        );
+        $tableAttendue = $this-&gt;createFlatXmlDataSet(&quot;assertionDeRequeteComplexe.xml&quot;)
+                              -&gt;getTable(&quot;myComplexQuery&quot;);
+        $this-&gt;assertTablesEqual($tableAttendue, $requeteTable);
+    }
+}
+</screen>
+    </section>
+    <section id="asserting-the-state-of-multiple-tables">
+      <title>Faire une assertion sur l'état de plusieurs tables</title>
+      <para>
+        Evidemment, vous pouvez faire une assertion sur l'état de plusieurs
+        tables à la fois et comparer un ensemble de données obtenu par
+        une requête avec un ensemble de données basé sur un fichier. Il y a 
+        deux façons différentes de faire des assertions de DataSet.
+      </para>
+      <orderedlist numeration="arabic">
+        <listitem>
+          <para>
+            Vous pouvez utiliser le Database (DB) Dataset à partir de la 
+            connexion et le comparer au DataSet basé sur un fichier.
+          </para>
+          <screen>
+class DataSetAssertionsTest extends PHPUnit_Extensions_Database_TestCase
+{
+    public function testCreateDataSetAssertion()
+    {
+        $dataSet = $this-&gt;getConnection()-&gt;createDataSet(array('livre_d_or'));
+        $dataSetAttendu = $this-&gt;createFlatXmlDataSet('livre_d_or.xml');
+        $this-&gt;assertDataSetsEqual($dataSetAttendu, $dataSet);
+    }
+}
+</screen>
+        </listitem>
+        <listitem>
+          <para>
+            Vous pouvez construire vous-même le DataSet:
+          </para>
+          <screen>
+class DataSetAssertionsTest extends PHPUnit_Extensions_Database_TestCase
+{
+    public function testManualDataSetAssertion()
+    {
+        $dataSet = new PHPUnit_Extensions_Database_DataSet_QueryDataSet();
+        $dataSet-&gt;addTable('livre_d_or', 'SELECT id, contenu, utilisateur FROM livre_d_or'); // tables supplémentaires
+        $dataSetAttendu = $this-&gt;createFlatXmlDataSet('livre_d_or.xml');
+
+        $this-&gt;assertDataSetsEqual($dataSetAttendu, $dataSet);
+    }
+}
+</screen>
+        </listitem>
+      </orderedlist>
+    </section>
+  </section>
+  <section id="frequently-asked-questions">
+    <title>Foire aux questions</title>
+    <section id="will-phpunit-re-create-the-database-schema-for-each-test">
+      <title>PHPUnit va-t'il (re-)créer le schéma de base de données pour chaque test ?</title>
+      <para>
+        Non, PHPUnit exige que tous les objets de base de données soit disponible quand
+        la suite démarre. La base de données, les tables, les séquences, les triggers et les
+        vues doivent être créés avant que vous exécutiez la suite de tests.
+      </para>
+      <para>
+        <ulink url="http://www.doctrine-project.org">Doctrine 2</ulink> ou
+        <ulink url="http://www.ezcomponents.org">eZ Components</ulink> possèdent
+        des outils puissants qui vous permettent de créer le schéma de base de données
+        à partir de structures de données définies préalablement, cependant, ceux-ci
+        doivent être reliés à l'extension PHPUnit pour permettre la recréation automatique
+        de la base de données avant que la suite de tests complète ne soit exécutée.
+      </para>
+      <para>
+        Puisque chaque test nettoie complètement la base de données, vous n'avez
+        même pas obligation de re-créer la base de donnée pour chaque exécution des tests.
+        Une base de données disponible de façon permanente fonctionne parfaitement.
+      </para>
+    </section>
+    <section id="am-i-required-to-use-pdo-in-my-application-for-the-database-extension-to-work">
+      <title>Suis-je obligé d'utiliser PDO dans mon application pour que l'extension de base de données fonctionne ?</title>
+      <para>
+        Non, PDO n'est nécessaire que pour le nettoyage et la configuration de la fixture et 
+        pour les assertions. Vous pouvez utiliser n'importe laquelle des abstractions de base de 
+        données que vous voulez dans votre propre code.
+      </para>
+    </section>
+    <section id="what-can-i-do-when-i-get-a-too-much-connections-error">
+      <title>Que puis-je faire quand j'obtiens une erreur <quote>Too much Connections (Trop de connexions)</quote> ?</title>
+      <para>
+        Si vous ne mettez pas en cache l'instance PDO qui est créée dans
+        la méthode <literal>getConnection()</literal> du cas de test
+        le nombre de connexions à la base de données est augmenté d'une unité ou plus
+        pour chaque test de base de données. Avec la configuration par défaut, MySql
+        n'autorise qu'un maximum de 100 connexions concurrentes. Les autres moteurs 
+        de bases de données possèdent également des limites du nombre maximum
+        de connexions. 
+      </para>
+      <para>
+        La sous-section
+        <quote>Utilisez votre propre cas de test de base de données abstrait</quote> illustre comment 
+        vous pouvez empêcher cette erreur de survenir en utilisant une unique instance de PDO en cache
+        dans tous vos tests.
+      </para>
+    </section>
+    <section id="how-to-handle-null-with-flat-xml-csv-datasets">
+      <title>Comment gérer les valeurs NULL avec les DataSets au format XML à plat / CSV ?</title>
+      <para>
+        Ne le fait pas. Pour cela, vous devez utiliser des DataSets XML ou YAML.
+      </para>
+    </section>
+  </section>
+</chapter>

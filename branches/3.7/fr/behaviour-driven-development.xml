@@ -1,0 +1,354 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="behaviour-driven-development">
+  <title>Développement dirigé par le comportement</title>
+
+  <para>
+    <indexterm><primary>Extreme Programming</primary></indexterm>
+    <indexterm><primary>Développement dirigé par les tests</primary></indexterm>
+
+    Dans <xref linkend="Astels2006" />, Dave Astels fait le point suivant :
+  </para>
+
+  <itemizedlist>
+    <listitem>
+      <para>
+        <ulink url="http://en.wikipedia.org/wiki/Extreme_Programming">Extreme Programming</ulink>
+        avait à l'origine comme règle de tester tout ce qui peut éventuellement provoquer un défaut.
+      </para>
+    </listitem>
+    <listitem>
+      <para>
+        Maintenant, cependant, la pratique du test en Extreme Programming a évolué
+        en <ulink url="http://en.wikipedia.org/wiki/Test-driven_development">Développement dirigé par les tests</ulink>
+        (voir <xref linkend="test-driven-development" />).
+      </para>
+    </listitem>
+    <listitem>
+      <para>
+        Mais les outils continuent à obliger les développeurs à penser en terme de tests et
+        de vérifications au lieu de spécifications.
+      </para>
+    </listitem>
+  </itemizedlist>
+
+  <blockquote>
+    <attribution>Dave Astels</attribution>
+    <title>Donc, s'il ne s'agit pas de tester, de quoi s'agit-il ?</title>
+    <para>
+      Il s'agit de s'imaginer ce que vous essayez de faire avant de partir en court de route
+      pour essayer de le faire. Vous écrivez une spécification qui fixe une petite
+      partie du comportement sous une forme concise, non ambiguë et exécutable.
+      C'est aussi simple que ça. Cela signifie-t'il que vous écrivez des tests ? Non. Cela
+      signifie que vous écrivez des spécifications sur ce que votre code a à faire.
+      Cela signifie que vous spécifiez le comportement de votre code dans le temps. Mais pas trop
+      loin dans le temps. En fait, juste avant d'écrire le code, c'est mieux car c'est quand 
+      vous avez autant d'information que vous voulez sous la main à ce moment. Comme avec
+      le développement dirigé par les tests quand il est bien fait, vous travaillez par petits 
+      incréments... en spécifiant un petit aspect du comportement à la fois, puis vous
+      l'implémentez.
+    </para>
+    <para>
+      Quand vous réalisez qu'il s'agit de spécifier un comportement et pas écrire
+      des tests, votre point de vue se déplace. Soudain, l'idée d'avoir une classe de test
+      pour chacune de vos classes de production est ridiculement limitant. Et la pensée
+      de tester chacune de vos méthodes avec leurs propres méthodes de test (dans une relation
+      1 pour 1) sera risible.
+    </para>
+  </blockquote>
+
+  <para>
+    <indexterm><primary>Développement dirigé par le comportement</primary></indexterm>
+    <indexterm><primary>Conception dirigée par le domaine</primary></indexterm>
+
+    L'accent mis par le <ulink url="http://en.wikipedia.org/wiki/Behavior_driven_development">Développement dirigé par le comportement</ulink>
+    est sur "le langage et les interactions utilisés dans le processus du développement logiciel. 
+    Les développeurs dirigés par le comportement utilisent leur langue naturelle en combinaison avec le
+    langage polyvalent de la <ulink url="http://en.wikipedia.org/wiki/Domain_driven_design">conception dirigée par le domaine</ulink>
+    pour décrire le but et le bénéfice de leur code. Ceci permet aux développeurs de se concentrer
+    sur pourquoi le code doit être créé, plutôt que sur les détails techniques, 
+    et de minimiser les traductions entre le langage technique dans lequel le code
+    est écrit et le langage du domaine parlé par les "experts du domaine". 
+  </para>
+
+  <para>
+    <indexterm><primary><literal>PHPUnit_Extensions_Story_TestCase</literal></primary></indexterm>
+
+    La classe <literal>PHPUnit_Extensions_Story_TestCase</literal> ajouter un framework d'histoire (story)
+    qui facilite la définition d'un 
+    <ulink url="http://en.wikipedia.org/wiki/Domain-specific_programming_language">Langage spécifique au domaine</ulink>
+    pour le développement dirigé par le comportement. Il peut être installé comme ceci :
+  </para>
+
+  <screen><userinput>pear install phpunit/PHPUnit_Story</userinput></screen>
+
+  <para>
+    A l'intérieur d'un <emphasis>scénario</emphasis>, <literal>given()</literal>,
+    <literal>when()</literal> et <literal>then()</literal> représentent chacun une 
+    <emphasis>étape</emphasis>. <literal>and()</literal> est du même type que les 
+    étapes précédentes. Les méthodes suivantes sont déclarées <literal>abstract</literal>
+    dans <literal>PHPUnit_Extensions_Story_TestCase</literal> et doivent être implémentées :
+  </para>
+
+  <itemizedlist>
+    <listitem>
+      <para><literal>runGiven(&amp;$monde, $action, $parametres)</literal></para>
+      <para>...</para>
+    </listitem>
+
+    <listitem>
+      <para><literal>runWhen(&amp;$monde, $action, $parametres)</literal></para>
+      <para>...</para>
+    </listitem>
+
+    <listitem>
+      <para><literal>runThen(&amp;$monde, $action, $parametres)</literal></para>
+      <para>...</para>
+    </listitem>
+  </itemizedlist>
+
+  <section id="behaviour-driven-development.bowlinggame-example">
+    <title>Exemple du jeu de Bowling</title>
+
+    <para>
+      Dans cette section, nous examinerons l'exemple d'une classe qui calcule
+      le score d'un jeu de bowling. Les règles de ce jeu sont les suivantes :
+    </para>
+
+    <itemizedlist>
+      <listitem>
+        <para>Le jeu comprend 10 manches.</para>
+      </listitem>
+      <listitem>
+        <para>Dans chaque manche, le joueur a deux possibilités de faire tomber 10 quilles.</para>
+      </listitem>
+      <listitem>
+        <para>Le score pour une manche est le nombre total de quilles tombées, plus des bonus pour les strikes et les spares.</para>
+      </listitem>
+      <listitem>
+        <para>Un spare, c'est quand le joueur fait tomber les 10 quilles en 2 essais.</para>
+        <para>Le bonus pour ce type de manche est le nombre de quilles renversées lors du lancer suivant.</para>
+      </listitem>
+      <listitem>
+        <para>Un strike, c'est quand le joueur fait tomber les 10 quilles à son premier essai.</para>
+        <para>Le bonus pour ce type de manche est le nombre de quilles renversées lors des deux lancers suivants.</para>
+      </listitem>
+    </itemizedlist>
+
+    <para>
+      <xref linkend="behaviour-driven-development.bowlinggame-example.examples.BowlingGameSpec.php" />
+      montre comment les règles précédentes sont écrites comme scénarios de spécification en utilisant
+      <literal>PHPUnit_Extensions_Story_TestCase</literal>.
+    </para>
+
+    <example id="behaviour-driven-development.bowlinggame-example.examples.BowlingGameSpec.php">
+      <title>Spécification pour la classe JeuDeBowling</title>
+      <programlisting><![CDATA[<?php
+require_once 'PHPUnit/Extensions/Story/TestCase.php';
+require_once 'JeuDeBowling.php';
+
+class JeuDeBowlingSpec extends PHPUnit_Extensions_Story_TestCase
+{
+    /**
+     * @scenario
+     */
+    public function scorePourJeuDansLaGoutiereEst0()
+    {
+        $this->given('Nouvelle partie')
+             ->then('Le score doit être', 0);
+    }
+
+    /**
+     * @scenario
+     */
+    public function scorePourToutDUnSeulCoupEst20()
+    {
+        $this->given('Nouvelle partie')
+             ->when('Le joueur lance et renverse', 1)
+             ->and('Le joueur lance et renverse', 1)
+             ->and('Le joueur lance et renverse', 1)
+             ->and('Le joueur lance et renverse', 1)
+             ->and('Le joueur lance et renverse', 1)
+             ->and('Le joueur lance et renverse', 1)
+             ->and('Le joueur lance et renverse', 1)
+             ->and('Le joueur lance et renverse', 1)
+             ->and('Le joueur lance et renverse', 1)
+             ->and('Le joueur lance et renverse', 1)
+             ->and('Le joueur lance et renverse', 1)
+             ->and('Le joueur lance et renverse', 1)
+             ->and('Le joueur lance et renverse', 1)
+             ->and('Le joueur lance et renverse', 1)
+             ->and('Le joueur lance et renverse', 1)
+             ->and('Le joueur lance et renverse', 1)
+             ->and('Le joueur lance et renverse', 1)
+             ->and('Le joueur lance et renverse', 1)
+             ->and('Le joueur lance et renverse', 1)
+             ->and('Le joueur lance et renverse', 1)
+             ->then('Le score doit être', 20);
+    }
+
+    /**
+     * @scenario
+     */
+    public function scorePourUnSpareEt3Est16()
+    {
+        $this->given('Nouvelle partie')
+             ->when('Le joueur lance et renverse', 5)
+             ->and('Le joueur lance et renverse', 5)
+             ->and('Le joueur lance et renverse', 3)
+             ->then('Le score doit être', 16);
+    }
+
+    /**
+     * @scenario
+     */
+    public function scorePourUnStrikeEt3Est24()
+    {
+        $this->given('Nouvelle partie')
+             ->when('Le joueur lance et renverse', 10)
+             ->and('Le joueur lance et renverse', 3)
+             ->and('Le joueur lance et renverse', 4)
+             ->then('Le score doit être', 24);
+    }
+
+    /**
+     * @scenario
+     */
+    public function scorePourUnJeuParfaitEst300()
+    {
+        $this->given('Nouvelle partie')
+             ->when('Le joueur lance et renverse', 10)
+             ->and('Le joueur lance et renverse', 10)
+             ->and('Le joueur lance et renverse', 10)
+             ->and('Le joueur lance et renverse', 10)
+             ->and('Le joueur lance et renverse', 10)
+             ->and('Le joueur lance et renverse', 10)
+             ->and('Le joueur lance et renverse', 10)
+             ->and('Le joueur lance et renverse', 10)
+             ->and('Le joueur lance et renverse', 10)
+             ->and('Le joueur lance et renverse', 10)
+             ->and('Le joueur lance et renverse', 10)
+             ->and('Le joueur lance et renverse', 10)
+             ->then('Le score doit être', 300);
+    }
+
+    public function runGiven(&$monde, $action, $parametres)
+    {
+        switch($action) {
+            case 'Nouvelle partie': {
+                $monde['jeu']  = new JeuDeBowling;
+                $monde['lancers'] = 0;
+            }
+            break;
+
+            default: {
+                return $this->notImplemented($action);
+            }
+        }
+    }
+
+    public function runWhen(&$monde, $action, $parametres)
+    {
+        switch($action) {
+            case 'Le joueur lance et renverse': {
+                $monde['jeu']->lancerEtRenverser($parametres[0]);
+                $monde['lancers']++;
+            }
+            break;
+
+            default: {
+                return $this->notImplemented($action);
+            }
+        }
+    }
+
+    public function runThen(&$monde, $action, $parametres)
+    {
+        switch($action) {
+            case 'Le score doit être': {
+                for ($i = $monde['lancers']; $i < 20; $i++) {
+                    $monde['jeu']->lancerEtRenverser(0);
+                }
+
+                $this->assertEquals($parametres[0], $monde['jeu']->score());
+            }
+            break;
+
+            default: {
+                return $this->notImplemented($action);
+            }
+        }
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit --printer PHPUnit_Extensions_Story_ResultPrinter_Text JeuDeBowlingSpec</userinput>
+PHPUnit 3.7.0 by Sebastian Bergmann.
+
+JeuDeBowlingSpec
+ [x] Score pour jeu dans la goutiere est 0
+
+   Given Nouvelle partie 
+    Then Le score doit être 0
+
+ [x] Score pour tout d un seul coup est 20
+
+   Given Nouvelle partie 
+    When Le joueur lance et renverse 1
+     and Le joueur lance et renverse 1
+     and Le joueur lance et renverse 1
+     and Le joueur lance et renverse 1
+     and Le joueur lance et renverse 1
+     and Le joueur lance et renverse 1
+     and Le joueur lance et renverse 1
+     and Le joueur lance et renverse 1
+     and Le joueur lance et renverse 1
+     and Le joueur lance et renverse 1
+     and Le joueur lance et renverse 1
+     and Le joueur lance et renverse 1
+     and Le joueur lance et renverse 1
+     and Le joueur lance et renverse 1
+     and Le joueur lance et renverse 1
+     and Le joueur lance et renverse 1
+     and Le joueur lance et renverse 1
+     and Le joueur lance et renverse 1
+     and Le joueur lance et renverse 1
+     and Le joueur lance et renverse 1
+    Then Le score doit être 20
+
+ [x] Score pour un spare et 3 est 16
+
+   Given Nouvelle partie 
+    When Le joueur lance et renverse 5
+     and Le joueur lance et renverse 5
+     and Le joueur lance et renverse 3
+    Then Le score doit être 16
+
+ [x] Score pour un strike et 3 est 24
+
+   Given Nouvelle partie 
+    When Le joueur lance et renverse 10
+     and Le joueur lance et renverse 3
+     and Le joueur lance et renverse 4
+    Then Le score doit être 24
+
+ [x] Score pour un jeu parfait est 300
+
+   Given Nouvelle partie 
+    When Le joueur lance et renverse 10
+     and Le joueur lance et renverse 10
+     and Le joueur lance et renverse 10
+     and Le joueur lance et renverse 10
+     and Le joueur lance et renverse 10
+     and Le joueur lance et renverse 10
+     and Le joueur lance et renverse 10
+     and Le joueur lance et renverse 10
+     and Le joueur lance et renverse 10
+     and Le joueur lance et renverse 10
+     and Le joueur lance et renverse 10
+     and Le joueur lance et renverse 10
+    Then Le score doit être 300
+
+Scenarios: 5, Failed: 0, Skipped: 0, Incomplete: 0.</screen>
+    </example>
+  </section>
+</chapter>
