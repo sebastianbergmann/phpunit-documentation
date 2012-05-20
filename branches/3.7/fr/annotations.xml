@@ -313,7 +313,29 @@ public function testBalanceEstInitiallementAZero()
         throw new MonException('Un message', 20);
     }
 }</programlisting>
+
+	Pour faciliter les tests et réduire la duplication, un raccourci peut être utilisé pour
+    indiquer une constante de classe comme un 
+    <literal>@expectedExceptionCode</literal> en utilisant la syntaxe
+    "<literal>@expectedExceptionCode ClassName::CONST</literal>".
+                                                                        
+    <programlisting>class MonTest extends PHPUnit_Framework_TestCase 
+  {                                                                      
+      /**                                                                
+        * @expectedException     MonException                             
+        * @expectedExceptionCode MaClasse::CODE_ERREUR                      
+        */                                                               
+      public function testExceptionAUnCodeErreur20()                      
+      {                                                                  
+        throw new MonException('Un message', 20);
+      }                                                                  
+  }                                                                      
+  class MaClasse                                                          
+  {                                                                      
+      const CODE_ERREUR = 20;                                              
+  }</programlisting>     
     </para>
+
   </section>
 
   <section id="appendixes.annotations.expectedExceptionMessage">
@@ -356,7 +378,14 @@ public function testBalanceEstInitiallementAZero()
      }
 }</programlisting>
 
+	Pour faciliter les tests et réduire la duplication, un raccourci peut être utilisé pour
+    indiquer une constante de classe comme un 
+    <literal>@expectedExceptionCode</literal> en utilisant la syntaxe
+    "<literal>@expectedExceptionCode ClassName::CONST</literal>".
+
+	Un exemple peut être trouvé dans <xref linkend="appendixes.annotations.expectedExceptionCode"/>.
     </para>
+
   </section>
 
   <section id="appendixes.annotations.group">

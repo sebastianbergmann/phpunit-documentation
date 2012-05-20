@@ -308,7 +308,30 @@ public function testBalanceIsInitiallyZero()
         throw new MyException('Some Message', 20);
     }
 }</programlisting>
+
+      テストを実行しやすくし、重複を減らすために、
+      ショートカットを使ってクラス定数を指定することができます。
+      <literal>@expectedExceptionCode</literal> で
+      "<literal>@expectedExceptionCode ClassName::CONST</literal>" のようにして使います。
+
+      <programlisting>class MyTest extends PHPUnit_Framework_TestCase
+{
+    /**
+      * @expectedException     MyException
+      * @expectedExceptionCode MyClass::ERRORCODE
+      */
+    public function testExceptionHasErrorcode20()
+    {
+      throw new MyException('Some Message', 20);
+    }
+}
+class MyClass
+{
+    const ERRORCODE = 20;
+}</programlisting>
+
     </para>
+
   </section>
 
   <section id="appendixes.annotations.expectedExceptionMessage">
@@ -350,7 +373,14 @@ public function testBalanceIsInitiallyZero()
      }
 }</programlisting>
 
+      テストを実行しやすくし、重複を減らすために、
+      ショートカットを使ってクラス定数を指定することができます。
+      <literal>@expectedExceptionMessage</literal> で
+      "<literal>@expectedExceptionMessage ClassName::CONST</literal>" のようにして使います。
+
+      サンプルコードは <xref linkend="appendixes.annotations.expectedExceptionCode"/> を参照ください。
     </para>
+
   </section>
 
   <section id="appendixes.annotations.group">

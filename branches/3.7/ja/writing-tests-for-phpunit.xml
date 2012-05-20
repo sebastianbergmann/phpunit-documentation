@@ -496,8 +496,16 @@ Failed asserting that expected exception code 20 is equal to 10.
 
 
 FAILURES!
-Tests: 2, Assertions: 2, Failures: 2.]]></screen>
+Tests: 2, Assertions: 4, Failures: 2.]]></screen>
     </example>
+
+    <para>
+      <literal>@expectedExceptionMessage</literal> や <literal>@expectedExceptionCode</literal>
+      を使ったその他の例が、それぞれ
+      <xref linkend="appendixes.annotations.expectedExceptionMessage"/> と
+      <xref linkend="appendixes.annotations.expectedExceptionCode"/> にあります。
+    </para>
+
 
     <para>
       一方、<literal>setExpectedException()</literal>
@@ -1757,6 +1765,133 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
       </example>
     </section>
 
+    <section id="writing-tests-for-phpunit.assertions.assertJsonFileEqualsJsonFile">
+      <title><literal>assertJsonFileEqualsJsonFile()</literal></title>
+      <indexterm><primary>assertJsonFileEqualsJsonFile()</primary></indexterm>
+      <indexterm><primary>assertJsonFileNotEqualsJsonFile()</primary></indexterm>
+      <para><literal>assertJsonFileEqualsJsonFile(mixed $expectedFile, mixed $actualFile[, string $message = ''])</literal></para>
+      <para>
+        <literal>$actualFile</literal> の値が
+        <literal>$expectedFile</literal> の値にマッチする場合にエラー <literal>$message</literal> を報告します。
+      </para>
+      <example id="writing-tests-for-phpunit.assertions.assertJsonFileEqualsJsonFile.example">
+        <title>assertJsonFileEqualsJsonFile() の使用法</title>
+        <programlisting><![CDATA[<?php
+class JsonFileEqualsJsonFile extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertJsonFileEqualsJsonFile(
+          'path/to/fixture/file', 'path/to/actual/file');
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit JsonFileEqualsJsonFile</userinput>
+PHPUnit 3.7.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds, Memory: 5.00Mb
+
+There was 1 failure:
+
+1) JsonFileEqualsJsonFile::testFailure
+Failed asserting that '{"Mascott":"Tux"}' matches JSON string "["Mascott", "Tux", "OS", "Linux"]".
+
+/lapistano/JsonFileEqualsJsonFile.php:5
+
+FAILURES!
+Tests: 1, Assertions: 3, Failures: 1.</screen>
+      </example>
+    </section>
+
+    <section id="writing-tests-for-phpunit.assertions.assertJsonStringEqualsJsonFile">
+      <title><literal>assertJsonStringEqualsJsonFile()</literal></title>
+      <indexterm><primary>assertJsonStringEqualsJsonFile()</primary></indexterm>
+      <indexterm><primary>assertJsonStringNotEqualsJsonFile()</primary></indexterm>
+      <para><literal>assertJsonStringEqualsJsonFile(mixed $expectedFile, mixed $actualJson[, string $message = ''])</literal></para>
+      <para>
+        <literal>$actualJson</literal> の値が
+        <literal>$expectedFile</literal> の値にマッチする場合にエラー <literal>$message</literal> を報告します。
+      </para>
+      <example id="writing-tests-for-phpunit.assertions.assertJsonStringEqualsJsonFile.example">
+        <title>assertJsonStringEqualsJsonFile() の使用法</title>
+        <programlisting><![CDATA[<?php
+class JsonStringEqualsJsonFile extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertJsonStringEqualsJsonFile(
+          'path/to/fixture/file', json_encode(array("Mascott" => "ux"));
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit JsonStringEqualsJsonFile</userinput>
+PHPUnit 3.7.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds, Memory: 5.00Mb
+
+There was 1 failure:
+
+1) JsonStringEqualsJsonFile::testFailure
+Failed asserting that '{"Mascott":"ux"}' matches JSON string "{"Mascott":"Tux"}".
+
+/lapistano/JsonStringEqualsJsonFile.php:5
+
+FAILURES!
+Tests: 1, Assertions: 3, Failures: 1.</screen>
+      </example>
+    </section>
+
+    <section id="writing-tests-for-phpunit.assertions.assertJsonStringEqualsJsonString">
+      <title><literal>assertJsonStringEqualsJsonString()</literal></title>
+      <indexterm><primary>assertJsonStringEqualsJsonString()</primary></indexterm>
+      <indexterm><primary>assertJsonStringNotEqualsJsonString()</primary></indexterm>
+      <para><literal>assertJsonStringEqualsJsonString(mixed $expectedJson, mixed $actualJson[, string $message = ''])</literal></para>
+      <para>
+        <literal>$actualJson</literal> の値が
+        <literal>$expectedJson</literal> の値にマッチする場合にエラー <literal>$message</literal> を報告します。
+      </para>
+      <example id="writing-tests-for-phpunit.assertions.assertJsonStringEqualsJsonString.example">
+        <title>assertJsonStringEqualsJsonString() の使用法</title>
+        <programlisting><![CDATA[<?php
+class JsonStringEqualsJsonString extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertJsonStringEqualsJsonString(
+          json_encode(array("Mascott" => "Tux"), json_encode(array("Mascott" => "ux"));
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit JsonStringEqualsJsonString</userinput>
+PHPUnit 3.7.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds, Memory: 5.00Mb
+
+There was 1 failure:
+
+1) JsonStringEqualsJsonString::testFailure
+Failed asserting that two objects are equal.
+--- Expected
++++ Actual
+@@ @@
+ stdClass Object (
+ -    'Mascott' => 'Tux'
+ +    'Mascott' => 'ux'
+)
+
+/lapistano/JsonStringEqualsJsonString.php:5
+
+FAILURES!
+Tests: 1, Assertions: 3, Failures: 1.</screen>
+      </example>
+    </section>
+
     <section id="writing-tests-for-phpunit.assertions.assertLessThan">
       <title><literal>assertLessThan()</literal></title>
       <indexterm><primary>assertLessThan()</primary></indexterm>
@@ -2460,7 +2595,7 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
       <para><literal>$matcher</literal> は連想配列で、アサーションに使用するマッチ条件を指定します。</para>
       <itemizedlist>
         <listitem><literal>id</literal>: 指定した <literal>id</literal> 属性のノードが対応する値にマッチすること。</listitem>
-        <listitem><literal>tags</literal>: ノードの型が対応する値にマッチすること。</listitem>
+        <listitem><literal>tag</literal>: ノードの型が対応する値にマッチすること。</listitem>
         <listitem><literal>attributes</literal>: ノードの属性が、対応する値の連想配列 <literal>$attributes</literal> にマッチすること。</listitem>
         <listitem><literal>content</literal>: テキストの内容が指定した値にマッチすること。</listitem>
         <listitem><literal>parent</literal>: ノードの親が連想配列 <literal>$parent</literal> にマッチすること。</listitem>
