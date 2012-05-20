@@ -1737,6 +1737,131 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
       </example>
     </section>
 
+    <section id="writing-tests-for-phpunit.assertions.assertJsonFileEqualsJsonFile">
+      <title><literal>assertJsonFileEqualsJsonFile()</literal></title>
+      <indexterm><primary>assertJsonFileEqualsJsonFile()</primary></indexterm>
+      <indexterm><primary>assertJsonFileNotEqualsJsonFile()</primary></indexterm>
+      <para><literal>assertJsonFileEqualsJsonFile(mixed $fichierAttendu, mixed $fichierConstate[, string $message = ''])</literal></para>
+      <para>
+        Rapporte une erreur identifiée par <literal>$message</literal> si la valeur de <literal>$fichierConstate</literal> correspond
+        à la valeur de <literal>$fichierAttendu</literal>.
+      </para>
+      <example id="writing-tests-for-phpunit.assertions.assertJsonFileEqualsJsonFile.example">
+        <title>Utilisation de assertJsonFileEqualsJsonFile()</title>
+        <programlisting><![CDATA[<?php
+class JsonFileEqualsJsonFile extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertJsonFileEqualsJsonFile(
+          'chemin/vers/fixture/fichier', 'chemin/vers/constate/fichier');
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit JsonFileEqualsJsonFile</userinput>
+PHPUnit 3.7.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds, Memory: 5.00Mb
+There was 1 failure:
+1) JsonFileEqualsJsonFile::testFailure
+Failed asserting that '{"Mascott":"Tux"}' matches JSON string "["Mascott", "Tux", "OS", "Linux"]".
+
+/lapistano/JsonFileEqualsJsonFile.php:5
+
+FAILURES!
+Tests: 1, Assertions: 3, Failures: 1.</screen>
+      </example>
+    </section>
+
+    <section id="writing-tests-for-phpunit.assertions.assertJsonStringEqualsJsonFile">
+      <title><literal>assertJsonStringEqualsJsonFile()</literal></title>
+      <indexterm><primary>assertJsonStringEqualsJsonFile()</primary></indexterm>
+      <indexterm><primary>assertJsonStringNotEqualsJsonFile()</primary></indexterm>
+      <para><literal>assertJsonStringEqualsJsonFile(mixed $fichierAttendu, mixed $jsonConstate[, string $message = ''])</literal></para>
+      <para>
+        Rapporte une erreur identifiée par <literal>$message</literal> si la valeur de <literal>$jsonConstate</literal> correspond à la valeur de 
+        <literal>$fichierAttendu</literal>.
+      </para>
+      <example id="writing-tests-for-phpunit.assertions.assertJsonStringEqualsJsonFile.example">
+        <title>Utilisation de assertJsonStringEqualsJsonFile()</title>
+        <programlisting><![CDATA[<?php
+class JsonStringEqualsJsonFile extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertJsonStringEqualsJsonFile(
+          'chemin/vers/fixture/fichier', json_encode(array("Mascott" => "ux"));
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit JsonStringEqualsJsonFile</userinput>
+PHPUnit 3.7.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds, Memory: 5.00Mb
+
+There was 1 failure:
+
+1) JsonStringEqualsJsonFile::testFailure
+Failed asserting that '{"Mascott":"ux"}' matches JSON string "{"Mascott":"Tux"}".
+
+/lapistano/JsonStringEqualsJsonFile.php:5
+
+FAILURES!
+Tests: 1, Assertions: 3, Failures: 1.</screen>
+      </example>
+    </section>
+
+    <section id="writing-tests-for-phpunit.assertions.assertJsonStringEqualsJsonString">
+      <title><literal>assertJsonStringEqualsJsonString()</literal></title>
+      <indexterm><primary>assertJsonStringEqualsJsonString()</primary></indexterm>
+      <indexterm><primary>assertJsonStringNotEqualsJsonString()</primary></indexterm>
+      <para><literal>assertJsonStringEqualsJsonString(mixed $jsonAttendu, mixed $jsonConstate[, string $message = ''])</literal></para>
+      <para>
+        Rapporte une erreur identifiée par <literal>$message</literal> si la valeur de <literal>$jsonConstate</literal> correspond à la valeur de
+        <literal>$jsonAttendu</literal>.
+      </para>
+      <example id="writing-tests-for-phpunit.assertions.assertJsonStringEqualsJsonString.example">
+        <title>Utilisation de assertJsonStringEqualsJsonString()</title>
+        <programlisting><![CDATA[<?php
+class JsonStringEqualsJsonString extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertJsonStringEqualsJsonString(
+          json_encode(array("Mascott" => "Tux"), json_encode(array("Mascott" => "ux"));
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit JsonStringEqualsJsonString</userinput>
+PHPUnit 3.7.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds, Memory: 5.00Mb
+
+There was 1 failure:
+
+1) JsonStringEqualsJsonString::testFailure
+Failed asserting that two objects are equal.
+--- Expected
++++ Actual
+@@ @@
+ stdClass Object (
+ -    'Mascott' => 'Tux'
+ +    'Mascott' => 'ux'
+)
+
+/lapistano/JsonStringEqualsJsonString.php:5
+
+FAILURES!
+Tests: 1, Assertions: 3, Failures: 1.</screen>
+      </example>
+    </section>
+
     <section id="writing-tests-for-phpunit.assertions.assertLessThan">
       <title><literal>assertLessThan()</literal></title>
       <indexterm><primary>assertLessThan()</primary></indexterm>
