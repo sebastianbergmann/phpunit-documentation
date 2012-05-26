@@ -1,8 +1,6 @@
 #!/usr/bin/env php
 <?php
-require_once 'PHPUnit/Framework/Assert.php';
-require_once 'PHPUnit/Util/Class.php';
-require_once 'Text/Template.php';
+require_once 'PHPUnit/Autoload.php';
 
 if ($argc == 3) {
     $methods = array();
