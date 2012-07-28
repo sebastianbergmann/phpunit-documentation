@@ -3048,4 +3048,172 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
       </example>
     </section>
   </section>
+
+  <section id="writing-tests-for-phpunit.error-output">
+    <title>Error output</title>
+
+    <para>
+      Whenever a test fails PHPUnit tries its best to provide you with as much
+      context as possible that can help to identify the problem.
+    </para>
+
+    <example id="writing-tests-for-phpunit.error-output.examples.ArrayDiffTest.php">
+      <title>Error output generated when an array comparison fails</title>
+      <programlisting><![CDATA[<?php
+class ArrayDiffTest extends PHPUnit_Framework_TestCase
+{
+    public function testEquality() {
+        $this->assertEquals(
+            array(1,2,3 ,4,5,6),
+            array(1,2,33,4,5,6)
+        );
+    }
+}
+?>]]></programlisting>
+      <screen><userinput>phpunit ArrayDiffTest</userinput><![CDATA[
+PHPUnit 3.6.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds, Memory: 5.25Mb
+
+There was 1 failure:
+
+1) ArrayDiffTest::testEquality
+Failed asserting that two arrays are equal.
+--- Expected
++++ Actual
+@@ @@
+ Array (
+     0 => 1
+     1 => 2
+-    2 => 3
++    2 => 33
+     3 => 4
+     4 => 5
+     5 => 6
+ )
+
+/home/sb/ArrayDiffTest.php:7
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+    </example>
+    <para>
+      In this example only one of the array values differs and the other values
+      are shown to provide context on where the error occurred.
+    </para>
+
+    <para>
+      When the generated output would be long to read PHPUnit will split it up
+      and provide a few lines of context around every difference.
+    </para>
+    <example id="writing-tests-for-phpunit.error-output.examples.LongArrayDiffTest.php">
+      <title>Error output when an array comparison of an long array fails</title>
+      <programlisting><![CDATA[<?php
+class LongArrayDiffTest extends PHPUnit_Framework_TestCase
+{
+    public function testEquality() {
+        $this->assertEquals(
+            array(0,0,0,0,0,0,0,0,0,0,0,0,1,2,3 ,4,5,6),
+            array(0,0,0,0,0,0,0,0,0,0,0,0,1,2,33,4,5,6)
+        );
+    }
+}
+?>]]></programlisting>
+      <screen><userinput>phpunit LongArrayDiffTest</userinput><![CDATA[
+PHPUnit 3.6.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds, Memory: 5.25Mb
+
+There was 1 failure:
+
+1) LongArrayDiffTest::testEquality
+Failed asserting that two arrays are equal.
+--- Expected
++++ Actual
+@@ @@
+     13 => 2
+-    14 => 3
++    14 => 33
+     15 => 4
+     16 => 5
+     17 => 6
+ )
+
+
+/home/sb/LongArrayDiffTest.php:7
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+    </example>
+    <section id="writing-tests-for-phpunit.error-output.edge-cases">
+      <title>Edge cases</title>
+
+      <para>
+        When a comparison fails PHPUnit creates a textual representations of the
+        input values and compares those. Due to that implementation a diff
+        might show more problems than actually exist.
+      </para>
+
+      <para>
+        This only happens when using assertEquals or other 'weak' comparison
+        functions on arrays or objects.
+      </para>
+
+      <example id="writing-tests-for-phpunit.error-output.edge-cases.examples.ArrayWeakComparisonTest.php">
+        <title>Edge case in the diff generation when using weak comparison</title>
+        <programlisting><![CDATA[<?php
+class ArrayWeakComparisonTest extends PHPUnit_Framework_TestCase
+{
+    public function testEquality() {
+        $this->assertEquals(
+            array(1  ,2,3 ,4,5,6),
+            array('1',2,33,4,5,6)
+        );
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit ArrayWeakComparisonTest</userinput><![CDATA[
+PHPUnit 3.6.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds, Memory: 5.25Mb
+
+There was 1 failure:
+
+1) ArrayWeakComparisonTest::testEquality
+Failed asserting that two arrays are equal.
+--- Expected
++++ Actual
+@@ @@
+ Array (
+-    0 => 1
++    0 => '1'
+     1 => 2
+-    2 => 3
++    2 => 33
+     3 => 4
+     4 => 5
+     5 => 6
+ )
+
+
+/home/sb/ArrayWeakComparisonTest.php:7
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+
+      </example>
+      <para>
+        In this example the difference in the first index between
+        <literal>1</literal> and <literal>'1'</literal> is
+        reported even so assertEquals considers the values as a match.
+      </para>
+
+    </section>
+  </section>
 </chapter>
