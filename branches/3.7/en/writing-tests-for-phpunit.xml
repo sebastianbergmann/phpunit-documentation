@@ -400,9 +400,78 @@ class CsvFileIterator implements Iterator {
         When a test receives input from both a <literal>@dataProvider</literal>
         method and from one or more tests it <literal>@depends</literal> on, the
         arguments from the data provider will come before the ones from
-        depended-upon tests.
+        depended-upon tests. Arguments from depended-upon tests will be the
+        same for each data set.
+        See <xref linkend="writing-tests-for-phpunit.data-providers.examples.DependencyAndDataProviderCombo.php"/>
       </para>
+
+      <example id="writing-tests-for-phpunit.data-providers.examples.DependencyAndDataProviderCombo.php">
+        <title>Combination of @depends and @dataProvider in same test</title>
+        <programlisting><![CDATA[<?php
+class DependencyAndDataProviderComboTest extends PHPUnit_Framework_TestCase
+{
+
+    public function provider()
+    {
+        return array(array('zero'), array('third'));
+    }
+
+    public function testProducerFirst()
+    {
+        $this->assertTrue(true);
+        return 'first';
+    }
+
+    public function testProducerSecond()
+    {
+        $this->assertTrue(true);
+        return 'second';
+    }
+
+    /**
+     * @depends testProducerFirst
+     * @depends testProducerSecond
+     * @dataProvider provider
+     */
+    public function testConsumer()
+    {
+        $this->assertEquals(
+            array('zero', 'first', 'second'),
+            func_get_args()
+        );
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit --verbose DependencyAndDataProviderComboTest</userinput>
+          <![CDATA[PHPUnit 3.7.0 by Sebastian Bergmann.
+
+          ...F
+
+          Time: 0 seconds, Memory: 3.50Mb
+
+          There was 1 failure:
+
+          1) DependencyAndDataProviderComboTest::testConsumer with data set #1 ('third')
+          Failed asserting that two arrays are equal.
+          --- Expected
+          +++ Actual
+          @@ @@
+          Array (
+          -    0 => 'zero'
+          +    0 => 'third'
+          1 => 'first'
+          2 => 'second'
+          )
+
+          /home/verber/phpunit-documentation/DependencyAndDataProviderComboTest.php:32
+
+          FAILURES!
+          Tests: 4, Assertions: 4, Failures: 1.]]></screen>
+      </example>
+
     </note>
+
+
 
     <note>
       <para>
