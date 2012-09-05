@@ -194,6 +194,55 @@ Tests: 1, Assertions: 1, Failures: 1, Skipped: 1.]]></screen>
       ensure that the dependencies of a test can actually be met before the test
       is run.
     </para>
+
+    <para>
+      A test that has more than one <literal>@depends</literal> annotation
+      will get a fixture from the first producer as the first argument, fixture
+      from second producer will be passed as second and so on.
+      See <xref linkend="writing-tests-for-phpunit.examples.MultipleDependency.php" />
+    </para>
+
+    <example id="writing-tests-for-phpunit.examples.MultipleDependency.php">
+      <title>Test with multiple dependency</title>
+      <programlisting><![CDATA[<?php
+class MultipleDependencyTest extends PHPUnit_Framework_TestCase
+{
+    public function testProducerFirst()
+    {
+        $this->assertTrue(true);
+        return 'first';
+    }
+
+    public function testProducerSecond()
+    {
+        $this->assertTrue(true);
+        return 'second';
+    }
+
+    /**
+     * @depends testProducerFirst
+     * @depends testProducerSecond
+     */
+    public function testConsumer()
+    {
+        $this->assertEquals(
+            array('first', 'second'),
+            func_get_args()
+        );
+    }
+}
+?>]]></programlisting>
+
+      <screen><userinput>phpunit --verbose MultipleDependencyTest</userinput><![CDATA[
+PHPUnit 3.7.0 by Sebastian Bergmann.
+
+...
+
+Time: 0 seconds, Memory: 3.25Mb
+
+OK (3 tests, 3 assertions)]]></screen>
+    </example>
+
   </section>
 
   <section id="writing-tests-for-phpunit.data-providers">
