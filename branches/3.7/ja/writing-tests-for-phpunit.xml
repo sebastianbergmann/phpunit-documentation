@@ -1065,7 +1065,40 @@ FAILURES!
 Tests: 1, Assertions: 1, Failures: 1.]]></screen>
       </example>
     </section>
+	<section id="writing-tests-for-phpunit.assertions.assertContainsOnlyInstancesOf">
+	  <title><literal>assertContainsOnlyInstancesOf()</literal></title>
+      <indexterm><primary>assertContainsOnlyInstancesOf()</primary></indexterm>
+      <para><literal>assertContainsOnlyInstancesOf(string $classname, Traversable|array $haystack[, string $message = ''])</literal></para>
+      <para><literal>$haystack</literal> が <literal>$classname</literal> クラスの唯一のインスタンスを含まない場合にエラー <literal>$message</literal> を報告します。</para>
+      <example id="writing-tests-for-phpunit.assertions.assertContainsOnlyInstancesOf.example">
+        <title>assertContainsOnlyInstancesOf() の使用法</title>
+        <programlisting><![CDATA[<?php
+class ContainsOnlyInstancesOfTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertContainsOnlyInstancesOf('Foo', array(new Foo(), new Bar(), new Foo()));
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit ContainsOnlyInstancesOfTest</userinput><![CDATA[
+PHPUnit 3.7.0 by Sebastian Bergmann.
 
+F
+
+Time: 0 seconds, Memory: 5.00Mb
+
+There was 1 failure:
+
+1) ContainsOnlyInstancesOfTest::testFailure
+Failed asserting that Array ([0]=> Bar Object(...)) is an instance of class "Foo".
+
+/home/sb/ContainsOnlyInstancesOfTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+      </example>
+	</section>
     <section id="writing-tests-for-phpunit.assertions.assertCount">
       <title><literal>assertCount()</literal></title>
       <indexterm><primary>assertCount()</primary></indexterm>
@@ -2772,6 +2805,16 @@ class BiscuitTest extends PHPUnit_Framework_TestCase
               <entry><literal>PHPUnit_Framework_Constraint_TraversableContains contains(mixed $value)</literal></entry>
               <entry><literal>Iterator</literal> インターフェイスを実装している <literal>array</literal> やオブジェクトが、指定した値を保持していることを保証する制約。</entry>
             </row>
+			<row>
+			  <indexterm><primary>containsOnly()</primary></indexterm>
+              <entry><literal>PHPUnit_Framework_Constraint_TraversableContainsOnly containsOnly(string $type)</literal></entry>
+              <entry>評価対象の <literal>array</literal>、あるいは <literal>Iterator</literal> インターフェイスを実装したオブジェクトが、指定した型の唯一の値を含むことを保証する制約。</entry>
+			</row>
+			<row>
+			  <indexterm><primary>containsOnlyInstancesOf()</primary></indexterm>
+              <entry><literal>PHPUnit_Framework_Constraint_TraversableContainsOnly containsOnlyInstancesOf(string $classname)</literal></entry>
+              <entry>評価対象の <literal>array</literal>、あるいは <literal>Iterator</literal> インターフェイスを実装したオブジェクトが、指定したクラスの唯一のインスタンスを含むことを保証する制約。</entry>
+			</row>
             <row>
               <indexterm><primary>equalTo()</primary></indexterm>
               <entry><literal>PHPUnit_Framework_Constraint_IsEqual equalTo($value, $delta = 0, $maxDepth = 10)</literal></entry>
