@@ -75,6 +75,18 @@
     </para>
   </note>
 
+  <note>
+    <title>警告</title>
+
+    <para>
+        パラメータの管理方法が変わったことに気をつけましょう。
+        以前の実装ではオブジェクトのすべてのパラメータをクローンしており、
+        あるメソッドに渡されたオブジェクトが同じものであるかどうかを確かめることができませんでした。
+        <xref linkend="test-doubles.mock-objects.examples.clone-object-parameters-usecase.php" /> に、新しい実装の活用例を示します。
+        <xref linkend="test-doubles.mock-objects.examples.enable-clone-object-parameters.php" /> に、以前の挙動に戻す方法を示します。
+    </para>
+  </note>
+
   <section id="test-doubles.stubs">
     <title>スタブ</title>
 
@@ -723,6 +735,52 @@ class AbstractClassTest extends PHPUnit_Framework_TestCase
              ->will($this->returnValue(TRUE));
 
         $this->assertTrue($stub->concreteMethod());
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <example id="test-doubles.mock-objects.examples.clone-object-parameters-usecase.php">
+      <title>あるメソッドが一度呼ばれ、同じオブジェクトが渡されたことを調べるテスト</title>
+      <programlisting><![CDATA[<?php
+class FooTest extends PHPUnit_Framework_TestCase
+{
+    public function testIdenticalObjectPassed()
+    {
+        $expectedObject = new stdClass;
+
+        $mock = $this->getMock('stdClass', 'foo');
+        $mock->expects($this->once())
+             ->method('foo')
+             ->with($this->identicalTo($expectedObject));
+
+        $mock->foo($expectedObject);
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <example id="test-doubles.mock-objects.examples.enable-clone-object-parameters.php">
+      <title>パラメータのクローンを有効にしたモックオブジェクトの作成</title>
+      <programlisting><![CDATA[<?php
+class FooTest extends PHPUnit_Framework_TestCase
+{
+    public function testIdenticalObjectPassed()
+    {
+        $enableParameterCloning = true;
+
+        $mock = $this->getMock(
+            'stdClass',
+            array(),
+            array(),
+            '',
+            TRUE,
+            TRUE,
+            TRUE,
+            $enableParameterCloning
+        );
+
+        // このモックはパラメータをクローンし、identicalTo 制約を満たさないようになります。
     }
 }
 ?>]]></programlisting>
