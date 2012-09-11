@@ -1043,7 +1043,40 @@ FAILURES!
 Tests: 1, Assertions: 1, Failures: 1.]]></screen>
       </example>
     </section>
+	<section id="writing-tests-for-phpunit.assertions.assertContainsOnlyInstancesOf">
+	  <title><literal>assertContainsOnlyInstancesOf()</literal></title>
+      <indexterm><primary>assertContainsOnlyInstancesOf()</primary></indexterm>
+      <para><literal>assertContainsOnlyInstancesOf(string $classname, Traversable|array $haystack[, string $message = ''])</literal></para>
+      <para>Reports an error identified by <literal>$message</literal> if <literal>$haystack</literal> does not contain only instances of class <literal>$classname</literal>.</para>
+      <example id="writing-tests-for-phpunit.assertions.assertContainsOnlyInstancesOf.example">
+        <title>Usage of assertContainsOnlyInstancesOf()</title>
+        <programlisting><![CDATA[<?php
+class ContainsOnlyInstancesOfTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertContainsOnlyInstancesOf('Foo', array(new Foo(), new Bar(), new Foo()));
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit ContainsOnlyInstancesOfTest</userinput><![CDATA[
+PHPUnit 3.7.0 by Sebastian Bergmann.
 
+F
+
+Time: 0 seconds, Memory: 5.00Mb
+
+There was 1 failure:
+
+1) ContainsOnlyInstancesOfTest::testFailure
+Failed asserting that Array ([0]=> Bar Object(...)) is an instance of class "Foo".
+
+/home/sb/ContainsOnlyInstancesOfTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+      </example>
+	</section>
     <section id="writing-tests-for-phpunit.assertions.assertCount">
       <title><literal>assertCount()</literal></title>
       <indexterm><primary>assertCount()</primary></indexterm>
@@ -2750,6 +2783,16 @@ class BiscuitTest extends PHPUnit_Framework_TestCase
               <entry><literal>PHPUnit_Framework_Constraint_TraversableContains contains(mixed $value)</literal></entry>
               <entry>Constraint that asserts that the <literal>array</literal> or object that implements the <literal>Iterator</literal> interface it is evaluated for contains a given value.</entry>
             </row>
+			<row>
+			  <indexterm><primary>containsOnly()</primary></indexterm>
+              <entry><literal>PHPUnit_Framework_Constraint_TraversableContainsOnly containsOnly(string $type)</literal></entry>
+              <entry>Constraint that asserts that the <literal>array</literal> or object that implements the <literal>Iterator</literal> interface it is evaluated for contains only values of a given type.</entry>
+			</row>
+			<row>
+			  <indexterm><primary>containsOnlyInstancesOf()</primary></indexterm>
+              <entry><literal>PHPUnit_Framework_Constraint_TraversableContainsOnly containsOnlyInstancesOf(string $classname)</literal></entry>
+              <entry>Constraint that asserts that the <literal>array</literal> or object that implements the <literal>Iterator</literal> interface it is evaluated for contains only instances of a given classname.</entry>
+			</row>
             <row>
               <indexterm><primary>equalTo()</primary></indexterm>
               <entry><literal>PHPUnit_Framework_Constraint_IsEqual equalTo($value, $delta = 0, $maxDepth = 10)</literal></entry>
