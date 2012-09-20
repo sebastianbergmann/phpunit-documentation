@@ -749,7 +749,7 @@ class FooTest extends PHPUnit_Framework_TestCase
     {
         $expectedObject = new stdClass;
 
-        $mock = $this->getMock('stdClass', 'foo');
+        $mock = $this->getMock('stdClass', array('foo'));
         $mock->expects($this->once())
              ->method('foo')
              ->with($this->identicalTo($expectedObject));
@@ -767,18 +767,21 @@ class FooTest extends PHPUnit_Framework_TestCase
 {
     public function testIdenticalObjectPassed()
     {
-        $enableParameterCloning = true;
+        $cloneArguments = true;
 
         $mock = $this->getMock(
             'stdClass',
             array(),
             array(),
             '',
+            FALSE,
             TRUE,
             TRUE,
-            TRUE,
-            $enableParameterCloning
+            $cloneArguments
         );
+
+        // あるいはモックビルダーを使います
+        $mock = $this->getMockBuilder('stdClass')->enableArgumentCloning()->getMock();
 
         // このモックはパラメータをクローンし、identicalTo 制約を満たさないようになります。
     }
