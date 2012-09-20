@@ -2,9 +2,35 @@
 
 <chapter id="installation">
   <title>Installing PHPUnit</title>
+  
+  <para>
+    PHPUnit supports two package management systems: PEAR and Composer.
+  </para>
 
   <para>
-    PHPUnit should be installed using the PEAR Installer, the backbone of the
+    Installation via PEAR is supported for every PHPUnit release ever 
+    while Composer support was added in PHPUnit 3.7 meaning that earlier
+    versions can't be installed using it.
+  </para>
+
+  <note>
+    <para>
+      PHPUnit 3.7 requires PHP 5.3.3 (or later) but PHP 5.4.7 (or later) is
+      highly recommended.
+    </para>
+
+    <para>
+      PHP_CodeCoverage, the library that is used by PHPUnit to collect and
+      process code coverage information, depends on Xdebug 2.0.5 (or later) but
+      Xdebug 2.2.0 (or later) is highly recommended.
+    </para>
+  </note>
+
+  <section id="installation.pear">
+    <title>PEAR</title>
+
+  <para>
+    Installing PHPUnit via the PEAR Installer, the backbone of the
     <ulink url="http://pear.php.net/">PHP Extension and Application
     Repository</ulink> that provides a distribution system for PHP packages.
   </para>
@@ -24,19 +50,6 @@
     </para>
   </caution>
 
-  <note>
-    <para>
-      PHPUnit 3.7 requires PHP 5.3.3 (or later) but PHP 5.4.0 (or later) is
-      highly recommended.
-    </para>
-
-    <para>
-      PHP_CodeCoverage, the library that is used by PHPUnit to collect and
-      process code coverage information, depends on Xdebug 2.0.5 (or later) but
-      Xdebug 2.2.0 (or later) is highly recommended.
-    </para>
-  </note>
-
   <para>
     The following two commands (which you may have to run as
     <literal>root</literal>) are all that is required to install PHPUnit using
@@ -45,6 +58,63 @@
 
   <screen><userinput>pear config-set auto_discover 1</userinput>
 <userinput>pear install pear.phpunit.de/PHPUnit</userinput></screen>
+
+  <para>
+    After the installation you can find the PHPUnit source files inside your
+    local PEAR directory; the path is usually
+    <filename>/usr/lib/php/PHPUnit</filename>.
+  </para>
+
+  </section>
+
+  <section id="installation.composer">
+    <title>Composer</title>
+
+    <para>
+      Starting with PHPUnit 3.7 it can also be installing using
+      <ulink url="http://getcomposer.org/">Composer</ulink>,
+      the "Dependency Manager for PHP". This guide assumes you already
+      know how to use composer and that you have a composer.json file
+      in your project.
+    </para>
+
+    <para>
+      To add PHPUnit as a local, per project, dependency for development add
+      the following lines to your composer.json.
+    </para>
+
+    <programlisting><![CDATA["require-dev": {
+    "phpunit/phpunit": "3.7.*"
+}]]></programlisting>
+
+    <para>
+      For a standalone system wide installation via composer a composer.json 
+      similar to the following can be used from an arbitary directory.
+    </para>
+
+    <programlisting><![CDATA[{
+    "name": "phpunit",
+    "description": "PHPUnit",
+    "require": {
+        "phpunit/phpunit": "3.7.*"
+    },
+    "config": {
+        "bin-dir": "/usr/local/bin/"
+    }
+}]]></programlisting>
+
+  <note>
+    <para>
+      Currently it is still necessary to add a
+      <literal>"minimum-stability": "dev"</literal> for the installation to work out.
+      This requirement will be removed with future PHPUnit releases.
+    </para>
+  </note>
+
+  </section>
+
+  <section id="installation.optional-packages">
+    <title>Optional packages</title>
 
   <para>
     The following optional packages are available:
@@ -59,10 +129,42 @@
         </para>
 
         <para>
-          This package can be installed using the following command:
+          This package can be installed via PEAR using the following command:
         </para>
 
         <screen><userinput>pear install phpunit/DbUnit</userinput></screen>
+
+        <para>
+          or via composer by addding the following
+          <literal>"require-dev"</literal> dependency:
+        </para>
+
+        <screen><userinput>"phpunit/dbunit": ">=1.2"</userinput></screen>
+
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><literal>PHP_Invoker</literal></term>
+      <listitem>
+        <para>
+          A utility class for invoking callables with a timeout. This package is
+          required to enforce test timeouts in strict mode.
+        </para>
+
+        <para>
+          This package can be installed using the following command:
+        </para>
+
+        <screen><userinput>pear install phpunit/PHP_Invoker</userinput></screen>
+
+        <para>
+          or via composer by addding the following
+          <literal>"require-dev"</literal> dependency:
+        </para>
+
+        <screen><userinput>"phpunit/php-invoker": "*"</userinput></screen>
+
       </listitem>
     </varlistentry>
 
@@ -74,10 +176,18 @@
         </para>
 
         <para>
-          This package can be installed using the following command:
+          This package can be installed via PEAR using the following command:
         </para>
 
         <screen><userinput>pear install phpunit/PHPUnit_Selenium</userinput></screen>
+
+        <para>
+          or via composer by addding the following
+          <literal>"require-dev"</literal> dependency:
+        </para>
+
+        <screen><userinput>"phpunit/phpunit-selenium": ">=1.2"</userinput></screen>
+
       </listitem>
     </varlistentry>
 
@@ -89,10 +199,18 @@
         </para>
 
         <para>
-          This package can be installed using the following command:
+          This package can be installed via PEAR using the following command:
         </para>
 
         <screen><userinput>pear install phpunit/PHPUnit_Story</userinput></screen>
+
+        <para>
+          or via composer by addding the following
+          <literal>"require-dev"</literal> dependency:
+        </para>
+
+        <screen><userinput>"phpunit/phpunit-story": "*"</userinput></screen>
+
       </listitem>
     </varlistentry>
 
@@ -202,26 +320,8 @@
       </listitem>
     </varlistentry>
 
-    <varlistentry>
-      <term><literal>PHP_Invoker</literal></term>
-      <listitem>
-        <para>
-          A utility class for invoking callables with a timeout. This package is
-          required to enforce test timeouts in strict mode.
-        </para>
-
-        <para>
-          This package can be installed using the following command:
-        </para>
-
-        <screen><userinput>pear install phpunit/PHP_Invoker</userinput></screen>
-      </listitem>
-    </varlistentry>
   </variablelist>
 
-  <para>
-    After the installation you can find the PHPUnit source files inside your
-    local PEAR directory; the path is usually
-    <filename>/usr/lib/php/PHPUnit</filename>.
-  </para>
+  </section>
+
 </chapter>
