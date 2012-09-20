@@ -4,7 +4,33 @@
   <title>PHPUnit のインストール</title>
 
   <para>
-    PHPUnit をインストールするには PEAR インストーラを使います。これは
+    PHPUnit supports two package management systems: PEAR and Composer.
+  </para>
+
+  <para>
+    Installation via PEAR is supported for every PHPUnit release ever 
+    while Composer support was added in PHPUnit 3.7 meaning that earlier
+    versions can't be installed using it.
+  </para>
+
+  <note>
+    <para>
+      PHPUnit 3.7 は PHP 5.3.3 以降のバージョンで動作しますが、PHP 5.4.7
+      以降を使うことを強く推奨します。
+    </para>
+
+    <para>
+      PHPUnit では PHP_CodeCoverage というライブラリを使ってコードカバレッジ情報を処理していますが、
+      このライブラリを使うには Xdebug 2.0.5 以降が必要です。
+      しかし、Xdebug 2.2.0 以降を使うことを強く推奨します。
+    </para>
+  </note>
+
+  <section id="installation.pear">
+    <title>PEAR</title>
+
+  <para>
+    PEAR インストーラを使って PHPUnit をインストールします。これは
     <ulink url="http://pear.php.net/">PHP Extension and Application
     Repository</ulink> の根幹をなすものであり、
     PHP のパッケージを配布する仕組みを提供しています。
@@ -26,19 +52,6 @@
     </para>
   </caution>
 
-  <note>
-    <para>
-      PHPUnit 3.7 は PHP 5.3.3 以降のバージョンで動作しますが、PHP 5.4.0
-      以降を使うことを強く推奨します。
-    </para>
-
-    <para>
-      PHPUnit では PHP_CodeCoverage というライブラリを使ってコードカバレッジ情報を処理していますが、
-      このライブラリを使うには Xdebug 2.0.5 以降が必要です。
-      しかし、Xdebug 2.2.0 以降を使うことを強く推奨します。
-    </para>
-  </note>
-
   <para>
     次のふたつのコマンドを実行するだけで (<literal>root</literal> として実行しなければならないかもしれません)、PHPUnit
     に必要なものがすべて PEAR インストーラを使ってインストールできます。
@@ -46,6 +59,63 @@
 
   <screen><userinput>pear config-set auto_discover 1</userinput>
 <userinput>pear install pear.phpunit.de/PHPUnit</userinput></screen>
+
+  <para>
+    After the installation you can find the PHPUnit source files inside your
+    local PEAR directory; the path is usually
+    <filename>/usr/lib/php/PHPUnit</filename>.
+  </para>
+
+  </section>
+
+  <section id="installation.composer">
+    <title>Composer</title>
+
+    <para>
+      Starting with PHPUnit 3.7 it can also be installing using
+      <ulink url="http://getcomposer.org/">Composer</ulink>,
+      the "Dependency Manager for PHP". This guide assumes you already
+      know how to use composer and that you have a composer.json file
+      in your project.
+    </para>
+
+    <para>
+      To add PHPUnit as a local, per project, dependency for development add
+      the following lines to your composer.json.
+    </para>
+
+    <programlisting><![CDATA["require-dev": {
+    "phpunit/phpunit": "3.7.*"
+}]]></programlisting>
+
+    <para>
+      For a standalone system wide installation via composer a composer.json 
+      similar to the following can be used from an arbitary directory.
+    </para>
+
+    <programlisting><![CDATA[{
+    "name": "phpunit",
+    "description": "PHPUnit",
+    "require": {
+        "phpunit/phpunit": "3.7.*"
+    },
+    "config": {
+        "bin-dir": "/usr/local/bin/"
+    }
+}]]></programlisting>
+
+  <note>
+    <para>
+      Currently it is still necessary to add a
+      <literal>"minimum-stability": "dev"</literal> for the installation to work out.
+      This requirement will be removed with future PHPUnit releases.
+    </para>
+  </note>
+
+  </section>
+
+  <section id="installation.optional-packages">
+    <title>Optional packages</title>
 
   <para>
     オプションのパッケージとして、これらが使えます。
@@ -60,10 +130,42 @@
         </para>
 
         <para>
-          このパッケージは、次のコマンドでインストールします。
+          このパッケージは、PEAR を使って次のコマンドでインストールします。
         </para>
 
         <screen><userinput>pear install phpunit/DbUnit</userinput></screen>
+
+        <para>
+          or via composer by addding the following
+          <literal>"require-dev"</literal> dependency:
+        </para>
+
+        <screen><userinput>"phpunit/dbunit": ">=1.2"</userinput></screen>
+
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><literal>PHP_Invoker</literal></term>
+      <listitem>
+        <para>
+          A utility class for invoking callables with a timeout. This package is
+          required to enforce test timeouts in strict mode.
+        </para>
+
+        <para>
+          This package can be installed using the following command:
+        </para>
+
+        <screen><userinput>pear install phpunit/PHP_Invoker</userinput></screen>
+
+        <para>
+          or via composer by addding the following
+          <literal>"require-dev"</literal> dependency:
+        </para>
+
+        <screen><userinput>"phpunit/php-invoker": "*"</userinput></screen>
+
       </listitem>
     </varlistentry>
 
@@ -75,10 +177,18 @@
         </para>
 
         <para>
-          このパッケージは、次のコマンドでインストールします。
+          このパッケージは、PEAR を使って次のコマンドでインストールします。
         </para>
 
         <screen><userinput>pear install phpunit/PHPUnit_Selenium</userinput></screen>
+
+        <para>
+          or via composer by addding the following
+          <literal>"require-dev"</literal> dependency:
+        </para>
+
+        <screen><userinput>"phpunit/phpunit-selenium": ">=1.2"</userinput></screen>
+
       </listitem>
     </varlistentry>
 
@@ -90,10 +200,18 @@
         </para>
 
         <para>
-          このパッケージは、次のコマンドでインストールします。
+          このパッケージは、PEAR を使って次のコマンドでインストールします。
         </para>
 
         <screen><userinput>pear install phpunit/PHPUnit_Story</userinput></screen>
+
+        <para>
+          or via composer by addding the following
+          <literal>"require-dev"</literal> dependency:
+        </para>
+
+        <screen><userinput>"phpunit/phpunit-story": "*"</userinput></screen>
+
       </listitem>
     </varlistentry>
 
@@ -203,26 +321,8 @@
       </listitem>
     </varlistentry>
 
-    <varlistentry>
-      <term><literal>PHP_Invoker</literal></term>
-      <listitem>
-        <para>
-          タイムアウト時に何かをコールするためのユーティリティクラス。
-          このパッケージは、strict モードでテストのタイムアウトを強制するために必要です。
-        </para>
-
-        <para>
-          このパッケージは、次のコマンドでインストールします。
-        </para>
-
-        <screen><userinput>pear install phpunit/PHP_Invoker</userinput></screen>
-      </listitem>
-    </varlistentry>
   </variablelist>
 
-  <para>
-    インストールすると、PHPUnit のソースファイルがローカルの PEAR
-    ディレクトリに格納されます。場所は、通常は
-    <filename>/usr/lib/php/PHPUnit</filename> です。
-  </para>
+  </section>
+
 </chapter>
