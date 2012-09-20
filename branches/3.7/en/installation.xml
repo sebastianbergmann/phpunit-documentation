@@ -2,13 +2,13 @@
 
 <chapter id="installation">
   <title>Installing PHPUnit</title>
-  
+
   <para>
     PHPUnit supports two package management systems: PEAR and Composer.
   </para>
 
   <para>
-    Installation via PEAR is supported for every PHPUnit release ever 
+    Installation via PEAR is supported for every PHPUnit release ever
     while Composer support was added in PHPUnit 3.7 meaning that earlier
     versions can't be installed using it.
   </para>
@@ -29,41 +29,49 @@
   <section id="installation.pear">
     <title>PEAR</title>
 
-  <para>
-    Installing PHPUnit via the PEAR Installer, the backbone of the
-    <ulink url="http://pear.php.net/">PHP Extension and Application
-    Repository</ulink> that provides a distribution system for PHP packages.
-  </para>
-
-  <caution>
     <para>
-      Depending on your OS distribution and/or your PHP environment, you may
-      need to install PEAR or update your existing PEAR installation before
-      you can proceed with the instructions in this chapter.
+      Installing PHPUnit via the PEAR Installer, the backbone of the
+      <ulink url="http://pear.php.net/">PHP Extension and Application
+        Repository
+      </ulink>
+      that provides a distribution system for PHP packages.
     </para>
 
+    <caution>
+      <para>
+        Depending on your OS distribution and/or your PHP environment, you may
+        need to install PEAR or update your existing PEAR installation before
+        you can proceed with the instructions in this chapter.
+      </para>
+
+      <para>
+        <userinput>sudo pear upgrade PEAR</userinput>
+        usually suffices to
+        upgrade an existing PEAR installation. The
+        <ulink
+            url="http://pear.php.net/manual/en/installation.getting.php">PEAR
+          Manual
+        </ulink>
+        explains how to perform a fresh installation of PEAR.
+      </para>
+    </caution>
+
     <para>
-      <userinput>sudo pear upgrade PEAR</userinput> usually suffices to
-      upgrade an existing PEAR installation. The <ulink
-      url="http://pear.php.net/manual/en/installation.getting.php">PEAR
-      Manual</ulink> explains how to perform a fresh installation of PEAR.
+      The following two commands (which you may have to run as
+      <literal>root</literal>) are all that is required to install PHPUnit using
+      the PEAR Installer:
     </para>
-  </caution>
 
-  <para>
-    The following two commands (which you may have to run as
-    <literal>root</literal>) are all that is required to install PHPUnit using
-    the PEAR Installer:
-  </para>
+    <screen>
+      <userinput>pear config-set auto_discover 1</userinput>
+      <userinput>pear install pear.phpunit.de/PHPUnit</userinput>
+    </screen>
 
-  <screen><userinput>pear config-set auto_discover 1</userinput>
-<userinput>pear install pear.phpunit.de/PHPUnit</userinput></screen>
-
-  <para>
-    After the installation you can find the PHPUnit source files inside your
-    local PEAR directory; the path is usually
-    <filename>/usr/lib/php/PHPUnit</filename>.
-  </para>
+    <para>
+      After the installation you can find the PHPUnit source files inside your
+      local PEAR directory; the path is usually
+      <filename>/usr/lib/php/PHPUnit</filename>.
+    </para>
 
   </section>
 
@@ -88,7 +96,7 @@
 }]]></programlisting>
 
     <para>
-      For a standalone system wide installation via composer a composer.json 
+      For a standalone system wide installation via composer a composer.json
       similar to the following can be used from an arbitary directory.
     </para>
 
@@ -103,224 +111,281 @@
     }
 }]]></programlisting>
 
-  <note>
-    <para>
-      Currently it is still necessary to add a
-      <literal>"minimum-stability": "dev"</literal> for the installation to work out.
-      This requirement will be removed with future PHPUnit releases.
-    </para>
-  </note>
+    <note>
+      <para>
+        Currently it is still necessary to add a
+        <literal>"minimum-stability": "dev"</literal>
+        for the installation to work out.
+        This requirement will be removed with future PHPUnit releases.
+      </para>
+    </note>
 
   </section>
 
   <section id="installation.optional-packages">
     <title>Optional packages</title>
 
-  <para>
-    The following optional packages are available:
-  </para>
+    <para>
+      The following optional packages are available:
+    </para>
 
-  <variablelist>
-    <varlistentry>
-      <term><literal>DbUnit</literal></term>
-      <listitem>
-        <para>
-          DbUnit port for PHP/PHPUnit to support database interaction testing.
-        </para>
+    <variablelist>
+      <varlistentry>
+        <term>
+          <literal>DbUnit</literal>
+        </term>
+        <listitem>
+          <para>
+            DbUnit port for PHP/PHPUnit to support database interaction testing.
+          </para>
 
-        <para>
-          This package can be installed via PEAR using the following command:
-        </para>
+          <para>
+            This package can be installed via PEAR using the following command:
+          </para>
 
-        <screen><userinput>pear install phpunit/DbUnit</userinput></screen>
+          <screen>
+            <userinput>pear install phpunit/DbUnit</userinput>
+          </screen>
 
-        <para>
-          or via composer by addding the following
-          <literal>"require-dev"</literal> dependency:
-        </para>
+          <para>
+            or via composer by addding the following
+            <literal>"require-dev"</literal>
+            dependency:
+          </para>
 
-        <screen><userinput>"phpunit/dbunit": ">=1.2"</userinput></screen>
+          <screen>
+            <userinput>"phpunit/dbunit": ">=1.2"</userinput>
+          </screen>
 
-      </listitem>
-    </varlistentry>
+        </listitem>
+      </varlistentry>
 
-    <varlistentry>
-      <term><literal>PHP_Invoker</literal></term>
-      <listitem>
-        <para>
-          A utility class for invoking callables with a timeout. This package is
-          required to enforce test timeouts in strict mode.
-        </para>
+      <varlistentry>
+        <term>
+          <literal>PHP_Invoker</literal>
+        </term>
+        <listitem>
+          <para>
+            A utility class for invoking callables with a timeout. This package is
+            required to enforce test timeouts in strict mode.
+          </para>
 
-        <para>
-          This package can be installed using the following command:
-        </para>
+          <para>
+            This package can be installed using the following command:
+          </para>
 
-        <screen><userinput>pear install phpunit/PHP_Invoker</userinput></screen>
+          <screen>
+            <userinput>pear install phpunit/PHP_Invoker</userinput>
+          </screen>
 
-        <para>
-          or via composer by addding the following
-          <literal>"require-dev"</literal> dependency:
-        </para>
+          <para>
+            or via composer by addding the following
+            <literal>"require-dev"</literal>
+            dependency:
+          </para>
 
-        <screen><userinput>"phpunit/php-invoker": "*"</userinput></screen>
+          <screen>
+            <userinput>"phpunit/php-invoker": "*"</userinput>
+          </screen>
 
-      </listitem>
-    </varlistentry>
+        </listitem>
+      </varlistentry>
 
-    <varlistentry>
-      <term><literal>PHPUnit_Selenium</literal></term>
-      <listitem>
-        <para>
-          Selenium RC integration for PHPUnit.
-        </para>
+      <varlistentry>
+        <term>
+          <literal>PHPUnit_Selenium</literal>
+        </term>
+        <listitem>
+          <para>
+            Selenium RC integration for PHPUnit.
+          </para>
 
-        <para>
-          This package can be installed via PEAR using the following command:
-        </para>
+          <para>
+            This package can be installed via PEAR using the following command:
+          </para>
 
-        <screen><userinput>pear install phpunit/PHPUnit_Selenium</userinput></screen>
+          <screen>
+            <userinput>pear install phpunit/PHPUnit_Selenium</userinput>
+          </screen>
 
-        <para>
-          or via composer by addding the following
-          <literal>"require-dev"</literal> dependency:
-        </para>
+          <para>
+            or via composer by addding the following
+            <literal>"require-dev"</literal>
+            dependency:
+          </para>
 
-        <screen><userinput>"phpunit/phpunit-selenium": ">=1.2"</userinput></screen>
+          <screen>
+            <userinput>"phpunit/phpunit-selenium": ">=1.2"</userinput>
+          </screen>
 
-      </listitem>
-    </varlistentry>
+        </listitem>
+      </varlistentry>
 
-    <varlistentry>
-      <term><literal>PHPUnit_Story</literal></term>
-      <listitem>
-        <para>
-          Story-based test runner for Behavior-Driven Development with PHPUnit.
-        </para>
+      <varlistentry>
+        <term>
+          <literal>PHPUnit_Story</literal>
+        </term>
+        <listitem>
+          <para>
+            Story-based test runner for Behavior-Driven Development with PHPUnit.
+          </para>
 
-        <para>
-          This package can be installed via PEAR using the following command:
-        </para>
+          <para>
+            This package can be installed via PEAR using the following command:
+          </para>
 
-        <screen><userinput>pear install phpunit/PHPUnit_Story</userinput></screen>
+          <screen>
+            <userinput>pear install phpunit/PHPUnit_Story</userinput>
+          </screen>
 
-        <para>
-          or via composer by addding the following
-          <literal>"require-dev"</literal> dependency:
-        </para>
+          <para>
+            or via composer by addding the following
+            <literal>"require-dev"</literal>
+            dependency:
+          </para>
 
-        <screen><userinput>"phpunit/phpunit-story": "*"</userinput></screen>
+          <screen>
+            <userinput>"phpunit/phpunit-story": "*"</userinput>
+          </screen>
 
-      </listitem>
-    </varlistentry>
+        </listitem>
+      </varlistentry>
 
-    <varlistentry>
-      <term><literal>PHPUnit_SkeletonGenerator</literal></term>
-      <listitem>
-        <para>
-          Tool that can generate skeleton test classes from production code
-          classes and vice versa.
-        </para>
+      <varlistentry>
+        <term>
+          <literal>PHPUnit_SkeletonGenerator</literal>
+        </term>
+        <listitem>
+          <para>
+            Tool that can generate skeleton test classes from production code
+            classes and vice versa.
+          </para>
 
-        <para>
-          This package can be installed using the following command:
-        </para>
+          <para>
+            This package can be installed using the following command:
+          </para>
 
-        <screen><userinput>pear install phpunit/PHPUnit_SkeletonGenerator</userinput></screen>
-      </listitem>
-    </varlistentry>
+          <screen>
+            <userinput>pear install phpunit/PHPUnit_SkeletonGenerator</userinput>
+          </screen>
+        </listitem>
+      </varlistentry>
 
-    <varlistentry>
-      <term><literal>PHPUnit_TestListener_DBUS</literal></term>
-      <listitem>
-        <para>
-          A TestListener that sends events to DBUS.
-        </para>
+      <varlistentry>
+        <term>
+          <literal>PHPUnit_TestListener_DBUS</literal>
+        </term>
+        <listitem>
+          <para>
+            A TestListener that sends events to DBUS.
+          </para>
 
-        <para>
-          This package can be installed using the following command:
-        </para>
+          <para>
+            This package can be installed using the following command:
+          </para>
 
-        <screen><userinput>pear install phpunit/PHPUnit_TestListener_DBUS</userinput></screen>
-      </listitem>
-    </varlistentry>
+          <screen>
+            <userinput>pear install phpunit/PHPUnit_TestListener_DBUS</userinput>
+          </screen>
+        </listitem>
+      </varlistentry>
 
-    <varlistentry>
-      <term><literal>PHPUnit_TestListener_XHProf</literal></term>
-      <listitem>
-        <para>
-          A TestListener that uses XHProf for automated profiling of the tested code.
-        </para>
+      <varlistentry>
+        <term>
+          <literal>PHPUnit_TestListener_XHProf</literal>
+        </term>
+        <listitem>
+          <para>
+            A TestListener that uses XHProf for automated profiling of the tested code.
+          </para>
 
-        <para>
-          This package can be installed using the following command:
-        </para>
+          <para>
+            This package can be installed using the following command:
+          </para>
 
-        <screen><userinput>pear install phpunit/PHPUnit_TestListener_XHProf</userinput></screen>
-      </listitem>
-    </varlistentry>
+          <screen>
+            <userinput>pear install phpunit/PHPUnit_TestListener_XHProf</userinput>
+          </screen>
+        </listitem>
+      </varlistentry>
 
-    <varlistentry>
-      <term><literal>PHPUnit_TicketListener_Fogbugz</literal></term>
-      <listitem>
-        <para>
-          A ticket listener that interacts with the Fogbugz issue API.
-        </para>
+      <varlistentry>
+        <term>
+          <literal>PHPUnit_TicketListener_Fogbugz</literal>
+        </term>
+        <listitem>
+          <para>
+            A ticket listener that interacts with the Fogbugz issue API.
+          </para>
 
-        <para>
-          This package can be installed using the following command:
-        </para>
+          <para>
+            This package can be installed using the following command:
+          </para>
 
-        <screen><userinput>pear install phpunit/PHPUnit_TicketListener_Fogbugz</userinput></screen>
-      </listitem>
-    </varlistentry>
+          <screen>
+            <userinput>pear install phpunit/PHPUnit_TicketListener_Fogbugz</userinput>
+          </screen>
+        </listitem>
+      </varlistentry>
 
-    <varlistentry>
-      <term><literal>PHPUnit_TicketListener_GitHub</literal></term>
-      <listitem>
-        <para>
-          A ticket listener that interacts with the GitHub issue API.
-        </para>
+      <varlistentry>
+        <term>
+          <literal>PHPUnit_TicketListener_GitHub</literal>
+        </term>
+        <listitem>
+          <para>
+            A ticket listener that interacts with the GitHub issue API.
+          </para>
 
-        <para>
-          This package can be installed using the following command:
-        </para>
+          <para>
+            This package can be installed using the following command:
+          </para>
 
-        <screen><userinput>pear install phpunit/PHPUnit_TicketListener_GitHub</userinput></screen>
-      </listitem>
-    </varlistentry>
+          <screen>
+            <userinput>pear install phpunit/PHPUnit_TicketListener_GitHub</userinput>
+          </screen>
+        </listitem>
+      </varlistentry>
 
-    <varlistentry>
-      <term><literal>PHPUnit_TicketListener_GoogleCode</literal></term>
-      <listitem>
-        <para>
-          A ticket listener that interacts with the Google Code issue API.
-        </para>
+      <varlistentry>
+        <term>
+          <literal>PHPUnit_TicketListener_GoogleCode</literal>
+        </term>
+        <listitem>
+          <para>
+            A ticket listener that interacts with the Google Code issue API.
+          </para>
 
-        <para>
-          This package can be installed using the following command:
-        </para>
+          <para>
+            This package can be installed using the following command:
+          </para>
 
-        <screen><userinput>pear install phpunit/PHPUnit_TicketListener_GoogleCode</userinput></screen>
-      </listitem>
-    </varlistentry>
+          <screen>
+            <userinput>pear install phpunit/PHPUnit_TicketListener_GoogleCode</userinput>
+          </screen>
+        </listitem>
+      </varlistentry>
 
-    <varlistentry>
-      <term><literal>PHPUnit_TicketListener_Trac</literal></term>
-      <listitem>
-        <para>
-          A ticket listener that interacts with the Trac issue API.
-        </para>
+      <varlistentry>
+        <term>
+          <literal>PHPUnit_TicketListener_Trac</literal>
+        </term>
+        <listitem>
+          <para>
+            A ticket listener that interacts with the Trac issue API.
+          </para>
 
-        <para>
-          This package can be installed using the following command:
-        </para>
+          <para>
+            This package can be installed using the following command:
+          </para>
 
-        <screen><userinput>pear install phpunit/PHPUnit_TicketListener_Trac</userinput></screen>
-      </listitem>
-    </varlistentry>
+          <screen>
+            <userinput>pear install phpunit/PHPUnit_TicketListener_Trac</userinput>
+          </screen>
+        </listitem>
+      </varlistentry>
 
-  </variablelist>
+    </variablelist>
 
   </section>
 
