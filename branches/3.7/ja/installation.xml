@@ -385,78 +385,80 @@
   </section>
 
   <section id="installing.upgrading">
-    <title>Upgrading</title>
+    <title>アップグレード</title>
 
     <para>
-      This section serves as a collection of minor BC issues that one might
-      run into when moving from PHPUnit 3.6 to PHPUnit 3.7.
+      PHPUnit 3.6 から PHPUnit 3.7 への移行の際に出くわすことになる、
+      過去との互換性に関するちょっとした問題をまとめます。
     </para>
 
     <para>
-      The upgrade should be rather easy and work without any issues as it was
-      tested against all major open source frameworks and there was not a
-      single problem for them. Still ever project is different and if you
-      didn't get around to trying one of the release candidates and have ran
-      into an issue this document might provide some help.
+      アップグレードそのものは極めて簡単で、特に問題も発生しません。
+      主要なオープンソースのフレームワークのすべてを対象にテストをして、
+      まったく問題がありませんでした。
+      しかし、プロジェクトによって事情は異なるでしょう。
+      これまでのリリース候補を一度も試さずにアップグレードした人は戸惑うかもしれません。
+      そんなときは、このドキュメントが助けとなるでしょう。
     </para>
 
     <variablelist>
 
       <varlistentry>
-        <term><emphasis role="strong">Removed deprecated OutputTestCase</emphasis></term>
+        <term><emphasis role="strong">非推奨の OutputTestCase が削除された</emphasis></term>
         <listitem>
           <para>
-            The class <literal>PHPUnit_Extensions_OutputTestCase</literal> has
-            been removed. PHPUnit 3.6 issued a deprecation notice when it was
-            used. To see how output can now be tested look into
-            <xref linkend="writing-tests-for-phpunit.output" />.
+            <literal>PHPUnit_Extensions_OutputTestCase</literal> クラスは削除されました。
+            PHPUnit 3.6 のときには非推奨の notice を発行していたものです。
+            出力をテストする方法については
+            <xref linkend="writing-tests-for-phpunit.output" /> をご覧ください。
           </para>
         </listitem>
       </varlistentry>
 
       <varlistentry>
-        <term><emphasis role="strong">Current working directory will be restored after each test case</emphasis></term>
+        <term><emphasis role="strong">テストケースを実行するたびに、現在の作業ディレクトリに戻るようになった</emphasis></term>
         <listitem>
           <para>
-            If a test changes the current working directory
-            (<literal>cwd</literal>) PHPUnit ran into issues when generating
-            code coverage output. Now that the cwd is restored after each
-            test case you might find that one of your tests depended on
-            another test changing the cwd. Something that isn't desirable
-            anyways and should be easy to fix.
+            テストの中で作業ディレクトリ
+            (<literal>cwd</literal>) を変更すると、
+            これまでの PHPUnit はコードカバレッジの出力で問題が発生していました。
+            3.7 ではテストケースごとに作業ディレクトリを復元するようになったので、
+            他のテストケースで作業ディレクトリを変更していることを前提としたテストケースで
+            問題が発生します。もともとそんな状況は好ましくないし、
+            簡単に修正できるでしょう。
           </para>
         </listitem>
       </varlistentry>
 
       <varlistentry>
-        <term><emphasis role="strong">Test listeners trigger one autoload call</emphasis></term>
+        <term><emphasis role="strong">テストリスナーが autoload を呼ぶようになった</emphasis></term>
         <listitem>
           <para>
-            When using custom test listeners as described in
-            <xref linkend="appendixes.configuration.test-listeners"/> PHPUnit
-            silently ignored missing test listeners and it was quite hard to
-            debug that issues for the user. Now one autoload call will be
-            triggered trying to locate the class. If your autoloader produces
-            an error when it doesn't find a test listener you might run into an
-            issue here. Removing the listener or making sure it's loaded in your
-            <literal>bootstrap.php</literal> will solve this.
+            <xref linkend="appendixes.configuration.test-listeners"/>
+            で説明しているカスタムテストリスナーを使うとき、
+            これまでの PHPUnit ではテストリスナーを読み込めなくてもエラーになりませんでした。
+            そのため、テストリスナーが読み込めないことが原因で問題が発生しても、
+            原因を追及しにくかったのです。3.7 からは autoload でクラスを探すようになりました。
+            テストリスナーが見つからないときは autoload でエラーになります。
+            autoloader がテストリスナーを見つけられないと問題になるので、
+            そのリスナーを削除するなり
+            <literal>bootstrap.php</literal> できちんと読み込むようにするなりして解決しましょう。
           </para>
         </listitem>
       </varlistentry>
 
       <varlistentry>
-        <term><emphasis role="strong">Parameters for mock objects don't get cloned anymore</emphasis></term>
+        <term><emphasis role="strong">モックオブジェクトへのパラメータは、クローンされなくなった</emphasis></term>
         <listitem>
           <para>
-            Previously all object parameters where cloned when mocking.
-            This lead to issues when testing trying to check whether the same
-            object was passed to method or not and other problem with
-            uncloneable objects. As a long standing feature request by many
-            this behavior was changed.
+            これまでは、モックを使うときにはすべてのオブジェクトのパラメータをクローンしていました。
+            そのため、メソッドに渡されたオブジェクトの同一性を確かめたいときや
+            そもそもクローンできないオブジェクトであった場合などに問題が発生していました。
+            多くの人からいただいた要望に応えて、この振る舞いは変わりました。
             <xref linkend="test-doubles.mock-objects.examples.clone-object-parameters-usecase.php" />
-            shows where the new implementation could be useful.
+            に、新しい実装がいかに便利かを示す例があります。
             <xref linkend="test-doubles.mock-objects.examples.enable-clone-object-parameters.php" />
-            shows how to switch back to previous behavior.
+            で、過去のバージョンの挙動に戻す方法を説明しています。
           </para>
         </listitem>
       </varlistentry>
@@ -464,24 +466,24 @@
       <varlistentry>
         <term><emphasis role="strong">
           <literal>addUncoveredFilesFromWhitelist</literal>
-          was removed in favor of
-          <literal>processUncoveredFilesFromWhitelist</literal></emphasis>
+          が削除され、
+          <literal>processUncoveredFilesFromWhitelist</literal> に変わった</emphasis>
         </term>
         <listitem>
           <para>
-            When generating code coverage and using
+            コードカバレッジの生成で
             <literal><![CDATA[<whitelist addUncoveredFilesFromWhitelist="true">]]></literal>
-            all uncovered files got included by PHPUnit. This was an issue for
-            people with executable code in those files. PHPUnit will now scan
-            the file and guess what code is executable and what code is not
-            without including it. This might lead to different code coverage
-            reports.
+            を使うとき、カバーされないすべてのファイルは PHPUnit に含まれませんでした。
+            これらのファイルに実行可能なコードを配置している人にとっては、これは問題でした。
+            PHPUnit 3.7 からは、ファイルをスキャンしてどのコードが実行可能かを調べ、
+            どのコードを除外してはいけないかを調べるようになりました。
+            その結果、コードカバレッジの結果が変わることになるかもしれません。
           </para>
           <para>
-            To switch back to the old behavior the setting
+            過去のバージョンと同じ挙動にするには、
             <literal><![CDATA[<whitelist processUncoveredFilesFromWhitelist=="true">]]></literal>
-            can be used. If you want the behavior with PHPUnit 3.6. and 3.7.
-            it is possible to use both settings for a while.
+            と設定します。PHPUnit 3.6 での挙動と 3.7 での挙動のどちらを使いたい人もいるので、
+            しばらくはどちらの挙動でも使えるようにしておきます。
           </para>
         </listitem>
       </varlistentry>
