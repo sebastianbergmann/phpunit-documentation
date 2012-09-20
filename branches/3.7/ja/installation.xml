@@ -8,7 +8,7 @@
   </para>
 
   <para>
-    Installation via PEAR is supported for every PHPUnit release ever 
+    Installation via PEAR is supported for every PHPUnit release ever
     while Composer support was added in PHPUnit 3.7 meaning that earlier
     versions can't be installed using it.
   </para>
@@ -29,42 +29,44 @@
   <section id="installation.pear">
     <title>PEAR</title>
 
-  <para>
-    PEAR インストーラを使って PHPUnit をインストールします。これは
-    <ulink url="http://pear.php.net/">PHP Extension and Application
-    Repository</ulink> の根幹をなすものであり、
-    PHP のパッケージを配布する仕組みを提供しています。
-  </para>
-
-  <caution>
     <para>
-      OS のディストリビューションや PHP の環境によっては、
-      ここで説明する手順を実行する前に
-      まず PEAR をインストールしたり既存の PEAR をアップデートしたりする必要があるかもしれません。
+      PEAR インストーラを使って PHPUnit をインストールします。これは
+      <ulink url="http://pear.php.net/">PHP Extension and Application
+      Repository</ulink> の根幹をなすものであり、
+      PHP のパッケージを配布する仕組みを提供しています。
     </para>
 
+    <caution>
+      <para>
+        OS のディストリビューションや PHP の環境によっては、
+        ここで説明する手順を実行する前に
+        まず PEAR をインストールしたり既存の PEAR をアップデートしたりする必要があるかもしれません。
+      </para>
+
+      <para>
+        既存の PEAR 環境のアップデートは、通常は
+        <userinput>sudo pear upgrade PEAR</userinput>
+        を実行するだけのことです。PEAR の新規インストール方法は <ulink
+        url="http://pear.php.net/manual/ja/installation.getting.php">PEAR
+        マニュアル</ulink> に説明があります。
+      </para>
+    </caution>
+
     <para>
-      既存の PEAR 環境のアップデートは、通常は
-      <userinput>sudo pear upgrade PEAR</userinput>
-      を実行するだけのことです。PEAR の新規インストール方法は <ulink
-      url="http://pear.php.net/manual/ja/installation.getting.php">PEAR
-      マニュアル</ulink> に説明があります。
+      次のふたつのコマンドを実行するだけで (<literal>root</literal> として実行しなければならないかもしれません)、PHPUnit
+      に必要なものがすべて PEAR インストーラを使ってインストールできます。
     </para>
-  </caution>
 
-  <para>
-    次のふたつのコマンドを実行するだけで (<literal>root</literal> として実行しなければならないかもしれません)、PHPUnit
-    に必要なものがすべて PEAR インストーラを使ってインストールできます。
-  </para>
+    <screen>
+      <userinput>pear config-set auto_discover 1</userinput>
+      <userinput>pear install pear.phpunit.de/PHPUnit</userinput>
+    </screen>
 
-  <screen><userinput>pear config-set auto_discover 1</userinput>
-<userinput>pear install pear.phpunit.de/PHPUnit</userinput></screen>
-
-  <para>
-    After the installation you can find the PHPUnit source files inside your
-    local PEAR directory; the path is usually
-    <filename>/usr/lib/php/PHPUnit</filename>.
-  </para>
+    <para>
+      After the installation you can find the PHPUnit source files inside your
+      local PEAR directory; the path is usually
+      <filename>/usr/lib/php/PHPUnit</filename>.
+    </para>
 
   </section>
 
@@ -89,7 +91,7 @@
 }]]></programlisting>
 
     <para>
-      For a standalone system wide installation via composer a composer.json 
+      For a standalone system wide installation via composer a composer.json
       similar to the following can be used from an arbitary directory.
     </para>
 
@@ -104,224 +106,281 @@
     }
 }]]></programlisting>
 
-  <note>
-    <para>
-      Currently it is still necessary to add a
-      <literal>"minimum-stability": "dev"</literal> for the installation to work out.
-      This requirement will be removed with future PHPUnit releases.
-    </para>
-  </note>
+    <note>
+      <para>
+        Currently it is still necessary to add a
+        <literal>"minimum-stability": "dev"</literal>
+        for the installation to work out.
+        This requirement will be removed with future PHPUnit releases.
+      </para>
+    </note>
 
   </section>
 
   <section id="installation.optional-packages">
     <title>Optional packages</title>
 
-  <para>
-    オプションのパッケージとして、これらが使えます。
-  </para>
+    <para>
+      オプションのパッケージとして、これらが使えます。
+    </para>
 
-  <variablelist>
-    <varlistentry>
-      <term><literal>DbUnit</literal></term>
-      <listitem>
-        <para>
-          DbUnit の PHP/PHPUnit 向けの移植。データベースとのやりとりをテスト可能にする。
-        </para>
+    <variablelist>
+      <varlistentry>
+        <term>
+          <literal>DbUnit</literal>
+        </term>
+        <listitem>
+          <para>
+            DbUnit の PHP/PHPUnit 向けの移植。データベースとのやりとりをテスト可能にする。
+          </para>
 
-        <para>
-          このパッケージは、PEAR を使って次のコマンドでインストールします。
-        </para>
+          <para>
+            このパッケージは、PEAR を使って次のコマンドでインストールします。
+          </para>
 
-        <screen><userinput>pear install phpunit/DbUnit</userinput></screen>
+          <screen>
+            <userinput>pear install phpunit/DbUnit</userinput>
+          </screen>
 
-        <para>
-          or via composer by addding the following
-          <literal>"require-dev"</literal> dependency:
-        </para>
+          <para>
+            or via composer by addding the following
+            <literal>"require-dev"</literal>
+            dependency:
+          </para>
 
-        <screen><userinput>"phpunit/dbunit": ">=1.2"</userinput></screen>
+          <screen>
+            <userinput>"phpunit/dbunit": ">=1.2"</userinput>
+          </screen>
 
-      </listitem>
-    </varlistentry>
+        </listitem>
+      </varlistentry>
 
-    <varlistentry>
-      <term><literal>PHP_Invoker</literal></term>
-      <listitem>
-        <para>
-          A utility class for invoking callables with a timeout. This package is
-          required to enforce test timeouts in strict mode.
-        </para>
+      <varlistentry>
+        <term>
+          <literal>PHP_Invoker</literal>
+        </term>
+        <listitem>
+          <para>
+            A utility class for invoking callables with a timeout. This package is
+            required to enforce test timeouts in strict mode.
+          </para>
 
-        <para>
-          This package can be installed using the following command:
-        </para>
+          <para>
+            This package can be installed using the following command:
+          </para>
 
-        <screen><userinput>pear install phpunit/PHP_Invoker</userinput></screen>
+          <screen>
+            <userinput>pear install phpunit/PHP_Invoker</userinput>
+          </screen>
 
-        <para>
-          or via composer by addding the following
-          <literal>"require-dev"</literal> dependency:
-        </para>
+          <para>
+            or via composer by addding the following
+            <literal>"require-dev"</literal>
+            dependency:
+          </para>
 
-        <screen><userinput>"phpunit/php-invoker": "*"</userinput></screen>
+          <screen>
+            <userinput>"phpunit/php-invoker": "*"</userinput>
+          </screen>
 
-      </listitem>
-    </varlistentry>
+        </listitem>
+      </varlistentry>
 
-    <varlistentry>
-      <term><literal>PHPUnit_Selenium</literal></term>
-      <listitem>
-        <para>
-          PHPUnit 用の Selenium RC インテグレーション。
-        </para>
+      <varlistentry>
+        <term>
+          <literal>PHPUnit_Selenium</literal>
+        </term>
+        <listitem>
+          <para>
+            PHPUnit 用の Selenium RC インテグレーション。
+          </para>
 
-        <para>
-          このパッケージは、PEAR を使って次のコマンドでインストールします。
-        </para>
+          <para>
+            このパッケージは、PEAR を使って次のコマンドでインストールします。
+          </para>
 
-        <screen><userinput>pear install phpunit/PHPUnit_Selenium</userinput></screen>
+          <screen>
+            <userinput>pear install phpunit/PHPUnit_Selenium</userinput>
+          </screen>
 
-        <para>
-          or via composer by addding the following
-          <literal>"require-dev"</literal> dependency:
-        </para>
+          <para>
+            or via composer by addding the following
+            <literal>"require-dev"</literal>
+            dependency:
+          </para>
 
-        <screen><userinput>"phpunit/phpunit-selenium": ">=1.2"</userinput></screen>
+          <screen>
+            <userinput>"phpunit/phpunit-selenium": ">=1.2"</userinput>
+          </screen>
 
-      </listitem>
-    </varlistentry>
+        </listitem>
+      </varlistentry>
 
-    <varlistentry>
-      <term><literal>PHPUnit_Story</literal></term>
-      <listitem>
-        <para>
-          PHPUnit で振る舞い駆動開発をするための、ストーリーベースのテストランナー。
-        </para>
+      <varlistentry>
+        <term>
+          <literal>PHPUnit_Story</literal>
+        </term>
+        <listitem>
+          <para>
+            PHPUnit で振る舞い駆動開発をするための、ストーリーベースのテストランナー。
+          </para>
 
-        <para>
-          このパッケージは、PEAR を使って次のコマンドでインストールします。
-        </para>
+          <para>
+            このパッケージは、PEAR を使って次のコマンドでインストールします。
+          </para>
 
-        <screen><userinput>pear install phpunit/PHPUnit_Story</userinput></screen>
+          <screen>
+            <userinput>pear install phpunit/PHPUnit_Story</userinput>
+          </screen>
 
-        <para>
-          or via composer by addding the following
-          <literal>"require-dev"</literal> dependency:
-        </para>
+          <para>
+            or via composer by addding the following
+            <literal>"require-dev"</literal>
+            dependency:
+          </para>
 
-        <screen><userinput>"phpunit/phpunit-story": "*"</userinput></screen>
+          <screen>
+            <userinput>"phpunit/phpunit-story": "*"</userinput>
+          </screen>
 
-      </listitem>
-    </varlistentry>
+        </listitem>
+      </varlistentry>
 
-    <varlistentry>
-      <term><literal>PHPUnit_SkeletonGenerator</literal></term>
-      <listitem>
-        <para>
-          プロダクションコードのクラスからテストクラスの雛形を生成したり、
-          その逆の操作をしたりします。
-        </para>
+      <varlistentry>
+        <term>
+          <literal>PHPUnit_SkeletonGenerator</literal>
+        </term>
+        <listitem>
+          <para>
+            プロダクションコードのクラスからテストクラスの雛形を生成したり、
+            その逆の操作をしたりするツール。
+          </para>
 
-        <para>
-          このパッケージは、次のコマンドでインストールします。
-        </para>
+          <para>
+            このパッケージは、次のコマンドでインストールします。
+          </para>
 
-        <screen><userinput>pear install phpunit/PHPUnit_SkeletonGenerator</userinput></screen>
-      </listitem>
-    </varlistentry>
+          <screen>
+            <userinput>pear install phpunit/PHPUnit_SkeletonGenerator</userinput>
+          </screen>
+        </listitem>
+      </varlistentry>
 
-    <varlistentry>
-      <term><literal>PHPUnit_TestListener_DBUS</literal></term>
-      <listitem>
-        <para>
-          イベントを DBUS に送信するテストリスナー。
-        </para>
+      <varlistentry>
+        <term>
+          <literal>PHPUnit_TestListener_DBUS</literal>
+        </term>
+        <listitem>
+          <para>
+            イベントを DBUS に送信するテストリスナー。
+          </para>
 
-        <para>
-          このパッケージは、次のコマンドでインストールします。
-        </para>
+          <para>
+            このパッケージは、次のコマンドでインストールします。
+          </para>
 
-        <screen><userinput>pear install phpunit/PHPUnit_TestListener_DBUS</userinput></screen>
-      </listitem>
-    </varlistentry>
+          <screen>
+            <userinput>pear install phpunit/PHPUnit_TestListener_DBUS</userinput>
+          </screen>
+        </listitem>
+      </varlistentry>
 
-    <varlistentry>
-      <term><literal>PHPUnit_TestListener_XHProf</literal></term>
-      <listitem>
-        <para>
-          XHProf を使ってテスト対象コードの自動プロファイリングを行うテストリスナー。
-        </para>
+      <varlistentry>
+        <term>
+          <literal>PHPUnit_TestListener_XHProf</literal>
+        </term>
+        <listitem>
+          <para>
+            XHProf を使ってテスト対象コードの自動プロファイリングを行うテストリスナー。
+          </para>
 
-        <para>
-          このパッケージは、次のコマンドでインストールします。
-        </para>
+          <para>
+            このパッケージは、次のコマンドでインストールします。
+          </para>
 
-        <screen><userinput>pear install phpunit/PHPUnit_TestListener_XHProf</userinput></screen>
-      </listitem>
-    </varlistentry>
+          <screen>
+            <userinput>pear install phpunit/PHPUnit_TestListener_XHProf</userinput>
+          </screen>
+        </listitem>
+      </varlistentry>
 
-    <varlistentry>
-      <term><literal>PHPUnit_TicketListener_Fogbugz</literal></term>
-      <listitem>
-        <para>
-          Fogbugz issue API 用のチケットリスナー。
-        </para>
+      <varlistentry>
+        <term>
+          <literal>PHPUnit_TicketListener_Fogbugz</literal>
+        </term>
+        <listitem>
+          <para>
+            Fogbugz issue API 用のチケットリスナー。
+          </para>
 
-        <para>
-          このパッケージは、次のコマンドでインストールします。
-        </para>
+          <para>
+            このパッケージは、次のコマンドでインストールします。
+          </para>
 
-        <screen><userinput>pear install phpunit/PHPUnit_TicketListener_Fogbugz</userinput></screen>
-      </listitem>
-    </varlistentry>
+          <screen>
+            <userinput>pear install phpunit/PHPUnit_TicketListener_Fogbugz</userinput>
+          </screen>
+        </listitem>
+      </varlistentry>
 
-    <varlistentry>
-      <term><literal>PHPUnit_TicketListener_GitHub</literal></term>
-      <listitem>
-        <para>
-          GitHub issue API 用のチケットリスナー。
-        </para>
+      <varlistentry>
+        <term>
+          <literal>PHPUnit_TicketListener_GitHub</literal>
+        </term>
+        <listitem>
+          <para>
+            GitHub issue API 用のチケットリスナー。
+          </para>
 
-        <para>
-          このパッケージは、次のコマンドでインストールします。
-        </para>
+          <para>
+            このパッケージは、次のコマンドでインストールします。
+          </para>
 
-        <screen><userinput>pear install phpunit/PHPUnit_TicketListener_GitHub</userinput></screen>
-      </listitem>
-    </varlistentry>
+          <screen>
+            <userinput>pear install phpunit/PHPUnit_TicketListener_GitHub</userinput>
+          </screen>
+        </listitem>
+      </varlistentry>
 
-    <varlistentry>
-      <term><literal>PHPUnit_TicketListener_GoogleCode</literal></term>
-      <listitem>
-        <para>
-          Google Code issue API 用のチケットリスナー。
-        </para>
+      <varlistentry>
+        <term>
+          <literal>PHPUnit_TicketListener_GoogleCode</literal>
+        </term>
+        <listitem>
+          <para>
+            Google Code issue API 用のチケットリスナー。
+          </para>
 
-        <para>
-          このパッケージは、次のコマンドでインストールします。
-        </para>
+          <para>
+            このパッケージは、次のコマンドでインストールします。
+          </para>
 
-        <screen><userinput>pear install phpunit/PHPUnit_TicketListener_GoogleCode</userinput></screen>
-      </listitem>
-    </varlistentry>
+          <screen>
+            <userinput>pear install phpunit/PHPUnit_TicketListener_GoogleCode</userinput>
+          </screen>
+        </listitem>
+      </varlistentry>
 
-    <varlistentry>
-      <term><literal>PHPUnit_TicketListener_Trac</literal></term>
-      <listitem>
-        <para>
-          Trac issue API 用のチケットリスナー。
-        </para>
+      <varlistentry>
+        <term>
+          <literal>PHPUnit_TicketListener_Trac</literal>
+        </term>
+        <listitem>
+          <para>
+            Trac issue API 用のチケットリスナー。
+          </para>
 
-        <para>
-          このパッケージは、次のコマンドでインストールします。
-        </para>
+          <para>
+            このパッケージは、次のコマンドでインストールします。
+          </para>
 
-        <screen><userinput>pear install phpunit/PHPUnit_TicketListener_Trac</userinput></screen>
-      </listitem>
-    </varlistentry>
+          <screen>
+            <userinput>pear install phpunit/PHPUnit_TicketListener_Trac</userinput>
+          </screen>
+        </listitem>
+      </varlistentry>
 
-  </variablelist>
+    </variablelist>
 
   </section>
 
