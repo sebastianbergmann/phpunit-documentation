@@ -4,31 +4,18 @@
   <title>PHPUnit のインストール</title>
 
   <para>
-    PHPUnit をインストールするには PEAR インストーラを使います。これは
-    <ulink url="http://pear.php.net/">PHP Extension and Application
-    Repository</ulink> の根幹をなすものであり、
-    PHP のパッケージを配布する仕組みを提供しています。
+    PHPUnit は二種類のパッケージ管理システムに対応しています。PEAR と Composer です。
   </para>
 
-  <caution>
-    <para>
-      OS のディストリビューションや PHP の環境によっては、
-      ここで説明する手順を実行する前に
-      まず PEAR をインストールしたり既存の PEAR をアップデートしたりする必要があるかもしれません。
-    </para>
-
-    <para>
-      既存の PEAR 環境のアップデートは、通常は
-      <userinput>sudo pear upgrade PEAR</userinput>
-      を実行するだけのことです。PEAR の新規インストール方法は <ulink
-      url="http://pear.php.net/manual/ja/installation.getting.php">PEAR
-      マニュアル</ulink> に説明があります。
-    </para>
-  </caution>
+  <para>
+    PEAR でのインストールは、これまでにリリースされたすべてのバージョンの PHPUnit で対応していますが、
+    Composer に対応したのは PHPUnit 3.7 以降です。つまり、
+    それより前のバージョンは Composer ではインストールできません。
+  </para>
 
   <note>
     <para>
-      PHPUnit 3.7 は PHP 5.3.3 以降のバージョンで動作しますが、PHP 5.4.0
+      PHPUnit 3.7 は PHP 5.3.3 以降のバージョンで動作しますが、PHP 5.4.7
       以降を使うことを強く推奨します。
     </para>
 
@@ -39,190 +26,462 @@
     </para>
   </note>
 
-  <para>
-    次のふたつのコマンドを実行するだけで (<literal>root</literal> として実行しなければならないかもしれません)、PHPUnit
-    に必要なものがすべて PEAR インストーラを使ってインストールできます。
-  </para>
+  <section id="installation.pear">
+    <title>PEAR</title>
 
-  <screen><userinput>pear config-set auto_discover 1</userinput>
-<userinput>pear install pear.phpunit.de/PHPUnit</userinput></screen>
+    <para>
+      PEAR インストーラを使って PHPUnit をインストールします。これは
+      <ulink url="http://pear.php.net/">PHP Extension and Application
+      Repository</ulink> の根幹をなすものであり、
+      PHP のパッケージを配布する仕組みを提供しています。
+    </para>
 
-  <para>
-    オプションのパッケージとして、これらが使えます。
-  </para>
+    <caution>
+      <para>
+        OS のディストリビューションや PHP の環境によっては、
+        ここで説明する手順を実行する前に
+        まず PEAR をインストールしたり既存の PEAR をアップデートしたりする必要があるかもしれません。
+      </para>
 
-  <variablelist>
-    <varlistentry>
-      <term><literal>DbUnit</literal></term>
-      <listitem>
-        <para>
-          DbUnit の PHP/PHPUnit 向けの移植。データベースとのやりとりをテスト可能にする。
-        </para>
+      <para>
+        既存の PEAR 環境のアップデートは、通常は
+        <userinput>sudo pear upgrade PEAR</userinput>
+        を実行するだけのことです。PEAR の新規インストール方法は
+        <ulink url="http://pear.php.net/manual/en/installation.getting.php">PEAR
+        マニュアル</ulink> に説明があります。
+      </para>
+    </caution>
 
-        <para>
-          このパッケージは、次のコマンドでインストールします。
-        </para>
+    <para>
+      次のふたつのコマンドを実行するだけで (<literal>root</literal> として実行しなければならないかもしれません)、PHPUnit
+      に必要なものがすべて PEAR インストーラを使ってインストールできます。
+    </para>
 
-        <screen><userinput>pear install phpunit/DbUnit</userinput></screen>
-      </listitem>
-    </varlistentry>
+    <screen>
+      <userinput>pear config-set auto_discover 1</userinput>
+      <userinput>pear install pear.phpunit.de/PHPUnit</userinput>
+    </screen>
 
-    <varlistentry>
-      <term><literal>PHPUnit_Selenium</literal></term>
-      <listitem>
-        <para>
-          PHPUnit 用の Selenium RC インテグレーション。
-        </para>
+    <para>
+      インストールすると、PHPUnit のソースファイルがローカルの PEAR ディレクトリに格納されます。
+      その場所は、通常は
+      <filename>/usr/lib/php/PHPUnit</filename> です。
+    </para>
 
-        <para>
-          このパッケージは、次のコマンドでインストールします。
-        </para>
+  </section>
 
-        <screen><userinput>pear install phpunit/PHPUnit_Selenium</userinput></screen>
-      </listitem>
-    </varlistentry>
+  <section id="installation.composer">
+    <title>Composer</title>
 
-    <varlistentry>
-      <term><literal>PHPUnit_Story</literal></term>
-      <listitem>
-        <para>
-          PHPUnit で振る舞い駆動開発をするための、ストーリーベースのテストランナー。
-        </para>
+    <para>
+      PHPUnit 3.7 からは、PHP 用の依存管理ツールである
+      <ulink url="http://getcomposer.org/">Composer</ulink>
+      を使ったインストールもできるようになりました。
+      ここでは、すでに Composer の使い方を知っていて
+      composer.json ファイルが手元にある人向けに手順を解説します。
+    </para>
 
-        <para>
-          このパッケージは、次のコマンドでインストールします。
-        </para>
+    <para>
+      PHPUnit をプロジェクト単位で導入して開発用の依存関係を設定するには、
+      composer.json に次の行を追加します。
+    </para>
 
-        <screen><userinput>pear install phpunit/PHPUnit_Story</userinput></screen>
-      </listitem>
-    </varlistentry>
+    <programlisting><![CDATA["require-dev": {
+    "phpunit/phpunit": "3.7.*"
+}]]></programlisting>
 
-    <varlistentry>
-      <term><literal>PHPUnit_SkeletonGenerator</literal></term>
-      <listitem>
-        <para>
-          プロダクションコードのクラスからテストクラスの雛形を生成したり、
-          その逆の操作をしたりします。
-        </para>
+    <para>
+      システム全体で使えるようにスタンドアロンでインストールするには、
+      次のような composer.json を用意すればどのディレクトリからでもインストールできます。
+    </para>
 
-        <para>
-          このパッケージは、次のコマンドでインストールします。
-        </para>
+    <programlisting><![CDATA[{
+    "name": "phpunit",
+    "description": "PHPUnit",
+    "require": {
+        "phpunit/phpunit": "3.7.*"
+    },
+    "config": {
+        "bin-dir": "/usr/local/bin/"
+    }
+}]]></programlisting>
 
-        <screen><userinput>pear install phpunit/PHPUnit_SkeletonGenerator</userinput></screen>
-      </listitem>
-    </varlistentry>
+  </section>
 
-    <varlistentry>
-      <term><literal>PHPUnit_TestListener_DBUS</literal></term>
-      <listitem>
-        <para>
-          イベントを DBUS に送信するテストリスナー。
-        </para>
+  <section id="installation.optional-packages">
+    <title>オプションのパッケージ</title>
 
-        <para>
-          このパッケージは、次のコマンドでインストールします。
-        </para>
+    <para>
+      オプションのパッケージとして、これらが使えます。
+    </para>
 
-        <screen><userinput>pear install phpunit/PHPUnit_TestListener_DBUS</userinput></screen>
-      </listitem>
-    </varlistentry>
+    <variablelist>
+      <varlistentry>
+        <term>
+          <literal>DbUnit</literal>
+        </term>
+        <listitem>
+          <para>
+            DbUnit の PHP/PHPUnit 向けの移植。データベースとのやりとりをテスト可能にする。
+          </para>
 
-    <varlistentry>
-      <term><literal>PHPUnit_TestListener_XHProf</literal></term>
-      <listitem>
-        <para>
-          XHProf を使ってテスト対象コードの自動プロファイリングを行うテストリスナー。
-        </para>
+          <para>
+            このパッケージは、PEAR を使って次のコマンドでインストールします。
+          </para>
 
-        <para>
-          このパッケージは、次のコマンドでインストールします。
-        </para>
+          <screen>
+            <userinput>pear install phpunit/DbUnit</userinput>
+          </screen>
 
-        <screen><userinput>pear install phpunit/PHPUnit_TestListener_XHProf</userinput></screen>
-      </listitem>
-    </varlistentry>
+          <para>
+            composer でインストールするには、
+            <literal>"require-dev"</literal>
+            に次の行を追加します。
+          </para>
 
-    <varlistentry>
-      <term><literal>PHPUnit_TicketListener_Fogbugz</literal></term>
-      <listitem>
-        <para>
-          Fogbugz issue API 用のチケットリスナー。
-        </para>
+          <screen>
+            <userinput>"phpunit/dbunit": ">=1.2"</userinput>
+          </screen>
 
-        <para>
-          このパッケージは、次のコマンドでインストールします。
-        </para>
+        </listitem>
+      </varlistentry>
 
-        <screen><userinput>pear install phpunit/PHPUnit_TicketListener_Fogbugz</userinput></screen>
-      </listitem>
-    </varlistentry>
+      <varlistentry>
+        <term>
+          <literal>PHP_Invoker</literal>
+        </term>
+        <listitem>
+          <para>
+            callable をタイムアウトつきで実行するユーティリティクラス。
+            テストのタイムアウトを厳格に指定するために必要なパッケージ。
+          </para>
 
-    <varlistentry>
-      <term><literal>PHPUnit_TicketListener_GitHub</literal></term>
-      <listitem>
-        <para>
-          GitHub issue API 用のチケットリスナー。
-        </para>
+          <para>
+            このパッケージは、次のコマンドでインストールします。
+          </para>
 
-        <para>
-          このパッケージは、次のコマンドでインストールします。
-        </para>
+          <screen>
+            <userinput>pear install phpunit/PHP_Invoker</userinput>
+          </screen>
 
-        <screen><userinput>pear install phpunit/PHPUnit_TicketListener_GitHub</userinput></screen>
-      </listitem>
-    </varlistentry>
+          <para>
+            composer でインストールするには、
+            <literal>"require-dev"</literal>
+            に次の行を追加します。
+          </para>
 
-    <varlistentry>
-      <term><literal>PHPUnit_TicketListener_GoogleCode</literal></term>
-      <listitem>
-        <para>
-          Google Code issue API 用のチケットリスナー。
-        </para>
+          <screen>
+            <userinput>"phpunit/php-invoker": "*"</userinput>
+          </screen>
 
-        <para>
-          このパッケージは、次のコマンドでインストールします。
-        </para>
+        </listitem>
+      </varlistentry>
 
-        <screen><userinput>pear install phpunit/PHPUnit_TicketListener_GoogleCode</userinput></screen>
-      </listitem>
-    </varlistentry>
+      <varlistentry>
+        <term>
+          <literal>PHPUnit_Selenium</literal>
+        </term>
+        <listitem>
+          <para>
+            PHPUnit 用の Selenium RC インテグレーション。
+          </para>
 
-    <varlistentry>
-      <term><literal>PHPUnit_TicketListener_Trac</literal></term>
-      <listitem>
-        <para>
-          Trac issue API 用のチケットリスナー。
-        </para>
+          <para>
+            このパッケージは、PEAR を使って次のコマンドでインストールします。
+          </para>
 
-        <para>
-          このパッケージは、次のコマンドでインストールします。
-        </para>
+          <screen>
+            <userinput>pear install phpunit/PHPUnit_Selenium</userinput>
+          </screen>
 
-        <screen><userinput>pear install phpunit/PHPUnit_TicketListener_Trac</userinput></screen>
-      </listitem>
-    </varlistentry>
+          <para>
+            composer でインストールするには、
+            <literal>"require-dev"</literal>
+            に次の行を追加します。
+          </para>
 
-    <varlistentry>
-      <term><literal>PHP_Invoker</literal></term>
-      <listitem>
-        <para>
-          タイムアウト時に何かをコールするためのユーティリティクラス。
-          このパッケージは、strict モードでテストのタイムアウトを強制するために必要です。
-        </para>
+          <screen>
+            <userinput>"phpunit/phpunit-selenium": ">=1.2"</userinput>
+          </screen>
 
-        <para>
-          このパッケージは、次のコマンドでインストールします。
-        </para>
+        </listitem>
+      </varlistentry>
 
-        <screen><userinput>pear install phpunit/PHP_Invoker</userinput></screen>
-      </listitem>
-    </varlistentry>
-  </variablelist>
+      <varlistentry>
+        <term>
+          <literal>PHPUnit_Story</literal>
+        </term>
+        <listitem>
+          <para>
+            PHPUnit で振る舞い駆動開発をするための、ストーリーベースのテストランナー。
+          </para>
 
-  <para>
-    インストールすると、PHPUnit のソースファイルがローカルの PEAR
-    ディレクトリに格納されます。場所は、通常は
-    <filename>/usr/lib/php/PHPUnit</filename> です。
-  </para>
+          <para>
+            このパッケージは、PEAR を使って次のコマンドでインストールします。
+          </para>
+
+          <screen>
+            <userinput>pear install phpunit/PHPUnit_Story</userinput>
+          </screen>
+
+          <para>
+            composer でインストールするには、
+            <literal>"require-dev"</literal>
+            に次の行を追加します。
+          </para>
+
+          <screen>
+            <userinput>"phpunit/phpunit-story": "*"</userinput>
+          </screen>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <literal>PHPUnit_SkeletonGenerator</literal>
+        </term>
+        <listitem>
+          <para>
+            プロダクションコードのクラスからテストクラスの雛形を生成したり、
+            その逆の操作をしたりするツール。
+          </para>
+
+          <para>
+            このパッケージは、次のコマンドでインストールします。
+          </para>
+
+          <screen>
+            <userinput>pear install phpunit/PHPUnit_SkeletonGenerator</userinput>
+          </screen>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <literal>PHPUnit_TestListener_DBUS</literal>
+        </term>
+        <listitem>
+          <para>
+            イベントを DBUS に送信するテストリスナー。
+          </para>
+
+          <para>
+            このパッケージは、次のコマンドでインストールします。
+          </para>
+
+          <screen>
+            <userinput>pear install phpunit/PHPUnit_TestListener_DBUS</userinput>
+          </screen>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <literal>PHPUnit_TestListener_XHProf</literal>
+        </term>
+        <listitem>
+          <para>
+            XHProf を使ってテスト対象コードの自動プロファイリングを行うテストリスナー。
+          </para>
+
+          <para>
+            このパッケージは、次のコマンドでインストールします。
+          </para>
+
+          <screen>
+            <userinput>pear install phpunit/PHPUnit_TestListener_XHProf</userinput>
+          </screen>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <literal>PHPUnit_TicketListener_Fogbugz</literal>
+        </term>
+        <listitem>
+          <para>
+            Fogbugz issue API 用のチケットリスナー。
+          </para>
+
+          <para>
+            このパッケージは、次のコマンドでインストールします。
+          </para>
+
+          <screen>
+            <userinput>pear install phpunit/PHPUnit_TicketListener_Fogbugz</userinput>
+          </screen>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <literal>PHPUnit_TicketListener_GitHub</literal>
+        </term>
+        <listitem>
+          <para>
+            GitHub issue API 用のチケットリスナー。
+          </para>
+
+          <para>
+            このパッケージは、次のコマンドでインストールします。
+          </para>
+
+          <screen>
+            <userinput>pear install phpunit/PHPUnit_TicketListener_GitHub</userinput>
+          </screen>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <literal>PHPUnit_TicketListener_GoogleCode</literal>
+        </term>
+        <listitem>
+          <para>
+            Google Code issue API 用のチケットリスナー。
+          </para>
+
+          <para>
+            このパッケージは、次のコマンドでインストールします。
+          </para>
+
+          <screen>
+            <userinput>pear install phpunit/PHPUnit_TicketListener_GoogleCode</userinput>
+          </screen>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <literal>PHPUnit_TicketListener_Trac</literal>
+        </term>
+        <listitem>
+          <para>
+            Trac issue API 用のチケットリスナー。
+          </para>
+
+          <para>
+            このパッケージは、次のコマンドでインストールします。
+          </para>
+
+          <screen>
+            <userinput>pear install phpunit/PHPUnit_TicketListener_Trac</userinput>
+          </screen>
+        </listitem>
+      </varlistentry>
+
+    </variablelist>
+
+  </section>
+
+  <section id="installing.upgrading">
+    <title>アップグレード</title>
+
+    <para>
+      PHPUnit 3.6 から PHPUnit 3.7 への移行の際に出くわすことになる、
+      過去との互換性に関するちょっとした問題をまとめます。
+    </para>
+
+    <para>
+      アップグレードそのものは極めて簡単で、特に問題も発生しません。
+      主要なオープンソースのフレームワークのすべてを対象にテストをして、
+      まったく問題がありませんでした。
+      しかし、プロジェクトによって事情は異なるでしょう。
+      これまでのリリース候補を一度も試さずにアップグレードした人は戸惑うかもしれません。
+      そんなときは、このドキュメントが助けとなるでしょう。
+    </para>
+
+    <variablelist>
+
+      <varlistentry>
+        <term><emphasis role="strong">非推奨の OutputTestCase が削除された</emphasis></term>
+        <listitem>
+          <para>
+            <literal>PHPUnit_Extensions_OutputTestCase</literal> クラスは削除されました。
+            PHPUnit 3.6 のときには非推奨の notice を発行していたものです。
+            出力をテストする方法については
+            <xref linkend="writing-tests-for-phpunit.output" /> をご覧ください。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><emphasis role="strong">テストケースを実行するたびに、現在の作業ディレクトリに戻るようになった</emphasis></term>
+        <listitem>
+          <para>
+            テストの中で作業ディレクトリ
+            (<literal>cwd</literal>) を変更すると、
+            これまでの PHPUnit はコードカバレッジの出力で問題が発生していました。
+            3.7 ではテストケースごとに作業ディレクトリを復元するようになったので、
+            他のテストケースで作業ディレクトリを変更していることを前提としたテストケースで
+            問題が発生します。もともとそんな状況は好ましくないし、
+            簡単に修正できるでしょう。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><emphasis role="strong">テストリスナーが autoload を呼ぶようになった</emphasis></term>
+        <listitem>
+          <para>
+            <xref linkend="appendixes.configuration.test-listeners"/>
+            で説明しているカスタムテストリスナーを使うとき、
+            これまでの PHPUnit ではテストリスナーを読み込めなくてもエラーになりませんでした。
+            そのため、テストリスナーが読み込めないことが原因で問題が発生しても、
+            原因を追及しにくかったのです。3.7 からは autoload でクラスを探すようになりました。
+            テストリスナーが見つからないときは autoload でエラーになります。
+            autoloader がテストリスナーを見つけられないと問題になるので、
+            そのリスナーを削除するなり
+            <literal>bootstrap.php</literal> できちんと読み込むようにするなりして解決しましょう。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><emphasis role="strong">モックオブジェクトへのパラメータは、クローンされなくなった</emphasis></term>
+        <listitem>
+          <para>
+            これまでは、モックを使うときにはすべてのオブジェクトのパラメータをクローンしていました。
+            そのため、メソッドに渡されたオブジェクトの同一性を確かめたいときや
+            そもそもクローンできないオブジェクトであった場合などに問題が発生していました。
+            多くの人からいただいた要望に応えて、この振る舞いは変わりました。
+            <xref linkend="test-doubles.mock-objects.examples.clone-object-parameters-usecase.php" />
+            に、新しい実装がいかに便利かを示す例があります。
+            <xref linkend="test-doubles.mock-objects.examples.enable-clone-object-parameters.php" />
+            で、過去のバージョンの挙動に戻す方法を説明しています。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><emphasis role="strong">
+          <literal>addUncoveredFilesFromWhitelist</literal>
+          が削除され、
+          <literal>processUncoveredFilesFromWhitelist</literal> に変わった</emphasis>
+        </term>
+        <listitem>
+          <para>
+            コードカバレッジの生成で
+            <literal><![CDATA[<whitelist addUncoveredFilesFromWhitelist="true">]]></literal>
+            を使うとき、カバーされないすべてのファイルは PHPUnit に含まれませんでした。
+            これらのファイルに実行可能なコードを配置している人にとっては、これは問題でした。
+            PHPUnit 3.7 からは、ファイルをスキャンしてどのコードが実行可能かを調べ、
+            どのコードを除外してはいけないかを調べるようになりました。
+            その結果、コードカバレッジの結果が変わることになるかもしれません。
+          </para>
+          <para>
+            過去のバージョンと同じ挙動にするには、
+            <literal><![CDATA[<whitelist processUncoveredFilesFromWhitelist=="true">]]></literal>
+            と設定します。PHPUnit 3.6 での挙動と 3.7 での挙動のどちらを使いたい人もいるので、
+            しばらくはどちらの挙動でも使えるようにしておきます。
+          </para>
+        </listitem>
+      </varlistentry>
+
+
+    </variablelist>
+
+  </section>
+
 </chapter>

@@ -1065,7 +1065,40 @@ FAILURES!
 Tests: 1, Assertions: 1, Failures: 1.]]></screen>
       </example>
     </section>
+	<section id="writing-tests-for-phpunit.assertions.assertContainsOnlyInstancesOf">
+	  <title><literal>assertContainsOnlyInstancesOf()</literal></title>
+      <indexterm><primary>assertContainsOnlyInstancesOf()</primary></indexterm>
+      <para><literal>assertContainsOnlyInstancesOf(string $classname, Traversable|array $haystack[, string $message = ''])</literal></para>
+      <para><literal>$haystack</literal> が <literal>$classname</literal> クラスの唯一のインスタンスを含まない場合にエラー <literal>$message</literal> を報告します。</para>
+      <example id="writing-tests-for-phpunit.assertions.assertContainsOnlyInstancesOf.example">
+        <title>assertContainsOnlyInstancesOf() の使用法</title>
+        <programlisting><![CDATA[<?php
+class ContainsOnlyInstancesOfTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertContainsOnlyInstancesOf('Foo', array(new Foo(), new Bar(), new Foo()));
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit ContainsOnlyInstancesOfTest</userinput><![CDATA[
+PHPUnit 3.7.0 by Sebastian Bergmann.
 
+F
+
+Time: 0 seconds, Memory: 5.00Mb
+
+There was 1 failure:
+
+1) ContainsOnlyInstancesOfTest::testFailure
+Failed asserting that Array ([0]=> Bar Object(...)) is an instance of class "Foo".
+
+/home/sb/ContainsOnlyInstancesOfTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+      </example>
+	</section>
     <section id="writing-tests-for-phpunit.assertions.assertCount">
       <title><literal>assertCount()</literal></title>
       <indexterm><primary>assertCount()</primary></indexterm>
@@ -1323,7 +1356,7 @@ Tests: 3, Assertions: 3, Failures: 3.</screen>
 
       <para><literal>assertEquals(float $expected, float $actual[, string $message = '', float $delta = 0])</literal></para>
       <para>2 つの float 値 <literal>$expected</literal> と <literal>$actual</literal> の誤差が <literal>$delta</literal> より大きい場合にエラー <literal>$message</literal> を報告します。</para>
-      <para>なぜ <literal>$delta</literal> が必要となるのかについては <ulink url="http://en.wikipedia.org/wiki/IEEE_754#Comparing_floating-point_numbers">comparing floating-point numbers</ulink> を参照ください。</para>
+      <para>なぜ <literal>$delta</literal> が必要となるのかについては "<ulink url="http://docs.oracle.com/cd/E19957-01/806-3568/ncg_goldberg.html">What Every Computer Scientist Should Know About Floating-Point Arithmetic</ulink>" を参照ください。</para>
       <example id="writing-tests-for-phpunit.assertions.assertEquals.example2">
         <title>float 値での assertEquals() の使用法</title>
         <programlisting><![CDATA[<?php
@@ -1777,7 +1810,7 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
       <example id="writing-tests-for-phpunit.assertions.assertJsonFileEqualsJsonFile.example">
         <title>assertJsonFileEqualsJsonFile() の使用法</title>
         <programlisting><![CDATA[<?php
-class JsonFileEqualsJsonFile extends PHPUnit_Framework_TestCase
+class JsonFileEqualsJsonFileTest extends PHPUnit_Framework_TestCase
 {
     public function testFailure()
     {
@@ -1786,7 +1819,7 @@ class JsonFileEqualsJsonFile extends PHPUnit_Framework_TestCase
     }
 }
 ?>]]></programlisting>
-        <screen><userinput>phpunit JsonFileEqualsJsonFile</userinput>
+        <screen><userinput>phpunit JsonFileEqualsJsonFileTest</userinput>
 PHPUnit 3.7.0 by Sebastian Bergmann.
 
 F
@@ -1798,7 +1831,7 @@ There was 1 failure:
 1) JsonFileEqualsJsonFile::testFailure
 Failed asserting that '{"Mascott":"Tux"}' matches JSON string "["Mascott", "Tux", "OS", "Linux"]".
 
-/lapistano/JsonFileEqualsJsonFile.php:5
+/home/sb/JsonFileEqualsJsonFileTest.php:5
 
 FAILURES!
 Tests: 1, Assertions: 3, Failures: 1.</screen>
@@ -1817,7 +1850,7 @@ Tests: 1, Assertions: 3, Failures: 1.</screen>
       <example id="writing-tests-for-phpunit.assertions.assertJsonStringEqualsJsonFile.example">
         <title>assertJsonStringEqualsJsonFile() の使用法</title>
         <programlisting><![CDATA[<?php
-class JsonStringEqualsJsonFile extends PHPUnit_Framework_TestCase
+class JsonStringEqualsJsonFileTest extends PHPUnit_Framework_TestCase
 {
     public function testFailure()
     {
@@ -1826,7 +1859,7 @@ class JsonStringEqualsJsonFile extends PHPUnit_Framework_TestCase
     }
 }
 ?>]]></programlisting>
-        <screen><userinput>phpunit JsonStringEqualsJsonFile</userinput>
+        <screen><userinput>phpunit JsonStringEqualsJsonFileTest</userinput>
 PHPUnit 3.7.0 by Sebastian Bergmann.
 
 F
@@ -1838,7 +1871,7 @@ There was 1 failure:
 1) JsonStringEqualsJsonFile::testFailure
 Failed asserting that '{"Mascott":"ux"}' matches JSON string "{"Mascott":"Tux"}".
 
-/lapistano/JsonStringEqualsJsonFile.php:5
+/home/sb/JsonStringEqualsJsonFileTest.php:5
 
 FAILURES!
 Tests: 1, Assertions: 3, Failures: 1.</screen>
@@ -1857,7 +1890,7 @@ Tests: 1, Assertions: 3, Failures: 1.</screen>
       <example id="writing-tests-for-phpunit.assertions.assertJsonStringEqualsJsonString.example">
         <title>assertJsonStringEqualsJsonString() の使用法</title>
         <programlisting><![CDATA[<?php
-class JsonStringEqualsJsonString extends PHPUnit_Framework_TestCase
+class JsonStringEqualsJsonStringTest extends PHPUnit_Framework_TestCase
 {
     public function testFailure()
     {
@@ -1866,7 +1899,7 @@ class JsonStringEqualsJsonString extends PHPUnit_Framework_TestCase
     }
 }
 ?>]]></programlisting>
-        <screen><userinput>phpunit JsonStringEqualsJsonString</userinput>
+        <screen><userinput>phpunit JsonStringEqualsJsonStringTest</userinput>
 PHPUnit 3.7.0 by Sebastian Bergmann.
 
 F
@@ -1875,7 +1908,7 @@ Time: 0 seconds, Memory: 5.00Mb
 
 There was 1 failure:
 
-1) JsonStringEqualsJsonString::testFailure
+1) JsonStringEqualsJsonStringTest::testFailure
 Failed asserting that two objects are equal.
 --- Expected
 +++ Actual
@@ -1885,7 +1918,7 @@ Failed asserting that two objects are equal.
  +    'Mascott' => 'ux'
 )
 
-/lapistano/JsonStringEqualsJsonString.php:5
+/home/sb/JsonStringEqualsJsonStringTest.php:5
 
 FAILURES!
 Tests: 1, Assertions: 3, Failures: 1.</screen>
@@ -2772,6 +2805,16 @@ class BiscuitTest extends PHPUnit_Framework_TestCase
               <entry><literal>PHPUnit_Framework_Constraint_TraversableContains contains(mixed $value)</literal></entry>
               <entry><literal>Iterator</literal> インターフェイスを実装している <literal>array</literal> やオブジェクトが、指定した値を保持していることを保証する制約。</entry>
             </row>
+			<row>
+			  <indexterm><primary>containsOnly()</primary></indexterm>
+              <entry><literal>PHPUnit_Framework_Constraint_TraversableContainsOnly containsOnly(string $type)</literal></entry>
+              <entry>評価対象の <literal>array</literal>、あるいは <literal>Iterator</literal> インターフェイスを実装したオブジェクトが、指定した型の唯一の値を含むことを保証する制約。</entry>
+			</row>
+			<row>
+			  <indexterm><primary>containsOnlyInstancesOf()</primary></indexterm>
+              <entry><literal>PHPUnit_Framework_Constraint_TraversableContainsOnly containsOnlyInstancesOf(string $classname)</literal></entry>
+              <entry>評価対象の <literal>array</literal>、あるいは <literal>Iterator</literal> インターフェイスを実装したオブジェクトが、指定したクラスの唯一のインスタンスを含むことを保証する制約。</entry>
+			</row>
             <row>
               <indexterm><primary>equalTo()</primary></indexterm>
               <entry><literal>PHPUnit_Framework_Constraint_IsEqual equalTo($value, $delta = 0, $maxDepth = 10)</literal></entry>
