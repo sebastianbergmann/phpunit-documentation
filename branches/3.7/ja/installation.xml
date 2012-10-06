@@ -4,14 +4,22 @@
   <title>PHPUnit のインストール</title>
 
   <para>
-    PHPUnit は二種類のパッケージ管理システムに対応しています。PEAR と Composer です。
+    There a three supported ways of installing PHPUnit. You can use the <ulink
+    url="http://pear.php.net/manual/en/guide.users.commandline.cli.php">PEAR
+    Installer</ulink> or <ulink url="http://getcomposer.org/">Composer</ulink>
+    to download and install PHPUnit as well as its dependencies. You can also
+    download a <ulink url="http://php.net/phar">PHP Archive (PHAR)</ulink> of
+    PHPUnit that has all required (as well as some optional) dependencies of
+    PHPUnit bundled in a single file.
   </para>
 
-  <para>
-    PEAR でのインストールは、これまでにリリースされたすべてのバージョンの PHPUnit で対応していますが、
-    Composer に対応したのは PHPUnit 3.7 以降です。つまり、
-    それより前のバージョンは Composer ではインストールできません。
-  </para>
+  <note>
+    <para>
+      Support for Composer and PHP Archive (PHAR) was added in PHPUnit 3.7 (and
+      is known to be stable since PHPUnit 3.7.5). Earlier releases of PHPUnit
+      are not available through these distribution channels.
+    </para>
+  </note>
 
   <note>
     <para>
@@ -30,11 +38,12 @@
     <title>PEAR</title>
 
     <para>
-      PEAR インストーラを使って PHPUnit をインストールします。これは
-      <ulink url="http://pear.php.net/">PHP Extension and Application
-      Repository</ulink> の根幹をなすものであり、
-      PHP のパッケージを配布する仕組みを提供しています。
+      次のふたつのコマンドを実行するだけで (<literal>root</literal> として実行しなければならないかもしれません)、PHPUnit
+      に必要なものがすべて PEAR インストーラを使ってインストールできます。
     </para>
+
+    <screen><userinput>pear config-set auto_discover 1</userinput>
+<userinput>pear install pear.phpunit.de/PHPUnit</userinput></screen>
 
     <caution>
       <para>
@@ -51,46 +60,29 @@
         マニュアル</ulink> に説明があります。
       </para>
     </caution>
-
-    <para>
-      次のふたつのコマンドを実行するだけで (<literal>root</literal> として実行しなければならないかもしれません)、PHPUnit
-      に必要なものがすべて PEAR インストーラを使ってインストールできます。
-    </para>
-
-    <screen><userinput>pear config-set auto_discover 1</userinput>
-<userinput>pear install pear.phpunit.de/PHPUnit</userinput></screen>
-
-    <para>
-      インストールすると、PHPUnit のソースファイルがローカルの PEAR ディレクトリに格納されます。
-      その場所は、通常は
-      <filename>/usr/lib/php/PHPUnit</filename> です。
-    </para>
-
   </section>
 
   <section id="installation.composer">
     <title>Composer</title>
 
     <para>
-      PHPUnit 3.7 からは、PHP 用の依存管理ツールである
-      <ulink url="http://getcomposer.org/">Composer</ulink>
-      を使ったインストールもできるようになりました。
-      ここでは、すでに Composer の使い方を知っていて
-      composer.json ファイルが手元にある人向けに手順を解説します。
-    </para>
-
-    <para>
       PHPUnit をプロジェクト単位で導入して開発用の依存関係を設定するには、
-      composer.json に次の行を追加します。
+      <literal>phpunit/phpunit</literal> への依存情報をプロジェクトの
+      <filename>composer.json</filename> ファイルに追加します。
+      次に示すのは最小限の
+      <filename>composer.json</filename> ファイルの例で、
+      PHPUnit 3.7 への依存を定義しています。
     </para>
 
-    <programlisting><![CDATA["require-dev": {
-    "phpunit/phpunit": "3.7.*"
+    <programlisting><![CDATA[{
+    "require": {
+        "phpunit/phpunit": "3.7.*"
+    }
 }]]></programlisting>
 
     <para>
       システム全体で使えるようにスタンドアロンでインストールするには、
-      次のような composer.json を用意すればどのディレクトリからでもインストールできます。
+      次のような <filename>composer.json</filename> を用意すればどのディレクトリからでもインストールできます。
     </para>
 
     <programlisting><![CDATA[{
@@ -103,7 +95,19 @@
         "bin-dir": "/usr/local/bin/"
     }
 }]]></programlisting>
+  </section>
 
+  <section id="installation.phar">
+    <title>PHP Archive (PHAR)</title>
+
+    <para>
+      You can also download a PHP Archive (PHAR) of PHPUnit that has all
+      required (as well as some optional) dependencies of PHPUnit bundled in a
+      single file:
+    </para>
+
+    <screen><userinput>wget http://pear.phpunit.de/get/phpunit-3.7.5.phar</userinput>
+<userinput>chmod +x phpunit-3.7.5.phar</userinput></screen>
   </section>
 
   <section id="installation.optional-packages">
@@ -136,7 +140,6 @@
           </para>
 
           <screen><userinput>"phpunit/dbunit": ">=1.2"</userinput></screen>
-
         </listitem>
       </varlistentry>
 
@@ -163,7 +166,6 @@
           </para>
 
           <screen><userinput>"phpunit/php-invoker": "*"</userinput></screen>
-
         </listitem>
       </varlistentry>
 
@@ -189,7 +191,6 @@
           </para>
 
           <screen><userinput>"phpunit/phpunit-selenium": ">=1.2"</userinput></screen>
-
         </listitem>
       </varlistentry>
 
@@ -215,7 +216,6 @@
           </para>
 
           <screen><userinput>"phpunit/phpunit-story": "*"</userinput></screen>
-
         </listitem>
       </varlistentry>
 
@@ -338,16 +338,14 @@
           <screen><userinput>pear install phpunit/PHPUnit_TicketListener_Trac</userinput></screen>
         </listitem>
       </varlistentry>
-
     </variablelist>
-
   </section>
 
   <section id="installing.upgrading">
     <title>アップグレード</title>
 
     <para>
-      PHPUnit 3.6 から PHPUnit 3.7 への移行の際に出くわすことになる、
+      PHPUnit 3.6 から PHPUnit 3.7 へのアップグレードの際に出くわすことになる、
       過去との互換性に関するちょっとした問題をまとめます。
     </para>
 
@@ -361,7 +359,6 @@
     </para>
 
     <variablelist>
-
       <varlistentry>
         <term><emphasis role="strong">非推奨の OutputTestCase が削除された</emphasis></term>
         <listitem>
@@ -470,9 +467,6 @@
           </para>
         </listitem>
       </varlistentry>
-
     </variablelist>
-
   </section>
-
 </chapter>
