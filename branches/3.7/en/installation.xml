@@ -4,14 +4,22 @@
   <title>Installing PHPUnit</title>
 
   <para>
-    PHPUnit supports two package management systems: PEAR and Composer.
+    There a three supported ways of installing PHPUnit. You can use the <ulink
+    url="http://pear.php.net/manual/en/guide.users.commandline.cli.php">PEAR
+    Installer</ulink> or <ulink url="http://getcomposer.org/">Composer</ulink>
+    to download and install PHPUnit as well as its dependencies. You can also
+    download a <ulink url="http://php.net/phar">PHP Archive (PHAR)</ulink> of
+    PHPUnit that has all required (as well as some optional) dependencies of
+    PHPUnit bundled in a single file.
   </para>
 
-  <para>
-    Installation via PEAR is supported for every PHPUnit release ever
-    while Composer support was added in PHPUnit 3.7 meaning that earlier
-    versions can't be installed using it.
-  </para>
+  <note>
+    <para>
+      Support for Composer and PHP Archive (PHAR) was added in PHPUnit 3.7 (and
+      is known to be stable since PHPUnit 3.7.5). Earlier releases of PHPUnit
+      are not available through these distribution channels.
+    </para>
+  </note>
 
   <note>
     <para>
@@ -30,32 +38,6 @@
     <title>PEAR</title>
 
     <para>
-      Installing PHPUnit via the PEAR Installer, the backbone of the
-      <ulink url="http://pear.php.net/">PHP Extension and Application
-        Repository
-      </ulink>
-      that provides a distribution system for PHP packages.
-    </para>
-
-    <caution>
-      <para>
-        Depending on your OS distribution and/or your PHP environment, you may
-        need to install PEAR or update your existing PEAR installation before
-        you can proceed with the instructions in this chapter.
-      </para>
-
-      <para>
-        <userinput>sudo pear upgrade PEAR</userinput>
-        usually suffices to
-        upgrade an existing PEAR installation. The
-        <ulink url="http://pear.php.net/manual/en/installation.getting.php">PEAR
-          Manual
-        </ulink>
-        explains how to perform a fresh installation of PEAR.
-      </para>
-    </caution>
-
-    <para>
       The following two commands (which you may have to run as
       <literal>root</literal>) are all that is required to install PHPUnit using
       the PEAR Installer:
@@ -64,37 +46,43 @@
     <screen><userinput>pear config-set auto_discover 1</userinput>
 <userinput>pear install pear.phpunit.de/PHPUnit</userinput></screen>
 
-    <para>
-      After the installation you can find the PHPUnit source files inside your
-      local PEAR directory; the path is usually
-      <filename>/usr/lib/php/PHPUnit</filename>.
-    </para>
+    <caution>
+      <para>
+        Depending on your OS distribution and/or your PHP environment, you may
+        need to install PEAR or update your existing PEAR installation before
+        you can proceed with the instructions in this section.
+      </para>
 
+      <para>
+        <userinput>sudo pear upgrade PEAR</userinput> usually suffices to
+        upgrade an existing PEAR installation. The <ulink
+        url="http://pear.php.net/manual/en/installation.getting.php">PEAR Manual</ulink>
+        explains how to perform a fresh installation of PEAR.
+      </para>
+    </caution>
   </section>
 
   <section id="installation.composer">
     <title>Composer</title>
 
     <para>
-      Starting with PHPUnit 3.7 it can also be installing using
-      <ulink url="http://getcomposer.org/">Composer</ulink>,
-      the "Dependency Manager for PHP". This guide assumes you already
-      know how to use composer and that you have a composer.json file
-      in your project.
+      To add PHPUnit as a local, per-project dependency to your project, simply
+      add a dependency on <literal>phpunit/phpunit</literal> to your project's
+      <filename>composer.json</filename> file. Here is a minimal example of a
+      <filename>composer.json</filename> file that just defines a dependency on
+      PHPUnit 3.7:
     </para>
 
-    <para>
-      To add PHPUnit as a local, per project, dependency for development add
-      the following lines to your composer.json.
-    </para>
-
-    <programlisting><![CDATA["require-dev": {
-    "phpunit/phpunit": "3.7.*"
+    <programlisting><![CDATA[{
+    "require": {
+        "phpunit/phpunit": "3.7.*"
+    }
 }]]></programlisting>
 
     <para>
-      For a standalone system wide installation via composer a composer.json
-      similar to the following can be used from an arbitary directory.
+      For a standalone, system-wide installation via Composer, a
+      <filename>composer.json</filename> similar to the one shown below can be
+      used from an arbitary directory.
     </para>
 
     <programlisting><![CDATA[{
@@ -107,7 +95,19 @@
         "bin-dir": "/usr/local/bin/"
     }
 }]]></programlisting>
+  </section>
 
+  <section id="installation.phar">
+    <title>PHP Archive (PHAR)</title>
+
+    <para>
+      You can also download a PHP Archive (PHAR) of PHPUnit that has all
+      required (as well as some optional) dependencies of PHPUnit bundled in a
+      single file:
+    </para>
+
+    <screen><userinput>wget http://pear.phpunit.de/get/phpunit-3.7.5.phar</userinput>
+<userinput>chmod +x phpunit-3.7.5.phar</userinput></screen>
   </section>
 
   <section id="installation.optional-packages">
@@ -134,13 +134,11 @@
           <screen><userinput>pear install phpunit/DbUnit</userinput></screen>
 
           <para>
-            or via composer by addding the following
-            <literal>"require-dev"</literal>
-            dependency:
+            This package can be installed via Composer by addding the following
+            <literal>"require-dev"</literal> dependency:
           </para>
 
           <screen><userinput>"phpunit/dbunit": ">=1.2"</userinput></screen>
-
         </listitem>
       </varlistentry>
 
@@ -161,13 +159,11 @@
           <screen><userinput>pear install phpunit/PHP_Invoker</userinput></screen>
 
           <para>
-            or via composer by addding the following
-            <literal>"require-dev"</literal>
-            dependency:
+            This package can be installed via Composer by addding the following
+            <literal>"require-dev"</literal> dependency:
           </para>
 
           <screen><userinput>"phpunit/php-invoker": "*"</userinput></screen>
-
         </listitem>
       </varlistentry>
 
@@ -187,13 +183,11 @@
           <screen><userinput>pear install phpunit/PHPUnit_Selenium</userinput></screen>
 
           <para>
-            or via composer by addding the following
-            <literal>"require-dev"</literal>
-            dependency:
+            This package can be installed via Composer by addding the following
+            <literal>"require-dev"</literal> dependency:
           </para>
 
           <screen><userinput>"phpunit/phpunit-selenium": ">=1.2"</userinput></screen>
-
         </listitem>
       </varlistentry>
 
@@ -213,13 +207,11 @@
           <screen><userinput>pear install phpunit/PHPUnit_Story</userinput></screen>
 
           <para>
-            or via composer by addding the following
-            <literal>"require-dev"</literal>
-            dependency:
+            This package can be installed via Composer by addding the following
+            <literal>"require-dev"</literal> dependency:
           </para>
 
           <screen><userinput>"phpunit/phpunit-story": "*"</userinput></screen>
-
         </listitem>
       </varlistentry>
 
@@ -342,9 +334,7 @@
           <screen><userinput>pear install phpunit/PHPUnit_TicketListener_Trac</userinput></screen>
         </listitem>
       </varlistentry>
-
     </variablelist>
-
   </section>
 
   <section id="installing.upgrading">
@@ -352,19 +342,18 @@
 
     <para>
       This section serves as a collection of minor BC issues that one might
-      run into when moving from PHPUnit 3.6 to PHPUnit 3.7.
+      run into when upgrading from PHPUnit 3.6 to PHPUnit 3.7.
     </para>
 
     <para>
       The upgrade should be rather easy and work without any issues as it was
-      tested against all major open source frameworks and there was not a
-      single problem for them. Still ever project is different and if you
-      didn't get around to trying one of the release candidates and have ran
+      tested against all major Open Source frameworks and there was not a
+      single problem for them. Still every project is different and if you
+      did not get around to trying one of the release candidates and have ran
       into an issue this document might provide some help.
     </para>
 
     <variablelist>
-
       <varlistentry>
         <term><emphasis role="strong">Removed deprecated OutputTestCase</emphasis></term>
         <listitem>
@@ -408,7 +397,7 @@
       </varlistentry>
 
       <varlistentry>
-        <term><emphasis role="strong">Parameters for mock objects don't get cloned anymore</emphasis></term>
+        <term><emphasis role="strong">Parameters for mock objects do not get cloned anymore</emphasis></term>
         <listitem>
           <para>
             Previously all object parameters where cloned when mocking.
@@ -470,9 +459,6 @@
           </para>
         </listitem>
       </varlistentry>
-
     </variablelist>
-
   </section>
-
 </chapter>
