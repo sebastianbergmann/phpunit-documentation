@@ -6,7 +6,7 @@
                 version='1.0'>
 
 <!-- ********************************************************************
-     $Id: titles.xsl 8599 2010-03-20 10:47:36Z mzjn $
+     $Id: titles.xsl 9286 2012-04-19 10:10:58Z bobstayton $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -251,6 +251,7 @@ title of the element. This does not include the label.
 <xsl:template match="section
                      |sect1|sect2|sect3|sect4|sect5
                      |refsect1|refsect2|refsect3|refsection
+                     |topic
                      |simplesect"
               mode="title.markup">
   <xsl:param name="allow-anchors" select="0"/>
@@ -602,6 +603,7 @@ title of the element. This does not include the label.
 <xsl:template match="section
                      |sect1|sect2|sect3|sect4|sect5
                      |refsect1|refsect2|refsect3
+                     |topic
                      |simplesect"
               mode="titleabbrev.markup">
   <xsl:param name="allow-anchors" select="0"/>

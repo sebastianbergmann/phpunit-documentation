@@ -5,7 +5,7 @@
                 version='1.0'>
 
 <!-- ********************************************************************
-     $Id: labels.xsl 8540 2009-12-02 05:28:09Z bobstayton $
+     $Id: labels.xsl 9286 2012-04-19 10:10:58Z bobstayton $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -382,6 +382,7 @@ element label.</para>
   <xsl:variable name="contsec"
                 select="(ancestor::section
                          |ancestor::simplesect
+                         |ancestor::topic
                          |ancestor::sect1
                          |ancestor::sect2
                          |ancestor::sect3
@@ -500,6 +501,10 @@ element label.</para>
       <xsl:number format="{$format}" count="simplesect"/>
     </xsl:when>
   </xsl:choose>
+</xsl:template>
+
+<xsl:template match="topic" mode="label.markup">
+  <!-- topics are not numbered by default -->
 </xsl:template>
 
 <xsl:template match="qandadiv" mode="label.markup">
@@ -791,6 +796,14 @@ element label.</para>
 </xsl:template>
 
 <xsl:template match="sidebar" mode="label.markup">
+  <!-- nop -->
+</xsl:template>
+
+<xsl:template match="glossdiv|glosslist" mode="label.markup">
+  <!-- nop -->
+</xsl:template>
+
+<xsl:template match="glossentry" mode="label.markup">
   <!-- nop -->
 </xsl:template>
 

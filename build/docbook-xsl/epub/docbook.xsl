@@ -99,7 +99,7 @@
 
   <xsl:key name="image-filerefs" match="graphic|inlinegraphic|imagedata" use="@fileref"/>
 
-  <xsl:template match="/">
+  <xsl:template match="/" priority="1">
     <!-- * Get a title for current doc so that we let the user -->
     <!-- * know what document we are processing at this point. -->
     <xsl:variable name="doc.title">
@@ -331,7 +331,7 @@
     <xsl:call-template name="write.chunk">
       <xsl:with-param name="filename">
         <xsl:if test="$manifest.in.base.dir != 0">
-          <xsl:value-of select="$base.dir" />
+          <xsl:value-of select="$chunk.base.dir" />
         </xsl:if>
         <xsl:value-of select="$epub.ncx.filename" />
       </xsl:with-param>
@@ -787,6 +787,8 @@
       <xsl:apply-templates select="//part|
                                    //book[*[last()][self::bookinfo]]|
                                    //book[bookinfo]|
+                                   //book[*[last()][self::info]]|
+                                   //book[info]|
                                    /set|
                                    /set/book|
                                    //reference|
@@ -1080,6 +1082,8 @@
             book[parent::set]|
             book[*[last()][self::bookinfo]]|
             book[bookinfo]|
+            book[*[last()][self::info]]|
+            book[info]|
             article|
             part|
             reference|
@@ -1271,8 +1275,7 @@
   
   <!-- OVERRIDES xhtml-1_1/chunk-common.xsl   -->
   <!-- make a bibliography always a chunk -->
-  <xsl:template name="chunk"
-                priority="1">       
+  <xsl:template name="chunk">       
     <xsl:param name="node" select="."/>
     <!-- returns 1 if $node is a chunk -->
 

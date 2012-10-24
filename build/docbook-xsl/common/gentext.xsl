@@ -5,7 +5,7 @@
                 version='1.0'>
 
 <!-- ********************************************************************
-     $Id: gentext.xsl 8769 2010-07-26 17:38:32Z mzjn $
+     $Id: gentext.xsl 9286 2012-04-19 10:10:58Z bobstayton $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -90,7 +90,7 @@
 </xsl:template>
 
 <xsl:template match="section|sect1|sect2|sect3|sect4|sect5|simplesect
-                     |bridgehead"
+                     |bridgehead|topic"
               mode="object.title.template">
   <xsl:variable name="is.numbered">
     <xsl:call-template name="label.this.section"/>

@@ -6,9 +6,8 @@
 //
 // see also http://www.tartarus.org/~martin/PorterStemmer
 
-// Release 1 be 'andargor', Jul 2004
-// Release 2 (substantially revised) by Christopher McKenzie, Aug 2009
-
+// Release 1
+// Derived from (http://tartarus.org/~martin/PorterStemmer/js.txt) - cjm (iizuu) Aug 24, 2009
 
 var stemmer = (function(){
 	var step2list = {
@@ -98,19 +97,18 @@ var stemmer = (function(){
 				re2 = /(at|bl|iz)$/;
 				re3 = new RegExp("([^aeiouylsz])\\1$");
 				re4 = new RegExp("^" + C + v + "[^aeiouwxy]$");
-				if (re2.test(w)) {	w = w + "e"; }
+				if (re2.test(w)) { w = w + "e"; }
 				else if (re3.test(w)) { re = /.$/; w = w.replace(re,""); }
 				else if (re4.test(w)) { w = w + "e"; }
 			}
 		}
 
 		// Step 1c
-		re = /^(.+?)y$/;
-		if (re.test(w)) {
+	        re = new RegExp("^(.+" + c + ")y$");
+		    if (re.test(w)) {
 			var fp = re.exec(w);
 			stem = fp[1];
-			re = new RegExp(s_v);
-			if (re.test(stem)) { w = stem + "i"; }
+		    w = stem + "i";
 		}
 
 		// Step 2
@@ -182,6 +180,55 @@ var stemmer = (function(){
 			w = firstch.toLowerCase() + w.substr(1);
 		}
 
-		return w;
+	    // See http://snowball.tartarus.org/algorithms/english/stemmer.html
+	    // "Exceptional forms in general"
+	    var specialWords = {
+	    	"skis" : "ski",
+	    	"skies" : "sky",
+	    	"dying" : "die",
+	    	"lying" : "lie",
+	    	"tying" : "tie",
+	    	"idly" : "idl",
+	    	"gently" : "gentl",
+	    	"ugly" : "ugli",
+	    	"early": "earli",
+	    	"only": "onli",
+	    	"singly": "singl"
+	    };
+
+	    if(specialWords[origword]){
+	    	w = specialWords[origword];
+	    }
+
+	    if( "sky news howe atlas cosmos bias \
+	    	 andes inning outing canning herring \
+	    	 earring proceed exceed succeed".indexOf(origword) !== -1 ){
+	    	w = origword;
+	    }
+
+	    // Address words overstemmed as gener-
+	    re = /.*generate?s?d?(ing)?$/;
+	    if( re.test(origword) ){
+		w = w + 'at';
+	    }
+	    re = /.*general(ly)?$/;
+	    if( re.test(origword) ){
+		w = w + 'al';
+	    }
+	    re = /.*generic(ally)?$/;
+	    if( re.test(origword) ){
+		w = w + 'ic';
+	    }
+	    re = /.*generous(ly)?$/;
+	    if( re.test(origword) ){
+		w = w + 'ous';
+	    }
+	    // Address words overstemmed as commun-
+	    re = /.*communit(ies)?y?/;
+	    if( re.test(origword) ){
+		w = w + 'iti';
+	    }
+
+	    return w;
 	}
 })();

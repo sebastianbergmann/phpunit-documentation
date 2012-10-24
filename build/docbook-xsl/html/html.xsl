@@ -3,7 +3,7 @@
                 version='1.0'>
 
 <!-- ********************************************************************
-     $Id: html.xsl 8556 2009-12-11 00:05:45Z bobstayton $
+     $Id: html.xsl 9306 2012-04-28 03:49:00Z bobstayton $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -39,6 +39,12 @@
   </xsl:choose>
 </xsl:variable>
 
+<!-- Support switching to <section> for HTML5 stylesheet -->
+<!-- This is an internal variable that does not need to be set by a user -->
+<xsl:variable name="div.element">div</xsl:variable>
+<!-- Support turning off table  border with border="" for HTML5 -->
+<xsl:variable name="table.border.off">0</xsl:variable>
+
 <!-- The generate.html.title template is currently used for generating HTML -->
 <!-- "title" attributes for some inline elements only, but not for any -->
 <!-- block elements. It is called in eleven places in the inline.xsl -->
@@ -52,7 +58,16 @@
   <xsl:apply-templates select="." mode="html.title.attribute"/>
 </xsl:template>
 
+<xsl:template match="acronym|abbrev" mode="html.title.attribute">
+  <xsl:if test="alt">
+    <xsl:attribute name="title">
+      <xsl:value-of select="normalize-space(alt)"/>
+    </xsl:attribute>
+  </xsl:if>
+</xsl:template>
+
 <!-- Generate a title attribute for the context node -->
+<!-- This may be the target of an xref -->
 <xsl:template match="*" mode="html.title.attribute">
   <xsl:variable name="is.title">
     <xsl:call-template name="gentext.template.exists">
@@ -163,14 +178,38 @@
 <xsl:template name="anchor">
   <xsl:param name="node" select="."/>
   <xsl:param name="conditional" select="1"/>
-  <xsl:variable name="id">
-    <xsl:call-template name="object.id">
-      <xsl:with-param name="object" select="$node"/>
-    </xsl:call-template>
-  </xsl:variable>
-  <xsl:if test="$conditional = 0 or $node/@id or $node/@xml:id">
-    <a name="{$id}"/>
-  </xsl:if>
+
+  <xsl:choose>
+    <xsl:when test="$generate.id.attributes != 0">
+      <!-- No named anchors output when this param is set -->
+    </xsl:when>
+    <xsl:when test="$conditional = 0 or $node/@id or $node/@xml:id">
+      <a>
+        <xsl:attribute name="name">
+          <xsl:call-template name="object.id">
+            <xsl:with-param name="object" select="$node"/>
+          </xsl:call-template>
+        </xsl:attribute>
+      </a>
+    </xsl:when>
+  </xsl:choose>
+</xsl:template>
+
+<xsl:template name="id.attribute">
+  <xsl:param name="node" select="."/>
+  <xsl:param name="conditional" select="1"/>
+  <xsl:choose>
+    <xsl:when test="$generate.id.attributes = 0">
+      <!-- No id attributes when this param is zero -->
+    </xsl:when>
+    <xsl:when test="$conditional = 0 or $node/@id or $node/@xml:id">
+      <xsl:attribute name="id">
+        <xsl:call-template name="object.id">
+          <xsl:with-param name="object" select="$node"/>
+        </xsl:call-template>
+      </xsl:attribute>
+    </xsl:when>
+  </xsl:choose>
 </xsl:template>
 
 <xsl:template name="href.target.uri">
@@ -195,7 +234,7 @@
   <xsl:param name="context" select="."/>
   <xsl:param name="object" select="."/>
   <xsl:if test="$manifest.in.base.dir = 0">
-    <xsl:value-of select="$base.dir"/>
+    <xsl:value-of select="$chunk.base.dir"/>
   </xsl:if>
   <xsl:call-template name="href.target">
     <xsl:with-param name="context" select="$context"/>
@@ -287,11 +326,17 @@
   <xsl:param name="class" select="local-name(.)"/>
   <!-- permit customization of class attributes -->
   <!-- Use element name by default -->
-  <xsl:attribute name="class">
+  <xsl:variable name="class.value">
     <xsl:apply-templates select="." mode="class.value">
       <xsl:with-param name="class" select="$class"/>
     </xsl:apply-templates>
-  </xsl:attribute>
+  </xsl:variable>
+
+  <xsl:if test="string-length(normalize-space($class.value)) != 0">
+    <xsl:attribute name="class">
+      <xsl:value-of select="$class.value"/>
+    </xsl:attribute>
+  </xsl:if> 
 </xsl:template>
 
 <xsl:template match="*" mode="class.value">
@@ -321,7 +366,6 @@
   <xsl:apply-templates select="." mode="class.attribute">
     <xsl:with-param name="class" select="$class"/>
   </xsl:apply-templates>
-  <xsl:call-template name="generate.html.title"/>
 </xsl:template>
 
 <!-- Apply common attributes not including class -->
@@ -332,7 +376,6 @@
 <xsl:template match="*" mode="locale.html.attributes">
   <xsl:call-template name="generate.html.lang"/>
   <xsl:call-template name="dir"/>
-  <xsl:call-template name="generate.html.title"/>
 </xsl:template>
 
 <!-- Pass through any lang attributes -->
@@ -462,7 +505,54 @@
 <xsl:template name="make.css.link">
   <xsl:param name="css.filename" select="''"/>
 
-  <xsl:variable name="href.to.uri" select="$css.filename"/>
+  <xsl:variable name="href">
+    <xsl:call-template name="relative.path.link">
+      <xsl:with-param name="target.pathname" select="$css.filename"/>
+    </xsl:call-template>
+  </xsl:variable>
+
+  <xsl:if test="string-length($css.filename) != 0">
+    <link rel="stylesheet" 
+          type="text/css"
+          href="{$href}"/>
+  </xsl:if>
+</xsl:template>
+
+<!-- And the same applies to script links -->
+<xsl:template name="make.script.link">
+  <xsl:param name="script.filename" select="''"/>
+
+  <xsl:variable name="src">
+    <xsl:call-template name="relative.path.link">
+      <xsl:with-param name="target.pathname" select="$script.filename"/>
+    </xsl:call-template>
+  </xsl:variable>
+
+  <xsl:if test="string-length($script.filename) != 0">
+    <script>
+      <xsl:attribute name="src">
+        <xsl:value-of select="$src"/>
+      </xsl:attribute>
+      <xsl:attribute name="type">
+        <xsl:value-of select="$html.script.type"/>
+      </xsl:attribute>
+      <xsl:call-template name="other.script.attributes">
+        <xsl:with-param name="script.filename" select="$script.filename"/>
+      </xsl:call-template>
+    </script>
+  </xsl:if>
+</xsl:template>
+
+<xsl:template name="other.script.attributes">
+  <xsl:param name="script.filename"/>
+  <!-- Placeholder template to allow customization to 
+       insert additional script element attributes if needed -->
+</xsl:template>
+
+<xsl:template name="relative.path.link">
+  <xsl:param name="target.pathname"/>
+  
+  <xsl:variable name="href.to.uri" select="$target.pathname"/>
 
   <xsl:variable name="href.from.uri">
     <xsl:call-template name="href.target.uri">
@@ -498,11 +588,7 @@
     <xsl:value-of select="$href.to"/>
   </xsl:variable>
 
-  <xsl:if test="string-length($css.filename) != 0">
-    <link rel="stylesheet" 
-          type="text/css"
-          href="{$href}"/>
-  </xsl:if>
+  <xsl:value-of select="$href"/>
 </xsl:template>
 
 <!-- ==================================================================== -->
@@ -603,7 +689,7 @@
     </xsl:call-template>
   </xsl:variable>
 
-  <xsl:variable name="path" select="concat($base.dir, $file)"/>
+  <xsl:variable name="path" select="concat($chunk.base.dir, $file)"/>
   <xsl:value-of select="$path"/>
   
 </xsl:template>

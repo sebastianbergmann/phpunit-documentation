@@ -10,7 +10,7 @@
                 version='1.0'>
 
 <!-- ********************************************************************
-     $Id: inline.xsl 8811 2010-08-09 20:24:45Z mzjn $
+     $Id: inline.xsl 9228 2012-02-01 21:50:25Z bobstayton $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -92,6 +92,7 @@
 
             <xsl:otherwise>
               <fo:basic-link internal-destination="{$idref}">
+                <xsl:apply-templates select="." mode="simple.xlink.properties"/>
                 <xsl:copy-of select="$content"/>
               </fo:basic-link>
             </xsl:otherwise>
@@ -101,6 +102,7 @@
         <!-- otherwise it's a URI -->
         <xsl:otherwise>
           <fo:basic-link external-destination="url({$xhref})">
+            <xsl:apply-templates select="." mode="simple.xlink.properties"/>
             <xsl:copy-of select="$content"/>
           </fo:basic-link>
           <!-- * Call the template for determining whether the URL for this -->
@@ -132,6 +134,7 @@
 
         <xsl:otherwise>
           <fo:basic-link internal-destination="{$linkend}">
+            <xsl:apply-templates select="." mode="simple.xlink.properties"/>
             <xsl:copy-of select="$content"/>
           </fo:basic-link>
         </xsl:otherwise>
@@ -1282,6 +1285,19 @@
 
 <xsl:template match="beginpage">
   <!-- does nothing; this *is not* markup to force a page break. -->
+</xsl:template>
+
+<xsl:template match="*" mode="simple.xlink.properties">
+  <!-- Placeholder template to apply properties to links made from
+       elements other than xref, link, and olink.
+       This template should generate attributes only, as it is
+       applied right after the opening <fo:basic-link> tag.
+       -->
+  <!-- for example
+  <xsl:attribute name="color">blue</xsl:attribute>
+  -->
+  <!-- Since this is a mode, you can create different
+       templates with different properties for different linking elements -->
 </xsl:template>
 
 </xsl:stylesheet>

@@ -519,9 +519,9 @@
     <xsl:call-template name="gentext.template"><xsl:with-param name="context" select="'iso690'"/><xsl:with-param name="name" select="'submaintitle.sep'"/></xsl:call-template>
   </xsl:param>
   <xsl:apply-templates mode="iso690.mode"/>
-  <xsl:if test="../subtitle">
+  <xsl:if test="../subtitle|../info/subtitle">
     <xsl:value-of select="$submaintitle.sep"/>
-    <xsl:apply-templates mode="iso690.mode" select="../subtitle"/>
+    <xsl:apply-templates mode="iso690.mode" select="../subtitle|../info/subtitle"/>
   </xsl:if>
 </xsl:template>
 

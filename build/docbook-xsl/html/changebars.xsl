@@ -3,7 +3,7 @@
                 version="1.0">
 
 <!-- ********************************************************************
-     $Id: changebars.xsl 8128 2008-09-29 17:16:10Z mzjn $
+     $Id: changebars.xsl 9286 2012-04-19 10:10:58Z bobstayton $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -57,6 +57,7 @@ span.off     {  }
 		    or local-name(.) = 'sect3'
 		    or local-name(.) = 'sect4'
 		    or local-name(.) = 'sect5'
+		    or local-name(.) = 'topic'                    
 		    or local-name(.) = 'chapter'
 		    or local-name(.) = 'preface'
 		    or local-name(.) = 'itemizedlist'

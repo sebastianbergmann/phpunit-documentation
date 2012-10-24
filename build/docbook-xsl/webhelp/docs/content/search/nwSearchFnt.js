@@ -8,40 +8,94 @@
  */
 
 //string initialization
-var htmlfileList = "htmlFileList.js";
+var htmlfileList = "htmlFileInfoList.js";
 var htmlfileinfoList = "htmlFileInfoList.js";
 var useCJKTokenizing = false;
 
-/* Cette fonction verifie la validite de la recherche entrre par l utilisateur */
-function Verifie(ditaSearch_Form) {
+var w = new Object();
+var scoring = new Object();
 
-    // Check browser compatibitily
+var searchTextField = '';
+var no = 0;
+var noWords = 0;
+var partialSearch = "<font class=\"highlightText\">There is no page containing all the search terms.<br>Partial results:</font>";
+var warningMsg = '<div style="padding: 5px;margin-right:5px;;background-color:#FFFF00;">';
+warningMsg+='<b>Please note that due to security settings, Google Chrome does not highlight';
+warningMsg+=' the search results in the right frame.</b><br>';
+warningMsg+='This happens only when the WebHelp files are loaded from the local file system.<br>';
+warningMsg+='Workarounds:';
+warningMsg+='<ul>';
+warningMsg+='<li>Try using another web browser.</li>';
+warningMsg+='<li>Deploy the WebHelp files on a web server.</li>';
+warningMsg+='</div>';
+txt_filesfound = 'Results';
+txt_enter_at_least_1_char = "You must enter at least one character.";
+txt_enter_more_than_10_words = "Only first 10 words will be processed.";
+txt_browser_not_supported = "Your browser is not supported. Use of Mozilla Firefox is recommended.";
+txt_please_wait = "Please wait. Search in progress...";
+txt_results_for = "Results for: ";
+
+/* This function verify the validity of search input by the user
+  Cette fonction verifie la validite de la recherche entrre par l utilisateur */
+function Verifie(searchForm) {
+
+    // Check browser compatibility
     if (navigator.userAgent.indexOf("Konquerer") > -1) {
 
         alert(txt_browser_not_supported);
         return;
     }
 
-
-    var expressionInput = document.ditaSearch_Form.textToSearch.value;
-    //Set a cookie to store the searched keywords
+    searchTextField = trim(document.searchForm.textToSearch.value);
+    searchTextField = searchTextField.replace(/['"]/g,'');
+	var expressionInput = searchTextField;
     $.cookie('textToSearch', expressionInput);
-
 
     if (expressionInput.length < 1) {
 
         // expression is invalid
         alert(txt_enter_at_least_1_char);
         // reactive la fenetre de search (utile car cadres)
-        document.ditaSearch_Form.textToSearch.focus();
+
+        document.searchForm.textToSearch.focus();
     }
     else {
-
-        // Effectuer la recherche
-        Effectuer_recherche(expressionInput);
-
-        // reactive la fenetre de search (utile car cadres)
-        document.ditaSearch_Form.textToSearch.focus();
+    var splitSpace = searchTextField.split(" ");
+       var splitWords = [];
+        for (var i = 0 ; i < splitSpace.length ; i++) {
+          var splitDot = splitSpace[i].split(".");
+          for (var i1 = 0; i1 < splitDot.length; i1++) {
+               var splitColon = splitDot[i1].split(":");
+            for (var i2 = 0; i2 < splitColon.length; i2++) {
+                var splitDash = splitColon[i2].split("-");
+                 for (var i3 = 0; i3 < splitDash.length; i3++) {
+                     if (splitDash[i3].split("").length > 0) {
+                           splitWords.push(splitDash[i3]);
+                       }
+                 }
+            }
+          }
+       }
+       noWords = splitWords;
+    	if (noWords.length > 9){
+          // Allow to search maximum 10 words
+    		alert(txt_enter_more_than_10_words);
+    		expressionInput = '';
+    		for (var x = 0 ; x < 10 ; x++){
+    			expressionInput = expressionInput + " " + noWords[x]; 
+    		}    		
+    		Effectuer_recherche(expressionInput);
+    		document.searchForm.textToSearch.focus();
+    	} else {
+	        // Effectuer la recherche
+             expressionInput = '';
+          for (var x = 0 ; x < noWords.length ; x++) {
+                 expressionInput = expressionInput + " " + noWords[x]; 
+             }
+	        Effectuer_recherche(expressionInput);
+	        // reactive la fenetre de search (utile car cadres)
+	        document.searchForm.textToSearch.focus();        
+    	}
     }
 }
 
@@ -64,8 +118,20 @@ function Effectuer_recherche(expressionInput) {
     var txt_wordsnotfound = "";
 
 
+    // --------------------------------------
+    // Begin Thu's patch 
     /*nqu: expressionInput, la recherche est lower cased, plus remplacement des char speciaux*/
-    searchFor = expressionInput.toLowerCase().replace(/<\//g, "_st_").replace(/\$_/g, "_di_").replace(/\.|%2C|%3B|%21|%3A|@|\/|\*/g, " ").replace(/(%20)+/g, " ").replace(/_st_/g, "</").replace(/_di_/g, "%24_");
+    //The original replacement expression is: 
+    //searchFor = expressionInput.toLowerCase().replace(/<\//g, "_st_").replace(/\$_/g, "_di_").replace(/\.|%2C|%3B|%21|%3A|@|\/|\*/g, " ").replace(/(%20)+/g, " ").replace(/_st_/g, "</").replace(/_di_/g, "%24_");
+    //The above expression was error prone because it did not deal with words that have a . as part of the word correctly, for example, document.txt
+    
+    //Do not automatically replace a . with a space
+    searchFor = expressionInput.toLowerCase().replace(/<\//g, "_st_").replace(/\$_/g, "_di_").replace(/%2C|%3B|%21|%3A|@|\/|\*/g, " ").replace(/(%20)+/g, " ").replace(/_st_/g, "</").replace(/_di_/g, "%24_");
+    
+    //If it ends with a period, replace it with a space
+    searchFor = searchFor.replace(/[.]$/,"");
+    // End Thu's Patch
+    // ------------------------------------------
 
     searchFor = searchFor.replace(/  +/g, " ");
     searchFor = searchFor.replace(/ $/, "").replace(/^ /, "");
@@ -74,18 +140,23 @@ function Effectuer_recherche(expressionInput) {
     wordsList.sort();
 
     //set the tokenizing method
-    if(typeof indexerLanguage != "undefined" && (indexerLanguage=="zh" || indexerLanguage=="ja" ||indexerLanguage=="ko")){
-        useCJKTokenizing=true;
-    } else {
-        useCJKTokenizing=false;
-    }
+    useCJKTokenizing = typeof indexerLanguage != "undefined" && (indexerLanguage == "zh" || indexerLanguage == "ja" || indexerLanguage == "ko");
     //If Lucene CJKTokenizer was used as the indexer, then useCJKTokenizing will be true. Else, do normal tokenizing.
-    // 2-gram tokenizinghappens in CJKTokenizing,  
-    if(useCJKTokenizing){
-        finalWordsList = cjkTokenize(wordsList);
-    } else { 
-        finalWordsList = tokenize(wordsList);
-    }
+    // 2-gram tokenizinghappens in CJKTokenizing, 
+    //If doStem then make tokenize with Stemmer
+    var finalArray;
+    if (doStem){
+	    if(useCJKTokenizing){
+	        finalWordsList = cjkTokenize(wordsList);
+          finalArray = finalWordsList;
+	    } else { 
+	        finalWordsList = tokenize(wordsList);
+          finalArray = finalWordsList;
+	    }
+    } else if(useCJKTokenizing){
+          finalWordsList = cjkTokenize(wordsList);
+          finalArray = finalWordsList;
+         } else{
 
     //load the scripts with the indices: the following lines do not work on the server. To be corrected
     /*if (IEBrowser) {
@@ -96,44 +167,142 @@ function Effectuer_recherche(expressionInput) {
      * Compare with the indexed words (in the w[] array), and push words that are in it to tempTab.
      */
     var tempTab = new Array();
-    for (var t in finalWordsList) {
-        if (w[finalWordsList[t].toString()] == undefined) {
-            txt_wordsnotfound += finalWordsList[t] + " ";
-        } else {
-            tempTab.push(finalWordsList[t]);
-        }
-    }
-    finalWordsList = tempTab;
+	
+    // ---------------------------------------
+    // Thu's patch
+    //Do not use associative array in for loop, for example:
+    //for(var t in finalWordsList)
+    //it causes errors when finalWordList contains 
+    //stemmed words such as: kei from the stemmed word: key
+    for(var t=0;t<finalWordsList.length;++t){
+        var aWord=finalWordsList[t];
+        //w is a Map like Object, use the current word in finalWordList as the key
+        if(w[aWord] == undefined){
+            txt_wordsnotfound += aWord + " ";
+	        }
+        else{
+            tempTab.push(aWord);
+    		}
+    	}
+    	finalWordsList = tempTab;		
+    //Check all the inputs to see if the root words are in the finalWordsList, if not add them there
+    var inputs = expressionInput.split(' ');
+    // Thu's Patch 
+    // -------------------------------------------
 
+    
+    txt_wordsnotfound = expressionInput;
+	finalWordsList = removeDuplicate(finalWordsList);
+    
+   }
     if (finalWordsList.length) {
-
-        //search 'and' and 'or' one time
-        fileAndWordList = SortResults(finalWordsList);
-
-        var cpt = fileAndWordList.length;
-        for (var i = cpt - 1; i >= 0; i--) {
+      //search 'and' and 'or' one time
+      fileAndWordList = SortResults(finalWordsList);
+      
+      if (fileAndWordList == undefined){
+        	var cpt = 0;
+      } else {
+      	  var cpt = fileAndWordList.length;
+		  var maxNumberOfWords = fileAndWordList[0][0].motsnb;
+      }
+	  if (cpt > 0){
+		var searchedWords = noWords.length;
+		var foundedWords  = fileAndWordList[0][0].motslisteDisplay.split(",").length;
+		//console.info("search : " + noWords.length + "   found : " + fileAndWordList[0][0].motslisteDisplay.split(",").length);
+		if (searchedWords != foundedWords){
+			linkTab.push(partialSearch);
+		}
+	  }
+	  
+      
+      for (var i = 0; i < cpt; i++) {
+			
+			var hundredProcent = fileAndWordList[i][0].scoring + 100 * fileAndWordList[i][0].motsnb;
+			var ttScore_first = fileAndWordList[i][0].scoring;
+			var numberOfWords = fileAndWordList[i][0].motsnb;
+			
             if (fileAndWordList[i] != undefined) {
                 linkTab.push("<p>" + txt_results_for + " " + "<span class=\"searchExpression\">" + fileAndWordList[i][0].motslisteDisplay + "</span>" + "</p>");
 
                 linkTab.push("<ul class='searchresult'>");
                 for (t in fileAndWordList[i]) {
-                    //DEBUG: alert(": "+ fileAndWordList[i][t].filenb+" " +fileAndWordList[i][t].motsliste);
                     //linkTab.push("<li><a href=\"../"+fl[fileAndWordList[i][t].filenb]+"\">"+fl[fileAndWordList[i][t].filenb]+"</a></li>");
-                    var tempInfo = fil[fileAndWordList[i][t].filenb];
+				                        
+                    var ttInfo = fileAndWordList[i][t].filenb;
+                    // Get scoring
+                    var ttScore = fileAndWordList[i][t].scoring;
+                    var tempInfo = fil[ttInfo];
+				    
                     var pos1 = tempInfo.indexOf("@@@");
                     var pos2 = tempInfo.lastIndexOf("@@@");
                     var tempPath = tempInfo.substring(0, pos1);
                     var tempTitle = tempInfo.substring(pos1 + 3, pos2);
                     var tempShortdesc = tempInfo.substring(pos2 + 3, tempInfo.length);
 
+                    
+                    // toc.html will not be displayed on search result
+                    if (tempPath == 'toc.html'){
+                        continue;
+                    }
+                    /*
                     //file:///home/kasun/docbook/WEBHELP/webhelp-draft-output-format-idea/src/main/resources/web/webhelp/installation.html
                     var linkString = "<li><a href=" + tempPath + ">" + tempTitle + "</a>";
                     // var linkString = "<li><a href=\"installation.html\">" + tempTitle + "</a>";
-                    if ((tempShortdesc != "null")) {
+                    */
+                    var split = fileAndWordList[i][t].motsliste.split(",");
+                    // var splitedValues = expressionInput.split(" ");
+					// var finalArray = split.concat(splitedValues);					
+					
+                    arrayString = 'Array(';
+                    for(var x in finalArray){
+                      if (finalArray[x].length > 2 || useCJKTokenizing){
+                    		arrayString+= "'" + finalArray[x] + "',";
+                    	} 
+                    }
+                    arrayString = arrayString.substring(0,arrayString.length - 1) + ")";
+                    var idLink = 'foundLink' + no;
+                    var linkString = '<li><a id="' + idLink + '" href="' + tempPath + '" class="foundResult">' + tempTitle + '</a>';
+                    var starWidth = (ttScore * 100/ hundredProcent)/(ttScore_first/hundredProcent) * (numberOfWords/maxNumberOfWords);
+                    starWidth = starWidth < 10 ? (starWidth + 5) : starWidth;
+                    // Keep the 5 stars format
+                    if (starWidth > 85){
+						starWidth = 85;
+					}
+					/*
+					var noFullStars = Math.ceil(starWidth/17);
+					var fullStar  = "curr";
+					var emptyStar = "";
+					if (starWidth % 17 == 0){
+						// am stea plina
+						
+					} else {
+						
+					}
+					console.info(noFullStars);
+					*/
+                    // Also check if we have a valid description
+                    if ((tempShortdesc != "null" && tempShortdesc != '...')) {
+                    
                         linkString += "\n<div class=\"shortdesclink\">" + tempShortdesc + "</div>";
                     }
                     linkString += "</li>";
+                    
+                    // Add rating values for scoring at the list of matches	
+					linkString += "<div id=\"rightDiv\">";
+					linkString += "<div id=\"star\">";
+					//linkString += "<div style=\"color: rgb(136, 136, 136);\" id=\"starUser0\" class=\"user\">" 
+					//				+ ((ttScore * 100/ hundredProcent)/(ttScore_first/hundredProcent)) * 1 + "</div>";
+	                linkString += "<ul id=\"star0\" class=\"star\">";
+					linkString += "<li id=\"starCur0\" class=\"curr\" style=\"width: " + starWidth + "px;\"></li>";
+	                linkString += "</ul>";
+	                
+	                linkString += "<br style=\"clear: both;\">";
+	                linkString += "</div>";
+					linkString += "</div>";
+                    //linkString += '<b>Rating: ' + ttScore + '</b>';
+                                           
                     linkTab.push(linkString);
+                    no++;
                 }
                 linkTab.push("</ul>");
             }
@@ -150,25 +319,78 @@ function Effectuer_recherche(expressionInput) {
         }
         results += "</p>";
     } else {
-        results = "<p>" + "Your search returned no results for " + "<span class=\"searchExpression\">" + txt_wordsnotfound + "</span>" + "</p>";
+        results = "<p>" + localeresource.search_no_results + " <span class=\"searchExpression\">" + txt_wordsnotfound + "</span>" + "</p>";
     }
-    //alert(results);
-    document.getElementById('searchResults').innerHTML = results; 
+    
+    
+    // Verify if the browser is Google Chrome and the WebHelp is used on a local machine
+    // If browser is Google Chrome and WebHelp is used on a local machine a warning message will appear
+    // Highlighting will not work in this conditions. There is 2 workarounds
+    if (verifyBrowser()){
+        document.getElementById('searchResults').innerHTML = results;
+    } else {
+        document.getElementById('searchResults').innerHTML = warningMsg + results;
+    }
+    
 }
+
+
+// Verify if the stemmed word is aproximately the same as the searched word
+function verifyWord(word, arr){
+	for (var i = 0 ; i < arr.length ; i++){
+		if (word[0] == arr[i][0] 
+			&& word[1] == arr[i][1] 
+			//&& word[2] == arr[i][2]
+			){
+			return true;
+		}
+	}
+	return false;
+}
+
+// Look for elements that start with searchedValue.
+function wordsStartsWith(searchedValue){
+	var toReturn = '';
+	for (var sv in w){
+		if (searchedValue.length < 3){
+			continue;
+		} else {
+			if (sv.toLowerCase().indexOf(searchedValue.toLowerCase()) == 0){
+				toReturn+=sv + ","; 
+			}
+		}
+	}
+	return toReturn.length > 0 ? toReturn : undefined;
+}
+
 
 function tokenize(wordsList){
     var stemmedWordsList = new Array(); // Array with the words to look for after removing spaces
     var cleanwordsList = new Array(); // Array with the words to look for
-    for(var j in wordsList){
+    // -------------------------------------------------
+    // Thu's patch
+    for(var j=0;j<wordsList.length;++j){
         var word = wordsList[j];
+        var originalWord=word;
         if(typeof stemmer != "undefined" ){
+            var stemmedWord=stemmer(word);
+            if(w[stemmedWord]!=undefined){
             stemQueryMap[stemmer(word)] = word;
+            }
+            else{
+                stemQueryMap[originalWord]=originalWord;
+            }
         } else {
+            if(w[word]!=undefined){
             stemQueryMap[word] = word;
+        }
+            else{
+                stemQueryMap[originalWord]=originalWord;
+            }
         }
     } 
      //stemmedWordsList is the stemmed list of words separated by spaces.
-    for (var t in wordsList) {
+    for (var t=0;t<wordsList.length;++t) {
         wordsList[t] = wordsList[t].replace(/(%22)|^-/g, "");
         if (wordsList[t] != "%20") {
             scriptLetterTab.add(wordsList[t].charAt(0));
@@ -178,10 +400,17 @@ function tokenize(wordsList){
 
     if(typeof stemmer != "undefined" ){
         //Do the stemming using Porter's stemming algorithm
-        for (var i = 0; i < cleanwordsList.length; i++) {
-            var stemWord = stemmer(cleanwordsList[i]);
+        for (var i = 0; i < cleanwordsList.length; i++) {			
+            var stemWord = stemmer(cleanwordsList[i]);			
+            if(w[stemWord]!=undefined){
             stemmedWordsList.push(stemWord);
         }
+            else{
+                stemmedWordsList.push(cleanwordsList[i]);               
+            }
+        }
+    // End Thu's patch
+    // -------------------------------------------
     } else {
         stemmedWordsList = cleanwordsList;
     }
@@ -391,7 +620,7 @@ function unique(tab) {
         a[0] = tab[0];
     }
     else {
-        return -1
+        return -1;
     }
 
     for (i = 1; i < l; i++) {
@@ -424,78 +653,174 @@ function indexof(tab, element, begin) {
 function SortResults(mots) {
 
     var fileAndWordList = new Object();
-    if (mots.length == 0) {
+    if (mots.length == 0 || mots[0].length == 0) {
         return null;
     }
-
+    
+    
+    // In generated js file we add scoring at the end of the word
+    // Example word1*scoringForWord1,word2*scoringForWord2 and so on
+    // Split after * to obtain the right values
+    var scoringArr = Array();
     for (var t in mots) {
         // get the list of the indices of the files.
         var listNumerosDesFicStr = w[mots[t].toString()];
-        //alert ("listNumerosDesFicStr "+listNumerosDesFicStr);
-        var tab = listNumerosDesFicStr.split(",");
 
-        //for each file (file's index):
-        for (var t2 in tab) {
-            var temp = tab[t2].toString();
-            if (fileAndWordList[temp] == undefined) {
+        if (listNumerosDesFicStr != undefined) {
 
-                fileAndWordList[temp] = "" + mots[t];
-            } else {
-
-                fileAndWordList[temp] += "," + mots[t];
+            //alert ("listNumerosDesFicStr "+listNumerosDesFicStr);
+            var tab = listNumerosDesFicStr.split(",");
+            //for each file (file's index):
+            for (var t2 in tab) {
+                var tmp = '';
+                var idx = '';
+                var temp = tab[t2].toString();
+                if (temp.indexOf('*') != -1) {
+                    idx = temp.indexOf('*');
+                    tmp = temp.substring(idx + 3, temp.length);
+                    temp = temp.substring(0, idx);
+                }
+                scoringArr.push(tmp);
+                if (fileAndWordList[temp] == undefined) {
+                    fileAndWordList[temp] = "" + mots[t];
+                } else {
+                    fileAndWordList[temp] += "," + mots[t];
+                }
+                //console.info("fileAndWordList[" + temp + "]=" + fileAndWordList[temp] + " : " + tmp);
             }
+
         }
     }
-
     var fileAndWordListValuesOnly = new Array();
-
     // sort results according to values
     var temptab = new Array();
-    for (t in fileAndWordList) {
-        tab = fileAndWordList[t].split(',');
+    finalObj = new Array();
+    for (t in fileAndWordList) {    	
+    	finalObj.push(new newObj(t,fileAndWordList[t]));
+    }
 
+    if ( finalObj.length == 0 ) {   // None of the queried words are not in the index (stemmed or not)
+        return null;
+    }
+    finalObj = removeDerivates(finalObj);
+    for (t in finalObj) {
+        tab = finalObj[t].wordList.split(',');
         var tempDisplay = new Array();
-        for (var x in tab) {
-            if(stemQueryMap[tab[x]] != undefined){
-                tempDisplay.push(stemQueryMap[tab[x]]); //get the original word from the stem word.
+        for (var x in tab) {        		
+            if(stemQueryMap[tab[x]] != undefined && doStem){
+                tempDisplay.push(stemQueryMap[tab[x]]); //get the original word from the stem word.                
             } else {
                 tempDisplay.push(tab[x]); //no stem is available. (probably a CJK language)
             }
         }
         var tempDispString = tempDisplay.join(", ");
-
-        temptab.push(new resultPerFile(t, fileAndWordList[t], tab.length, tempDispString));
-        fileAndWordListValuesOnly.push(fileAndWordList[t]);
+				var index;
+				for (x in fileAndWordList) {
+					if (x === finalObj[t].filesNo) {
+						index = x;
+						break;
+					}
+				}
+				var scoring = findRating(fileAndWordList[index], index);	
+        temptab.push(new resultPerFile(finalObj[t].filesNo, finalObj[t].wordList, tab.length, tempDispString, scoring));
+        fileAndWordListValuesOnly.push(finalObj[t].wordList);        
     }
-
-
-    //alert("t"+fileAndWordListValuesOnly.toString());
-
     fileAndWordListValuesOnly = unique(fileAndWordListValuesOnly);
     fileAndWordListValuesOnly = fileAndWordListValuesOnly.sort(compare_nbMots);
-    //alert("t: "+fileAndWordListValuesOnly.join(';'));
 
     var listToOutput = new Array();
-
-    for (var j in fileAndWordListValuesOnly) {
+    for (var fawlvoIdx in fileAndWordListValuesOnly) {
         for (t in temptab) {
-            if (temptab[t].motsliste == fileAndWordListValuesOnly[j]) {
-                if (listToOutput[j] == undefined) {
-                    listToOutput[j] = new Array(temptab[t]);
+            if (temptab[t].motsliste == fileAndWordListValuesOnly[fawlvoIdx]) {
+                if (listToOutput[fawlvoIdx] == undefined) {
+                    listToOutput[fawlvoIdx] = new Array(temptab[t]);
                 } else {
-                    listToOutput[j].push(temptab[t]);
+                    listToOutput[fawlvoIdx].push(temptab[t]);
                 }
             }
         }
-    }
+    }		
+  // Sort results by scoring, descending on the same group
+	for (var ltoIdx in listToOutput) {
+	    listToOutput[ltoIdx].sort(function(a, b){
+			return b.scoring - a.scoring;
+		});
+	}
+	// If we have groups with same number of words, 
+	// will sort groups by higher scoring of each group
+	for (var i = 0; i < listToOutput.length - 1; i++) {
+		for (var j = i + 1; j < listToOutput.length; j++) {
+			if (listToOutput[i][0].motsnb < listToOutput[j][0].motsnb 
+				|| (listToOutput[i][0].motsnb == listToOutput[j][0].motsnb
+				&& listToOutput[i][0].scoring < listToOutput[j][0].scoring)
+				) {
+				var x = listToOutput[i];
+				listToOutput[i] = listToOutput[j];
+				listToOutput[j] = x;
+			}
+		}
+	}
+
     return listToOutput;
 }
 
-function resultPerFile(filenb, motsliste, motsnb, motslisteDisplay) {
+// Remove derivates words from the list of words
+function removeDerivates(obj){
+	var toResultObject = new Array();	
+	for (i in obj){
+		var filesNo  = obj[i].filesNo;
+		var wordList = obj[i].wordList;
+		var wList = wordList.split(",");		
+		var searchedWords = searchTextField.toLowerCase().split(" ");
+		for (var k = 0 ; k < searchedWords.length ; k++){
+			for (var j = 0 ; j < wList.length ; j++){				
+				if (wList[j].startsWith(searchedWords[k])){
+					wList[j] = searchedWords[k];
+				}
+			}
+		}
+		wList = removeDuplicate(wList);
+		var recreateList = '';
+		for(var x in wList){
+			recreateList+=wList[x] + ",";
+		}
+		recreateList = recreateList.substr(0, recreateList.length - 1);
+		toResultObject.push(new newObj(filesNo, recreateList));
+	}
+	return toResultObject;
+}
+
+function newObj(filesNo, wordList){
+	this.filesNo = filesNo;
+	this.wordList = wordList;
+}
+
+// Add a new parameter. Scoring.
+function resultPerFile(filenb, motsliste, motsnb, motslisteDisplay, scoring, group) {
+	//10 - spring,time - 2 - spring, time - 55 - 3
     this.filenb = filenb;
     this.motsliste = motsliste;
     this.motsnb = motsnb;
     this.motslisteDisplay= motslisteDisplay;
+    
+    this.scoring = scoring;
+    
+}
+
+
+function findRating(words, nr){
+    var sum = 0;
+    var xx = words.split(',');
+    for (jj = 0 ; jj < xx.length ; jj++){
+        var wrd = w[xx[jj]].split(',');
+        for (var ii = 0 ; ii < wrd.length ; ii++){
+            var wrdno = wrd[ii].split('*');
+            if (wrdno[0] == nr){
+                sum+=parseInt(wrdno[1]);
+            }
+        }
+    }
+    return sum;
 }
 
 function compare_nbMots(s1, s2) {
@@ -510,4 +835,47 @@ function compare_nbMots(s1, s2) {
         return -1;
     }
     //return t1.length - t2.length);
+}
+
+// return false if browser is Google Chrome and WebHelp is used on a local machine, not a web server 
+function verifyBrowser(){
+    var returnedValue = true;    
+    var browser = BrowserDetect.browser;
+    var addressBar = window.location.href;
+    if (browser == 'Chrome' && addressBar.indexOf('file://') === 0){
+        returnedValue = false;
+    }
+    
+    return returnedValue;
+}
+
+// Remove duplicate values from an array
+function removeDuplicate(arr) {
+   var r = new Array();
+   o:for(var i = 0, n = arr.length; i < n; i++) {
+      for(var x = 0, y = r.length; x < y; x++) {
+         if(r[x]==arr[i]) continue o;
+      }
+      r[r.length] = arr[i];
+   }
+   return r;
+}
+
+// Create startsWith method
+String.prototype.startsWith = function(str) {
+	return (this.match("^"+str)==str);
+}
+
+function trim(str, chars) {
+	return ltrim(rtrim(str, chars), chars);
+}
+ 
+function ltrim(str, chars) {
+	chars = chars || "\\s";
+	return str.replace(new RegExp("^[" + chars + "]+", "g"), "");
+}
+ 
+function rtrim(str, chars) {
+	chars = chars || "\\s";
+	return str.replace(new RegExp("[" + chars + "]+$", "g"), "");
 }

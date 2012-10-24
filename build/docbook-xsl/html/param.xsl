@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="ASCII"?>
+<?xml version="1.0"?>
 <!-- This file is generated from param.xweb -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 
 <!-- ********************************************************************
-     $Id: param.xweb 8552 2009-12-07 17:45:26Z bobstayton $
+     $Id: param.xweb 9333 2012-05-06 19:41:03Z dcramer $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -105,6 +105,7 @@ http://docbook.sourceforge.net/release/images/annot-close.png</xsl:param>
 <xsl:param name="chunk.toc"/>
 <xsl:param name="chunk.tocs.and.lots" select="0"/>
 <xsl:param name="chunk.tocs.and.lots.has.title" select="1"/>
+<xsl:param name="chunked.filename.prefix"/>
 <xsl:param name="citerefentry.link" select="0"/>
 <xsl:param name="collect.xref.targets">no</xsl:param>
 <xsl:param name="component.label.includes.part.label" select="0"/>
@@ -163,6 +164,7 @@ task before
 <xsl:param name="funcsynopsis.decoration" select="1"/>
 <xsl:param name="funcsynopsis.style">kr</xsl:param>
 <xsl:param name="function.parens" select="0"/>
+<xsl:param name="generate.consistent.ids" select="0"/>
 <xsl:param name="generate.css.header" select="0"/>
 <xsl:param name="generate.id.attributes" select="0"/>
 <xsl:param name="generate.index" select="1"/>
@@ -213,6 +215,8 @@ set       toc,title
 <xsl:param name="html.head.legalnotice.link.types">copyright</xsl:param>
 <xsl:param name="html.longdesc" select="1"/>
 <xsl:param name="html.longdesc.link" select="$html.longdesc"/>
+<xsl:param name="html.script"/>
+<xsl:param name="html.script.type">text/javascript</xsl:param>
 <xsl:param name="html.stylesheet"/>
 <xsl:param name="html.stylesheet.type">text/css</xsl:param>
 <xsl:param name="htmlhelp.alias.file">alias.h</xsl:param>
@@ -301,7 +305,7 @@ set       toc,title
     
 <xsl:param name="manifest.in.base.dir" select="0"/>
 <xsl:param name="manual.toc"/>
-<xsl:param name="menuchoice.menu.separator"> &#8594; </xsl:param>
+<xsl:param name="menuchoice.menu.separator"> → </xsl:param>
 <xsl:param name="menuchoice.separator">+</xsl:param>
 <xsl:param name="navig.graphics.extension">.gif</xsl:param>
 <xsl:param name="navig.graphics" select="0"/>
@@ -416,6 +420,14 @@ set       toc,title
 <xsl:param name="variablelist.as.table" select="0"/>
 <xsl:param name="variablelist.term.break.after">0</xsl:param>
 <xsl:param name="variablelist.term.separator">, </xsl:param>
+<xsl:param name="webhelp.autolabel">0</xsl:param>
+<xsl:param name="webhelp.base.dir">docs</xsl:param>
+<xsl:param name="webhelp.common.dir">../common/</xsl:param>
+<xsl:param name="webhelp.default.topic">index.html</xsl:param>
+<xsl:param name="webhelp.include.search.tab">true</xsl:param>
+<xsl:param name="webhelp.indexer.language">en</xsl:param>
+<xsl:param name="webhelp.start.filename">index.html</xsl:param>
+<xsl:param name="webhelp.tree.cookie.id" select="concat( 'treeview-', count(//node()) )"/>
 <xsl:param name="writing.mode">
   <xsl:call-template name="gentext">
     <xsl:with-param name="key">writing-mode</xsl:with-param>
@@ -432,3 +444,4 @@ set       toc,title
 <xsl:param name="xref.with.number.and.title" select="1"/>
 
 </xsl:stylesheet>
+

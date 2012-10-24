@@ -3,7 +3,7 @@
                 version="1.0">
 
 <!-- ********************************************************************
-     $Id: olink.xsl 8592 2010-03-16 16:40:43Z bobstayton $
+     $Id: olink.xsl 9254 2012-03-29 05:48:10Z bobstayton $
      ********************************************************************
 
      This file is part of the DocBook XSL Stylesheet distribution.
@@ -55,6 +55,13 @@
         <xsl:text>$target.database.document parameter&#10;</xsl:text>
         <xsl:text>when using olinks with targetdoc </xsl:text>
         <xsl:text>and targetptr attributes.</xsl:text>
+      </xsl:message>
+    </xsl:when>
+    <xsl:when test="namespace-uri($target.database/*) != ''">
+      <xsl:message>
+        <xsl:text>Olink error: the targetset element and children in '</xsl:text>
+        <xsl:value-of select="$target.database.document"/>
+        <xsl:text>' should not be in any namespace.</xsl:text>
       </xsl:message>
     </xsl:when>
     <!-- Did it not open? Should be a targetset element -->

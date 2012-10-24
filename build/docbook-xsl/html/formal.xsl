@@ -3,7 +3,7 @@
                 version='1.0'>
 
 <!-- ********************************************************************
-     $Id: formal.xsl 8806 2010-08-09 18:25:58Z bobstayton $
+     $Id: formal.xsl 9297 2012-04-22 03:56:16Z bobstayton $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -24,6 +24,9 @@
 
   <xsl:variable name="content">
     <div class="{$class}">
+      <xsl:call-template name="id.attribute">
+        <xsl:with-param name="conditional" select="0"/>
+      </xsl:call-template>
       <xsl:call-template name="anchor">
         <xsl:with-param name="conditional" select="0"/>
       </xsl:call-template>
@@ -109,10 +112,13 @@
 </xsl:template>
 
 <xsl:template name="informal.object">
-  <xsl:param name="class" select="local-name(.)"/>
+  <xsl:param name="class">
+    <xsl:apply-templates select="." mode="class.value"/>
+  </xsl:param>
 
   <xsl:variable name="content">
     <div class="{$class}">
+      <xsl:call-template name="id.attribute"/>
       <xsl:if test="$spacing.paras != 0"><p/></xsl:if>
       <xsl:call-template name="anchor"/>
       <xsl:apply-templates/>
@@ -195,6 +201,9 @@
     <xsl:when test="tgroup|mediaobject|graphic">
       <xsl:call-template name="calsTable"/>
     </xsl:when>
+    <xsl:when test="caption">
+      <xsl:call-template name="htmlTable.with.caption"/>
+    </xsl:when>
     <xsl:otherwise>
       <!-- do not use xsl:copy because of XHTML's needs -->
       <xsl:element name="table" namespace="">
@@ -206,6 +215,90 @@
       </xsl:element>
     </xsl:otherwise>
   </xsl:choose>
+</xsl:template>
+
+<!-- Handle html markup table like formal.object -->
+<xsl:template name="htmlTable.with.caption">
+  <xsl:param name="class">
+    <xsl:apply-templates select="." mode="class.value"/>
+  </xsl:param>
+
+  <xsl:variable name="param.placement"
+                select="substring-after(normalize-space($formal.title.placement),
+                                        concat(local-name(.), ' '))"/>
+
+  <xsl:variable name="placement">
+    <xsl:choose>
+      <xsl:when test="contains($param.placement, ' ')">
+        <xsl:value-of select="substring-before($param.placement, ' ')"/>
+      </xsl:when>
+      <xsl:when test="$param.placement = ''">before</xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="$param.placement"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+
+  <xsl:call-template name="id.warning"/>
+
+  <xsl:variable name="content">
+    <div class="{$class}">
+      <xsl:call-template name="id.attribute">
+        <xsl:with-param name="conditional" select="0"/>
+      </xsl:call-template>
+      <xsl:call-template name="anchor">
+        <xsl:with-param name="conditional" select="0"/>
+      </xsl:call-template>
+    
+      <xsl:choose>
+        <xsl:when test="$placement = 'before'">
+
+          <xsl:call-template name="formal.object.heading"/>
+
+          <div class="{$class}-contents">
+            <xsl:apply-templates select="." mode="htmlTable"/>
+          </div>
+
+          <xsl:call-template name="table.longdesc"/>
+    
+          <xsl:if test="$spacing.paras != 0"><p/></xsl:if>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:if test="$spacing.paras != 0"><p/></xsl:if>
+
+          <div class="{$class}-contents">
+            <xsl:apply-templates select="." mode="htmlTable"/>
+          </div>
+
+          <xsl:call-template name="table.longdesc"/>
+    
+          <xsl:call-template name="formal.object.heading"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </div>
+    <xsl:if test="not($formal.object.break.after = '0')">
+      <br class="{$class}-break"/>
+    </xsl:if>
+  </xsl:variable>
+
+  <xsl:variable name="floatstyle">
+    <xsl:call-template name="floatstyle"/>
+  </xsl:variable>
+
+  <xsl:choose>
+    <xsl:when test="$floatstyle != ''">
+      <xsl:call-template name="floater">
+        <xsl:with-param name="class"><xsl:value-of 
+                     select="$class"/>-float</xsl:with-param>
+        <xsl:with-param name="floatstyle" select="$floatstyle"/>
+        <xsl:with-param name="content" select="$content"/>
+      </xsl:call-template>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:copy-of select="$content"/>
+    </xsl:otherwise>
+  </xsl:choose>
+
 </xsl:template>
 
 <xsl:template name="calsTable">
@@ -233,18 +326,18 @@
 
   <xsl:call-template name="formal.object">
     <xsl:with-param name="placement" select="$placement"/>
-    <xsl:with-param name="class">
-      <xsl:choose>
-        <xsl:when test="@tabstyle">
-          <!-- hack, this will only ever occur on table, not example -->
-          <xsl:value-of select="@tabstyle"/>
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:value-of select="local-name(.)"/>
-        </xsl:otherwise>
-      </xsl:choose>
-    </xsl:with-param>
   </xsl:call-template>
+</xsl:template>
+
+<xsl:template match="table|informaltable" mode="class.value">
+  <xsl:choose>
+    <xsl:when test="@tabstyle">
+      <xsl:value-of select="@tabstyle"/>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:value-of select="local-name(.)"/>
+    </xsl:otherwise>
+  </xsl:choose>
 </xsl:template>
 
 <xsl:template name="htmlTable">
@@ -334,18 +427,7 @@
 <xsl:template match="informaltable">
   <xsl:choose>
     <xsl:when test="tgroup|mediaobject|graphic">
-      <xsl:call-template name="informal.object">
-        <xsl:with-param name="class">
-          <xsl:choose>
-            <xsl:when test="@tabstyle">
-              <xsl:value-of select="@tabstyle"/>
-            </xsl:when>
-            <xsl:otherwise>
-              <xsl:value-of select="local-name(.)"/>
-            </xsl:otherwise>
-          </xsl:choose>
-        </xsl:with-param>
-      </xsl:call-template>
+      <xsl:call-template name="informal.object"/>
     </xsl:when>
     <xsl:otherwise>
       <xsl:element name="table" namespace="">

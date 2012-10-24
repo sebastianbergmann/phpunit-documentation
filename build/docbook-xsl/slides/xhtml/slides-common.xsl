@@ -4,7 +4,7 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns="http://www.w3.org/1999/xhtml" version="1.0">
 
 <xsl:import href="../../xhtml/chunk.xsl"/>
-<xsl:include href="../../VERSION"/>
+<xsl:include href="../../VERSION.xsl"/>
 
 <xsl:include href="param.xsl"/>
 <xsl:include href="jscript.xsl"/>

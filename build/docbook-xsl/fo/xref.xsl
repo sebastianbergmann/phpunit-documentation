@@ -7,7 +7,7 @@
                 version='1.0'>
 
 <!-- ********************************************************************
-     $Id: xref.xsl 8913 2010-10-01 04:44:57Z bobstayton $
+     $Id: xref.xsl 9286 2012-04-19 10:10:58Z bobstayton $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -26,7 +26,16 @@
   <xsl:variable name="id">
     <xsl:call-template name="object.id"/>
   </xsl:variable>
-  <fo:inline id="{$id}"/>
+
+  <xsl:variable name="wrapper.name">
+    <xsl:call-template name="inline.or.block"/>
+  </xsl:variable>
+
+  <xsl:element name="{$wrapper.name}">
+    <xsl:attribute name="id">
+      <xsl:value-of select="$id"/>
+    </xsl:attribute>
+  </xsl:element>
 </xsl:template>
 
 <!-- ==================================================================== -->
@@ -562,6 +571,19 @@
   <!-- What about "in Chapter X"? -->
 </xsl:template>
 
+<xsl:template match="topic" mode="xref-to">
+  <xsl:param name="referrer"/>
+  <xsl:param name="xrefstyle"/>
+  <xsl:param name="verbose" select="1"/>
+
+  <xsl:apply-templates select="." mode="object.xref.markup">
+    <xsl:with-param name="purpose" select="'xref'"/>
+    <xsl:with-param name="xrefstyle" select="$xrefstyle"/>
+    <xsl:with-param name="referrer" select="$referrer"/>
+    <xsl:with-param name="verbose" select="$verbose"/>
+  </xsl:apply-templates>
+</xsl:template>
+
 <xsl:template match="bridgehead" mode="xref-to">
   <xsl:param name="referrer"/>
   <xsl:param name="xrefstyle"/>
@@ -764,6 +786,7 @@
                                        |ancestor::sect3
                                        |ancestor::sect4
                                        |ancestor::sect5
+                                       |ancestor::topic
                                        |ancestor::refsection
                                        |ancestor::refsect1
                                        |ancestor::refsect2
@@ -863,9 +886,11 @@
         </xsl:when>
         <!-- Use the xlink:href if no other text -->
         <xsl:when test="@xlink:href">
-	  <xsl:call-template name="hyphenate-url">
-	    <xsl:with-param name="url" select="@xlink:href"/>
-	  </xsl:call-template>
+	  <fo:inline hyphenate="false">
+	    <xsl:call-template name="hyphenate-url">
+	      <xsl:with-param name="url" select="@xlink:href"/>
+	    </xsl:call-template>
+	  </fo:inline>
         </xsl:when>
         <xsl:otherwise>
           <xsl:message>
@@ -922,9 +947,11 @@
                  external-destination="{$ulink.url}">
     <xsl:choose>
       <xsl:when test="count(child::node())=0 or (string(.) = $url)">
-        <xsl:call-template name="hyphenate-url">
-          <xsl:with-param name="url" select="$url"/>
-        </xsl:call-template>
+	<fo:inline hyphenate="false">
+	  <xsl:call-template name="hyphenate-url">
+	    <xsl:with-param name="url" select="$url"/>
+	  </xsl:call-template>
+	</fo:inline>
       </xsl:when>
       <xsl:otherwise>
         <xsl:apply-templates/>
