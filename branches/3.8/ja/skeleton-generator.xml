@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="skeleton-generator">
+  <title>雛形ジェネレータ</title>
+
+  <para>
+    PHPUnit Skeleton Generator を使うと、
+    プロダクションコードのクラスからテストクラスを生成したり
+    その逆を実行したりすることができます。
+    インストールするには、次のコマンドを実行します。
+  </para>
+
+  <screen><userinput>pear install phpunit/PHPUnit_SkeletonGenerator</userinput></screen>
+
+  <section id="skeleton-generator.test">
+    <title>テストケースクラスの雛形の作成</title>
+
+  <para>
+    <indexterm><primary>Skeleton Generator (雛形ジェネレータ)</primary></indexterm>
+
+    既存のコードのテストを記述する際は、
+    以下のようなコードを何度となく繰り返し記述することになるでしょう。
+    <programlisting>public function testMethod()
+{
+}</programlisting>
+    PHPUnit Skeleton Generator は、既存のクラスのコードを解析して
+    テストケースクラスの雛形を作成することができます。
+  </para>
+
+  <example id="skeleton-generator.examples.Calculator.php">
+    <title>Calculator クラス</title>
+    <programlisting><![CDATA[<?php
+class Calculator
+{
+    public function add($a, $b)
+    {
+        return $a + $b;
+    }
+}
+?>]]></programlisting>
+  </example>
+
+  <para>
+    次の例は、<literal>Calculator</literal> という名前のクラス
+    (<xref linkend="skeleton-generator.examples.Calculator.php" /> を参照ください)
+    用のテストクラスの雛形を作成する手順を示すものです。
+  </para>
+
+  <screen><userinput>phpunit-skelgen --test Calculator</userinput>
+PHPUnit Skeleton Generator 1.0.0 by Sebastian Bergmann.
+
+Wrote skeleton for "CalculatorTest" to "/home/sb/CalculatorTest.php".</screen>
+
+  <para>
+    <indexterm><primary>Incomplete Test (不完全なテスト)</primary></indexterm>
+
+    もとのクラスの各メソッドについて、
+    出来上がったテストケースクラスのテストケースは不完全な状態
+    (<xref linkend="incomplete-and-skipped-tests" /> を参照ください) です。
+  </para>
+
+  <note>
+    <title>名前空間つきのクラスと雛形ジェネレータ</title>
+
+    <para>
+      <ulink url="http://php.net/namespace">名前空間</ulink>
+      内で宣言されたクラス用のコードを雛形ジェネレータで生成する際には、
+      そのクラスの修飾名とクラスが宣言されているソースファイルへのパスを渡さなければなりません。
+    </para>
+
+    <para>
+      たとえば、名前空間 <literal>project</literal> の中でクラス
+      <literal>Calculator</literal> が宣言されている場合は
+      次のようにして雛形ジェネレータを実行します。
+      <screen><userinput>phpunit-skelgen --test -- &quot;project\Calculator&quot; Calculator.php</userinput>
+PHPUnit Skeleton Generator 1.0.0 by Sebastian Bergmann.
+
+Wrote skeleton for "project\CalculatorTest" to "/home/sb/CalculatorTest.php".</screen>
+    </para>
+  </note>
+
+  <para>
+    作成されたテストケースクラスを実行した結果を以下に示します。
+  </para>
+
+  <screen><userinput>phpunit --bootstrap Calculator.php --verbose CalculatorTest</userinput>
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+I
+
+Time: 0 seconds, Memory: 3.50Mb
+
+There was 1 incomplete test:
+
+1) CalculatorTest::testAdd
+This test has not been implemented yet.
+
+/home/sb/CalculatorTest.php:38
+OK, but incomplete or skipped tests!
+Tests: 1, Assertions: 0, Incomplete: 1.</screen>
+
+    <para>
+      <indexterm><primary>Annotation (アノテーション)</primary></indexterm>
+      <indexterm><primary>@assert</primary></indexterm>
+
+      <literal>@assert</literal> アノテーションを
+      メソッドのコメント部で使用すると、
+      シンプルではあるけれど意味のあるテストを自動的に生成することができます。
+      これは不完全なテストケースではありません。
+      <xref linkend="skeleton-generator.test.examples.Calculator.php" />
+      に例を示します。
+    </para>
+
+    <example id="skeleton-generator.test.examples.Calculator.php">
+      <title>@assert アノテーションをつけた Calculator クラス</title>
+      <programlisting><![CDATA[<?php
+class Calculator
+{
+    /**
+     * @assert (0, 0) == 0
+     * @assert (0, 1) == 1
+     * @assert (1, 0) == 1
+     * @assert (1, 1) == 2
+     */
+    public function add($a, $b)
+    {
+        return $a + $b;
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      もとのクラスの各メソッドについて、
+      <literal>@assert</literal> アノテーションの内容をチェックします。
+      これらは、以下のようなテストコードに変換されます。
+      <programlisting>    /**
+     * Generated from @assert (0, 0) == 0.
+     */
+    public function testAdd() {
+        $o = new Calculator;
+        $this->assertEquals(0, $o->add(0, 0));
+    }</programlisting>
+    </para>
+
+    <para>
+      作成されたテストケースクラスを実行した結果を以下に示します。
+    </para>
+
+    <screen><userinput>phpunit --bootstrap Calculator.php --verbose CalculatorTest</userinput>
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+....
+
+Time: 0 seconds, Memory: 3.50Mb
+
+OK (4 tests, 4 assertions)</screen>
+
+    <para>
+      <xref linkend="skeleton-generator.test.tables.assert-annotations" />
+      に、サポートされる <literal>@assert</literal>
+      の種類と、それがどのようなテストコードに変換されるかをまとめました。
+    </para>
+
+    <table id="skeleton-generator.test.tables.assert-annotations">
+      <title>サポートされる @assert アノテーション</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>アノテーション</entry>
+            <entry>変換後の内容</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>@assert (...) == X</literal></entry>
+            <entry><literal>assertEquals(X, method(...))</literal></entry>
+          </row>
+          <row>
+            <entry><literal>@assert (...) != X</literal></entry>
+            <entry><literal>assertNotEquals(X, method(...))</literal></entry>
+          </row>
+          <row>
+            <entry><literal>@assert (...) === X</literal></entry>
+            <entry><literal>assertSame(X, method(...))</literal></entry>
+          </row>
+          <row>
+            <entry><literal>@assert (...) !== X</literal></entry>
+            <entry><literal>assertNotSame(X, method(...))</literal></entry>
+          </row>
+          <row>
+            <entry><literal>@assert (...) &gt; X</literal></entry>
+            <entry><literal>assertGreaterThan(X, method(...))</literal></entry>
+          </row>
+          <row>
+            <entry><literal>@assert (...) &gt;= X</literal></entry>
+            <entry><literal>assertGreaterThanOrEqual(X, method(...))</literal></entry>
+          </row>
+          <row>
+            <entry><literal>@assert (...) &lt; X</literal></entry>
+            <entry><literal>assertLessThan(X, method(...))</literal></entry>
+          </row>
+          <row>
+            <entry><literal>@assert (...) &lt;= X</literal></entry>
+            <entry><literal>assertLessThanOrEqual(X, method(...))</literal></entry>
+          </row>
+          <row>
+            <entry><literal>@assert (...) throws X</literal></entry>
+            <entry><literal>@expectedException X</literal></entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+  </section>
+
+  <section id="skeleton-generator.class">
+    <title>テストケースクラスからのクラスの雛形の作成</title>
+
+    <para>
+      テスト駆動開発 (<xref linkend="test-driven-development"/> を参照ください)
+      ではまずテストを書いてからそのテストの対象となるコードを書くことになりますが、
+      PHPUnit ではテストケースクラスをもとにしてクラスの雛形を作成することができます。
+    </para>
+
+    <para>
+      規約に従って、<literal>Unit</literal> クラスのテストは
+      <literal>UnitTest</literal> クラスに記述されることになります。
+      このテストケースクラスのソースを検索し、
+      <literal>Unit</literal> クラスのオブジェクトを参照している変数を見つけて
+      そのオブジェクトがどんなメソッドをコールしているかを調べます。
+      例として <xref
+      linkend="skeleton-generator.class.examples.BowlingGame.php"/>
+      を見てみましょう。これは、<xref
+      linkend="skeleton-generator.class.examples.BowlingGameTest.php"/>
+      の解析結果をもとにして作成されたものです。
+    </para>
+
+    <example id="skeleton-generator.class.examples.BowlingGameTest.php">
+      <title>BowlingGameTest クラス</title>
+      <programlisting><![CDATA[<?php
+class BowlingGameTest extends PHPUnit_Framework_TestCase
+{
+    protected $game;
+
+    protected function setUp()
+    {
+        $this->game = new BowlingGame;
+    }
+
+    protected function rollMany($n, $pins)
+    {
+        for ($i = 0; $i < $n; $i++) {
+            $this->game->roll($pins);
+        }
+    }
+
+    public function testScoreForGutterGameIs0()
+    {
+        $this->rollMany(20, 0);
+        $this->assertEquals(0, $this->game->score());
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <screen><userinput>phpunit-skelgen --class BowlingGameTest</userinput>
+PHPUnit Skeleton Generator 1.0.0 by Sebastian Bergmann.
+
+Wrote skeleton for "BowlingGame" to "./BowlingGame.php".</screen>
+
+    <example id="skeleton-generator.class.examples.BowlingGame.php">
+      <title>作成された BowlingGame クラスの雛形</title>
+      <programlisting><![CDATA[<?php
+/**
+ * Generated by PHPUnit_SkeletonGenerator on 2012-01-09 at 16:55:58.
+ */
+class BowlingGame
+{
+    /**
+     * @todo Implement roll().
+     */
+    public function roll()
+    {
+        // Remove the following line when you implement this method.
+        throw new RuntimeException('Not yet implemented.');
+    }
+
+    /**
+     * @todo Implement score().
+     */
+    public function score()
+    {
+        // Remove the following line when you implement this method.
+        throw new RuntimeException('Not yet implemented.');
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      作成されたクラスに対してテストを実行した結果を以下に示します。
+    </para>
+
+    <screen><userinput>phpunit --bootstrap BowlingGame.php BowlingGameTest</userinput>
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+E
+
+Time: 0 seconds, Memory: 3.50Mb
+
+There was 1 error:
+
+1) BowlingGameTest::testScoreForGutterGameIs0
+RuntimeException: Not yet implemented.
+
+/home/sb/BowlingGame.php:13
+/home/sb/BowlingGameTest.php:14
+/home/sb/BowlingGameTest.php:20
+
+FAILURES!
+Tests: 1, Assertions: 0, Errors: 1.</screen>
+  </section>
+</chapter>

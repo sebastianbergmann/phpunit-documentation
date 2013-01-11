@@ -1,0 +1,473 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="installation">
+  <title>PHPUnit のインストール</title>
+
+  <para>
+    PHPUnit は、三通りのインストール方法に対応しています。<ulink
+    url="http://pear.php.net/manual/en/guide.users.commandline.cli.php">PEAR
+    インストーラ</ulink> あるいは <ulink url="http://getcomposer.org/">Composer</ulink>
+    で、PHPUnit とその依存コンポーネントをダウンロードしてインストールすることもできるし、
+    PHPUnit を <ulink url="http://php.net/phar">PHP Archive (PHAR)</ulink>
+    形式でダウンロードすることもできます。PHAR 版の PHPUnit は、
+    必要な依存コンポーネントがすべて (オプションのコンポーネントの一部も含めて)
+    ひとつのファイルにまとめられています。
+  </para>
+
+  <note>
+    <para>
+      Composer および PHP Archive (PHAR) には、PHPUnit 3.8
+      以降で対応するようになりました (安定したのは PHPUnit 3.8.5 からです)。
+      それより前のバージョンの PHPUnit は、これらの形式では配布されていません。
+    </para>
+  </note>
+
+  <note>
+    <para>
+      PHPUnit 3.8 は PHP 5.4.7 以降のバージョンで動作しますが、PHP 5.5.0
+      以降を使うことを強く推奨します。
+    </para>
+
+    <para>
+      PHPUnit では PHP_CodeCoverage というライブラリを使ってコードカバレッジ情報を処理していますが、
+      このライブラリを使うには Xdebug 2.2.1 以降が必要です。
+      しかし、Xdebug 2.3.0 以降を使うことを強く推奨します。
+    </para>
+  </note>
+
+  <section id="installation.pear">
+    <title>PEAR</title>
+
+    <para>
+      次のふたつのコマンドを実行するだけで (<literal>root</literal> として実行しなければならないかもしれません)、PHPUnit
+      に必要なものがすべて PEAR インストーラを使ってインストールできます。
+    </para>
+
+    <screen><userinput>pear config-set auto_discover 1</userinput>
+<userinput>pear install pear.phpunit.de/PHPUnit</userinput></screen>
+
+    <caution>
+      <para>
+        OS のディストリビューションや PHP の環境によっては、
+        ここで説明する手順を実行する前に
+        まず PEAR をインストールしたり既存の PEAR をアップデートしたりする必要があるかもしれません。
+      </para>
+
+      <para>
+        既存の PEAR 環境のアップデートは、通常は
+        <userinput>sudo pear upgrade PEAR</userinput>
+        を実行するだけのことです。PEAR の新規インストール方法は
+        <ulink url="http://pear.php.net/manual/en/installation.getting.php">PEAR
+        マニュアル</ulink> に説明があります。
+      </para>
+    </caution>
+  </section>
+
+  <section id="installation.composer">
+    <title>Composer</title>
+
+    <para>
+      PHPUnit をプロジェクト単位で導入して開発用の依存関係を設定するには、
+      <literal>phpunit/phpunit</literal> への依存情報をプロジェクトの
+      <filename>composer.json</filename> ファイルに追加します。
+      次に示すのは最小限の
+      <filename>composer.json</filename> ファイルの例で、
+      開発時の PHPUnit 3.8 への依存を定義しています。
+    </para>
+
+    <programlisting><![CDATA[{
+    "require-dev": {
+        "phpunit/phpunit": "3.8.*"
+    }
+}]]></programlisting>
+
+    <para>
+      システム全体で使えるようにスタンドアロンでインストールするには、
+      次のような <filename>composer.json</filename> を用意すればどのディレクトリからでもインストールできます。
+    </para>
+
+    <programlisting><![CDATA[{
+    "name": "phpunit",
+    "description": "PHPUnit",
+    "require": {
+        "phpunit/phpunit": "3.8.*"
+    },
+    "config": {
+        "bin-dir": "/usr/local/bin/"
+    }
+}]]></programlisting>
+  </section>
+
+  <section id="installation.phar">
+    <title>PHP Archive (PHAR)</title>
+
+    <para>
+      PHPUnit を PHP Archive (PHAR)
+      形式でダウンロードすることもできます。PHAR 版の PHPUnit は、
+      必要な依存コンポーネントがすべて (オプションのコンポーネントの一部も含めて)
+      ひとつのファイルにまとめられています。
+    </para>
+
+    <screen><userinput>wget http://pear.phpunit.de/get/phpunit.phar</userinput>
+<userinput>chmod +x phpunit.phar</userinput></screen>
+  </section>
+
+  <section id="installation.optional-packages">
+    <title>オプションのパッケージ</title>
+
+    <para>
+      オプションのパッケージとして、これらが使えます。
+    </para>
+
+    <variablelist>
+      <varlistentry>
+        <term>
+          <literal>DbUnit</literal>
+        </term>
+        <listitem>
+          <para>
+            DbUnit の PHP/PHPUnit 向けの移植。データベースとのやりとりをテスト可能にする。
+          </para>
+
+          <para>
+            このパッケージは、PEAR を使って次のコマンドでインストールします。
+          </para>
+
+          <screen><userinput>pear install phpunit/DbUnit</userinput></screen>
+
+          <para>
+            composer でインストールするには、
+            <literal>"require-dev"</literal>
+            に次の行を追加します。
+          </para>
+
+          <screen><userinput>"phpunit/dbunit": ">=1.2"</userinput></screen>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <literal>PHP_Invoker</literal>
+        </term>
+        <listitem>
+          <para>
+            callable をタイムアウトつきで実行するユーティリティクラス。
+            テストのタイムアウトを厳格に指定するために必要なパッケージ。
+          </para>
+
+          <para>
+            このパッケージは、次のコマンドでインストールします。
+          </para>
+
+          <screen><userinput>pear install phpunit/PHP_Invoker</userinput></screen>
+
+          <para>
+            composer でインストールするには、
+            <literal>"require-dev"</literal>
+            に次の行を追加します。
+          </para>
+
+          <screen><userinput>"phpunit/php-invoker": "*"</userinput></screen>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <literal>PHPUnit_Selenium</literal>
+        </term>
+        <listitem>
+          <para>
+            PHPUnit 用の Selenium RC インテグレーション。
+          </para>
+
+          <para>
+            このパッケージは、PEAR を使って次のコマンドでインストールします。
+          </para>
+
+          <screen><userinput>pear install phpunit/PHPUnit_Selenium</userinput></screen>
+
+          <para>
+            composer でインストールするには、
+            <literal>"require-dev"</literal>
+            に次の行を追加します。
+          </para>
+
+          <screen><userinput>"phpunit/phpunit-selenium": ">=1.2"</userinput></screen>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <literal>PHPUnit_Story</literal>
+        </term>
+        <listitem>
+          <para>
+            PHPUnit で振る舞い駆動開発をするための、ストーリーベースのテストランナー。
+          </para>
+
+          <para>
+            このパッケージは、PEAR を使って次のコマンドでインストールします。
+          </para>
+
+          <screen><userinput>pear install phpunit/PHPUnit_Story</userinput></screen>
+
+          <para>
+            composer でインストールするには、
+            <literal>"require-dev"</literal>
+            に次の行を追加します。
+          </para>
+
+          <screen><userinput>"phpunit/phpunit-story": "*"</userinput></screen>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <literal>PHPUnit_SkeletonGenerator</literal>
+        </term>
+        <listitem>
+          <para>
+            プロダクションコードのクラスからテストクラスの雛形を生成したり、
+            その逆の操作をしたりするツール。
+          </para>
+
+          <para>
+            このパッケージは、次のコマンドでインストールします。
+          </para>
+
+          <screen><userinput>pear install phpunit/PHPUnit_SkeletonGenerator</userinput></screen>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <literal>PHPUnit_TestListener_DBUS</literal>
+        </term>
+        <listitem>
+          <para>
+            イベントを DBUS に送信するテストリスナー。
+          </para>
+
+          <para>
+            このパッケージは、次のコマンドでインストールします。
+          </para>
+
+          <screen><userinput>pear install phpunit/PHPUnit_TestListener_DBUS</userinput></screen>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <literal>PHPUnit_TestListener_XHProf</literal>
+        </term>
+        <listitem>
+          <para>
+            XHProf を使ってテスト対象コードの自動プロファイリングを行うテストリスナー。
+          </para>
+
+          <para>
+            このパッケージは、次のコマンドでインストールします。
+          </para>
+
+          <screen><userinput>pear install phpunit/PHPUnit_TestListener_XHProf</userinput></screen>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <literal>PHPUnit_TicketListener_Fogbugz</literal>
+        </term>
+        <listitem>
+          <para>
+            Fogbugz issue API 用のチケットリスナー。
+          </para>
+
+          <para>
+            このパッケージは、次のコマンドでインストールします。
+          </para>
+
+          <screen><userinput>pear install phpunit/PHPUnit_TicketListener_Fogbugz</userinput></screen>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <literal>PHPUnit_TicketListener_GitHub</literal>
+        </term>
+        <listitem>
+          <para>
+            GitHub issue API 用のチケットリスナー。
+          </para>
+
+          <para>
+            このパッケージは、次のコマンドでインストールします。
+          </para>
+
+          <screen><userinput>pear install phpunit/PHPUnit_TicketListener_GitHub</userinput></screen>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <literal>PHPUnit_TicketListener_GoogleCode</literal>
+        </term>
+        <listitem>
+          <para>
+            Google Code issue API 用のチケットリスナー。
+          </para>
+
+          <para>
+            このパッケージは、次のコマンドでインストールします。
+          </para>
+
+          <screen><userinput>pear install phpunit/PHPUnit_TicketListener_GoogleCode</userinput></screen>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <literal>PHPUnit_TicketListener_Trac</literal>
+        </term>
+        <listitem>
+          <para>
+            Trac issue API 用のチケットリスナー。
+          </para>
+
+          <para>
+            このパッケージは、次のコマンドでインストールします。
+          </para>
+
+          <screen><userinput>pear install phpunit/PHPUnit_TicketListener_Trac</userinput></screen>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+  </section>
+
+  <section id="installing.upgrading">
+    <title>アップグレード</title>
+
+    <para>
+      PHPUnit 3.6 から PHPUnit 3.8 へのアップグレードの際に出くわすことになる、
+      過去との互換性に関するちょっとした問題をまとめます。
+    </para>
+
+    <para>
+      アップグレードそのものは極めて簡単で、特に問題も発生しません。
+      主要なオープンソースのフレームワークのすべてを対象にテストをして、
+      まったく問題がありませんでした。
+      しかし、プロジェクトによって事情は異なるでしょう。
+      これまでのリリース候補を一度も試さずにアップグレードした人は戸惑うかもしれません。
+      そんなときは、このドキュメントが助けとなるでしょう。
+    </para>
+
+    <variablelist>
+      <varlistentry>
+        <term><emphasis role="strong">非推奨の OutputTestCase が削除された</emphasis></term>
+        <listitem>
+          <para>
+            <literal>PHPUnit_Extensions_OutputTestCase</literal> クラスは削除されました。
+            PHPUnit 3.6 のときには非推奨の notice を発行していたものです。
+            出力をテストする方法については
+            <xref linkend="writing-tests-for-phpunit.output" /> をご覧ください。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><emphasis role="strong">テストケースを実行するたびに、現在の作業ディレクトリに戻るようになった</emphasis></term>
+        <listitem>
+          <para>
+            テストの中で作業ディレクトリ
+            (<literal>cwd</literal>) を変更すると、
+            これまでの PHPUnit はコードカバレッジの出力で問題が発生していました。
+            3.8 ではテストケースごとに作業ディレクトリを復元するようになったので、
+            他のテストケースで作業ディレクトリを変更していることを前提としたテストケースで
+            問題が発生します。もともとそんな状況は好ましくないし、
+            簡単に修正できるでしょう。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><emphasis role="strong">テストリスナーが autoload を呼ぶようになった</emphasis></term>
+        <listitem>
+          <para>
+            <xref linkend="appendixes.configuration.test-listeners"/>
+            で説明しているカスタムテストリスナーを使うとき、
+            これまでの PHPUnit ではテストリスナーを読み込めなくてもエラーになりませんでした。
+            そのため、テストリスナーが読み込めないことが原因で問題が発生しても、
+            原因を追及しにくかったのです。3.8 からは autoload でクラスを探すようになりました。
+            テストリスナーが見つからないときは autoload でエラーになります。
+            autoloader がテストリスナーを見つけられないと問題になるので、
+            そのリスナーを削除するなり
+            <literal>bootstrap.php</literal> できちんと読み込むようにするなりして解決しましょう。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><emphasis role="strong">モックオブジェクトへのパラメータは、クローンされなくなった</emphasis></term>
+        <listitem>
+          <para>
+            これまでは、モックを使うときにはすべてのオブジェクトのパラメータをクローンしていました。
+            そのため、メソッドに渡されたオブジェクトの同一性を確かめたいときや
+            そもそもクローンできないオブジェクトであった場合などに問題が発生していました。
+            多くの人からいただいた要望に応えて、この振る舞いは変わりました。
+            <xref linkend="test-doubles.mock-objects.examples.clone-object-parameters-usecase.php" />
+            に、新しい実装がいかに便利かを示す例があります。
+            <xref linkend="test-doubles.mock-objects.examples.enable-clone-object-parameters.php" />
+            で、過去のバージョンの挙動に戻す方法を説明しています。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><emphasis role="strong">
+          <literal>addUncoveredFilesFromWhitelist</literal>
+          が削除され、
+          <literal>processUncoveredFilesFromWhitelist</literal> に変わった</emphasis>
+        </term>
+        <listitem>
+          <para>
+            コードカバレッジの生成で
+            <literal><![CDATA[<whitelist addUncoveredFilesFromWhitelist="true">]]></literal>
+            を使うとき、カバーされないすべてのファイルは PHPUnit に含まれませんでした。
+            これらのファイルに実行可能なコードを配置している人にとっては、これは問題でした。
+            PHPUnit 3.8 からは、ファイルをスキャンしてどのコードが実行可能かを調べ、
+            どのコードを除外してはいけないかを調べるようになりました。
+            その結果、コードカバレッジの結果が変わることになるかもしれません。
+          </para>
+          <para>
+            過去のバージョンと同じ挙動にするには、
+            <literal><![CDATA[<whitelist processUncoveredFilesFromWhitelist=="true">]]></literal>
+            と設定します。PHPUnit 3.6 での挙動と 3.8 での挙動のどちらを使いたい人もいるので、
+            しばらくはどちらの挙動でも使えるようにしておきます。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><emphasis role="strong">
+          <literal>cacheTokens</literal> のデフォルト値が
+          <literal>false</literal></emphasis> に変わった
+        </term>
+        <listitem>
+          <para>
+            PHPUnit <literal>3.8.2</literal> からは、トークン化したファイルを
+            デフォルトではキャッシュしないようにしました。
+            大規模なプロジェクトのコードカバレッジレポートを作るときに、
+            キャッシュは大量のメモリを消費します。
+            また、ホワイトリストの仕様変更の影響もあって、
+            何千ものクラスを含むコードベースではキャッシュが問題になっていました。
+          </para>
+          <para>
+            もし比較的小規模なプロジェクトであったり十分にメモリを確保できたりする場合は、
+            <literal>phpunit.xml</literal> に
+            <literal>cacheTokens="true"</literal> を追加してください。
+            詳しくは <xref linkend="appendixes.configuration.phpunit"/> をご覧ください。
+          </para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+  </section>
+</chapter>

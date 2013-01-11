@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="test-driven-development">
+  <title>Développement dirigé par les tests</title>
+
+  <para>
+    <indexterm><primary>Conception par contrat</primary></indexterm>
+    <indexterm><primary>Extreme Programming</primary></indexterm>
+    <indexterm><primary>Développement dirigé par les tests</primary></indexterm>
+    <indexterm><primary>Programmation en testant d'abord</primary></indexterm>
+    <indexterm><primary>Test unitaire</primary></indexterm>
+
+    Les tests unitaires sont une partie vitale pour plusieurs pratiques et 
+    processus de développement logiciel tel que la programmation en testant d'abord,
+    l'<ulink url="http://en.wikipedia.org/wiki/Extreme_Programming">Extreme Programming</ulink>,
+    et le <ulink url="http://en.wikipedia.org/wiki/Test-driven_development">développement dirigé par les tests</ulink>.
+    Ils permettent également la <ulink url="http://en.wikipedia.org/wiki/Design_by_Contract">conception par contrat</ulink>
+    dans des langages de programmation qui ne supportent pas cette méthodologie par construction de langage.
+  </para>
+
+  <para>
+    Vous pouvez utiliser PHPUnit pour écrire des tests une fois que vous avez fait
+    la programmation. Cependant, plus tôt un test est écrit après qu'une erreur a été
+    introduite, plus le test a de la valeur. Ainsi, au lieu d'écrire des tests des mois
+    après que le code est "achevé", nous pouvons écrire des tests quelques jours, heures ou
+    minutes après la possible introduction d'un défaut. Pourquoi s'arrêter là ? Pourquoi ne pas
+    écrire les tests un peu avant la possible introduction d'un défaut ?
+  </para>
+
+  <para>
+    La programmation en testant d'abord, qui est une partie de l'Extreme Programming
+    et le développement dirigé par les tests, sont bâtis sur cette idée et la poussent
+    à l'extrême. Grâce à la puissance de calcul actuelle, nous avons l'opportunité de lancer
+    des milliers de tests des milliers de fois par jour. Nous pouvons utiliser les retours
+    de tous ces tests pour programmer par petites étapes, chacune d'elles apportant
+    avec elle l'assurance d'un nouveau test automatisé s'ajoutant à tous les tests venus
+    précédemment. Les tests sont comme des pitons, vous assurant que, quoi qu'il arrive,
+    une fois que vous avez progressé, vous ne pouvez pas retomber plus bas.
+  </para>
+
+  <para>
+    Quand vous écrivez le test la première fois, il ne peut pas être exécuté, car 
+    vous faites appel à des objets et des méthodes qui n'ont pas encore été programmés.
+    Ceci peut sembler étrange au premier abord, mais après un moment, vous aurez l'habitude 
+    de procéder ainsi. Pensez à la programmation en testant d'abord comme à une approche
+    pragmatique pour suivre le principe de programmation orientée objet consistant à 
+    programmer une interface au lieu de programmer une implémentation : quand vous écrivez
+    le test, vous pensez à l'interface de l'objet que vous êtes en train de tester - ce à quoi
+    ressemble cet objet vu de l'extérieur. Quand vous faites en sorte que le test fonctionne
+    vraiment, vous réfléchissez en terme de pure implémentation. L'interface est déterminée
+    par le test en échec.
+  </para>
+
+  <blockquote>
+    <attribution>Dan North</attribution>
+    <para>
+      L'objet du <ulink url="http://en.wikipedia.org/wiki/Test-driven_development">Développement dirigé par les tests</ulink>
+      est de rechercher les fonctionnalités dont le logiciel a réellement besoin, plutôt
+      que celles dont le programmeur pense qu'il pourrait probablement avoir besoin. La façon dont il 
+      procède semble d'abord contre intuitive, si ce n'est carrément idiote, mais non 
+      seulement cela a du sens, mais cela devient également rapidement une façon
+      naturelle et élégante de développer du logiciel.
+    </para>
+  </blockquote>
+
+  <para>
+    Ce qui suit est forcément une introduction abrégée au développement
+    dirigé par les tests. Vous pouvez approfondir le sujet dans d'autres
+    livres, comme <emphasis>Test-Driven Development</emphasis> <xref linkend="Beck2002" />
+    de Kent Beck ou <emphasis>A Practical Guide to Test-Driven
+    Development</emphasis> <xref linkend="Astels2003" /> de Dave Astels.
+  </para>
+
+  <section id="test-driven-development.bankaccount-example">
+    <title>Exemple du compte bancaire</title>
+
+    <para>
+      Dans cette section, nous examinerons l'exemple d'une classe qui représente
+      un compte bancaire. Le contrat pour la classe <literal>CompteBancaire</literal>
+      n'exige pas seulement des méthodes pour obtenir et positionner la balance
+      du compte bancaire, ainsi que des méthodes pour déposer et retirer de l'argent.
+      S'y ajoute les deux conditions suivantes qui doivent être vérifiées :
+    </para>
+
+    <itemizedlist>
+      <listitem>
+        <para>La balance initiale du compte bancaire doit être à zéro.</para>
+      </listitem>
+
+      <listitem>
+        <para>La balance du compte bancaire ne peut pas devenir négative.</para>
+      </listitem>
+    </itemizedlist>
+
+    <para>
+      Nous écrivons les tests pour la classe <literal>CompteBancaire</literal> avant d'écrire
+      le code de la classe elle-même. Nous utilisons les conditions du contrat comme base pour les 
+      tests et nous nommons les méthodes de test en fonction, comme montré dans 
+      <xref linkend="test-driven-development.bankaccount-example.examples.BankAccountTest.php" />.
+    </para>
+
+    <example id="test-driven-development.bankaccount-example.examples.BankAccountTest.php">
+      <title>Tests pour la classe CompteBancaire</title>
+      <programlisting><![CDATA[<?php
+require_once 'CompteBancaire.php';
+
+class CompteBancaireTest extends PHPUnit_Framework_TestCase
+{
+    protected $compte_bancaire;
+
+    protected function setUp()
+    {
+        $this->compte_bancaire = new CompteBancaire;
+    }
+
+    public function testBalanceEstInitialementAZero()
+    {
+        $this->assertEquals(0, $this->compte_bancaire->getBalance());
+    }
+
+    public function testBalanceNePeutPasEtreNegatif()
+    {
+        try {
+            $this->compte_bancaire->retirerArgent(1);
+        }
+
+        catch (CompteBancaireException $e) {
+            $this->assertEquals(0, $this->compte_bancaire->getBalance());
+
+            return;
+        }
+
+        $this->fail();
+    }
+
+    public function testBalanceNePeutPasEtreNegatif2()
+    {
+        try {
+            $this->compte_bancaire->deposerArgent(-1);
+        }
+
+        catch (CompteBancaireException $e) {
+            $this->assertEquals(0, $this->compte_bancaire->getBalance());
+
+            return;
+        }
+
+        $this->fail();
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      Nous écrivons maintenant le volume minimum de code pour que le premier test,
+      <literal>testBalanceEstInitialementAZero()</literal>, réussisse. Dans notre
+      exemple, ceci correspond à implémenter la méthode <literal>getBalance()</literal>
+      de la classe <literal>CompteBancaire</literal>, comme montré dans 
+      <xref linkend="test-driven-development.bankaccount-example.examples.BankAccount.php" />.
+    </para>
+
+    <example id="test-driven-development.bankaccount-example.examples.BankAccount.php">
+      <title>Code nécessaire pour que le test testBalanceEstInitialementAZero() réussisse</title>
+      <programlisting><![CDATA[<?php
+class CompteBancaire
+{
+    protected $balance = 0;
+
+    public function getBalance()
+    {
+        return $this->balance;
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      Maintenant, le test pour la première condition du contrat réussit, mais les
+      tests pour la seconde condition du contrat échoue car nous n'avons pas implémenté
+      les méthodes que ces tests appellent.
+    </para>
+
+    <screen><userinput>phpunit CompteBancaireTest</userinput>
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+.
+Fatal error: Call to undefined method CompteBancaire::retirerArgent()</screen>
+
+    <para>
+      Pour que les tests qui s'assurent que la seconde condition du contrat réussissent, 
+      nous devons maintenant implémenter les méthodes <literal>retirerArgent()</literal>,
+      <literal>deposerArgent()</literal> et <literal>setBalance()</literal>,
+      comme montré dans 
+      <xref linkend="test-driven-development.bankaccount-example.examples.BankAccount2.php" />.
+      Ces méthodes sont écrites de telle façon qu'elles lèvent une 
+      <literal>CompteBancaireException</literal> quand elles sont appelées avec des valeurs illégales
+      qui violeraient les conditions du contrat.
+    </para>
+
+    <example id="test-driven-development.bankaccount-example.examples.BankAccount2.php">
+      <title>La classe CompteBancaire complète</title>
+      <programlisting><![CDATA[<?php
+class CompteBancaireException extends Exception { }
+
+class CompteBancaire
+{
+    protected $balance = 0;
+
+    public function getBalance()
+    {
+        return $this->balance;
+    }
+
+    protected function setBalance($balance)
+    {
+        if ($balance >= 0) {
+            $this->balance = $balance;
+        } else {
+            throw new CompteBancaireException;
+        }
+    }
+
+    public function deposerArgent($balance)
+    {
+        $this->setBalance($this->getBalance() + $balance);
+
+        return $this->getBalance();
+    }
+
+    public function retirerArgent($balance)
+    {
+        $this->setBalance($this->getBalance() - $balance);
+
+        return $this->getBalance();
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      Les tests qui assurent que la seconde condition du contrat réussissent maintenant aussi :
+    </para>
+
+    <screen><userinput>phpunit CompteBancaireTest</userinput>
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+...
+
+Time: 0 seconds
+
+
+OK (3 tests, 3 assertions)</screen>
+
+    <para>
+      <indexterm><primary>PHPUnit_Framework_Assert</primary></indexterm>
+
+      Alternativement, vous pouvez utiliser les méthodes statiques de vérification
+      fournies par la classe <literal>PHPUnit_Framework_Assert</literal> pour écrire les conditions
+      du contrat en tant que vérification en style "conception par contrat", comme montré dans
+      <xref linkend="test-driven-development.bankaccount-example.examples.BankAccount3.php" />.
+      Quand l'une de ces vérifications échoue, une exception
+      <literal>PHPUnit_Framework_AssertionFailedError</literal> sera levée.
+      Avec cette approche, vous écrivez moins de code pour les contrôles des conditions du contrat
+      et les tests deviennent plus lisibles. Cependant, vous ajoutez une dépendance à l'exécution
+      avec PHPUnit à vos projets.
+    </para>
+
+    <example id="test-driven-development.bankaccount-example.examples.BankAccount3.php">
+      <title>La classe CompteBancaire avec des vérifications de conception par contrat</title>
+      <programlisting><![CDATA[<?php
+class CompteBancaire
+{
+    private $balance = 0;
+
+    public function getBalance()
+    {
+        return $this->balance;
+    }
+
+    protected function setBalance($balance)
+    {
+        PHPUnit_Framework_Assert::assertTrue($balance >= 0);
+
+        $this->balance = $balance;
+    }
+
+    public function deposerArgent($montant)
+    {
+        PHPUnit_Framework_Assert::assertTrue($montant >= 0);
+
+        $this->setBalance($this->getBalance() + $montant);
+
+        return $this->getBalance();
+    }
+
+    public function retirerArgent($montant)
+    {
+        PHPUnit_Framework_Assert::assertTrue($montant >= 0);
+        PHPUnit_Framework_Assert::assertTrue($this->balance >= $montant);
+
+        $this->setBalance($this->getBalance() - $montant);
+
+        return $this->getBalance();
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      En écrivant les conditions du contrat dans les tests, nous avons utilisé
+      la conception par contrat pour programmer la classe <literal>CompteBancaire</literal>.
+      Nous avons alors écrit, suivant l'approche de la programmation en testant d'abord, le code
+      nécessaire pour faire que les tests réussissent. Cependant, nous avons oublié d'écrire
+      les tests qui appellent <literal>setBalance()</literal>,
+      <literal>deposerArgent()</literal> et <literal>retirerArgent()</literal>
+      avec des valeurs valides qui ne violent pas les conditions du contrat.
+      Nous avons besoin d'un moyen pour tester nos tests, ou au moins mesurer leur qualité.
+      Un tel moyen est l'analyse de l'information de couverture de code que nous allons voir.
+    </para>
+  </section>
+</chapter>

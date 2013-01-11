@@ -15,10 +15,9 @@ function webify_directory($directory, $edition)
 
     $_editions = '';
     $editions  = array(
-      'en' => array('3.7', '3.6', /*'3.5', '3.4', '3.3', '3.2', '3.1', '3.0', '2.3'*/),
-      'ja' => array('3.7', '3.6', /*'3.5', '3.4', '3.3', '3.2', '3.1', '3.0', '2.3'*/),
-      'fr' => array('3.7', '3.6', /*'3.5', '3.4', '3.3', '3.2', '3.1', '3.0', '2.3'*/),
-      /*'de' => array('2.3')*/
+      'en' => array('3.8', '3.7'),
+      'fr' => array('3.8', '3.7'),
+      'ja' => array('3.8', '3.7')
     );
 
     foreach ($editions as $language => $versions) {
@@ -30,13 +29,13 @@ function webify_directory($directory, $edition)
             }
 
             switch ($language) {
-                case 'en': {
-                    $_language = 'English';
+                case 'de': {
+                    $_language = 'German';
                 }
                 break;
 
-                case 'ja': {
-                    $_language = 'Japanese';
+                case 'en': {
+                    $_language = 'English';
                 }
                 break;
 
@@ -45,8 +44,8 @@ function webify_directory($directory, $edition)
                 }
                 break;
 
-                case 'de': {
-                    $_language = 'German';
+                case 'ja': {
+                    $_language = 'Japanese';
                 }
                 break;
             }
