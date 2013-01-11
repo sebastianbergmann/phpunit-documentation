@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="behaviour-driven-development">
+  <title>Desenvolvimento Guiado por Comportamento</title>
+
+  <para>
+    <indexterm><primary>Programação Extrema</primary></indexterm>
+    <indexterm><primary>Desenvolvimento Guiado por Testes</primary></indexterm>
+
+    Em <xref linkend="Astels2006" />, Dave Astels aponta o seguinte:
+  </para>
+
+  <itemizedlist>
+    <listitem>
+      <para>
+        <ulink url="http://en.wikipedia.org/wiki/Extreme_Programming">Programação Extrema</ulink>
+        tinha originalmente a regra de testar tudo que pudesse possivelmente quebrar.
+      </para>
+    </listitem>
+    <listitem>
+      <para>
+        Porém agora a prática dos testes na Programação Extrema evoluiu para o <ulink url="http://en.wikipedia.org/wiki/Test-driven_development">Desenvolvimento Guiado por Testes</ulink>
+        (veja <xref linkend="test-driven-development" />).
+      </para>
+    </listitem>
+    <listitem>
+      <para>
+        Mas as ferramentas ainda forçam os desenvolvedores a pesar em termos de testes e asserções em vez de especificações.
+      </para>
+    </listitem>
+  </itemizedlist>
+
+  <blockquote>
+    <attribution>Dave Astels</attribution>
+    <title>Então se não é sobre testes, é sobre o quê?</title>
+    <para>
+      É sobre descobrir o quê você está tentando fazer antes de sair desesperado tentando fazê-lo. Você escreve uma especificação que resolve um pequeno aspecto do comportamento de uma forma concisa, inequívoca e executável. É simples assim. Isso significa que você escreve testes? Não. Isso significa que você escreve especificações sobre o quê o seu código terá que fazer. Significa que você especifica o comportamento do seu código antes da hora. Mas não muito antes. De fato, logo antes de você escrever o código é melhor, porque é quando você tem o máximo de informações à mão até chegar a esse ponto. Como no DGT bem feito, você trabalha com pequenos incrementos... especificando um pequeno aspecto do comportamento de cada vez, então implementando-o.
+    </para>
+    <para>
+      Quando você perceber que é tudo uma questão de especificar os comportamentos e não de escrever testes, seu ponto de vista muda. Repentinamente a ideia de ter uma classe de teste para cada uma das suas classes de produção se torna ridiculamente limitadora. E a ideia de testar cada um de seus métodos com seu próprio método de testes (uma relação 1-1) se torna hilária.
+    </para>
+  </blockquote>
+
+  <para>
+    <indexterm><primary>Desenvolvimento Guiado por Comportamento</primary></indexterm>
+    <indexterm><primary>Design Guiado por Domínio</primary></indexterm>
+
+    O foco do <ulink url="http://en.wikipedia.org/wiki/Behavior_driven_development">Desenvolvimento Guiado por Comportamento</ulink>
+    a linguagem e as interações usadas no processo de desenvolvimento de programas. Desenvolvedores Guiados por Comportamento usam suas linguagens nativas em combinação com a linguagem ubíqua de <ulink url="http://en.wikipedia.org/wiki/Domain_driven_design">Design Guiado por Domínio</ulink>
+    para descrever o propósito e o benefício de seus códigos. Isso permite aos desenvolvedores focarem-se no motivo do código ser criado, em vez dos detalhes técnicos, minimizando a tradução entre a linguagem técnica na qual o código é escrito e a linguagem de domínio falada pelos especialistas em domínios".
+  </para>
+
+  <para>
+    <indexterm><primary><literal>PHPUnit_Extensions_Story_TestCase</literal></primary></indexterm>
+
+    A Classe <literal>PHPUnit_Extensions_Story_TestCase</literal> adiciona um framework de história que facilita a definição de uma
+    <ulink url="http://en.wikipedia.org/wiki/Domain-specific_programming_language">Linguagem de Domínio Específico</ulink>
+    para Desenvolvimento Guiado por Comportamento. Pode ser instalada assim:
+  </para>
+
+  <screen><userinput>pear install phpunit/PHPUnit_Story</userinput></screen>
+
+  <para>
+    Dentro de um <emphasis>cenário</emphasis>, <literal>given()</literal>,
+    <literal>when()</literal>, e <literal>then()</literal> representam um
+    <emphasis>passo</emphasis> cada um. <literal>and()</literal> é do mesmo tipo do passo anterior. Os seguintes métodos são declarados <literal>abstract</literal>
+    no <literal>PHPUnit_Extensions_Story_TestCase</literal> e precisam ser implementados:
+  </para>
+
+  <itemizedlist>
+    <listitem>
+      <para><literal>runGiven(&amp;$mundo, $acao, $argumentos)</literal></para>
+      <para>...</para>
+    </listitem>
+
+    <listitem>
+      <para><literal>runWhen(&amp;$mundo, $acao, $argumentos)</literal></para>
+      <para>...</para>
+    </listitem>
+
+    <listitem>
+      <para><literal>runThen(&amp;$mundo, $acao, $argumentos)</literal></para>
+      <para>...</para>
+    </listitem>
+  </itemizedlist>
+
+  <section id="behaviour-driven-development.bowlinggame-example">
+    <title>Exemplo do Jogo de Boliche</title>
+
+    <para>
+      Nesta seção vamos dar uma olhada no exemplo de uma classe que calcula a pontuação para um jogo de boliche. As regras são as seguintes:
+    </para>
+
+    <itemizedlist>
+      <listitem>
+        <para>O jogo consiste de 10 quadros.</para>
+      </listitem>
+      <listitem>
+        <para>Em cada quadro o jogador tem duas oportunidades de derrubar 10 pinos.</para>
+      </listitem>
+      <listitem>
+        <para>A pontuação para um quadro é o número total de pinos derrubados, mais bônus para strikes e spares.</para>
+      </listitem>
+      <listitem>
+        <para>Um spare é quando um jogador derruba todos os 10 pinos em duas tentativas.</para>
+        <para>O bônus para esse quadro é o número de pinos derrubados na próxima rodada.</para>
+      </listitem>
+      <listitem>
+        <para>Um strike é quando um jogador derruba todos os pinos na primeira tentativa.</para>
+        <para>O bônus para esse quadro é o valor das duas próximas bolas jogadas.</para>
+      </listitem>
+    </itemizedlist>
+
+    <para>
+      <xref linkend="behaviour-driven-development.bowlinggame-example.examples.BowlingGameSpec.php" />
+      mostra como as regras acima podem ser escritas como cenários de especificação usando o <literal>PHPUnit_Extensions_Story_TestCase</literal>.
+    </para>
+
+    <example id="behaviour-driven-development.bowlinggame-example.examples.BowlingGameSpec.php">
+      <title>Especificação para a classe JogoDeBoliche</title>
+      <programlisting><![CDATA[<?php
+require_once 'PHPUnit/Extensions/Story/TestCase.php';
+require_once 'JogoBoliche.php';
+
+class JogoBolicheSpec extends PHPUnit_Extensions_Story_TestCase
+{
+/**
+* @scenario
+*/
+public function pontuacaoPorJogarNaCanaletaEh0()
+{
+$this->given('Novo jogo')
+->then('Pontuação deve ser', 0);
+}
+
+/**
+* @scenario
+*/
+public function pontuacaoParaTodosUmEh20()
+{
+$this->given('Novo jogo')
+->when('Jogador arremessa', 1)
+->and('Jogador arremessa', 1)
+->and('Jogador arremessa', 1)
+->and('Jogador arremessa', 1)
+->and('Jogador arremessa', 1)
+->and('Jogador arremessa', 1)
+->and('Jogador arremessa', 1)
+->and('Jogador arremessa', 1)
+->and('Jogador arremessa', 1)
+->and('Jogador arremessa', 1)
+->and('Jogador arremessa', 1)
+->and('Jogador arremessa', 1)
+->and('Jogador arremessa', 1)
+->and('Jogador arremessa', 1)
+->and('Jogador arremessa', 1)
+->and('Jogador arremessa', 1)
+->and('Jogador arremessa', 1)
+->and('Jogador arremessa', 1)
+->and('Jogador arremessa', 1)
+->and('Jogador arremessa', 1)
+->then('Pontuação deve ser', 20);
+}
+
+/**
+* @scenario
+*/
+public function pontuacaoParaUmSpareE3Eh16()
+{
+$this->given('Novo jogo')
+->when('Jogador arremessa', 5)
+->and('Jogador arremessa', 5)
+->and('Jogador arremessa', 3)
+->then('Pontuação deve ser', 16);
+}
+
+/**
+* @scenario
+*/
+public function pontuacaoParaUmStrikeE3E4Eh24()
+{
+$this->given('Novo jogo')
+->when('Jogador arremessa', 10)
+->and('Jogador arremessa', 3)
+->and('Jogador arremessa', 4)
+->then('Pontuação deve ser', 24);
+}
+
+/**
+* @scenario
+*/
+public function pontuacaoParaJogoPerfeitoEh300()
+{
+$this->given('Novo jogo')
+->when('Jogador arremessa', 10)
+->and('Jogador arremessa', 10)
+->and('Jogador arremessa', 10)
+->and('Jogador arremessa', 10)
+->and('Jogador arremessa', 10)
+->and('Jogador arremessa', 10)
+->and('Jogador arremessa', 10)
+->and('Jogador arremessa', 10)
+->and('Jogador arremessa', 10)
+->and('Jogador arremessa', 10)
+->and('Jogador arremessa', 10)
+->and('Jogador arremessa', 10)
+->then('Pontuação deve ser', 300);
+}
+
+public function runGiven(&$mundo, $acao, $argumentos)
+{
+switch($action) {
+case 'New game': {
+$world['game'] = new BowlingGame;
+$world['rolls'] = 0;
+}
+break;
+
+default: {
+return $this->notImplemented($action);
+}
+}
+}
+
+public function runWhen(&$mundo, $acao, $argumentos)
+{
+switch($acao) {
+case 'Jogador arremessa': {
+$mundo['jogo']->arremesso($argumentos[0]);
+$mundo['arremessos']++;
+}
+break;
+
+default: {
+return $this->notImplemented($acao);
+}
+}
+}
+
+public function runThen(&$mundo, $acao, $argumentos)
+{
+switch($acao) {
+case 'Pontuação deve ser': {
+for ($i = $mundo['rolls']; $i < 20; $i++) {
+$mundo['jogo']->arremesso(0);
+}
+
+$this->assertEquals($argumentos[0], $mundo['jogo']->pontuacao());
+}
+break;
+
+default: {
+return $this->notImplemented($acao);
+}
+}
+}
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit --printer PHPUnit_Extensions_Story_ResultPrinter_Text EspecJogoBoliche</userinput>
+PHPUnit 3.7.0 by Sebastian Bergmann.
+
+EspecJogoBoliche
+ [x] Pontuação por jogar na canaleta eh 0
+
+   Given Novo jogo
+    Then Pontuação deve ser 0
+
+ [x] Pontuação para todos um eh 20
+
+   Given Novo jogo
+    When Jogador arremessa 1
+     and Jogador arremessa 1
+     and Jogador arremessa 1
+     and Jogador arremessa 1
+     and Jogador arremessa 1
+     and Jogador arremessa 1
+     and Jogador arremessa 1
+     and Jogador arremessa 1
+     and Jogador arremessa 1
+     and Jogador arremessa 1
+     and Jogador arremessa 1
+     and Jogador arremessa 1
+     and Jogador arremessa 1
+     and Jogador arremessa 1
+     and Jogador arremessa 1
+     and Jogador arremessa 1
+     and Jogador arremessa 1
+     and Jogador arremessa 1
+     and Jogador arremessa 1
+     and Jogador arremessa 1
+    Then Pontuação deve ser 20
+
+ [x] Pontuação para um spare e 3 eh 16
+
+   Given Novo jogo
+    When Jogador arremessa 5
+     and Jogador arremessa 5
+     and Jogador arremessa 3
+    Then Pontuação deve ser 16
+
+ [x] Pontuação para um strike e 3 e 4 eh 24
+
+   Given Novo jogo
+    When Jogador arremessa 10
+     and Jogador arremessa 3
+     and Jogador arremessa 4
+    Then Pontuação deve ser 24
+
+ [x] Pontuação para jogo perfeito eh 300
+
+   Given Novo jogo
+    When Jogador arremessa 10
+     and Jogador arremessa 10
+     and Jogador arremessa 10
+     and Jogador arremessa 10
+     and Jogador arremessa 10
+     and Jogador arremessa 10
+     and Jogador arremessa 10
+     and Jogador arremessa 10
+     and Jogador arremessa 10
+     and Jogador arremessa 10
+     and Jogador arremessa 10
+     and Jogador arremessa 10
+    Then Pontuação deve ser 300
+
+Scenarios: 5, Failed: 0, Skipped: 0, Incomplete: 0.</screen>
+    </example>
+  </section>
+</chapter>
