@@ -635,6 +635,58 @@ class SubjectTest extends PHPUnit_Framework_TestCase
 ?>]]></programlisting>
     </example>
 
+    <example id="test-doubles.mock-objects.examples.clone-object-parameters-usecase.php">
+      <title>Testing that a method gets called once and with the identical object as was passed</title>
+      <programlisting><![CDATA[<?php
+class FooTest extends PHPUnit_Framework_TestCase
+{
+    public function testIdenticalObjectPassed()
+    {
+        $expectedObject = new stdClass;
+
+        $mock = $this->getMock('stdClass', array('foo'));
+        $mock->expects($this->once())
+             ->method('foo')
+             ->with($this->identicalTo($expectedObject));
+
+        $mock->foo($expectedObject);
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <example id="test-doubles.mock-objects.examples.enable-clone-object-parameters.php">
+      <title>Create a mock object with cloning parameters enabled</title>
+      <programlisting><![CDATA[<?php
+class FooTest extends PHPUnit_Framework_TestCase
+{
+    public function testIdenticalObjectPassed()
+    {
+        $cloneArguments = true;
+
+        $mock = $this->getMock(
+            'stdClass',
+            array(),
+            array(),
+            '',
+            FALSE,
+            TRUE,
+            TRUE,
+            $cloneArguments
+        );
+
+        // or using the mock builder
+        $mock = $this->getMockBuilder('stdClass')
+                     ->enableArgumentCloning()
+                     ->getMock();
+
+        // now your mock clones parameters so the identicalTo constraint
+        // will fail.
+    }
+}
+?>]]></programlisting>
+    </example>
+
     <para>
       <xref linkend="writing-tests-for-phpunit.assertions.assertThat.tables.constraints"/>
       shows the constraints that can be applied to method arguments and
@@ -681,6 +733,46 @@ class SubjectTest extends PHPUnit_Framework_TestCase
         </tbody>
       </tgroup>
     </table>
+  </section>
+
+  <section id="test-doubles.mocking-traits-and-abstract-classes">
+    <title>Mocking Traits and Abstract Classes</title>
+
+    <para>
+      <indexterm><primary>getMockForTrait()</primary></indexterm>
+
+      The <literal>getMockForTrait()</literal> method returns a mock object
+      that uses a specified trait. All abstract methods of the given trait
+      are mocked. This allows for testing the concrete methods of a trait.
+    </para>
+
+    <example id="test-doubles.mock-objects.examples.TraitClassTest.php">
+      <title>Testing the concrete methods of a trait</title>
+      <programlisting><![CDATA[<?php
+trait AbstractTrait
+{
+    public function concreteMethod()
+    {
+        return $this->abstractMethod();
+    }
+
+    public abstract function abstractMethod();
+}
+
+class TraitClassTest extends PHPUnit_Framework_TestCase
+{
+    public function testConcreteMethod()
+    {
+        $mock = $this->getMockForTrait('AbstractTrait');
+        $mock->expects($this->any())
+             ->method('abstractMethod')
+             ->will($this->returnValue(TRUE));
+
+        $this->assertTrue($mock->concreteMethod());
+    }
+}
+?>]]></programlisting>
+    </example>
 
     <para>
       <indexterm><primary>getMockForAbstractClass()</primary></indexterm>
@@ -714,55 +806,6 @@ class AbstractClassTest extends PHPUnit_Framework_TestCase
              ->will($this->returnValue(TRUE));
 
         $this->assertTrue($stub->concreteMethod());
-    }
-}
-?>]]></programlisting>
-    </example>
-
-    <example id="test-doubles.mock-objects.examples.clone-object-parameters-usecase.php">
-      <title>Testing that a method gets called once and with the identical object as was passed</title>
-      <programlisting><![CDATA[<?php
-class FooTest extends PHPUnit_Framework_TestCase
-{
-    public function testIdenticalObjectPassed()
-    {
-        $expectedObject = new stdClass;
-
-        $mock = $this->getMock('stdClass', array('foo'));
-        $mock->expects($this->once())
-             ->method('foo')
-             ->with($this->identicalTo($expectedObject));
-
-        $mock->foo($expectedObject);
-    }
-}
-?>]]></programlisting>
-    </example>
-
-    <example id="test-doubles.mock-objects.examples.enable-clone-object-parameters.php">
-      <title>Create a mock object with cloning parameters enabled</title>
-      <programlisting><![CDATA[<?php
-class FooTest extends PHPUnit_Framework_TestCase
-{
-    public function testIdenticalObjectPassed()
-    {
-        $cloneArguments = true;
-
-        $mock = $this->getMock(
-            'stdClass',
-            array(),
-            array(),
-            '',
-            FALSE,
-            TRUE,
-            TRUE,
-            $cloneArguments
-        );
-
-        // or using the mock builder
-        $mock = $this->getMockBuilder('stdClass')->enableArgumentCloning()->getMock();
-
-        // now your mock clones parameters so the identicalTo constraint will fail.
     }
 }
 ?>]]></programlisting>
