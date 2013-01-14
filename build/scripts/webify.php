@@ -17,8 +17,8 @@ function webify_directory($directory, $edition)
     $editions  = array(
       'en' => array('3.8', '3.7'),
       'fr' => array('3.8', '3.7'),
-      'ja' => array('3.8', '3.7')
-      'br' => array('3.7'),;
+      'ja' => array('3.8', '3.7'),
+      'br' => array('3.7')
     );
 
     foreach ($editions as $language => $versions) {
@@ -45,18 +45,13 @@ function webify_directory($directory, $edition)
                 }
                 break;
 
-<<<<<<< HEAD
                 case 'ja': {
                     $_language = 'Japanese';
-=======
-                case 'br': {
-                    $_language = 'Brazilian Portuguese';
                 }
                 break;
 
-                case 'de': {
-                    $_language = 'German';
->>>>>>> rafaelbdb/master
+                case 'br': {
+                    $_language = 'Brazilian Portuguese';
                 }
                 break;
             }
