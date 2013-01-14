@@ -71,6 +71,21 @@
       <l:gentext key="Index" text=""/>
       <l:gentext key="index" text=""/>
     </l:l10n>
+	 <l:l10n language="br">
+      <l:context name="title">
+        <l:template name="example" text="Exemplo %n: %t"/>
+      </l:context>
+      <l:context name="xref-number-and-title">
+        <l:template name="part" text="Parte %n"/>
+        <l:template name="appendix" text="Apêndice %n"/>
+        <l:template name="chapter" text="Capítulo %n"/>
+        <l:template name="example" text="Exemplo %n"/>
+        <l:template name="figure" text="Figura %n"/>
+        <l:template name="table" text="Tabela %n"/>
+      </l:context>
+      <l:gentext key="Index" text=""/>
+      <l:gentext key="index" text=""/>
+    </l:l10n>
   </l:i18n>
 
     <xsl:param name="shade.verbatim" select="1"/>
