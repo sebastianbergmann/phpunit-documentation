@@ -18,7 +18,7 @@ function webify_directory($directory, $edition)
       'en' => array('3.8', '3.7'),
       'fr' => array('3.8', '3.7'),
       'ja' => array('3.8', '3.7'),
-      'br' => array('3.7')
+      'br' => array('3.8', '3.7')
     );
 
     foreach ($editions as $language => $versions) {
