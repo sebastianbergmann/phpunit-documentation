@@ -15,10 +15,10 @@ function webify_directory($directory, $edition)
 
     $_editions = '';
     $editions  = array(
-      'en' => array('3.8', '3.7'),
-      'fr' => array('3.8', '3.7'),
-      'ja' => array('3.8', '3.7'),
-      'br' => array('3.8', '3.7')
+      'en'    => array('3.8', '3.7'),
+      'fr'    => array('3.8', '3.7'),
+      'ja'    => array('3.8', '3.7'),
+      'pt_br' => array('3.8', '3.7')
     );
 
     foreach ($editions as $language => $versions) {
@@ -50,7 +50,7 @@ function webify_directory($directory, $edition)
                 }
                 break;
 
-                case 'br': {
+                case 'pt_br': {
                     $_language = 'Brazilian Portuguese';
                 }
                 break;
