@@ -34,7 +34,7 @@
   <xsl:choose>
     <xsl:when test="$rootid != ''">
       <xsl:choose>
-        <xsl:when test="count($profiled-nodes//*[@id=$rootid]) = 0">
+        <xsl:when test="count($profiled-nodes//*[@id=$rootid or @xml:id=$rootid]) = 0">
           <xsl:message terminate="yes">
             <xsl:text>ID '</xsl:text>
             <xsl:value-of select="$rootid"/>
@@ -43,7 +43,7 @@
         </xsl:when>
         <xsl:otherwise>
           <xsl:message>Formatting from <xsl:value-of select="$rootid"/></xsl:message>
-          <xsl:apply-templates select="$profiled-nodes//*[@id=$rootid]" mode="process.root"/>
+          <xsl:apply-templates select="$profiled-nodes//*[@id=$rootid or @xml:id=$rootid]" mode="process.root"/>
         </xsl:otherwise>
       </xsl:choose>
     </xsl:when>

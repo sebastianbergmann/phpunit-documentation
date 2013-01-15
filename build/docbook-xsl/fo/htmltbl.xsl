@@ -4,7 +4,7 @@
                 version="1.0">
 
 <!-- ********************************************************************
-     $Id: htmltbl.xsl 9196 2012-01-18 17:51:39Z bobstayton $
+     $Id: htmltbl.xsl 9647 2012-10-26 17:42:03Z bobstayton $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -35,8 +35,7 @@
   <fo:table xsl:use-attribute-sets="table.table.properties">
     <xsl:choose>
       <xsl:when test="$fop.extensions != 0 or
-                      $fop1.extensions != 0 or
-                      $passivetex.extensions != 0">
+                      $fop1.extensions != 0">
         <xsl:attribute name="table-layout">fixed</xsl:attribute>
       </xsl:when>
     </xsl:choose>

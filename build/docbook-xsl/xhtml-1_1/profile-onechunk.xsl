@@ -1,10 +1,12 @@
-<?xml version="1.0" encoding="ASCII"?>
+<?xml version="1.0" encoding="US-ASCII"?>
+<!--This file was created automatically by xsl2profile-->
+<!--from the DocBook XSL stylesheets.-->
 <!--This file was created automatically by html2xhtml-->
 <!--from the HTML stylesheets.-->
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:doc="http://nwalsh.com/xsl/documentation/1.0" xmlns="http://www.w3.org/1999/xhtml" version="1.0" exclude-result-prefixes="doc">
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:doc="http://nwalsh.com/xsl/documentation/1.0" xmlns="http://www.w3.org/1999/xhtml" xmlns:exslt="http://exslt.org/common" xmlns:ng="http://docbook.org/docbook-ng" xmlns:db="http://docbook.org/ns/docbook" exslt:dummy="dummy" ng:dummy="dummy" db:dummy="dummy" extension-element-prefixes="exslt" version="1.0" exclude-result-prefixes="doc exslt">
 
 <!-- ********************************************************************
-     $Id: profile-onechunk.xsl 6910 2007-06-28 23:23:30Z xmldoc $
+     $Id: onechunk.xsl 6910 2007-06-28 23:23:30Z xmldoc $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -15,7 +17,7 @@
 
 <!-- ==================================================================== -->
 
-<xsl:import href="profile-chunk.xsl"/>
+<xsl:import href="chunk.xsl"/>
 
 <!-- Ok, using the onechunk parameter makes this all work again. -->
 <!-- It does have the disadvantage that it only works for documents that have -->

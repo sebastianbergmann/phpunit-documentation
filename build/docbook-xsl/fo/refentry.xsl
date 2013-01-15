@@ -5,7 +5,7 @@
                 version='1.0'>
 
 <!-- ********************************************************************
-     $Id: refentry.xsl 9153 2011-11-15 22:07:59Z bobstayton $
+     $Id: refentry.xsl 9647 2012-10-26 17:42:03Z bobstayton $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -636,14 +636,6 @@
         </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
-
-    <xsl:if test="$passivetex.extensions != 0">
-      <fotex:bookmark xmlns:fotex="http://www.tug.org/fotex" 
-                      fotex-bookmark-level="{$level + 2 + $offset}" 
-                      fotex-bookmark-label="{$id}">
-        <xsl:value-of select="$title"/>
-      </fotex:bookmark>
-    </xsl:if>
 
     <xsl:if test="$axf.extensions != 0">
       <xsl:attribute name="axf:outline-level">

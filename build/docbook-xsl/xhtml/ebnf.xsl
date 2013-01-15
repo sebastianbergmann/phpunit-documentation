@@ -4,7 +4,7 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:doc="http://nwalsh.com/xsl/documentation/1.0" xmlns="http://www.w3.org/1999/xhtml" exclude-result-prefixes="doc" version="1.0">
 
 <!-- ********************************************************************
-     $Id: ebnf.xsl 9358 2012-05-12 23:37:10Z bobstayton $
+     $Id: ebnf.xsl 9664 2012-11-07 20:02:17Z bobstayton $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -16,7 +16,7 @@
 <doc:reference xmlns="">
 <referenceinfo xmlns="http://www.w3.org/1999/xhtml">
 <releaseinfo role="meta">
-$Id: ebnf.xsl 9358 2012-05-12 23:37:10Z bobstayton $
+$Id: ebnf.xsl 9664 2012-11-07 20:02:17Z bobstayton $
 </releaseinfo>
 <author><surname>Walsh</surname>
 <firstname>Norman</firstname></author>
@@ -106,7 +106,7 @@ to be incomplete. Don't forget to read the source, too :-)</para>
   <tr>
     <td align="{$direction.align.start}" valign="top" width="3%">
       <xsl:text>[</xsl:text>
-      <xsl:number count="production" level="any"/>
+      <xsl:apply-templates select="." mode="label.markup"/>
       <xsl:text>]</xsl:text>
     </td>
     <td align="{$direction.align.end}" valign="top" width="10%">
