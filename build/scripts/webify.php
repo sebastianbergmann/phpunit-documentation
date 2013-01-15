@@ -6,7 +6,7 @@ function webify_directory($directory, $edition)
 {
     $toc = get_substring(
       file_get_contents($directory . DIRECTORY_SEPARATOR . 'index.html'),
-      '<dl>',
+      '<dl class="toc">',
       '</dl>',
       TRUE,
       TRUE,

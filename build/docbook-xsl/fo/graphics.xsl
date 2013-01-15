@@ -14,7 +14,7 @@
                 version='1.0'>
 
 <!-- ********************************************************************
-     $Id: graphics.xsl 9346 2012-05-11 03:47:30Z bobstayton $
+     $Id: graphics.xsl 9647 2012-10-26 17:42:03Z bobstayton $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -33,9 +33,6 @@
 <xsl:param name="graphic.notations">
   <!-- n.b. exactly one leading space, one trailing space, and one inter-word space -->
   <xsl:choose>
-    <xsl:when test="$passivetex.extensions != 0">
-      <xsl:text> PNG PDF JPG JPEG linespecific </xsl:text>
-    </xsl:when>
     <xsl:when test="$fop1.extensions != 0">
       <xsl:text> BMP GIF TIFF SVG PNG EPS JPG JPEG linespecific </xsl:text>
     </xsl:when>
@@ -62,9 +59,6 @@
 <xsl:param name="graphic.extensions">
   <!-- n.b. exactly one leading space, one trailing space, and one inter-word space -->
   <xsl:choose>
-    <xsl:when test="$passivetex.extensions != 0">
-      <xsl:text> png pdf jpg jpeg </xsl:text>
-    </xsl:when>
     <xsl:when test="$fop1.extensions != 0">
       <xsl:text> bmp gif tif tiff svg png pdf jpg jpeg eps </xsl:text>
     </xsl:when>
@@ -98,8 +92,15 @@
 
 <xsl:template match="screenshot">
   <fo:block>
+    <xsl:call-template name="anchor"/>
     <xsl:apply-templates/>
   </fo:block>
+</xsl:template>
+
+<xsl:template match="screenshot/title">
+  <xsl:call-template name="formal.object.heading">
+    <xsl:with-param name="object" select=".."/>
+  </xsl:call-template>
 </xsl:template>
 
 <xsl:template match="screeninfo">
@@ -473,6 +474,7 @@
     </xsl:when>
     <xsl:otherwise>
       <fo:block>
+        <xsl:call-template name="anchor"/>
         <xsl:if test="@align">
           <xsl:attribute name="text-align">
             <xsl:value-of select="@align"/>
@@ -763,7 +765,7 @@
 
 <!-- ==================================================================== -->
 
-<xsl:template match="mediaobject/caption">
+<xsl:template match="mediaobject/caption|figure/caption">
   <fo:block>
     <xsl:if test="@align = 'right' or @align = 'left' or @align='center'">
       <xsl:attribute name="text-align"><xsl:value-of
@@ -779,8 +781,7 @@
   <xsl:param name="filename"/>
 
   <xsl:choose>
-    <xsl:when test="$passivetex.extensions != 0
-                    or $fop.extensions != 0">
+    <xsl:when test="$fop.extensions != 0">
       <xsl:value-of select="$filename"/>
     </xsl:when>
     <xsl:otherwise>

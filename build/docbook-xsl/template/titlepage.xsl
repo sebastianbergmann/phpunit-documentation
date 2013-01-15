@@ -9,7 +9,7 @@
                 version='1.0'>
 
 <!-- ********************************************************************
-     $Id: titlepage.xsl 9394 2012-06-02 21:18:04Z bobstayton $
+     $Id: titlepage.xsl 9600 2012-09-11 12:12:09Z kosek $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -21,7 +21,13 @@
 <!-- ==================================================================== -->
 
 <!-- Namespace for wrapper elements. Please set it for XHTML. -->
-<xsl:param name="ns"/>
+<xsl:param name="ns">
+  <!-- Guess correct setting for cases where parameter is not supplied -->
+  <xsl:choose>
+    <xsl:when test="//*[namespace-uri() = 'http://www.w3.org/1999/XSL/Format']">http://www.w3.org/1999/XSL/Format</xsl:when>
+    <xsl:when test="//*[namespace-uri() = 'http://www.w3.org/1999/xhtml']">http://www.w3.org/1999/xhtml</xsl:when>
+  </xsl:choose>
+</xsl:param>
 
 <xsl:template match="/">
   <xsl:text>&#x0a;</xsl:text>
@@ -35,7 +41,7 @@
   <info>
     <title>Titlepage Template Stylesheet Reference</title>
     <releaseinfo role="meta">
-      $Id: titlepage.xsl 9394 2012-06-02 21:18:04Z bobstayton $
+      $Id: titlepage.xsl 9600 2012-09-11 12:12:09Z kosek $
     </releaseinfo>
   </info>
   <partintro xml:id="intro_partintro">

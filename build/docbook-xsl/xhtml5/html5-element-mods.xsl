@@ -346,6 +346,12 @@
           <xsl:text>; </xsl:text>
         </xsl:when>
 
+        <xsl:when test="local-name() = 'height'">
+          <xsl:text>height </xsl:text>
+          <xsl:value-of select="."/>
+          <xsl:text>; </xsl:text>
+        </xsl:when>
+
         <xsl:when test="local-name() = 'align'">
           <xsl:text>text-align: </xsl:text>
           <xsl:value-of select="."/>
@@ -397,6 +403,7 @@
     </xsl:if>
     <!-- Also skip disallowed summary attributes -->
     <xsl:copy-of select="@*[local-name(.) != 'width' and
+                            local-name(.) != 'height' and
                             local-name(.) != 'summary' and
                             local-name(.) != 'border' and
                             local-name(.) != 'cellspacing' and

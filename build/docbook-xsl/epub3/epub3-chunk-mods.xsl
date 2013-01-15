@@ -28,11 +28,24 @@
 
 <!-- EPUB3: customize to generate package files -->
 <xsl:template match="*" mode="process.root" priority="2">
+  <xsl:call-template name="check.for.xalan"/>
   <xsl:apply-templates select="."/>
   <xsl:call-template name="generate.css.files"/>
 
   <xsl:call-template name="generate.epub.files"/>
 
+</xsl:template>
+
+<xsl:template name="check.for.xalan">
+  <xsl:if test="contains(system-property('xsl:vendor'), 'Apache Software Foundation')">
+    <xsl:message terminate="yes">
+      <xsl:text>&#10;</xsl:text>
+      <xsl:text>FATAL ERROR: </xsl:text>
+      <xsl:text>Xalan processor not supported by DocBook Epub3 stylesheets. </xsl:text>
+      <xsl:text>Xalan does not properly support XSL output method="text", </xsl:text>
+      <xsl:text>which is required for the various epub support files.</xsl:text>
+    </xsl:message>
+  </xsl:if>
 </xsl:template>
 
 </xsl:stylesheet>

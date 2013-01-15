@@ -6,7 +6,7 @@
                 version='1.0'>
 
 <!-- ********************************************************************
-     $Id: titles.xsl 9286 2012-04-19 10:10:58Z bobstayton $
+     $Id: titles.xsl 9669 2012-11-29 18:11:40Z bobstayton $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -274,7 +274,7 @@ title of the element. This does not include the label.
 </xsl:template>
 
 <xsl:template match="bridgehead" mode="title.markup">
-  <xsl:apply-templates mode="title.markup"/>
+  <xsl:apply-templates/>
 </xsl:template>
 
 <xsl:template match="refsynopsisdiv" mode="title.markup">

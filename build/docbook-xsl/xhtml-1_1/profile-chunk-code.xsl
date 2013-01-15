@@ -443,7 +443,7 @@
       <xsl:choose>
         <xsl:when test="$rootid != ''">
           <xsl:choose>
-            <xsl:when test="count($profiled-nodes//*[@id=$rootid]) = 0">
+            <xsl:when test="count($profiled-nodes//*[@id=$rootid or @xml:id=$rootid]) = 0">
               <xsl:message terminate="yes">
                 <xsl:text>ID '</xsl:text>
                 <xsl:value-of select="$rootid"/>
@@ -455,9 +455,9 @@
                 <xsl:apply-templates select="key('id', $rootid)" mode="collect.targets"/>
               </xsl:if>
               <xsl:if test="$collect.xref.targets != 'only'">
-                <xsl:apply-templates select="$profiled-nodes//*[@id=$rootid]" mode="process.root"/>
+                <xsl:apply-templates select="$profiled-nodes//*[@id=$rootid or @xml:id=$rootid]" mode="process.root"/>
                 <xsl:if test="$tex.math.in.alt != ''">
-                  <xsl:apply-templates select="$profiled-nodes//*[@id=$rootid]" mode="collect.tex.math"/>
+                  <xsl:apply-templates select="$profiled-nodes//*[@id=$rootid or @xml:id=$rootid]" mode="collect.tex.math"/>
                 </xsl:if>
                 <xsl:if test="$generate.manifest != 0">
                   <xsl:call-template name="generate.manifest">

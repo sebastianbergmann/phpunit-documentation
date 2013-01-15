@@ -1,8 +1,6 @@
-<?xml version="1.0" encoding="ASCII"?>
-<!--This file was created automatically by html2xhtml-->
-<!--from the HTML stylesheets.-->
+<?xml version="1.0"?>
 <!-- This file is generated from param.xweb -->
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns="http://www.w3.org/1999/xhtml" version="1.0">
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 
 <!-- ********************************************************************
      $Id: param.xweb 6633 2007-02-21 18:33:33Z xmldoc $
@@ -14,57 +12,60 @@
 
      ******************************************************************** -->
 
-<xsl:param name="active.toc" select="0"/>
-<xsl:param name="body.bg.color">#FFFFFF</xsl:param>
-<xsl:param name="bullet.image">toc/bullet.png</xsl:param>
-<xsl:param name="css.stylesheet">slides.css</xsl:param>
-<xsl:param name="css.stylesheet.dir"/>
-<xsl:param name="dynamic.toc" select="0"/>
-<xsl:param name="foilgroup.toc" select="1"/>
-<xsl:param name="graphics.dir"/>
-<xsl:param name="hidetoc.image">hidetoc.gif</xsl:param>
-<xsl:param name="home.image">active/nav-home.png</xsl:param>
-<xsl:param name="keyboard.nav" select="1"/>
-<xsl:param name="minus.image">toc/open.png</xsl:param>
-<xsl:param name="multiframe.bottom.bgcolor">white</xsl:param>
-<xsl:param name="multiframe" select="0"/>
-<xsl:param name="multiframe.navigation.height">40</xsl:param>
-<xsl:param name="multiframe.top.bgcolor">white</xsl:param>
-<xsl:param name="nav.separator" select="1"/>
-<xsl:param name="next.image">active/nav-next.png</xsl:param>
-<xsl:param name="no.home.image">inactive/nav-home.png</xsl:param>
-<xsl:param name="no.next.image">inactive/nav-next.png</xsl:param>
-<xsl:param name="no.prev.image">inactive/nav-prev.png</xsl:param>
-<xsl:param name="no.toc.image">inactive/nav-toc.png</xsl:param>
-<xsl:param name="no.up.image">inactive/nav-up.png</xsl:param>
-<xsl:param name="output.indent">no</xsl:param>
-<xsl:param name="overlay" select="0"/>
-<xsl:param name="overlay.js">overlay.js</xsl:param>
-<xsl:param name="overlay.logo">http://docbook.sourceforge.net/release/buttons/slides-1.png</xsl:param>
-<xsl:param name="plus.image">toc/closed.png</xsl:param>
-<xsl:param name="prev.image">active/nav-prev.png</xsl:param>
-<xsl:param name="script.dir"/>
-<xsl:param name="show.foil.number" select="0"/>
-<xsl:param name="showtoc.image">showtoc.gif</xsl:param>
-<xsl:param name="slides.js">slides.js</xsl:param>
-<xsl:param name="text.home">Home</xsl:param>
-<xsl:param name="text.next">Next</xsl:param>
-<xsl:param name="text.prev">Prev</xsl:param>
-<xsl:param name="text.toc">ToC</xsl:param>
-<xsl:param name="text.up">Up</xsl:param>
-<xsl:param name="titlefoil.html" select="concat('index', $html.ext)"/>
-<xsl:param name="toc.bg.color">#FFFFFF</xsl:param>
-<xsl:param name="toc.hide.show" select="0"/>
-<xsl:param name="toc.html" select="concat('toc', $html.ext)"/>
-<xsl:param name="toc.image">active/nav-toc.png</xsl:param>
-<xsl:param name="toc.row.height">22</xsl:param>
-<xsl:param name="toc.width">250</xsl:param>
-<!-- Presumably in pixels? -->
-<xsl:param name="ua.js">ua.js</xsl:param>
-<xsl:param name="up.image">active/nav-up.png</xsl:param>
-<xsl:param name="xbCollapsibleLists.js">xbCollapsibleLists.js</xsl:param>
-<xsl:param name="xbDOM.js">xbDOM.js</xsl:param>
-<xsl:param name="xbStyle.js">xbStyle.js</xsl:param>
-<xsl:param name="xbLibrary.js">xbLibrary.js</xsl:param>
+    <xsl:param name="disable.collapsible">0</xsl:param>
+  
+    <xsl:param name="disable.incremental">0</xsl:param>
+  
+    <xsl:param name="generate.copyright">1</xsl:param>
+  
+    <xsl:param name="generate.foilgroup.numbered.toc">1</xsl:param>
+  
+    <xsl:param name="generate.foilgroup.toc">1</xsl:param>
+  
+    <xsl:param name="generate.handoutnotes">0</xsl:param>
+  
+    <xsl:param name="generate.pubdate">1</xsl:param>
+  
+    <xsl:param name="generate.speakernotes">0</xsl:param>
+  
+    <xsl:param name="generate.titlepage">1</xsl:param>
+  
+    <xsl:param name="mml.embedding.mode">inline</xsl:param>
+  
+    <xsl:param name="svg.embedding.mode">object</xsl:param>
+  
+    <xsl:param name="user.css">user.css</xsl:param>
+  
+    <xsl:param name="wrap.slidecontent">0</xsl:param>
+  
+
+    <xsl:param name="s5.controls">0</xsl:param>
+  
+    <xsl:param name="s5.defaultview">slideshow</xsl:param>
+  
+    <xsl:param name="s5.opera.css">opera.css</xsl:param>
+  
+    <xsl:param name="s5.outline.css">outline.css</xsl:param>
+  
+    <xsl:param name="s5.path.prefix">files/s5/ui/default/</xsl:param>
+  
+    <xsl:param name="s5.print.css">print.css</xsl:param>
+  
+    <xsl:param name="s5.slides.css">slides.css</xsl:param>
+  
+    <xsl:param name="s5.slides.js">slides.js</xsl:param>
+  
+
+    <xsl:param name="slidy.duration">0</xsl:param>
+  
+    <xsl:param name="slidy.path.prefix">files/slidy/</xsl:param>
+  
+    <xsl:param name="slidy.slidy.css">styles/slidy.css</xsl:param>
+  
+    <xsl:param name="slidy.slidy.js">scripts/slidy.js</xsl:param>
+  
+    <xsl:param name="slidy.user.css">styles/w3c-blue.css</xsl:param>
+  
 
 </xsl:stylesheet>
+

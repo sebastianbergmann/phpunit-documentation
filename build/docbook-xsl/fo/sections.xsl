@@ -5,7 +5,7 @@
                 version='1.0'>
 
 <!-- ********************************************************************
-     $Id: sections.xsl 6910 2007-06-28 23:23:30Z xmldoc $
+     $Id: sections.xsl 9647 2012-10-26 17:42:03Z bobstayton $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -293,14 +293,6 @@
         <xsl:with-param name="allow-anchors" select="0"/>
       </xsl:apply-templates>
     </xsl:variable>
-
-    <xsl:if test="$passivetex.extensions != 0">
-      <fotex:bookmark xmlns:fotex="http://www.tug.org/fotex" 
-                      fotex-bookmark-level="{$level + 2}" 
-                      fotex-bookmark-label="{$id}">
-        <xsl:value-of select="$marker.title"/>
-      </fotex:bookmark>
-    </xsl:if>
 
     <xsl:if test="$axf.extensions != 0">
       <xsl:attribute name="axf:outline-level">

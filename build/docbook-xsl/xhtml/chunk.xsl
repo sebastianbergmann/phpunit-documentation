@@ -22,7 +22,7 @@
      customizes any presentation templates. Then your chunking
      customization should import mydocbook.xsl instead of
      docbook.xsl.  -->
-<xsl:import href="docbook.xsl"/>
+<xsl:import href="docbook-no-doctype.xsl"/>
 
 <!-- chunk-common.xsl contains all the named templates for chunking.
      In a customization file, you import chunk-common.xsl, then
