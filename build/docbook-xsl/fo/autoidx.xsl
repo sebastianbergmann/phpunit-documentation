@@ -13,7 +13,7 @@
                 version="1.0">
 
 <!-- ********************************************************************
-     $Id: autoidx.xsl 9647 2012-10-26 17:42:03Z bobstayton $
+     $Id: autoidx.xsl 8399 2009-04-08 07:37:42Z bobstayton $
      ********************************************************************
 
      This file is part of the DocBook XSL Stylesheet distribution.
@@ -334,7 +334,16 @@
           </xsl:for-each>
         </xsl:variable>
 
-        <xsl:copy-of select="$page-number-citations"/>
+        <xsl:choose>
+          <xsl:when test="$passivetex.extensions != '0'">
+            <fotex:sort xmlns:fotex="http://www.tug.org/fotex">
+              <xsl:copy-of select="$page-number-citations"/>
+            </fotex:sort>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:copy-of select="$page-number-citations"/>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:otherwise>
     </xsl:choose>
 
@@ -452,7 +461,16 @@
           </xsl:for-each>
         </xsl:variable>
 
-        <xsl:copy-of select="$page-number-citations"/>
+        <xsl:choose>
+          <xsl:when test="$passivetex.extensions != '0'">
+            <fotex:sort xmlns:fotex="http://www.tug.org/fotex">
+              <xsl:copy-of select="$page-number-citations"/>
+            </fotex:sort>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:copy-of select="$page-number-citations"/>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:otherwise>
     </xsl:choose>
 
@@ -573,7 +591,16 @@
           </xsl:for-each>
         </xsl:variable>
 
-        <xsl:copy-of select="$page-number-citations"/>
+        <xsl:choose>
+          <xsl:when test="$passivetex.extensions != '0'">
+            <fotex:sort xmlns:fotex="http://www.tug.org/fotex">
+              <xsl:copy-of select="$page-number-citations"/>
+            </fotex:sort>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:copy-of select="$page-number-citations"/>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:otherwise>
     </xsl:choose>
 
@@ -706,7 +733,9 @@
         <fo:page-number-citation ref-id="{$id}"/>
       </fo:basic-link>
 
-      <xsl:copy-of select="$number.separator"/>
+      <xsl:if test="$passivetex.extensions = '0'">
+        <xsl:copy-of select="$number.separator"/>
+      </xsl:if>
       <xsl:call-template name="reference">
         <xsl:with-param name="zones" select="substring-after($zones, ' ')"/>
         <xsl:with-param name="scope" select="$scope"/>
@@ -1116,7 +1145,7 @@
         </xsl:call-template>
       </xsl:variable>
 
-      <xsl:text>&lt;phrase role="pageno"&gt;</xsl:text>
+      <xsl:text>&lt;phrase fole="pageno"&gt;</xsl:text>
       <xsl:if test="$target[1]/@id or $target[1]/@xml:id">
         <xsl:text>&lt;link linkend="</xsl:text>
         <xsl:value-of select="$id"/>

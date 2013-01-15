@@ -337,33 +337,15 @@
   </xsl:choose>
 
   <xsl:variable name="fileref.att" select="$resource/@fileref"/>
-
-  <xsl:variable name="fragment.id">
-    <xsl:if test="contains($fileref.att, '#')">
-      <xsl:value-of select="substring-after($fileref.att, '#')"/>
-    </xsl:if>
-  </xsl:variable>
-
-  <xsl:variable name="filename">
-    <xsl:choose>
-      <xsl:when test="string-length($fragment.id) != 0">
-        <xsl:value-of select="substring-before($fileref.att, '#')"/>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:value-of select="$fileref.att"/>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:variable>
-
   <xsl:variable name="fileref">
     <xsl:choose>
       <xsl:when test="$resource/ancestor::d:resources/@xml:base">
         <xsl:value-of 
             select="concat($resource/ancestor::d:resources[@xml:base][1]/@xml:base,
-                                 '/', $filename)"/>
+                                 '/', $fileref.att)"/>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:value-of select="$filename"/>
+        <xsl:value-of select="$fileref.att"/>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:variable>
@@ -375,25 +357,21 @@
     </xsl:when>
     <xsl:otherwise>
 
-      <xsl:variable name="ref.file.content" select="document($fileref,/)"/>
+      <xsl:variable name="ref.content" select="document($fileref,/)"/>
     
-      <!-- selects root or fragmeht depending on if $fragment is blank -->
-      <xsl:variable name="ref.content"
-        select="$ref.file.content/*[1][$fragment.id = ''] |
-                $ref.file.content/*[1][$fragment.id != '']/
-                   descendant-or-self::*[@xml:id = $fragment.id]"/>
-        
-      <xsl:if test="count($ref.content) = 0">
+      <xsl:variable name="ref.root" select="$ref.content/*[1]"/>
+
+      <xsl:if test="count($ref.root) = 0">
         <xsl:message terminate="yes">
           <xsl:text>ERROR: @fileref = '</xsl:text>
           <xsl:value-of select="$fileref"/>
           <xsl:text>' has no content or is unresolved.</xsl:text>
         </xsl:message>
       </xsl:if>
-
+    
       <xsl:variable name="element.name">
         <xsl:apply-templates select="." mode="compute.element.name">
-          <xsl:with-param name="ref.name" select="local-name($ref.content)"/>
+          <xsl:with-param name="ref.name" select="local-name($ref.content/*[1])"/>
         </xsl:apply-templates>
       </xsl:variable>
 
@@ -413,16 +391,16 @@
         <xsl:when test="$contentonly.property = 'true' or 
                         $contentonly.property = 'yes' or
                         $contentonly.property = '1'">
-          <xsl:apply-templates select="$ref.content/node()" mode="copycontent">
+          <xsl:apply-templates select="$ref.content/*[1]/node()" mode="copycontent">
             <xsl:with-param name="omittitles" select="$omittitles.property"/>
           </xsl:apply-templates>
         </xsl:when>
-        <!-- use xsl:copy if using the ref element itself to get its namespaces -->
-        <xsl:when test="$element.name = local-name($ref.content)">
+        <!-- use xsl:copy if using the ref element to get its namespaces -->
+        <xsl:when test="$element.name = local-name($ref.root)">
           <!-- must use for-each to set context node for xsl:copy -->
-          <xsl:for-each select="$ref.content">
+          <xsl:for-each select="$ref.root">
             <xsl:copy>
-              <xsl:copy-of select="@*[not(name() = 'xml:id')]"/>
+              <xsl:copy-of select="@*[not(name = 'xml:id')]"/>
               <xsl:choose>
                 <!-- Use the module's xml:id if it has one -->
                 <xsl:when test="$module/@xml:id">
@@ -458,7 +436,7 @@
         <xsl:otherwise>
           <!-- create the element instead of copying it -->
           <xsl:element name="{$element.name}" namespace="http://docbook.org/ns/docbook">
-            <xsl:copy-of select="$ref.content/@*[not(name() = 'xml:id')]"/>
+            <xsl:copy-of select="$ref.content/*[1]/@*[not(name = 'xml:id')]"/>
             <xsl:choose>
               <!-- Use the module's xml:id if it has one -->
               <xsl:when test="@xml:id">
@@ -467,9 +445,9 @@
                 </xsl:attribute>
               </xsl:when>
               <!-- otherwise use the resource's id -->
-              <xsl:when test="$ref.content/@xml:id">
+              <xsl:when test="$ref.content/*[1]/@xml:id">
                 <xsl:attribute name="xml:id">
-                  <xsl:value-of select="$ref.content/@xml:id"/>
+                  <xsl:value-of select="$ref.content/*[1]/@xml:id"/>
                 </xsl:attribute>
               </xsl:when>
             </xsl:choose>
@@ -481,7 +459,7 @@
             </xsl:call-template>
     
             <!-- copy through all but titles, which moved to info -->
-            <xsl:apply-templates select="$ref.content/node()
+            <xsl:apply-templates select="$ref.content/*[1]/node()
                      [not(local-name() = 'title') and
                       not(local-name() = 'subtitle') and
                       not(local-name() = 'info') and
@@ -571,18 +549,18 @@
   <!-- output info if there is any -->
   <xsl:if test="$merge.element/node() or 
                 $merge.ref.info/node() or
-                $ref.content/d:info/node() or
-                $ref.content/d:title[$omittitles.boolean = 0] or
-                $ref.content/d:subtitle[$omittitles.boolean = 0] or
-                $ref.content/d:titleabbrev[$omittitles.boolean = 0]">
+                $ref.content/*/d:info/node() or
+                $ref.content/*/d:title[$omittitles.boolean = 0] or
+                $ref.content/*/d:subtitle[$omittitles.boolean = 0] or
+                $ref.content/*/d:titleabbrev[$omittitles.boolean = 0]">
 
-    <xsl:variable name="ref.info" select="$ref.content/d:info"/>
-    <xsl:variable name="ref.title" select="$ref.content/d:title"/>
-    <xsl:variable name="ref.subtitle" select="$ref.content/d:subtitle"/>
-    <xsl:variable name="ref.titleabbrev" select="$ref.content/d:titleabbrev"/>
-    <xsl:variable name="ref.info.title" select="$ref.content/d:info/d:title"/>
-    <xsl:variable name="ref.info.subtitle" select="$ref.content/d:info/d:subtitle"/>
-    <xsl:variable name="ref.info.titleabbrev" select="$ref.content/d:info/d:titleabbrev"/>
+    <xsl:variable name="ref.info" select="$ref.content/*/d:info"/>
+    <xsl:variable name="ref.title" select="$ref.content/*/d:title"/>
+    <xsl:variable name="ref.subtitle" select="$ref.content/*/d:subtitle"/>
+    <xsl:variable name="ref.titleabbrev" select="$ref.content/*/d:titleabbrev"/>
+    <xsl:variable name="ref.info.title" select="$ref.content/*/d:info/d:title"/>
+    <xsl:variable name="ref.info.subtitle" select="$ref.content/*/d:info/d:subtitle"/>
+    <xsl:variable name="ref.info.titleabbrev" select="$ref.content/*/d:info/d:titleabbrev"/>
 
     <info>
       <!-- First copy through any merge attributes and elements and comments -->

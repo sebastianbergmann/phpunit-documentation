@@ -10,7 +10,7 @@
                 version='1.0'>
 
 <!-- ********************************************************************
-     $Id: inline.xsl 9674 2012-12-02 20:21:34Z bobstayton $
+     $Id: inline.xsl 9228 2012-02-01 21:50:25Z bobstayton $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -145,35 +145,7 @@
       <xsl:copy-of select="$content"/>
     </xsl:otherwise>
   </xsl:choose>
-</xsl:template>
 
-<xsl:template name="inline.sansseq">
-  <xsl:param name="content">
-    <xsl:call-template name="simple.xlink">
-        <xsl:with-param name="content">
-          <xsl:apply-templates/>
-        </xsl:with-param>
-    </xsl:call-template>
-  </xsl:param>
-
-  <fo:inline font-family="{$sans.font.family}">
-    <xsl:choose>
-      <xsl:when test="@dir">
-        <fo:inline>
-          <xsl:attribute name="direction">
-            <xsl:choose>
-              <xsl:when test="@dir = 'ltr' or @dir = 'lro'">ltr</xsl:when>
-              <xsl:otherwise>rtl</xsl:otherwise>
-            </xsl:choose>
-          </xsl:attribute>
-          <xsl:copy-of select="$content"/>
-        </fo:inline>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:copy-of select="$content"/>
-      </xsl:otherwise>
-    </xsl:choose>
-  </fo:inline>
 </xsl:template>
 
 <xsl:template name="inline.charseq">
@@ -511,14 +483,14 @@
 
 <xsl:template match="function/parameter" priority="2">
   <xsl:call-template name="inline.italicmonoseq"/>
-  <xsl:if test="$function.parens != 0 and following-sibling::*">
+  <xsl:if test="following-sibling::*">
     <xsl:text>, </xsl:text>
   </xsl:if>
 </xsl:template>
 
 <xsl:template match="function/replaceable" priority="2">
   <xsl:call-template name="inline.italicmonoseq"/>
-  <xsl:if test="$function.parens != 0 and following-sibling::*">
+  <xsl:if test="following-sibling::*">
     <xsl:text>, </xsl:text>
   </xsl:if>
 </xsl:template>
@@ -560,21 +532,7 @@
 </xsl:template>
 
 <xsl:template match="keycap">
-  <xsl:choose>
-    <xsl:when test="@function and normalize-space(.) = ''">
-      <xsl:call-template name="inline.boldseq">
-        <xsl:with-param name="content">
-          <xsl:call-template name="gentext.template">
-            <xsl:with-param name="context" select="'keycap'"/>
-            <xsl:with-param name="name" select="@function"/>
-          </xsl:call-template>
-        </xsl:with-param>
-      </xsl:call-template>
-    </xsl:when>
-    <xsl:otherwise>
-      <xsl:call-template name="inline.boldseq"/>
-    </xsl:otherwise>
-  </xsl:choose>
+  <xsl:call-template name="inline.boldseq"/>
 </xsl:template>
 
 <xsl:template match="keycode">

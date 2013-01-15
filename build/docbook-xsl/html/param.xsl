@@ -3,7 +3,7 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 
 <!-- ********************************************************************
-     $Id: param.xweb 9658 2012-10-29 22:28:34Z bobstayton $
+     $Id: param.xweb 9333 2012-05-06 19:41:03Z dcramer $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -13,7 +13,6 @@
      ******************************************************************** -->
 
 <xsl:param name="abstract.notitle.enabled" select="0"/>
-<xsl:param name="activate.external.olinks" select="1"/>
 <xsl:param name="admon.graphics.extension">.png</xsl:param>
 <xsl:param name="admon.graphics" select="0"/>
 <xsl:param name="admon.graphics.path">images/</xsl:param>
@@ -318,10 +317,15 @@ set       toc,title
 <xsl:param name="olink.base.uri"/>
 <xsl:param name="olink.debug" select="0"/>
 <xsl:param name="olink.doctitle">no</xsl:param> 
+<xsl:param name="olink.fragid">fragid=</xsl:param>
 <xsl:param name="olink.lang.fallback.sequence"/>
+<xsl:param name="olink.outline.ext">.olink</xsl:param>
 <xsl:attribute-set name="olink.properties">
   <xsl:attribute name="show-destination">replace</xsl:attribute>
 </xsl:attribute-set>
+<xsl:param name="olink.pubid">pubid</xsl:param>
+  <xsl:param name="olink.resolver">/cgi-bin/olink</xsl:param>
+<xsl:param name="olink.sysid">sysid</xsl:param>
 <xsl:param name="othercredit.like.author.enabled">0</xsl:param>
 <xsl:param name="para.propagates.style" select="1"/>
 <xsl:param name="part.autolabel">I</xsl:param>

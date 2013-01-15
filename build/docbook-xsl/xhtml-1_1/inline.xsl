@@ -4,7 +4,7 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:suwl="http://nwalsh.com/xslt/ext/com.nwalsh.saxon.UnwrapLinks" xmlns="http://www.w3.org/1999/xhtml" exclude-result-prefixes="xlink suwl" version="1.0">
 
 <!-- ********************************************************************
-     $Id: inline.xsl 9469 2012-07-05 14:49:59Z tom_schr $
+     $Id: inline.xsl 9297 2012-04-22 03:56:16Z bobstayton $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -586,21 +586,7 @@
 </xsl:template>
 
 <xsl:template match="keycap">
-  <xsl:choose>
-    <xsl:when test="@function and normalize-space(.) = ''">
-      <xsl:call-template name="inline.boldseq">
-        <xsl:with-param name="content">
-          <xsl:call-template name="gentext.template">
-            <xsl:with-param name="context" select="'keycap'"/>
-            <xsl:with-param name="name" select="@function"/>
-          </xsl:call-template>
-        </xsl:with-param>
-      </xsl:call-template>
-    </xsl:when>
-    <xsl:otherwise>
-      <xsl:call-template name="inline.boldseq"/>
-    </xsl:otherwise>
-  </xsl:choose>
+  <xsl:call-template name="inline.boldseq"/>
 </xsl:template>
 
 <xsl:template match="keycode">

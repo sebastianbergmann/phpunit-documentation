@@ -7,7 +7,7 @@
                 version='1.0'>
 
 <!-- ********************************************************************
-     $Id: utility.xsl 9652 2012-10-26 22:44:46Z bobstayton $
+     $Id: utility.xsl 8236 2009-02-09 17:44:52Z xmldoc $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -63,11 +63,8 @@
   </xsl:template>
 
   <xsl:template name="inline.monoseq">
-    <xsl:param name="content">
-      <xsl:apply-templates/>
-    </xsl:param>
     <xsl:call-template name="code-inline-start"/>
-    <xsl:copy-of select="$content"/>
+    <xsl:apply-templates/>
     <xsl:call-template name="code-inline-end"/>
   </xsl:template>
 
@@ -289,7 +286,6 @@
                     self::address or
                     self::literallayout or
                     self::programlisting or
-                    self::synopsis or
                     self::screen or
                     self::table or
                     self::informaltable

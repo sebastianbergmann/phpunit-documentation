@@ -52,9 +52,6 @@ article  toc,title,figure,table,example,equation
 <xsl:param name="base.dir" select="'OEBPS/'"/>
 <xsl:param name="index.links.to.section" select="0"/>
 
-<!-- Epub does not yet support external links -->
-<xsl:param name="activate.external.olinks" select="0"/>
-
 <!-- Turning this on crashes ADE, which is unbelievably awesome -->
 <xsl:param name="formal.object.break.after">0</xsl:param>
 
@@ -640,41 +637,31 @@ article  toc,title,figure,table,example,equation
   YYYY, YYYY-MM or YYYY-MM-DD -->
 <xsl:template name="format.meta.date">
   <xsl:param name="string" select="''"/>
-  <xsl:param name="node" select="."/>
   
-  <!-- FIXME: this needs further work, so just check the
-  string format and return the date string for now -->
-  <xsl:variable name="normalized" 
-                select="translate($string, '0123456789', '##########')"/>
-
-  <xsl:variable name="date.ok">
+  <!-- FIXME: this needs further work, so just return the date string for now -->
+  <xsl:variable name="date">
     <xsl:choose>
-      <xsl:when test="string-length($string) = 4 and
-                      $normalized = '####'">1</xsl:when>
-      <xsl:when test="string-length($string) = 7 and
-                      $normalized = '####-##'">1</xsl:when>
-      <xsl:when test="string-length($string) = 10 and
-                      $normalized = '####-##-##'">1</xsl:when>
-      <xsl:when test="string-length($string) = 10 and
-                      $normalized = '####-##-##'">1</xsl:when>
-      <xsl:otherwise>0</xsl:otherwise>
+      <xsl:when test="string-length($string) = 0">
+      </xsl:when>
+      <xsl:otherwise>
+        <!-- construct a date one digit at a time until it fails to match format -->
+        <xsl:if test="contains('1234567890', substring($string,1,1))">
+          <xsl:value-of select="substring($string,1,1)"/>
+        </xsl:if>
+        <xsl:if test="contains('1234567890', substring($string,2,1))">
+          <xsl:value-of select="substring($string,2,1)"/>
+        </xsl:if>
+        <xsl:if test="contains('1234567890', substring($string,3,1))">
+          <xsl:value-of select="substring($string,3,1)"/>
+        </xsl:if>
+        <xsl:if test="contains('1234567890', substring($string,4,1))">
+          <xsl:value-of select="substring($string,4,1)"/>
+        </xsl:if>
+        <!-- FIXME: continue -->
+      </xsl:otherwise>
     </xsl:choose>
   </xsl:variable>
 
-  <xsl:if test="$date.ok = 0">
-    <xsl:message>
-      <xsl:text>WARNING: wrong metadata date format: '</xsl:text>
-      <xsl:value-of select="$string"/>
-      <xsl:text>' in element </xsl:text>
-      <xsl:value-of select="local-name($node/..)"/>
-      <xsl:text>/</xsl:text>
-      <xsl:value-of select="local-name($node)"/>
-      <xsl:text>. It must be in one of these forms: </xsl:text>
-      <xsl:text>YYYY, YYYY-MM, or YYYY-MM-DD.</xsl:text>
-    </xsl:message>
-  </xsl:if>
-
-  <!-- return the string anyway -->
   <xsl:value-of select="$string"/>
 
 </xsl:template>
@@ -1409,60 +1396,34 @@ article  toc,title,figure,table,example,equation
   <xsl:choose>
     <xsl:when test="$next.chunk">
       <xsl:variable name="this.imagedata"
-                    select="$this.chunk//mediaobject"/>
+                    select="$this.chunk//imagedata"/>
       <xsl:variable name="before.next"
-                    select="$next.chunk/preceding::mediaobject"/>
+                    select="$next.chunk/preceding::imagedata"/>
       
       <!-- select for an SVG imagedata in the intersection of them -->
-      <xsl:variable name="mediaobject.set"
+      <xsl:variable name="intersection"
           select="$this.imagedata[count(.|$before.next) = count($before.next)]"/>
-      <xsl:variable name="svg.imagedata">
-        <xsl:for-each select="$mediaobject.set">
-          <xsl:variable name="olist" select="imageobject[not(@role = 'poster')] |
-                                             imageobjectco"/>
-          <xsl:variable name="mediaobject.index">
-            <xsl:call-template name="select.mediaobject.index">
-              <xsl:with-param name="olist" select="$olist"/>
-            </xsl:call-template>
-          </xsl:variable>
-          <xsl:variable name="object" select="$olist[position() = $mediaobject.index]"/>
-          <xsl:if test="$object/imagedata[contains(
-                      substring(@fileref, string-length(@fileref)-3,4), '.svg')]">
-            <xsl:text>svg</xsl:text>
-          </xsl:if>
-        </xsl:for-each>
-      </xsl:variable>
     
-      <xsl:if test="contains($svg.imagedata, 'svg')">
+      <xsl:variable name="svg.imagedata"
+          select="$intersection[contains(
+                      substring(@fileref, string-length(@fileref)-3,4), '.svg')]"/>
+    
+      <xsl:if test="count($svg.imagedata) != 0">
         <xsl:text>svg</xsl:text>
      </xsl:if>
     </xsl:when>
     <xsl:otherwise>
-      <xsl:variable name="mediaobject.set"
-                    select="$this.chunk//mediaobject"/>
-      <xsl:variable name="svg.imagedata">
-        <xsl:for-each select="$mediaobject.set">
-          <xsl:variable name="olist" select="imageobject[not(@role = 'poster')] |
-                                             imageobjectco"/>
-          <xsl:variable name="mediaobject.index">
-            <xsl:call-template name="select.mediaobject.index">
-              <xsl:with-param name="olist" select="$olist"/>
-            </xsl:call-template>
-          </xsl:variable>
-          <xsl:variable name="object" select="$olist[position() = $mediaobject.index]"/>
-          <xsl:if test="$object/imagedata[contains(
-                      substring(@fileref, string-length(@fileref)-3,4), '.svg')]">
-            <xsl:text>svg</xsl:text>
-          </xsl:if>
-        </xsl:for-each>
-      </xsl:variable>
-    
-      <xsl:if test="contains($svg.imagedata, 'svg')">
+      <xsl:variable name="this.imagedata"
+                    select="$this.chunk//imagedata"/>
+      <xsl:variable name="svg.imagedata"
+          select="$this.imagedata[contains(
+                      substring(@fileref, string-length(@fileref)-3,4), '.svg')]"/>
+      <xsl:if test="count($svg.imagedata) != 0">
         <xsl:text>svg</xsl:text>
      </xsl:if>
+    
     </xsl:otherwise>
   </xsl:choose>
-
 </xsl:template>
 
 <xsl:template name="mathml.property">
@@ -1824,7 +1785,6 @@ article  toc,title,figure,table,example,equation
               <xsl:choose>
                 <xsl:when test="$root.is.a.chunk != '0'">
                   <xsl:apply-templates select="/*" mode="ncx" />
-                  <xsl:apply-templates select="/*/*" mode="ncx" />
                 </xsl:when>
                 <xsl:otherwise>
                   <xsl:apply-templates select="/*/*" mode="ncx" />
@@ -1935,11 +1895,7 @@ article  toc,title,figure,table,example,equation
         <xsl:value-of select="$href"/>
       </xsl:attribute>
     </xsl:element>
-    <xsl:if test="$depth != 0">
-      <!-- Don't recurse on root element, but treat it as a single point so
-      the progress bar shows all top level children -->
-      <xsl:apply-templates select="book[parent::set]|part|reference|preface|chapter|bibliography|appendix|article|topic|glossary|section|sect1|sect2|sect3|sect4|sect5|refentry|colophon|bibliodiv[title]|setindex|index" mode="ncx"/>
-    </xsl:if>
+    <xsl:apply-templates select="book[parent::set]|part|reference|preface|chapter|bibliography|appendix|article|topic|glossary|section|sect1|sect2|sect3|sect4|sect5|refentry|colophon|bibliodiv[title]|setindex|index" mode="ncx"/>
   </xsl:element>
 
 </xsl:template>

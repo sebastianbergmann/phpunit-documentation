@@ -7,7 +7,7 @@
                 exclude-result-prefixes="exsl cf ng db">
 
 <!-- ********************************************************************
-     $Id: chunk-common.xsl 9665 2012-11-08 14:26:20Z kosek $
+     $Id: chunk-common.xsl 9362 2012-05-12 23:41:56Z bobstayton $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -896,10 +896,9 @@
           </xsl:when>
           <xsl:when test="$css.decoration != 0">
             <xsl:attribute name="style">
-              <xsl:value-of select="concat('width:100; text-align:',
+              <xsl:value-of select="concat('width:100; align:',
                                             $direction.align.start,
-                                            ';',
-					    'margin-', $direction.align.start, ': 0')"/>
+                                            ';')"/>
             </xsl:attribute>
           </xsl:when>
           <xsl:otherwise>

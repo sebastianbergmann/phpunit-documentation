@@ -4,7 +4,7 @@
 <!-- This file is generated from param.xweb -->
 
 <!-- ********************************************************************
-     $Id: param.xweb 9673 2012-12-02 20:06:41Z bobstayton $
+     $Id: param.xweb 9238 2012-03-02 18:38:42Z bobstayton $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -28,7 +28,6 @@
   <xsl:attribute name="hyphenate">false</xsl:attribute>
   <xsl:attribute name="text-align">center</xsl:attribute>
 </xsl:attribute-set>
-<xsl:param name="activate.external.olinks" select="1"/>
 <xsl:param name="admon.graphics.extension">.png</xsl:param>
 <xsl:param name="admon.graphics" select="0"/>
 <xsl:param name="admon.graphics.path">images/</xsl:param>
@@ -239,7 +238,6 @@
   <xsl:attribute name="font-style">normal</xsl:attribute>
   <xsl:attribute name="text-align"><xsl:value-of select="$alignment"/></xsl:attribute>
   <xsl:attribute name="start-indent">0pt</xsl:attribute>
-  <xsl:attribute name="end-indent">0pt</xsl:attribute>
   <xsl:attribute name="text-indent">0pt</xsl:attribute>
   <xsl:attribute name="hyphenate"><xsl:value-of select="$hyphenate"/></xsl:attribute>
   <xsl:attribute name="wrap-option">wrap</xsl:attribute>
@@ -252,7 +250,6 @@
 </xsl:attribute-set>
 <xsl:param name="fop.extensions" select="0"/>
 <xsl:param name="fop1.extensions" select="0"/>
-<xsl:param name="force.blank.pages" select="1"/>
 <xsl:attribute-set name="formal.object.properties">
   <xsl:attribute name="space-before.minimum">0.5em</xsl:attribute>
   <xsl:attribute name="space-before.optimum">1em</xsl:attribute>
@@ -498,8 +495,6 @@ set       toc,title
     <xsl:when test="$paper.type = 'A4landscape'">210mm</xsl:when>
     <xsl:when test="$paper.type = 'USletter'">11in</xsl:when>
     <xsl:when test="$paper.type = 'USlandscape'">8.5in</xsl:when>
-    <xsl:when test="$paper.type = 'USlegal'">14in</xsl:when>
-    <xsl:when test="$paper.type = 'USlegallandscape'">8.5in</xsl:when>
     <xsl:when test="$paper.type = '4A0'">2378mm</xsl:when>
     <xsl:when test="$paper.type = '2A0'">1682mm</xsl:when>
     <xsl:when test="$paper.type = 'A0'">1189mm</xsl:when>
@@ -566,9 +561,6 @@ set       toc,title
 <xsl:param name="page.width.portrait">
   <xsl:choose>
     <xsl:when test="$paper.type = 'USletter'">8.5in</xsl:when>
-    <xsl:when test="$paper.type = 'USlandscape'">11in</xsl:when>
-    <xsl:when test="$paper.type = 'USlegal'">8.5in</xsl:when>
-    <xsl:when test="$paper.type = 'USlegallandscape'">14in</xsl:when>
     <xsl:when test="$paper.type = '4A0'">1682mm</xsl:when>
     <xsl:when test="$paper.type = '2A0'">1189mm</xsl:when>
     <xsl:when test="$paper.type = 'A0'">841mm</xsl:when>

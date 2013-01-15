@@ -3,7 +3,7 @@
 <info>
 <title>FO Parameter Reference</title>
 <releaseinfo role="meta">
-$Id: param.xweb 9673 2012-12-02 20:06:41Z bobstayton $
+$Id: param.xweb 9238 2012-03-02 18:38:42Z bobstayton $
 </releaseinfo>
 <author>
   <personname>
@@ -1766,12 +1766,19 @@ should still be used for FOP version 0.20.5 and earlier.
 
 <refsection><info><title>Description</title></info>
 
-<important><para>The PassiveTeX XSL-FO processor is
-no longer supported by DocBook XSL, beginning with version 1.78.</para></important>
+<para>If non-zero,
+<link xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://projects.oucs.ox.ac.uk/passivetex/">PassiveTeX</link>
+extensions will be used. At present, this consists of PDF bookmarks
+and sorted index terms.
+</para>
 
-<para>PassiveTeX was never a complete implementation of
-XSL-FO, and development has ceased. Setting this parameter will
-have no effect on the output.</para>
+<para>This parameter can also affect which graphics file formats
+are supported</para>
+
+<note>
+  <para>PassiveTeX is incomplete and development has ceased. In most cases, 
+another XSL-FO engine is probably a better choice.</para>
+</note>
 
 </refsection>
 </refentry>
@@ -3455,71 +3462,6 @@ the targetdoc identifier of the current document, since that
 identifier does not appear in the document itself. </para>
 <para>This parameter can also be used for print output. If an olink's  <literal>targetdoc</literal>  id differs from the <literal>current.docid</literal>, then the stylesheet can append the target document's title to the generated olink text. That identifies to the reader that the link is to a different document, not the current document. See also <parameter>olink.doctitle</parameter> to enable that feature.</para> 
 </refsection> 
-</refentry>
-
-<refentry version="5.0" xml:id="activate.external.olinks">
-<refmeta>
-<refentrytitle>activate.external.olinks</refentrytitle>
-<refmiscinfo class="other" otherclass="datatype">boolean</refmiscinfo>
-</refmeta>
-<refnamediv>
-<refname>activate.external.olinks</refname>
-<refpurpose>Make external olinks into active links</refpurpose>
-</refnamediv>
-
-<refsynopsisdiv>
-<programlisting xml:id="activate.external.olinks.frag">
-&lt;xsl:param name="activate.external.olinks" select="1"&gt;&lt;/xsl:param&gt;
-</programlisting>
-</refsynopsisdiv>
-
-<refsection><info><title>Description</title></info>
-
-<para>If <parameter>activate.external.olinks</parameter> is nonzero
-(the default), then any olinks that reference another document
-become active links that can be clicked on to follow the link.
-If the parameter is set to zero, then external olinks
-will have the appropriate link text generated, but the link is
-not made active.  Olinks to destinations in
-the current document remain active.</para>
-
-<para>To make an external olink active for HTML
-outputs, the link text is wrapped in an <tag>a</tag>
-element with an <tag>href</tag> attribute. To
-make an external olink active for FO outputs, the link text is
-wrapped in an <tag>fo:basic-link</tag> element with an
-<tag>external-destination</tag> attribute.</para>
-
-<para>This parameter is useful when you need external olinks
-to resolve but not be clickable. For example, if documents
-in a collection are available independently of each other,
-then having active links between them could lead to
-unresolved links when a given target document is missing.</para>
-
-<para>The epub stylesheets set this parameter to zero by default
-because there is no standard linking mechanism between Epub documents.</para>
-
-<para>If external links are made inactive, you should
-consider setting the
-stylesheet parameter <parameter>olink.doctitle</parameter>
-to <literal>yes</literal>. That will append the external document's
-title to the link text, making it easier for the user to
-locate the other document.</para>
-
-<para>An olink is considered external when the
-<parameter>current.docid</parameter> stylesheet parameter
-is set to some value, and the olink's <tag>targetdoc</tag>
-attribute has a different value. If the two values
-match, then the link is considered internal.  If the
-<parameter>current.docid</parameter> parameter is blank, or
-the <tag>olink</tag> element does not have a <tag>targetdoc</tag> attribute,
-then the link is considered to be internal and will become
-an active link.</para>
-
-<para>See also <parameter>olink.doctitle</parameter>,
-<parameter>prefer.internal.olink</parameter>.</para>
-
-</refsection>
 </refentry>
 
 <refentry version="5.0" xml:id="collect.xref.targets"> 
@@ -6703,7 +6645,6 @@ that you may have trouble using those symbols for footnotes.</para>
   &lt;xsl:attribute name="font-style"&gt;normal&lt;/xsl:attribute&gt;
   &lt;xsl:attribute name="text-align"&gt;&lt;xsl:value-of select="$alignment"&gt;&lt;/xsl:value-of&gt;&lt;/xsl:attribute&gt;
   &lt;xsl:attribute name="start-indent"&gt;0pt&lt;/xsl:attribute&gt;
-  &lt;xsl:attribute name="end-indent"&gt;0pt&lt;/xsl:attribute&gt;
   &lt;xsl:attribute name="text-indent"&gt;0pt&lt;/xsl:attribute&gt;
   &lt;xsl:attribute name="hyphenate"&gt;&lt;xsl:value-of select="$hyphenate"&gt;&lt;/xsl:value-of&gt;&lt;/xsl:attribute&gt;
   &lt;xsl:attribute name="wrap-option"&gt;wrap&lt;/xsl:attribute&gt;
@@ -7759,8 +7700,6 @@ zero by default, so this is simply the page-master margin-right.
     &lt;xsl:when test="$paper.type = 'A4landscape'"&gt;210mm&lt;/xsl:when&gt;
     &lt;xsl:when test="$paper.type = 'USletter'"&gt;11in&lt;/xsl:when&gt;
     &lt;xsl:when test="$paper.type = 'USlandscape'"&gt;8.5in&lt;/xsl:when&gt;
-    &lt;xsl:when test="$paper.type = 'USlegal'"&gt;14in&lt;/xsl:when&gt;
-    &lt;xsl:when test="$paper.type = 'USlegallandscape'"&gt;8.5in&lt;/xsl:when&gt;
     &lt;xsl:when test="$paper.type = '4A0'"&gt;2378mm&lt;/xsl:when&gt;
     &lt;xsl:when test="$paper.type = '2A0'"&gt;1682mm&lt;/xsl:when&gt;
     &lt;xsl:when test="$paper.type = 'A0'"&gt;1189mm&lt;/xsl:when&gt;
@@ -7884,8 +7823,6 @@ this bug is fixed by RenderX.  It does not affect documents
 with left-to-right text direction.</para>
 </note>
 
-<para>See also <parameter>writing.mode</parameter>.</para>
-
 </refsection>
 </refentry>
 
@@ -7934,8 +7871,6 @@ and <parameter>page.margin.outer</parameter>, until
 this bug is fixed by RenderX.  It does not affect documents
 with left-to-right text direction.</para>
 </note>
-
-<para>See also <parameter>writing.mode</parameter>.</para>
 
 </refsection>
 </refentry>
@@ -8038,9 +7973,6 @@ landscape orientation, it is vertical.
 <programlisting xml:id="page.width.portrait.frag">&lt;xsl:param name="page.width.portrait"&gt;
   &lt;xsl:choose&gt;
     &lt;xsl:when test="$paper.type = 'USletter'"&gt;8.5in&lt;/xsl:when&gt;
-    &lt;xsl:when test="$paper.type = 'USlandscape'"&gt;11in&lt;/xsl:when&gt;
-    &lt;xsl:when test="$paper.type = 'USlegal'"&gt;8.5in&lt;/xsl:when&gt;
-    &lt;xsl:when test="$paper.type = 'USlegallandscape'"&gt;14in&lt;/xsl:when&gt;
     &lt;xsl:when test="$paper.type = '4A0'"&gt;1682mm&lt;/xsl:when&gt;
     &lt;xsl:when test="$paper.type = '2A0'"&gt;1189mm&lt;/xsl:when&gt;
     &lt;xsl:when test="$paper.type = 'A0'"&gt;841mm&lt;/xsl:when&gt;
@@ -8177,63 +8109,11 @@ B, and C sizes. See <parameter>page.width.portrait</parameter>, for example.
 
 <refsection><info><title>Description</title></info>
 
-<para>This parameter is useful when printing a document
-on both sides of the paper.</para>
-
-<para>if set to non-zero, documents are formatted using different page-masters
-for odd and even pages.  These can differ by using a slightly wider margin
-on the binding edge of the page, and alternating left-right
-positions of header or footer elements.
+<para>Double-sided documents are printed with a slightly wider margin
+on the binding edge of the page.
 </para>
-
-<para>If set to zero (the default), then only the 'odd' page masters
-are used for both even and odd numbered pages.</para>
-
-<para>See also <parameter>force.blank.pages</parameter>,
-<parameter>page.margin.inner</parameter> and
-<parameter>page.margin.outer</parameter>.</para>
-
-</refsection>
-</refentry>
-
-<refentry version="5.0" xml:id="force.blank.pages">
-<refmeta>
-<refentrytitle>force.blank.pages</refentrytitle>
-<refmiscinfo class="other" otherclass="datatype">boolean</refmiscinfo>
-</refmeta>
-<refnamediv>
-<refname>force.blank.pages</refname>
-<refpurpose>Generate blank page to end on even page number</refpurpose>
-</refnamediv>
-
-<refsynopsisdiv>
-<programlisting xml:id="force.blank.pages.frag">
-&lt;xsl:param name="force.blank.pages" select="1"&gt;&lt;/xsl:param&gt;
-</programlisting>
-</refsynopsisdiv>
-
-<refsection><info><title>Description</title></info>
-
-<para>If non-zero (the default), then each page sequence will be forced to
-end on an even-numbered page, by inserting a blank page
-if necessary. This will force the next page sequence to start
-on an odd-numbered page, which is a standard convention
-for printed and bound books.</para>
-
-<para>If zero, then such blank pages will not be inserted.
-Chapters will start on the next available page,
-regardless of whether it is an even or odd number.
-This is useful when publishing online where blank
-pages are not needed.
-</para>
-
-<para>This param is independent of the 
-<parameter>double.sided</parameter> parameter, which
-just triggers the use of even and odd page sequence 
-masters that differ in their header and footer placement.
-So you can combine the two params for alternating
-headers/footers and no blank pages.
-</para>
+<para>FIXME: The current set of parameters does not take writing direction
+into account.</para>
 
 </refsection>
 </refentry>
@@ -12733,7 +12613,7 @@ to be treated as case insensitive".</para>
 The value is normally taken from the gentext file for the 
 lang attribute of the document's root element, using the 
 key name 'writing-mode' to look it up in the gentext file.
-But this param can also be
+But the param can also be
 set on the command line to override that gentext value.
 </para>
 <para>Accepted values are:
@@ -12955,7 +12835,7 @@ around all these parameters.</para>
 &lt;!-- This file is generated from param.xweb --&gt;
 
 &lt;!-- ********************************************************************
-     $Id: param.xweb 9673 2012-12-02 20:06:41Z bobstayton $
+     $Id: param.xweb 9238 2012-03-02 18:38:42Z bobstayton $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -12966,7 +12846,6 @@ around all these parameters.</para>
 
 &lt;src:fragref linkend="abstract.properties.frag"&gt;&lt;/src:fragref&gt;
 &lt;src:fragref linkend="abstract.title.properties.frag"&gt;&lt;/src:fragref&gt;
-&lt;src:fragref linkend="activate.external.olinks.frag"&gt;&lt;/src:fragref&gt;
 &lt;src:fragref linkend="admon.graphics.extension.frag"&gt;&lt;/src:fragref&gt;
 &lt;src:fragref linkend="admon.graphics.frag"&gt;&lt;/src:fragref&gt;
 &lt;src:fragref linkend="admon.graphics.path.frag"&gt;&lt;/src:fragref&gt;
@@ -13069,7 +12948,6 @@ around all these parameters.</para>
 &lt;src:fragref linkend="footnote.sep.leader.properties.frag"&gt;&lt;/src:fragref&gt;
 &lt;src:fragref linkend="fop.extensions.frag"&gt;&lt;/src:fragref&gt;
 &lt;src:fragref linkend="fop1.extensions.frag"&gt;&lt;/src:fragref&gt;
-&lt;src:fragref linkend="force.blank.pages.frag"&gt;&lt;/src:fragref&gt;
 &lt;src:fragref linkend="formal.object.properties.frag"&gt;&lt;/src:fragref&gt;
 &lt;src:fragref linkend="formal.procedures.frag"&gt;&lt;/src:fragref&gt;
 &lt;src:fragref linkend="formal.title.placement.frag"&gt;&lt;/src:fragref&gt;

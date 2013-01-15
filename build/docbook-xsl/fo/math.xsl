@@ -6,7 +6,7 @@
                 version='1.0'>
 
 <!-- ********************************************************************
-     $Id: math.xsl 9647 2012-10-26 17:42:03Z bobstayton $
+     $Id: math.xsl 9375 2012-05-24 16:33:32Z bobstayton $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -16,7 +16,18 @@
      ******************************************************************** -->
 
 <xsl:template match="inlineequation">
-  <xsl:apply-templates/>
+  <xsl:choose>
+    <xsl:when test="$passivetex.extensions != 0 and $tex.math.in.alt != ''">
+      <xsl:apply-templates select="alt[@role='tex'] | inlinemediaobject/textobject[@role='tex']">
+        <xsl:with-param name="output.delims">
+          <xsl:call-template name="tex.math.output.delims"/>
+        </xsl:with-param>
+      </xsl:apply-templates>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:apply-templates/>
+    </xsl:otherwise>
+  </xsl:choose>
 </xsl:template>
 
 <xsl:template match="alt">
@@ -31,12 +42,24 @@
 <!-- "Support" for MathML -->
 
 <xsl:template match="mml:math" xmlns:mml="http://www.w3.org/1998/Math/MathML">
-  <fo:instream-foreign-object>
-    <xsl:copy>
-      <xsl:copy-of select="@*"/>
-      <xsl:apply-templates/>
-    </xsl:copy>
-  </fo:instream-foreign-object>
+  <xsl:choose>
+    <!-- * If user is using passivetex, we don't wrap the output in -->
+    <!-- * fo:instream-foreign-object (which passivetex doesn't support). -->
+    <xsl:when test="not($passivetex.extensions = 0)">
+      <xsl:copy>
+        <xsl:copy-of select="@*"/>
+        <xsl:apply-templates/>
+      </xsl:copy>
+    </xsl:when>
+    <xsl:otherwise>
+      <fo:instream-foreign-object>
+        <xsl:copy>
+          <xsl:copy-of select="@*"/>
+          <xsl:apply-templates/>
+        </xsl:copy>
+      </fo:instream-foreign-object>
+    </xsl:otherwise>
+  </xsl:choose>
 </xsl:template>
 
 <xsl:template match="mml:*" xmlns:mml="http://www.w3.org/1998/Math/MathML">
@@ -57,6 +80,17 @@
 <xsl:template match="inlineequation/alt[@role='tex'] | 
                      inlineequation/inlinemediaobject/textobject[@role='tex']" priority="1">
   <xsl:param name="output.delims" select="1"/>
+  <xsl:if test="$passivetex.extensions != 0 and $tex.math.in.alt != ''">
+    <xsl:processing-instruction name="xmltex">
+      <xsl:if test="$output.delims != 0">
+        <xsl:text>$</xsl:text>
+      </xsl:if>
+      <xsl:value-of select="."/>
+      <xsl:if test="$output.delims != 0">
+        <xsl:text>$</xsl:text>
+      </xsl:if>
+    </xsl:processing-instruction>
+  </xsl:if>
 </xsl:template>
 
 <xsl:template match="equation/alt[@role='tex'] | informalequation/alt[@role='tex'] |
@@ -65,6 +99,25 @@
   <xsl:variable name="output.delims">
     <xsl:call-template name="tex.math.output.delims"/>
   </xsl:variable>
+  <xsl:if test="$passivetex.extensions != 0 and $tex.math.in.alt != ''">
+    <xsl:processing-instruction name="xmltex">
+      <xsl:if test="$output.delims != 0">
+        <xsl:text>$$</xsl:text>
+      </xsl:if>
+      <xsl:value-of select="."/>
+      <xsl:if test="$output.delims != 0">
+        <xsl:text>$$</xsl:text>
+      </xsl:if>
+    </xsl:processing-instruction>
+  </xsl:if>
+</xsl:template>
+
+<xsl:template match="alt[@role='tex']">
+  <xsl:if test="$passivetex.extensions != 0 and $tex.math.in.alt != ''">
+    <xsl:message>
+      Your equation is misplaced. It should be in inlineequation, equation or informalequation.
+    </xsl:message>
+  </xsl:if>
 </xsl:template>
 
 <xsl:template name="tex.math.output.delims">

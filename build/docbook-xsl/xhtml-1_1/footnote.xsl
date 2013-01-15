@@ -4,7 +4,7 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:exsl="http://exslt.org/common" xmlns="http://www.w3.org/1999/xhtml" exclude-result-prefixes="exsl" version="1.0">
 
 <!-- ********************************************************************
-     $Id: footnote.xsl 9502 2012-07-17 03:23:51Z bobstayton $
+     $Id: footnote.xsl 9361 2012-05-12 23:39:44Z bobstayton $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -18,27 +18,21 @@ The footnote text is handled in name="process.footnote".
 The footnote marker gets an id of @id, while the
 footnote text gets an id of #ftn.@id. They cross link to each other. -->
 <xsl:template match="footnote">
-  <xsl:variable name="name">
+  <xsl:variable name="href">
+    <xsl:text>#ftn.</xsl:text>
     <xsl:call-template name="object.id">
       <xsl:with-param name="conditional" select="0"/>
     </xsl:call-template>
   </xsl:variable>
-  <xsl:variable name="href">
-    <xsl:text>#ftn.</xsl:text>
-    <xsl:value-of select="$name"/>
-  </xsl:variable>
 
   <a href="{$href}">
     <xsl:apply-templates select="." mode="class.attribute"/>
-    <xsl:if test="$generate.id.attributes = 0">
-      <xsl:attribute name="id">
-        <xsl:value-of select="$name"/>
-      </xsl:attribute>
-    </xsl:if>
-    
     <sup>
       <xsl:apply-templates select="." mode="class.attribute"/>
       <xsl:call-template name="id.attribute">
+        <xsl:with-param name="conditional" select="0"/>
+      </xsl:call-template>
+      <xsl:call-template name="anchor">
         <xsl:with-param name="conditional" select="0"/>
       </xsl:call-template>
       <xsl:text>[</xsl:text>

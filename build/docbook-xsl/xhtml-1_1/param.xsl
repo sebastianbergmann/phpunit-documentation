@@ -5,7 +5,7 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns="http://www.w3.org/1999/xhtml" version="1.0">
 
 <!-- ********************************************************************
-     $Id: param.xweb 9616 2012-10-19 21:16:44Z bobstayton $
+     $Id: param.xweb 9333 2012-05-06 19:41:03Z dcramer $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -15,7 +15,6 @@
      ******************************************************************** -->
 
 <xsl:param name="abstract.notitle.enabled" select="0"/>
-<xsl:param name="activate.external.olinks" select="1"/>
 <xsl:param name="admon.graphics.extension">.png</xsl:param>
 <xsl:param name="admon.graphics" select="0"/>
 <xsl:param name="admon.graphics.path">images/</xsl:param>

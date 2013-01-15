@@ -4,7 +4,7 @@
                 version="1.0">
 
 <!-- ********************************************************************
-     $Id: pagesetup.xsl 9676 2012-12-06 18:29:30Z bobstayton $
+     $Id: pagesetup.xsl 9157 2011-11-23 22:29:23Z bobstayton $
      ********************************************************************
 
      This file is part of the DocBook XSL Stylesheet distribution.
@@ -2117,10 +2117,8 @@
       <fo:repeatable-page-master-alternatives>
         <fo:conditional-page-master-reference master-reference="blank"
                                               blank-or-not-blank="blank"/>
-        <xsl:if test="$force.blank.pages != 0">
-          <fo:conditional-page-master-reference master-reference="titlepage-first"
-                                                page-position="first"/>
-        </xsl:if>
+        <fo:conditional-page-master-reference master-reference="titlepage-first"
+                                              page-position="first"/>
         <fo:conditional-page-master-reference master-reference="titlepage-odd"
                                               odd-or-even="odd"/>
         <fo:conditional-page-master-reference 
@@ -2140,10 +2138,8 @@
       <fo:repeatable-page-master-alternatives>
         <fo:conditional-page-master-reference master-reference="blank"
                                               blank-or-not-blank="blank"/>
-        <xsl:if test="$force.blank.pages != 0">
-          <fo:conditional-page-master-reference master-reference="lot-first"
-                                                page-position="first"/>
-        </xsl:if>
+        <fo:conditional-page-master-reference master-reference="lot-first"
+                                              page-position="first"/>
         <fo:conditional-page-master-reference master-reference="lot-odd"
                                               odd-or-even="odd"/>
         <fo:conditional-page-master-reference 
@@ -2163,10 +2159,8 @@
       <fo:repeatable-page-master-alternatives>
         <fo:conditional-page-master-reference master-reference="blank"
                                               blank-or-not-blank="blank"/>
-        <xsl:if test="$force.blank.pages != 0">
-          <fo:conditional-page-master-reference master-reference="front-first"
-                                                page-position="first"/>
-        </xsl:if>
+        <fo:conditional-page-master-reference master-reference="front-first"
+                                              page-position="first"/>
         <fo:conditional-page-master-reference master-reference="front-odd"
                                               odd-or-even="odd"/>
         <fo:conditional-page-master-reference 
@@ -2186,10 +2180,8 @@
       <fo:repeatable-page-master-alternatives>
         <fo:conditional-page-master-reference master-reference="blank"
                                               blank-or-not-blank="blank"/>
-        <xsl:if test="$force.blank.pages != 0">
-          <fo:conditional-page-master-reference master-reference="body-first"
-                                                page-position="first"/>
-        </xsl:if>
+        <fo:conditional-page-master-reference master-reference="body-first"
+                                              page-position="first"/>
         <fo:conditional-page-master-reference master-reference="body-odd"
                                               odd-or-even="odd"/>
         <fo:conditional-page-master-reference 
@@ -2209,10 +2201,8 @@
       <fo:repeatable-page-master-alternatives>
         <fo:conditional-page-master-reference master-reference="blank"
                                               blank-or-not-blank="blank"/>
-        <xsl:if test="$force.blank.pages != 0">
-          <fo:conditional-page-master-reference master-reference="back-first"
-                                                page-position="first"/>
-        </xsl:if>
+        <fo:conditional-page-master-reference master-reference="back-first"
+                                              page-position="first"/>
         <fo:conditional-page-master-reference master-reference="back-odd"
                                               odd-or-even="odd"/>
         <fo:conditional-page-master-reference 
@@ -2232,10 +2222,8 @@
       <fo:repeatable-page-master-alternatives>
         <fo:conditional-page-master-reference master-reference="blank"
                                               blank-or-not-blank="blank"/>
-        <xsl:if test="$force.blank.pages != 0">
-          <fo:conditional-page-master-reference master-reference="index-first"
-                                                page-position="first"/>
-        </xsl:if>
+        <fo:conditional-page-master-reference master-reference="index-first"
+                                              page-position="first"/>
         <fo:conditional-page-master-reference master-reference="index-odd"
                                               odd-or-even="odd"/>
         <fo:conditional-page-master-reference 
@@ -2256,10 +2244,8 @@
         <fo:repeatable-page-master-alternatives>
           <fo:conditional-page-master-reference master-reference="blank-draft"
                                                 blank-or-not-blank="blank"/>
-          <xsl:if test="$force.blank.pages != 0">
-            <fo:conditional-page-master-reference master-reference="titlepage-first-draft"
-                                                  page-position="first"/>
-          </xsl:if>
+          <fo:conditional-page-master-reference master-reference="titlepage-first-draft"
+                                                page-position="first"/>
           <fo:conditional-page-master-reference master-reference="titlepage-odd-draft"
                                                 odd-or-even="odd"/>
           <fo:conditional-page-master-reference 
@@ -2279,10 +2265,8 @@
         <fo:repeatable-page-master-alternatives>
           <fo:conditional-page-master-reference master-reference="blank-draft"
                                                 blank-or-not-blank="blank"/>
-          <xsl:if test="$force.blank.pages != 0">
-            <fo:conditional-page-master-reference master-reference="lot-first-draft"
-                                                  page-position="first"/>
-          </xsl:if>
+          <fo:conditional-page-master-reference master-reference="lot-first-draft"
+                                                page-position="first"/>
           <fo:conditional-page-master-reference master-reference="lot-odd-draft"
                                                 odd-or-even="odd"/>
           <fo:conditional-page-master-reference 
@@ -2302,10 +2286,8 @@
         <fo:repeatable-page-master-alternatives>
           <fo:conditional-page-master-reference master-reference="blank-draft"
                                                 blank-or-not-blank="blank"/>
-          <xsl:if test="$force.blank.pages != 0">
-            <fo:conditional-page-master-reference master-reference="front-first-draft"
-                                                  page-position="first"/>
-          </xsl:if>
+          <fo:conditional-page-master-reference master-reference="front-first-draft"
+                                                page-position="first"/>
           <fo:conditional-page-master-reference master-reference="front-odd-draft"
                                                 odd-or-even="odd"/>
           <fo:conditional-page-master-reference 
@@ -2325,10 +2307,8 @@
         <fo:repeatable-page-master-alternatives>
           <fo:conditional-page-master-reference master-reference="blank-draft"
                                                 blank-or-not-blank="blank"/>
-          <xsl:if test="$force.blank.pages != 0">
-            <fo:conditional-page-master-reference master-reference="body-first-draft"
-                                                  page-position="first"/>
-          </xsl:if>
+          <fo:conditional-page-master-reference master-reference="body-first-draft"
+                                                page-position="first"/>
           <fo:conditional-page-master-reference master-reference="body-odd-draft"
                                                 odd-or-even="odd"/>
           <fo:conditional-page-master-reference 
@@ -2348,10 +2328,8 @@
         <fo:repeatable-page-master-alternatives>
           <fo:conditional-page-master-reference master-reference="blank-draft"
                                                 blank-or-not-blank="blank"/>
-          <xsl:if test="$force.blank.pages != 0">
-            <fo:conditional-page-master-reference master-reference="back-first-draft"
-                                                  page-position="first"/>
-          </xsl:if>
+          <fo:conditional-page-master-reference master-reference="back-first-draft"
+                                                page-position="first"/>
           <fo:conditional-page-master-reference master-reference="back-odd-draft"
                                                 odd-or-even="odd"/>
           <fo:conditional-page-master-reference 
@@ -2371,10 +2349,8 @@
         <fo:repeatable-page-master-alternatives>
           <fo:conditional-page-master-reference master-reference="blank-draft"
                                                 blank-or-not-blank="blank"/>
-          <xsl:if test="$force.blank.pages != 0">
-            <fo:conditional-page-master-reference master-reference="index-first-draft"
-                                                  page-position="first"/>
-          </xsl:if>
+          <fo:conditional-page-master-reference master-reference="index-first-draft"
+                                                page-position="first"/>
           <fo:conditional-page-master-reference master-reference="index-odd-draft"
                                                 odd-or-even="odd"/>
           <fo:conditional-page-master-reference 
@@ -3282,12 +3258,6 @@
   <xsl:param name="element" select="local-name(.)"/>
   <xsl:param name="master-reference" select="''"/>
 
-  <xsl:variable name="first">
-    <xsl:choose>
-      <xsl:when test="$force.blank.pages = 0">auto</xsl:when>
-      <xsl:otherwise>auto-odd</xsl:otherwise>
-    </xsl:choose>
-  </xsl:variable>
   <!-- Select the first content that the stylesheet places
        after the TOC -->
   <xsl:variable name="first.book.content" 
@@ -3306,11 +3276,11 @@
     <!-- double-sided output -->
     <xsl:when test="$double.sided != 0">
       <xsl:choose>
-        <xsl:when test="$element = 'toc'"><xsl:value-of select="$first"/></xsl:when>
-        <xsl:when test="$element = 'book'"><xsl:value-of select="$first"/></xsl:when>
+        <xsl:when test="$element = 'toc'">auto-odd</xsl:when>
+        <xsl:when test="$element = 'book'">1</xsl:when>
         <!-- preface typically continues TOC roman numerals -->
-        <!-- If changed to 1 here, then change page.number.format too -->
-        <xsl:when test="$element = 'preface'"><xsl:value-of select="$first"/></xsl:when>
+        <!-- Change page.number.format if not -->
+        <xsl:when test="$element = 'preface'">auto-odd</xsl:when>
         <xsl:when test="($element = 'dedication' or $element = 'article') 
                     and not(preceding::chapter
                             or preceding::preface
@@ -3321,7 +3291,7 @@
                             or parent::reference)">1</xsl:when>
         <xsl:when test="generate-id($first.book.content) =
                         generate-id(.)">1</xsl:when>
-        <xsl:otherwise><xsl:value-of select="$first"/></xsl:otherwise>
+        <xsl:otherwise>auto-odd</xsl:otherwise>
       </xsl:choose>
     </xsl:when>
 
@@ -3329,7 +3299,7 @@
     <xsl:otherwise>
       <xsl:choose>
         <xsl:when test="$element = 'toc'">auto</xsl:when>
-        <xsl:when test="$element = 'book'">auto</xsl:when>
+        <xsl:when test="$element = 'book'">1</xsl:when>
         <xsl:when test="$element = 'preface'">auto</xsl:when>
        <xsl:when test="($element = 'dedication' or $element = 'article') and
                         not(preceding::chapter
@@ -3352,8 +3322,6 @@
   <xsl:param name="master-reference" select="''"/>
 
   <xsl:choose>
-    <!-- no automatic even blank pages at end of chapters -->
-    <xsl:when test="$force.blank.pages = 0">no-force</xsl:when>
     <!-- double-sided output -->
     <xsl:when test="$double.sided != 0">end-on-even</xsl:when>
     <!-- single-sided output -->
@@ -3381,7 +3349,7 @@
   </xsl:variable>
 
   <xsl:choose>
-    <xsl:when test="$fop.extensions != 0">
+    <xsl:when test="$fop.extensions != 0 or $passivetex.extensions != 0">
       <!-- body.start.indent does not work well with these processors -->
     </xsl:when>
     <xsl:when test="starts-with($pageclass, 'body') or

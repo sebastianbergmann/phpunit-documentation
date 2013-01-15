@@ -4,7 +4,7 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:suwl="http://nwalsh.com/xslt/ext/com.nwalsh.saxon.UnwrapLinks" xmlns:exsl="http://exslt.org/common" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/1999/xhtml" exclude-result-prefixes="suwl exsl xlink" version="1.0">
 
 <!-- ********************************************************************
-     $Id: xref.xsl 9650 2012-10-26 18:24:02Z bobstayton $
+     $Id: xref.xsl 9365 2012-05-12 23:43:49Z bobstayton $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -338,7 +338,7 @@
   </xsl:choose>
 </xsl:template>
 
-<xsl:template match="abstract|authorblurb|personblurb|bibliodiv|bibliomset                      |biblioset|blockquote|calloutlist|caution|colophon                      |constraintdef|formalpara|glossdiv|important|indexdiv                      |itemizedlist|legalnotice|lot|msg|msgexplan|msgmain                      |msgrel|msgset|msgsub|note|orderedlist|partintro                      |productionset|qandadiv|refsynopsisdiv|screenshot|segmentedlist                      |set|setindex|sidebar|tip|toc|variablelist|warning" mode="xref-to">
+<xsl:template match="abstract|authorblurb|personblurb|bibliodiv|bibliomset                      |biblioset|blockquote|calloutlist|caution|colophon                      |constraintdef|formalpara|glossdiv|important|indexdiv                      |itemizedlist|legalnotice|lot|msg|msgexplan|msgmain                      |msgrel|msgset|msgsub|note|orderedlist|partintro                      |productionset|qandadiv|refsynopsisdiv|segmentedlist                      |set|setindex|sidebar|tip|toc|variablelist|warning" mode="xref-to">
   <xsl:param name="referrer"/>
   <xsl:param name="xrefstyle"/>
   <xsl:param name="verbose" select="1"/>
@@ -996,6 +996,8 @@
 
   <xsl:call-template name="anchor"/>
 
+  <xsl:variable name="localinfo" select="@localinfo"/>
+
   <xsl:choose>
     <!-- olinks resolved by stylesheet and target database -->
     <xsl:when test="@targetdoc or @targetptr or                     (@xlink:role=$xolink.role and                      contains(@xlink:href, '#') )">
@@ -1128,20 +1130,54 @@
 
     </xsl:when>
 
+    <!-- Or use old olink mechanism -->
     <xsl:otherwise>
+      <xsl:variable name="href">
+        <xsl:choose>
+          <xsl:when test="@linkmode">
+            <!-- use the linkmode to get the base URI, use localinfo as fragid -->
+            <xsl:variable name="modespec" select="key('id',@linkmode)"/>
+            <xsl:if test="count($modespec) != 1                           or local-name($modespec) != 'modespec'">
+              <xsl:message>Warning: olink linkmode pointer is wrong.</xsl:message>
+            </xsl:if>
+            <xsl:value-of select="$modespec"/>
+            <xsl:if test="@localinfo">
+              <xsl:text>#</xsl:text>
+              <xsl:value-of select="@localinfo"/>
+            </xsl:if>
+          </xsl:when>
+          <xsl:when test="@type = 'href'">
+            <xsl:call-template name="olink.outline">
+              <xsl:with-param name="outline.base.uri" select="unparsed-entity-uri(@targetdocent)"/>
+              <xsl:with-param name="localinfo" select="@localinfo"/>
+              <xsl:with-param name="return" select="'href'"/>
+            </xsl:call-template>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="$olink.resolver"/>
+            <xsl:text>?</xsl:text>
+            <xsl:value-of select="$olink.sysid"/>
+            <xsl:value-of select="unparsed-entity-uri(@targetdocent)"/>
+            <!-- XSL gives no access to the public identifier (grumble...) -->
+            <xsl:if test="@localinfo">
+              <xsl:text>&amp;</xsl:text>
+              <xsl:value-of select="$olink.fragid"/>
+              <xsl:value-of select="@localinfo"/>
+            </xsl:if>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:variable>
+    
       <xsl:choose>
-        <xsl:when test="@linkmode or @targetdocent or @localinfo">
-          <!-- old olink mechanism -->
-          <xsl:message>
-            <xsl:text>ERROR: olink using obsolete attributes </xsl:text>
-            <xsl:text>@linkmode, @targetdocent, @localinfo are </xsl:text>
-            <xsl:text>not supported.</xsl:text>
-          </xsl:message>
+        <xsl:when test="$href != ''">
+          <a href="{$href}">
+            <xsl:apply-templates select="." mode="common.html.attributes"/>
+            <xsl:call-template name="id.attribute"/>
+            <xsl:call-template name="olink.hottext"/>
+          </a>
         </xsl:when>
         <xsl:otherwise>
-          <xsl:message>
-            <xsl:text>ERROR: olink is missing linking attributes.</xsl:text>
-          </xsl:message>
+          <xsl:call-template name="olink.hottext"/>
         </xsl:otherwise>
       </xsl:choose>
     </xsl:otherwise>
@@ -1150,6 +1186,53 @@
 
 <xsl:template match="*" mode="pagenumber.markup">
   <!-- no-op in HTML -->
+</xsl:template>
+
+
+<xsl:template name="olink.outline">
+  <xsl:param name="outline.base.uri"/>
+  <xsl:param name="localinfo"/>
+  <xsl:param name="return" select="href"/>
+
+  <xsl:variable name="outline-file" select="concat($outline.base.uri,                                $olink.outline.ext)"/>
+
+  <xsl:variable name="outline" select="document($outline-file,.)/div"/>
+
+  <xsl:variable name="node-href">
+    <xsl:choose>
+      <xsl:when test="$localinfo != ''">
+        <xsl:variable name="node" select="$outline//                                    *[@id=$localinfo or @xml:id=$localinfo]"/>
+        <xsl:value-of select="$node/@href"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="$outline/@href"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+
+  <xsl:variable name="node-xref">
+    <xsl:choose>
+      <xsl:when test="$localinfo != ''">
+        <xsl:variable name="node" select="$outline//                                *[@id=$localinfo or @xml:id=$localinfo]"/>
+        <xsl:copy-of select="$node/xref"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="$outline/xref"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+
+  <xsl:choose>
+    <xsl:when test="$return = 'href'">
+      <xsl:value-of select="$node-href"/>
+    </xsl:when>
+    <xsl:when test="$return = 'xref'">
+      <xsl:value-of select="$node-xref"/>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:copy-of select="$node-xref"/>
+    </xsl:otherwise>
+  </xsl:choose>
 </xsl:template>
 
 <!-- ==================================================================== -->

@@ -7,7 +7,7 @@
                 version='1.0'>
 
 <!-- ********************************************************************
-     $Id: xref.xsl 9650 2012-10-26 18:24:02Z bobstayton $
+     $Id: xref.xsl 9286 2012-04-19 10:10:58Z bobstayton $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -318,7 +318,7 @@
                      |constraintdef|formalpara|glossdiv|important|indexdiv
                      |itemizedlist|legalnotice|lot|msg|msgexplan|msgmain
                      |msgrel|msgset|msgsub|note|orderedlist|partintro
-                     |productionset|qandadiv|refsynopsisdiv|screenshot|segmentedlist
+                     |productionset|qandadiv|refsynopsisdiv|segmentedlist
                      |set|setindex|sidebar|tip|toc|variablelist|warning"
               mode="xref-to">
   <xsl:param name="referrer"/>
@@ -1098,6 +1098,8 @@
   <!-- olink content may be passed in from xlink olink -->
   <xsl:param name="content" select="NOTANELEMENT"/>
 
+  <xsl:variable name="localinfo" select="@localinfo"/>
+
   <xsl:choose>
     <!-- olinks resolved by stylesheet and target database -->
     <xsl:when test="@targetdoc or @targetptr or
@@ -1339,6 +1341,14 @@
 
 </xsl:template>
 
+
+<xsl:template name="olink.outline">
+  <xsl:param name="outline.base.uri"/>
+  <xsl:param name="localinfo"/>
+  <xsl:param name="return" select="href"/>
+
+  <xsl:message terminate="yes">Fatal error: olink.outline template: what is this supposed to do?</xsl:message>
+</xsl:template>
 
 <!-- ==================================================================== -->
 

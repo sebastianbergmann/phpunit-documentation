@@ -4,7 +4,7 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:exsl="http://exslt.org/common" xmlns:cf="http://docbook.sourceforge.net/xmlns/chunkfast/1.0" xmlns:ng="http://docbook.org/docbook-ng" xmlns:db="http://docbook.org/ns/docbook" xmlns="http://www.w3.org/1999/xhtml" version="1.0" exclude-result-prefixes="exsl cf ng db">
 
 <!-- ********************************************************************
-     $Id: chunk-common.xsl 9665 2012-11-08 14:26:20Z kosek $
+     $Id: chunk-common.xsl 9362 2012-05-12 23:41:56Z bobstayton $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -605,7 +605,7 @@
           </xsl:when>
           <xsl:when test="$css.decoration != 0">
             <xsl:attribute name="style">
-              <xsl:value-of select="concat('width:100; text-align:',                                             $direction.align.start,                                             ';',          'margin-', $direction.align.start, ': 0')"/>
+              <xsl:value-of select="concat('width:100; align:',                                             $direction.align.start,                                             ';')"/>
             </xsl:attribute>
           </xsl:when>
           <xsl:otherwise>

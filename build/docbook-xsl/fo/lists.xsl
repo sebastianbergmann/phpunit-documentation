@@ -4,7 +4,7 @@
                 version='1.0'>
 
 <!-- ********************************************************************
-     $Id: lists.xsl 9668 2012-11-28 00:47:59Z bobstayton $
+     $Id: lists.xsl 9115 2011-10-05 20:12:49Z bobstayton $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -136,9 +136,17 @@
       </fo:block>
     </fo:list-item-label>
     <fo:list-item-body start-indent="body-start()">
-      <fo:block>
-        <xsl:apply-templates/>
-      </fo:block>
+      <xsl:choose>
+        <!-- * work around broken passivetex list-item-body rendering -->
+        <xsl:when test="$passivetex.extensions = '1'">
+          <xsl:apply-templates/>
+        </xsl:when>
+        <xsl:otherwise>
+          <fo:block>
+            <xsl:apply-templates/>
+          </fo:block>
+        </xsl:otherwise>
+      </xsl:choose>
     </fo:list-item-body>
   </xsl:variable>
 
@@ -377,7 +385,15 @@
           </xsl:when>
           <xsl:otherwise>
             <xsl:value-of select="@termlength"/>
-            <xsl:text>em * 0.60</xsl:text>
+            <xsl:choose>
+              <!-- workaround for passivetex lack of support for non-constant expressions -->
+              <xsl:when test="$passivetex.extensions != 0">
+                <xsl:text>em</xsl:text>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:text>em * 0.60</xsl:text>
+              </xsl:otherwise>
+            </xsl:choose>
           </xsl:otherwise>
         </xsl:choose>
       </xsl:when>
@@ -386,7 +402,15 @@
           <xsl:with-param name="terms" select="varlistentry/term"/>
           <xsl:with-param name="maxlength" select="$variablelist.max.termlength"/>
         </xsl:call-template>
-        <xsl:text>em * 0.60</xsl:text>
+        <xsl:choose>
+          <!-- workaround for passivetex lack of support for non-constant expressions -->
+          <xsl:when test="$passivetex.extensions != 0">
+            <xsl:text>em</xsl:text>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>em * 0.60</xsl:text>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:variable>
@@ -400,9 +424,17 @@
 
   <xsl:variable name="label-separation">1em</xsl:variable>
   <xsl:variable name="distance-between-starts">
-    <xsl:value-of select="$termlength"/>
-    <xsl:text>+</xsl:text>
-    <xsl:value-of select="$label-separation"/>
+    <xsl:choose>
+      <!-- workaround for passivetex lack of support for non-constant expressions -->
+      <xsl:when test="$passivetex.extensions != 0">
+        <xsl:value-of select="$termlength"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="$termlength"/>
+        <xsl:text>+</xsl:text>
+        <xsl:value-of select="$label-separation"/>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:variable>
 
   <xsl:if test="title">
@@ -1320,9 +1352,7 @@
       <xsl:text>: ???</xsl:text>
     </xsl:when>
     <xsl:when test="local-name($target)='co'">
-      <fo:basic-link internal-destination="{$arearef}">
-        <xsl:apply-templates select="$target" mode="callout-bug"/>
-      </fo:basic-link>
+      <xsl:apply-templates select="$target" mode="callout-bug"/>
     </xsl:when>
     <xsl:when test="local-name($target)='areaset'">
       <xsl:call-template name="callout-bug">

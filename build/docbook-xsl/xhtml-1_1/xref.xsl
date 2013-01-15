@@ -4,7 +4,7 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:suwl="http://nwalsh.com/xslt/ext/com.nwalsh.saxon.UnwrapLinks" xmlns:exsl="http://exslt.org/common" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/1999/xhtml" exclude-result-prefixes="suwl exsl xlink" version="1.0">
 
 <!-- ********************************************************************
-     $Id: xref.xsl 9453 2012-07-01 23:46:52Z bobstayton $
+     $Id: xref.xsl 9365 2012-05-12 23:43:49Z bobstayton $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -338,7 +338,7 @@
   </xsl:choose>
 </xsl:template>
 
-<xsl:template match="abstract|authorblurb|personblurb|bibliodiv|bibliomset                      |biblioset|blockquote|calloutlist|caution|colophon                      |constraintdef|formalpara|glossdiv|important|indexdiv                      |itemizedlist|legalnotice|lot|msg|msgexplan|msgmain                      |msgrel|msgset|msgsub|note|orderedlist|partintro                      |productionset|qandadiv|refsynopsisdiv|screenshot|segmentedlist                      |set|setindex|sidebar|tip|toc|variablelist|warning" mode="xref-to">
+<xsl:template match="abstract|authorblurb|personblurb|bibliodiv|bibliomset                      |biblioset|blockquote|calloutlist|caution|colophon                      |constraintdef|formalpara|glossdiv|important|indexdiv                      |itemizedlist|legalnotice|lot|msg|msgexplan|msgmain                      |msgrel|msgset|msgsub|note|orderedlist|partintro                      |productionset|qandadiv|refsynopsisdiv|segmentedlist                      |set|setindex|sidebar|tip|toc|variablelist|warning" mode="xref-to">
   <xsl:param name="referrer"/>
   <xsl:param name="xrefstyle"/>
   <xsl:param name="verbose" select="1"/>
