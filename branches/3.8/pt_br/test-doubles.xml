@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" ?>
 
 <chapter id="test-doubles">
-  <title>Testes Duplos</title>
+  <title>Dublês de Testes</title>
 
   <para>
-    Gerard Meszaros introduz o conceito de Testes Duplos em
+    Gerard Meszaros introduz o conceito de Dublês de Testes em
     <xref linkend="Meszaros2007" /> desta forma:
   </para>
 
@@ -18,14 +18,14 @@
 
     <para>
       <indexterm><primary>Componente Dependente</primary></indexterm>
-      <indexterm><primary>Teste Duplo</primary></indexterm>
+      <indexterm><primary>Dublê de Teste</primary></indexterm>
 
-      Quando estamos escrevendo um teste no qual não podemos (ou decidimos não) usar um ambiente realmente dependente (DOC), podemos substitui-lo por um Teste Duplo. O Teste Duplo não precisa se comportar exatamente como o DOC real; apenas precisa fornecer a mesma API como o real, de forma que o SST pense que é o real!
+      Quando estamos escrevendo um teste no qual não podemos (ou decidimos não) usar um ambiente realmente dependente (DOC), podemos substitui-lo por um Dublê de Teste. O Dublê de Teste não precisa se comportar exatamente como o DOC real; apenas precisa fornecer a mesma API como o real, de forma que o SST pense que é o real!
     </para>
   </blockquote>
 
   <para>
-    O método <literal>getMock($nomeClasse)</literal> fornecido pelo PHPUnit pode ser usado em um teste para gerar automaticamente um objeto que possa atuar como um teste duplo para a classe original especificada. Esse objeto de teste duplo pode ser usado em cada contexto onde um objeto da classe original é esperado.
+    O método <literal>getMock($nomeClasse)</literal> fornecido pelo PHPUnit pode ser usado em um teste para gerar automaticamente um objeto que possa atuar como um dublê de teste para a classe original especificada. Esse objeto de dublê de teste pode ser usado em cada contexto onde um objeto da classe original é esperado.
   </para>
 
   <para>
@@ -37,7 +37,7 @@
 
     <para>
       Por favor, note que os métodos <literal>final</literal>, <literal>private</literal>
-      e <literal>static</literal> não podem ser esboçados (stubbed) ou falsificados (mocked). Eles são ignorados pela funcionalidade de teste duplo do PHPUnit e mantêm seus comportamentos originais.
+      e <literal>static</literal> não podem ser esboçados (stubbed) ou falsificados (mocked). Eles são ignorados pela funcionalidade de dublê de teste do PHPUnit e mantêm seus comportamentos originais.
     </para>
   </note>
 
@@ -57,7 +57,7 @@
     <para>
       <indexterm><primary>Esboço</primary></indexterm>
 
-      A prática de substituir um objeto por um teste duplo que (opcionalmente) retorna valores de retorno configurados é chamada de
+      A prática de substituir um objeto por um dublê de teste que (opcionalmente) retorna valores de retorno configurados é chamada de
       <emphasis>esboçamento</emphasis>. Você pode usar um <emphasis>esboço</emphasis> para "substituir um ambiente real do qual o SST depende de modo que o teste tenha um ponto de controle para as entradas indiretas do SST. Isso permite ao teste forçar o SST através de caminhos que não seriam executáveis de outra forma."
     </para>
 
@@ -115,31 +115,31 @@ $this->assertEquals('foo', $esboco->fazAlgumaCoisa());
 
     <para>
       "Atrás dos bastidores" o PHPUnit automaticamente gera uma nova classe PHP que implementa o comportamento desejado quando um método <literal>getMock()</literal>
-      é usado. A classe de teste duplo gerada pode ser configurada através dos argumentos opcionais do método <literal>getMock()</literal>.
+      é usado. A classe de dublê de teste gerada pode ser configurada através dos argumentos opcionais do método <literal>getMock()</literal>.
     </para>
 
     <itemizedlist>
-      <listitem><para>Por padrão, todos os métodos das classes fornecidas são substituídos com um teste duplo que apenas retorna <literal>NULL</literal> a menos que um valor de retorno seja configurado usando <literal>will($this->returnValue())</literal>, por exemplo.</para></listitem>
-      <listitem><para>Quando o segundo parâmetro (opcional) é fornecido, apenas os métodos cujos nomes estão no vetor são substituídos com um teste duplo configurável. O comportamento dos outros métodos não é alterado.</para></listitem>
+      <listitem><para>Por padrão, todos os métodos das classes fornecidas são substituídos com um dublê de teste que apenas retorna <literal>NULL</literal> a menos que um valor de retorno seja configurado usando <literal>will($this->returnValue())</literal>, por exemplo.</para></listitem>
+      <listitem><para>Quando o segundo parâmetro (opcional) é fornecido, apenas os métodos cujos nomes estão no vetor são substituídos com um dublê de teste configurável. O comportamento dos outros métodos não é alterado.</para></listitem>
       <listitem><para>O terceiro parâmetro (opcional) pode conter um vetor de parâmetros que é passado para o construtor da classe original (que por padrão não é substituído com a implementação falsa).</para></listitem>
-      <listitem><para>O quarto parâmetro (opcional) pode ser usado para especificar um nome de classe para a classe de teste duplo gerada.</para></listitem>
+      <listitem><para>O quarto parâmetro (opcional) pode ser usado para especificar um nome de classe para a classe de dublê de teste gerada.</para></listitem>
       <listitem><para>O quinto parâmetro (opcional) pode ser usado para desabilitar a chamada para o construtor da classe original.</para></listitem>
       <listitem><para>O sexto parâmetro (opcional) pode ser usado para desabilitar a chamada para o construtor do clone da classe original.</para></listitem>
-      <listitem><para>O sétimo parâmetro (opcional) pode ser usado para desabilitar o <literal>__autoload()</literal> durante a geração da classe de teste duplo.</para></listitem>
+      <listitem><para>O sétimo parâmetro (opcional) pode ser usado para desabilitar o <literal>__autoload()</literal> durante a geração da classe de dublê de teste.</para></listitem>
     </itemizedlist>
 
     <para>
-      Alternativamente, a Mock Builder API pode ser usada para configurar a classe de teste duplo gerada. <xref linkend="test-doubles.stubs.examples.StubTest2.php"/>
+      Alternativamente, a Mock Builder API pode ser usada para configurar a classe de dublê de teste gerada. <xref linkend="test-doubles.stubs.examples.StubTest2.php"/>
       mostra um exemplo. Aqui temos uma lista dos métodos que podem ser usados na interface fluente do Mock Builder:
     </para>
 
     <itemizedlist>
-      <listitem><para><literal>setMethods(vetor $metodos)</literal> pode ser chamado no objeto Mock Builder para especificar os métodos que devem ser substituídos com um teste duplo configurável. O comportamento dos outros métodos não muda.</para></listitem>
+      <listitem><para><literal>setMethods(vetor $metodos)</literal> pode ser chamado no objeto Mock Builder para especificar os métodos que devem ser substituídos com um dublê de teste configurável. O comportamento dos outros métodos não muda.</para></listitem>
       <listitem><para><literal>setConstructorArgs(vetor $args)</literal> pode ser chamado para fornecer um vetor de parâmetros que é passado ao construtor da classe original (que por padrão não é substituído com uma implementação falsa).</para></listitem>
-      <listitem><para><literal>setMockClassName($nome)</literal> pode ser usado para especificar um nome de classe para a classe de teste duplo gerada.</para></listitem>
+      <listitem><para><literal>setMockClassName($nome)</literal> pode ser usado para especificar um nome de classe para a classe de dublê de teste gerada.</para></listitem>
       <listitem><para><literal>disableOriginalConstructor()</literal> pode ser usado para desabilitar a chamada ao construtor da classe original.</para></listitem>
       <listitem><para><literal>disableOriginalClone()</literal> pode ser usado para desabilitar a chamada ao construtor do clone da classe original.</para></listitem>
-      <listitem><para><literal>disableAutoload()</literal> pode ser usado para desabilitar o <literal>__autoload()</literal> durante a geração da classe de teste duplo.</para></listitem>
+      <listitem><para><literal>disableAutoload()</literal> pode ser usado para desabilitar o <literal>__autoload()</literal> durante a geração da classe de dublê de teste.</para></listitem>
     </itemizedlist>
 
     <example id="test-doubles.stubs.examples.StubTest2.php">
@@ -148,7 +148,7 @@ $this->assertEquals('foo', $esboco->fazAlgumaCoisa());
       <indexterm><primary>method()</primary></indexterm>
       <indexterm><primary>will()</primary></indexterm>
       <indexterm><primary>returnValue()</primary></indexterm>
-      <title>Usando a Mock Builder API para configurar a classe de teste duplo gerada</title>
+      <title>Usando a Mock Builder API para configurar a classe de dublê de teste gerada</title>
       <programlisting><![CDATA[<?php
 require_once 'AlgumaClasse.php';
 
@@ -407,7 +407,7 @@ $esboco->fazAlgumaCoisa();
     <title>Objetos Falsos</title>
 
     <para>
-      A prática de substituir um objeto por um teste duplo que verifica expectativas, por exemplo assertando um método chamado, é conhecido como <emphasis>falsificação (mocking)</emphasis>.
+      A prática de substituir um objeto por um dublê de teste que verifica expectativas, por exemplo assertando um método chamado, é conhecido como <emphasis>falsificação (mocking)</emphasis>.
     </para>
 
     <para>
