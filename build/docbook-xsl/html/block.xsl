@@ -3,7 +3,7 @@
                 version='1.0'>
 
 <!-- ********************************************************************
-     $Id: block.xsl 9353 2012-05-12 23:24:54Z bobstayton $
+     $Id: block.xsl 9667 2012-11-26 23:10:44Z bobstayton $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -249,7 +249,7 @@
 
 <!-- ==================================================================== -->
 
-<xsl:template match="abstract|sidebar">
+<xsl:template match="sidebar">
   <div>
     <xsl:call-template name="common.html.attributes"/>
     <xsl:call-template name="id.attribute"/>
@@ -263,6 +263,21 @@
 </xsl:template>
 
 <xsl:template match="sidebar/sidebarinfo|sidebar/info"/>
+
+<xsl:template match="abstract">
+  <div>
+    <xsl:call-template name="common.html.attributes"/>
+    <xsl:call-template name="anchor"/>
+    <xsl:call-template name="formal.object.heading">
+      <xsl:with-param name="title">
+        <xsl:apply-templates select="." mode="title.markup">
+          <xsl:with-param name="allow-anchors" select="'1'"/>
+        </xsl:apply-templates>
+      </xsl:with-param>
+    </xsl:call-template>
+    <xsl:apply-templates/>
+  </div>
+</xsl:template>
 
 <!-- ==================================================================== -->
 

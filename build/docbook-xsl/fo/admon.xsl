@@ -4,7 +4,7 @@
                 version='1.0'>
 
 <!-- ********************************************************************
-     $Id: admon.xsl 7248 2007-08-18 06:50:21Z mzjn $
+     $Id: admon.xsl 9647 2012-10-26 17:42:03Z bobstayton $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -46,8 +46,7 @@
   </xsl:variable>
 
   <xsl:choose>
-    <xsl:when test="$passivetex.extensions != 0
-                    or $fop.extensions != 0
+    <xsl:when test="$fop.extensions != 0
                     or $arbortext.extensions != 0">
       <xsl:value-of select="$filename"/>
     </xsl:when>

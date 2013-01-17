@@ -3,7 +3,7 @@
 <info>
 <title>HTML Parameter Reference</title>
 <releaseinfo role="meta">
-$Id: param.xweb 9333 2012-05-06 19:41:03Z dcramer $
+$Id: param.xweb 9658 2012-10-29 22:28:34Z bobstayton $
 </releaseinfo>
 <author>
   <personname>
@@ -4837,6 +4837,71 @@ values are still supported and mapped to 'no' and 'yes', respectively.
 </refsection> 
 </refentry>
 
+<refentry version="5.0" xml:id="activate.external.olinks">
+<refmeta>
+<refentrytitle>activate.external.olinks</refentrytitle>
+<refmiscinfo class="other" otherclass="datatype">boolean</refmiscinfo>
+</refmeta>
+<refnamediv>
+<refname>activate.external.olinks</refname>
+<refpurpose>Make external olinks into active links</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv>
+<programlisting xml:id="activate.external.olinks.frag">
+&lt;xsl:param name="activate.external.olinks" select="1"&gt;&lt;/xsl:param&gt;
+</programlisting>
+</refsynopsisdiv>
+
+<refsection><info><title>Description</title></info>
+
+<para>If <parameter>activate.external.olinks</parameter> is nonzero
+(the default), then any olinks that reference another document
+become active links that can be clicked on to follow the link.
+If the parameter is set to zero, then external olinks
+will have the appropriate link text generated, but the link is
+not made active.  Olinks to destinations in
+the current document remain active.</para>
+
+<para>To make an external olink active for HTML
+outputs, the link text is wrapped in an <tag>a</tag>
+element with an <tag>href</tag> attribute. To
+make an external olink active for FO outputs, the link text is
+wrapped in an <tag>fo:basic-link</tag> element with an
+<tag>external-destination</tag> attribute.</para>
+
+<para>This parameter is useful when you need external olinks
+to resolve but not be clickable. For example, if documents
+in a collection are available independently of each other,
+then having active links between them could lead to
+unresolved links when a given target document is missing.</para>
+
+<para>The epub stylesheets set this parameter to zero by default
+because there is no standard linking mechanism between Epub documents.</para>
+
+<para>If external links are made inactive, you should
+consider setting the
+stylesheet parameter <parameter>olink.doctitle</parameter>
+to <literal>yes</literal>. That will append the external document's
+title to the link text, making it easier for the user to
+locate the other document.</para>
+
+<para>An olink is considered external when the
+<parameter>current.docid</parameter> stylesheet parameter
+is set to some value, and the olink's <tag>targetdoc</tag>
+attribute has a different value. If the two values
+match, then the link is considered internal.  If the
+<parameter>current.docid</parameter> parameter is blank, or
+the <tag>olink</tag> element does not have a <tag>targetdoc</tag> attribute,
+then the link is considered to be internal and will become
+an active link.</para>
+
+<para>See also <parameter>olink.doctitle</parameter>,
+<parameter>prefer.internal.olink</parameter>.</para>
+
+</refsection>
+</refentry>
+
 <refentry version="5.0" xml:id="olink.debug">
 <refmeta>
 <refentrytitle>olink.debug</refentrytitle>
@@ -5241,114 +5306,6 @@ rel=made <literal>link</literal> element in the html <literal>head</literal>
 be used for the <literal>target</literal> attribute
 on anchors generated for <tag>ulink</tag>s.</para>
 
-</refsection>
-</refentry>
-
-<refentry version="5.0" xml:id="olink.fragid">
-<refmeta>
-<refentrytitle>olink.fragid</refentrytitle>
-<refmiscinfo class="other" otherclass="datatype">string</refmiscinfo>
-</refmeta>
-<refnamediv>
-<refname>olink.fragid</refname>
-<refpurpose>Names the fragment identifier portion of an OLink resolver query</refpurpose>
-</refnamediv>
-<refsynopsisdiv>
-<programlisting xml:id="olink.fragid.frag">
-&lt;xsl:param name="olink.fragid"&gt;fragid=&lt;/xsl:param&gt;
-</programlisting>
-</refsynopsisdiv>
-<refsection><info><title>Description</title></info>
-<para>The fragment identifier portion of an <tag>olink</tag> target.</para>
-</refsection>
-</refentry>
-
-<refentry version="5.0" xml:id="olink.outline.ext">
-<refmeta>
-<refentrytitle>olink.outline.ext</refentrytitle>
-<refmiscinfo class="other" otherclass="datatype">string</refmiscinfo>
-</refmeta>
-<refnamediv>
-<refname>olink.outline.ext</refname>
-<refpurpose>The extension of OLink outline files</refpurpose>
-</refnamediv>
-
-<refsynopsisdiv>
-<programlisting xml:id="olink.outline.ext.frag">
-&lt;xsl:param name="olink.outline.ext"&gt;.olink&lt;/xsl:param&gt;
-</programlisting>
-</refsynopsisdiv>
-
-<refsection><info><title>Description</title></info>
-
-<para>The extension to be expected for  OLink outline files</para>
-<para>Bob has this parameter as dead. Please don't use</para>
-
-</refsection>
-</refentry>
-
-<refentry version="5.0" xml:id="olink.pubid">
-<refmeta>
-<refentrytitle>olink.pubid</refentrytitle>
-<refmiscinfo class="other" otherclass="datatype">string</refmiscinfo>
-</refmeta>
-<refnamediv>
-<refname>olink.pubid</refname>
-<refpurpose>Names the public identifier portion of an OLink resolver query</refpurpose>
-</refnamediv>
-
-<refsynopsisdiv>
-<programlisting xml:id="olink.pubid.frag">
-&lt;xsl:param name="olink.pubid"&gt;pubid&lt;/xsl:param&gt;
-</programlisting>
-</refsynopsisdiv>
-
-<refsection><info><title>Description</title></info>
-
-<para/>
-
-</refsection>
-</refentry>
-
-<refentry version="5.0" xml:id="olink.sysid">
-<refmeta>
-<refentrytitle>olink.sysid</refentrytitle>
-<refmiscinfo class="other" otherclass="datatype">string</refmiscinfo>
-</refmeta>
-<refnamediv>
-<refname>olink.sysid</refname>
-<refpurpose>Names the system identifier portion of an OLink resolver query</refpurpose>
-</refnamediv>
-
-<refsynopsisdiv>
-<programlisting xml:id="olink.sysid.frag">
-&lt;xsl:param name="olink.sysid"&gt;sysid&lt;/xsl:param&gt;
-</programlisting>
-</refsynopsisdiv>
-
-<refsection><info><title>Description</title></info>
-
-<para>FIXME</para>
-
-</refsection>
-</refentry>
-
-<refentry version="5.0" xml:id="olink.resolver">
-<refmeta>
-<refentrytitle>olink.resolver</refentrytitle>
-<refmiscinfo class="other" otherclass="datatype">string</refmiscinfo>
-</refmeta>
-<refnamediv>
-<refname>olink.resolver</refname>
-<refpurpose>The root name of the OLink resolver (usually a script)</refpurpose>
-</refnamediv>
-<refsynopsisdiv>
-<programlisting xml:id="olink.resolver.frag">
-  &lt;xsl:param name="olink.resolver"&gt;/cgi-bin/olink&lt;/xsl:param&gt;
-</programlisting>
-</refsynopsisdiv>
-<refsection><info><title>Description</title></info>
-<para>FIXME:</para>
 </refsection>
 </refentry>
 
@@ -10957,7 +10914,7 @@ to be treated as case insensitive".</para>
 The value is normally taken from the gentext file for the 
 lang attribute of the document's root element, using the 
 key name 'writing-mode' to look it up in the gentext file.
-But the param can also be
+But this param can also be
 set on the command line to override that gentext value.
 </para>
 <para>Accepted values are:
@@ -11018,7 +10975,7 @@ around all these parameters.</para>
 &lt;xsl:stylesheet exclude-result-prefixes="src" version="1.0"&gt;
 
 &lt;!-- ********************************************************************
-     $Id: param.xweb 9333 2012-05-06 19:41:03Z dcramer $
+     $Id: param.xweb 9658 2012-10-29 22:28:34Z bobstayton $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -11028,6 +10985,7 @@ around all these parameters.</para>
      ******************************************************************** --&gt;
 
 &lt;src:fragref linkend="abstract.notitle.enabled.frag"&gt;&lt;/src:fragref&gt;
+&lt;src:fragref linkend="activate.external.olinks.frag"&gt;&lt;/src:fragref&gt;
 &lt;src:fragref linkend="admon.graphics.extension.frag"&gt;&lt;/src:fragref&gt;
 &lt;src:fragref linkend="admon.graphics.frag"&gt;&lt;/src:fragref&gt;
 &lt;src:fragref linkend="admon.graphics.path.frag"&gt;&lt;/src:fragref&gt;
@@ -11239,13 +11197,8 @@ around all these parameters.</para>
 &lt;src:fragref linkend="olink.base.uri.frag"&gt;&lt;/src:fragref&gt;
 &lt;src:fragref linkend="olink.debug.frag"&gt;&lt;/src:fragref&gt;
 &lt;src:fragref linkend="olink.doctitle.frag"&gt;&lt;/src:fragref&gt;
-&lt;src:fragref linkend="olink.fragid.frag"&gt;&lt;/src:fragref&gt;
 &lt;src:fragref linkend="olink.lang.fallback.sequence.frag"&gt;&lt;/src:fragref&gt;
-&lt;src:fragref linkend="olink.outline.ext.frag"&gt;&lt;/src:fragref&gt;
 &lt;src:fragref linkend="olink.properties.frag"&gt;&lt;/src:fragref&gt;
-&lt;src:fragref linkend="olink.pubid.frag"&gt;&lt;/src:fragref&gt;
-&lt;src:fragref linkend="olink.resolver.frag"&gt;&lt;/src:fragref&gt;
-&lt;src:fragref linkend="olink.sysid.frag"&gt;&lt;/src:fragref&gt;
 &lt;src:fragref linkend="othercredit.like.author.enabled.frag"&gt;&lt;/src:fragref&gt;
 &lt;src:fragref linkend="para.propagates.style.frag"&gt;&lt;/src:fragref&gt;
 &lt;src:fragref linkend="part.autolabel.frag"&gt;&lt;/src:fragref&gt;

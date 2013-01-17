@@ -4,7 +4,7 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:saxon="http://icl.com/saxon" xmlns:lxslt="http://xml.apache.org/xslt" xmlns:redirect="http://xml.apache.org/xalan/redirect" xmlns:exsl="http://exslt.org/common" xmlns:doc="http://nwalsh.com/xsl/documentation/1.0" xmlns="http://www.w3.org/1999/xhtml" version="1.0" exclude-result-prefixes="saxon lxslt redirect exsl doc" extension-element-prefixes="saxon redirect lxslt exsl">
 
 <!-- ********************************************************************
-     $Id: chunker.xsl 9147 2011-11-12 00:05:44Z bobstayton $
+     $Id: chunker.xsl 9485 2012-07-10 01:29:54Z bobstayton $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -301,7 +301,7 @@
     <xsl:with-param name="method" select="$method"/>
     <xsl:with-param name="encoding" select="$encoding"/>
     <xsl:with-param name="indent" select="'no'"/>
-    <xsl:with-param name="omit-xml-declaration" select="'no'"/>
+    <xsl:with-param name="omit-xml-declaration" select="'yes'"/>
     <xsl:with-param name="standalone" select="'no'"/>
     <xsl:with-param name="doctype-public"/>
     <xsl:with-param name="doctype-system"/>

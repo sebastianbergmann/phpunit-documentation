@@ -4,7 +4,7 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:stext="http://nwalsh.com/xslt/ext/com.nwalsh.saxon.TextFactory" xmlns:simg="http://nwalsh.com/xslt/ext/com.nwalsh.saxon.ImageIntrinsics" xmlns:ximg="xalan://com.nwalsh.xalan.ImageIntrinsics" xmlns:xtext="xalan://com.nwalsh.xalan.Text" xmlns:lxslt="http://xml.apache.org/xslt" xmlns="http://www.w3.org/1999/xhtml" exclude-result-prefixes="xlink stext xtext lxslt simg ximg" extension-element-prefixes="stext xtext" version="1.0">
 
 <!-- ********************************************************************
-     $Id: graphics.xsl 9367 2012-05-12 23:46:35Z bobstayton $
+     $Id: graphics.xsl 9611 2012-10-13 19:09:11Z stefan $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -39,8 +39,15 @@
   <div>
     <xsl:apply-templates select="." mode="common.html.attributes"/>
     <xsl:call-template name="id.attribute"/>
+    <xsl:call-template name="anchor"/>
     <xsl:apply-templates/>
   </div>
+</xsl:template>
+
+<xsl:template match="screenshot/title">
+  <xsl:call-template name="formal.object.heading">
+    <xsl:with-param name="object" select=".."/>
+  </xsl:call-template>
 </xsl:template>
 
 <xsl:template match="screeninfo">
@@ -979,7 +986,11 @@ valign: <xsl:value-of select="@valign"/></xsl:message>
       </xsl:choose>
     </xsl:attribute>
   </xsl:if>
+
+  <xsl:call-template name="extension.process.image.attributes"/>
 </xsl:template>
+
+<xsl:template name="extension.process.image.attributes"/>
 
 <!-- ==================================================================== -->
 

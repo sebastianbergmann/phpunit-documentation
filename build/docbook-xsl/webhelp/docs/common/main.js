@@ -75,7 +75,7 @@ $(document).ready(function() {
     //$("#doSearch").button(); //add jquery button styling to 'Go' button
 
     // When you click on a link to an anchor, scroll down 
-    // 105 px to cope with the fact that the banner
+    // 120 px to cope with the fact that the banner
     // hides the top 95px or so of the page.
     // This code deals with the problem when 
     // you click on a link from another page. 

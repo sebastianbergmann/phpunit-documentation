@@ -9,7 +9,7 @@
                 extension-element-prefixes="saxon redirect lxslt exsl">
 
 <!-- ********************************************************************
-     $Id: chunker.xsl 9147 2011-11-12 00:05:44Z bobstayton $
+     $Id: chunker.xsl 9656 2012-10-29 18:09:53Z bobstayton $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -60,13 +60,13 @@
     <!-- put Saxon first to work around a bug in libxslt -->
     <xsl:when test="element-available('saxon:output')">
       <!-- Saxon doesn't make the chunks relative -->
-      <xsl:value-of select="concat($chunk.base.dir,$base.name)"/>
+      <xsl:value-of select="concat($base.dir,$base.name)"/>
     </xsl:when>
     <xsl:when test="element-available('exsl:document')">
       <!-- EXSL document does make the chunks relative, I think -->
       <xsl:choose>
         <xsl:when test="count(parent::*) = 0">
-          <xsl:value-of select="concat($chunk.base.dir,$base.name)"/>
+          <xsl:value-of select="concat($base.dir,$base.name)"/>
         </xsl:when>
         <xsl:otherwise>
           <xsl:value-of select="$base.name"/>
@@ -75,7 +75,7 @@
     </xsl:when>
     <xsl:when test="element-available('redirect:write')">
       <!-- Xalan doesn't make the chunks relative -->
-      <xsl:value-of select="concat($chunk.base.dir,$base.name)"/>
+      <xsl:value-of select="concat($base.dir,$base.name)"/>
     </xsl:when>
     <xsl:otherwise>
       <xsl:message terminate="yes">
@@ -438,7 +438,7 @@
     <xsl:with-param name="method" select="$method"/>
     <xsl:with-param name="encoding" select="$encoding"/>
     <xsl:with-param name="indent" select="'no'"/>
-    <xsl:with-param name="omit-xml-declaration" select="'no'"/>
+    <xsl:with-param name="omit-xml-declaration" select="'yes'"/>
     <xsl:with-param name="standalone" select="'no'"/>
     <xsl:with-param name="doctype-public"/>
     <xsl:with-param name="doctype-system"/>

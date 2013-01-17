@@ -1,0 +1,387 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="behaviour-driven-development">
+  <title>振舞駆動開発</title>
+
+  <para>
+    <indexterm><primary>Extreme Programming</primary></indexterm>
+    <indexterm><primary>Test-Driven Development</primary></indexterm>
+
+    <xref linkend="Astels2006" /> において、Dave Astels は次のように述べています。
+  </para>
+
+  <itemizedlist>
+    <listitem>
+      <para>
+        <ulink url="http://en.wikipedia.org/wiki/Extreme_Programming">エクストリーム・プログラミング</ulink>
+        (<ulink url="http://ja.wikipedia.org/wiki/%E3%82%A8%E3%82%AF%E3%82%B9%E3%83%88%E3%83%AA%E3%83%BC%E3%83%A0%E3%83%BB%E3%83%97%E3%83%AD%E3%82%B0%E3%83%A9%E3%83%9F%E3%83%B3%E3%82%B0">日本語</ulink>)
+        は本来、壊れる可能性のあるものはすべてテストするという決まりがあった。
+      </para>
+    </listitem>
+    <listitem>
+      <para>
+        今ではしかし、エクストリーム・プログラミングにおけるテスト手法は
+        <ulink url="http://en.wikipedia.org/wiki/Test-driven_development">テスト駆動開発</ulink>
+        (<ulink url="http://ja.wikipedia.org/wiki/%E3%83%86%E3%82%B9%E3%83%88%E9%A7%86%E5%8B%95%E9%96%8B%E7%99%BA">日本語</ulink>)
+        に進化した (<xref linkend="test-driven-development" /> を参照ください)。
+      </para>
+    </listitem>
+    <listitem>
+      <para>
+        しかし、各種ツールは未だにテストの語彙で考えることを強要し、
+        スペックではなくアサーションで考えさせようとする。
+      </para>
+    </listitem>
+  </itemizedlist>
+
+  <blockquote>
+    <attribution>Dave Astels</attribution>
+    <title>So if it's not about testing, what's it about? (テストじゃないっていうけど、じゃあいったい何なの？)</title>
+    <para>
+      It's about figuring out what you are trying to do before you run off
+      half-cocked to try to do it. You write a specification that nails down a
+      small aspect of behaviour in a concise, unambiguous, and executable form.
+      It's that simple. Does that mean you write tests? No. It means you write
+      specifications of what your code will have to do. It means you specify the
+      behaviour of your code ahead of time. But not far ahead of time. In fact,
+      just before you write the code is best because that's when you have as
+      much information at hand as you will up to that point. Like well done TDD,
+      you work in tiny increments... specifying one small aspect of behaviour at
+      a time, then implementing it.
+    </para>
+    <para>
+      - あなたがこれから何をしようとしているのかを事前にきちんと把握することで、
+      準備不足のまま逃げ出してしまうようなはめにならないようにするものです。
+      あなたが書くスペックは、ある振る舞いのちょっとした側面を
+      簡潔で明確かつ実行可能な形式で表したものとなります。
+      ただそれだけの簡単なこと。
+      え？それってテストじゃないのかって？
+      そう、テストではないのです。
+      あなたは「そのコードがどう動くべきか」という仕様 (スペック)
+      を書くのです。実際のコードを書く前にコードの振る舞いを定義することになります。
+      とはいえ、それはコードを書くずっと前にということではありません。
+      実際のところは、コードを書く直前にスペックを書くのがよいでしょう。
+      コードを書く際に利用する情報とスペックを書く際に利用する情報がほぼ同じになるからです。
+      TDD のときと同様、小さい作業の積み重ねで進めていきます。
+      一度に定義する振る舞いは小さなものにとどめ、
+      その単位で実装を進めていくのです。
+    </para>
+    <para>
+      When you realize that it's all about specifying behaviour and not writing
+      tests, your point of view shifts. Suddenly the idea of having a Test class
+      for each of your production classes is ridiculously limiting. And the
+      thought of testing each of your methods with its own test method (in a 1-1
+      relationship) will be laughable.
+    </para>
+    <para>
+      - 仕様を定義することとテストをかくことの違いを理解すれば、ものの見方が変わります。
+      実装クラスのひとつひとつに対応するテストクラスを作成するなどという考え方が
+      おそろしく窮屈なものに見えてくることでしょう。
+      個々のメソッドにそれぞれテストメソッドを (1 対 1 対応で)
+      用意するなんてばかばかしくなってきます。
+    </para>
+  </blockquote>
+
+  <para>
+    <indexterm><primary>Behaviour-Driven Development</primary></indexterm>
+    <indexterm><primary>Domain-Driven Design</primary></indexterm>
+
+    <ulink url="http://en.wikipedia.org/wiki/Behavior_driven_development">振舞駆動開発</ulink>
+    (<ulink url="http://ja.wikipedia.org/wiki/%E3%83%93%E3%83%98%E3%82%A4%E3%83%93%E3%82%A2%E9%A7%86%E5%8B%95%E9%96%8B%E7%99%BA">日本語</ulink>)
+    が注目するのは、ソフトウェア開発の際に使用する言語やインタラクションです。
+    振舞駆動開発では、よく目にする
+    <ulink url="http://en.wikipedia.org/wiki/Domain_driven_design">ドメイン駆動設計</ulink>
+    の語彙を用いてコードの目的や利点を記述します。
+    これにより、開発者が技術的な詳細よりも「なぜそのコードを書かなければいけないのか」
+    に注目できるようになります。そして、
+    コードを書くときに使う言語とドメインエキスパートが話す用語との間の翻訳の手間を最小限にできます。
+  </para>
+
+  <para>
+    <indexterm><primary><literal>PHPUnit_Extensions_Story_TestCase</literal></primary></indexterm>
+
+    <literal>PHPUnit_Extensions_Story_TestCase</literal>
+    クラスはストーリーフレームワークを提供します。
+    これは、振舞駆動開発のための
+    <ulink url="http://en.wikipedia.org/wiki/Domain-specific_programming_language">ドメイン特化言語</ulink>
+    (<ulink url="http://ja.wikipedia.org/wiki/%E3%83%89%E3%83%A1%E3%82%A4%E3%83%B3%E5%9B%BA%E6%9C%89%E8%A8%80%E8%AA%9E">日本語</ulink>)
+    の定義を支援するものです。次のようにインストールします。
+  </para>
+
+  <screen><userinput>pear install phpunit/PHPUnit_Story</userinput></screen>
+
+  <para>
+    <emphasis>シナリオ (scenario)</emphasis> の中において、
+    <literal>given()</literal> や <literal>when()</literal> そして
+    <literal>then()</literal> が <emphasis>ステップ (step)</emphasis>
+    を表します。
+    <literal>and()</literal> は直前のステップと同じ種類のものを表します。
+    次のメソッドが
+    <literal>PHPUnit_Extensions_Story_TestCase</literal>
+    で <literal>abstract</literal> として宣言されており、
+    これらを実装する必要があります。
+  </para>
+
+  <itemizedlist>
+    <listitem>
+      <para><literal>runGiven(&amp;$world, $action, $arguments)</literal></para>
+      <para>...</para>
+    </listitem>
+
+    <listitem>
+      <para><literal>runWhen(&amp;$world, $action, $arguments)</literal></para>
+      <para>...</para>
+    </listitem>
+
+    <listitem>
+      <para><literal>runThen(&amp;$world, $action, $arguments)</literal></para>
+      <para>...</para>
+    </listitem>
+  </itemizedlist>
+
+  <section id="behaviour-driven-development.bowlinggame-example">
+    <title>ボウリングゲームの例</title>
+
+    <para>
+      この節では、ボウリングゲームのスコアを計算するクラスの例を見てみましょう。
+      ボウリングのルールは次のとおりです。
+    </para>
+
+    <itemizedlist>
+      <listitem>
+        <para>ひとつのゲームは 10 フレームで構成される</para>
+      </listitem>
+      <listitem>
+        <para>10 本のピンを倒すため、各フレームでプレイヤーは 2 回投げることができる</para>
+      </listitem>
+      <listitem>
+        <para>各フレームのスコアは倒したピンの総数で、ストライクやスペアの際にはさらにボーナスが追加される</para>
+      </listitem>
+      <listitem>
+        <para>スペアとは、2 回投げて 10 本のピンをすべて倒すこと</para>
+        <para>その場合のボーナスは、次に投げたときに倒したピンの数</para>
+      </listitem>
+      <listitem>
+        <para>ストライクとは、1 投目で 10 本のピンをすべて倒すこと</para>
+        <para>その場合のボーナスは、次の 2 投で倒したピンの数</para>
+      </listitem>
+    </itemizedlist>
+
+    <para>
+      <xref linkend="behaviour-driven-development.bowlinggame-example.examples.BowlingGameSpec.php" />
+      は、上にまとめたルールを
+      <literal>PHPUnit_Extensions_Story_TestCase</literal>
+      でスペックシナリオとして書き下ろしたものです。
+    </para>
+
+    <example id="behaviour-driven-development.bowlinggame-example.examples.BowlingGameSpec.php">
+      <title>BowlingGame クラスのスペック</title>
+      <programlisting><![CDATA[<?php
+require_once 'PHPUnit/Extensions/Story/TestCase.php';
+require_once 'BowlingGame.php';
+
+class BowlingGameSpec extends PHPUnit_Extensions_Story_TestCase
+{
+    /**
+     * @scenario
+     */
+    public function scoreForGutterGameIs0()
+    {
+        $this->given('New game')
+             ->then('Score should be', 0);
+    }
+
+    /**
+     * @scenario
+     */
+    public function scoreForAllOnesIs20()
+    {
+        $this->given('New game')
+             ->when('Player rolls', 1)
+             ->and('Player rolls', 1)
+             ->and('Player rolls', 1)
+             ->and('Player rolls', 1)
+             ->and('Player rolls', 1)
+             ->and('Player rolls', 1)
+             ->and('Player rolls', 1)
+             ->and('Player rolls', 1)
+             ->and('Player rolls', 1)
+             ->and('Player rolls', 1)
+             ->and('Player rolls', 1)
+             ->and('Player rolls', 1)
+             ->and('Player rolls', 1)
+             ->and('Player rolls', 1)
+             ->and('Player rolls', 1)
+             ->and('Player rolls', 1)
+             ->and('Player rolls', 1)
+             ->and('Player rolls', 1)
+             ->and('Player rolls', 1)
+             ->and('Player rolls', 1)
+             ->then('Score should be', 20);
+    }
+
+    /**
+     * @scenario
+     */
+    public function scoreForOneSpareAnd3Is16()
+    {
+        $this->given('New game')
+             ->when('Player rolls', 5)
+             ->and('Player rolls', 5)
+             ->and('Player rolls', 3)
+             ->then('Score should be', 16);
+    }
+
+    /**
+     * @scenario
+     */
+    public function scoreForOneStrikeAnd3And4Is24()
+    {
+        $this->given('New game')
+             ->when('Player rolls', 10)
+             ->and('Player rolls', 3)
+             ->and('Player rolls', 4)
+             ->then('Score should be', 24);
+    }
+
+    /**
+     * @scenario
+     */
+    public function scoreForPerfectGameIs300()
+    {
+        $this->given('New game')
+             ->when('Player rolls', 10)
+             ->and('Player rolls', 10)
+             ->and('Player rolls', 10)
+             ->and('Player rolls', 10)
+             ->and('Player rolls', 10)
+             ->and('Player rolls', 10)
+             ->and('Player rolls', 10)
+             ->and('Player rolls', 10)
+             ->and('Player rolls', 10)
+             ->and('Player rolls', 10)
+             ->and('Player rolls', 10)
+             ->and('Player rolls', 10)
+             ->then('Score should be', 300);
+    }
+
+    public function runGiven(&$world, $action, $arguments)
+    {
+        switch($action) {
+            case 'New game': {
+                $world['game']  = new BowlingGame;
+                $world['rolls'] = 0;
+            }
+            break;
+
+            default: {
+                return $this->notImplemented($action);
+            }
+        }
+    }
+
+    public function runWhen(&$world, $action, $arguments)
+    {
+        switch($action) {
+            case 'Player rolls': {
+                $world['game']->roll($arguments[0]);
+                $world['rolls']++;
+            }
+            break;
+
+            default: {
+                return $this->notImplemented($action);
+            }
+        }
+    }
+
+    public function runThen(&$world, $action, $arguments)
+    {
+        switch($action) {
+            case 'Score should be': {
+                for ($i = $world['rolls']; $i < 20; $i++) {
+                    $world['game']->roll(0);
+                }
+
+                $this->assertEquals($arguments[0], $world['game']->score());
+            }
+            break;
+
+            default: {
+                return $this->notImplemented($action);
+            }
+        }
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit --printer PHPUnit_Extensions_Story_ResultPrinter_Text BowlingGameSpec</userinput>
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+BowlingGameSpec
+ [x] Score for gutter game is 0
+
+   Given New game 
+    Then Score should be 0
+
+ [x] Score for all ones is 20
+
+   Given New game 
+    When Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+    Then Score should be 20
+
+ [x] Score for one spare and 3 is 16
+
+   Given New game 
+    When Player rolls 5
+     and Player rolls 5
+     and Player rolls 3
+    Then Score should be 16
+
+ [x] Score for one strike and 3 and 4 is 24
+
+   Given New game 
+    When Player rolls 10
+     and Player rolls 3
+     and Player rolls 4
+    Then Score should be 24
+
+ [x] Score for perfect game is 300
+
+   Given New game 
+    When Player rolls 10
+     and Player rolls 10
+     and Player rolls 10
+     and Player rolls 10
+     and Player rolls 10
+     and Player rolls 10
+     and Player rolls 10
+     and Player rolls 10
+     and Player rolls 10
+     and Player rolls 10
+     and Player rolls 10
+     and Player rolls 10
+    Then Score should be 300
+
+Scenarios: 5, Failed: 0, Skipped: 0, Incomplete: 0.</screen>
+    </example>
+  </section>
+</chapter>

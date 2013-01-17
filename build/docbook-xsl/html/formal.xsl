@@ -3,7 +3,7 @@
                 version='1.0'>
 
 <!-- ********************************************************************
-     $Id: formal.xsl 9297 2012-04-22 03:56:16Z bobstayton $
+     $Id: formal.xsl 9501 2012-07-16 00:14:50Z bobstayton $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -206,13 +206,15 @@
     </xsl:when>
     <xsl:otherwise>
       <!-- do not use xsl:copy because of XHTML's needs -->
-      <xsl:element name="table" namespace="">
-        <xsl:apply-templates select="@*" mode="htmlTableAtt"/>
-        <xsl:attribute name="id">
-          <xsl:call-template name="object.id"/>
-        </xsl:attribute>
-        <xsl:call-template name="htmlTable"/>
-      </xsl:element>
+      <div>
+        <xsl:call-template name="generate.class.attribute"/>
+        <xsl:call-template name="id.attribute"/>
+        <xsl:call-template name="anchor"/>
+        <xsl:element name="table" namespace="">
+          <xsl:apply-templates select="@*" mode="htmlTableAtt"/>
+          <xsl:call-template name="htmlTable"/>
+        </xsl:element>
+      </div>
     </xsl:otherwise>
   </xsl:choose>
 </xsl:template>
@@ -430,13 +432,15 @@
       <xsl:call-template name="informal.object"/>
     </xsl:when>
     <xsl:otherwise>
-      <xsl:element name="table" namespace="">
-        <xsl:apply-templates select="@*" mode="htmlTableAtt"/>
-        <xsl:attribute name="id">
-          <xsl:call-template name="object.id"/>
-        </xsl:attribute>
-        <xsl:call-template name="htmlTable"/>
-      </xsl:element>
+      <div>
+        <xsl:call-template name="generate.class.attribute"/>
+        <xsl:call-template name="id.attribute"/>
+        <xsl:call-template name="anchor"/>
+        <xsl:element name="table" namespace="">
+          <xsl:apply-templates select="@*" mode="htmlTableAtt"/>
+          <xsl:call-template name="htmlTable"/>
+        </xsl:element>
+      </div>
     </xsl:otherwise>
   </xsl:choose>
 </xsl:template>

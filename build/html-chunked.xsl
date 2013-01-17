@@ -71,7 +71,7 @@
       <l:gentext key="Index" text=""/>
       <l:gentext key="index" text=""/>
     </l:l10n>
-	 <l:l10n language="br">
+	 <l:l10n language="pt_br">
       <l:context name="title">
         <l:template name="example" text="Exemplo %n: %t"/>
       </l:context>

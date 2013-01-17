@@ -4,7 +4,7 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns="http://www.w3.org/1999/xhtml" version="1.0">
 
 <!-- ********************************************************************
-     $Id: component.xsl 9356 2012-05-12 23:33:15Z bobstayton $
+     $Id: component.xsl 9500 2012-07-15 23:24:21Z bobstayton $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -43,7 +43,6 @@
 
   <xsl:element name="h{$level+1}" namespace="http://www.w3.org/1999/xhtml">
     <xsl:attribute name="class">title</xsl:attribute>
-    <xsl:call-template name="id.attribute"/>
     <xsl:call-template name="anchor">
       <xsl:with-param name="node" select="$node"/>
       <xsl:with-param name="conditional" select="0"/>

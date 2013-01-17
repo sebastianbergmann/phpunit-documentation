@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="test-driven-development">
+  <title>Test-Driven Development</title>
+
+  <para>
+    <indexterm><primary>Design-by-Contract</primary></indexterm>
+    <indexterm><primary>Extreme Programming</primary></indexterm>
+    <indexterm><primary>Test-Driven Development</primary></indexterm>
+    <indexterm><primary>Test-First Programming</primary></indexterm>
+    <indexterm><primary>Unit Test</primary></indexterm>
+
+    Unit Tests are a vital part of several software development practices
+    and processes such as Test-First Programming,
+    <ulink url="http://en.wikipedia.org/wiki/Extreme_Programming">Extreme Programming</ulink>,
+    and <ulink url="http://en.wikipedia.org/wiki/Test-driven_development">Test-Driven Development</ulink>.
+    They also allow for <ulink url="http://en.wikipedia.org/wiki/Design_by_Contract">Design-by-Contract</ulink>
+    in programming languages that do not support this methodology with
+    language constructs.
+  </para>
+
+  <para>
+    You can use PHPUnit to write tests once you are done programming.
+    However, the sooner a test is written after an error has been introduced,
+    the more valuable the test is. So instead of writing tests months after
+    the code is "complete", we can write tests days or hours or minutes after
+    the possible introduction of a defect. Why stop there? Why not write the
+    tests a little before the possible introduction of a defect?
+  </para>
+
+  <para>
+    Test-First Programming, which is part of Extreme Programming and
+    Test-Driven Development, builds upon this idea and takes it to the
+    extreme. With today's computational power, we have the opportunity to
+    run thousands of tests thousands of times per day. We can use the
+    feedback from all of these tests to program in small steps, each of
+    which carries with it the assurance of a new automated test in addition
+    to all the tests that have come before. The tests are like pitons,
+    assuring you that, no matter what happens, once you have made progress
+    you can only fall so far.
+  </para>
+
+  <para>
+    When you first write the test it cannot possibly run, because you are
+    calling on objects and methods that have not been programmed yet. This
+    might feel strange at first, but after a while you will get used to it.
+    Think of Test-First Programming as a pragmatic approach to following the
+    object-oriented programming principle of programming to an interface
+    instead of programming to an implementation: while you are writing the
+    test you are thinking about the interface of the object you are
+    testing -- what does this object look like from the outside. When you
+    go to make the test really work, you are thinking about pure
+    implementation. The interface is fixed by the failing test.
+  </para>
+
+  <blockquote>
+    <attribution>Dan North</attribution>
+    <para>
+      The point of <ulink url="http://en.wikipedia.org/wiki/Test-driven_development">Test-Driven Development</ulink>
+      is to drive out the functionality the software actually needs, rather
+      than what the programmer thinks it probably ought to have. The way it
+      does this seems at first counterintuitive, if not downright silly, but
+      it not only makes sense, it also quickly becomes a natural and elegant
+      way to develop software.
+    </para>
+  </blockquote>
+
+  <para>
+    What follows is necessarily an abbreviated introduction to Test-Driven
+    Development. You can explore the topic further in other books, such as
+    <emphasis>Test-Driven Development</emphasis> <xref linkend="Beck2002" />
+    by Kent Beck or Dave Astels' <emphasis>A Practical Guide to Test-Driven
+    Development</emphasis> <xref linkend="Astels2003" />.
+  </para>
+
+  <section id="test-driven-development.bankaccount-example">
+    <title>BankAccount Example</title>
+
+    <para>
+      In this section, we will look at the example of a class that represents
+      a bank account. The contract for the <literal>BankAccount</literal>
+      class not only requires methods to get and set the bank account's
+      balance, as well as methods to deposit and withdraw money. It also
+      specifies the following two conditions that must be ensured:
+    </para>
+
+    <itemizedlist>
+      <listitem>
+        <para>The bank account's initial balance must be zero.</para>
+      </listitem>
+
+      <listitem>
+        <para>The bank account's balance cannot become negative.</para>
+      </listitem>
+    </itemizedlist>
+
+    <para>
+      We write the tests for the <literal>BankAccount</literal> class before we
+      write the code for the class itself. We use the contract conditions as the
+      basis for the tests and name the test methods accordingly, as shown in
+      <xref linkend="test-driven-development.bankaccount-example.examples.BankAccountTest.php" />.
+    </para>
+
+    <example id="test-driven-development.bankaccount-example.examples.BankAccountTest.php">
+      <title>Tests for the BankAccount class</title>
+      <programlisting><![CDATA[<?php
+require_once 'BankAccount.php';
+
+class BankAccountTest extends PHPUnit_Framework_TestCase
+{
+    protected $ba;
+
+    protected function setUp()
+    {
+        $this->ba = new BankAccount;
+    }
+
+    public function testBalanceIsInitiallyZero()
+    {
+        $this->assertEquals(0, $this->ba->getBalance());
+    }
+
+    public function testBalanceCannotBecomeNegative()
+    {
+        try {
+            $this->ba->withdrawMoney(1);
+        }
+
+        catch (BankAccountException $e) {
+            $this->assertEquals(0, $this->ba->getBalance());
+
+            return;
+        }
+
+        $this->fail();
+    }
+
+    public function testBalanceCannotBecomeNegative2()
+    {
+        try {
+            $this->ba->depositMoney(-1);
+        }
+
+        catch (BankAccountException $e) {
+            $this->assertEquals(0, $this->ba->getBalance());
+
+            return;
+        }
+
+        $this->fail();
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      We now write the minimal amount of code needed for the first test,
+      <literal>testBalanceIsInitiallyZero()</literal>, to pass. In our
+      example this amounts to implementing the <literal>getBalance()</literal>
+      method of the <literal>BankAccount</literal> class, as shown in
+      <xref linkend="test-driven-development.bankaccount-example.examples.BankAccount.php" />.
+    </para>
+
+    <example id="test-driven-development.bankaccount-example.examples.BankAccount.php">
+      <title>Code needed for the testBalanceIsInitiallyZero() test to pass</title>
+      <programlisting><![CDATA[<?php
+class BankAccount
+{
+    protected $balance = 0;
+
+    public function getBalance()
+    {
+        return $this->balance;
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      The test for the first contract condition now passes, but the tests for
+      the second contract condition fail because we have yet to implement the
+      methods that these tests call.
+    </para>
+
+    <screen><userinput>phpunit BankAccountTest</userinput>
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+.
+Fatal error: Call to undefined method BankAccount::withdrawMoney()</screen>
+
+    <para>
+      For the tests that ensure the second contract condition to pass, we now
+      need to implement the <literal>withdrawMoney()</literal>,
+      <literal>depositMoney()</literal>, and <literal>setBalance()</literal>
+      methods, as shown in
+      <xref linkend="test-driven-development.bankaccount-example.examples.BankAccount2.php" />.
+      These methods are written in a such a way that they raise an
+      <literal>BankAccountException</literal> when they are called with
+      illegal values that would violate the contract conditions.
+    </para>
+
+    <example id="test-driven-development.bankaccount-example.examples.BankAccount2.php">
+      <title>The complete BankAccount class</title>
+      <programlisting><![CDATA[<?php
+class BankAccount
+{
+    protected $balance = 0;
+
+    public function getBalance()
+    {
+        return $this->balance;
+    }
+
+    protected function setBalance($balance)
+    {
+        if ($balance >= 0) {
+            $this->balance = $balance;
+        } else {
+            throw new BankAccountException;
+        }
+    }
+
+    public function depositMoney($balance)
+    {
+        $this->setBalance($this->getBalance() + $balance);
+
+        return $this->getBalance();
+    }
+
+    public function withdrawMoney($balance)
+    {
+        $this->setBalance($this->getBalance() - $balance);
+
+        return $this->getBalance();
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      The tests that ensure the second contract condition now pass, too:
+    </para>
+
+    <screen><userinput>phpunit BankAccountTest</userinput>
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+...
+
+Time: 0 seconds
+
+
+OK (3 tests, 3 assertions)</screen>
+
+    <para>
+      <indexterm><primary>PHPUnit_Framework_Assert</primary></indexterm>
+
+      Alternatively, you can use the static assertion methods provided by the
+      <literal>PHPUnit_Framework_Assert</literal> class to write the contract
+      conditions as design-by-contract style assertions into your code, as
+      shown in <xref linkend="test-driven-development.bankaccount-example.examples.BankAccount3.php" />.
+      When one of these assertions fails, an
+      <literal>PHPUnit_Framework_AssertionFailedError</literal> exception
+      will be raised. With this approach, you write less code for the contract
+      condition checks and the tests become more readable. However, you add a
+      runtime dependency on PHPUnit to your project.
+    </para>
+
+    <example id="test-driven-development.bankaccount-example.examples.BankAccount3.php">
+      <title>The BankAccount class with Design-by-Contract assertions</title>
+      <programlisting><![CDATA[<?php
+class BankAccount
+{
+    private $balance = 0;
+
+    public function getBalance()
+    {
+        return $this->balance;
+    }
+
+    protected function setBalance($balance)
+    {
+        PHPUnit_Framework_Assert::assertTrue($balance >= 0);
+
+        $this->balance = $balance;
+    }
+
+    public function depositMoney($amount)
+    {
+        PHPUnit_Framework_Assert::assertTrue($amount >= 0);
+
+        $this->setBalance($this->getBalance() + $amount);
+
+        return $this->getBalance();
+    }
+
+    public function withdrawMoney($amount)
+    {
+        PHPUnit_Framework_Assert::assertTrue($amount >= 0);
+        PHPUnit_Framework_Assert::assertTrue($this->balance >= $amount);
+
+        $this->setBalance($this->getBalance() - $amount);
+
+        return $this->getBalance();
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      By writing the contract conditions into the tests, we have used
+      Design-by-Contract to program the <literal>BankAccount</literal> class.
+      We then wrote, following the Test-First Programming approach, the
+      code needed to make the tests pass. However, we forgot to write
+      tests that call <literal>setBalance()</literal>,
+      <literal>depositMoney()</literal>, and <literal>withdrawMoney()</literal>
+      with legal values that do not violate the contract conditions.
+      We need a means to test our tests or at least to measure their quality.
+      Such a means is the analysis of code-coverage information that we will
+      discuss next.
+    </para>
+  </section>
+</chapter>

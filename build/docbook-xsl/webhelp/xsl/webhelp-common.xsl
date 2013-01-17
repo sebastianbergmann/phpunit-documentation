@@ -6,7 +6,7 @@
         version="1.0" xmlns="http://www.w3.org/1999/xhtml"
 	exclude-result-prefixes="exsl ng db">
 
-<!-- ********************************************************************
+    <!-- ********************************************************************
      $Id$
      ******************************************************************** 
 
@@ -27,10 +27,11 @@
     </xsl:param>
 
     <!-- Set some reasonable defaults for webhelp output -->
+    <xsl:param name="webhelp.common.dir">common/</xsl:param>
     <xsl:param name="chunker.output.indent">yes</xsl:param>
     <xsl:param name="navig.showtitles">0</xsl:param>
     <xsl:param name="manifest.in.base.dir" select="0"/>
-    <xsl:param name="base.dir" select="concat($webhelp.base.dir,'/content/')"/>
+    <xsl:param name="base.dir" select="concat($webhelp.base.dir,'/')"/>
     <xsl:param name="suppress.navigation">0</xsl:param>
     <!-- Generate the end-of-the-book index -->
     <xsl:param name="generate.index" select="1"/>
@@ -84,27 +85,43 @@ set       toc,title
 	Currently, only around 10 translations needed. -->
     <!-- Moved to files under 'gentext/locale/', search for WebHelp -->
     
+    <xsl:template name="user.head.title">
+      <xsl:param name="node" select="."/>
+      <xsl:param name="title">
+	<xsl:apply-templates select="$node" mode="object.title.markup.textonly"/>
+      </xsl:param>
+      <xsl:param name="document-title">
+	<xsl:apply-templates select="/*" mode="object.title.markup.textonly"/>
+      </xsl:param>
+
+      <title>
+	        <xsl:copy-of select="$title"/> - <xsl:if test="parent::*"> - <xsl:copy-of select="$document-title"/></xsl:if>
+       </title>
+        
+    </xsl:template>
 
   <xsl:template name="system.head.content">
   <xsl:param name="node" select="."/>
 <xsl:text>
 </xsl:text>
-<!-- 
-This avoids two problems in IE 8. We should someday figure out why this is happening and tweak the JavaScript so this <meta/> tag is not necessary:
-1. When you perform a search and click the Toggle Highlight button, IE 8 adds a line break before the highlighted word.
-2. If you click the show/hide toc button, the tab crashes.
-These problems go away when you add this IE=7 mode meta tag.
+       <!-- 
+The meta tag tells the IE rendering engine that it should use the latest, or edge, version of the IE rendering environment;It prevents IE from entring compatibility mode.
  -->
-	<meta http-equiv="X-UA-Compatible" content="IE=7" />
-<xsl:text>
+       <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <xsl:text>
 </xsl:text>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-<xsl:text>
+        <xsl:text>
 </xsl:text>
-  </xsl:template>
+    </xsl:template>
 
     <!-- HTML <head> section customizations -->	
     <xsl:template name="user.head.content">
+        <xsl:param name="title">
+                <xsl:apply-templates select="." mode="object.title.markup.textonly"/>
+        </xsl:param>
+         <meta name="Section-title" content="{$title}"/>   
+
         <!--  <xsl:message>
             webhelp.tree.cookie.id = <xsl:value-of select="$webhelp.tree.cookie.id"/> +++ <xsl:value-of select="count(//node())"/>
             $webhelp.indexer.language = <xsl:value-of select="$webhelp.indexer.language"/> +++ <xsl:value-of select="count(//node())"/>
@@ -139,15 +156,27 @@ These problems go away when you add this IE=7 mode meta tag.
 
 <!-- kasunbg: Order is important between the in-html-file css and the linked css files. Some css declarations in jquery-ui-1.8.2.custom.css are over-ridden. 
      If that's a concern, just remove the additional css contents inside these default jquery css files. I thought of keeping them intact for easier maintenance! -->
-	<link rel="shortcut icon" href="../favicon.ico" type="image/x-icon"/>
+	<link rel="shortcut icon" href="favicon.ico" type="image/x-icon"/>
         <link rel="stylesheet" type="text/css" href="{$webhelp.common.dir}css/positioning.css"/>
         <link rel="stylesheet" type="text/css" href="{$webhelp.common.dir}jquery/theme-redmond/jquery-ui-1.8.2.custom.css"/>
         <link rel="stylesheet" type="text/css" href="{$webhelp.common.dir}jquery/treeview/jquery.treeview.css"/>
 
         <style type="text/css">
-noscript{
-      font-weight:bold;
+
+#noscript{
+    font-weight:bold;
+	background-color: #55AA55;
+    font-weight: bold;
+    height: 25spx;
+    z-index: 3000;
+	top:0px;
+	width:100%;
+	position: relative;
+	border-bottom: solid 5px black;
+	text-align:center;
+	color: white;
 }
+
 input {
     margin-bottom: 5px;
     margin-top: 2px;
@@ -216,7 +245,33 @@ border: none; background: none; font-weight: none; color: none; }
 .ui-tabs { padding: .2em;}
 .ui-tabs .ui-tabs-nav li { top: 0px; margin: -2px 0 1px; text-transform: uppercase; font-size: 10.5px;}
 .ui-tabs .ui-tabs-nav li a { padding: .25em 2em .25em 1em; margin: .5em; text-shadow: 0 1px 0 rgba(255,255,255,.5); }
-        </style>
+       /**
+	 *	Basic Layout Theme
+	 * 
+	 *	This theme uses the default layout class-names for all classes
+	 *	Add any 'custom class-names', from options: paneClass, resizerClass, togglerClass
+	 */
+
+	.ui-layout-pane { /* all 'panes' */ 
+		background: #FFF; 
+		border: 1px solid #BBB; 
+		padding: 05x; 
+		overflow: auto;
+	} 
+        
+	.ui-layout-resizer { /* all 'resizer-bars' */ 
+		background: #DDD; 
+                top:100px
+	} 
+
+	.ui-layout-toggler { /* all 'toggler-buttons' */ 
+		background: #AAA; 
+	} 
+    
+       </style>
+        <xsl:comment><xsl:text>[if IE]>
+	&lt;link rel="stylesheet" type="text/css" href="../common/css/ie.css"/>
+	&lt;![endif]</xsl:text></xsl:comment>
 
 	<!-- 
 	     browserDetect is an Oxygen addition to warn the user if they're using chrome from the file system.
@@ -225,10 +280,10 @@ border: none; background: none; font-weight: none; color: none; }
 	<script type="text/javascript" src="{$webhelp.common.dir}browserDetect.js">
             <xsl:comment> </xsl:comment>
 	</script>
-        <script type="text/javascript" src="{$webhelp.common.dir}jquery/jquery-1.4.2.min.js">
+        <script type="text/javascript" src="{$webhelp.common.dir}jquery/jquery-1.7.2.min.js">
             <xsl:comment> </xsl:comment>
         </script>
-        <script type="text/javascript" src="{$webhelp.common.dir}jquery/jquery-ui-1.8.2.custom.min.js">
+        <script type="text/javascript" src="{$webhelp.common.dir}jquery/jquery.ui.all.js">
             <xsl:comment> </xsl:comment>
         </script>
         <script type="text/javascript" src="{$webhelp.common.dir}jquery/jquery.cookie.js">
@@ -237,13 +292,15 @@ border: none; background: none; font-weight: none; color: none; }
         <script type="text/javascript" src="{$webhelp.common.dir}jquery/treeview/jquery.treeview.min.js">
             <xsl:comment> </xsl:comment>
         </script>
-
-	<xsl:if test="$webhelp.include.search.tab = 'true'">
-	  <!--Scripts/css stylesheets for Search-->
-	  <!-- TODO: Why THREE files? There's absolutely no need for having separate files. 
-		These should have been identified at the optimization phase! --> 
-	  <script type="text/javascript" src="search/l10n.js">
-	    <xsl:comment></xsl:comment>
+         <script type="text/javascript" src="{$webhelp.common.dir}jquery/layout/jquery.layout.js">
+            <xsl:comment> </xsl:comment>
+        </script>
+        <xsl:if test="$webhelp.include.search.tab = 'true'">
+            <!--Scripts/css stylesheets for Search-->
+            <!-- TODO: Why THREE files? There's absolutely no need for having separate files. 
+		These should have been identified at the optimization phase! -->
+            <script type="text/javascript" src="search/l10n.js">
+	    <xsl:comment/>
 	  </script>
       <script type="text/javascript" src="search/htmlFileInfoList.js">
 	      <xsl:comment> </xsl:comment>
@@ -404,7 +461,6 @@ border: none; background: none; font-weight: none; color: none; }
 	  </xsl:otherwise>
 	</xsl:choose>
 	
-	<xsl:call-template name="index.html"/>
 
 	<xsl:call-template name="l10n.js"/>
     </xsl:template>
@@ -441,6 +497,17 @@ border: none; background: none; font-weight: none; color: none; }
             </xsl:call-template>
 
             <body>
+                <noscript>
+                    <div id="noscript">
+
+                        <xsl:call-template name="gentext.template">
+                            <xsl:with-param name="name" select="'txt_browser_not_supported'"/>
+                            <xsl:with-param name="context" select="'webhelp'"/>
+                        </xsl:call-template>
+
+                    </div>
+                </noscript>
+
                 <xsl:call-template name="body.attributes"/>
 
                 <xsl:call-template name="user.header.navigation">
@@ -450,12 +517,7 @@ border: none; background: none; font-weight: none; color: none; }
                 </xsl:call-template>
 
                 <div id="content">
-                     <noscript>
-		       <xsl:call-template name="gentext.template">
-			 <xsl:with-param name="name" select="'txt_browser_not_supported'"/>
-			 <xsl:with-param name="context" select="'webhelp'"/>
-		       </xsl:call-template>
-		     </noscript>
+
                     <xsl:call-template name="user.header.content"/>
 
                     <xsl:copy-of select="$content"/>
@@ -521,7 +583,7 @@ border: none; background: none; font-weight: none; color: none; }
                 <table class="navLinks">
                     <tr>
                         <td>
-                            <a id="showHideButton" href="javascript:showHideToc();"
+                            <a id="showHideButton" href="#" onclick="myLayout.toggle('west')"
                                 class="pointLeft" tabindex="5" title="Hide TOC tree">Sidebar
                             </a>
                         </td>
@@ -585,13 +647,7 @@ border: none; background: none; font-weight: none; color: none; }
     </xsl:template>
 
     <xsl:template name="webhelpheader.logo">
-	<a target="_blank">
-	    <xsl:attribute name="href">
-		<xsl:choose>
-		    <xsl:when test="$branding = 'docbook'">http://docbook.org/</xsl:when>
-		    <xsl:otherwise>#</xsl:otherwise>
-		</xsl:choose>
-	    </xsl:attribute>
+	<a href="index.html">
 	<img style='margin-right: 2px; height: 59px; padding-right: 25px; padding-top: 8px' align="right"
 	    src='{$webhelp.common.dir}images/logo.png' alt="{$brandname} Documentation"/>
 	</a>
@@ -701,24 +757,23 @@ border: none; background: none; font-weight: none; color: none; }
                                 <div id="searchDiv">
                                     <div id="search">
                                         <form onsubmit="Verifie(searchForm);return false"
-                                              name="searchForm"
-                                              class="searchForm">
-                                            <fieldset class="searchFieldSet">
-                                                <legend>
-                                                    <xsl:call-template name="gentext.template">
+                                            name="searchForm" class="searchForm">
+                                            <div>
+                                                
+<!--                                                    <xsl:call-template name="gentext.template">
                                                         <xsl:with-param name="name" select="'Search'"/>
 							<xsl:with-param name="context" select="'webhelp'"/>
-                                                    </xsl:call-template>
-                                                </legend>
-                                                <center>
-                                                    <input id="textToSearch" name="textToSearch" type="search" 
+                                                    </xsl:call-template>-->
+                                                
+                                                
+                                                    <input id="textToSearch" name="textToSearch" type="search" placeholder="Search"
                                                            class="searchText" tabindex="1"/>
                                                     <xsl:text disable-output-escaping="yes"> <![CDATA[&nbsp;]]> </xsl:text>
                                                     <input onclick="Verifie(searchForm)" type="button"
                                                            class="searchButton"
                                                            value="Go" id="doSearch" tabindex="1"/>
-                                                </center>
-                                            </fieldset>
+                                                
+                                            </div>
                                         </form>
                                     </div>
                                     <div id="searchResults">
@@ -797,6 +852,9 @@ border: none; background: none; font-weight: none; color: none; }
 
     <xsl:template name="user.footer.content">
         <script type="text/javascript" src="{$webhelp.common.dir}main.js">
+            <xsl:comment> </xsl:comment>
+        </script>
+        <script type="text/javascript" src="{$webhelp.common.dir}splitterInit.js">
             <xsl:comment> </xsl:comment>
         </script>
     </xsl:template>

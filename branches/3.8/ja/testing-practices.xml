@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="testing-practices">
+  <title>テストの進め方</title>
+
+  <blockquote>
+    <attribution>Erich Gamma</attribution>
+    <para>
+      You can always write more tests. However, you will quickly find that
+      only a fraction of the tests you can imagine are actually useful. What
+      you want is to write tests that fail even though you think they should
+      work, or tests that succeed even though you think they should fail.
+      Another way to think of it is in cost/benefit terms. You want to write
+      tests that will pay you back with information.
+    </para>
+    <para>
+      テストはいくらでも書くことができる。でも、じきにわかるだろうが、
+      きみが考えているテストの中で本当に有用なものはごくわずかだ。
+      本当に書かなきゃいけないのは、
+      これは動くだろうと考えているにもかかわらず失敗するテスト。それから、
+      これは失敗するだろうと考えているにもかかわらず実際は成功するテストだ。
+      あるいはコストと利益の観点から考えてみてもいいだろう。
+      きみに何らかの情報を返してくれるテストを書かないとね。
+    </para>
+  </blockquote>
+
+  <section id="testing-practices.during-development">
+    <title>開発中のテスト</title>
+
+    <para>
+      <indexterm><primary>Refactoring (リファクタリング)</primary></indexterm>
+
+      開発中のソフトウェアの内部構造を変更し、
+      わかりやすく変更が簡単なものにする必要が出てきたときのことを考えましょう。
+      それによってソフトウェアの外部的な振る舞いが変わってしまってはいけません。
+      この、いわゆる
+      <ulink url="http://martinfowler.com/bliki/DefinitionOfRefactoring.html">リファクタリング</ulink>
+      <ulink url="http://capsctrl.que.jp/kdmsnr/wiki/bliki/?DefinitionOfRefactoring">(日本語)</ulink>
+      を安全に行うにあたり、テストスイートが非常に重要となります。
+      もしテストスイートがなければ、リファクタリングによってシステムを壊してしまっても
+      あなたはそれに気づかないでしょう。
+    </para>
+
+    <para>
+      以下の条件が、あなたのプロジェクトのコードや設計を改善するための助けとなるでしょう。
+      また、単体テストを使用することで、リファクタリングによって振る舞いが変化していないこと・
+      エラーが発生していないことが確認できます。
+    </para>
+
+    <orderedlist>
+      <listitem>
+        <para>すべての単体テストが正常に動作すること。</para>
+      </listitem>
+
+      <listitem>
+        <para>コードが設計指針を満たしていること。</para>
+      </listitem>
+
+      <listitem>
+        <para>コードに冗長性がないこと。</para>
+      </listitem>
+
+      <listitem>
+        <para>コードには最小限のクラスおよびメソッドのみが含まれていること。</para>
+      </listitem>
+    </orderedlist>
+
+    <para>
+      システムに新しい機能を追加する際には、まず最初にテストを書きます。
+      そのテストがきちんと実行できるようになった時点で、開発は終了です。
+      この手法については、次の章で詳しく説明します。
+    </para>
+  </section>
+
+  <section id="testing-practices.during-debugging">
+    <title>デバッグ中のテスト</title>
+
+    <para>
+      不具合の報告を受けたら、すぐにでもそれを修正したいと思われることでしょう。
+      しかし、あせって修正しようとしても、経験上なかなかうまくいきません。
+      不具合を修正したつもりが新たな不具合を引き起こしていたなんてこともありがちですね。
+    </para>
+
+    <para>
+      はやる気持ちを抑えて、以下のようにしてみましょう。
+    </para>
+
+    <orderedlist>
+      <listitem>
+        <para>
+          不具合を再現できることを確認します。
+        </para>
+      </listitem>
+
+      <listitem>
+        <para>
+          不具合が発生する最小限のコードを見つけます。例えば、
+          もしおかしな数値が出力されるのなら、
+          その数値を計算しているオブジェクトが何なのかを探します。
+        </para>
+      </listitem>
+
+      <listitem>
+        <para>
+          その不具合のせいで今は失敗する (そして、不具合が修正されたら成功する)
+          テストを書きます。
+        </para>
+      </listitem>
+
+      <listitem>
+        <para>
+          不具合を修正します。
+        </para>
+      </listitem>
+    </orderedlist>
+
+    <para>
+      不具合が再現する最小限のコードを見つける過程で、
+      不具合の原因がわかるかもしれません。テストを書くことによって、
+      不具合を真の意味で修正できる可能性が高まるでしょう。なぜなら、
+      テストを書くことで、将来同じ間違いをする可能性を減らせるからです。
+      これまでに書いたすべてのテストが、
+      不注意によって別の問題を発生させる可能性を減らすために役立っているのです。
+    </para>
+
+    <blockquote>
+      <attribution>Benjamin Smedberg</attribution>
+      <para>
+        Unit testing offers many advantages:
+        <itemizedlist>
+          <listitem><para>Testing gives code authors and reviewers confidence that patches produce the correct results.</para></listitem>
+          <listitem><para>Authoring testcases is a good impetus for developers to discover edge cases.</para></listitem>
+          <listitem><para>Testing provides a good way to catch regressions quickly, and to make sure that no regression will be repeated twice.</para></listitem>
+          <listitem><para>Unit tests provide working examples for how to use an API and can significantly aid documentation efforts.</para></listitem>
+        </itemizedlist>
+        Overall, integrated unit testing makes the cost and risk of any
+        individual change smaller. It will allow the project to make [...]
+        major architectural improvements [...] quickly and confidently.
+      </para>
+      <para>
+        単体テストには、こんなに多くの利点がある。
+        <itemizedlist>
+          <listitem><para>実際にコードを書いた人とコードをレビューする人が意識を共有できるようになり、パッチの精度があがる。</para></listitem>
+          <listitem><para>テストケースを書くことは、いろいろな想定外の事態に備えるための原動力となる。</para></listitem>
+          <listitem><para>テストにより、リグレッションを早期に発見できるようになる。また、同じリグレッションを二度と起こさないようになる。</para></listitem>
+          <listitem><para>単体テストそのものが、その API の使用法についてのよいサンプルとなる。ドキュメント作成の際に助けとなるだろう。</para></listitem>
+        </itemizedlist>
+        まとめよう。単体テストをうまく組み込めば、
+        プログラムを変更する際の手間やリスクをより減らすことになるのだ。
+        プロジェクトが【中略】のアーキテクチャに関する大きな改修【中略】を素早く、自信を持って行うことを可能にするだろう。
+      </para>
+    </blockquote>
+  </section>
+</chapter>

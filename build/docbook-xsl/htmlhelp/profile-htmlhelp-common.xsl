@@ -42,7 +42,7 @@
     <xsl:choose>
       <xsl:when test="$rootid != ''">
         <xsl:choose>
-          <xsl:when test="count($profiled-nodes//*[@id=$rootid]) = 0">
+          <xsl:when test="count($profiled-nodes//*[@id=$rootid or @xml:id=$rootid]) = 0">
             <xsl:message terminate="yes">
               <xsl:text>ID '</xsl:text>
               <xsl:value-of select="$rootid"/>
@@ -51,7 +51,7 @@
           </xsl:when>
           <xsl:otherwise>
             <xsl:message>Formatting from <xsl:value-of select="$rootid"/></xsl:message>
-            <xsl:apply-templates select="$profiled-nodes//*[@id=$rootid]" mode="process.root"/>
+            <xsl:apply-templates select="$profiled-nodes//*[@id=$rootid or @xml:id=$rootid]" mode="process.root"/>
           </xsl:otherwise>
         </xsl:choose>
       </xsl:when>
@@ -70,7 +70,7 @@
   <xsl:if test="$collect.xref.targets != 'only'">
     <xsl:call-template name="hhp"/>
     <xsl:call-template name="hhc"/>
-    <xsl:if test="($rootid = '' and //processing-instruction('dbhh')) or                   ($rootid != '' and $profiled-nodes//*[@id=$rootid]//processing-instruction('dbhh'))">
+    <xsl:if test="($rootid = '' and //processing-instruction('dbhh')) or                   ($rootid != '' and $profiled-nodes//*[@id=$rootid or @xml:id=$rootid]//processing-instruction('dbhh'))">
       <xsl:call-template name="hh-map"/>
       <xsl:call-template name="hh-alias"/>
     </xsl:if>
@@ -109,7 +109,7 @@
       <xsl:when test="$htmlhelp.title = ''">
         <xsl:choose>
           <xsl:when test="$rootid != ''">
-            <xsl:apply-templates select="$profiled-nodes//*[@id=$rootid]" mode="title.markup"/>
+            <xsl:apply-templates select="$profiled-nodes//*[@id=$rootid or @xml:id=$rootid]" mode="title.markup"/>
           </xsl:when>
           <xsl:otherwise>
             <xsl:apply-templates select="$profiled-nodes/*" mode="title.markup"/>
@@ -139,7 +139,7 @@
         <xsl:with-param name="base.name">
           <xsl:choose>
             <xsl:when test="$rootid != ''">
-              <xsl:apply-templates select="$profiled-nodes//*[@id=$rootid]" mode="chunk-filename"/>
+              <xsl:apply-templates select="$profiled-nodes//*[@id=$rootid or @xml:id=$rootid]" mode="chunk-filename"/>
             </xsl:when>
             <xsl:otherwise>
               <xsl:apply-templates select="$profiled-nodes" mode="chunk-filename"/>
@@ -305,7 +305,7 @@ Enhanced decompilation=</xsl:text>
 
 <xsl:choose>
   <xsl:when test="$rootid != ''">
-    <xsl:apply-templates select="$profiled-nodes//*[@id=$rootid]" mode="enumerate-files"/>
+    <xsl:apply-templates select="$profiled-nodes//*[@id=$rootid or @xml:id=$rootid]" mode="enumerate-files"/>
   </xsl:when>
   <xsl:otherwise>
     <xsl:apply-templates select="$profiled-nodes" mode="enumerate-files"/>
@@ -316,7 +316,7 @@ Enhanced decompilation=</xsl:text>
   <xsl:variable name="imagelist">
     <xsl:choose>
       <xsl:when test="$rootid != ''">
-        <xsl:apply-templates select="$profiled-nodes//*[@id=$rootid]" mode="enumerate-images"/>
+        <xsl:apply-templates select="$profiled-nodes//*[@id=$rootid or @xml:id=$rootid]" mode="enumerate-images"/>
       </xsl:when>
       <xsl:otherwise>
         <xsl:apply-templates select="$profiled-nodes" mode="enumerate-images"/>
@@ -337,7 +337,7 @@ Enhanced decompilation=</xsl:text>
   </xsl:choose>
 </xsl:if>
 
-<xsl:if test="($htmlhelp.force.map.and.alias != 0) or                ($rootid = '' and //processing-instruction('dbhh')) or               ($rootid != '' and $profiled-nodes//*[@id=$rootid]//processing-instruction('dbhh'))">
+<xsl:if test="($htmlhelp.force.map.and.alias != 0) or                ($rootid = '' and //processing-instruction('dbhh')) or               ($rootid != '' and $profiled-nodes//*[@id=$rootid or @xml:id=$rootid]//processing-instruction('dbhh'))">
   <xsl:text>
 [ALIAS]
 #include </xsl:text><xsl:value-of select="$htmlhelp.alias.file"/><xsl:text>
@@ -507,7 +507,7 @@ Enhanced decompilation=</xsl:text>
   <xsl:variable name="content">
     <xsl:choose>
       <xsl:when test="$rootid != ''">
-        <xsl:apply-templates select="$profiled-nodes//*[@id=$rootid]" mode="hhc"/>
+        <xsl:apply-templates select="$profiled-nodes//*[@id=$rootid or @xml:id=$rootid]" mode="hhc"/>
       </xsl:when>
       <xsl:otherwise>
         <xsl:apply-templates select="$profiled-nodes" mode="hhc"/>
@@ -825,7 +825,7 @@ Enhanced decompilation=</xsl:text>
 <xsl:if test="($htmlhelp.use.hhk != 0) and $htmlhelp.generate.index">
   <xsl:choose>
     <xsl:when test="$rootid != ''">
-      <xsl:apply-templates select="$profiled-nodes//*[@id=$rootid]" mode="hhk"/>
+      <xsl:apply-templates select="$profiled-nodes//*[@id=$rootid or @xml:id=$rootid]" mode="hhk"/>
     </xsl:when>
     <xsl:otherwise>
       <xsl:apply-templates select="$profiled-nodes" mode="hhk"/>
@@ -948,7 +948,7 @@ Enhanced decompilation=</xsl:text>
     <xsl:with-param name="content">
      <xsl:choose>
        <xsl:when test="$rootid != ''">
-         <xsl:apply-templates select="$profiled-nodes//*[@id=$rootid]" mode="hh-map"/>
+         <xsl:apply-templates select="$profiled-nodes//*[@id=$rootid or @xml:id=$rootid]" mode="hh-map"/>
        </xsl:when>
        <xsl:otherwise>
          <xsl:apply-templates select="$profiled-nodes" mode="hh-map"/>
@@ -997,7 +997,7 @@ Enhanced decompilation=</xsl:text>
     <xsl:with-param name="content">
      <xsl:choose>
        <xsl:when test="$rootid != ''">
-         <xsl:apply-templates select="$profiled-nodes//*[@id=$rootid]" mode="hh-alias"/>
+         <xsl:apply-templates select="$profiled-nodes//*[@id=$rootid or @xml:id=$rootid]" mode="hh-alias"/>
        </xsl:when>
        <xsl:otherwise>
          <xsl:apply-templates select="$profiled-nodes" mode="hh-alias"/>

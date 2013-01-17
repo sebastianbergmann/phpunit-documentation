@@ -5,7 +5,7 @@
                 version='1.0'>
 
 <!-- ********************************************************************
-     $Id: autotoc.xsl 9293 2012-04-19 18:42:11Z bobstayton $
+     $Id: autotoc.xsl 9647 2012-10-26 17:42:03Z bobstayton $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -750,7 +750,7 @@
   </xsl:variable>
 
   <xsl:choose>
-    <xsl:when test="$fop.extensions != 0 or $passivetex.extensions != 0">
+    <xsl:when test="$fop.extensions != 0">
        <xsl:value-of select="concat($depth*$toc.indent.width, 'pt')"/>
     </xsl:when>
     <xsl:otherwise>

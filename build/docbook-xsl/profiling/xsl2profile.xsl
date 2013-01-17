@@ -116,7 +116,7 @@
             <xsl:call-template name="string.subst">
               <xsl:with-param name="string" select="."/>
               <xsl:with-param name="target">key('id',$rootid)</xsl:with-param>
-              <xsl:with-param name="replacement">$profiled-nodes//*[@id=$rootid]</xsl:with-param>
+              <xsl:with-param name="replacement">$profiled-nodes//*[@id=$rootid or @xml:id=$rootid]</xsl:with-param>
             </xsl:call-template>
           </xsl:attribute>
         </xsl:when>

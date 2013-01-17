@@ -3,7 +3,7 @@
                 version="1.0">
 
 <!-- ********************************************************************
-     $Id: olink.xsl 9254 2012-03-29 05:48:10Z bobstayton $
+     $Id: olink.xsl 9650 2012-10-26 18:24:02Z bobstayton $
      ********************************************************************
 
      This file is part of the DocBook XSL Stylesheet distribution.
@@ -548,19 +548,36 @@
       </xsl:choose>
     </xsl:variable>
   
+    <!-- Is this olink to be active? -->
+    <xsl:variable name="active.olink">
+      <xsl:choose>
+        <xsl:when test="$activate.external.olinks = 0">
+          <xsl:choose>
+            <xsl:when test="$current.docid = ''">1</xsl:when>
+            <xsl:when test="$targetdoc = ''">1</xsl:when>
+            <xsl:when test="$targetdoc = $current.docid">1</xsl:when>
+            <xsl:otherwise>0</xsl:otherwise>
+          </xsl:choose>
+        </xsl:when>
+        <xsl:otherwise>1</xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+
     <!-- Form the href information -->
-    <xsl:if test="$baseuri != ''">
-      <xsl:value-of select="$baseuri"/>
-      <xsl:if test="substring($target.href,1,1) != '#'">
-        <!--xsl:text>/</xsl:text-->
+    <xsl:if test="$active.olink != 0">
+      <xsl:if test="$baseuri != ''">
+        <xsl:value-of select="$baseuri"/>
+        <xsl:if test="substring($target.href,1,1) != '#'">
+          <!--xsl:text>/</xsl:text-->
+        </xsl:if>
       </xsl:if>
-    </xsl:if>
-    <!-- optionally turn off frag for PDF references -->
-    <xsl:if test="not($insert.olink.pdf.frag = 0 and
-          translate(substring($baseuri, string-length($baseuri) - 3),
-                    'PDF', 'pdf') = '.pdf'
-          and starts-with($target.href, '#') )">
-      <xsl:value-of select="$target.href"/>
+      <!-- optionally turn off frag for PDF references -->
+      <xsl:if test="not($insert.olink.pdf.frag = 0 and
+            translate(substring($baseuri, string-length($baseuri) - 3),
+                      'PDF', 'pdf') = '.pdf'
+            and starts-with($target.href, '#') )">
+        <xsl:value-of select="$target.href"/>
+      </xsl:if>
     </xsl:if>
   </xsl:if>
 </xsl:template>
@@ -991,7 +1008,7 @@
         </xsl:otherwise>
       </xsl:choose>
     </xsl:when>
-    <xsl:when test="@targetdoc != '' or @targetptr != ''">
+    <xsl:otherwise>
       <xsl:if test="$olink.key != ''">
         <xsl:message>
           <xsl:text>Olink error: no generated text for </xsl:text>
@@ -1001,15 +1018,6 @@
         </xsl:message>
       </xsl:if>
       <xsl:text>????</xsl:text>
-    </xsl:when>
-    <xsl:otherwise>
-      <!-- old style olink -->
-      <xsl:call-template name="olink.outline">
-        <xsl:with-param name="outline.base.uri"
-                        select="unparsed-entity-uri(@targetdocent)"/>
-        <xsl:with-param name="localinfo" select="@localinfo"/>
-        <xsl:with-param name="return" select="'xreftext'"/>
-      </xsl:call-template>
     </xsl:otherwise>
   </xsl:choose>
 </xsl:template>

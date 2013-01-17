@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="test-driven-development">
+  <title>テスト駆動開発</title>
+
+  <para>
+    <indexterm><primary>Design-by-Contract (規約による設計)</primary></indexterm>
+    <indexterm><primary>Extreme Programming (エクストリームプログラミング)</primary></indexterm>
+    <indexterm><primary>Test-Driven Development (テスト駆動開発)</primary></indexterm>
+    <indexterm><primary>Test-First Programming (テストファーストプログラミング)</primary></indexterm>
+    <indexterm><primary>Unit Test (単体テスト)</primary></indexterm>
+
+    テストファーストプログラミング、
+    <ulink url="http://en.wikipedia.org/wiki/Extreme_Programming">エクストリームプログラミング</ulink>、
+    そして
+    <ulink url="http://en.wikipedia.org/wiki/Test-driven_development">テスト駆動開発</ulink>
+    などのソフトウェア開発方法論において、単体テストは非常に重要な位置を占めています。
+    また、構造上この手法に対応できない言語については
+    <ulink url="http://en.wikipedia.org/wiki/Design_by_Contract">規約による設計 (Design-by-Contract)</ulink>
+    という手法も認めています。
+  </para>
+
+  <para>
+    プログラムを書き終えてから PHPUnit でテストを書くこともできます。
+    が、テストを書き始めるのが早ければ早いほど、テストの価値が高くなります。
+    コードが「完成」して何ヶ月もたってからテストを書き始めるのではなく、数日後、
+    数時間後、いやもうひとがんばりして数分後に書き始めることだってできるでしょう。
+    さらにもう一歩先へ進んでみませんか?
+    コードを書き始める前にテストを書いたっていいんじゃないですか?
+  </para>
+
+  <para>
+    エクストリームプログラミングやテスト駆動開発における
+    「テストファーストプログラミング」はこの考えに基づいたもので、
+    さらにそれを究極まで推し進めたものです。現在のコンピュータの能力をもってすれば、
+    一日に何千ものテストを何千回も繰り返すことだって可能です。
+    これらのテスト結果を活用することで、
+    プログラムを少しずつ確実に作成することができるようになります。
+    テストを自動化すると、新しく追加したテストだけでなく
+    これまでのテストもすべて実行できることが保証されるのです。
+    テストとはハーケン (登山のときにザイルを通したりする頭部に穴の開いた鋼鉄製の釘)
+    のようなもので、何が起ころうともこの段階までは確実に完成しているということを保証してくれます。
+  </para>
+
+  <para>
+    最初にテストを書き始めたときは、おそらくそれを実行できないでしょう。
+    だって、まだ実装していないオブジェクトやメソッドを使用しているのだから。
+    最初のうちはこれを気持ち悪く感じるかもしれません。でもそのうちに慣れてきます。
+    テストファーストプログラミングというのは、オブジェクト指向開発の原則である
+    「実装をプログラミングするのではなくインターフェイスをプログラミングする」
+    に従うための実践的な手法であると考えましょう。テストを書いている間、
+    あなたはきっとテスト対象オブジェクトのインターフェイス (このオブジェクトは、
+    外部からはどのように見えるのか) について考えていることでしょう。
+    テストが実際に動作するようになったら、そこで実装のことを考え始めます。
+    出来上がったテストによって、この段階でインターフェイスは確定しています。
+  </para>
+
+  <blockquote>
+    <attribution>Dan North</attribution>
+    <para>
+      The point of <ulink url="http://en.wikipedia.org/wiki/Test-driven_development">Test-Driven Development</ulink>
+      is to drive out the functionality the software actually needs, rather
+      than what the programmer thinks it probably ought to have. The way it
+      does this seems at first counterintuitive, if not downright silly, but
+      it not only makes sense, it also quickly becomes a natural and elegant
+      way to develop software.
+    </para>
+    <para>
+      <ulink url="http://en.wikipedia.org/wiki/Test-driven_development">テスト駆動開発</ulink>
+      <ulink url="http://ja.wikipedia.org/wiki/%E3%83%86%E3%82%B9%E3%83%88%E9%A7%86%E5%8B%95%E9%96%8B%E7%99%BA">(日本語)</ulink>
+      のポイントは、プログラマが「こうあるべき」と考える機能ではなく
+      そのソフトウェアが実際に必要としている機能を作り出すことだ。
+      これは、最初のうちは直感に反するばかばかしいことだと感じるかもしれない。
+      しかし、これは合理的なものであり、近いうちに
+      自然でエレガントなソフトウェア開発手法となるだろう。
+    </para>
+  </blockquote>
+
+  <para>
+    この後に続くテスト駆動開発の例は、やむを得ず簡潔なものになっています。
+    詳細については Kent Beck の <emphasis>Test-Driven Development</emphasis>
+    <xref linkend="Beck2002" /> <xref linkend="Beck2002-ja" /> や Dave Astels の
+    <emphasis>A Practical Guide to Test-Driven Development</emphasis>
+    <xref linkend="Astels2003" /> などの書籍を参照ください。
+  </para>
+
+  <section id="test-driven-development.bankaccount-example">
+    <title>銀行口座の例</title>
+
+    <para>
+      この節では、銀行口座を表すクラスを例にして考えます。預金残高の取得や設定、
+      預け入れや引き落としなどのメソッドだけでなく、<literal>BankAccount</literal>
+      クラスは以下のふたつの規約を満たす必要があります。
+    </para>
+
+    <itemizedlist>
+      <listitem>
+        <para>預金残高の初期値はゼロでなければならない。</para>
+      </listitem>
+
+      <listitem>
+        <para>預金残高がゼロ未満になってはならない。</para>
+      </listitem>
+    </itemizedlist>
+
+    <para>
+      まずは <literal>BankAccount</literal>
+      クラスのテストを作成し、その後で実際のコードを書いていくようにしましょう。
+      上の規約をテスト作成の基準とし、それにしたがって
+      <xref linkend="test-driven-development.bankaccount-example.examples.BankAccountTest.php" />
+      のようにテストメソッドの名前をつけます。
+    </para>
+
+    <example id="test-driven-development.bankaccount-example.examples.BankAccountTest.php">
+      <title>BankAccount クラスのテスト</title>
+      <programlisting><![CDATA[<?php
+require_once 'BankAccount.php';
+
+class BankAccountTest extends PHPUnit_Framework_TestCase
+{
+    protected $ba;
+
+    protected function setUp()
+    {
+        $this->ba = new BankAccount;
+    }
+
+    public function testBalanceIsInitiallyZero()
+    {
+        $this->assertEquals(0, $this->ba->getBalance());
+    }
+
+    public function testBalanceCannotBecomeNegative()
+    {
+        try {
+            $this->ba->withdrawMoney(1);
+        }
+
+        catch (BankAccountException $e) {
+            $this->assertEquals(0, $this->ba->getBalance());
+
+            return;
+        }
+
+        $this->fail();
+    }
+
+    public function testBalanceCannotBecomeNegative2()
+    {
+        try {
+            $this->ba->depositMoney(-1);
+        }
+
+        catch (BankAccountException $e) {
+            $this->assertEquals(0, $this->ba->getBalance());
+
+            return;
+        }
+
+        $this->fail();
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      それでは、最初のテスト <literal>testBalanceIsInitiallyZero()</literal>
+      をクリアするために必要な最小限のコードを書いていきましょう。必要なのは、
+      <literal>BankAccount</literal> クラスの <literal>getBalance()</literal>
+      メソッドを
+      <xref linkend="test-driven-development.bankaccount-example.examples.BankAccount.php" />
+      のように実装することです。
+    </para>
+
+    <example id="test-driven-development.bankaccount-example.examples.BankAccount.php">
+      <title>テスト testBalanceIsInitiallyZero() をクリアするために必要なコード</title>
+      <programlisting><![CDATA[<?php
+class BankAccount
+{
+    protected $balance = 0;
+
+    public function getBalance()
+    {
+        return $this->balance;
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      これで最初のテストはクリアすることになりましたが、
+      2 番目のテストには失敗します。なぜなら、
+      テストメソッド内でコールしているメソッドがまだ実装されていないからです。
+    </para>
+
+    <screen><userinput>phpunit BankAccountTest</userinput>
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+.
+Fatal error: Call to undefined method BankAccount::withdrawMoney()</screen>
+
+    <para>
+      ふたつめの規約のテストをクリアするには、<literal>withdrawMoney()</literal>、
+      <literal>depositMoney()</literal> および <literal>setBalance()</literal>
+      の各メソッドを
+      <xref linkend="test-driven-development.bankaccount-example.examples.BankAccount2.php" />
+      のように実装しなければなりません。これらのメソッドは、
+      規約に反するような引数でコールされた場合には <literal>BankAccountException</literal>
+      を発生させるように実装しています。
+    </para>
+
+    <example id="test-driven-development.bankaccount-example.examples.BankAccount2.php">
+      <title>完全な BankAccount クラス</title>
+      <programlisting><![CDATA[<?php
+class BankAccount
+{
+    protected $balance = 0;
+
+    public function getBalance()
+    {
+        return $this->balance;
+    }
+
+    protected function setBalance($balance)
+    {
+        if ($balance >= 0) {
+            $this->balance = $balance;
+        } else {
+            throw new BankAccountException;
+        }
+    }
+
+    public function depositMoney($balance)
+    {
+        $this->setBalance($this->getBalance() + $balance);
+
+        return $this->getBalance();
+    }
+
+    public function withdrawMoney($balance)
+    {
+        $this->setBalance($this->getBalance() - $balance);
+
+        return $this->getBalance();
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      これで、2 つめの規約に関するテストにもクリアするようになります。
+    </para>
+
+    <screen><userinput>phpunit BankAccountTest</userinput>
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+...
+
+Time: 0 seconds
+
+
+OK (3 tests, 3 assertions)</screen>
+
+    <para>
+      <indexterm><primary>PHPUnit_Framework_Assert</primary></indexterm>
+
+      別の方法としては、<literal>PHPUnit_Framework_Assert</literal>
+      クラスが提供する静的なアサーションメソッドを用いて、コード内に
+      「規約による設計」方式のアサーションを記述するというものもあります。
+      <xref linkend="test-driven-development.bankaccount-example.examples.BankAccount3.php" />
+      がその例です。これらのアサーションのいずれかに失敗すると、例外
+      <literal>PHPUnit_Framework_AssertionFailedError</literal> が発生します。
+      この方式を用いると、条件チェックのコードを減らすことができてテストが読みやすくなります。
+      ただ、プログラムの実行時にも PHPUnit が必要になってしまいます。
+    </para>
+
+    <example id="test-driven-development.bankaccount-example.examples.BankAccount3.php">
+      <title>「規約による設計」のアサーションを使用した BankAccount クラス</title>
+      <programlisting><![CDATA[<?php
+class BankAccount
+{
+    private $balance = 0;
+
+    public function getBalance()
+    {
+        return $this->balance;
+    }
+
+    protected function setBalance($balance)
+    {
+        PHPUnit_Framework_Assert::assertTrue($balance >= 0);
+
+        $this->balance = $balance;
+    }
+
+    public function depositMoney($amount)
+    {
+        PHPUnit_Framework_Assert::assertTrue($amount >= 0);
+
+        $this->setBalance($this->getBalance() + $amount);
+
+        return $this->getBalance();
+    }
+
+    public function withdrawMoney($amount)
+    {
+        PHPUnit_Framework_Assert::assertTrue($amount >= 0);
+        PHPUnit_Framework_Assert::assertTrue($this->balance >= $amount);
+
+        $this->setBalance($this->getBalance() - $amount);
+
+        return $this->getBalance();
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      規約を満たすための条件をテスト内に記述することで、「規約による設計」
+      方式で <literal>BankAccount</literal> クラスをプログラミングしてきました。
+      次に、テストファーストプログラミングの考え方にしたがって、
+      テストをクリアするために必要なコードを記述してきました。
+      でも、ひとつ忘れてしまったことがあります。それは、
+      <literal>setBalance()</literal>、<literal>depositMoney()</literal>
+      および <literal>withdrawMoney()</literal> に正当な値を指定した場合に、
+      正常に動作することを確かめるテストを書くことです。
+      自分が書いたテストが妥当なものなのか、
+      それで十分なのかを調べるためのテストが必要ですね。次の章では、そのための
+      「コードカバレッジ解析」について説明します。
+    </para>
+  </section>
+</chapter>
