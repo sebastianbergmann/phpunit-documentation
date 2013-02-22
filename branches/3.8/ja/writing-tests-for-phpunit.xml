@@ -391,9 +391,11 @@ class CsvFileIterator implements Iterator {
         <indexterm><primary>@dataProvider</primary></indexterm>
         <indexterm><primary>@depends</primary></indexterm>
 
-        すべてのデータプロバイダを実行してから
-        <literal>setUp</literal> 関数がコールされます。そのため、
-        <literal>setUp</literal> 関数で作った変数にデータプロバイダ内からアクセスすることはできません。
+        すべてのデータプロバイダを実行してから、
+        静的メソッド <literal>setUpBeforeClass</literal>
+        や <literal>setUp</literal> メソッドの最初の呼び出しが発生します。そのため、
+        これらのメソッドで作った変数にデータプロバイダ内からアクセスすることはできません。
+        そうなっている理由は、PHPUnit がテストの総数を算出できるようにするためです。
       </para>
     </note>
   </section>
