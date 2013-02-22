@@ -7,6 +7,10 @@
 				version="1.0">
   <xsl:import href="docbook-xsl/fo/docbook.xsl"/>
 
+  <xsl:param name="body.font.family">serif,Mincho</xsl:param>
+  <xsl:param name="monospace.font.family">monospace,Gothic</xsl:param>
+  <xsl:param name="sans.font.family">sans-serif,Gothic</xsl:param>
+  <xsl:param name="title.font.family">sans-serif,Gothic</xsl:param>
 
   <xsl:param name="default.image.width">14.25cm</xsl:param>
 
