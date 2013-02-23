@@ -6,6 +6,7 @@ Pre-requirements
 
 - Apache Ant
 - Ruby
+- PHP 5 (with DOM, PCRE, SPL, and Tokenizer extensions enabled)
 - xsltproc
 
 Building the documentation
