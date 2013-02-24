@@ -152,7 +152,7 @@ class StubTest extends PHPUnit_Framework_TestCase
 
     <itemizedlist>
       <listitem><para>By default, all methods of the given class are replaced with a test double that just returns <literal>NULL</literal> unless a return value is configured using <literal>will($this->returnValue())</literal>, for instance.</para></listitem>
-      <listitem><para>When the second (optional) parameter is provided, only the methods whose names are in the array are replaced with a configurable test double. The behavior of the other methods is not changed.</para></listitem>
+      <listitem><para>When the second (optional) parameter is provided, only the methods whose names are in the array are replaced with a configurable test double. The behavior of the other methods is not changed. Providing <literal>NULL</literal> as the parameter means that no methods will be replaced.</para></listitem>
       <listitem><para>The third (optional) parameter may hold a parameter array that is passed to the original class' constructor (which is not replaced with a dummy implementation by default).</para></listitem>
       <listitem><para>The fourth (optional) parameter can be used to specify a class name for the generated test double class.</para></listitem>
       <listitem><para>The fifth (optional) parameter can be used to disable the call to the original class' constructor.</para></listitem>
@@ -168,7 +168,7 @@ class StubTest extends PHPUnit_Framework_TestCase
     </para>
 
     <itemizedlist>
-      <listitem><para><literal>setMethods(array $methods)</literal> can be called on the Mock Builder object to specify the methods that are to be replaced with a configurable test double. The behavior of the other methods is not changed.</para></listitem>
+      <listitem><para><literal>setMethods(array $methods)</literal> can be called on the Mock Builder object to specify the methods that are to be replaced with a configurable test double. The behavior of the other methods is not changed. If you call <literal>setMethods(NULL)</literal>, then no methods will be replaced.</para></listitem>
       <listitem><para><literal>setConstructorArgs(array $args)</literal> can be called to provide a parameter array that is passed to the original class' constructor (which is not replaced with a dummy implementation by default).</para></listitem>
       <listitem><para><literal>setMockClassName($name)</literal> can be used to specify a class name for the generated test double class.</para></listitem>
       <listitem><para><literal>disableOriginalConstructor()</literal> can be used to disable the call to the original class' constructor.</para></listitem>
