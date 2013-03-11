@@ -178,6 +178,29 @@ class SimpleTestListener implements PHPUnit_Framework_TestListener
     </example>
 
     <para>
+      <indexterm><primary>PHPUnit_Framework_BaseTestListener</primary></indexterm>
+
+      <xref linkend="extending-phpunit.examples.BaseTestListener.php" />
+      shows how to subclass the <literal>PHPUnit_Framework_BaseTestListener</literal>
+      abstract class, which lets you specify only the interface methods that
+      are interesting for your use case, while providing empty implementations
+      for all the others.
+    </para>
+
+    <example id="extending-phpunit.examples.BaseTestListener.php">
+      <title>Using base test listener</title>
+      <programlisting><![CDATA[<?php
+class ShortTestListener extends PHPUnit_Framework_BaseTestListener
+{
+    public function endTest(PHPUnit_Framework_Test $test, $time)
+    {
+        printf("Test '%s' ended.\n", $test->getName());
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
       In <xref linkend="appendixes.configuration.test-listeners"/> you can see
       how to configure PHPUnit to attach your test listener to the test
       execution.
