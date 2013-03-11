@@ -177,6 +177,28 @@ class SimpleTestListener implements PHPUnit_Framework_TestListener
     </example>
 
     <para>
+      <indexterm><primary>PHPUnit_Framework_BaseTestListener</primary></indexterm>
+
+      <xref linkend="extending-phpunit.examples.BaseTestListener.php" />
+      は、抽象クラス <literal>PHPUnit_Framework_BaseTestListener</literal>
+      のサブクラスを作る例です。これは、インターフェイスのメソッドのうち実際に使うものだけを指定し、
+      他のメソッドについては空の実装を提供します。
+    </para>
+
+    <example id="extending-phpunit.examples.BaseTestListener.php">
+      <title>ベーステストリスナーの利用法</title>
+      <programlisting><![CDATA[<?php
+class ShortTestListener extends PHPUnit_Framework_BaseTestListener
+{
+    public function endTest(PHPUnit_Framework_Test $test, $time)
+    {
+        printf("テスト '%s' が終了\n", $test->getName());
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
       <xref linkend="appendixes.configuration.test-listeners"/>
       に、自作のテストリスナーをテスト実行時にアタッチするための
       PHPUnit の設定方法についての説明があります。
