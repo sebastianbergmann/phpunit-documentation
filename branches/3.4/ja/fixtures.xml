@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="utf-8" ?>
 
 <chapter id="fixtures">
-  <title>Fixtures</title>
+  <title>フィクスチャ</title>
 
   <para>
     <indexterm><primary>Fixture</primary></indexterm>
 
     テストを記述する際にいちばん時間を食うのは、テストを開始するための事前設定と
     テスト終了後の後始末の処理を書くことです。この事前設定は、テストの
-    <emphasis>fixture</emphasis> と呼ばれます。
+    <emphasis>フィクスチャ</emphasis> と呼ばれます。
   </para>
 
   <para>
     <xref linkend="writing-tests-for-phpunit.examples.StackTest.php" />
-    では、fixture は
+    では、フィクスチャは
     <literal>$fixture</literal> という変数に格納された配列だけでした。
-    しかしたいていの場合は fixture はこれより複雑なものとなり、
+    しかし、たいていの場合はフィクスチャはこれより複雑なものとなり、
     それを準備するにはかなりの量のコードが必要です。本来のテストの内容が、
-    fixture を設定するためのコードの中に埋もれてしまうことになります。
-    この問題は、複数のテストで同じような fixture を設定する場合により顕著になります。
+    フィクスチャを設定するためのコードの中に埋もれてしまうことになります。
+    この問題は、複数のテストで同じようなフィクスチャを設定する場合により顕著になります。
     テストフレームワークの助けがなければ、
     個々のテストのなかで同じような準備コードを繰り返し書くはめになってしまいます。
   </para>
@@ -39,10 +39,10 @@
 
   <para>
     <xref linkend="writing-tests-for-phpunit.examples.StackTest2.php" />
-    producer-consumer の関係を使って複数のテストで fixture を共有しました。
+    producer-consumer の関係を使って複数のテストでフィクスチャを共有しました。
     これは常に要求されるというものではありませんし、常に可能だとも限りません。
     <xref linkend="fixtures.examples.StackTest.php"/> では、
-    fixture を再利用するのではなくコードで作成する方式で
+    フィクスチャを再利用するのではなくコードで作成する方式で
     <literal>StackTest</literal> にテストを書く方法をごらんいただきましょう。
     まずインスタンス変数 <literal>$stack</literal> を宣言し、
     メソッドローカル変数のかわりにこれを使うことにします。
@@ -56,7 +56,7 @@
   </para>
 
   <example id="fixtures.examples.StackTest.php">
-    <title>setUp() を使用して stack fixture を作成する</title>
+    <title>setUp() を使用して stack フィクスチャを作成する</title>
     <programlisting><![CDATA[<?php
 class StackTest extends PHPUnit_Framework_TestCase
 {
@@ -253,16 +253,16 @@ Tests: 2, Assertions: 2, Failures: 1.]]></screen>
   </section>
 
   <section id="fixtures.sharing-fixture">
-    <title>Fixture の共有</title>
+    <title>フィクスチャの共有</title>
 
     <para>
-      複数のテストの間で fixture を を共有する利点は、ほとんどありません。
-      しかし、設計上の問題などでどうしても fixture
-      を共有しなければならないこともあるでしょう。
+      複数のテストの間でフィクスチャを共有する利点は、ほとんどありません。
+      しかし、設計上の問題などでどうしても
+      フィクスチャを共有しなければならないこともあるでしょう。
     </para>
 
     <para>
-      複数のテスト間で共有する意味のある fixture の例として意味のあるものといえば、
+      複数のテスト間で共有する意味のあるフィクスチャの例として意味のあるものといえば、
       データベースとの接続でしょう。テストのたびに新しいデータベース接続を毎回作成するのではなく、
       最初にログインした状態を再利用するということです。こうすることで、
       テストの実行時間を短縮できます。
@@ -285,7 +285,7 @@ Tests: 2, Assertions: 2, Failures: 1.]]></screen>
     </para>
 
     <example id="fixtures.sharing-fixture.examples.DatabaseTestSuite.php">
-      <title>テストスイートの複数テスト間での fixture の共有</title>
+      <title>テストスイートの複数テスト間でのフィクスチャの共有</title>
       <programlisting><![CDATA[<?php
 require_once 'PHPUnit/Framework.php';
 
@@ -309,7 +309,7 @@ class DatabaseTestSuite extends PHPUnit_Framework_TestSuite
     </example>
 
     <para>
-      このように fixture を共有することがテストの価値を下げてしまうということを、
+      このようにフィクスチャを共有することがテストの価値を下げてしまうということを、
       まだうまく伝え切れていないかもしれません。問題なのは、
       各オブジェクトが疎結合になっていないという設計なのです。
       複数が連携しているようなテストを作って設計上の問題から目をそらしてしまうのではなく、
