@@ -459,6 +459,32 @@ class MyTest extends PHPUnit_Framework_TestCase
     </para>
   </section>
 
+  <section id="appendixes.annotations.preserveGlobalState">
+    <title><literal>@preserveGlobalState</literal></title>
+
+    <para>
+      <indexterm><primary>@preserveGlobalState</primary></indexterm>
+      
+      When a test is run in a separate process, PHPUnit will
+      attempt to preserve the global state from the parent process by
+      serializing all globals in the parent process and unserializing them
+      in the child process. This can cause problems if the parent process
+      contains globals that are not serializable. To fix this, you can prevent
+      PHPUnit from preserving global state with the 
+      <literal>@preserveGlobalState</literal> annotation.
+      <programlisting>class MyTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
+     */
+    public function testInSeparateProcess()
+    {
+        // ...
+    }
+}</programlisting>
+    </para>
+  </section>
 
   <section id="appendixes.annotations.requires">
     <title><literal>@requires</literal></title>
@@ -484,9 +510,24 @@ class MyTest extends PHPUnit_Framework_TestCase
 
     <para>
       <indexterm><primary>@runTestsInSeparateProcesses</primary></indexterm>
-    </para>
+      
+      Indicates that all tests in a test class should be run in a separate
+      PHP process. <programlisting>/**
+ * @runTestsInSeparateProcesses
+ */
+class MyTest extends PHPUnit_Framework_TestCase
+{
+    // ...
+}</programlisting>
 
-    <programlisting></programlisting>
+      <emphasis role="strong">Note:</emphasis> By default, PHPUnit will
+      attempt to preserve the global state from the parent process by
+      serializing all globals in the parent process and unserializing them
+      in the child process. This can cause problems if the parent process
+      contains globals that are not serializable. See <xref
+      linkend="appendixes.annotations.preserveGlobalState"/> for information
+      on how to fix this.
+    </para>
   </section>
 
   <section id="appendixes.annotations.runInSeparateProcess">
@@ -494,9 +535,27 @@ class MyTest extends PHPUnit_Framework_TestCase
 
     <para>
       <indexterm><primary>@runInSeparateProcess</primary></indexterm>
-    </para>
+      
+      Indicates that a test should be run in a separate PHP process.
+      <programlisting>class MyTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @runInSeparateProcess
+     */
+    public function testInSeparateProcess()
+    {
+        // ...
+    }
+}</programlisting>
 
-    <programlisting></programlisting>
+      <emphasis role="strong">Note:</emphasis> By default, PHPUnit will
+      attempt to preserve the global state from the parent process by
+      serializing all globals in the parent process and unserializing them
+      in the child process. This can cause problems if the parent process
+      contains globals that are not serializable. See <xref
+      linkend="appendixes.annotations.preserveGlobalState"/> for information
+      on how to fix this.
+    </para>
   </section>
 
   <section id="appendixes.annotations.test">
