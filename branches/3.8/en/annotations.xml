@@ -34,6 +34,63 @@
     </para>
   </section>
 
+  <section id="appendixes.annotations.after">
+    <title><literal>@after</literal></title>
+
+    <para>
+
+      The <literal>@after</literal> annotation can be used to specify methods
+      that should be called after each test method in a test case class.
+      <programlisting>class MyTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @after
+     */
+    public function tearDownSomeFixtures()
+    {
+        // ...
+    }
+
+    /**
+     * @after
+     */
+    public function tearDownSomeOtherFixtures()
+    {
+        // ...
+    }
+}</programlisting>
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.afterClass">
+    <title><literal>@afterClass</literal></title>
+
+    <para>
+
+      The <literal>@afterClass</literal> annotation can be used to specify
+      static methods that should be called after all test methods in a test
+      class have been run to clean up shared fixtures.
+      <programlisting>class MyTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @afterClass
+     */
+    public static function tearDownSomeSharedFixtures()
+    {
+        // ...
+    }
+
+    /**
+     * @afterClass
+     */
+    public static function tearDownSomeOtherSharedFixtures()
+    {
+        // ...
+    }
+}</programlisting>
+    </para>
+  </section>
+
   <section id="appendixes.annotations.backupGlobals">
     <title><literal>@backupGlobals</literal></title>
 
@@ -109,6 +166,63 @@ class MyTest extends PHPUnit_Framework_TestCase
     </para>
   </section>
 
+  <section id="appendixes.annotations.before">
+    <title><literal>@before</literal></title>
+
+    <para>
+
+      The <literal>@before</literal> annotation can be used to specify methods
+      that should be called before each test method in a test case class.
+      <programlisting>class MyTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @before
+     */
+    public function setupSomeFixtures()
+    {
+        // ...
+    }
+
+    /**
+     * @before
+     */
+    public function setupSomeOtherFixtures()
+    {
+        // ...
+    }
+}</programlisting>
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.beforeClass">
+    <title><literal>@beforeClass</literal></title>
+
+    <para>
+
+      The <literal>@beforeClass</literal> annotation can be used to specify
+      static methods that should be called before any test methods in a test
+      class are run to set up shared fixtures.
+      <programlisting>class MyTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @beforeClass
+     */
+    public static function setUpSomeSharedFixtures()
+    {
+        // ...
+    }
+
+    /**
+     * @beforeClass
+     */
+    public static function setUpSomeOtherSharedFixtures()
+    {
+        // ...
+    }
+}</programlisting>
+    </para>
+  </section>
+
   <section id="appendixes.annotations.codeCoverageIgnore">
     <title><literal>@codeCoverageIgnore*</literal></title>
 
@@ -117,10 +231,10 @@ class MyTest extends PHPUnit_Framework_TestCase
       <indexterm><primary>@codeCoverageIgnoreStart</primary></indexterm>
       <indexterm><primary>@codeCoverageIgnoreEnd</primary></indexterm>
 
-      The <literal>@codeCoverageIgnore</literal>, 
-      <literal>@codeCoverageIgnoreStart</literal> and 
-      <literal>@codeCoverageIgnoreEnd</literal> annotations can be used 
-      to exclude lines of code from the coverage analysis. 
+      The <literal>@codeCoverageIgnore</literal>,
+      <literal>@codeCoverageIgnoreStart</literal> and
+      <literal>@codeCoverageIgnoreEnd</literal> annotations can be used
+      to exclude lines of code from the coverage analysis.
     </para>
 
     <para>
@@ -218,18 +332,18 @@ public function testBalanceIsInitiallyZero()
     <para>
       <indexterm><primary>@coversNothing</primary></indexterm>
 
-      The <literal>@coversNothing</literal> annotation can be used in the 
-      test code to specify that no code coverage information will be 
+      The <literal>@coversNothing</literal> annotation can be used in the
+      test code to specify that no code coverage information will be
       recorded for the annotated test case.
     </para>
 
     <para>
-        This can be used for integration testing. See 
+        This can be used for integration testing. See
         <xref linkend="code-coverage-analysis.specifying-covered-methods.examples.GuestbookIntegrationTest.php"/>
         for an example.
     </para>
 
-    <para>    
+    <para>
         The annotation can be used on the class and the method level and
         will override any <literal>@covers</literal> tags.
     </para>
@@ -467,13 +581,13 @@ class MyTest extends PHPUnit_Framework_TestCase
 
     <para>
       <indexterm><primary>@preserveGlobalState</primary></indexterm>
-      
+
       When a test is run in a separate process, PHPUnit will
       attempt to preserve the global state from the parent process by
       serializing all globals in the parent process and unserializing them
       in the child process. This can cause problems if the parent process
       contains globals that are not serializable. To fix this, you can prevent
-      PHPUnit from preserving global state with the 
+      PHPUnit from preserving global state with the
       <literal>@preserveGlobalState</literal> annotation.
       <programlisting>class MyTest extends PHPUnit_Framework_TestCase
 {
@@ -511,7 +625,7 @@ class MyTest extends PHPUnit_Framework_TestCase
 
     <para>
       <indexterm><primary>@runTestsInSeparateProcesses</primary></indexterm>
-      
+
       Indicates that all tests in a test class should be run in a separate
       PHP process. <programlisting>/**
  * @runTestsInSeparateProcesses
@@ -536,7 +650,7 @@ class MyTest extends PHPUnit_Framework_TestCase
 
     <para>
       <indexterm><primary>@runInSeparateProcess</primary></indexterm>
-      
+
       Indicates that a test should be run in a separate PHP process.
       <programlisting>class MyTest extends PHPUnit_Framework_TestCase
 {
