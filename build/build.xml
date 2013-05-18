@@ -1,5 +1,12 @@
 <project name="phpunit-manual" default="build-current" basedir=".">
+  <target name="check-current" depends="check-en-3.8,check-fr-3.8,check-ja-3.8,check-en-3.7,check-fr-3.7,check-ja-3.7,check-pt_br-3.8,check-pt_br-3.7"/>
   <target name="build-current" depends="build-en-3.8,build-fr-3.8,build-ja-3.8,build-en-3.7,build-fr-3.7,build-ja-3.7,build-pt_br-3.8,build-pt_br-3.7"/>
+
+  <target name="check">
+    <exec dir="${basedir}" executable="xmllint" failonerror="true">
+      <arg line="--noout --noent ../branches/${version}/${language}/book.xml"/>
+    </exec>
+  </target>
 
   <target name="build">
     <delete dir="output/${version}/${language}"/>
@@ -53,187 +60,367 @@
     <tar destfile="output/${version}/${language}/download.tar.bz2" basedir="output/${version}/${language}" compression="bzip2"/>
   </target>
 
-  <target name="build-en-2.3">
+  <target name="build-en-2.3" depends="check-en-2.3">
     <antcall target="build">
       <param name="language" value="en"/>
       <param name="version" value="2.3"/>
     </antcall>
   </target>
 
-  <target name="build-en-3.0">
+  <target name="build-en-3.0" depends="check-en-3.0">
     <antcall target="build">
       <param name="language" value="en"/>
       <param name="version" value="3.0"/>
     </antcall>
   </target>
 
-  <target name="build-en-3.1">
+  <target name="build-en-3.1" depends="check-en-3.1">
     <antcall target="build">
       <param name="language" value="en"/>
       <param name="version" value="3.1"/>
     </antcall>
   </target>
 
-  <target name="build-en-3.2">
+  <target name="build-en-3.2" depends="check-en-3.2">
     <antcall target="build">
       <param name="language" value="en"/>
       <param name="version" value="3.2"/>
     </antcall>
   </target>
 
-  <target name="build-en-3.3">
+  <target name="build-en-3.3" depends="check-en-3.3">
     <antcall target="build">
       <param name="language" value="en"/>
       <param name="version" value="3.3"/>
     </antcall>
   </target>
 
-  <target name="build-en-3.4">
+  <target name="build-en-3.4" depends="check-en-3.4">
     <antcall target="build">
       <param name="language" value="en"/>
       <param name="version" value="3.4"/>
     </antcall>
   </target>
 
-  <target name="build-en-3.5">
+  <target name="build-en-3.5" depends="check-en-3.5">
     <antcall target="build">
       <param name="language" value="en"/>
       <param name="version" value="3.5"/>
     </antcall>
   </target>
 
-  <target name="build-en-3.6">
+  <target name="build-en-3.6" depends="check-en-3.6">
     <antcall target="build">
       <param name="language" value="en"/>
       <param name="version" value="3.6"/>
     </antcall>
   </target>
 
-  <target name="build-en-3.7">
+  <target name="build-en-3.7" depends="check-en-3.7">
     <antcall target="build">
       <param name="language" value="en"/>
       <param name="version" value="3.7"/>
     </antcall>
   </target>
 
-  <target name="build-en-3.8">
+  <target name="build-en-3.8" depends="check-en-3.8">
     <antcall target="build">
       <param name="language" value="en"/>
       <param name="version" value="3.8"/>
     </antcall>
   </target>
 
-  <target name="build-ja-2.3">
+  <target name="build-ja-2.3" depends="check-ja-2.3">
     <antcall target="build">
       <param name="language" value="ja"/>
       <param name="version" value="2.3"/>
     </antcall>
   </target>
 
-  <target name="build-ja-3.0">
+  <target name="build-ja-3.0" depends="check-ja-3.0">
     <antcall target="build">
       <param name="language" value="ja"/>
       <param name="version" value="3.0"/>
     </antcall>
   </target>
 
-  <target name="build-ja-3.1">
+  <target name="build-ja-3.1" depends="check-ja-3.1">
     <antcall target="build">
       <param name="language" value="ja"/>
       <param name="version" value="3.1"/>
     </antcall>
   </target>
 
-  <target name="build-ja-3.2">
+  <target name="build-ja-3.2" depends="check-ja-3.2">
     <antcall target="build">
       <param name="language" value="ja"/>
       <param name="version" value="3.2"/>
     </antcall>
   </target>
 
-  <target name="build-ja-3.3">
+  <target name="build-ja-3.3" depends="check-ja-3.3">
     <antcall target="build">
       <param name="language" value="ja"/>
       <param name="version" value="3.3"/>
     </antcall>
   </target>
 
-  <target name="build-ja-3.4">
+  <target name="build-ja-3.4" depends="check-ja-3.4">
     <antcall target="build">
       <param name="language" value="ja"/>
       <param name="version" value="3.4"/>
     </antcall>
   </target>
 
-  <target name="build-ja-3.5">
+  <target name="build-ja-3.5" depends="check-ja-3.5">
     <antcall target="build">
       <param name="language" value="ja"/>
       <param name="version" value="3.5"/>
     </antcall>
   </target>
 
-  <target name="build-ja-3.6">
+  <target name="build-ja-3.6" depends="check-ja-3.6">
     <antcall target="build">
       <param name="language" value="ja"/>
       <param name="version" value="3.6"/>
     </antcall>
   </target>
 
-  <target name="build-ja-3.7">
+  <target name="build-ja-3.7" depends="check-ja-3.7">
     <antcall target="build">
       <param name="language" value="ja"/>
       <param name="version" value="3.7"/>
     </antcall>
   </target>
 
-  <target name="build-ja-3.8">
+  <target name="build-ja-3.8" depends="check-ja-3.8">
     <antcall target="build">
       <param name="language" value="ja"/>
       <param name="version" value="3.8"/>
     </antcall>
   </target>
 
-  <target name="build-fr-3.6">
+  <target name="build-fr-3.6" depends="check-fr-3.6">
     <antcall target="build">
       <param name="language" value="fr"/>
       <param name="version" value="3.6"/>
     </antcall>
   </target>
 
-  <target name="build-fr-3.7">
+  <target name="build-fr-3.7" depends="check-fr-3.7">
     <antcall target="build">
       <param name="language" value="fr"/>
       <param name="version" value="3.7"/>
     </antcall>
   </target>
 
-  <target name="build-fr-3.8">
+  <target name="build-fr-3.8" depends="check-fr-3.8">
     <antcall target="build">
       <param name="language" value="fr"/>
       <param name="version" value="3.8"/>
     </antcall>
   </target>
 
-  <target name="build-pt_br-3.7">
+  <target name="build-pt_br-3.7" depends="check-pt_br-3.7">
     <antcall target="build">
       <param name="language" value="pt_br"/>
       <param name="version" value="3.7"/>
     </antcall>
   </target>
 
-  <target name="build-pt_br-3.8">
+  <target name="build-pt_br-3.8" depends="check-pt_br-3.8">
     <antcall target="build">
       <param name="language" value="pt_br"/>
       <param name="version" value="3.8"/>
     </antcall>
   </target>
 
-  <target name="build-de-2.3">
+  <target name="build-de-2.3" depends="check-de-2.3">
     <antcall target="build">
       <param name="language" value="de"/>
       <param name="version" value="2.3"/>
     </antcall>
   </target>
 
-</project>
+  <target name="check-en-2.3">
+    <antcall target="check">
+      <param name="language" value="en"/>
+      <param name="version" value="2.3"/>
+    </antcall>
+  </target>
 
+  <target name="check-en-3.0">
+    <antcall target="check">
+      <param name="language" value="en"/>
+      <param name="version" value="3.0"/>
+    </antcall>
+  </target>
+
+  <target name="check-en-3.1">
+    <antcall target="check">
+      <param name="language" value="en"/>
+      <param name="version" value="3.1"/>
+    </antcall>
+  </target>
+
+  <target name="check-en-3.2">
+    <antcall target="check">
+      <param name="language" value="en"/>
+      <param name="version" value="3.2"/>
+    </antcall>
+  </target>
+
+  <target name="check-en-3.3">
+    <antcall target="check">
+      <param name="language" value="en"/>
+      <param name="version" value="3.3"/>
+    </antcall>
+  </target>
+
+  <target name="check-en-3.4">
+    <antcall target="check">
+      <param name="language" value="en"/>
+      <param name="version" value="3.4"/>
+    </antcall>
+  </target>
+
+  <target name="check-en-3.5">
+    <antcall target="check">
+      <param name="language" value="en"/>
+      <param name="version" value="3.5"/>
+    </antcall>
+  </target>
+
+  <target name="check-en-3.6">
+    <antcall target="check">
+      <param name="language" value="en"/>
+      <param name="version" value="3.6"/>
+    </antcall>
+  </target>
+
+  <target name="check-en-3.7">
+    <antcall target="check">
+      <param name="language" value="en"/>
+      <param name="version" value="3.7"/>
+    </antcall>
+  </target>
+
+  <target name="check-en-3.8">
+    <antcall target="check">
+      <param name="language" value="en"/>
+      <param name="version" value="3.8"/>
+    </antcall>
+  </target>
+
+  <target name="check-ja-2.3">
+    <antcall target="check">
+      <param name="language" value="ja"/>
+      <param name="version" value="2.3"/>
+    </antcall>
+  </target>
+
+  <target name="check-ja-3.0">
+    <antcall target="check">
+      <param name="language" value="ja"/>
+      <param name="version" value="3.0"/>
+    </antcall>
+  </target>
+
+  <target name="check-ja-3.1">
+    <antcall target="check">
+      <param name="language" value="ja"/>
+      <param name="version" value="3.1"/>
+    </antcall>
+  </target>
+
+  <target name="check-ja-3.2">
+    <antcall target="check">
+      <param name="language" value="ja"/>
+      <param name="version" value="3.2"/>
+    </antcall>
+  </target>
+
+  <target name="check-ja-3.3">
+    <antcall target="check">
+      <param name="language" value="ja"/>
+      <param name="version" value="3.3"/>
+    </antcall>
+  </target>
+
+  <target name="check-ja-3.4">
+    <antcall target="check">
+      <param name="language" value="ja"/>
+      <param name="version" value="3.4"/>
+    </antcall>
+  </target>
+
+  <target name="check-ja-3.5">
+    <antcall target="check">
+      <param name="language" value="ja"/>
+      <param name="version" value="3.5"/>
+    </antcall>
+  </target>
+
+  <target name="check-ja-3.6">
+    <antcall target="check">
+      <param name="language" value="ja"/>
+      <param name="version" value="3.6"/>
+    </antcall>
+  </target>
+
+  <target name="check-ja-3.7">
+    <antcall target="check">
+      <param name="language" value="ja"/>
+      <param name="version" value="3.7"/>
+    </antcall>
+  </target>
+
+  <target name="check-ja-3.8">
+    <antcall target="check">
+      <param name="language" value="ja"/>
+      <param name="version" value="3.8"/>
+    </antcall>
+  </target>
+
+  <target name="check-fr-3.6">
+    <antcall target="check">
+      <param name="language" value="fr"/>
+      <param name="version" value="3.6"/>
+    </antcall>
+  </target>
+
+  <target name="check-fr-3.7">
+    <antcall target="check">
+      <param name="language" value="fr"/>
+      <param name="version" value="3.7"/>
+    </antcall>
+  </target>
+
+  <target name="check-fr-3.8">
+    <antcall target="check">
+      <param name="language" value="fr"/>
+      <param name="version" value="3.8"/>
+    </antcall>
+  </target>
+
+  <target name="check-pt_br-3.7">
+    <antcall target="check">
+      <param name="language" value="pt_br"/>
+      <param name="version" value="3.7"/>
+    </antcall>
+  </target>
+
+  <target name="check-pt_br-3.8">
+    <antcall target="check">
+      <param name="language" value="pt_br"/>
+      <param name="version" value="3.8"/>
+    </antcall>
+  </target>
+
+  <target name="check-de-2.3">
+    <antcall target="check">
+      <param name="language" value="de"/>
+      <param name="version" value="2.3"/>
+    </antcall>
+  </target>
+</project>
