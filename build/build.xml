@@ -4,7 +4,7 @@
 
   <target name="check">
     <exec dir="${basedir}" executable="xmllint" failonerror="true">
-      <arg line="--noout --noent ../branches/${version}/${language}/book.xml"/>
+      <arg line="--noout --noent ../src/${version}/${language}/book.xml"/>
     </exec>
   </target>
 
@@ -16,23 +16,23 @@
     <copy file="docbook.css" todir="output/${version}/${language}"/>
 
     <exec dir="${basedir}" executable="xsltproc" failonerror="true">
-      <arg line="--stringparam base.dir output/${version}/${language}/ --stringparam l10n.gentext.language ${language} html-chunked.xsl ../branches/${version}/${language}/book.xml"/>
+      <arg line="--stringparam base.dir output/${version}/${language}/ --stringparam l10n.gentext.language ${language} html-chunked.xsl ../src/${version}/${language}/book.xml"/>
     </exec>
 
     <exec dir="${basedir}" executable="xsltproc" failonerror="true">
-      <arg line="--stringparam l10n.gentext.language ${language} --output output/${version}/${language}/phpunit-book.html html.xsl ../branches/${version}/${language}/book.xml"/>
+      <arg line="--stringparam l10n.gentext.language ${language} --output output/${version}/${language}/phpunit-book.html html.xsl ../src/${version}/${language}/book.xml"/>
     </exec>
 
     <exec dir="${basedir}" executable="xsltproc" failonerror="true">
-      <arg line="--stringparam fop1.extensions 1 --stringparam l10n.gentext.language ${language} --output output/${version}/${language}/phpunit-book.fo fo.xsl ../branches/${version}/${language}/book.xml"/>
+      <arg line="--stringparam fop1.extensions 1 --stringparam l10n.gentext.language ${language} --output output/${version}/${language}/phpunit-book.fo fo.xsl ../src/${version}/${language}/book.xml"/>
     </exec>
 
     <exec dir="${basedir}" executable="docbook-xsl/epub/bin/dbtoepub" failonerror="true">
-      <arg line="-o output/${version}/${language}/phpunit-book.epub ../branches/${version}/${language}/book.xml"/>
+      <arg line="-o output/${version}/${language}/phpunit-book.epub ../src/${version}/${language}/book.xml"/>
     </exec>
 
     <copy todir="figures">
-      <fileset dir="../branches/${version}/${language}/figures">
+      <fileset dir="../src/${version}/${language}/figures">
         <include name="*.png"/>
       </fileset>
     </copy>
