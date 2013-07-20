@@ -3,74 +3,39 @@
 <chapter id="installation">
   <title>Installing PHPUnit</title>
 
-  <para>
-    There a three supported ways of installing PHPUnit. You can use the <ulink
-    url="http://pear.php.net/manual/en/guide.users.commandline.cli.php">PEAR
-    Installer</ulink> or <ulink url="http://getcomposer.org/">Composer</ulink>
-    to download and install PHPUnit as well as its dependencies. You can also
-    download a <ulink url="http://php.net/phar">PHP Archive (PHAR)</ulink> of
-    PHPUnit that has all required (as well as some optional) dependencies of
-    PHPUnit bundled in a single file.
-  </para>
-
-  <note>
-    <para>
-      Support for Composer and PHP Archive (PHAR) was added in PHPUnit 3.7 (and
-      is known to be stable since PHPUnit 3.7.5). Earlier releases of PHPUnit
-      are not available through these distribution channels.
-    </para>
-  </note>
-
-  <note>
-    <para>
-      PHPUnit 3.7 requires PHP 5.3.3 (or later) but PHP 5.4.7 (or later) is
-      highly recommended.
-    </para>
+  <section id="installation.phar">
+    <title>PHP Archive (PHAR)</title>
 
     <para>
-      PHP_CodeCoverage, the library that is used by PHPUnit to collect and
-      process code coverage information, depends on Xdebug 2.0.5 (or later) but
-      Xdebug 2.2.0 (or later) is highly recommended.
+      The easiest way to obtain PHPUnit is to download a <ulink
+      url="http://php.net/phar">PHP Archive (PHAR)</ulink> that has all required
+      (as well as some optional) dependencies of PHPUnit bundled in a single
+      file:
     </para>
-  </note>
 
-  <section id="installation.pear">
-    <title>PEAR</title>
+    <screen><userinput>wget http://pear.phpunit.de/get/phpunit.phar</userinput>
+<userinput>chmod +x phpunit.phar</userinput>
+<userinput>mv phpunit.phar /usr/local/bin/phpunit</userinput></screen>
 
     <para>
-      The following two commands (which you may have to run as
-      <literal>root</literal>) are all that is required to install PHPUnit using
-      the PEAR Installer:
+      You can also immediately use the PHAR after you have downloaded it, of
+      course:
     </para>
 
-    <screen><userinput>pear config-set auto_discover 1</userinput>
-<userinput>pear install pear.phpunit.de/PHPUnit</userinput></screen>
-
-    <caution>
-      <para>
-        Depending on your OS distribution and/or your PHP environment, you may
-        need to install PEAR or update your existing PEAR installation before
-        you can proceed with the instructions in this section.
-      </para>
-
-      <para>
-        <userinput>sudo pear upgrade PEAR</userinput> usually suffices to
-        upgrade an existing PEAR installation. The <ulink
-        url="http://pear.php.net/manual/en/installation.getting.php">PEAR Manual</ulink>
-        explains how to perform a fresh installation of PEAR.
-      </para>
-    </caution>
+    <screen><userinput>wget http://pear.phpunit.de/get/phpunit.phar</userinput>
+<userinput>php phpunit.phar</userinput></screen>
   </section>
 
   <section id="installation.composer">
     <title>Composer</title>
 
     <para>
-      To add PHPUnit as a local, per-project dependency to your project, simply
-      add a dependency on <literal>phpunit/phpunit</literal> to your project's
-      <filename>composer.json</filename> file. Here is a minimal example of a
-      <filename>composer.json</filename> file that just defines a
-      development-time dependency on PHPUnit 3.7:
+      Simply add a dependency on <literal>phpunit/phpunit</literal> to your
+      project's <literal>composer.json</literal> file if you use
+      <ulink url="http://getcomposer.org/">Composer</ulink> to manage the
+      dependencies of your project. Here is a minimal example of a
+      <literal>composer.json</literal> file that just defines a development-time
+      dependency on PHPUnit 3.7:
     </para>
 
     <programlisting><![CDATA[{
@@ -93,19 +58,55 @@
         "bin-dir": "/usr/local/bin/"
     }
 }]]></programlisting>
+
+    <note>
+      <para>
+        Support for Composer and PHP Archive (PHAR) was added in PHPUnit 3.7
+        (and is known to be stable since PHPUnit 3.7.5). Earlier releases of
+        PHPUnit are not available through these distribution channels.
+      </para>
+    </note>
   </section>
 
-  <section id="installation.phar">
-    <title>PHP Archive (PHAR)</title>
+  <section id="installation.pear">
+    <title>PEAR</title>
 
     <para>
-      You can also download a PHP Archive (PHAR) of PHPUnit that has all
-      required (as well as some optional) dependencies of PHPUnit bundled in a
-      single file:
+      The following two commands (which you may have to run as
+      <literal>root</literal>) are all that is required to install PHPUnit using
+      the <ulink url="http://pear.php.net/manual/en/guide.users.commandline.cli.php">PEAR Installer</ulink>:
     </para>
 
-    <screen><userinput>wget http://pear.phpunit.de/get/phpunit.phar</userinput>
-<userinput>chmod +x phpunit.phar</userinput></screen>
+    <screen><userinput>pear config-set auto_discover 1</userinput>
+<userinput>pear install pear.phpunit.de/PHPUnit</userinput></screen>
+
+    <caution>
+      <para>
+        Depending on your OS distribution and/or your PHP environment, you may
+        need to install PEAR or update your existing PEAR installation before
+        you can proceed with the instructions in this section.
+      </para>
+
+      <para>
+        <userinput>sudo pear upgrade PEAR</userinput> usually suffices to
+        upgrade an existing PEAR installation. The <ulink
+        url="http://pear.php.net/manual/en/installation.getting.php">PEAR Manual</ulink>
+        explains how to perform a fresh installation of PEAR.
+      </para>
+    </caution>
+
+    <note>
+      <para>
+        PHPUnit 3.7 requires PHP 5.3.3 (or later) but PHP 5.5.1 (or later) is
+        highly recommended.
+      </para>
+
+      <para>
+        PHP_CodeCoverage, the library that is used by PHPUnit to collect and
+        process code coverage information, depends on Xdebug 2.0.5 (or later)
+        but Xdebug 2.2.3 (or later) is highly recommended.
+      </para>
+    </note>
   </section>
 
   <section id="installation.optional-packages">
