@@ -2,7 +2,7 @@
 <?php
 require dirname(__FILE__) . DIRECTORY_SEPARATOR . 'HTMLFilterIterator.php';
 
-function webify_directory($directory, $edition)
+function webify_directory($directory, $language, $version)
 {
     $toc = get_substring(
       file_get_contents($directory . DIRECTORY_SEPARATOR . 'index.html'),
@@ -13,7 +13,6 @@ function webify_directory($directory, $edition)
       TRUE
     );
 
-    $_editions = '';
     $editions  = array(
       'en'    => array('3.8', '3.7'),
       'fr'    => array('3.8', '3.7'),
@@ -21,58 +20,61 @@ function webify_directory($directory, $edition)
       'pt_br' => array('3.8', '3.7')
     );
 
-    foreach ($editions as $language => $versions) {
-        foreach ($versions as $version) {
-            if ($language . '-' . $version == $edition) {
-                $active = ' class="active"';
-            } else {
-                $active = '';
+    $languageList = '';
+    $versionList  = '';
+
+    foreach ($editions as $_language => $versions) {
+        switch ($_language) {
+            case 'de': {
+                $_languageName = 'German';
             }
+            break;
 
-            switch ($language) {
-                case 'de': {
-                    $_language = 'German';
-                }
-                break;
+            case 'en': {
+                $_languageName = 'English';
 
-                case 'en': {
-                    $_language = 'English';
+                foreach ($versions as $_version) {
+                    $versionList .= sprintf(
+                      '<li%s><a href="../../%s/%s/index.html">PHPUnit %s</a></li>',
+                      $version == $_version ? ' class="active"' : '',
+                      $_version,
+                      $language,
+                      $_version
+                    );
                 }
-                break;
-
-                case 'fr': {
-                    $_language = 'French';
-                }
-                break;
-
-                case 'ja': {
-                    $_language = 'Japanese';
-                }
-                break;
-
-                case 'pt_br': {
-                    $_language = 'Brazilian Portuguese';
-                }
-                break;
             }
+            break;
 
-            $_editions .= sprintf(
-              '<li><a href="http://www.phpunit.de/manual/%s/%s/index.html"%s>PHPUnit %s <span><small>%s</small></span></a></li>',
-              $version,
-              $language,
-              $active,
-              $version,
-              $_language
-            );
+            case 'fr': {
+                $_languageName = 'French';
+            }
+            break;
+
+            case 'ja': {
+                $_languageName = 'Japanese';
+            }
+            break;
+
+            case 'pt_br': {
+                $_languageName = 'Brazilian Portuguese';
+            }
+            break;
         }
+
+        $languageList .= sprintf(
+          '<li%s><a href="../%s/index.html">%s</a></li>',
+          $language == $_language ? ' class="active"' : '',
+          $_language,
+          $_languageName
+        );
     }
 
     foreach (new HTMLFilterIterator(new DirectoryIterator($directory)) as $file) {
-        webify_file($file->getPathName(), $toc, $_editions);
+        webify_file($file->getPathName(), $toc, $languageList, $versionList);
     }
 }
 
-function webify_file($file, $toc, $editions)
+function webify_file($file, $toc, $languageList, $versionList)
 {
     $filename = basename($file);
 
@@ -124,8 +126,8 @@ function webify_file($file, $toc, $editions)
     }
 
     $buffer = str_replace(
-      array('{title}', '{content}', '{toc}', '{editions}', '{prev}', '{next}'),
-      array($title, $content, $toc, $editions, $prev, $next),
+      array('{title}', '{content}', '{toc}', '{languages}', '{versions}', '{prev}', '{next}'),
+      array($title, $content, $toc, $languageList, $versionList, $prev, $next),
       $template
     );
 
@@ -177,4 +179,4 @@ function get_substring($buffer, $start, $end, $includeStart = TRUE, $includeEnd 
     }
 }
 
-webify_directory($argv[1], $argv[2]);
+webify_directory($argv[1], $argv[2], $argv[3]);

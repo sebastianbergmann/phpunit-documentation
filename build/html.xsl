@@ -4,7 +4,7 @@
   <xsl:import href="docbook-xsl/xhtml/docbook.xsl"/>
 
   <xsl:param name="default.encoding" select="'utf-8'"/>
-  <xsl:param name="html.stylesheet" select="'docbook.css'"/>
+  <xsl:param name="html.stylesheet" select="'css/docbook.css'"/>
   <xsl:param name="html.stylesheet.type" select="'text/css'"/>
   <xsl:param name="toc.section.depth" select="'3'"/>
   <xsl:param name="use.id.function" select="1"/>

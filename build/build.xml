@@ -13,7 +13,9 @@
     <mkdir dir="output/${version}/${language}"/>
     <mkdir dir="figures"/>
 
-    <copy file="docbook.css" todir="output/${version}/${language}"/>
+    <copy todir="output/${version}/${language}">
+      <fileset dir="assets"/>
+    </copy>
 
     <exec dir="${basedir}" executable="xsltproc" failonerror="true">
       <arg line="--stringparam base.dir output/${version}/${language}/ --stringparam l10n.gentext.language ${language} html-chunked.xsl ../src/${version}/${language}/book.xml"/>
@@ -54,7 +56,7 @@
     </exec>
 
     <exec dir="${basedir}" executable="./scripts/webify.php">
-      <arg line="output/${version}/${language} ${language}-${version}"/>
+      <arg line="output/${version}/${language} ${language} ${version}"/>
     </exec>
 
     <tar destfile="output/${version}/${language}/download.tar.bz2" basedir="output/${version}/${language}" compression="bzip2"/>
