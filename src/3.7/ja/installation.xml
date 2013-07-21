@@ -3,71 +3,34 @@
 <chapter id="installation">
   <title>PHPUnit のインストール</title>
 
-  <para>
-    PHPUnit は、三通りのインストール方法に対応しています。<ulink
-    url="http://pear.php.net/manual/en/guide.users.commandline.cli.php">PEAR
-    インストーラ</ulink> あるいは <ulink url="http://getcomposer.org/">Composer</ulink>
-    で、PHPUnit とその依存コンポーネントをダウンロードしてインストールすることもできるし、
-    PHPUnit を <ulink url="http://php.net/phar">PHP Archive (PHAR)</ulink>
-    形式でダウンロードすることもできます。PHAR 版の PHPUnit は、
-    必要な依存コンポーネントがすべて (オプションのコンポーネントの一部も含めて)
-    ひとつのファイルにまとめられています。
-  </para>
-
-  <note>
-    <para>
-      Composer および PHP Archive (PHAR) には、PHPUnit 3.7
-      以降で対応するようになりました (安定したのは PHPUnit 3.7.5 からです)。
-      それより前のバージョンの PHPUnit は、これらの形式では配布されていません。
-    </para>
-  </note>
-
-  <note>
-    <para>
-      PHPUnit 3.7 は PHP 5.3.3 以降のバージョンで動作しますが、PHP 5.4.7
-      以降を使うことを強く推奨します。
-    </para>
+  <section id="installation.phar">
+    <title>PHP Archive (PHAR)</title>
 
     <para>
-      PHPUnit では PHP_CodeCoverage というライブラリを使ってコードカバレッジ情報を処理していますが、
-      このライブラリを使うには Xdebug 2.0.5 以降が必要です。
-      しかし、Xdebug 2.2.0 以降を使うことを強く推奨します。
+      PHPUnit を入手する一番簡単な方法は、<ulink
+      url="http://php.net/phar">PHP Archive (PHAR)</ulink> をダウンロードすることです。
+      必要な依存コンポーネントがすべて (オプションのコンポーネントの一部も含めて)
+      ひとつのファイルにまとめられています。
     </para>
-  </note>
 
-  <section id="installation.pear">
-    <title>PEAR</title>
+    <screen><userinput>wget http://pear.phpunit.de/get/phpunit.phar</userinput>
+<userinput>chmod +x phpunit.phar</userinput>
+<userinput>mv phpunit.phar /usr/local/bin/phpunit</userinput></screen>
 
     <para>
-      次のふたつのコマンドを実行するだけで (<literal>root</literal> として実行しなければならないかもしれません)、PHPUnit
-      に必要なものがすべて PEAR インストーラを使ってインストールできます。
+      もちろん、ダウンロードした PHAR をそのまますぐに使ってもかまいません。
     </para>
 
-    <screen><userinput>pear config-set auto_discover 1</userinput>
-<userinput>pear install pear.phpunit.de/PHPUnit</userinput></screen>
-
-    <caution>
-      <para>
-        OS のディストリビューションや PHP の環境によっては、
-        ここで説明する手順を実行する前に
-        まず PEAR をインストールしたり既存の PEAR をアップデートしたりする必要があるかもしれません。
-      </para>
-
-      <para>
-        既存の PEAR 環境のアップデートは、通常は
-        <userinput>sudo pear upgrade PEAR</userinput>
-        を実行するだけのことです。PEAR の新規インストール方法は
-        <ulink url="http://pear.php.net/manual/en/installation.getting.php">PEAR
-        マニュアル</ulink> に説明があります。
-      </para>
-    </caution>
+    <screen><userinput>wget http://pear.phpunit.de/get/phpunit.phar</userinput>
+<userinput>php phpunit.phar</userinput></screen>
   </section>
 
   <section id="installation.composer">
     <title>Composer</title>
 
     <para>
-      PHPUnit をプロジェクト単位で導入して開発用の依存関係を設定するには、
+      <ulink url="http://getcomposer.org/">Composer</ulink>
+      を使ってプロジェクトの依存関係を管理するには、
       <literal>phpunit/phpunit</literal> への依存情報をプロジェクトの
       <filename>composer.json</filename> ファイルに追加します。
       次に示すのは最小限の
@@ -94,20 +57,56 @@
         "bin-dir": "/usr/local/bin/"
     }
 }]]></programlisting>
+
+    <note>
+      <para>
+        Composer および PHP Archive (PHAR) には、PHPUnit 3.7
+        以降で対応するようになりました (安定したのは PHPUnit 3.7.5 からです)。
+        それより前のバージョンの PHPUnit は、これらの形式では配布されていません。
+      </para>
+    </note>
   </section>
 
-  <section id="installation.phar">
-    <title>PHP Archive (PHAR)</title>
+  <section id="installation.pear">
+    <title>PEAR</title>
 
     <para>
-      PHPUnit を PHP Archive (PHAR)
-      形式でダウンロードすることもできます。PHAR 版の PHPUnit は、
-      必要な依存コンポーネントがすべて (オプションのコンポーネントの一部も含めて)
-      ひとつのファイルにまとめられています。
+      次のふたつのコマンドを実行するだけで (<literal>root</literal> として実行しなければならないかもしれません)、
+      <ulink url="http://pear.php.net/manual/ja/guide.users.commandline.cli.php">PEAR インストーラー</ulink>
+      を使って PHPUnit をインストールできるようになります。
     </para>
 
-    <screen><userinput>wget http://pear.phpunit.de/get/phpunit.phar</userinput>
-<userinput>chmod +x phpunit.phar</userinput></screen>
+    <screen><userinput>pear config-set auto_discover 1</userinput>
+<userinput>pear install pear.phpunit.de/PHPUnit</userinput></screen>
+
+    <caution>
+      <para>
+        OS のディストリビューションや PHP の環境によっては、
+        ここで説明する手順を実行する前に
+        まず PEAR をインストールしたり既存の PEAR をアップデートしたりする必要があるかもしれません。
+      </para>
+
+      <para>
+        既存の PEAR 環境のアップデートは、通常は
+        <userinput>sudo pear upgrade PEAR</userinput>
+        を実行するだけのことです。PEAR の新規インストール方法は
+        <ulink url="http://pear.php.net/manual/en/installation.getting.php">PEAR
+        マニュアル</ulink> に説明があります。
+      </para>
+    </caution>
+
+    <note>
+      <para>
+        PHPUnit 3.7 は PHP 5.3.3 以降のバージョンで動作しますが、PHP 5.5.1
+        以降を使うことを強く推奨します。
+      </para>
+
+      <para>
+        PHPUnit では PHP_CodeCoverage というライブラリを使ってコードカバレッジ情報を処理していますが、
+        このライブラリを使うには Xdebug 2.0.5 以降が必要です。
+        しかし、Xdebug 2.2.3 以降を使うことを強く推奨します。
+      </para>
+    </note>
   </section>
 
   <section id="installation.optional-packages">
@@ -134,7 +133,7 @@
           <screen><userinput>pear install phpunit/DbUnit</userinput></screen>
 
           <para>
-            composer でインストールするには、
+            Composer でインストールするには、
             <literal>"require-dev"</literal>
             に次の行を追加します。
           </para>
@@ -160,7 +159,7 @@
           <screen><userinput>pear install phpunit/PHP_Invoker</userinput></screen>
 
           <para>
-            composer でインストールするには、
+            Composer でインストールするには、
             <literal>"require-dev"</literal>
             に次の行を追加します。
           </para>
@@ -185,7 +184,7 @@
           <screen><userinput>pear install phpunit/PHPUnit_Selenium</userinput></screen>
 
           <para>
-            composer でインストールするには、
+            Composer でインストールするには、
             <literal>"require-dev"</literal>
             に次の行を追加します。
           </para>
@@ -210,7 +209,7 @@
           <screen><userinput>pear install phpunit/PHPUnit_Story</userinput></screen>
 
           <para>
-            composer でインストールするには、
+            Composer でインストールするには、
             <literal>"require-dev"</literal>
             に次の行を追加します。
           </para>
