@@ -92,10 +92,11 @@ function webify_file($file, $toc, $languageList, $versionList)
       dirname(__FILE__) . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR . 'page.html'
     );
 
-    $title   = '';
-    $content = '';
-    $prev    = '';
-    $next    = '';
+    $title       = '';
+    $content     = '';
+    $prev        = '';
+    $next        = '';
+    $suggestions = '';
 
     if ($filename !== 'index.html') {
         if (strpos($filename, 'appendixes') === 0) {
@@ -110,11 +111,12 @@ function webify_file($file, $toc, $languageList, $versionList)
             $type = 'chapter';
         }
 
-        $buffer  = file_get_contents($file);
-        $title   = get_substring($buffer, '<title>', '</title>', FALSE, FALSE);
-        $content = get_substring($buffer, '<div class="' . $type . '"', '<div class="navfooter">', TRUE, FALSE);
-        $prev    = get_substring($buffer, '<link rel="prev" href="', '" title', FALSE, FALSE);
-        $next    = get_substring($buffer, '<link rel="next" href="', '" title', FALSE, FALSE);
+        $buffer      = file_get_contents($file);
+        $title       = get_substring($buffer, '<title>', '</title>', FALSE, FALSE);
+        $content     = get_substring($buffer, '<div class="' . $type . '"', '<div class="navfooter">', TRUE, FALSE);
+        $prev        = get_substring($buffer, '<link rel="prev" href="', '" title', FALSE, FALSE);
+        $next        = get_substring($buffer, '<link rel="next" href="', '" title', FALSE, FALSE);
+        $suggestions = '<div class="row"><div class="span2"></div><div class="span8"><div class="alert alert-info" style="text-align: center;">Please <a href="https://github.com/sebastianbergmann/phpunit-documentation/issues">open a ticket</a> on GitHub to suggest improvements to this page. Thanks!</div></div><div class="span2"></div></div>';
 
         if (!empty($prev)) {
             $prev = '<a accesskey="p" href="' . $prev . '">Prev</a>';
@@ -126,8 +128,8 @@ function webify_file($file, $toc, $languageList, $versionList)
     }
 
     $buffer = str_replace(
-      array('{title}', '{content}', '{toc}', '{languages}', '{versions}', '{prev}', '{next}', '<div class="caution" style="margin-left: 0.5in; margin-right: 0.5in;">', '<div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">'),
-      array($title, $content, $toc, $languageList, $versionList, $prev, $next, '<div class="alert alert-error">', '<div class="alert alert-info">'),
+      array('{title}', '{content}', '{toc}', '{languages}', '{versions}', '{prev}', '{next}', '<div class="caution" style="margin-left: 0.5in; margin-right: 0.5in;">', '<div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">', '{suggestions}'),
+      array($title, $content, $toc, $languageList, $versionList, $prev, $next, '<div class="alert alert-error">', '<div class="alert alert-info">', $suggestions),
       $template
     );
 
