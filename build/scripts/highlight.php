@@ -442,13 +442,15 @@ function highlight($string)
             "\r",
             "\n",
             '<code>&nbsp;<br /><span class="default">&lt;?php',
-            '?&gt;</span><br />&nbsp;<br />&nbsp;<br />'
+            '?&gt;</span><br />&nbsp;<br />&nbsp;<br />',
+            '<br /></code>'
           ),
           array(
             '',
             '',
             '<code><span class="default">&lt;?php',
-            '?&gt;</span>'
+            '?&gt;</span>',
+            '</code>'
           ),
           $highlighter->toHtml(TRUE, FALSE, NULL, FALSE)
         );
