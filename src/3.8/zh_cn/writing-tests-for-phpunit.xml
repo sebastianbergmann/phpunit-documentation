@@ -12,7 +12,7 @@
   <orderedlist>
     <listitem><para>针对类 <literal>Class</literal> 的测试写在类 <literal>ClassTest</literal> 中。</para></listitem>
     <listitem><para><literal>ClassTest</literal>（通常）继承自 <literal>PHPUnit_Framework_TestCase</literal>。</para></listitem>
-    <listitem><indexterm><primary>Annotation （注解）</primary></indexterm><indexterm><primary>@test</primary></indexterm><para>测试都是命名为 <literal>test*</literal> 的公用方法。</para><para><indexterm><primary>Annotation （注解）</primary></indexterm>另外，你可以在方法的文档注释块(docblock)中使用 <literal>@test</literal> 注解将其标记为测试方法。</para></listitem>
+    <listitem><indexterm><primary>Annotation （注标）</primary></indexterm><indexterm><primary>@test</primary></indexterm><para>测试都是命名为 <literal>test*</literal> 的公用方法。</para><para><indexterm><primary>Annotation （批注）</primary></indexterm>另外，你可以在方法的文档注释块(docblock)中使用 <literal>@test</literal> 注标将其标记为测试方法。</para></listitem>
     <listitem><para>在测试方法内，类似于 <literal>assertEquals()</literal>（参看<xref linkend="writing-tests-for-phpunit.assertions" />）这样的断言方法用来对实际值与预期值的匹配做出断言。</para></listitem>
   </orderedlist>
 
@@ -40,7 +40,7 @@ class StackTest extends PHPUnit_Framework_TestCase
   <blockquote>
     <attribution>Martin Fowler</attribution>
     <para>
-      每当你想把一些东西写到<literal>print</literal>语句或者调试表达式中时，就将其写成一个测试来代替。
+      当你想把一些东西写到 <literal>print</literal> 语句或者调试表达式中时，别这么做，将其写成一个测试来代替。
     </para>
   </blockquote>
 
@@ -50,44 +50,29 @@ class StackTest extends PHPUnit_Framework_TestCase
     <blockquote>
       <attribution>Adrian Kuhn et. al.</attribution>
       <para>
-	  单元测试主要作为一种良好实践，来帮助开发人员识别并修复 bug、重构代码、并作为测试下的软件单元的文档。
-	  要实现这些好处，理想的单元测试应当覆盖程序中所有可能的路径。一个单元测试通常覆盖一个函数或方法中的一个特定路径。
-        Unit Tests are primarily written as a good practice to help developers
-        identify and fix bugs, to refactor code and to serve as documentation
-        for a unit of software under test. To achieve these benefits, unit tests
-        ideally should cover all the possible paths in a program. One unit test
-        usually covers one specific path in one function or method. However a
-        test method is not necessary an encapsulated, independent entity. Often
-        there are implicit dependencies between test methods, hidden in the
-        implementation scenario of a test.
+      单元测试主要是作为一种良好实践来编写的，它能帮助开发人员识别并修复 bug、重构代码，还可以看作被测软件单元的文档。要实现这些好处，理想的单元测试应当覆盖程序中所有可能的路径。一个单元测试通常覆盖一个函数或方法中的一个特定路径。但是，测试方法并不一定非要是一个封装良好的独立实体。测试方法之间经常有隐含的依赖关系暗藏在测试的实现方案中。
       </para>
     </blockquote>
 
     <para>
       <indexterm><primary>Test Dependencies （测试的相互依赖）</primary></indexterm>
-
-      PHPUnit supports the declaration of explicit dependencies between test
-      methods. Such dependencies do not define the order in which the test
-      methods are to be executed but they allow the returning of an instance of
-      the test fixture by a producer and passing it to the dependent consumers.
+      PHPUnit支持对测试方法之间的显式依赖关系进行声明。这种依赖关系并不是定义在测试方法的执行顺序中，而是允许生产者(producer)返回一个测试基境(fixture)的实例，并将此实例传递给依赖于它的消费者(consumer)们。
     </para>
 
     <itemizedlist>
-      <listitem><para>A producer is a test method that yields its unit under test as return value.</para></listitem>
-      <listitem><para>A consumer is a test method that depends on one or more producers and their return values.</para></listitem>
+      <listitem><para>生产者(producer)，是能生成被测单元并将其作为返回值的测试方法。</para></listitem>
+      <listitem><para>消费者(consumer)，是依赖于一个或多个生产者及其返回值的测试方法。</para></listitem>
     </itemizedlist>
 
     <para>
-      <indexterm><primary>Annotation</primary></indexterm>
+      <indexterm><primary>Annotation （注标）</primary></indexterm>
       <indexterm><primary>@depends</primary></indexterm>
 
-      <xref linkend="writing-tests-for-phpunit.examples.StackTest2.php" /> shows
-      how to use the <literal>@depends</literal> annotation to express
-      dependencies between test methods.
+      <xref linkend="writing-tests-for-phpunit.examples.StackTest2.php" /> 展示了如何用 <literal>@depends</literal> 注标来表达测试方法之间的依赖关系。
     </para>
 
     <example id="writing-tests-for-phpunit.examples.StackTest2.php">
-      <title>Using the <literal>@depends</literal> annotation to express dependencies</title>
+      <title>用 <literal>@depends</literal> 注标来表达依赖关系</title>
       <programlisting><![CDATA[<?php
 class StackTest extends PHPUnit_Framework_TestCase
 {
@@ -124,26 +109,16 @@ class StackTest extends PHPUnit_Framework_TestCase
     </example>
 
     <para>
-      In the example above, the first test, <literal>testEmpty()</literal>,
-      creates a new array and asserts that it is empty. The test then returns
-      the fixture as its result. The second test, <literal>testPush()</literal>,
-      depends on <literal>testEmpty()</literal> and is passed the result of that
-      depended-upon test as its argument. Finally, <literal>testPop()</literal>
-      depends upon <literal>testPush()</literal>.
+      在上例中，第一个测试， <literal>testEmpty()</literal>，创建了一个新数组，并断言其为空。随后，此测试将此基境作为结果返回。第二个测试， <literal>testPush()</literal>，依赖于 <literal>testEmpty()</literal> ，并将所依赖的测试之结果作为参数传入。最后， <literal>testPop()</literal> 依赖于 <literal>testPush()</literal>。
     </para>
 
     <para>
-      <indexterm><primary>Defect Localization</primary></indexterm>
-
-      To quickly localize defects, we want our attention to be focussed on
-      relevant failing tests. This is why PHPUnit skips the execution of a test
-      when a depended-upon test has failed. This improves defect localization by
-      exploiting the dependencies between tests as shown in
-      <xref linkend="writing-tests-for-phpunit.examples.DependencyFailureTest.php" />.
+      <indexterm><primary>Defect Localization （缺陷定位）</primary></indexterm>
+      为了快速定位缺陷，我们希望把注意力集中于相关的失败测试上。这就是为什么当某个测试所依赖的测试失败时，PHPUnit 会跳过这个测试。通过利用测试之间的依赖关系，缺陷定位得到了改进，如<xref linkend="writing-tests-for-phpunit.examples.DependencyFailureTest.php" />中所示。
     </para>
 
     <example id="writing-tests-for-phpunit.examples.DependencyFailureTest.php">
-      <title>Exploiting the dependencies between tests</title>
+      <title>利用测试之间的依赖关系</title>
       <programlisting><![CDATA[<?php
 class DependencyFailureTest extends PHPUnit_Framework_TestCase
 {
