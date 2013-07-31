@@ -45,7 +45,7 @@ class StackTest extends PHPUnit_Framework_TestCase
   </blockquote>
 
   <section id="writing-tests-for-phpunit.test-dependencies">
-    <title>测试的相互依赖</title>
+    <title>测试的依赖关系</title>
 
     <blockquote>
       <attribution>Adrian Kuhn et. al.</attribution>
@@ -55,7 +55,7 @@ class StackTest extends PHPUnit_Framework_TestCase
     </blockquote>
 
     <para>
-      <indexterm><primary>Test Dependencies （测试的相互依赖）</primary></indexterm>
+      <indexterm><primary>Test Dependencies （测试的依赖关系）</primary></indexterm>
       PHPUnit支持对测试方法之间的显式依赖关系进行声明。这种依赖关系并不是定义在测试方法的执行顺序中，而是允许生产者(producer)返回一个测试基境(fixture)的实例，并将此实例传递给依赖于它的消费者(consumer)们。
     </para>
 
@@ -161,36 +161,25 @@ Tests: 1, Assertions: 1, Failures: 1, Skipped: 1.]]></screen>
     </example>
 
     <para>
-      A test may have more than one <literal>@depends</literal> annotation.
-      PHPUnit does not change the order in which tests are executed, you have to
-      ensure that the dependencies of a test can actually be met before the test
-      is run.
+      测试可以使用多于一个 <literal>@depends</literal> 注标。PHPUnit 不会更改测试的运行顺序，因此你需要自行保证某个测试所依赖的所有测试均出现于这个测试之前。
     </para>
   </section>
 
   <section id="writing-tests-for-phpunit.data-providers">
-    <title>Data Providers</title>
+    <title>数据供给器</title>
 
     <para>
-      <indexterm><primary>Annotation</primary></indexterm>
+      <indexterm><primary>Annotation （注标）</primary></indexterm>
       <indexterm><primary>@dataProvider</primary></indexterm>
-      A test method can accept arbitrary arguments. These arguments are to be
-      provided by a data provider method (<literal>provider()</literal> in
-      <xref linkend="writing-tests-for-phpunit.data-providers.examples.DataTest.php" />).
-      The data provider method to be used is specified using the
-      <literal>@dataProvider</literal> annotation.
+      测试方法可以接受任意参数。这些参数由数据供给器方法（在<xref linkend="writing-tests-for-phpunit.data-providers.examples.DataTest.php" />中，是 <literal>provider()</literal> 方法）提供。用 <literal>@dataProvider </literal> 注标来指定使用哪个数据供给器方法。
     </para>
 
     <para>
-      A data provider method must be <literal>public</literal> and either return
-      an array of arrays or an object that implements the <literal>Iterator</literal>
-      interface and yields an array for each iteration step. For each array that
-      is part of the collection the test method will be called with the contents
-      of the array as its arguments.
+      数据供给器方法必须声明为 <literal>public</literal>，其返回值要么是一个数组，其每个元素也是数组；要么是一个实现了 <literal>Iterator</literal> 接口的对象，在对它进行迭代时每步产生一个数组。每个数组都是测试数据集的一部分，将以它的内容作为参数来调用测试方法。
     </para>
 
     <example id="writing-tests-for-phpunit.data-providers.examples.DataTest.php">
-      <title>Using a data provider that returns an array of arrays</title>
+      <title>使用返回数组的数组的数据供给器</title>
       <programlisting><![CDATA[<?php
 class DataTest extends PHPUnit_Framework_TestCase
 {
@@ -233,7 +222,7 @@ Tests: 4, Assertions: 4, Failures: 1.]]></screen>
     </example>
 
     <example id="writing-tests-for-phpunit.data-providers.examples.DataTest2.php">
-      <title>Using a data provider that returns an Iterator object</title>
+      <title>使用返回迭代器对象的数据供给器</title>
       <programlisting><![CDATA[<?php
 require 'CsvFileIterator.php';
 
@@ -273,7 +262,7 @@ Tests: 4, Assertions: 4, Failures: 1.]]></screen>
     </example>
 
     <example id="writing-tests-for-phpunit.data-providers.examples.CsvFileIterator.php">
-      <title>The CsvFileIterator class</title>
+      <title>CsvFileIterator 类</title>
       <programlisting><![CDATA[<?php
 class CsvFileIterator implements Iterator {
     protected $file;
@@ -316,59 +305,43 @@ class CsvFileIterator implements Iterator {
 
     <note>
       <para>
-        <indexterm><primary>Annotation</primary></indexterm>
+        <indexterm><primary>Annotation （注标）</primary></indexterm>
         <indexterm><primary>@dataProvider</primary></indexterm>
         <indexterm><primary>@depends</primary></indexterm>
-
-        When a test receives input from both a <literal>@dataProvider</literal>
-        method and from one or more tests it <literal>@depends</literal> on, the
-        arguments from the data provider will come before the ones from
-        depended-upon tests.
+        如果测试同时从 <literal>@dataProvider</literal> 方法和一个或多个 <literal>@depends</literal> 测试接收数据，那么来自于数据供给器的参数将先于来自所依赖的测试的。
       </para>
     </note>
 
     <note>
       <para>
-        <indexterm><primary>Annotation</primary></indexterm>
-        <indexterm><primary>@dataProvider</primary></indexterm>
+        <indexterm><primary>Annotation （注标）</primary></indexterm>
+        <indexterm><primary>@dataProvider </primary></indexterm>
         <indexterm><primary>@depends</primary></indexterm>
-
-        When a test depends on a test that uses data providers, the depending
-        test will be executed when the test it depends upon is successful for at
-        least one data set. The result of a test that uses data providers cannot
-        be injected into a depending test.
+        当一个测试依赖于另外一个使用了数据供给器的测试时，仅当被依赖的测试至少能在一组数据上成功时，依赖于它的测试才会运行。使用了数据供给器的测试，其运行结果是无法注入到依赖于此测试的其他测试中的。
       </para>
     </note>
 
     <note>
       <para>
-        <indexterm><primary>Annotation</primary></indexterm>
+        <indexterm><primary>Annotation （注标）</primary></indexterm>
         <indexterm><primary>@dataProvider</primary></indexterm>
         <indexterm><primary>@depends</primary></indexterm>
-
-        All data providers are executed before both the call to the <literal>setUpBeforeClass</literal>
-        static method and the first call to the <literal>setUp</literal> method.
-        Because of that you can't access any variables you create there from
-        within a data provider. This is required in order for PHPUnit to be able
-        to compute the total number of tests.
+        所有的数据供给器方法的执行都是在对 <literal>setUpBeforeClass</literal> 静态方法的调用和第一次对 <literal>setUp</literal> 方法的调用之前完成的。因此，无法在数据供给器中使用创建于这两个方法内的变量。这是必须的，这样 PHPUnit 才能计算测试的总数量。
       </para>
     </note>
   </section>
 
   <section id="writing-tests-for-phpunit.exceptions">
-    <title>Testing Exceptions</title>
+    <title>对异常进行测试</title>
 
     <para>
-      <indexterm><primary>Annotation</primary></indexterm>
+      <indexterm><primary>Annotation （注标）</primary></indexterm>
       <indexterm><primary>@expectedException</primary></indexterm>
-
-      <xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest.php" />
-      shows how to use the <literal>@expectedException</literal> annotation to
-      test whether an exception is thrown inside the tested code.
+      <xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest.php" />展示了如何用 <literal>@expectedException</literal> 注标来测试被测代码中是否抛出了异常。
     </para>
 
     <example id="writing-tests-for-phpunit.exceptions.examples.ExceptionTest.php">
-      <title>Using the @expectedException annotation</title>
+      <title>使用 @expectedException 注标</title>
       <programlisting><![CDATA[<?php
 class ExceptionTest extends PHPUnit_Framework_TestCase
 {
@@ -398,20 +371,15 @@ Tests: 1, Assertions: 1, Failures: 1.</screen>
     </example>
 
     <para>
-      <indexterm><primary>Annotation</primary></indexterm>
+      <indexterm><primary>Annotation （注标）</primary></indexterm>
       <indexterm><primary>@expectedException</primary></indexterm>
       <indexterm><primary>@expectedExceptionMessage</primary></indexterm>
       <indexterm><primary>@expectedExceptionCode</primary></indexterm>
-
-      Additionally, you can use <literal>@expectedExceptionMessage</literal>
-      and <literal>@expectedExceptionCode</literal> in combination with
-      <literal>@expectedException</literal> to test the exception message and
-      exception code as shown in
-      <xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest2.php" />.
+      另外，你可以将 <literal>@expectedExceptionMessage</literal> 和 <literal>@expectedExceptionCode</literal> 与 <literal>@expectedException</literal> 组合使用，来对异常的讯息与代号进行测试，如<xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest2.php" />所示。
     </para>
 
     <example id="writing-tests-for-phpunit.exceptions.examples.ExceptionTest2.php">
-      <title>Using the @expectedExceptionMessage and @expectedExceptionCode annotations</title>
+      <title>使用 @expectedExceptionMessage 和 @expectedExceptionCode 注标</title>
       <programlisting><![CDATA[<?php
 class ExceptionTest extends PHPUnit_Framework_TestCase
 {
@@ -456,19 +424,15 @@ Tests: 2, Assertions: 4, Failures: 2.]]></screen>
     </example>
 
     <para>
-      More examples of <literal>@expectedExceptionMessage</literal> and <literal>@expectedExceptionCode</literal>
-      are shown in <xref linkend="appendixes.annotations.expectedExceptionMessage"/> and
-      <xref linkend="appendixes.annotations.expectedExceptionCode"/> respectively.
+      关于 <literal>@expectedExceptionMessage</literal> 和 <literal>@expectedExceptionCode</literal>，分别在<xref linkend="appendixes.annotations.expectedExceptionMessage"/>和<xref linkend="appendixes.annotations.expectedExceptionCode"/>有更多相关范例。
     </para>
 
-
     <para>
-      Alternatively, you can use the <literal>setExpectedException()</literal>
-      method to set the expected exception as shown in <xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest3.php" />.
+      此外，还可以用 <literal>setExpectedException()</literal> 方法来设定所预期的异常，如<xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest3.php" />所示。
     </para>
 
     <example id="writing-tests-for-phpunit.exceptions.examples.ExceptionTest3.php">
-      <title>Expecting an exception to be raised by the tested code</title>
+      <title>预期被测代码将引发异常</title>
       <programlisting><![CDATA[<?php
 class ExceptionTest extends PHPUnit_Framework_TestCase
 {
@@ -519,85 +483,73 @@ Tests: 3, Assertions: 6, Failures: 3.]]></screen>
     </example>
 
     <para>
-      <xref linkend="writing-tests-for-phpunit.exceptions.tables.api" />
-      shows the methods provided for testing exceptions.
+      <xref linkend="writing-tests-for-phpunit.exceptions.tables.api" />中列举了用于对异常进行测试的各种方法。
     </para>
 
     <table id="writing-tests-for-phpunit.exceptions.tables.api">
-      <title>Methods for testing exceptions</title>
+      <title>用于对异常进行测试的方法</title>
 
       <tgroup cols="2" align="left" colsep="1" rowsep="1">
         <thead>
           <row>
-            <entry>Method</entry>
-            <entry>Meaning</entry>
+            <entry>方法</entry>
+            <entry>含义</entry>
           </row>
         </thead>
         <tbody>
           <row>
             <entry><literal>void setExpectedException(string $exceptionName[, string $exceptionMessage = '', integer $exceptionCode = NULL])</literal></entry>
-            <entry>Set the expected <literal>$exceptionName</literal>, <literal>$exceptionMessage</literal>, and <literal>$exceptionCode.</literal></entry>
+            <entry>设定预期的 <literal>$exceptionName</literal>， <literal>$exceptionMessage</literal>，和 <literal>$exceptionCode</literal>。</entry>
           </row>
           <row>
             <entry><literal>String getExpectedException()</literal></entry>
-            <entry>Return the name of the expected exception.</entry>
+            <entry>返回预期异常的名称。</entry>
           </row>
         </tbody>
       </tgroup>
     </table>
 
     <para>
-      You can also use the approach shown in
-      <xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest4.php" />
-      to test exceptions.
+      你可以用<xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest4.php" />中所示方法来对异常进行测试。
     </para>
 
     <example id="writing-tests-for-phpunit.exceptions.examples.ExceptionTest4.php">
-      <title>Alternative approach to testing exceptions</title>
+      <title>另一种对异常进行测试的方法</title>
       <programlisting><![CDATA[<?php
 class ExceptionTest extends PHPUnit_Framework_TestCase {
     public function testException() {
         try {
-            // ... Code that is expected to raise an exception ...
+            // ... 预期会引发异常的代码 ...
         }
 
         catch (InvalidArgumentException $expected) {
             return;
         }
 
-        $this->fail('An expected exception has not been raised.');
+        $this->fail('预期的异常未出现。');
     }
 }
 ?>]]></programlisting>
     </example>
 
     <para>
-      If the code that is expected to raise an exception in <xref
-      linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest4.php" />
-      does not raise the expected exception, the subsequent call to
-      <literal>fail()</literal> will halt the test and signal a problem with the
-      test. If the expected exception is raised, the <literal>catch</literal>
-      block will be executed, and the test will end successfully.
+      当<xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest4.php" />中预期会引发异常的代码并没有引发异常时，后面对 <literal>fail()</literal> 的调用将会中止测试，并通告测试有问题。如果预期的异常出现了，将执行 <literal>catch</literal> 代码块，测试将会成功结束。
     </para>
   </section>
 
   <section id="writing-tests-for-phpunit.errors">
-    <title>Testing PHP Errors</title>
+    <title>对 PHP 错误进行测试</title>
     <para>
-      <indexterm><primary>Error Handler</primary></indexterm>
-      <indexterm><primary>PHP Error</primary></indexterm>
-      <indexterm><primary>PHP Notice</primary></indexterm>
-      <indexterm><primary>PHP Warning</primary></indexterm>
+      <indexterm><primary>Error Handler （错误处理）</primary></indexterm>
+      <indexterm><primary>PHP Error （PHP 错误）</primary></indexterm>
+      <indexterm><primary>PHP Notice （PHP 通知）</primary></indexterm>
+      <indexterm><primary>PHP Warning （PHP 警告）</primary></indexterm>
       <indexterm><primary>PHPUnit_Framework_Error</primary></indexterm>
-
-      By default, PHPUnit converts PHP errors, warnings, and notices that are
-      triggered during the execution of a test to an exception. Using these
-      exceptions, you can, for instance, expect a test to trigger a PHP error as
-      shown in <xref linkend="writing-tests-for-phpunit.exceptions.examples.ErrorTest.php" />.
+      默认情况下，PHPUnit 将测试在执行中触发的 PHP 错误、警告、通知都转换为异常。利用这些异常，就可以，比如说，预期测试将触发 PHP 错误，如<xref linkend="writing-tests-for-phpunit.exceptions.examples.ErrorTest.php" />所示。
     </para>
 
     <example id="writing-tests-for-phpunit.exceptions.examples.ErrorTest.php">
-      <title>Expecting a PHP error using @expectedException</title>
+      <title>用 @expectedException 来预期 PHP 错误</title>
       <programlisting><![CDATA[<?php
 class ExpectedErrorTest extends PHPUnit_Framework_TestCase
 {
@@ -623,31 +575,19 @@ OK (1 test, 1 assertion)</screen>
     <para>
       <indexterm><primary>PHPUnit_Framework_Error_Notice</primary></indexterm>
       <indexterm><primary>PHPUnit_Framework_Error_Warning</primary></indexterm>
-
-      <literal>PHPUnit_Framework_Error_Notice</literal> and
-      <literal>PHPUnit_Framework_Error_Warning</literal> represent PHP notices
-      and warnings, respectively.
+      <literal>PHPUnit_Framework_Error_Notice</literal> 和 <literal>PHPUnit_Framework_Error_Warning</literal> 分别代表 PHP 通知与 PHP 警告。
     </para>
 
     <note>
       <para>
-        You should be as specific as possible when testing exceptions. Testing
-        for classes that are too generic might lead to undesirable
-        side-effects. Accordingly, testing for the <literal>Exception</literal>
-        class with <literal>@expectedException</literal> or
-        <literal>setExpectedException()</literal> is no longer permitted.
+        对异常进行测试是越明确越好的。对太笼统的类进行测试有可能导致不良副作用。因此，不再允许用 <literal>@expectedException</literal> 或 <literal>setExpectedException()</literal> 对 <literal>Exception</literal> 类进行测试。
       </para>
     </note>
 
     <para>
-        When testing that relies on php functions that trigger errors like 
-        <literal>fopen</literal> it can sometimes be useful to use error
-        suppression while testing. This allows you to check the return values by
-        suppressing notices that would lead to a phpunit 
-        <literal>PHPUnit_Framework_Error_Notice</literal>.
+        如果测试依靠会触发错误的 PHP 函数，例如 <literal>fopen</literal>，有时候在测试中使用错误抑制符会很有用。通过抑制住错误通知，就能对返回值进行检查，否则错误通知将会导致抛出<literal>PHPUnit_Framework_Error_Notice</literal>。
         <example id="writing-tests-for-phpunit.exceptions.examples.TriggerErrorReturnValue.php">
-
-            <title>Testing return values of code that uses PHP Errors</title>
+            <title>对会引发PHP 错误的代码的返回值进行测试</title>
             <programlisting><![CDATA[<?php
 class ErrorSuppressionTest extends PHPUnit_Framework_TestCase
 {
@@ -677,35 +617,25 @@ Time: 1 seconds, Memory: 5.25Mb
 
 OK (1 test, 1 assertion)</screen>
         </example>
-    Without the error suppression the test would fail reporting
-    <literal>fopen(/is-not-writeable/file): failed to open stream:
-    No such file or directory</literal>.
+    如果不使用错误抑制符，此测试将会失败，并报告 <literal>fopen(/is-not-writeable/file): failed to open stream:
+    No such file or directory</literal>。
 
     </para>
   </section>
 
   <section id="writing-tests-for-phpunit.output">
-    <title>Testing Output</title>
+    <title>对输出进行测试</title>
 
     <para>
-      Sometimes you want to assert that the execution of a method, for
-      instance, generates an expected output (via <literal>echo</literal> or
-      <literal>print</literal>, for example). The
-      <literal>PHPUnit_Framework_TestCase</literal> class uses PHP's
-      <ulink url="http://www.php.net/manual/en/ref.outcontrol.php">Output
-      Buffering</ulink> feature to provide the functionality that is
-      necessary for this.
+      有时候，想要断言，比如说，生成了预期的输出（例如，通过 <literal>echo</literal> 或 <literal>print</literal>）。<literal>PHPUnit_Framework_TestCase</literal> 类使用 PHP 的 <ulink url="http://www.php.net/manual/en/ref.outcontrol.php">输出缓冲</ulink> 特性来为此提供必要的功能。
     </para>
 
     <para>
-      <xref linkend="writing-tests-for-phpunit.output.examples.OutputTest.php" />
-      shows how to use the <literal>expectOutputString()</literal> method to
-      set the expected output. If this expected output is not generated, the
-      test will be counted as a failure.
+      <xref linkend="writing-tests-for-phpunit.output.examples.OutputTest.php" />展示了如何用 <literal>expectOutputString()</literal> 方法来设定所预期的输出。如果没有产生预期的输出，测试将计为失败。
     </para>
 
     <example id="writing-tests-for-phpunit.output.examples.OutputTest.php">
-      <title>Testing the output of a function or method</title>
+      <title>对函数或方法的输出进行测试</title>
       <programlisting><![CDATA[<?php
 class OutputTest extends PHPUnit_Framework_TestCase
 {
@@ -745,32 +675,31 @@ Tests: 2, Assertions: 2, Failures: 1.</screen>
     </example>
 
     <para>
-      <xref linkend="writing-tests-for-phpunit.output.tables.api" />
-      shows the methods provided for testing output
+      <xref linkend="writing-tests-for-phpunit.output.tables.api" />中列举了用于对输出进行测试的各种方法。
     </para>
 
     <table id="writing-tests-for-phpunit.output.tables.api">
-      <title>Methods for testing output</title>
+      <title>用于对输出进行测试的方法</title>
 
       <tgroup cols="2" align="left" colsep="1" rowsep="1">
         <thead>
           <row>
-            <entry>Method</entry>
-            <entry>Meaning</entry>
+            <entry>方法</entry>
+            <entry>含义</entry>
           </row>
         </thead>
         <tbody>
           <row>
             <entry><literal>void expectOutputRegex(string $regularExpression)</literal></entry>
-            <entry>Set up the expectation that the output matches a <literal>$regularExpression</literal>.</entry>
+            <entry>设定输出预期与 <literal>$regularExpression</literal> 正则表达式匹配。</entry>
           </row>
           <row>
             <entry><literal>void expectOutputString(string $expectedString)</literal></entry>
-            <entry>Set up the expectation that the output is equal to an <literal>$expectedString</literal>.</entry>
+            <entry>设定输出预期与 <literal>$expectedString</literal> 字符串相等。</entry>
           </row>
           <row>
             <entry><literal>bool setOutputCallback(callable $callback)</literal></entry>
-            <entry>Sets up a callback that is used to, for instance, normalize the actual output.</entry>
+            <entry>设定回调函数，用于，比如说，将实际输出规范化。</entry>
           </row>
         </tbody>
       </tgroup>
@@ -778,17 +707,16 @@ Tests: 2, Assertions: 2, Failures: 1.</screen>
 
     <note>
       <para>
-        Please note that PHPUnit swallows all output that is emitted during the
-        execution of a test. In strict mode, a test that emits output will fail.
+        请注意，PHPUnit 会吞掉测试执行期间所生成的所有输出。在严格模式下，测试本身产生输出将导致测试失败。
       </para>
     </note>
   </section>
 
   <section id="writing-tests-for-phpunit.assertions">
-    <title>Assertions</title>
+    <title>断言</title>
 
     <para>
-      This section lists the various assertion methods that are available.
+      本节列出了可用的各种断言方法。
     </para>
 
     <section id="writing-tests-for-phpunit.assertions.assertArrayHasKey">
@@ -796,10 +724,10 @@ Tests: 2, Assertions: 2, Failures: 1.</screen>
       <indexterm><primary>assertArrayHasKey()</primary></indexterm>
       <indexterm><primary>assertArrayNotHasKey()</primary></indexterm>
       <para><literal>assertArrayHasKey(mixed $key, array $array[, string $message = ''])</literal></para>
-      <para>Reports an error identified by <literal>$message</literal> if <literal>$array</literal> does not have the <literal>$key</literal>.</para>
-      <para><literal>assertArrayNotHasKey()</literal> is the inverse of this assertion and takes the same arguments.</para>
+      <para>当 <literal>$array</literal> 不包含 <literal>$key</literal> 时，报告一个错误，错误讯息的内容由 <literal>$message</literal> 指定。</para>
+      <para><literal>assertArrayNotHasKey()</literal> 是与之相反的断言，并接受相同的参数。</para>
       <example id="writing-tests-for-phpunit.assertions.assertArrayHasKey.example">
-        <title>Usage of assertArrayHasKey()</title>
+        <title>assertArrayHasKey() 的用法</title>
         <programlisting><![CDATA[<?php
 class ArrayHasKeyTest extends PHPUnit_Framework_TestCase
 {
@@ -833,10 +761,10 @@ Tests: 1, Assertions: 1, Failures: 1.</screen>
       <indexterm><primary>assertClassHasAttribute()</primary></indexterm>
       <indexterm><primary>assertClassNotHasAttribute()</primary></indexterm>
       <para><literal>assertClassHasAttribute(string $attributeName, string $className[, string $message = ''])</literal></para>
-      <para>Reports an error identified by <literal>$message</literal> if <literal>$className::attributeName</literal> does not exist.</para>
-      <para><literal>assertClassNotHasAttribute()</literal> is the inverse of this assertion and takes the same arguments.</para>
+      <para>当 <literal>$className::attributeName</literal> 不存在时，报告一个错误，错误讯息的内容由 <literal>$message</literal> 指定。</para>
+      <para><literal>assertClassNotHasAttribute()</literal> 是与之相反的断言，并接受相同的参数。</para>
       <example id="writing-tests-for-phpunit.assertions.assertClassHasAttribute.example">
-        <title>Usage of assertClassHasAttribute()</title>
+        <title>assertClassHasAttribute() 的用法</title>
         <programlisting><![CDATA[<?php
 class ClassHasAttributeTest extends PHPUnit_Framework_TestCase
 {
@@ -870,10 +798,10 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
       <indexterm><primary>assertClassHasStaticAttribute()</primary></indexterm>
       <indexterm><primary>assertClassNotHasStaticAttribute()</primary></indexterm>
       <para><literal>assertClassHasStaticAttribute(string $attributeName, string $className[, string $message = ''])</literal></para>
-      <para>Reports an error identified by <literal>$message</literal> if <literal>$className::attributeName</literal> does not exist.</para>
-      <para><literal>assertClassNotHasStaticAttribute()</literal> is the inverse of this assertion and takes the same arguments.</para>
+      <para>当 <literal>$className::attributeName</literal> 不存在时，报告一个错误，错误讯息的内容由 <literal>$message</literal> 指定。</para>
+      <para><literal>assertClassNotHasStaticAttribute()</literal> 是与之相反的断言，并接受相同的参数。</para>
       <example id="writing-tests-for-phpunit.assertions.assertClassHasStaticAttribute.example">
-        <title>Usage of assertClassHasStaticAttribute()</title>
+        <title>assertClassHasStaticAttribute() 的用法</title>
         <programlisting><![CDATA[<?php
 class ClassHasStaticAttributeTest extends PHPUnit_Framework_TestCase
 {
@@ -909,11 +837,11 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
       <indexterm><primary>assertAttributeContains()</primary></indexterm>
       <indexterm><primary>assertAttributeNotContains()</primary></indexterm>
       <para><literal>assertContains(mixed $needle, Iterator|array $haystack[, string $message = ''])</literal></para>
-      <para>Reports an error identified by <literal>$message</literal> if <literal>$needle</literal> is not an element of <literal>$haystack</literal>.</para>
-      <para><literal>assertNotContains()</literal> is the inverse of this assertion and takes the same arguments.</para>
-      <para><literal>assertAttributeContains()</literal> and <literal>assertAttributeNotContains()</literal> are convenience wrappers that use a <literal>public</literal>, <literal>protected</literal>, or <literal>private</literal> attribute of a class or object as the haystack.</para>
+      <para>当 <literal>$needle</literal> 不是 <literal>$haystack</literal> 的某个元素时，报告一个错误，错误讯息的内容由 <literal>$message</literal> 指定。</para>
+      <para><literal>assertNotContains()</literal> 是与之相反的断言，并接受相同的参数。</para>
+      <para><literal>assertAttributeContains()</literal> 和 <literal>assertAttributeNotContains()</literal> 是两个便捷包装(convenience wrappers)，以某个类或对象的 <literal>public</literal>、 <literal>protected</literal> 或 <literal>private</literal> 属性为搜索范围。</para>
       <example id="writing-tests-for-phpunit.assertions.assertContains.example">
-        <title>Usage of assertContains()</title>
+        <title>assertContains() 的用法</title>
         <programlisting><![CDATA[<?php
 class ContainsTest extends PHPUnit_Framework_TestCase
 {
@@ -942,9 +870,9 @@ Tests: 1, Assertions: 1, Failures: 1.</screen>
       </example>
 
       <para><literal>assertContains(string $needle, string $haystack[, string $message = ''])</literal></para>
-      <para>Reports an error identified by <literal>$message</literal> if <literal>$needle</literal> is not a substring of <literal>$haystack</literal>.</para>
+      <para>当 <literal>$needle</literal> 不是 <literal>$haystack</literal> 的子字符串时，报告一个错误，错误讯息的内容由 <literal>$message</literal> 指定。</para>
       <example id="writing-tests-for-phpunit.assertions.assertContains.example2">
-        <title>Usage of assertContains()</title>
+        <title>assertContains() 的用法</title>
         <programlisting><![CDATA[<?php
 class ContainsTest extends PHPUnit_Framework_TestCase
 {
@@ -980,12 +908,12 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
       <indexterm><primary>assertAttributeContainsOnly()</primary></indexterm>
       <indexterm><primary>assertAttributeNotContainsOnly()</primary></indexterm>
       <para><literal>assertContainsOnly(string $type, Iterator|array $haystack[, boolean $isNativeType = NULL, string $message = ''])</literal></para>
-      <para>Reports an error identified by <literal>$message</literal> if <literal>$haystack</literal> does not contain only variables of type <literal>$type</literal>.</para>
-      <para><literal>$isNativeType</literal> is a flag used to indicate whether <literal>$type</literal> is a native PHP type or not.</para>
-      <para><literal>assertNotContainsOnly()</literal> is the inverse of this assertion and takes the same arguments.</para>
-      <para><literal>assertAttributeContainsOnly()</literal> and <literal>assertAttributeNotContainsOnly()</literal> are convenience wrappers that use a <literal>public</literal>, <literal>protected</literal>, or <literal>private</literal> attribute of a class or object as the haystack.</para>
+      <para>当 <literal>$haystack</literal> 并非仅包含类型为 <literal>$type</literal> 的变量时，报告一个错误，错误讯息的内容由 <literal>$message</literal> 指定。</para>
+      <para><literal>$isNativeType</literal> 是一个标志，用来表明 <literal>$type</literal> 是否是原生 PHP 类型。</para>
+      <para><literal>assertNotContainsOnly()</literal> 是与之相反的断言，并接受相同的参数。</para>
+      <para><literal>assertAttributeContainsOnly()</literal> 和 <literal>assertAttributeNotContainsOnly()</literal> 是两个便捷包装(convenience wrappers)，以某个类或对象的 <literal>public</literal>、 <literal>protected</literal> 或 <literal>private</literal> 属性为搜索范围。</para>
       <example id="writing-tests-for-phpunit.assertions.assertContainsOnly.example">
-        <title>Usage of assertContainsOnly()</title>
+        <title>assertContainsOnly() 的用法</title>
         <programlisting><![CDATA[<?php
 class ContainsOnlyTest extends PHPUnit_Framework_TestCase
 {
@@ -1021,9 +949,9 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
 	  <title>assertContainsOnlyInstancesOf()</title>
       <indexterm><primary>assertContainsOnlyInstancesOf()</primary></indexterm>
       <para><literal>assertContainsOnlyInstancesOf(string $classname, Traversable|array $haystack[, string $message = ''])</literal></para>
-      <para>Reports an error identified by <literal>$message</literal> if <literal>$haystack</literal> does not contain only instances of class <literal>$classname</literal>.</para>
+      <para>当 <literal>$haystack</literal>  并非仅包含类 <literal>$classname</literal> 的实例时，报告一个错误，错误讯息的内容由 <literal>$message</literal> 指定。</para>
       <example id="writing-tests-for-phpunit.assertions.assertContainsOnlyInstancesOf.example">
-        <title>Usage of assertContainsOnlyInstancesOf()</title>
+        <title>assertContainsOnlyInstancesOf() 的用法</title>
         <programlisting><![CDATA[<?php
 class ContainsOnlyInstancesOfTest extends PHPUnit_Framework_TestCase
 {
@@ -1056,10 +984,10 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
       <indexterm><primary>assertCount()</primary></indexterm>
       <indexterm><primary>assertNotCount()</primary></indexterm>
       <para><literal>assertCount($expectedCount, $haystack[, string $message = ''])</literal></para>
-      <para>Reports an error identified by <literal>$message</literal> if the number of elements in <literal>$haystack</literal> is not <literal>$expectedCount</literal>.</para>
-      <para><literal>assertNotCount()</literal> is the inverse of this assertion and takes the same arguments.</para>
+      <para>当 <literal>$haystack</literal> 中的元素数量不是 <literal>$expectedCount</literal> 时，报告一个错误，错误讯息的内容由 <literal>$message</literal> 指定。</para>
+      <para><literal>assertNotCount()</literal> 是与之相反的断言，并接受相同的参数。</para>
       <example id="writing-tests-for-phpunit.assertions.assertCount.example">
-        <title>Usage of assertCount()</title>
+        <title>assertCount() 的用法</title>
         <programlisting><![CDATA[<?php
 class CountTest extends PHPUnit_Framework_TestCase
 {
@@ -1095,11 +1023,11 @@ Tests: 1, Assertions: 1, Failures: 1.</screen>
       <indexterm><primary>assertAttributeEmpty()</primary></indexterm>
       <indexterm><primary>assertAttributeNotEmpty()</primary></indexterm>
       <para><literal>assertEmpty(mixed $actual[, string $message = ''])</literal></para>
-      <para>Reports an error identified by <literal>$message</literal> if <literal>$actual</literal> is not empty.</para>
-      <para><literal>assertNotEmpty()</literal> is the inverse of this assertion and takes the same arguments.</para>
-      <para><literal>assertAttributeEmpty()</literal> and <literal>assertAttributeNotEmpty()</literal> are convenience wrappers that can be applied to a <literal>public</literal>, <literal>protected</literal>, or <literal>private</literal> attribute of a class or object.</para>
+      <para>当 <literal>$actual</literal> 不是空的时，报告一个错误，错误讯息的内容由 <literal>$message</literal> 指定。</para>
+      <para><literal>assertNotEmpty()</literal> 是与之相反的断言，并接受相同的参数。</para>
+      <para><literal>assertAttributeEmpty()</literal> 和 <literal>assertAttributeNotEmpty()</literal> 是便捷包装(convenience wrappers)， 可以应用于某个类或对象的某个 <literal>public</literal>、 <literal>protected</literal> 或 <literal>private</literal> 属性。</para>
       <example id="writing-tests-for-phpunit.assertions.assertEmpty.example">
-        <title>Usage of assertEmpty()</title>
+        <title>assertEmpty() 的用法</title>
         <programlisting><![CDATA[<?php
 class EmptyTest extends PHPUnit_Framework_TestCase
 {
@@ -1132,9 +1060,9 @@ Tests: 1, Assertions: 1, Failures: 1.</screen>
       <title>assertEqualXMLStructure()</title>
       <indexterm><primary>assertEqualXMLStructure()</primary></indexterm>
       <para><literal>assertEqualXMLStructure(DOMElement $expectedElement, DOMElement $actualElement[, boolean $checkAttributes = FALSE, string $message = ''])</literal></para>
-      <para>Reports an error identified by <literal>$message</literal> if the XML Structure of the DOMElement in <literal>$actualElement</literal> is not equal to the XML structure of the DOMElement in <literal>$expectedElement</literal>.</para>
+      <para>当 <literal>$actualElement</literal> 中的 DOMElement 的 XML 结构与 <literal>$expectedElement</literal> 中的 DOMElement的 XML 结构不相同时，报告一个错误，错误讯息的内容由 <literal>$message</literal> 指定。</para>
       <example id="writing-tests-for-phpunit.assertions.assertEqualXMLStructure.example">
-        <title>Usage of assertEqualXMLStructure()</title>
+        <title>assertEqualXMLStructure() 的用法</title>
         <programlisting><![CDATA[<?php
 class EqualXMLStructureTest extends PHPUnit_Framework_TestCase
 {
@@ -1239,11 +1167,11 @@ Tests: 4, Assertions: 8, Failures: 4.]]></screen>
       <indexterm><primary>assertAttributeEquals()</primary></indexterm>
       <indexterm><primary>assertAttributeNotEquals()</primary></indexterm>
       <para><literal>assertEquals(mixed $expected, mixed $actual[, string $message = ''])</literal></para>
-      <para>Reports an error identified by <literal>$message</literal> if the two variables <literal>$expected</literal> and <literal>$actual</literal> are not equal.</para>
-      <para><literal>assertNotEquals()</literal> is the inverse of this assertion and takes the same arguments.</para>
-      <para><literal>assertAttributeEquals()</literal> and <literal>assertAttributeNotEquals()</literal> are convenience wrappers that use a <literal>public</literal>, <literal>protected</literal>, or <literal>private</literal> attribute of a class or object as the actual value.</para>
+      <para>当两个变量 <literal>$expected</literal> 与 <literal>$actual</literal> 不相等时，报告一个错误，错误讯息的内容由 <literal>$message</literal> 指定。</para>
+      <para><literal>assertNotEquals()</literal> 是与之相反的断言，并接受相同的参数。</para>
+      <para><literal>assertAttributeEquals()</literal> 和 <literal>assertAttributeNotEquals()</literal> 是便捷包装(convenience wrappers)， 以某个类或对象的某个 <literal>public</literal>、 <literal>protected</literal> 或 <literal>private</literal> 属性作为实际值来进行比较。</para>
       <example id="writing-tests-for-phpunit.assertions.assertEquals.example">
-        <title>Usage of assertEquals()</title>
+        <title>assertEquals() 的用法</title>
         <programlisting><![CDATA[<?php
 class EqualsTest extends PHPUnit_Framework_TestCase
 {
@@ -1304,13 +1232,13 @@ FAILURES!
 Tests: 3, Assertions: 3, Failures: 3.</screen>
       </example>
 
-      <para>More specialized comparisons are used for specific argument types for <literal>$expected</literal> and <literal>$actual</literal>, see below.</para>
+      <para>如果 <literal>$expected</literal> 和 <literal>$actual</literal> 有明确的类型，那么将使用更加专门的比较方式，请参阅下文。</para>
 
       <para><literal>assertEquals(float $expected, float $actual[, string $message = '', float $delta = 0])</literal></para>
-      <para>Reports an error identified by <literal>$message</literal> if the two floats <literal>$expected</literal> and <literal>$actual</literal> are not within <literal>$delta</literal> of each other.</para>
-      <para>Please read "<ulink url="http://docs.oracle.com/cd/E19957-01/806-3568/ncg_goldberg.html">What Every Computer Scientist Should Know About Floating-Point Arithmetic</ulink>" to understand why <literal>$delta</literal> is neccessary.</para>
+      <para>当两个浮点数 <literal>$expected</literal> 和 <literal>$actual</literal> 之间的差值（的绝对值）大于 <literal>$delta</literal> 时，报告一个错误，错误讯息的内容由 <literal>$message</literal> 指定。 </para>
+      <para>关于为什么 <literal>$delta</literal> 参数是必须的，请阅读《<ulink url="http://docs.oracle.com/cd/E19957-01/806-3568/ncg_goldberg.html">关于浮点运算，每一位计算机科学家都应该知道的事实</ulink>》</para>
       <example id="writing-tests-for-phpunit.assertions.assertEquals.example2">
-        <title>Usage of assertEquals() with floats</title>
+        <title>将assertEquals()应用于浮点数时的用法</title>
         <programlisting><![CDATA[<?php
 class EqualsTest extends PHPUnit_Framework_TestCase
 {
@@ -1344,9 +1272,9 @@ Tests: 2, Assertions: 2, Failures: 1.</screen>
       </example>
 
       <para><literal>assertEquals(DOMDocument $expected, DOMDocument $actual[, string $message = ''])</literal></para>
-      <para>Reports an error identified by <literal>$message</literal> if the uncommented canonical form of the XML documents represented by the two DOMDocument objects <literal>$expected</literal> and <literal>$actual</literal> are not equal.</para>
+      <para>当 ** 时，报告一个错误，错误讯息的内容由 <literal>$message</literal> 指定。 if the uncommented canonical form of the XML documents represented by the two DOMDocument objects <literal>$expected</literal> and <literal>$actual</literal> are not equal.</para>
       <example id="writing-tests-for-phpunit.assertions.assertEquals.example3">
-        <title>Usage of assertEquals() with DOMDocument objects</title>
+        <title>assertEquals() with DOMDocument objects 的用法</title>
         <programlisting><![CDATA[<?php
 class EqualsTest extends PHPUnit_Framework_TestCase
 {
@@ -1391,9 +1319,9 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
       </example>
 
       <para><literal>assertEquals(object $expected, object $actual[, string $message = ''])</literal></para>
-      <para>Reports an error identified by <literal>$message</literal> if the two objects <literal>$expected</literal> and <literal>$actual</literal> do not have equal attribute values.</para>
+      <para>当 ** 时，报告一个错误，错误讯息的内容由 <literal>$message</literal> 指定。 if the two objects <literal>$expected</literal> and <literal>$actual</literal> do not have equal attribute values.</para>
       <example id="writing-tests-for-phpunit.assertions.assertEquals.example4">
-        <title>Usage of assertEquals() with objects</title>
+        <title>assertEquals() with objects 的用法</title>
         <programlisting><![CDATA[<?php
 class EqualsTest extends PHPUnit_Framework_TestCase
 {
@@ -1439,10 +1367,10 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
       </example>
 
       <para><literal>assertEquals(array $expected, array $actual[, string $message = ''])</literal></para>
-      <para>Reports an error identified by <literal>$message</literal> if the two arrays <literal>$expected</literal> and <literal>$actual</literal> are not equal.</para>
+      <para>当 ** 时，报告一个错误，错误讯息的内容由 <literal>$message</literal> 指定。 if the two arrays <literal>$expected</literal> and <literal>$actual</literal> are not equal.</para>
 
       <example id="writing-tests-for-phpunit.assertions.assertEquals.example5">
-        <title>Usage of assertEquals() with arrays</title>
+        <title>assertEquals() with arrays 的用法</title>
         <programlisting><![CDATA[<?php
 class EqualsTest extends PHPUnit_Framework_TestCase
 {
@@ -1485,9 +1413,9 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
       <title>assertFalse()</title>
       <indexterm><primary>assertFalse()</primary></indexterm>
       <para><literal>assertFalse(bool $condition[, string $message = ''])</literal></para>
-      <para>Reports an error identified by <literal>$message</literal> if <literal>$condition</literal> is <literal>TRUE</literal>.</para>
+      <para>当 ** 时，报告一个错误，错误讯息的内容由 <literal>$message</literal> 指定。 ** 当 <literal>$condition</literal> is <literal>TRUE</literal>.</para>
       <example id="writing-tests-for-phpunit.assertions.assertFalse.example">
-        <title>Usage of assertFalse()</title>
+        <title>assertFalse() 的用法</title>
         <programlisting><![CDATA[<?php
 class FalseTest extends PHPUnit_Framework_TestCase
 {
@@ -1521,10 +1449,10 @@ Tests: 1, Assertions: 1, Failures: 1.</screen>
       <indexterm><primary>assertFileEquals()</primary></indexterm>
       <indexterm><primary>assertFileNotEquals()</primary></indexterm>
       <para><literal>assertFileEquals(string $expected, string $actual[, string $message = ''])</literal></para>
-      <para>Reports an error identified by <literal>$message</literal>  if the file specified by <literal>$expected</literal> does not have the same contents as the file specified by <literal>$actual</literal>.</para>
-      <para><literal>assertFileNotEquals()</literal> is the inverse of this assertion and takes the same arguments.</para>
+      <para>当 ** 时，报告一个错误，错误讯息的内容由 <literal>$message</literal> 指定。  if the file specified by <literal>$expected</literal> does not have the same contents as the file specified by <literal>$actual</literal>.</para>
+      <para><literal>assertFileNotEquals()</literal> 是与之相反的断言，并接受相同的参数。</para>
       <example id="writing-tests-for-phpunit.assertions.assertFileEquals.example">
-        <title>Usage of assertFileEquals()</title>
+        <title>assertFileEquals() 的用法</title>
         <programlisting><![CDATA[<?php
 class FileEqualsTest extends PHPUnit_Framework_TestCase
 {
@@ -1564,10 +1492,10 @@ Tests: 1, Assertions: 3, Failures: 1.</screen>
       <indexterm><primary>assertFileExists()</primary></indexterm>
       <indexterm><primary>assertFileNotExists()</primary></indexterm>
       <para><literal>assertFileExists(string $filename[, string $message = ''])</literal></para>
-      <para>Reports an error identified by <literal>$message</literal> if the file specified by <literal>$filename</literal> does not exist.</para>
-      <para><literal>assertFileNotExists()</literal> is the inverse of this assertion and takes the same arguments.</para>
+      <para>当 ** 时，报告一个错误，错误讯息的内容由 <literal>$message</literal> 指定。 if the file specified by <literal>$filename</literal> 不存在 **</para>
+      <para><literal>assertFileNotExists()</literal> 是与之相反的断言，并接受相同的参数。</para>
       <example id="writing-tests-for-phpunit.assertions.assertFileExists.example">
-        <title>Usage of assertFileExists()</title>
+        <title>assertFileExists() 的用法</title>
         <programlisting><![CDATA[<?php
 class FileExistsTest extends PHPUnit_Framework_TestCase
 {
@@ -1601,10 +1529,10 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
       <indexterm><primary>assertGreaterThan()</primary></indexterm>
       <indexterm><primary>assertAttributeGreaterThan()</primary></indexterm>
       <para><literal>assertGreaterThan(mixed $expected, mixed $actual[, string $message = ''])</literal></para>
-      <para>Reports an error identified by <literal>$message</literal> if the value of <literal>$actual</literal> is not greater than the value of <literal>$expected</literal>.</para>
-      <para><literal>assertAttributeGreaterThan()</literal> is a convenience wrapper that uses a <literal>public</literal>, <literal>protected</literal>, or <literal>private</literal> attribute of a class or object as the actual value.</para>
+      <para>当 ** 时，报告一个错误，错误讯息的内容由 <literal>$message</literal> 指定。 if the value of <literal>$actual</literal> is not greater than the value of <literal>$expected</literal>.</para>
+      <para><literal>assertAttributeGreaterThan()</literal> is a convenience wrapper that uses a 某个类或对象的 <literal>public</literal>、 <literal>protected</literal> 或 <literal>private</literal> 属性 as the actual value.</para>
       <example id="writing-tests-for-phpunit.assertions.assertGreaterThan.example">
-        <title>Usage of assertGreaterThan()</title>
+        <title>assertGreaterThan() 的用法</title>
         <programlisting><![CDATA[<?php
 class GreaterThanTest extends PHPUnit_Framework_TestCase
 {
@@ -1638,10 +1566,10 @@ Tests: 1, Assertions: 1, Failures: 1.</screen>
       <indexterm><primary>assertGreaterThanOrEqual()</primary></indexterm>
       <indexterm><primary>assertAttributeGreaterThanOrEqual()</primary></indexterm>
       <para><literal>assertGreaterThanOrEqual(mixed $expected, mixed $actual[, string $message = ''])</literal></para>
-      <para>Reports an error identified by <literal>$message</literal> if the value of <literal>$actual</literal> is not greater than or equal to the value of <literal>$expected</literal>.</para>
-      <para><literal>assertAttributeGreaterThanOrEqual()</literal> is a convenience wrapper that uses a <literal>public</literal>, <literal>protected</literal>, or <literal>private</literal> attribute of a class or object as the actual value.</para>
+      <para>当 ** 时，报告一个错误，错误讯息的内容由 <literal>$message</literal> 指定。 if the value of <literal>$actual</literal> is not greater than or equal to the value of <literal>$expected</literal>.</para>
+      <para><literal>assertAttributeGreaterThanOrEqual()</literal> is a convenience wrapper that uses a 某个类或对象的 <literal>public</literal>、 <literal>protected</literal> 或 <literal>private</literal> 属性 as the actual value.</para>
       <example id="writing-tests-for-phpunit.assertions.assertGreaterThanOrEqual.example">
-        <title>Usage of assertGreaterThanOrEqual()</title>
+        <title>assertGreaterThanOrEqual() 的用法</title>
         <programlisting><![CDATA[<?php
 class GreatThanOrEqualTest extends PHPUnit_Framework_TestCase
 {
@@ -1677,11 +1605,11 @@ Tests: 1, Assertions: 2, Failures: 1.</screen>
       <indexterm><primary>assertAttributeInstanceOf()</primary></indexterm>
       <indexterm><primary>assertAttributeNotInstanceOf()</primary></indexterm>
       <para><literal>assertInstanceOf($expected, $actual[, $message = ''])</literal></para>
-      <para>Reports an error identified by <literal>$message</literal> if <literal>$actual</literal> is not an instance of <literal>$expected</literal>.</para>
-      <para><literal>assertNotInstanceOf()</literal> is the inverse of this assertion and takes the same arguments.</para>
-      <para><literal>assertAttributeInstanceOf()</literal> and <literal>assertAttributeNotInstanceOf()</literal> are convenience wrappers that can be applied to a <literal>public</literal>, <literal>protected</literal>, or <literal>private</literal> attribute of a class or object.</para>
+      <para>当 ** 时，报告一个错误，错误讯息的内容由 <literal>$message</literal> 指定。 ** 当 <literal>$actual</literal> is not an instance of <literal>$expected</literal>.</para>
+      <para><literal>assertNotInstanceOf()</literal> 是与之相反的断言，并接受相同的参数。</para>
+      <para><literal>assertAttributeInstanceOf()</literal> and <literal>assertAttributeNotInstanceOf()</literal> 是便捷包装(convenience wrappers)， that can be applied to a 某个类或对象的 <literal>public</literal>、 <literal>protected</literal> 或 <literal>private</literal> 属性.</para>
       <example id="writing-tests-for-phpunit.assertions.assertInstanceOf.example">
-        <title>Usage of assertInstanceOf()</title>
+        <title>assertInstanceOf() 的用法</title>
         <programlisting><![CDATA[<?php
 class InstanceOfTest extends PHPUnit_Framework_TestCase
 {
@@ -1717,11 +1645,11 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
       <indexterm><primary>assertAttributeInternalType()</primary></indexterm>
       <indexterm><primary>assertAttributeNotInternalType()</primary></indexterm>
       <para><literal>assertInternalType($expected, $actual[, $message = ''])</literal></para>
-      <para>Reports an error identified by <literal>$message</literal> if <literal>$actual</literal> is not of the <literal>$expected</literal> type.</para>
-      <para><literal>assertNotInternalType()</literal> is the inverse of this assertion and takes the same arguments.</para>
-      <para><literal>assertAttributeInternalType()</literal> and <literal>assertAttributeNotInternalType()</literal> are convenience wrappers that can be applied to a <literal>public</literal>, <literal>protected</literal>, or <literal>private</literal> attribute of a class or object.</para>
+      <para>当 ** 时，报告一个错误，错误讯息的内容由 <literal>$message</literal> 指定。 ** 当 <literal>$actual</literal> is not of the <literal>$expected</literal> type.</para>
+      <para><literal>assertNotInternalType()</literal> 是与之相反的断言，并接受相同的参数。</para>
+      <para><literal>assertAttributeInternalType()</literal> and <literal>assertAttributeNotInternalType()</literal> 是便捷包装(convenience wrappers)， that can be applied to a 某个类或对象的 <literal>public</literal>、 <literal>protected</literal> 或 <literal>private</literal> 属性.</para>
       <example id="writing-tests-for-phpunit.assertions.assertInternalType.example">
-        <title>Usage of assertInternalType()</title>
+        <title>assertInternalType() 的用法</title>
         <programlisting><![CDATA[<?php
 class InternalTypeTest extends PHPUnit_Framework_TestCase
 {
@@ -1756,11 +1684,11 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
       <indexterm><primary>assertJsonFileNotEqualsJsonFile()</primary></indexterm>
       <para><literal>assertJsonFileEqualsJsonFile(mixed $expectedFile, mixed $actualFile[, string $message = ''])</literal></para>
       <para>
-        Reports an error identified by <literal>$message</literal> if the value of <literal>$actualFile</literal> does not match the value of 
+        当 ** 时，报告一个错误，错误讯息的内容由 <literal>$message</literal> 指定。 if the value of <literal>$actualFile</literal> does not match the value of 
         <literal>$expectedFile</literal>.
       </para>
       <example id="writing-tests-for-phpunit.assertions.assertJsonFileEqualsJsonFile.example">
-        <title>Usage of assertJsonFileEqualsJsonFile()</title>
+        <title>assertJsonFileEqualsJsonFile() 的用法</title>
         <programlisting><![CDATA[<?php
 class JsonFileEqualsJsonFileTest extends PHPUnit_Framework_TestCase
 {
@@ -1796,11 +1724,11 @@ Tests: 1, Assertions: 3, Failures: 1.</screen>
       <indexterm><primary>assertJsonStringNotEqualsJsonFile()</primary></indexterm>
       <para><literal>assertJsonStringEqualsJsonFile(mixed $expectedFile, mixed $actualJson[, string $message = ''])</literal></para>
       <para>
-        Reports an error identified by <literal>$message</literal> if the value of <literal>$actualJson</literal> does not match the value of 
+        当 ** 时，报告一个错误，错误讯息的内容由 <literal>$message</literal> 指定。 if the value of <literal>$actualJson</literal> does not match the value of 
         <literal>$expectedFile</literal>.
       </para>
       <example id="writing-tests-for-phpunit.assertions.assertJsonStringEqualsJsonFile.example">
-        <title>Usage of assertJsonStringEqualsJsonFile()</title>
+        <title>assertJsonStringEqualsJsonFile() 的用法</title>
         <programlisting><![CDATA[<?php
 class JsonStringEqualsJsonFileTest extends PHPUnit_Framework_TestCase
 {
@@ -1836,11 +1764,11 @@ Tests: 1, Assertions: 3, Failures: 1.</screen>
       <indexterm><primary>assertJsonStringNotEqualsJsonString()</primary></indexterm>
       <para><literal>assertJsonStringEqualsJsonString(mixed $expectedJson, mixed $actualJson[, string $message = ''])</literal></para>
       <para>
-        Reports an error identified by <literal>$message</literal> if the value of <literal>$actualJson</literal> does not match the value of 
+        当 ** 时，报告一个错误，错误讯息的内容由 <literal>$message</literal> 指定。 if the value of <literal>$actualJson</literal> does not match the value of 
         <literal>$expectedJson</literal>.
       </para>
       <example id="writing-tests-for-phpunit.assertions.assertJsonStringEqualsJsonString.example">
-        <title>Usage of assertJsonStringEqualsJsonString()</title>
+        <title>assertJsonStringEqualsJsonString() 的用法</title>
         <programlisting><![CDATA[<?php
 class JsonStringEqualsJsonStringTest extends PHPUnit_Framework_TestCase
 {
@@ -1882,10 +1810,10 @@ Tests: 1, Assertions: 3, Failures: 1.</screen>
       <indexterm><primary>assertLessThan()</primary></indexterm>
       <indexterm><primary>assertAttributeLessThan()</primary></indexterm>
       <para><literal>assertLessThan(mixed $expected, mixed $actual[, string $message = ''])</literal></para>
-      <para>Reports an error identified by <literal>$message</literal> if the value of <literal>$actual</literal> is not less than the value of <literal>$expected</literal>.</para>
-      <para><literal>assertAttributeLessThan()</literal> is a convenience wrapper that uses a <literal>public</literal>, <literal>protected</literal>, or <literal>private</literal> attribute of a class or object as the actual value.</para>
+      <para>当 ** 时，报告一个错误，错误讯息的内容由 <literal>$message</literal> 指定。 if the value of <literal>$actual</literal> is not less than the value of <literal>$expected</literal>.</para>
+      <para><literal>assertAttributeLessThan()</literal> is a convenience wrapper that uses a 某个类或对象的 <literal>public</literal>、 <literal>protected</literal> 或 <literal>private</literal> 属性 as the actual value.</para>
       <example id="writing-tests-for-phpunit.assertions.assertLessThan.example">
-        <title>Usage of assertLessThan()</title>
+        <title>assertLessThan() 的用法</title>
         <programlisting><![CDATA[<?php
 class LessThanTest extends PHPUnit_Framework_TestCase
 {
@@ -1919,10 +1847,10 @@ Tests: 1, Assertions: 1, Failures: 1.</screen>
       <indexterm><primary>assertLessThanOrEqual()</primary></indexterm>
       <indexterm><primary>assertAttributeLessThanOrEqual()</primary></indexterm>
       <para><literal>assertLessThanOrEqual(mixed $expected, mixed $actual[, string $message = ''])</literal></para>
-      <para>Reports an error identified by <literal>$message</literal> if the value of <literal>$actual</literal> is not less than or equal to the value of <literal>$expected</literal>.</para>
-      <para><literal>assertAttributeLessThanOrEqual()</literal> is a convenience wrapper that uses a <literal>public</literal>, <literal>protected</literal>, or <literal>private</literal> attribute of a class or object as the actual value.</para>
+      <para>当 ** 时，报告一个错误，错误讯息的内容由 <literal>$message</literal> 指定。 if the value of <literal>$actual</literal> is not less than or equal to the value of <literal>$expected</literal>.</para>
+      <para><literal>assertAttributeLessThanOrEqual()</literal> is a convenience wrapper that uses a 某个类或对象的 <literal>public</literal>、 <literal>protected</literal> 或 <literal>private</literal> 属性 as the actual value.</para>
       <example id="writing-tests-for-phpunit.assertions.assertLessThanOrEqual.example">
-        <title>Usage of assertLessThanOrEqual()</title>
+        <title>assertLessThanOrEqual() 的用法</title>
         <programlisting><![CDATA[<?php
 class LessThanOrEqualTest extends PHPUnit_Framework_TestCase
 {
@@ -1956,10 +1884,10 @@ Tests: 1, Assertions: 2, Failures: 1.</screen>
       <indexterm><primary>assertNull()</primary></indexterm>
       <indexterm><primary>assertNotNull()</primary></indexterm>
       <para><literal>assertNull(mixed $variable[, string $message = ''])</literal></para>
-      <para>Reports an error identified by <literal>$message</literal> if <literal>$variable</literal> is not <literal>NULL</literal>.</para>
-      <para><literal>assertNotNull()</literal> is the inverse of this assertion and takes the same arguments.</para>
+      <para>当 ** 时，报告一个错误，错误讯息的内容由 <literal>$message</literal> 指定。 ** 当 <literal>$variable</literal> is not <literal>NULL</literal>.</para>
+      <para><literal>assertNotNull()</literal> 是与之相反的断言，并接受相同的参数。</para>
       <example id="writing-tests-for-phpunit.assertions.assertNull.example">
-        <title>Usage of assertNull()</title>
+        <title>assertNull() 的用法</title>
         <programlisting><![CDATA[<?php
 class NullTest extends PHPUnit_Framework_TestCase
 {
@@ -1993,10 +1921,10 @@ Tests: 1, Assertions: 1, Failures: 1.</screen>
       <indexterm><primary>assertObjectHasAttribute()</primary></indexterm>
       <indexterm><primary>assertObjectNotHasAttribute()</primary></indexterm>
       <para><literal>assertObjectHasAttribute(string $attributeName, object $object[, string $message = ''])</literal></para>
-      <para>Reports an error identified by <literal>$message</literal> if <literal>$object-&gt;attributeName</literal> does not exist.</para>
-      <para><literal>assertObjectNotHasAttribute()</literal> is the inverse of this assertion and takes the same arguments.</para>
+      <para>当 ** 时，报告一个错误，错误讯息的内容由 <literal>$message</literal> 指定。 ** 当 <literal>$object-&gt;attributeName</literal> 不存在 **</para>
+      <para><literal>assertObjectNotHasAttribute()</literal> 是与之相反的断言，并接受相同的参数。</para>
       <example id="writing-tests-for-phpunit.assertions.assertObjectHasAttribute.example">
-        <title>Usage of assertObjectHasAttribute()</title>
+        <title>assertObjectHasAttribute() 的用法</title>
         <programlisting><![CDATA[<?php
 class ObjectHasAttributeTest extends PHPUnit_Framework_TestCase
 {
@@ -2030,10 +1958,10 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
       <indexterm><primary>assertRegExp()</primary></indexterm>
       <indexterm><primary>assertNotRegExp()</primary></indexterm>
       <para><literal>assertRegExp(string $pattern, string $string[, string $message = ''])</literal></para>
-      <para>Reports an error identified by <literal>$message</literal> if <literal>$string</literal> does not match the regular expression <literal>$pattern</literal>.</para>
-      <para><literal>assertNotRegExp()</literal> is the inverse of this assertion and takes the same arguments.</para>
+      <para>当 ** 时，报告一个错误，错误讯息的内容由 <literal>$message</literal> 指定。 ** 当 <literal>$string</literal> does not match the regular expression <literal>$pattern</literal>.</para>
+      <para><literal>assertNotRegExp()</literal> 是与之相反的断言，并接受相同的参数。</para>
       <example id="writing-tests-for-phpunit.assertions.assertRegExp.example">
-        <title>Usage of assertRegExp()</title>
+        <title>assertRegExp() 的用法</title>
         <programlisting><![CDATA[<?php
 class RegExpTest extends PHPUnit_Framework_TestCase
 {
@@ -2067,10 +1995,10 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
       <indexterm><primary>assertStringMatchesFormat()</primary></indexterm>
       <indexterm><primary>assertStringNotMatchesFormat()</primary></indexterm>
       <para><literal>assertStringMatchesFormat(string $format, string $string[, string $message = ''])</literal></para>
-      <para>Reports an error identified by <literal>$message</literal> if the <literal>$string</literal> does not match the <literal>$format</literal> string.</para>
-      <para><literal>assertStringNotMatchesFormat()</literal> is the inverse of this assertion and takes the same arguments.</para>
+      <para>当 ** 时，报告一个错误，错误讯息的内容由 <literal>$message</literal> 指定。 if the <literal>$string</literal> does not match the <literal>$format</literal> string.</para>
+      <para><literal>assertStringNotMatchesFormat()</literal> 是与之相反的断言，并接受相同的参数。</para>
       <example id="writing-tests-for-phpunit.assertions.assertStringMatchesFormat.example">
-        <title>Usage of assertStringMatchesFormat()</title>
+        <title>assertStringMatchesFormat() 的用法</title>
         <programlisting><![CDATA[<?php
 class StringMatchesFormatTest extends PHPUnit_Framework_TestCase
 {
@@ -2118,10 +2046,10 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
       <indexterm><primary>assertStringMatchesFormatFile()</primary></indexterm>
       <indexterm><primary>assertStringNotMatchesFormatFile()</primary></indexterm>
       <para><literal>assertStringMatchesFormatFile(string $formatFile, string $string[, string $message = ''])</literal></para>
-      <para>Reports an error identified by <literal>$message</literal> if the <literal>$string</literal> does not match the contents of the <literal>$formatFile</literal>.</para>
-      <para><literal>assertStringNotMatchesFormatFile()</literal> is the inverse of this assertion and takes the same arguments.</para>
+      <para>当 ** 时，报告一个错误，错误讯息的内容由 <literal>$message</literal> 指定。 if the <literal>$string</literal> does not match the contents of the <literal>$formatFile</literal>.</para>
+      <para><literal>assertStringNotMatchesFormatFile()</literal> 是与之相反的断言，并接受相同的参数。</para>
       <example id="writing-tests-for-phpunit.assertions.assertStringMatchesFormatFile.example">
-        <title>Usage of assertStringMatchesFormatFile()</title>
+        <title>assertStringMatchesFormatFile() 的用法</title>
         <programlisting><![CDATA[<?php
 class StringMatchesFormatFileTest extends PHPUnit_Framework_TestCase
 {
@@ -2158,11 +2086,11 @@ Tests: 1, Assertions: 2, Failures: 1.]]></screen>
       <indexterm><primary>assertAttributeSame()</primary></indexterm>
       <indexterm><primary>assertAttributeNotSame()</primary></indexterm>
       <para><literal>assertSame(mixed $expected, mixed $actual[, string $message = ''])</literal></para>
-      <para>Reports an error identified by <literal>$message</literal> if the two variables <literal>$expected</literal> and <literal>$actual</literal> do not have the same type and value.</para>
-      <para><literal>assertNotSame()</literal> is the inverse of this assertion and takes the same arguments.</para>
-      <para><literal>assertAttributeSame()</literal> and <literal>assertAttributeNotSame()</literal> are convenience wrappers that use a <literal>public</literal>, <literal>protected</literal>, or <literal>private</literal> attribute of a class or object as the actual value.</para>
+      <para>当 ** 时，报告一个错误，错误讯息的内容由 <literal>$message</literal> 指定。 if the two variables <literal>$expected</literal> and <literal>$actual</literal> do not have the same type and value.</para>
+      <para><literal>assertNotSame()</literal> 是与之相反的断言，并接受相同的参数。</para>
+      <para><literal>assertAttributeSame()</literal> and <literal>assertAttributeNotSame()</literal> 是便捷包装(convenience wrappers)， that use a 某个类或对象的 <literal>public</literal>、 <literal>protected</literal> 或 <literal>private</literal> 属性 as the actual value.</para>
       <example id="writing-tests-for-phpunit.assertions.assertSame.example">
-        <title>Usage of assertSame()</title>
+        <title>assertSame() 的用法</title>
         <programlisting><![CDATA[<?php
 class SameTest extends PHPUnit_Framework_TestCase
 {
@@ -2191,10 +2119,10 @@ Tests: 1, Assertions: 1, Failures: 1.</screen>
       </example>
 
       <para><literal>assertSame(object $expected, object $actual[, string $message = ''])</literal></para>
-      <para>Reports an error identified by <literal>$message</literal> if the two variables <literal>$expected</literal> and <literal>$actual</literal> do not reference the same object.</para>
+      <para>当 ** 时，报告一个错误，错误讯息的内容由 <literal>$message</literal> 指定。 if the two variables <literal>$expected</literal> and <literal>$actual</literal> do not reference the same object.</para>
 
       <example id="writing-tests-for-phpunit.assertions.assertSame.example2">
-        <title>Usage of assertSame() with objects</title>
+        <title>assertSame() with objects 的用法</title>
         <programlisting><![CDATA[<?php
 class SameTest extends PHPUnit_Framework_TestCase
 {
@@ -2227,7 +2155,7 @@ Tests: 1, Assertions: 1, Failures: 1.</screen>
       <title>assertSelectCount()</title>
       <indexterm><primary>assertSelectCount()</primary></indexterm>
       <para><literal>assertSelectCount(array $selector, integer $count, mixed $actual[, string $message = '', boolean $isHtml = TRUE])</literal></para>
-      <para>Reports an error identified by <literal>$message</literal> if the CSS selector <literal>$selector</literal> does not match <literal>$count</literal> elements in the DOMNode <literal>$actual</literal>.</para>
+      <para>当 ** 时，报告一个错误，错误讯息的内容由 <literal>$message</literal> 指定。 if the CSS selector <literal>$selector</literal> does not match <literal>$count</literal> elements in the DOMNode <literal>$actual</literal>.</para>
       <para><literal>$count</literal> can be one of the following types:</para>
       <itemizedlist>
         <listitem><literal>boolean</literal>: Asserts for presence of elements matching the selector (<literal>TRUE</literal>) or absence of elements (<literal>FALSE</literal>).</listitem>
@@ -2235,7 +2163,7 @@ Tests: 1, Assertions: 1, Failures: 1.</screen>
         <listitem><literal>array</literal>: Asserts that the count is in a range specified by using <literal>&lt;</literal>, <literal>&gt;</literal>, <literal>&lt;=</literal>, and <literal>&gt;=</literal> as keys.</listitem>
       </itemizedlist>
       <example id="writing-tests-for-phpunit.assertions.assertSelectCount.example">
-        <title>Usage of assertSelectCount()</title>
+        <title>assertSelectCount() 的用法</title>
         <programlisting><![CDATA[<?php
 class SelectCountTest extends PHPUnit_Framework_TestCase
 {
@@ -2304,7 +2232,7 @@ Tests: 4, Assertions: 4, Failures: 4.</screen>
       <title>assertSelectEquals()</title>
       <indexterm><primary>assertSelectEquals()</primary></indexterm>
       <para><literal>assertSelectEquals(array $selector, string $content, integer $count, mixed $actual[, string $message = '', boolean $isHtml = TRUE])</literal></para>
-      <para>Reports an error identified by <literal>$message</literal> if the CSS selector <literal>$selector</literal> does not match <literal>$count</literal> elements in the DOMNode <literal>$actual</literal> with the value <literal>$content</literal>.</para>
+      <para>当 ** 时，报告一个错误，错误讯息的内容由 <literal>$message</literal> 指定。 if the CSS selector <literal>$selector</literal> does not match <literal>$count</literal> elements in the DOMNode <literal>$actual</literal> with the value <literal>$content</literal>.</para>
       <para><literal>$count</literal> can be one of the following types:</para>
       <itemizedlist>
         <listitem><literal>boolean</literal>: Asserts for presence of elements matching the selector (<literal>TRUE</literal>) or absence of elements (<literal>FALSE</literal>).</listitem>
@@ -2312,7 +2240,7 @@ Tests: 4, Assertions: 4, Failures: 4.</screen>
         <listitem><literal>array</literal>: Asserts that the count is in a range specified by using <literal>&lt;</literal>, <literal>&gt;</literal>, <literal>&lt;=</literal>, and <literal>&gt;=</literal> as keys.</listitem>
       </itemizedlist>
       <example id="writing-tests-for-phpunit.assertions.assertSelectEquals.example">
-        <title>Usage of assertSelectEquals()</title>
+        <title>assertSelectEquals() 的用法</title>
         <programlisting><![CDATA[<?php
 class SelectEqualsTest extends PHPUnit_Framework_TestCase
 {
@@ -2381,7 +2309,7 @@ Tests: 4, Assertions: 4, Failures: 4.</screen>
       <title>assertSelectRegExp()</title>
       <indexterm><primary>assertSelectRegExp()</primary></indexterm>
       <para><literal>assertSelectRegExp(array $selector, string $pattern, integer $count, mixed $actual[, string $message = '', boolean $isHtml = TRUE])</literal></para>
-      <para>Reports an error identified by <literal>$message</literal> if the CSS selector <literal>$selector</literal> does not match <literal>$count</literal> elements in the DOMNode <literal>$actual</literal> with a value that matches <literal>$pattern</literal>.</para>
+      <para>当 ** 时，报告一个错误，错误讯息的内容由 <literal>$message</literal> 指定。 if the CSS selector <literal>$selector</literal> does not match <literal>$count</literal> elements in the DOMNode <literal>$actual</literal> with a value that matches <literal>$pattern</literal>.</para>
       <para><literal>$count</literal> can be one of the following types:</para>
       <itemizedlist>
         <listitem><literal>boolean</literal>: Asserts for presence of elements matching the selector (<literal>TRUE</literal>) or absence of elements (<literal>FALSE</literal>).</listitem>
@@ -2389,7 +2317,7 @@ Tests: 4, Assertions: 4, Failures: 4.</screen>
         <listitem><literal>array</literal>: Asserts that the count is in a range specified by using <literal>&lt;</literal>, <literal>&gt;</literal>, <literal>&lt;=</literal>, and <literal>&gt;=</literal> as keys.</listitem>
       </itemizedlist>
       <example id="writing-tests-for-phpunit.assertions.assertSelectRegExp.example">
-        <title>Usage of assertSelectRegExp()</title>
+        <title>assertSelectRegExp() 的用法</title>
         <programlisting><![CDATA[<?php
 class SelectRegExpTest extends PHPUnit_Framework_TestCase
 {
@@ -2459,10 +2387,10 @@ Tests: 4, Assertions: 4, Failures: 4.</screen>
       <indexterm><primary>assertStringEndsWith()</primary></indexterm>
       <indexterm><primary>assertStringEndsNotWith()</primary></indexterm>
       <para><literal>assertStringEndsWith(string $suffix, string $string[, string $message = ''])</literal></para>
-      <para>Reports an error identified by <literal>$message</literal> if the <literal>$string</literal> does not end with <literal>$suffix</literal>.</para>
-      <para><literal>assertStringEndsNotWith()</literal> is the inverse of this assertion and takes the same arguments.</para>
+      <para>当 ** 时，报告一个错误，错误讯息的内容由 <literal>$message</literal> 指定。 if the <literal>$string</literal> does not end with <literal>$suffix</literal>.</para>
+      <para><literal>assertStringEndsNotWith()</literal> 是与之相反的断言，并接受相同的参数。</para>
       <example id="writing-tests-for-phpunit.assertions.assertStringEndsWith.example">
-        <title>Usage of assertStringEndsWith()</title>
+        <title>assertStringEndsWith() 的用法</title>
         <programlisting><![CDATA[<?php
 class StringEndsWithTest extends PHPUnit_Framework_TestCase
 {
@@ -2496,10 +2424,10 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
       <indexterm><primary>assertStringEqualsFile()</primary></indexterm>
       <indexterm><primary>assertStringNotEqualsFile()</primary></indexterm>
       <para><literal>assertStringEqualsFile(string $expectedFile, string $actualString[, string $message = ''])</literal></para>
-      <para>Reports an error identified by <literal>$message</literal>  if the file specified by <literal>$expectedFile</literal> does not have <literal>$actualString</literal> as its contents.</para>
-      <para><literal>assertStringNotEqualsFile()</literal> is the inverse of this assertion and takes the same arguments.</para>
+      <para>当 ** 时，报告一个错误，错误讯息的内容由 <literal>$message</literal> 指定。  if the file specified by <literal>$expectedFile</literal> does not have <literal>$actualString</literal> as its contents.</para>
+      <para><literal>assertStringNotEqualsFile()</literal> 是与之相反的断言，并接受相同的参数。</para>
       <example id="writing-tests-for-phpunit.assertions.assertStringEqualsFile.example">
-        <title>Usage of assertStringEqualsFile()</title>
+        <title>assertStringEqualsFile() 的用法</title>
         <programlisting><![CDATA[<?php
 class StringEqualsFileTest extends PHPUnit_Framework_TestCase
 {
@@ -2539,10 +2467,10 @@ Tests: 1, Assertions: 2, Failures: 1.</screen>
       <indexterm><primary>assertStringStartsWith()</primary></indexterm>
       <indexterm><primary>assertStringStartsNotWith()</primary></indexterm>
       <para><literal>assertStringStartsWith(string $prefix, string $string[, string $message = ''])</literal></para>
-      <para>Reports an error identified by <literal>$message</literal> if the <literal>$string</literal> does not start with <literal>$prefix</literal>.</para>
-      <para><literal>assertStringStartsNotWith()</literal> is the inverse of this assertion and takes the same arguments.</para>
+      <para>当 ** 时，报告一个错误，错误讯息的内容由 <literal>$message</literal> 指定。 if the <literal>$string</literal> does not start with <literal>$prefix</literal>.</para>
+      <para><literal>assertStringStartsNotWith()</literal> 是与之相反的断言，并接受相同的参数。</para>
       <example id="writing-tests-for-phpunit.assertions.assertStringStartsWith.example">
-        <title>Usage of assertStringStartsWith()</title>
+        <title>assertStringStartsWith() 的用法</title>
         <programlisting><![CDATA[<?php
 class StringStartsWithTest extends PHPUnit_Framework_TestCase
 {
@@ -2576,7 +2504,7 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
       <indexterm><primary>assertTag()</primary></indexterm>
       <indexterm><primary>assertNotTag()</primary></indexterm>
       <para><literal>assertTag(array $matcher, string $actual[, string $message = '', boolean $isHtml = TRUE])</literal></para>
-      <para>Reports an error identified by <literal>$message</literal> if <literal>$actual</literal> is not matched by the <literal>$matcher</literal>.</para>
+      <para>当 ** 时，报告一个错误，错误讯息的内容由 <literal>$message</literal> 指定。 ** 当 <literal>$actual</literal> is not matched by the <literal>$matcher</literal>.</para>
       <para><literal>$matcher</literal> is an associative array that specifies the match criteria for the assertion:</para>
       <itemizedlist>
         <listitem><literal>id</literal>: The node with the given <literal>id</literal> attribute must match the corresponsing value.</listitem>
@@ -2596,9 +2524,9 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
           </itemizedlist>
         </listitem>
       </itemizedlist>
-      <para><literal>assertNotTag()</literal> is the inverse of this assertion and takes the same arguments.</para>
+      <para><literal>assertNotTag()</literal> 是与之相反的断言，并接受相同的参数。</para>
       <example id="writing-tests-for-phpunit.assertions.assertTag.example">
-        <title>Usage of assertTag()</title>
+        <title>assertTag() 的用法</title>
         <programlisting><![CDATA[<?php
 // Matcher that asserts that there is an element with an id="my_id".
 $matcher = array('id' => 'my_id');
@@ -2699,9 +2627,9 @@ $this->assertTag($matcher, $xml, '', FALSE);
       </para>
 
       <para><literal>assertThat(mixed $value, PHPUnit_Framework_Constraint $constraint[, $message = ''])</literal></para>
-      <para>Reports an error identified by <literal>$message</literal> if the <literal>$value</literal> does not match the <literal>$constraint</literal>.</para>
+      <para>当 ** 时，报告一个错误，错误讯息的内容由 <literal>$message</literal> 指定。 if the <literal>$value</literal> does not match the <literal>$constraint</literal>.</para>
       <example id="writing-tests-for-phpunit.assertions.assertThat.example">
-        <title>Usage of assertThat()</title>
+        <title>assertThat() 的用法</title>
         <programlisting><![CDATA[<?php
 class BiscuitTest extends PHPUnit_Framework_TestCase
 {
@@ -2896,9 +2824,9 @@ class BiscuitTest extends PHPUnit_Framework_TestCase
       <title>assertTrue()</title>
       <indexterm><primary>assertTrue()</primary></indexterm>
       <para><literal>assertTrue(bool $condition[, string $message = ''])</literal></para>
-      <para>Reports an error identified by <literal>$message</literal> if <literal>$condition</literal> is <literal>FALSE</literal>.</para>
+      <para>当 ** 时，报告一个错误，错误讯息的内容由 <literal>$message</literal> 指定。 ** 当 <literal>$condition</literal> is <literal>FALSE</literal>.</para>
       <example id="writing-tests-for-phpunit.assertions.assertTrue.example">
-        <title>Usage of assertTrue()</title>
+        <title>assertTrue() 的用法</title>
         <programlisting><![CDATA[<?php
 class TrueTest extends PHPUnit_Framework_TestCase
 {
@@ -2932,10 +2860,10 @@ Tests: 1, Assertions: 1, Failures: 1.</screen>
       <indexterm><primary>assertXmlFileEqualsXmlFile()</primary></indexterm>
       <indexterm><primary>assertXmlFileNotEqualsXmlFile()</primary></indexterm>
       <para><literal>assertXmlFileEqualsXmlFile(string $expectedFile, string $actualFile[, string $message = ''])</literal></para>
-      <para>Reports an error identified by <literal>$message</literal> if the XML document in <literal>$actualFile</literal> is not equal to the XML document in <literal>$expectedFile</literal>.</para>
-      <para><literal>assertXmlFileNotEqualsXmlFile()</literal> is the inverse of this assertion and takes the same arguments.</para>
+      <para>当 ** 时，报告一个错误，错误讯息的内容由 <literal>$message</literal> 指定。 if the XML document in <literal>$actualFile</literal> is not equal to the XML document in <literal>$expectedFile</literal>.</para>
+      <para><literal>assertXmlFileNotEqualsXmlFile()</literal> 是与之相反的断言，并接受相同的参数。</para>
       <example id="writing-tests-for-phpunit.assertions.assertXmlFileEqualsXmlFile.example">
-        <title>Usage of assertXmlFileEqualsXmlFile()</title>
+        <title>assertXmlFileEqualsXmlFile() 的用法</title>
         <programlisting><![CDATA[<?php
 class XmlFileEqualsXmlFileTest extends PHPUnit_Framework_TestCase
 {
@@ -2978,10 +2906,10 @@ Tests: 1, Assertions: 3, Failures: 1.]]></screen>
       <indexterm><primary>assertXmlStringEqualsXmlFile()</primary></indexterm>
       <indexterm><primary>assertXmlStringNotEqualsXmlFile()</primary></indexterm>
       <para><literal>assertXmlStringEqualsXmlFile(string $expectedFile, string $actualXml[, string $message = ''])</literal></para>
-      <para>Reports an error identified by <literal>$message</literal> if the XML document in <literal>$actualXml</literal> is not equal to the XML document in <literal>$expectedFile</literal>.</para>
-      <para><literal>assertXmlStringNotEqualsXmlFile()</literal> is the inverse of this assertion and takes the same arguments.</para>
+      <para>当 ** 时，报告一个错误，错误讯息的内容由 <literal>$message</literal> 指定。 if the XML document in <literal>$actualXml</literal> is not equal to the XML document in <literal>$expectedFile</literal>.</para>
+      <para><literal>assertXmlStringNotEqualsXmlFile()</literal> 是与之相反的断言，并接受相同的参数。</para>
       <example id="writing-tests-for-phpunit.assertions.assertXmlStringEqualsXmlFile.example">
-        <title>Usage of assertXmlStringEqualsXmlFile()</title>
+        <title>assertXmlStringEqualsXmlFile() 的用法</title>
         <programlisting><![CDATA[<?php
 class XmlStringEqualsXmlFileTest extends PHPUnit_Framework_TestCase
 {
@@ -3024,10 +2952,10 @@ Tests: 1, Assertions: 2, Failures: 1.]]></screen>
       <indexterm><primary>assertXmlStringEqualsXmlString()</primary></indexterm>
       <indexterm><primary>assertXmlStringNotEqualsXmlString()</primary></indexterm>
       <para><literal>assertXmlStringEqualsXmlString(string $expectedXml, string $actualXml[, string $message = ''])</literal></para>
-      <para>Reports an error identified by <literal>$message</literal> if the XML document in <literal>$actualXml</literal> is not equal to the XML document in <literal>$expectedXml</literal>.</para>
-      <para><literal>assertXmlStringNotEqualsXmlString()</literal> is the inverse of this assertion and takes the same arguments.</para>
+      <para>当 ** 时，报告一个错误，错误讯息的内容由 <literal>$message</literal> 指定。 if the XML document in <literal>$actualXml</literal> is not equal to the XML document in <literal>$expectedXml</literal>.</para>
+      <para><literal>assertXmlStringNotEqualsXmlString()</literal> 是与之相反的断言，并接受相同的参数。</para>
       <example id="writing-tests-for-phpunit.assertions.assertXmlStringEqualsXmlString.example">
-        <title>Usage of assertXmlStringEqualsXmlString()</title>
+        <title>assertXmlStringEqualsXmlString() 的用法</title>
         <programlisting><![CDATA[<?php
 class XmlStringEqualsXmlStringTest extends PHPUnit_Framework_TestCase
 {
