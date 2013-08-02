@@ -12,7 +12,7 @@
   <orderedlist>
     <listitem><para>针对类 <literal>Class</literal> 的测试写在类 <literal>ClassTest</literal> 中。</para></listitem>
     <listitem><para><literal>ClassTest</literal>（通常）继承自 <literal>PHPUnit_Framework_TestCase</literal>。</para></listitem>
-    <listitem><indexterm><primary>Annotation （注标）</primary></indexterm><indexterm><primary>@test</primary></indexterm><para>测试都是命名为 <literal>test*</literal> 的公用方法。</para><para><indexterm><primary>Annotation （批注）</primary></indexterm>另外，你可以在方法的文档注释块(docblock)中使用 <literal>@test</literal> 注标将其标记为测试方法。</para></listitem>
+    <listitem><indexterm><primary>Annotation （标注）</primary></indexterm><indexterm><primary>@test</primary></indexterm><para>测试都是命名为 <literal>test*</literal> 的公用方法。</para><para><indexterm><primary>Annotation （批注）</primary></indexterm>另外，你可以在方法的文档注释块(docblock)中使用 <literal>@test</literal> 标注将其标记为测试方法。</para></listitem>
     <listitem><para>在测试方法内，类似于 <literal>assertEquals()</literal>（参看<xref linkend="writing-tests-for-phpunit.assertions" />）这样的断言方法用来对实际值与预期值的匹配做出断言。</para></listitem>
   </orderedlist>
 
@@ -65,14 +65,14 @@ class StackTest extends PHPUnit_Framework_TestCase
     </itemizedlist>
 
     <para>
-      <indexterm><primary>Annotation （注标）</primary></indexterm>
+      <indexterm><primary>Annotation （标注）</primary></indexterm>
       <indexterm><primary>@depends</primary></indexterm>
 
-      <xref linkend="writing-tests-for-phpunit.examples.StackTest2.php" /> 展示了如何用 <literal>@depends</literal> 注标来表达测试方法之间的依赖关系。
+      <xref linkend="writing-tests-for-phpunit.examples.StackTest2.php" /> 展示了如何用 <literal>@depends</literal> 标注来表达测试方法之间的依赖关系。
     </para>
 
     <example id="writing-tests-for-phpunit.examples.StackTest2.php">
-      <title>用 <literal>@depends</literal> 注标来表达依赖关系</title>
+      <title>用 <literal>@depends</literal> 标注来表达依赖关系</title>
       <programlisting><![CDATA[<?php
 class StackTest extends PHPUnit_Framework_TestCase
 {
@@ -161,7 +161,7 @@ Tests: 1, Assertions: 1, Failures: 1, Skipped: 1.]]></screen>
     </example>
 
     <para>
-      测试可以使用多于一个 <literal>@depends</literal> 注标。PHPUnit 不会更改测试的运行顺序，因此你需要自行保证某个测试所依赖的所有测试均出现于这个测试之前。
+      测试可以使用多于一个 <literal>@depends</literal> 标注。PHPUnit 不会更改测试的运行顺序，因此你需要自行保证某个测试所依赖的所有测试均出现于这个测试之前。
     </para>
   </section>
 
@@ -169,9 +169,9 @@ Tests: 1, Assertions: 1, Failures: 1, Skipped: 1.]]></screen>
     <title>数据供给器</title>
 
     <para>
-      <indexterm><primary>Annotation （注标）</primary></indexterm>
+      <indexterm><primary>Annotation （标注）</primary></indexterm>
       <indexterm><primary>@dataProvider</primary></indexterm>
-      测试方法可以接受任意参数。这些参数由数据供给器方法（在<xref linkend="writing-tests-for-phpunit.data-providers.examples.DataTest.php" />中，是 <literal>provider()</literal> 方法）提供。用 <literal>@dataProvider </literal> 注标来指定使用哪个数据供给器方法。
+      测试方法可以接受任意参数。这些参数由数据供给器方法（在<xref linkend="writing-tests-for-phpunit.data-providers.examples.DataTest.php" />中，是 <literal>provider()</literal> 方法）提供。用 <literal>@dataProvider</literal> 标注来指定使用哪个数据供给器方法。
     </para>
 
     <para>
@@ -305,7 +305,7 @@ class CsvFileIterator implements Iterator {
 
     <note>
       <para>
-        <indexterm><primary>Annotation （注标）</primary></indexterm>
+        <indexterm><primary>Annotation （标注）</primary></indexterm>
         <indexterm><primary>@dataProvider</primary></indexterm>
         <indexterm><primary>@depends</primary></indexterm>
         如果测试同时从 <literal>@dataProvider</literal> 方法和一个或多个 <literal>@depends</literal> 测试接收数据，那么来自于数据供给器的参数将先于来自所依赖的测试的。
@@ -314,7 +314,7 @@ class CsvFileIterator implements Iterator {
 
     <note>
       <para>
-        <indexterm><primary>Annotation （注标）</primary></indexterm>
+        <indexterm><primary>Annotation （标注）</primary></indexterm>
         <indexterm><primary>@dataProvider </primary></indexterm>
         <indexterm><primary>@depends</primary></indexterm>
         当一个测试依赖于另外一个使用了数据供给器的测试时，仅当被依赖的测试至少能在一组数据上成功时，依赖于它的测试才会运行。使用了数据供给器的测试，其运行结果是无法注入到依赖于此测试的其他测试中的。
@@ -323,7 +323,7 @@ class CsvFileIterator implements Iterator {
 
     <note>
       <para>
-        <indexterm><primary>Annotation （注标）</primary></indexterm>
+        <indexterm><primary>Annotation （标注）</primary></indexterm>
         <indexterm><primary>@dataProvider</primary></indexterm>
         <indexterm><primary>@depends</primary></indexterm>
         所有的数据供给器方法的执行都是在对 <literal>setUpBeforeClass</literal> 静态方法的调用和第一次对 <literal>setUp</literal> 方法的调用之前完成的。因此，无法在数据供给器中使用创建于这两个方法内的变量。这是必须的，这样 PHPUnit 才能计算测试的总数量。
@@ -335,13 +335,13 @@ class CsvFileIterator implements Iterator {
     <title>对异常进行测试</title>
 
     <para>
-      <indexterm><primary>Annotation （注标）</primary></indexterm>
+      <indexterm><primary>Annotation （标注）</primary></indexterm>
       <indexterm><primary>@expectedException</primary></indexterm>
-      <xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest.php" />展示了如何用 <literal>@expectedException</literal> 注标来测试被测代码中是否抛出了异常。
+      <xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest.php" />展示了如何用 <literal>@expectedException</literal> 标注来测试被测代码中是否抛出了异常。
     </para>
 
     <example id="writing-tests-for-phpunit.exceptions.examples.ExceptionTest.php">
-      <title>使用 @expectedException 注标</title>
+      <title>使用 @expectedException 标注</title>
       <programlisting><![CDATA[<?php
 class ExceptionTest extends PHPUnit_Framework_TestCase
 {
@@ -371,7 +371,7 @@ Tests: 1, Assertions: 1, Failures: 1.</screen>
     </example>
 
     <para>
-      <indexterm><primary>Annotation （注标）</primary></indexterm>
+      <indexterm><primary>Annotation （标注）</primary></indexterm>
       <indexterm><primary>@expectedException</primary></indexterm>
       <indexterm><primary>@expectedExceptionMessage</primary></indexterm>
       <indexterm><primary>@expectedExceptionCode</primary></indexterm>
@@ -379,7 +379,7 @@ Tests: 1, Assertions: 1, Failures: 1.</screen>
     </para>
 
     <example id="writing-tests-for-phpunit.exceptions.examples.ExceptionTest2.php">
-      <title>使用 @expectedExceptionMessage 和 @expectedExceptionCode 注标</title>
+      <title>使用 @expectedExceptionMessage 和 @expectedExceptionCode 标注</title>
       <programlisting><![CDATA[<?php
 class ExceptionTest extends PHPUnit_Framework_TestCase
 {
@@ -1566,7 +1566,7 @@ Tests: 1, Assertions: 1, Failures: 1.</screen>
       <indexterm><primary>assertGreaterThanOrEqual()</primary></indexterm>
       <indexterm><primary>assertAttributeGreaterThanOrEqual()</primary></indexterm>
       <para><literal>assertGreaterThanOrEqual(mixed $expected, mixed $actual[, string $message = ''])</literal></para>
-      <para>>当 <literal>$actual</literal> 的值不大于且不等于 <literal>$expected</literal> 的值时，报告一个错误，错误讯息的内容由 <literal>$message</literal> 指定。</para>
+      <para>当 <literal>$actual</literal> 的值不大于且不等于 <literal>$expected</literal> 的值时，报告一个错误，错误讯息的内容由 <literal>$message</literal> 指定。</para>
       <para><literal>assertAttributeGreaterThanOrEqual()</literal> 是便捷包装(convenience wrappers)，以某个类或对象的某个 <literal>public</literal>、 <literal>protected</literal> 或 <literal>private</literal> 属性作为实际值来进行比较。</para>
       <example id="writing-tests-for-phpunit.assertions.assertGreaterThanOrEqual.example">
         <title>assertGreaterThanOrEqual() 的用法</title>
@@ -2024,17 +2024,17 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
       </example>
       <para>格式串中可以使用如下占位符：</para>
       <itemizedlist>
-        <listitem><para><literal>%e</literal>: 表示目录分隔符，以 Linux 系统为例，是 <literal>/</literal>。</para></listitem>
-        <listitem><para><literal>%s</literal>: 一个或多个除了换行符以外的任意字符（非空白字符或者空白字符）。</para></listitem>
-        <listitem><para><literal>%S</literal>: 零个或多个除了换行符以外的任意字符（非空白字符或者空白字符）。</para></listitem>
-        <listitem><para><literal>%a</literal>: 一个或多个包括换行符在内的任意字符（非空白字符或者空白字符）。</para></listitem>
-        <listitem><para><literal>%A</literal>: 零个或多个包括换行符在内的任意字符（非空白字符或者空白字符）。</para></listitem>
-        <listitem><para><literal>%w</literal>: 零个或多个空白字符。</para></listitem>
-        <listitem><para><literal>%i</literal>: 带符号整数值，例如 <literal>+3142</literal>、<literal>-3142</literal>。</para></listitem>
-        <listitem><para><literal>%d</literal>: 无符号整数值，例如 <literal>123456</literal>。</para></listitem>
-        <listitem><para><literal>%x</literal>: 一个或多个十六进制字符。所谓十六进制字符，指的是在以下范围内的字符：<literal>0-9</literal>、<literal>a-f</literal>、<literal>A-F</literal>。 </para></listitem>
-        <listitem><para><literal>%f</literal>: 浮点数，例如 <literal>3.142</literal>、<literal>-3.142</literal>、<literal>3.142E-10</literal>、<literal>3.142e+10</literal>。</para></listitem>
-        <listitem><para><literal>%c</literal>: 单个任意字符。</para></listitem>
+        <listitem><para><literal>%e</literal>：表示目录分隔符，以 Linux 系统为例，是 <literal>/</literal>。</para></listitem>
+        <listitem><para><literal>%s</literal>：一个或多个除了换行符以外的任意字符（非空白字符或者空白字符）。</para></listitem>
+        <listitem><para><literal>%S</literal>：零个或多个除了换行符以外的任意字符（非空白字符或者空白字符）。</para></listitem>
+        <listitem><para><literal>%a</literal>：一个或多个包括换行符在内的任意字符（非空白字符或者空白字符）。</para></listitem>
+        <listitem><para><literal>%A</literal>：零个或多个包括换行符在内的任意字符（非空白字符或者空白字符）。</para></listitem>
+        <listitem><para><literal>%w</literal>：零个或多个空白字符。</para></listitem>
+        <listitem><para><literal>%i</literal>：带符号整数值，例如 <literal>+3142</literal>、<literal>-3142</literal>。</para></listitem>
+        <listitem><para><literal>%d</literal>：无符号整数值，例如 <literal>123456</literal>。</para></listitem>
+        <listitem><para><literal>%x</literal>：一个或多个十六进制字符。所谓十六进制字符，指的是在以下范围内的字符：<literal>0-9</literal>、<literal>a-f</literal>、<literal>A-F</literal>。 </para></listitem>
+        <listitem><para><literal>%f</literal>：浮点数，例如 <literal>3.142</literal>、<literal>-3.142</literal>、<literal>3.142E-10</literal>、<literal>3.142e+10</literal>。</para></listitem>
+        <listitem><para><literal>%c</literal>：单个任意字符。</para></listitem>
       </itemizedlist>
     </section>
 
@@ -2663,22 +2663,22 @@ class BiscuitTest extends PHPUnit_Framework_TestCase
             <row>
               <indexterm><primary>arrayHasKey()</primary></indexterm>
               <entry><literal>PHPUnit_Framework_Constraint_ArrayHasKey arrayHasKey(mixed $key)</literal></entry>
-              <entry>此约束断言被评定的数组拥有指定键名。</entry>
+              <entry>此约束断言所评定的数组拥有指定键名。</entry>
             </row>
             <row>
               <indexterm><primary>contains()</primary></indexterm>
               <entry><literal>PHPUnit_Framework_Constraint_TraversableContains contains(mixed $value)</literal></entry>
-              <entry>Constraint that asserts that the <literal>array</literal> or object that implements the <literal>Iterator</literal> interface it is evaluated for contains a given value.</entry>
+              <entry>此约束断言所评定的 <literal>array</literal> 或实现了 <literal>Iterator</literal> 接口的对象包含有给定值。</entry>
             </row>
             <row>
               <indexterm><primary>containsOnly()</primary></indexterm>
               <entry><literal>PHPUnit_Framework_Constraint_TraversableContainsOnly containsOnly(string $type)</literal></entry>
-              <entry>Constraint that asserts that the <literal>array</literal> or object that implements the <literal>Iterator</literal> interface it is evaluated for contains only values of a given type.</entry>
+              <entry>此约束断言所评定的 <literal>array</literal> 或实现了 <literal>Iterator</literal> 接口的对象仅包含给定类型的值。</entry>
             </row>
             <row>
               <indexterm><primary>containsOnlyInstancesOf()</primary></indexterm>
               <entry><literal>PHPUnit_Framework_Constraint_TraversableContainsOnly containsOnlyInstancesOf(string $classname)</literal></entry>
-              <entry>Constraint that asserts that the <literal>array</literal> or object that implements the <literal>Iterator</literal> interface it is evaluated for contains only instances of a given classname.</entry>
+              <entry>此约束断言所评定的 <literal>array</literal> 或实现了 <literal>Iterator</literal> 接口的对象仅包含给定类名的类的实例。</entry>
             </row>
             <row>
               <indexterm><primary>equalTo()</primary></indexterm>
@@ -2693,72 +2693,72 @@ class BiscuitTest extends PHPUnit_Framework_TestCase
             <row>
               <indexterm><primary>fileExists()</primary></indexterm>
               <entry><literal>PHPUnit_Framework_Constraint_FileExists fileExists()</literal></entry>
-              <entry>此约束检验被评定的文件（名）是否存在。</entry>
+              <entry>此约束检验所评定的文件（名）是否存在。</entry>
             </row>
             <row>
               <indexterm><primary>greaterThan()</primary></indexterm>
               <entry><literal>PHPUnit_Framework_Constraint_GreaterThan greaterThan(mixed $value)</literal></entry>
-              <entry>Constraint that asserts that the value it is evaluated for is greater than a given value.</entry>
+              <entry>此约束断言所评定的值大于给定值。</entry>
             </row>
             <row>
               <indexterm><primary>greaterThanOrEqual()</primary></indexterm>
               <entry><literal>PHPUnit_Framework_Constraint_Or greaterThanOrEqual(mixed $value)</literal></entry>
-              <entry>Constraint that asserts that the value it is evaluated for is greater than or equal to a given value.</entry>
+              <entry>此约束断言所评定的值大于或等于给定值。</entry>
             </row>
             <row>
               <indexterm><primary>classHasAttribute()</primary></indexterm>
               <entry><literal>PHPUnit_Framework_Constraint_ClassHasAttribute classHasAttribute(string $attributeName)</literal></entry>
-              <entry>Constraint that asserts that the class it is evaluated for has a given attribute.</entry>
+              <entry>此约束断言所评定的类具有给定属性。</entry>
             </row>
             <row>
               <indexterm><primary>classHasStaticAttribute()</primary></indexterm>
               <entry><literal>PHPUnit_Framework_Constraint_ClassHasStaticAttribute classHasStaticAttribute(string $attributeName)</literal></entry>
-              <entry>Constraint that asserts that the class it is evaluated for has a given static attribute.</entry>
+              <entry>此约束断言所评定的类具有给定静态属性。</entry>
             </row>
             <row>
               <indexterm><primary>hasAttribute()</primary></indexterm>
               <entry><literal>PHPUnit_Framework_Constraint_ObjectHasAttribute hasAttribute(string $attributeName)</literal></entry>
-              <entry>Constraint that asserts that the object it is evaluated for has a given attribute.</entry>
+              <entry>此约束断言所评定的对象具有给定属性。</entry>
             </row>
             <row>
               <indexterm><primary>identicalTo()</primary></indexterm>
               <entry><literal>PHPUnit_Framework_Constraint_IsIdentical identicalTo(mixed $value)</literal></entry>
-              <entry>Constraint that asserts that one value is identical to another.</entry>
+              <entry>此约束断言所评定的值与另外一个值全等。</entry>
             </row>
             <row>
               <indexterm><primary>isFalse()</primary></indexterm>
               <entry><literal>PHPUnit_Framework_Constraint_IsFalse isFalse()</literal></entry>
-              <entry>Constraint that asserts that the value it is evaluated is <literal>FALSE</literal>.</entry>
+              <entry>此约束断言所评定的值为 <literal>FALSE</literal>。</entry>
             </row>
             <row>
               <indexterm><primary>isInstanceOf()</primary></indexterm>
               <entry><literal>PHPUnit_Framework_Constraint_IsInstanceOf isInstanceOf(string $className)</literal></entry>
-              <entry>Constraint that asserts that the object it is evaluated for is an instance of a given class.</entry>
+              <entry>此约束断言所评定的对象是给定类的实例。</entry>
             </row>
             <row>
               <indexterm><primary>isNull()</primary></indexterm>
               <entry><literal>PHPUnit_Framework_Constraint_IsNull isNull()</literal></entry>
-              <entry>Constraint that asserts that the value it is evaluated is <literal>NULL</literal>.</entry>
+              <entry>此约束断言所评定的值为 <literal>NULL</literal>。</entry>
             </row>
             <row>
               <indexterm><primary>isTrue()</primary></indexterm>
               <entry><literal>PHPUnit_Framework_Constraint_IsTrue isTrue()</literal></entry>
-              <entry>Constraint that asserts that the value it is evaluated is <literal>TRUE</literal>.</entry>
+              <entry>此约束断言所评定的值为 <literal>TRUE</literal>。</entry>
             </row>
             <row>
               <indexterm><primary>isType()</primary></indexterm>
               <entry><literal>PHPUnit_Framework_Constraint_IsType isType(string $type)</literal></entry>
-              <entry>Constraint that asserts that the value it is evaluated for is of a specified type.</entry>
+              <entry>此约束断言所评定的值是指定类型的。</entry>
             </row>
             <row>
               <indexterm><primary>lessThan()</primary></indexterm>
               <entry><literal>PHPUnit_Framework_Constraint_LessThan lessThan(mixed $value)</literal></entry>
-              <entry>Constraint that asserts that the value it is evaluated for is smaller than a given value.</entry>
+              <entry>此约束断言所评定的值小于给定值。</entry>
             </row>
             <row>
               <indexterm><primary>lessThanOrEqual()</primary></indexterm>
               <entry><literal>PHPUnit_Framework_Constraint_Or lessThanOrEqual(mixed $value)</literal></entry>
-              <entry>Constraint that asserts that the value it is evaluated for is smaller than or equal to a given value.</entry>
+              <entry>此约束断言所评定的值小于或等于给定值。</entry>
             </row>
             <row>
               <indexterm><primary>logicalAnd()</primary></indexterm>
@@ -2783,22 +2783,22 @@ class BiscuitTest extends PHPUnit_Framework_TestCase
             <row>
               <indexterm><primary>matchesRegularExpression()</primary></indexterm>
               <entry><literal>PHPUnit_Framework_Constraint_PCREMatch matchesRegularExpression(string $pattern)</literal></entry>
-              <entry>Constraint that asserts that the string it is evaluated for matches a regular expression.</entry>
+              <entry>此约束断言所评定的字符串匹配于正则表达式。</entry>
             </row>
             <row>
               <indexterm><primary>stringContains()</primary></indexterm>
               <entry><literal>PHPUnit_Framework_Constraint_StringContains stringContains(string $string, bool $case)</literal></entry>
-              <entry>Constraint that asserts that the string it is evaluated for contains a given string.</entry>
+              <entry>此约束断言所评定的字符串包含指定字符串。</entry>
             </row>
             <row>
               <indexterm><primary>stringEndsWith()</primary></indexterm>
               <entry><literal>PHPUnit_Framework_Constraint_StringEndsWith stringEndsWith(string $suffix)</literal></entry>
-              <entry>Constraint that asserts that the string it is evaluated for ends with a given suffix.</entry>
+              <entry>此约束断言所评定的字符串以给定后缀结尾。</entry>
             </row>
             <row>
               <indexterm><primary>stringStartsWith()</primary></indexterm>
               <entry><literal>PHPUnit_Framework_Constraint_StringStartsWith stringStartsWith(string $prefix)</literal></entry>
-              <entry>Constraint that asserts that the string it is evaluated for starts with a given prefix.</entry>
+              <entry>此约束断言所评定的字符串以给定前缀开头。</entry>
             </row>
           </tbody>
         </tgroup>
@@ -2809,7 +2809,7 @@ class BiscuitTest extends PHPUnit_Framework_TestCase
       <title>assertTrue()</title>
       <indexterm><primary>assertTrue()</primary></indexterm>
       <para><literal>assertTrue(bool $condition[, string $message = ''])</literal></para>
-      <para>当 ** 时，报告一个错误，错误讯息的内容由 <literal>$message</literal> 指定。 ** 当 <literal>$condition</literal> is <literal>FALSE</literal>.</para>
+      <para>当 <literal>$condition</literal> 为 <literal>FALSE</literal>时，报告一个错误，错误讯息的内容由 <literal>$message</literal> 指定。</para>
       <example id="writing-tests-for-phpunit.assertions.assertTrue.example">
         <title>assertTrue() 的用法</title>
         <programlisting><![CDATA[<?php
@@ -2845,7 +2845,7 @@ Tests: 1, Assertions: 1, Failures: 1.</screen>
       <indexterm><primary>assertXmlFileEqualsXmlFile()</primary></indexterm>
       <indexterm><primary>assertXmlFileNotEqualsXmlFile()</primary></indexterm>
       <para><literal>assertXmlFileEqualsXmlFile(string $expectedFile, string $actualFile[, string $message = ''])</literal></para>
-      <para>当 ** 时，报告一个错误，错误讯息的内容由 <literal>$message</literal> 指定。 if the XML document in <literal>$actualFile</literal> is not equal to the XML document in <literal>$expectedFile</literal>.</para>
+      <para>当 <literal>$actualFile</literal> 中的 XML 文档与 <literal>$expectedFile</literal> 中的 XML 文档不相等时，报告一个错误，错误讯息的内容由 <literal>$message</literal> 指定。</para>
       <para><literal>assertXmlFileNotEqualsXmlFile()</literal> 是与之相反的断言，并接受相同的参数。</para>
       <example id="writing-tests-for-phpunit.assertions.assertXmlFileEqualsXmlFile.example">
         <title>assertXmlFileEqualsXmlFile() 的用法</title>
@@ -2891,7 +2891,7 @@ Tests: 1, Assertions: 3, Failures: 1.]]></screen>
       <indexterm><primary>assertXmlStringEqualsXmlFile()</primary></indexterm>
       <indexterm><primary>assertXmlStringNotEqualsXmlFile()</primary></indexterm>
       <para><literal>assertXmlStringEqualsXmlFile(string $expectedFile, string $actualXml[, string $message = ''])</literal></para>
-      <para>当 ** 时，报告一个错误，错误讯息的内容由 <literal>$message</literal> 指定。 if the XML document in <literal>$actualXml</literal> is not equal to the XML document in <literal>$expectedFile</literal>.</para>
+      <para>当 <literal>$actualXml</literal> 中的 XML 文档与 <literal>$expectedFile</literal> 中的 XML 文档不相等时，报告一个错误，错误讯息的内容由 <literal>$message</literal> 指定。</para>
       <para><literal>assertXmlStringNotEqualsXmlFile()</literal> 是与之相反的断言，并接受相同的参数。</para>
       <example id="writing-tests-for-phpunit.assertions.assertXmlStringEqualsXmlFile.example">
         <title>assertXmlStringEqualsXmlFile() 的用法</title>
@@ -2937,7 +2937,7 @@ Tests: 1, Assertions: 2, Failures: 1.]]></screen>
       <indexterm><primary>assertXmlStringEqualsXmlString()</primary></indexterm>
       <indexterm><primary>assertXmlStringNotEqualsXmlString()</primary></indexterm>
       <para><literal>assertXmlStringEqualsXmlString(string $expectedXml, string $actualXml[, string $message = ''])</literal></para>
-      <para>当 ** 时，报告一个错误，错误讯息的内容由 <literal>$message</literal> 指定。 if the XML document in <literal>$actualXml</literal> is not equal to the XML document in <literal>$expectedXml</literal>.</para>
+      <para>当 <literal>$actualXml</literal> 中的 XML 文档与 <literal>$expectedXml</literal> 中的 XML 文档不相等时，报告一个错误，错误讯息的内容由 <literal>$message</literal> 指定。</para>
       <para><literal>assertXmlStringNotEqualsXmlString()</literal> 是与之相反的断言，并接受相同的参数。</para>
       <example id="writing-tests-for-phpunit.assertions.assertXmlStringEqualsXmlString.example">
         <title>assertXmlStringEqualsXmlString() 的用法</title>
@@ -2980,15 +2980,14 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
   </section>
 
   <section id="writing-tests-for-phpunit.error-output">
-    <title>Error output</title>
+    <title>错误相关信息的输出</title>
 
     <para>
-      Whenever a test fails PHPUnit tries its best to provide you with as much
-      context as possible that can help to identify the problem.
+      当有测试失败时，PHPUnit 全力提供尽可能多的有助于找出问题所在的上下文信息。
     </para>
 
     <example id="writing-tests-for-phpunit.error-output.examples.ArrayDiffTest.php">
-      <title>Error output generated when an array comparison fails</title>
+      <title>数组比较失败时生成的错误相关信息输出</title>
       <programlisting><![CDATA[<?php
 class ArrayDiffTest extends PHPUnit_Framework_TestCase
 {
@@ -3030,16 +3029,14 @@ FAILURES!
 Tests: 1, Assertions: 1, Failures: 1.]]></screen>
     </example>
     <para>
-      In this example only one of the array values differs and the other values
-      are shown to provide context on where the error occurred.
+      在这个例子中，数组中只有一个值不同，但其他值也都同时显示出来，以提供关于错误发生的位置的上下文信息。
     </para>
 
     <para>
-      When the generated output would be long to read PHPUnit will split it up
-      and provide a few lines of context around every difference.
+      当生成的输出很长而难以阅读时，PHPUnit 将对其进行分割，并在每个差异附近提供少数几行上下文信息。
     </para>
     <example id="writing-tests-for-phpunit.error-output.examples.LongArrayDiffTest.php">
-      <title>Error output when an array comparison of an long array fails</title>
+      <title>长数组比较失败时生成的错误相关信息输出</title>
       <programlisting><![CDATA[<?php
 class LongArrayDiffTest extends PHPUnit_Framework_TestCase
 {
@@ -3080,21 +3077,18 @@ FAILURES!
 Tests: 1, Assertions: 1, Failures: 1.]]></screen>
     </example>
     <section id="writing-tests-for-phpunit.error-output.edge-cases">
-      <title>Edge cases</title>
+      <title>边缘情况</title>
 
       <para>
-        When a comparison fails PHPUnit creates a textual representations of the
-        input values and compares those. Due to that implementation a diff
-        might show more problems than actually exist.
+        当比较失败时，PHPUnit 为输入值建立文本表示，然后以此进行对比。这种实现导致在差异指示中显示出来的问题可能比实际上存在的多。
       </para>
 
       <para>
-        This only happens when using assertEquals or other 'weak' comparison
-        functions on arrays or objects.
+        这种情况只出现在对数组或者对象使用 assertEquals 或其他“弱”比较函数时。
       </para>
 
       <example id="writing-tests-for-phpunit.error-output.edge-cases.examples.ArrayWeakComparisonTest.php">
-        <title>Edge case in the diff generation when using weak comparison</title>
+        <title>当使用弱比较时在生成的差异结果中出现的边缘情况</title>
         <programlisting><![CDATA[<?php
 class ArrayWeakComparisonTest extends PHPUnit_Framework_TestCase
 {
@@ -3139,9 +3133,7 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
 
       </example>
       <para>
-        In this example the difference in the first index between
-        <literal>1</literal> and <literal>'1'</literal> is
-        reported even so assertEquals considers the values as a match.
+        在这个例子中，第一个索引项中的 <literal>1</literal> 和 <literal>'1'</literal> 在报告中被视为不同，但 assertEquals 仍认为这两个值是匹配的。
       </para>
 
     </section>
