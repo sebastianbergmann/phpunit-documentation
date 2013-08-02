@@ -1,61 +1,32 @@
 <?xml version="1.0" encoding="utf-8" ?>
 
 <chapter id="fixtures">
-  <title>Fixtures</title>
+  <title>基境</title>
 
   <para>
-    <indexterm><primary>Fixture</primary></indexterm>
-
-    One of the most time-consuming parts of writing tests is writing the
-    code to set the world up in a known state and then return it to its
-    original state when the test is complete. This known state is called
-    the <emphasis>fixture</emphasis> of the test.
+    <indexterm><primary>Fixture （基境）</primary></indexterm>
+    在编写测试时，最费时的部分之一是编写代码来将整个场景设置成某个已知的状态，并在测试结束后将其复原到初始状态。这个已知的状态称为测试的 <emphasis>基境(fixture)</emphasis>。
   </para>
 
   <para>
-    In <xref linkend="writing-tests-for-phpunit.examples.StackTest.php" />, the
-    fixture was simply the array that is stored in the <literal>$fixture</literal>
-    variable. Most of the time, though, the fixture will be more complex
-    than a simple array, and the amount of code needed to set it up will
-    grow accordingly. The actual content of the test gets lost in the noise
-    of setting up the fixture. This problem gets even worse when you write
-    several tests with similar fixtures. Without some help from the testing
-    framework, we would have to duplicate the code that sets up the fixture
-    for each test we write.
+    在<xref linkend="writing-tests-for-phpunit.examples.StackTest.php" />中，基境十分简单，就是存储在 <literal>$fixture</literal> 变量中的数组。然而，绝大多数时候基境均远比一个简单数组要复杂，用于建立基境的代码量也会随之增长。测试的真正内容就被淹没于建立基境带来的干扰中。当编写多个需要类似基境的测试时这个问题就变得更糟糕了。如果没有来自于测试框架的帮助，就不得不在写每一个测试时都将建立基境的代码重复一次。
   </para>
 
   <para>
-    <indexterm><primary>Template Method</primary></indexterm>
+    <indexterm><primary>Template Method （模板方法）</primary></indexterm>
     <indexterm><primary>setUp()</primary></indexterm>
     <indexterm><primary>tearDown()</primary></indexterm>
 
-    PHPUnit supports sharing the setup code. Before a test method is run, a
-    template method called <literal>setUp()</literal> is invoked.
-    <literal>setUp()</literal> is where you create the objects against which
-    you will test. Once the test method has finished running, whether it
-    succeeded or failed, another template method called
-    <literal>tearDown()</literal> is invoked. <literal>tearDown()</literal>
-    is where you clean up the objects against which you tested.
+    PHPUnit 支持共享建立基境的代码。在运行某个测试方法前，会调用一个名叫 <literal>setUp()</literal> 的模板方法。
+    <literal>setUp()</literal> 是创建测试所用对象的地方。当测试方法运行结束后，不管是成功还是失败，都会调用另外一个名叫 <literal>tearDown()</literal> 的模板方法。<literal>tearDown()</literal> 是清理测试所用对象的地方。
   </para>
 
   <para>
-    In <xref linkend="writing-tests-for-phpunit.examples.StackTest2.php" /> we
-    used the producer-consumer relationship between tests to share fixture. This
-    is not always desired or even possible. <xref linkend="fixtures.examples.StackTest.php"/>
-    shows how we can write the tests of the <literal>StackTest</literal> in such
-    a way that not the fixture itself is reused but the code that creates it.
-    First we declare the instance variable, <literal>$stack</literal>, that we
-    are going to use instead of a method-local variable. Then we put the
-    creation of the <literal>array</literal> fixture into the
-    <literal>setUp()</literal> method. Finally, we remove the redundant code
-    from the test methods and use the newly introduced instance variable,
-    <literal>$this->stack</literal>, instead of the method-local variable
-    <literal>$stack</literal> with the <literal>assertEquals()</literal>
-    assertion method.
+    在<xref linkend="writing-tests-for-phpunit.examples.StackTest2.php" />中，我们在测试之间运用生产者-消费者关系来共享基境。通常这并非所预期的，甚至是不可能的。<xref linkend="fixtures.examples.StackTest.php"/>展示了另外一个编写测试 <literal>StackTest</literal> 的方式。在这个方式中，不再重用基境本身，而是重用建立基境的代码。首先声明一个实例变量，<literal>$stack</literal>，用来替代方法内的局部变量。然后把 <literal>array</literal> 基境的建立放到 <literal>setUp()</literal> 方法中。最后，从测试方法中去除冗余代码，在 <literal>assertEquals()</literal> 断言方法中使用新引入的实例变量，<literal>$this->stack</literal>，替代方法内的局部变量 <literal>$stack</literal>。
   </para>
 
   <example id="fixtures.examples.StackTest.php">
-    <title>Using setUp() to create the stack fixture</title>
+    <title>用 setUp() 建立栈的基境</title>
     <programlisting><![CDATA[<?php
 class StackTest extends PHPUnit_Framework_TestCase
 {
@@ -89,19 +60,16 @@ class StackTest extends PHPUnit_Framework_TestCase
   </example>
 
   <para>
-    <indexterm><primary>Template Method</primary></indexterm>
+    <indexterm><primary>Template Method （模板方法）</primary></indexterm>
     <indexterm><primary>setUpBeforeClass()</primary></indexterm>
     <indexterm><primary>setUp()</primary></indexterm>
     <indexterm><primary>tearDown()</primary></indexterm>
     <indexterm><primary>tearDownAfterClass()</primary></indexterm>
-
-    The <literal>setUp()</literal> and <literal>tearDown()</literal> template
-    methods are run once for each test method (and on fresh instances) of the
-    test case class.
+    测试类的每个测试方法都会运行一次 <literal>setUp()</literal> 与 <literal>tearDown()</literal> 模板方法（同时，每个测试方法都是在一个全新的测试类实例上运行的）。
   </para>
 
   <para>
-    <indexterm><primary>Template Method</primary></indexterm>
+    <indexterm><primary>Template Method （模板方法）</primary></indexterm>
     <indexterm><primary>setUpBeforeClass()</primary></indexterm>
     <indexterm><primary>setUp()</primary></indexterm>
     <indexterm><primary>assertPreConditions()</primary></indexterm>
@@ -109,22 +77,16 @@ class StackTest extends PHPUnit_Framework_TestCase
     <indexterm><primary>tearDown()</primary></indexterm>
     <indexterm><primary>tearDownAfterClass()</primary></indexterm>
     <indexterm><primary>onNotSuccessfulTest()</primary></indexterm>
-
-    In addition, the <literal>setUpBeforeClass()</literal> and
-    <literal>tearDownAfterClass()</literal> template methods are called before
-    the first test of the test case class is run and after the last test of the
-    test case class is run, respectively.
+    另外，<literal>setUpBeforeClass()</literal> 与 <literal>tearDownAfterClass()</literal> 模板方法将分别在测试用例类的第一个测试运行之前和测试用例类的最后一个测试运行之后调用。
   </para>
 
   <para>
-    <indexterm><primary>Template Method</primary></indexterm>
-
-    The example below shows all template methods that are available in a test
-    case class.
+    <indexterm><primary>Template Method （模板方法）</primary></indexterm>
+    下面这个例子中展示了测试用例类中所有有效的模板方法。
   </para>
 
   <example id="fixtures.examples.TemplateMethodsTest.php">
-    <title>Example showing all template methods available</title>
+    <title>展示所有有效模板方法的例子</title>
     <programlisting><![CDATA[<?php
 class TemplateMethodsTest extends PHPUnit_Framework_TestCase
 {
@@ -207,63 +169,45 @@ Tests: 2, Assertions: 2, Failures: 1.]]></screen>
   </example>
 
   <section id="fixtures.more-setup-than-teardown">
-    <title>More setUp() than tearDown()</title>
+    <title>setUp() 多 tearDown() 少</title>
 
     <para>
-      <literal>setUp()</literal> and <literal>tearDown()</literal> are nicely
-      symmetrical in theory but not in practice. In practice, you only need
-      to implement <literal>tearDown()</literal> if you have allocated
-      external resources like files or sockets in <literal>setUp()</literal>.
-      If your <literal>setUp()</literal> just creates plain PHP objects, you
-      can generally ignore <literal>tearDown()</literal>. However, if you
-      create many objects in your <literal>setUp()</literal>, you might want
-      to <literal>unset()</literal> the variables pointing to those objects
-      in your <literal>tearDown()</literal> so they can be garbage collected.
-      The garbage collection of test case objects is not predictable.
+      理论上说，<literal>setUp()</literal> 与 <literal>tearDown()</literal> 是精确对称的，但是实践中并非如此。实际上，只有在 <literal>setUp()</literal> 中分配了诸如文件或套接字之类的外部资源时才需要实现 <literal>tearDown()</literal> 。如果 <literal>setUp()</literal> 中只创建纯 PHP 对象，通常可以略过 <literal>tearDown()</literal>。不管怎样，如果在 <literal>setUp()</literal> 中创建了大量对象，你可能想要在 <literal>tearDown()</literal> 中 <literal>unset()</literal> 指向这些对象的变量，这样它们就可以被垃圾回收机制回收掉。对测试用例对象的垃圾回收动作则是不可预知的。
     </para>
   </section>
 
   <section id="fixtures.variations">
-    <title>Variations</title>
+    <title>变体</title>
 
     <para>
-      What happens when you have two tests with slightly different setups?
-      There are two possibilities:
+      如果两个基境建立工作略有不同的测试该怎么办？
+      出现这种情况有两个可能性：
     </para>
 
     <itemizedlist>
       <listitem>
         <para>
-          If the <literal>setUp()</literal> code differs only slightly, move
-          the code that differs from the <literal>setUp()</literal> code to
-          the test method.
+          如果两个 <literal>setUp()</literal> 代码仅有微小差异，把有差异的代码内容从 <literal>setUp()</literal> 移到测试方法内。
         </para>
       </listitem>
 
       <listitem>
         <para>
-          If you really have a different <literal>setUp()</literal>, you need
-          a different test case class. Name the class after the difference in
-          the setup.
+          如果两个 <literal>setUp()</literal> 是确实不一样，那么需要另外一个测试用例类。参考基境建立工作的不同之处来命名这个类。
         </para>
       </listitem>
     </itemizedlist>
   </section>
 
   <section id="fixtures.sharing-fixture">
-    <title>Sharing Fixture</title>
+    <title>共享基境</title>
 
     <para>
-      There are few good reasons to share fixtures between tests, but in most
-      cases the need to share a fixture between tests stems from an unresolved
-      design problem.
+      有少数几个很好的理由来在测试之间共享基境，但是大部分情况下，在测试之间共享基境的需求都是源于某个未解决的设计问题。
     </para>
 
     <para>
-      A good example of a fixture that makes sense to share across several
-      tests is a database connection: you log into the database once and reuse
-      the database connection instead of creating a new connection for each
-      test. This makes your tests run faster.
+      一个有实际意义的多测试间共享基境的例子是数据库连接：只登录数据库一次，然后重用此连接，而不是每个测试都建立一个新的数据库连接。这样能加快测试的运行。
     </para>
 
     <para>
@@ -271,14 +215,11 @@ Tests: 2, Assertions: 2, Failures: 1.]]></screen>
       <indexterm><primary>tearDownAfterClass</primary></indexterm>
 
       <xref linkend="fixtures.sharing-fixture.examples.DatabaseTest.php" />
-      uses the <literal>setUpBeforeClass()</literal> and
-      <literal>tearDownAfterClass()</literal> template methods to connect to the
-      database before the test case class' first test and to disconnect from the
-      database after the last test of the test case, respectively.
+      用 <literal>setUpBeforeClass()</literal> 和 <literal>tearDownAfterClass()</literal> 模板方法来分别在测试用例类的第一个测试之前和最后一个测试之后连接与断开数据库。
     </para>
 
     <example id="fixtures.sharing-fixture.examples.DatabaseTest.php">
-      <title>Sharing fixture between the tests of a test suite</title>
+      <title>在同一个测试套件内的不同测试之间共享基境</title>
       <programlisting><![CDATA[<?php
 class DatabaseTest extends PHPUnit_Framework_TestCase
 {
@@ -298,71 +239,52 @@ class DatabaseTest extends PHPUnit_Framework_TestCase
     </example>
 
     <para>
-      It cannot be emphasized enough that sharing fixtures between tests
-      reduces the value of the tests. The underlying design problem is
-      that objects are not loosely coupled. You will achieve better
-      results solving the underlying design problem and then writing tests
-      using stubs (see <xref linkend="test-doubles" />), than by creating
-      dependencies between tests at runtime and ignoring the opportunity
-      to improve your design.
+      需要反复强调的是：在测试之间共享基境会降低测试的价值。潜在的设计问题是对象之间不是松散耦合的。如果解决掉潜在的设计问题，并使用stubs (see <xref linkend="test-doubles" />)来编写测试，就能达成更好的结果，而不是在测试之间建立运行时依赖并忽略改进设计的机会。
     </para>
   </section>
 
   <section id="fixtures.global-state">
-    <title>Global State</title>
+    <title>全局状态</title>
 
     <para>
-      <ulink url="http://googletesting.blogspot.com/2008/05/tott-using-dependancy-injection-to.html">It is hard to test code that uses singletons.</ulink>
-      The same is true for code that uses global variables. Typically, the code
-      you want to test is coupled strongly with a global variable and you cannot
-      control its creation. An additional problem is the fact that one test's
-      change to a global variable might break another test.
+      <ulink url="http://googletesting.blogspot.com/2008/05/tott-using-dependancy-injection-to.html">使用单件(singleton)的代码很难测试。</ulink>使用全局变量的代码也一样。通常情况下，要测试的代码和全局变量之间强烈耦合，并且无法控制它的创建。另外一个问题是，一个测试对全局变量的改变可能会破坏另外一个测试。
     </para>
 
     <para>
-      In PHP, global variables work like this:
+      在 PHP 中，全局变量是这样运作的：
     </para>
 
     <itemizedlist>
-      <listitem><para>A global variable <literal>$foo = 'bar';</literal> is stored as <literal>$GLOBALS['foo'] = 'bar';</literal>.</para></listitem>
-      <listitem><para>The <literal>$GLOBALS</literal> variable is a so-called <emphasis>super-global</emphasis> variable.</para></listitem>
-      <listitem><para>Super-global variables are built-in variables that are always available in all scopes.</para></listitem>
-      <listitem><para>In the scope of a function or method, you may access the global variable <literal>$foo</literal> by either directly accessing <literal>$GLOBALS['foo']</literal> or by using <literal>global $foo;</literal> to create a local variable with a reference to the global variable.</para></listitem>
+      <listitem><para>全局变量 <literal>$foo = 'bar';</literal> 是存储为 <literal>$GLOBALS['foo'] = 'bar';</literal> 的。</para></listitem>
+      <listitem><para><literal>$GLOBALS</literal> 变量称为<emphasis>超全局</emphasis>变量。</para></listitem>
+      <listitem><para>超全局变量是内建变量，在任何变量作用域中都是可用的。</para></listitem>
+      <listitem><para>在函数或者方法的变量作用域中，要访问全局变量 <literal>$foo</literal>，可以直接访问 <literal>$GLOBALS['foo']</literal>，或者用 <literal>global $foo;</literal> 来创建一个引用全局变量的局部变量。</para></listitem>
     </itemizedlist>
 
     <para>
-      Besides global variables, static attributes of classes are also part of
-      the global state.
+      除了全局变量，类的静态属性也是一种全局状态。
     </para>
 
     <para>
-      <indexterm><primary>Global Variable</primary></indexterm>
-      <indexterm><primary>Test Isolation</primary></indexterm>
+      <indexterm><primary>Global Variable （全局变量）</primary></indexterm>
+      <indexterm><primary>Test Isolation （测试隔离）</primary></indexterm>
 
-      By default, PHPUnit runs your tests in a way where changes to global
-      and super-global variables (<literal>$GLOBALS</literal>,
+      默认情况下，PHPUnit 用一种改变全局变量与超全局变量(<literal>$GLOBALS</literal>,
       <literal>$_ENV</literal>, <literal>$_POST</literal>,
       <literal>$_GET</literal>, <literal>$_COOKIE</literal>,
       <literal>$_SERVER</literal>, <literal>$_FILES</literal>,
-      <literal>$_REQUEST</literal>) do not affect other tests. Optionally, this
-      isolation can be extended to static attributes of classes.
+      <literal>$_REQUEST</literal>)不会影响其他测试的方式来运行所有测试。作为一个可选的方案，这种隔离还可以扩展到类的静态属性。
     </para>
 
     <note>
       <para>
-        The implementation of the backup and restore operations for static
-        attributes of classes requires PHP 5.3 (or greater).
+        对类的静态属性的备份与还原操作其实现方案需要 PHP 5.3（或更高版本）.
       </para>
       <para>
-        The implementation of the backup and restore operations for global
-        variables and static attributes of classes uses <literal>serialize()</literal>
-        and <literal>unserialize()</literal>.
+        对全局变量和类的静态属性的备份与还原操作其实现方案使用了 <literal>serialize()</literal> 与 <literal>unserialize()</literal>。
       </para>
       <para>
-        Objects of some classes that are provided by PHP itself, such as
-        <literal>PDO</literal> for example, cannot be serialized and the backup
-        operation will break when such an object is stored in the
-        <literal>$GLOBALS</literal> array, for instance.
+        某些 PHP 自身提供的类，比如 <literal>PDO</literal> ，其实例对象无法序列化，因此如果把这样一个对象存放在比如说 <literal>$GLOBALS</literal> 数组内时，备份操作就会出问题。
       </para>
     </note>
 
@@ -370,9 +292,7 @@ class DatabaseTest extends PHPUnit_Framework_TestCase
       <indexterm><primary><literal>@backupGlobals</literal></primary></indexterm>
       <indexterm><primary><literal>$backupGlobalsBlacklist</literal></primary></indexterm>
 
-      The <literal>@backupGlobals</literal> annotation that is discussed in
-      <xref linkend="appendixes.annotations.backupGlobals"/> can be used to
-      control the backup and restore operations for global variables.
+      在<xref linkend="appendixes.annotations.backupGlobals"/>中所讨论的 <literal>@backupGlobals</literal> 标注可以用来控制对全局变量的备份与还原操作。另外，可以提供一个全局变量的黑名单，排除于备份与还原操作，就像这样：
       Alternatively, you can provide a blacklist of global variables that are to
       be excluded from the backup and restore operations like this
       <programlisting>class MyTest extends PHPUnit_Framework_TestCase
