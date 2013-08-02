@@ -2,12 +2,10 @@
 
 <!-- <chapter id="textui"> -->
 <chapter id="textui">
-  <title>The Command-Line Test Runner</title>
+  <title>命令行测试执行器</title>
 
   <para>
-    The PHPUnit command-line test runner can be invoked through the
-    <filename>phpunit</filename> command. The following code shows how to run
-    tests with the PHPUnit command-line test runner:
+    PHPUnit 命令行测试执行器可通过 <filename>phpunit</filename> 命令调用。下面的代码展示了如何用 PHPUnit 命令行测试执行器来运行测试：
   </para>
 
   <screen><userinput>phpunit ArrayTest</userinput>
@@ -21,8 +19,7 @@ Time: 0 seconds
 OK (2 tests, 2 assertions)</screen>
 
   <para>
-    For each test run, the PHPUnit command-line tool prints one character to
-    indicate progress:
+    对于每个测试的运行，PHPUnit 命令行工具输出一个字符来指示进展：
   </para>
 
   <variablelist>
@@ -30,7 +27,7 @@ OK (2 tests, 2 assertions)</screen>
       <term><literal>.</literal></term>
       <listitem>
         <para>
-          Printed when the test succeeds.
+          当测试成功时输出。
         </para>
       </listitem>
     </varlistentry>
@@ -39,7 +36,7 @@ OK (2 tests, 2 assertions)</screen>
       <term><literal>F</literal></term>
       <listitem>
         <para>
-          Printed when an assertion fails while running the test method.
+          当测试方法运行过程中一个断言失败时输出。
         </para>
       </listitem>
     </varlistentry>
@@ -48,7 +45,7 @@ OK (2 tests, 2 assertions)</screen>
       <term><literal>E</literal></term>
       <listitem>
         <para>
-          Printed when an error occurs while running the test method.
+          当测试方法运行过程中产生一个错误时输出。
         </para>
       </listitem>
     </varlistentry>
@@ -57,8 +54,7 @@ OK (2 tests, 2 assertions)</screen>
       <term><literal>S</literal></term>
       <listitem>
         <para>
-          Printed when the test has been skipped (see
-          <xref linkend="incomplete-and-skipped-tests" />).
+          当测试被跳过时输出（参见<xref linkend="incomplete-and-skipped-tests" />）。
         </para>
       </listitem>
     </varlistentry>
@@ -67,33 +63,25 @@ OK (2 tests, 2 assertions)</screen>
       <term><literal>I</literal></term>
       <listitem>
         <para>
-          Printed when the test is marked as being incomplete or not yet
-          implemented (see <xref linkend="incomplete-and-skipped-tests" />).
+          当测试被标记为不完整或未实现时输出（参见<xref linkend="incomplete-and-skipped-tests" />）。
         </para>
       </listitem>
     </varlistentry>
   </variablelist>
 
   <para>
-    <indexterm><primary>Error</primary></indexterm>
-    <indexterm><primary>Failure</primary></indexterm>
+    <indexterm><primary>Error （错误）</primary></indexterm>
+    <indexterm><primary>Failure （失败）</primary></indexterm>
 
-    PHPUnit distinguishes between <emphasis>failures</emphasis> and
-    <emphasis>errors</emphasis>. A failure is a violated PHPUnit
-    assertion such as a failing <literal>assertEquals()</literal> call.
-    An error is an unexpected exception or a PHP error. Sometimes
-    this distinction proves useful since errors tend to be easier to fix
-    than failures. If you have a big list of problems, it is best to
-    tackle the errors first and see if you have any failures left when
-    they are all fixed.
+    PHPUnit 区分 <emphasis>失败(failure)</emphasis> 与
+    <emphasis>错误(error)</emphasis>。失败指的是被违背了的 PHPUnit 断言，例如一个失败的 <literal>assertEquals()</literal> 调用。错误指的是意料之外的异常(exception)或 PHP 错误。有时候这种差别被证明是非常有用的，因为错误往往比失败更容易修复。如果得到了一个非常长的问题列表，那么最好先对付错误，当错误全部修复了之后再试一次瞧瞧还有没有失败。
   </para>
 
   <section id="textui.clioptions">
-    <title>Command-Line switches</title>
+    <title>命令行选项</title>
   
     <para>
-      Let's take a look at the command-line test runner's switches in
-      the following code:
+      让我们来瞧瞧以下代码中命令行测试运行器的各种选项：
     </para>
 
     <screen><userinput>phpunit --help</userinput>
@@ -159,18 +147,11 @@ Usage: phpunit [switches] UnitTest [UnitTest.php]
         <term><literal>phpunit UnitTest</literal></term>
         <listitem>
           <para>
-            Runs the tests that are provided by the class
-            <literal>UnitTest</literal>. This class is expected to be declared
-            in the <filename>UnitTest.php</filename> sourcefile.
+            运行由 <literal>UnitTest</literal> 类提供的测试。这个类应当在 <filename>UnitTest.php</filename> 源文件中声明。
           </para>
 
           <para>
-            <literal>UnitTest</literal> must be either a class that inherits
-            from <literal>PHPUnit_Framework_TestCase</literal> or a class that
-            provides a <literal>public static suite()</literal> method which
-            returns an <literal>PHPUnit_Framework_Test</literal> object, for
-            example an instance of the
-            <literal>PHPUnit_Framework_TestSuite</literal> class.
+            <literal>UnitTest</literal> 这个类必须满足以下二个条件之一：要么它继承自 <literal>PHPUnit_Framework_TestCase</literal>；要么它提供 <literal>public static suite()</literal> 方法，这个方法返回一个 <literal>PHPUnit_Framework_Test</literal> 对象，比如，一个 <literal>PHPUnit_Framework_TestSuite</literal> 类的实例。
           </para>
         </listitem>
       </varlistentry>
@@ -179,9 +160,7 @@ Usage: phpunit [switches] UnitTest [UnitTest.php]
         <term><literal>phpunit UnitTest UnitTest.php</literal></term>
         <listitem>
           <para>
-            Runs the tests that are provided by the class
-            <literal>UnitTest</literal>. This class is expected to be declared
-            in the specified sourcefile.
+            运行由 <literal>UnitTest</literal> 类提供的测试。这个类应当在指定的源文件中声明。
           </para>
         </listitem>
       </varlistentry>
@@ -191,8 +170,7 @@ Usage: phpunit [switches] UnitTest [UnitTest.php]
         <term><literal>--log-junit</literal></term>
         <listitem>
           <para>
-            Generates a logfile in JUnit XML format for the tests run.
-            See <xref linkend="logging" /> for more details.
+            为运行的测试生成 JUnit XML 格式的日志文件。更多细节请参看<xref linkend="logging" />。
           </para>
         </listitem>
       </varlistentry>
@@ -202,9 +180,8 @@ Usage: phpunit [switches] UnitTest [UnitTest.php]
         <term><literal>--log-tap</literal></term>
         <listitem>
           <para>
-            Generates a logfile using the <ulink url="http://testanything.org/">Test Anything Protocol (TAP)</ulink>
-            format for the: tests run. See <xref linkend="logging" /> for more
-            details.
+            为运行的测试生成 <ulink url="http://testanything.org/">Test Anything Protocol (TAP)</ulink> 格式的日志文件。
+            format for the: tests run. 更多细节请参看<xref linkend="logging" />。
           </para>
         </listitem>
       </varlistentry>
@@ -214,9 +191,7 @@ Usage: phpunit [switches] UnitTest [UnitTest.php]
         <term><literal>--log-json</literal></term>
         <listitem>
           <para>
-            Generates a logfile using the
-            <ulink url="http://www.json.org/">JSON</ulink> format.
-            See <xref linkend="logging" /> for more details.
+            生成 <ulink url="http://www.json.org/">JSON</ulink> 格式的日志文件。更多细节请参看<xref linkend="logging" />。
           </para>
         </listitem>
       </varlistentry>
@@ -227,8 +202,7 @@ Usage: phpunit [switches] UnitTest [UnitTest.php]
         <term><literal>--coverage-html</literal></term>
         <listitem>
           <para>
-            Generates a code coverage report in HTML format. See
-            <xref linkend="code-coverage-analysis" /> for more details.
+            Generates a code coverage report in HTML format.更多细节请参看<xref linkend="code-coverage-analysis" />。
           </para>
           <para>
             Please note that this functionality is only available when the
@@ -243,7 +217,7 @@ Usage: phpunit [switches] UnitTest [UnitTest.php]
         <listitem>
           <para>
             Generates a logfile in XML format with the code coverage information
-            for the tests run. See <xref linkend="logging" /> for more details.
+            for the tests run. 更多细节请参看<xref linkend="logging" />。
           </para>
           <para>
             Please note that this functionality is only available when the
@@ -257,8 +231,7 @@ Usage: phpunit [switches] UnitTest [UnitTest.php]
         <term><literal>--coverage-crap4j</literal></term>
         <listitem>
           <para>
-            Generates a code coverage report in Crap4j format. See
-            <xref linkend="code-coverage-analysis" /> for more details.
+            Generates a code coverage report in Crap4j format. 更多细节请参看<xref linkend="code-coverage-analysis" />。
           </para>
           <para>
             Please note that this functionality is only available when the
@@ -289,7 +262,7 @@ Usage: phpunit [switches] UnitTest [UnitTest.php]
           <para>
             Generates a logfile or command-line output in human readable format
             with the code coverage information for the tests run.
-            See <xref linkend="logging" /> for more details.
+           更多细节请参看<xref linkend="logging" />。
           </para>
           <para>
             Please note that this functionality is only available when the
@@ -304,8 +277,7 @@ Usage: phpunit [switches] UnitTest [UnitTest.php]
         <listitem>
           <para>
             Generates agile documentation in HTML or plain text format for the
-            tests that are run. See <xref linkend="other-uses-for-tests" /> for
-            more details.
+            tests that are run. 更多细节请参看<xref linkend="other-uses-for-tests" />。
           </para>
         </listitem>
       </varlistentry>
@@ -441,8 +413,7 @@ Usage: phpunit [switches] UnitTest [UnitTest.php]
         <term><literal>--testdox</literal></term>
         <listitem>
           <para>
-            Reports the test progress as agile documentation. See
-            <xref linkend="other-uses-for-tests" /> for more details.
+            Reports the test progress as agile documentation. 更多细节请参看<xref linkend="other-uses-for-tests" />。
           </para>
         </listitem>
       </varlistentry>
@@ -537,8 +508,7 @@ Usage: phpunit [switches] UnitTest [UnitTest.php]
         <term><literal>--no-globals-backup</literal></term>
         <listitem>
           <para>
-            Do not backup and restore $GLOBALS. See <xref linkend="fixtures.global-state" />
-            for more details.
+            Do not backup and restore $GLOBALS. 更多细节请参看<xref linkend="fixtures.global-state" />。
           </para>
         </listitem>
       </varlistentry>
@@ -549,7 +519,7 @@ Usage: phpunit [switches] UnitTest [UnitTest.php]
         <listitem>
           <para>
             Backup and restore static attributes of user-defined classes.
-            See <xref linkend="fixtures.global-state" /> for more details.
+            更多细节请参看<xref linkend="fixtures.global-state" />。
           </para>
         </listitem>
       </varlistentry>
@@ -570,7 +540,7 @@ Usage: phpunit [switches] UnitTest [UnitTest.php]
         <listitem>
           <para>
             Read configuration from XML file.
-            See <xref linkend="appendixes.configuration" /> for more details.
+            更多细节请参看<xref linkend="appendixes.configuration" />。
           </para>
           <para>
             If <filename>phpunit.xml</filename> or
