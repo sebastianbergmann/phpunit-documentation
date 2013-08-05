@@ -1,220 +1,162 @@
 <?xml version="1.0" encoding="utf-8" ?>
 
 <chapter id="database">
-  <title>Database Testing</title>
+  <title>数据库测试</title>
   <para>
-    Many beginner and intermediate unit testing examples in any programming
-    language suggest that it is perfectly easy to test your application's logic with
-    simple tests. For database-centric applications this is far away from the
-    reality. Start using Wordpress, TYPO3 or Symfony with Doctrine or Propel,
-    for example, and you will easily experience considerable problems with
-    PHPUnit: just because the database is so tightly coupled to these libraries.
+    在各种编程语言中，许多入门或者中级的单元测试范例都暗示了这样一种信息：用简单的测试来对应用程序的逻辑进行测试是极其容易的。但是对于以数据库为中心的应用程序而言，这与现实相去甚远。一旦开始在诸如 Wordpress、 TYPO3、或 Symfony 中使用 Doctrine 或者 Propel 之类的组件，很容易在 使用 PHPUnit 时经历数量可观的问题：正是由于这些库和数据库之间实在耦合的太紧密了。
   </para>
   <para>
-    You probably know this scenario from your daily work and projects,
-    where you want to put your fresh or experienced PHPUnit skills to
-    work and get stuck by one of the following problems:
+    你可能从日常工作或者项目中得到对这种情况的认知，正当打算在工作中运用你那或生疏或纯熟的 PHPUnit 技能时，你被以下问题之一卡住了：
   </para>
   <orderedlist numeration="arabic">
     <listitem>
       <para>
-        The method you want to test executes a rather large JOIN operation and
-        uses the data to calculate some important results.
+        待测方法执行了一个相当大的JOIN操作，并使用这些数据计算出了一些重要的结果。
       </para>
     </listitem>
     <listitem>
       <para>
-        Your business logic performs a mix of SELECT, INSERT, UPDATE and
-        DELETE statements.
+        业务逻辑中混合执行了 SELECT、INSERT、UPDATE 和 DELETE 语句。
       </para>
     </listitem>
     <listitem>
       <para>
-        You need to setup test data in (possibly much) more than two tables
-        to get reasonable initial data for the methods you want to test.
+        为了给待测方法建立合理的初始数据，需要在两个以上（可能远超过）表里设置测试数据。
       </para>
     </listitem>
   </orderedlist>
   <para>
-    The DbUnit extension considerably simplifies the setup of a database for
-    testing purposes and allows you to verify the contents of a database after
-    performing a series of operations. It can be installed like this:
+    DbUnit 扩展大大简化了为测试目的设置数据库的操作，并且允许在对数据执行了一系列操作之后验证数据库的内容。可以像这样安装它：
   </para>
   <screen><userinput>pear install phpunit/DbUnit</userinput></screen>
   <section id="supported-vendors-for-database-testing">
-    <title>Supported Vendors for Database Testing</title>
+    <title>数据库测试所支持的供应商</title>
     <para>
-      DbUnit currently supports MySQL, PostgreSQL, Oracle and SQLite. Through
-      <ulink url="http://framework.zend.com">Zend Framework</ulink> or
-      <ulink url="http://www.doctrine-project.org">Doctrine 2</ulink>
-      integrations it has access to other database systems such as IBM DB2 or
-      Microsoft SQL Server.
+      DbUnit 目前支持 MySQL、PostgreSQL、Oracle 和 SQLite。通过集成 <ulink url="http://framework.zend.com">Zend Framework</ulink> 或者 <ulink url="http://www.doctrine-project.org">Doctrine 2</ulink>，可以访问其他数据库系统，比如 IBM DB2 或者 Microsoft SQL Server。
     </para>
   </section>
   <section id="difficulties-in-database-testing">
-    <title>Difficulties in Database Testing</title>
+    <title>数据库测试中的难点</title>
     <para>
-      There is a good reason why all the examples on unit testing do not include
-      interactions with the database: these kind of tests are both complex to
-      setup and maintain. While testing against your database you need to take
-      care of the following variables:
+      关于为什么所有单元测试的范例都不包含数据库交互，这里有个很好的理由：这类测试的建立和维护都很复杂。对数据库进行测试时，需要处理以下可变因素：
     </para>
     <itemizedlist>
       <listitem>
         <para>
-          The database schema and tables
+          数据库和表
         </para>
       </listitem>
       <listitem>
         <para>
-          Inserting the rows required for the test into these tables
+          向表中插入测试所需要的行
         </para>
       </listitem>
       <listitem>
         <para>
-          Verifying the state of the database after your test has run
+          测试运行完毕后验证数据库的状态
         </para>
       </listitem>
       <listitem>
         <para>
-          Cleanup the database for each new test
+          每个新测试都要清理数据库
         </para>
       </listitem>
     </itemizedlist>
     <para>
-      Because many database APIs such as PDO, MySQLi or OCI8 are cumbersome to
-      use and verbose in writing doing these steps manually is an absolute
-      nightmare.
+      许多数据库 API，比如 PDO、MySQLi 或者 OCI8，都十分繁琐且书写起来十分冗长，因此，手工进行这些步骤绝对是噩梦。
     </para>
     <para>
-      Test code should be as short and precise as possible for several reasons:
+      测试代码应当尽可能简短精确，这有若干原因：
     </para>
     <itemizedlist>
       <listitem>
         <para>
-          You do not want to modify considerable amount of test code for little
-          changes in your production code.
+          你不希望为生产代码的小变更而对测试代码进行数量可观的修改。
         </para>
       </listitem>
       <listitem>
         <para>
-          You want to be able to read and understand the test code easily,
-          even months after writing it.
+          你希望在哪怕好几个月以后也能轻松地阅读并理解测试代码。
         </para>
       </listitem>
     </itemizedlist>
     <para>
-      Additionally you have to realize that the database is essentially a
-      global input variable to your code. Two tests in your test suite
-      could run against the same database, possibly reusing data multiple
-      times. Failures in one test can easily affect the result of the
-      following tests making your testing experience very difficult. The
-      previously mentioned cleanup step is of major importance
-      to solve the <quote>database is a global input</quote> problem.
+      另外，必须认识到，对于代码而言，本质上来说数据库是全局输入变量。测试套件中的两个不同的测试可以使用同一个数据库，并且可能把数据重用好多次。一个测试中的失败很容易影响到后继测试的结果，从而让测试经历变得非常艰难。前面提到的清理步骤对于解决<quote>数据库是全局输入</quote>的问题是非常重要的。
     </para>
     <para>
-      DbUnit helps to simplify all these problems with database testing in an
-      elegant way.
+      DbUnit 以一种优雅的方式来帮助简化数据库测试中的所有这些问题。
     </para>
     <para>
-      What PHPUnit cannot help you with is the fact that database tests
-      are very slow compared to tests not using the database. Depending
-      on how large the interactions with your database are your tests
-      could run a considerable amount of time. However if you keep the amount of
-      data used for each test small and try to test as much code using
-      non-database tests you can easily get away in under a minute even
-      for large test suites.
+      PHPUnit 无法帮你解决的问题是，相对于不使用数据的测试而言数据库测试是非常慢的。随着数据库交互规模的增大，测试可能需要运行可观的时间。然而，只要保持每个测试所使用的数据量较小并且尽可能使用非数据库测试来对代码进行测试，即使很大的测试套件也能轻松在一分钟内跑完。
     </para>
     <para>
-      The <ulink url="http://www.doctrine-project.org">Doctrine 2
-      project</ulink>'s test suite, for example, currently has a test suite of
-      about 1000 tests where nearly half of them accesses the database
-      and still runs in 15 seconds against a MySQL database on a standard
-      desktop computer.
+      以 <ulink url="http://www.doctrine-project.org">Doctrine 2 </ulink> 为例，此项目的测试套件目前包含了大约1000个测试，其中将近一半访问了数据库，但是在一台安装了MySQL的普通的台式机上，整个测试套件依然能在15秒钟内跑完。
     </para>
   </section>
   <section id="the-four-stages-of-a-database-test">
-    <title>The four stages of a database test</title>
+    <title>数据库测试的四个阶段</title>
     <para>
-      In his book on xUnit Test Patterns Gerard Meszaros lists the four
-      stages of a unit-test:
+      Gerard Meszaros 在他的书《xUnit 测试模式》中列出了单元测试的四个阶段：
     </para>
     <orderedlist numeration="arabic">
       <listitem>
         <para>
-          Set up fixture
+          建立基境(Setup)
         </para>
       </listitem>
       <listitem>
         <para>
-          Exercise System Under Test
+          执行被测系统(Exercise)
         </para>
       </listitem>
       <listitem>
         <para>
-          Verify outcome
+          验证结果(Verify)
         </para>
       </listitem>
       <listitem>
         <para>
-          Teardown
+          拆除基境(Teardown)
         </para>
       </listitem>
     </orderedlist>
     <blockquote>
       <para>
-        <emphasis role="strong">What is a Fixture?</emphasis>
+        <emphasis role="strong">什么是基境？</emphasis>
       </para>
       <para>
-        A fixture describes the initial state your application and database
-        are in when you execute a test.
+        基境是对开始执行某个测试时应用程序和数据库的初始状态的描述。
       </para>
     </blockquote>
     <para>
-      Testing the database requires you to hook into at least the
-      setup and teardown to clean-up and write the required fixture data
-      into your tables. However the database extension has good reason to
-      revert the four stages in a database test to resemble the following
-      workflow that is executed for each single test:
+      对数据库进行测试至少要处理建立与拆除的步骤，在其中完成清理工作，并将所需的基境数据写入表内。然而对于数据库扩展模块而言，在数据库测试中有很好的理由将这四个步骤还原成像下面这样的工作流程，这个流程对于每个测试都会完整执行：
     </para>
     <section id="clean-up-database">
-      <title>1. Clean-Up Database</title>
+      <title>1. 清理数据库</title>
       <para>
-        Since there is always a first test that runs against the database
-        you do not know exactly if there is already data in the tables.
-        PHPUnit will execute a TRUNCATE against all the tables you
-        specified to reset their status to empty.
+        由于总是会有某个测试运行在并不确定表中是否有数据的数据库上，PHPUnit 在所有指定表上执行 TRUNCATE 操作来把它们清空。
       </para>
     </section>
     <section id="set-up-fixture">
-      <title>2. Set up fixture</title>
+      <title>2. 建立基境</title>
       <para>
-        PHPUnit will then iterate over all the fixture rows specified and
-        insert them into their respective tables.
+        PHPUnit 随后将迭代所有指定的基境数据行并将其插入到对应的表里。
       </para>
     </section>
     <section id="run-test-verify-outcome-and-teardown">
-      <title>3–5. Run Test, Verify outcome and Teardown</title>
+      <title>3–5. 运行测试、验证结果、并拆除基境</title>
       <para>
-        After the database is reset and loaded with its initial state the
-        actual test is executed by PHPUnit. This part of the test code does
-        not require awareness of the Database Extension at all, you can
-        go on and test whatever you like with your code.
+        PHPUnit 在所有数据库都完成重置并加载好初始状态后执行实际测试。这个部分的测试代码完全不需要数据库扩展模块的参与，可以随意测试任何你想测试的内容。
       </para>
       <para>
-        In your test use a special assertion called
-        <literal>assertDataSetsEqual()</literal> for verification purposes,
-        however this is entirely optional. This feature will be explained
-        in the section <quote>Database Assertions</quote>.
+        在测试中使用一个名为 <literal>assertDataSetsEqual()</literal> 的特殊断言来实现验证的目的。当然，这个完全是可选的。这个特性将在<quote>数据库断言</quote>一节中进行解说。
       </para>
     </section>
   </section>
   <section id="configuration-of-a-phpunit-database-testcase">
-    <title>Configuration of a PHPUnit Database TestCase</title>
+    <title>PHPUnit 数据库测试用例的配置</title>
     <para>
-      Usually when using PHPUnit your testcases would extend the
-      <literal>PHPUnit_Framework_TestCase</literal> class in the
-      following way:
+      一般在使用 PHPUnit 的时候测试用例都是按如下方式扩展自 <literal>PHPUnit_Framework_TestCase</literal> 类的：
     </para>
     <screen>
 require_once &quot;PHPUnit/Framework/TestCase.php&quot;;
@@ -228,11 +170,7 @@ class MyTest extends PHPUnit_Framework_TestCase
 }
 </screen>
     <para>
-      If you want to test code that works with the Database Extension the
-      setup is a bit more complex and you have to extend a different
-      abstract TestCase requiring you to implement two abstract methods
-      <literal>getConnection()</literal> and
-      <literal>getDataSet()</literal>:
+      如果测试代码用到了数据库扩展模块，那么建立的过程就会更复杂一些，需要扩展另外一个抽象 TestCase 类，它要求实现两个抽象方法，<literal>getConnection()</literal> 和 <literal>getDataSet()</literal>：
     </para>
     <screen>
 require_once &quot;PHPUnit/Extensions/Database/TestCase.php&quot;;
@@ -258,93 +196,51 @@ class MyGuestbookTest extends PHPUnit_Extensions_Database_TestCase
 }
 </screen>
     <section id="implementing-getconnection">
-      <title>Implementing getConnection()</title>
+      <title>实现 getConnection()</title>
       <para>
-        To allow the clean-up and fixture loading functionalities to work
-        the PHPUnit Database Extension requires access to a database
-        connection abstracted across vendors through the PDO library. It
-        is important to note that your application does not need to be
-        based on PDO to use PHPUnit's database extension, the connection is
-        merely used for the clean-up and fixture setup.
+        为了让清理与载入基境的功能能正常运作，PHPUnit 数据库扩展模块需要用 PDO 库来对数据库进行跨供应商的抽象连接与访问。重要的是要注意到，使用 PHPUnit 的数据库扩展模块并不要求应用程序本身基于PDO，PDO连接仅仅用于清理和建立基境。
       </para>
       <para>
-        In the previous example we create an in-memory Sqlite connection
-        and pass it to the <literal>createDefaultDBConnection</literal>
-        method which wraps the PDO instance and the second parameter (the
-        database-name) in a very simple abstraction layer for database
-        connections of the type
-        <literal>PHPUnit_Extensions_Database_DB_IDatabaseConnection</literal>.
+        在之前的例子里，我们建立了一个在内存中的 Sqlite 连接，并将其传递给 <literal>createDefaultDBConnection</literal> 方法，这个方法将 PDO 实例和第二个参数（数据库名）包装在一个非常简单的数据库连接抽象层中，这个抽象层的类型是 <literal>PHPUnit_Extensions_Database_DB_IDatabaseConnection</literal>。
       </para>
       <para>
-        The section <quote>Using the Database Connection</quote> explains
-        the API of this interface and how you can make the best use of it.
+        <quote>使用数据库连接</quote>一节解说了这个接口的API以及如何充分利用它们。
       </para>
     </section>
     <section id="implementing-getdataset">
-      <title>Implementing getDataSet()</title>
+      <title>实现 getDataSet()</title>
       <para>
-        The <literal>getDataSet()</literal> method defines how the initial
-        state of the database should look before each test is
-        executed. The state of a database is abstracted through the
-        concepts DataSet and DataTable both being represented by the
-        interfaces
-        <literal>PHPUnit_Extensions_Database_DataSet_IDataSet</literal> and
-        <literal>PHPUnit_Extensions_Database_DataSet_IDataTable</literal>.
-        The next section will describe in detail how these concepts work
-        and what the benefits are for using them in database testing.
+        <literal>getDataSet()</literal> 方法定义了在每个测试执行之前的数据库初始状态应该是什么样。数据库的状态通过由 <literal>PHPUnit_Extensions_Database_DataSet_IDataSet</literal> 所代表的 DataSet 和 由 <literal>PHPUnit_Extensions_Database_DataSet_IDataTable</literal> 所代表的 DataTable 这两个概念进行抽象。下一节将详细讲述这些概念是如何运作的以及在数据库测试中使用它们有什么好处。
       </para>
       <para>
-        For the implementation we only need to know that the
-        <literal>getDataSet()</literal> method is called once during
-        <literal>setUp()</literal> to retrieve the fixture data-set and
-        insert it into the database. In the example we are using a factory
-        method <literal>createFlatXMLDataSet($filename)</literal> that
-        represents a data-set through an XML representation.
+        对于具体实现，只需要知道 <literal>setUp()</literal> 中会调用一次 <literal>getDataSet()</literal> 方法来接收基境数据集并将其插入数据库。在范例中使用了工厂方法 <literal>createFlatXMLDataSet($filename)</literal>，它代表了一个用 XML 表示的数据集。
       </para>
     </section>
     <section id="what-about-the-database-schema-ddl">
-      <title>What about the Database Schema (DDL)?</title>
+      <title>有关数据库构架(DDL)？</title>
       <para>
-        PHPUnit assumes that the database schema with all its tables,
-        triggers, sequences and views is created before a test is run. This
-        means you as developer have to make sure that the database is
-        correctly setup before running the suite.
+        PHPUnit 假设在测试运行之前，数据库以及其中的所有表、触发器(trigger)、序列(Sequence)和视图(view)都已经创建好。这意味着开发者必须在运行测试套件之前确保数据库已经正确设置。
       </para>
       <para>
-        There are several means to achieve this pre-condition to database
-        testing.
+        有几种方法来达成这个数据库测试的先决条件。
       </para>
       <orderedlist numeration="arabic">
         <listitem>
           <para>
-            If you are using a persistent database (not Sqlite Memory) you can
-            easily setup the database once with tools such as phpMyAdmin for
-            MySQL and re-use the database for every test-run.
+            如果使用的是持久化数据库(不是 Sqlite Memory)，可以很轻松地用 phpMyAdmin（针对MySQL）之类的工具来一次性建立数据库，并在每个测试中复用这个数据库。
           </para>
         </listitem>
         <listitem>
           <para>
-            If you are using libraries such as
-            <ulink url="http://www.doctrine-project.org">Doctrine 2</ulink> or
-            <ulink url="http://www.propelorm.org/">Propel</ulink>
-            you can use their APIs to create the database schema you
-            need once before you run the tests. You can utilize
-            <ulink url="http://www.phpunit.de/manual/current/en/textui.html">PHPUnit's Bootstrap and Configuration</ulink>
-            capabilities to execute this code whenever your tests are run.
+            如果使用的是诸如 <ulink url="http://www.doctrine-project.org">Doctrine 2</ulink> 或者 <ulink url="http://www.propelorm.org/">Propel</ulink> 这样的库，可以用它们的API来在测试运行前一次性建立所需的数据库。可以利用 <ulink url="http://www.phpunit.de/manual/current/en/textui.html">PHPUnit 的引导和配置</ulink>功能来在每次测试运行时执行这些代码。
           </para>
         </listitem>
       </orderedlist>
     </section>
     <section id="tip-use-your-own-abstract-database-testcase">
-      <title>Tip: Use your own Abstract Database TestCase</title>
+      <title>小建议：使用你自己的抽象数据库 TestCase 类</title>
       <para>
-        From the previous implementation example you can easily see that
-        <literal>getConnection()</literal> method is pretty static and
-        could be re-used in different database test-cases. Additionally to
-        keep performance of your tests good and database overhead low you
-        can refactor the code a little bit to get a generic abstract test
-        case for your application, which still allows you to specify a
-        different data-fixture for each test case:
+        从前面的实现范例中可以看出，<literal>getConnection()</literal> 方法是相当稳定的，可以在不同的数据库测试用例中重用。另外，为了保持测试的性能良好和数据库的开销较低，可以对代码进行一点重构，来为应用程序形成一个通用的抽象测试用例，并且依然允许为每个测试用例指定不同的数据基境：
       </para>
       <screen>
 require_once &quot;PHPUnit/Extensions/Database/TestCase.php&quot;;
