@@ -21,11 +21,7 @@
     </para>
 
     <para>
-      Lets take a look at the test suite of the <ulink url="http://github.com/sebastianbergmann/php-object-freezer/">Object_Freezer</ulink>
-      library. Looking at this project's directory structure, we see that the
-      test case classes in the <filename>Tests</filename> directory mirror the
-      package and class structure of the System Under Test (SUT) in the
-      <filename>Object</filename> directory:
+      让我们一起来看看 <ulink url="http://github.com/sebastianbergmann/php-object-freezer/">Object_Freezer</ulink> 这个库的测试套件。在这个项目的目录结构中，可以看到 <filename>Tests</filename> 目录下的测试用例类镜像了 <filename>Object</filename> 目录下被测系统(SUT, System Under Test)的包(package)与类(class)的结构：
     </para>
 
     <screen>Object                              Tests
@@ -46,8 +42,7 @@
 `-- Freezer.php                     `-- FreezerTest.php</screen>
 
     <para>
-      To run all tests for the library we just need to point the PHPUnit
-      command-line test runner to the test directory:
+      要运行这个库的全部测试，只要将 PHPUnit 命令行测试执行器指向测试目录即可：
     </para>
 
     <screen><userinput>phpunit Tests</userinput>
@@ -62,15 +57,12 @@ OK (75 tests, 164 assertions)</screen>
 
     <note>
       <para>
-        If you point the PHPUnit command-line test runner to a directory it will
-        look for <filename>*Test.php</filename> files.
+        当 PHPUnit 命令行测试执行器指向一个目录时，它会在目录下查找 <filename>*Test.php</filename> 文件。
       </para>
     </note>
 
     <para>
-      To run only the tests that are declared in the <literal>Object_FreezerTest</literal>
-      test case class in <filename>Tests/FreezerTest.php</filename> we can use
-      the following command:
+      如果只想运行在 <filename>Tests/FreezerTest.php</filename> 文件中的 <literal>Object_FreezerTest</literal> 测试用例类中声明的测试，可以使用如下命令：
     </para>
 
     <screen><userinput>phpunit Tests/FreezerTest</userinput>
@@ -83,8 +75,7 @@ Time: 0 seconds
 OK (28 tests, 60 assertions)</screen>
 
     <para>
-      For more fine-grained control of which tests to run we can use the
-      <literal>--filter</literal> switch:
+      如果想要对运行哪些测试有更细粒度的控制，可以使用 <literal>--filter</literal> 选项：
     </para>
 
     <screen><userinput>phpunit --filter testFreezingAnObjectWorks Tests</userinput>
@@ -98,30 +89,21 @@ OK (1 test, 2 assertions)</screen>
 
     <note>
       <para>
-        A drawback of this approach is that we have no control over the order in
-        which the test are run. This can lead to problems with regard to test
-        dependencies, see <xref linkend="writing-tests-for-phpunit.test-dependencies"/>.
-        In the next section you will see how you can make the test execution
-        order explicit by using the XML configuration file.
+        这种方法的缺点是无法控制测试的运行顺序。这可能导致测试的依赖关系方面的问题，参见<xref linkend="writing-tests-for-phpunit.test-dependencies"/>。在下一节中，可以看到如何用 XML 配置文件来明确测试的执行顺序。
       </para>
     </note>
   </section>
 
   <section id="organizing-tests.xml-configuration">
-    <title>Composing a Test Suite Using XML Configuration</title>
-    <indexterm><primary>XML Configuration</primary></indexterm>
+    <title>用 XML 配置来编排测试套件</title>
+    <indexterm><primary>XML Configuration （XML 配置）</primary></indexterm>
 
     <para>
-      PHPUnit's XML configuration file (<xref linkend="appendixes.configuration"/>)
-      can also be used to compose a test suite.
-      <xref linkend="organizing-tests.xml-configuration.examples.phpunit.xml"/>
-      shows a minimal example that will add all <literal>*Test</literal> classes
-      that are found in <filename>*Test.php</filename> files when the
-      <filename>Tests</filename> is recursively traversed.
+      PHPUnit的 XML 配置文件（<xref linkend="appendixes.configuration"/>）也可以用于编排测试套件。<xref linkend="organizing-tests.xml-configuration.examples.phpunit.xml"/>展示了一个最小化的例子，它将在循环遍历 <filename>Tests</filename> 时添加所有在 <filename>*Test.php</filename> 文件中找到的 <literal>*Test</literal> 类。
     </para>
 
     <example id="organizing-tests.xml-configuration.examples.phpunit.xml">
-      <title>Composing a Test Suite Using XML Configuration</title>
+      <title>用 XML 配置来编排测试套件</title>
       <programlisting><![CDATA[<phpunit>
   <testsuites>
     <testsuite name="Object_Freezer">
@@ -132,11 +114,11 @@ OK (1 test, 2 assertions)</screen>
     </example>
 
     <para>
-      The order in which tests are executed can be made explicit:
+      可以明确测试的执行顺序：
     </para>
 
     <example id="organizing-tests.xml-configuration.examples.phpunit.xml2">
-      <title>Composing a Test Suite Using XML Configuration</title>
+      <title>用 XML 配置来编排测试套件</title>
       <programlisting><![CDATA[<phpunit>
   <testsuites>
     <testsuite name="Object_Freezer">
