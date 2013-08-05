@@ -292,7 +292,7 @@ class DatabaseTest extends PHPUnit_Framework_TestCase
       <indexterm><primary><literal>@backupGlobals</literal></primary></indexterm>
       <indexterm><primary><literal>$backupGlobalsBlacklist</literal></primary></indexterm>
 
-      在<xref linkend="appendixes.annotations.backupGlobals"/>中所讨论的 <literal>@backupGlobals</literal> 标注可以用来控制对全局变量的备份与还原操作。另外，还可以提供一个全局变量的黑名单，在名单上的的全局变量将排除于备份与还原操作之外，就像这样：
+      在<xref linkend="appendixes.annotations.backupGlobals"/>中所讨论的 <literal>@backupGlobals</literal> 标注可以用来控制对全局变量的备份与还原操作。另外，还可以提供一个全局变量的黑名单，黑名单中的全局变量将被排除于备份与还原操作之外，就像这样：
       <programlisting>class MyTest extends PHPUnit_Framework_TestCase
 {
     protected $backupGlobalsBlacklist = array('globalVariable');
@@ -311,12 +311,8 @@ class DatabaseTest extends PHPUnit_Framework_TestCase
       <indexterm><primary><literal>@backupStaticAttributes</literal></primary></indexterm>
       <indexterm><primary><literal>$backupStaticAttributesBlacklist</literal></primary></indexterm>
 
-      The <literal>@backupStaticAttributes</literal> annotation that is
-      discussed in <xref linkend="appendixes.annotations.backupStaticAttributes"/>
-      can be used to control the backup and restore operations for static
-      attributes. Alternatively, you can provide a blacklist of static
-      attributes that are to be excluded from the backup and restore operations
-      like this <programlisting>class MyTest extends PHPUnit_Framework_TestCase
+      在<xref linkend="appendixes.annotations.backupStaticAttributes"/>中所讨论的 <literal>@backupStaticAttributes</literal> 标注可以用来控制对静态属性的备份与还原操作。另外，还可以提供一个静态属性的黑名单，黑名单中的静态属性将被排除于备份与还原操作之外，就像这样：
+      <programlisting>class MyTest extends PHPUnit_Framework_TestCase
 {
     protected $backupStaticAttributesBlacklist = array(
       'className' => array('attributeName')
@@ -328,9 +324,8 @@ class DatabaseTest extends PHPUnit_Framework_TestCase
 
     <note>
       <para>
-        Please note that setting the <literal>$backupStaticAttributesBlacklist</literal>
-        attribute inside the <literal>setUp()</literal> method, for instance,
-        has no effect.
+         请注意，在方法内（例如在 <literal>setUp()</literal> 内）对 <literal>$backupStaticAttributesBlacklist</literal>  属性进行设置是无效的。
+
       </para>
     </note>
   </section>
