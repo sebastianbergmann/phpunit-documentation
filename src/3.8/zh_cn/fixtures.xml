@@ -269,11 +269,11 @@ class DatabaseTest extends PHPUnit_Framework_TestCase
       <indexterm><primary>Global Variable （全局变量）</primary></indexterm>
       <indexterm><primary>Test Isolation （测试隔离）</primary></indexterm>
 
-      默认情况下，PHPUnit 用一种改变全局变量与超全局变量(<literal>$GLOBALS</literal>,
+      默认情况下，PHPUnit 用一种对全局变量与超全局变量(<literal>$GLOBALS</literal>,
       <literal>$_ENV</literal>, <literal>$_POST</literal>,
       <literal>$_GET</literal>, <literal>$_COOKIE</literal>,
       <literal>$_SERVER</literal>, <literal>$_FILES</literal>,
-      <literal>$_REQUEST</literal>)不会影响其他测试的方式来运行所有测试。作为一个可选的方案，这种隔离还可以扩展到类的静态属性。
+      <literal>$_REQUEST</literal>)进行更改不会影响到其他测试的方式来运行所有测试。还可以选择将这种隔离扩展到类的静态属性。
     </para>
 
     <note>
@@ -292,7 +292,7 @@ class DatabaseTest extends PHPUnit_Framework_TestCase
       <indexterm><primary><literal>@backupGlobals</literal></primary></indexterm>
       <indexterm><primary><literal>$backupGlobalsBlacklist</literal></primary></indexterm>
 
-      在<xref linkend="appendixes.annotations.backupGlobals"/>中所讨论的 <literal>@backupGlobals</literal> 标注可以用来控制对全局变量的备份与还原操作。另外，可以提供一个全局变量的黑名单，黑名单中的全局变量将被排除于备份与还原操作之外，就像这样：
+      在<xref linkend="appendixes.annotations.backupGlobals"/>中所讨论的 <literal>@backupGlobals</literal> 标注可以用来控制对全局变量的备份与还原操作。另外，还可以提供一个全局变量的黑名单，在名单上的的全局变量将排除于备份与还原操作之外，就像这样：
       <programlisting>class MyTest extends PHPUnit_Framework_TestCase
 {
     protected $backupGlobalsBlacklist = array('globalVariable');
@@ -303,9 +303,7 @@ class DatabaseTest extends PHPUnit_Framework_TestCase
 
     <note>
       <para>
-        Please note that setting the <literal>$backupGlobalsBlacklist</literal>
-        attribute inside the <literal>setUp()</literal> method, for instance,
-        has no effect.
+        请注意，在方法内（例如在 <literal>setUp()</literal> 内）对 <literal>$backupGlobalsBlacklist</literal> 属性进行设置是无效的。
       </para>
     </note>
 
