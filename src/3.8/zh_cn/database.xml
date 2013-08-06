@@ -240,17 +240,17 @@ class MyGuestbookTest extends PHPUnit_Extensions_Database_TestCase
     <section id="tip-use-your-own-abstract-database-testcase">
       <title>小建议：使用你自己的抽象数据库 TestCase 类</title>
       <para>
-        从前面的实现范例中可以看出，<literal>getConnection()</literal> 方法是相当稳定的，可以在不同的数据库测试用例中重用。另外，为了保持测试的性能良好和数据库的开销较低，可以对代码进行一点重构，来为应用程序形成一个通用的抽象测试用例，并且依然允许为每个测试用例指定不同的数据基境：
+        从前面的实现范例中可以看出，<literal>getConnection()</literal> 方法是相当稳定的，可以在不同的数据库测试用例中重用。另外，为了保持测试的性能良好和数据库的开销较低，可以对代码进行一点重构，来为应用程序形成一个通用的抽象 TestCase 类，并且依然可以为每个测试用例指定不同的数据基境：
       </para>
       <screen>
 require_once &quot;PHPUnit/Extensions/Database/TestCase.php&quot;;
 
 abstract class MyApp_Tests_DatabaseTestCase extends PHPUnit_Extensions_Database_TestCase
 {
-    // only instantiate pdo once for test clean-up/fixture load
+    // 只实例化 pdo 一次，供测试的清理和基境读取使用。
     static private $pdo = null;
 
-    // only instantiate PHPUnit_Extensions_Database_DB_IDatabaseConnection once per test
+    // 对于每个测试，只实例化 PHPUnit_Extensions_Database_DB_IDatabaseConnection 一次。
     private $conn = null;
 
     final public function getConnection()
@@ -267,13 +267,7 @@ abstract class MyApp_Tests_DatabaseTestCase extends PHPUnit_Extensions_Database_
 }
 </screen>
       <para>
-        This has the database connection hardcoded in the PDO connection
-        though. PHPUnit has another awesome feature that could make this
-        testcase even more generic. If you use the
-        <ulink url="http://www.phpunit.de/manual/current/en/appendixes.configuration.html#appendixes.configuration.php-ini-constants-variables">XML Configuration</ulink>
-        you could make the database connection configurable per test-run.
-        First let's create a <quote>phpunit.xml</quote> file in our tests/
-        directory of the application that looks like:
+        这个例子里，数据库连接信息硬编码在 PDO 连接里了。PHPUnit 有另外一个绝妙的特性，可以让这个 TestCase 类更加通用。如果用了 <ulink url="http://www.phpunit.de/manual/current/en/appendixes.configuration.html#appendixes.configuration.php-ini-constants-variables">XML 配置</ulink>，就可以为每个测试单独配置数据库连接信息。首先，在应用程序的 tests/ 目录下创建 <quote>phpunit.xml</quote> 文件，内容大体是这样：
       </para>
       <screen>
 &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;
@@ -287,15 +281,15 @@ abstract class MyApp_Tests_DatabaseTestCase extends PHPUnit_Extensions_Database_
 &lt;/phpunit&gt;
 </screen>
       <para>
-        We can now modify our test-case to look like:
+        现在可以修改 TestCase 类了，像这样：
       </para>
       <screen>
 abstract class Generic_Tests_DatabaseTestCase extends PHPUnit_Extensions_Database_TestCase
 {
-    // only instantiate pdo once for test clean-up/fixture load
+    // 只实例化 pdo 一次，供测试的清理和基境读取使用。
     static private $pdo = null;
 
-    // only instantiate PHPUnit_Extensions_Database_DB_IDatabaseConnection once per test
+    // 对于每个测试，只实例化 PHPUnit_Extensions_Database_DB_IDatabaseConnection 一次。
     private $conn = null;
 
     final public function getConnection()
@@ -312,80 +306,57 @@ abstract class Generic_Tests_DatabaseTestCase extends PHPUnit_Extensions_Databas
 }
 </screen>
       <para>
-        We can now run the database test suite using different
-        configurations from the command-line interface:
+        现在可以从命令行界面以不同的配置来运行数据库测试套件了：
       </para>
       <screen>
 user@desktop&gt; phpunit --configuration developer-a.xml MyTests/
 user@desktop&gt; phpunit --configuration developer-b.xml MyTests/
 </screen>
       <para>
-        The possibility to run the database tests against different
-        database targets easily is very important if you are developing on
-        the development machine. If several developers run the database
-        tests against the same database connection you can easily
-        experience test-failures because of race-conditions.
+        如果是在开发机上进行开发，能够轻松的针对不同的目标数据库来运行数据库测试就显得非常重要了。如果多个开发人员针对同一个数据库连接运行数据库测试，很容易因为竞态而导致测试失败。
       </para>
     </section>
   </section>
   <section id="understanding-datasets-and-datatables">
-    <title>Understanding DataSets and DataTables</title>
-    <para>
-      A central concept of PHPUnit's Database Extension are DataSets and
-      DataTables. You should try to understand this simple concept to
-      master database testing with PHPUnit. The DataSet and DataTable are
-      an abstraction layer around your database tables, rows and
-      columns. A simple API hides the underlying database contents in an
-      object structure, which can also be implemented by other
-      non-database sources.
+    <title>理解 DataSet 和 DataTable</title>
+     <para>
+      PHPUnit 的数据库扩展模块的核心概念之一就是 DataSet 和 DataTable。为了掌握如何使用 PHPUnit 进行测试，需要试着去了解这些简单的概念。DataSet 和 DataTable 是围绕着数据库表、行、列的抽象层。通过一套简单的API，底层数据库内容被隐藏在对象结构之下，同时，这个对象结构也可以用非数据库数据源来实现。
     </para>
     <para>
-      This abstraction is necessary to compare the actual contents of a
-      database against the expected contents. Expectations can be
-      represented as XML, YAML, CSV files or PHP array for example. The
-      DataSet and DataTable interfaces enable the comparison of this
-      conceptually different sources, emulating relational database
-      storage in a semantically similar approach.
+      为了能比较实际内容和预期内容，这个抽象是必须的。预期内容可以用诸如 XML、 YAML、 CSV 文件或者 PHP 数组等方式来表达。DataSet 和 DataTable 接口允许对这两个概念上完全不同的数据源进行比较，以语义相似的方法来模拟关系数据库存储。
     </para>
     <para>
-      A workflow for database assertions in your tests then consists of
-      three simple steps:
+      于是，测试中数据库断言的工作流就由以下三个简单的步骤组成：
     </para>
     <itemizedlist>
       <listitem>
         <para>
-          Specify one or more tables in your database by table name (actual
-          dataset)
+          用表名称（实际上是数据集）来指定数据库中的一个或多个表。
         </para>
       </listitem>
       <listitem>
         <para>
-          Specify the expected dataset in your preferred format (YAML, XML,
-          ..)
+          用你喜欢的格式（YAML、XML等等）来指定预期数据集。
         </para>
       </listitem>
       <listitem>
         <para>
-          Assert that both dataset representations equal each other.
+          断言两个数据集的表示是彼此相等的。
         </para>
       </listitem>
     </itemizedlist>
     <para>
-      Assertions are not the only use-case for the DataSet and DataTable
-      in PHPUnit's Database Extension. As shown in the previous section
-      they also describe the initial contents of a database. You are
-      forced to define a fixture dataset by the Database TestCase, which
-      is then used to:
+      在 PHPUnit 的数据库扩展中，断言并非唯一使用 DataSet 和 DataTable 的情形。就像上一节中所展示的那样，它们的同样描述了数据库的初始内容。数据库 TestCase 类强制要求定义一个基境数据集，随后用它来：
     </para>
     <itemizedlist>
       <listitem>
         <para>
-          Delete all the rows from the tables specified in the dataset.
+          从数据集中所指定的表内删除所有行。
         </para>
       </listitem>
       <listitem>
         <para>
-          Write all the rows in the data-tables into the database.
+          将数据表内的所有行写入数据库。
         </para>
       </listitem>
     </itemizedlist>
