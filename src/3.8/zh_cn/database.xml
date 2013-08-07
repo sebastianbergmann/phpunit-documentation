@@ -201,7 +201,7 @@ class MyGuestbookTest extends PHPUnit_Extensions_Database_TestCase
         为了让清理与载入基境的功能能正常运作，PHPUnit 数据库扩展模块需要用 PDO 库来对数据库进行跨供应商的抽象连接与访问。重要的是要注意到，使用 PHPUnit 的数据库扩展模块并不要求应用程序本身基于PDO，PDO连接仅仅用于清理和建立基境。
       </para>
       <para>
-        在之前的例子里，我们建立了一个在内存中的 Sqlite 连接，并将其传递给 <literal>createDefaultDBConnection</literal> 方法，这个方法将 PDO 实例和第二个参数（数据库名）包装在一个非常简单的数据库连接抽象层中，这个抽象层的类型是 <literal>PHPUnit_Extensions_Database_DB_IDatabaseConnection</literal>。
+        在之前的例子里，我们在内存中创建 Sqlite 数据库并建立了一个连接，将此连接传递给 <literal>createDefaultDBConnection</literal> 方法，这个方法将 PDO 实例和第二个参数（数据库名）包装在一个非常简单的数据库连接抽象层中，这个抽象层的类型是 <literal>PHPUnit_Extensions_Database_DB_IDatabaseConnection</literal>。
       </para>
       <para>
         <quote>使用数据库连接</quote>一节解说了这个接口的API以及如何充分利用它们。
@@ -210,7 +210,7 @@ class MyGuestbookTest extends PHPUnit_Extensions_Database_TestCase
     <section id="implementing-getdataset">
       <title>实现 getDataSet()</title>
       <para>
-        <literal>getDataSet()</literal> 方法定义了在每个测试执行之前的数据库初始状态应该是什么样。数据库的状态通过由 <literal>PHPUnit_Extensions_Database_DataSet_IDataSet</literal> 所代表的 DataSet 和 由 <literal>PHPUnit_Extensions_Database_DataSet_IDataTable</literal> 所代表的 DataTable 这两个概念进行抽象。下一节将详细讲述这些概念是如何运作的以及在数据库测试中使用它们有什么好处。
+        <literal>getDataSet()</literal> 方法定义了在每个测试执行之前的数据库初始状态应该是什么样。数据库的状态通过由 <literal>PHPUnit_Extensions_Database_DataSet_IDataSet</literal> 所代表的 DataSet 和由 <literal>PHPUnit_Extensions_Database_DataSet_IDataTable</literal> 所代表的 DataTable 这两个概念进行抽象。下一节将详细讲述这些概念是如何运作的以及在数据库测试中使用它们有什么好处。
       </para>
       <para>
         对于具体实现，只需要知道 <literal>setUp()</literal> 中会调用一次 <literal>getDataSet()</literal> 方法来接收基境数据集并将其插入数据库。在范例中使用了工厂方法 <literal>createFlatXMLDataSet($filename)</literal>，它代表了一个用 XML 表示的数据集。
@@ -320,7 +320,7 @@ user@desktop&gt; phpunit --configuration developer-b.xml MyTests/
   <section id="understanding-datasets-and-datatables">
     <title>理解 DataSet 和 DataTable</title>
      <para>
-      PHPUnit 的数据库扩展模块的核心概念之一就是 DataSet 和 DataTable。为了掌握如何使用 PHPUnit 进行测试，需要试着去了解这些简单的概念。DataSet 和 DataTable 是围绕着数据库表、行、列的抽象层。通过一套简单的API，底层数据库内容被隐藏在对象结构之下，同时，这个对象结构也可以用非数据库数据源来实现。
+      PHPUnit 的数据库扩展模块的核心概念之一就是 DataSet（数据集）和 DataTable（数据表）。为了掌握如何使用 PHPUnit 进行测试，需要试着去了解这些简单的概念。DataSet 和 DataTable 是围绕着数据库表、行、列的抽象层。通过一套简单的API，底层数据库内容被隐藏在对象结构之下，同时，这个对象结构也可以用非数据库数据源来实现。
     </para>
     <para>
       为了能比较实际内容和预期内容，这个抽象是必须的。预期内容可以用诸如 XML、 YAML、 CSV 文件或者 PHP 数组等方式来表达。DataSet 和 DataTable 接口允许对这两个概念上完全不同的数据源进行比较，以语义相似的方法来模拟关系数据库存储。
@@ -361,40 +361,34 @@ user@desktop&gt; phpunit --configuration developer-b.xml MyTests/
       </listitem>
     </itemizedlist>
     <section id="available-implementations">
-      <title>Available Implementations</title>
+      <title>可用的各种实现</title>
       <para>
-        There are three different types of datasets/datatables:
+        有三种不同类型的 DataSet/DataTable：
       </para>
       <itemizedlist>
         <listitem>
           <para>
-            File-Based DataSets and DataTables
+            基于文件的 DataSet 和 DataTable
           </para>
         </listitem>
         <listitem>
           <para>
-            Query-Based DataSet and DataTable
+            基于查询的 DataSet 和 DataTable
           </para>
         </listitem>
         <listitem>
           <para>
-            Filter and Composition DataSets and DataTables
+            过滤与组合 DataSet 和 DataTable
           </para>
         </listitem>
       </itemizedlist>
       <para>
-        The file-based datasets and tables are generally used for the
-        initial fixture and to describe the expected state of the database.
+        基于文件的数据集和表一般用于初始化基境或描述数据库的预期状态。
       </para>
       <section id="flat-xml-dataset">
-        <title>Flat XML DataSet</title>
+        <title>平整 XML DataSet</title>
         <para>
-          The most common dataset is called Flat XML. It is a very simple xml
-          format where a tag inside the root node
-          <literal>&lt;dataset&gt;</literal> represents exactly one row in the
-          database. The tags name equals the table to insert the row into and
-          an attribute represents the column. An example for a simple guestbook
-          application could look like this:
+          最常用的是名叫平整 XML 的数据集。这是一种非常简单的 XML 格式，根节点为 <literal>&lt;dataset&gt;</literal>，根节点下的每个标签就代表数据库中的一行数据。标签的名称就等于表名，而每个属性代表一个列。一个简单的留言本应用程序的例子大致上可能是这样：
         </para>
         <screen>
 &lt;?xml version=&quot;1.0&quot; ?&gt;
@@ -404,20 +398,13 @@ user@desktop&gt; phpunit --configuration developer-b.xml MyTests/
 &lt;/dataset&gt;
 </screen>
         <para>
-          This is obviously easy to write. Here
-          <literal>&lt;guestbook&gt;</literal> is the table name where two rows
-          are inserted into each with four columns <quote>id</quote>,
-          <quote>content</quote>, <quote>user</quote> and
-          <quote>created</quote> with their respective values.
+          显然，这非常易于编写。在这里，<literal>&lt;guestbook&gt;</literal> 是表名，这个表内有两行记录，每行有四个列：<quote>id</quote>、<quote>content</quote>、<quote>user</quote> 和 <quote>created</quote>，同时还有它们对应的值。
         </para>
         <para>
-          However this simplicity comes at a cost.
+          不过这种简单性是有代价的。
         </para>
         <para>
-          From the previous example it isn't obvious how you would specify an
-          empty table. You can insert a tag with no attributes with the name
-          of the empty table. A flat xml file for an empty guestbook table
-          would then look like:
+          从上面这个例子里不太容易看出该如何指定一个空表。可以插入一个没有属性值的标签，以空表的名字作为标签名。空的 guestbook 表所对应的平整 XML 文件大致上可能是这样：
         </para>
         <screen>
 &lt;?xml version=&quot;1.0&quot; ?&gt;
@@ -426,14 +413,7 @@ user@desktop&gt; phpunit --configuration developer-b.xml MyTests/
 &lt;/dataset&gt;
 </screen>
         <para>
-          The handling of NULL values with the flat xml dataset is tedious. A
-          NULL value is different than an empty string value in almost any
-          database (Oracle being an exception), something that is difficult
-          to describe in the flat xml format. You can represent a NULL's value
-          by omitting the attribute from the row specification. If our
-          guestbook would allow anonymous entries represented by a NULL value
-          in the user column, a hypothetical state of the guestbook table
-          could look like:
+          在扁平 XML 数据集中，对 NULL 值的处理是非常沉闷的。在几乎所有数据库中（Oracle 是个例外），NULL 值和空字符串值是有区别的。为了表示NULL值，需要在数据行的表述中省略掉对应的属性。如果上面这个留言本通过在 user 列用 NULL 值的方式来允许匿名留言，那么 guestbook 表的内容可能是这样：
         </para>
         <screen>
 &lt;?xml version=&quot;1.0&quot; ?&gt;
@@ -443,49 +423,25 @@ user@desktop&gt; phpunit --configuration developer-b.xml MyTests/
 &lt;/dataset&gt;
 </screen>
         <para>
-          In this case the second entry is posted anonymously. However this
-          leads to a serious problem with column recognition. During dataset
-          equality assertions each dataset has to specify what columns a
-          table holds. If an attribute is NULL for all the rows of a
-          data-table, how would the Database Extension know that the column
-          should be part of the table?
+          在这个例子里第二个条目是匿名发表的。但是这为列的辨识带来了一个非常严重的问题。在数据集相等断言的判定过程中，每个数据集都需要指明每个表拥有哪些列。如果某个数据表内存在某个列，在所有数据行中这个列的值都是 NULL，那么数据库扩展模块又该从何得知表中包含这个列呢？
         </para>
         <para>
-          The flat xml dataset makes a crucial assumption now, defining that
-          the attributes on the first defined row of a table define the
-          columns of this table. In the previous example this would mean
-          <quote>id</quote>, <quote>content</quote>, <quote>user</quote> and
-          <quote>created</quote> are columns of the guestbook table. For the
-          second row where <quote>user</quote> is not defined a NULL would be
-          inserted into the database.
+          在这里，扁平 XML 数据集做出了一个关键假设：一个表的列信息由此表第一行的属性定义来决定。在上面这个例子里，这意味着 guestbook 有 <quote>id</quote>、<quote>content</quote>、<quote>user</quote> 和 <quote>created</quote> 这几个列。第二行中 <quote>user</quote> 列没有定义，因此将向数据库中插入 NULL 值。
         </para>
         <para>
-          When the first guestbook entry is deleted from the dataset only
-          <quote>id</quote>, <quote>content</quote> and
-          <quote>created</quote> would be columns of the guestbook table,
-          since <quote>user</quote> is not specified.
+          如果从数据集中删掉第一行，因为没有指定 <quote>user</quote>，guestbook 表拥有的列就只剩下 <quote>id</quote>、<quote>content</quote> 和 <quote>created</quote>。
         </para>
         <para>
-          To use the Flat XML dataset effectively when NULL values are
-          relevant the first row of each table must not contain any NULL
-          value and only successive rows are allowed to omit attributes. This
-          can be awkward, since the order of the rows is a relevant factor
-          for database assertions.
+          要在有 NULL 值得情况下有效地使用扁平 XML 数据集，就必须保证每个表的第一行不包含 NULL 值，只有后继的那些行才能省略属性。这就有点棘手，因为数据行的排列顺序也是数据断言的一个相关因素。
         </para>
         <para>
-          In turn, if you specify only a subset of the table columns in the
-          Flat XML dataset all the omitted values are set to their default
-          values. This will lead to errors if one of the omitted columns is
-          defined as <quote>NOT NULL DEFAULT NULL</quote>.
+          反过来，如果在扁平 XML 数据集中只指明了实际表中所有列的某个子集，那么所有省略掉的值都会设为它们的的默认值。如果某个省略掉的列定义为 <quote>NOT NULL DEFAULT NULL</quote> 的话，就可能出现错误。
         </para>
         <para>
-          In conclusion I can only advise using the Flat XML datasets if you
-          do not need NULL values.
+          总的来说，建议只在不需要 NULL 值的情况下使用扁平 XML 数据集。
         </para>
         <para>
-          You can create a flat xml dataset instance from within your
-          Database TestCase by calling the
-          <literal>createFlatXmlDataSet($filename)</literal> method:
+          可以在数据库 TestCase 中调用 <literal>createFlatXmlDataSet($filename)</literal> 方法来创建扁平 XML 数据集实例：
         </para>
         <screen>
 class MyTestCase extends PHPUnit_Extensions_Database_TestCase
@@ -498,16 +454,10 @@ class MyTestCase extends PHPUnit_Extensions_Database_TestCase
 </screen>
       </section>
       <section id="xml-dataset">
-        <title>XML DataSet</title>
+        <title>XML 数据集</title>
         <para>
-          There is another more structured XML dataset, which is a bit more
-          verbose to write but avoids the NULL problems of the Flat XML
-          dataset. Inside the root node <literal>&lt;dataset&gt;</literal> you
-          can specify <literal>&lt;table&gt;</literal>,
-          <literal>&lt;column&gt;</literal>, <literal>&lt;row&gt;</literal>,
-          <literal>&lt;value&gt;</literal> and
-          <literal>&lt;null /&gt;</literal> tags. An equivalent dataset to the
-          previously defined Guestbook Flat XML looks like:
+          有另外一种更加结构化的 XML 数据集，它写起来有点冗长，但是避开了扁平 XML 数据集所存在的 NULL 问题。在根节点 <literal>&lt;dataset&gt;</literal> 内，可以指定 <literal>&lt;table&gt;</literal>,
+          <literal>&lt;column&gt;</literal>、<literal>&lt;row&gt;</literal>、<literal>&lt;value&gt;</literal> 和 <literal>&lt;null /&gt;</literal> 标签。和上面用扁平 XML 所定义的留言本数据集等价的 XML数据集如下：
         </para>
         <screen>
 &lt;?xml version=&quot;1.0&quot; ?&gt;
@@ -533,20 +483,10 @@ class MyTestCase extends PHPUnit_Extensions_Database_TestCase
 &lt;/dataset&gt;
 </screen>
         <para>
-          Any defined <literal>&lt;table&gt;</literal> has a name and requires
-          a definition of all the columns with their names. It can contain zero
-          or any positive number of nested <literal>&lt;row&gt;</literal>
-          elements. Defining no <literal>&lt;row&gt;</literal> element means
-          the table is empty. The <literal>&lt;value&gt;</literal> and
-          <literal>&lt;null /&gt;</literal> tags have to be specified in the
-          order of the previously given <literal>&lt;column&gt;</literal>
-          elements. The <literal>&lt;null /&gt;</literal> tag obviously means
-          that the value is NULL.
+          所定义的每个 <literal>&lt;table&gt;</literal> 都有一个名称，并且必须有对所有列及其名称的定义。其下可以包含零个或任意正数个 <literal>&lt;row&gt;</literal> 元素。没有定义 <literal>&lt;row&gt;</literal> 意味着这是个空表。<literal>&lt;row&gt;</literal> 下的<literal>&lt;value&gt;</literal> 和 <literal>&lt;null /&gt;</literal> 标签必须按照之前给定的 <literal>&lt;column&gt;</literal> 元素的顺序来指定。<literal>&lt;null /&gt;</literal> 显然意味着这个值为 NULL。
         </para>
         <para>
-          You can create a xml dataset instance from within your
-          Database TestCase by calling the
-          <literal>createXmlDataSet($filename)</literal> method:
+          可以在数据库 TestCase 中调用 <literal>createXmlDataSet($filename)</literal> 方法来创建 XML 数据集实例：
         </para>
         <screen>
 class MyTestCase extends PHPUnit_Extensions_Database_TestCase
@@ -561,22 +501,13 @@ class MyTestCase extends PHPUnit_Extensions_Database_TestCase
       <section id="mysql-xml-dataset">
         <title>MySQL XML DataSet</title>
         <para>
-          This new XML format is specific to the
-          <ulink url="http://www.mysql.com">MySQL database server</ulink>.
-          Support for it was added in PHPUnit 3.5. Files in this format can
-          be generated using the
-          <ulink url="http://dev.mysql.com/doc/refman/5.0/en/mysqldump.html"><literal>mysqldump</literal></ulink>
-          utility. Unlike CSV datasets, which <literal>mysqldump</literal>
-          also supports, a single file in this XML format can contain data
-          for multiple tables. You can create a file in this format by
-          invoking <literal>mysqldump</literal> like so:
+          这种新的 XML 格式是 <ulink url="http://www.mysql.com">MySQL 数据库服务器</ulink> 所特有的。PHPUnit 3.5 加入了对这种格式的支持。可以用 <ulink url="http://dev.mysql.com/doc/refman/5.0/en/mysqldump.html"><literal>mysqldump</literal></ulink> 工具来生成这种格式的文件。与同样为 <literal>mysqldump</literal> 所支持的 CSV 数据集不同，单个这种 XML 格式的文件中可以包含多个表的数据。要以这种格式生成文件，可以这样调用 <literal>mysqldump</literal>：
         </para>
         <screen>
 mysqldump --xml -t -u [username] --password=[password] [database] > /path/to/file.xml
         </screen>
         <para>
-          This file can be used in your Database TestCase by calling the
-          <literal>createMySQLXMLDataSet($filename)</literal> method:
+          可以在数据库 TestCase 中调用 <literal>createMySQLXMLDataSet($filename)</literal> 方法来使用这个文件：
         </para>
         <screen>
 class MyTestCase extends PHPUnit_Extensions_Database_TestCase
@@ -591,10 +522,7 @@ class MyTestCase extends PHPUnit_Extensions_Database_TestCase
       <section id="yaml-dataset">
         <title>YAML DataSet</title>
         <para>
-          New with PHPUnit 3.4 is the ability to specify a dataset in the
-          popular YAML format. For this to work you have to install PHPUnit
-          3.4 from PEAR with its optional Symfony YAML dependency. You can
-          then write a YAML dataset for the guestbook example:
+          PHPUnit 3.4 的新特性之一是具备了用流行的 YAML 格式来指定数据集的能力。要让这个功能能正常工作，必须从 PEAR 安装 PHPUnit 3.4 及其可选的 Symfony YAML 依赖组件。随后就可以为留言本的例子写个 YAML 数据集：
         </para>
         <screen>
 guestbook:
@@ -610,14 +538,10 @@ guestbook:
     created: 2010-04-26 12:14:20
 </screen>
         <para>
-          This is simple, convient AND it solves the NULL issue that the
-          similar Flat XML dataset has. A NULL in YAML is just the column
-          name without no value specified. An empty string is specified as
-          <literal>column1: &quot;&quot;</literal>.
+          简单方便，同时还解决了和它类似的扁平 XML 数据集所具有的 NULL 问题。在 YAML 中，只有列名而没有指定值就表示 NULL。空白字符串则这样指定：<literal>column1: &quot;&quot;</literal>。
         </para>
         <para>
-          The YAML Dataset has no factory method on the Database TestCase
-          currently, so you have to instantiate it manually:
+          目前，数据库 TestCase 中没有 YAML 数据集的工厂方法，因此需要手工进行实例化：
         </para>
         <screen>
 require_once &quot;PHPUnit/Extensions/Database/DataSet/YamlDataSet.php&quot;;
@@ -636,9 +560,7 @@ class YamlGuestbookTest extends PHPUnit_Extensions_Database_TestCase
       <section id="csv-dataset">
         <title>CSV DataSet</title>
         <para>
-          Another file-based dataset is based on CSV files. Each table of the
-          dataset is represented as a single CSV file. For our guestbook
-          example we would define a guestbook-table.csv file:
+          另外一个基于文件的数据集是基于 CSV 文件的。数据集中的每个表用一个单独的 CSV 文件表示。对于留言本的例子，可以这样定义 guestbook-table.csv 文件：
         </para>
         <screen>
 id;content;user;created
@@ -646,13 +568,10 @@ id;content;user;created
 2;&quot;I like it!&quot;&quot;nancy&quot;;&quot;2010-04-26 12:14:20&quot;
 </screen>
         <para>
-          While this is very convenient for editing with Excel or OpenOffice,
-          you cannot specify NULL values with the CSV dataset. An empty
-          column will lead to the database default empty value being inserted
-          into the column.
+          用 Excel 或者 OpenOffice 来对这种格式进行编辑是非常方便的，但是在 CSV 数据集中无法指定 NULL 值。给出一个空白列的结果是往这个列中插入数据库的默认空白值。
         </para>
         <para>
-          You can create a CSV DataSet by calling:
+          可以这样创建 CSV 数据集：
         </para>
         <screen>
 require_once 'PHPUnit/Extensions/Database/DataSet/CsvDataSet.php';
@@ -669,11 +588,9 @@ class CsvGuestbookTest extends PHPUnit_Extensions_Database_TestCase
 </screen>
       </section>
       <section id="array-dataset">
-        <title>Array DataSet</title>
+        <title>数组 DataSet</title>
         <para>
-          There is no Array based DataSet in PHPUnit's Database Extension
-          (yet), but we can implement our own easily. Our guestbook example
-          should look like:
+          在 PHPUnit 的数据库扩展中，（尚）没有基于数组的 DataSet，不过很容易自行实现它。留言本的例子大致是这样：
         </para>
         <screen>
 class ArrayGuestbookTest extends PHPUnit_Extensions_Database_TestCase
@@ -690,32 +607,25 @@ class ArrayGuestbookTest extends PHPUnit_Extensions_Database_TestCase
 }
 </screen>
         <para>
-          A PHP DataSet has obvious advantages over all the other file-based
-          datasets:
+          PHP 数据集与相比所有其他基于文件的数据集相比有很明显的优点：
         </para>
         <itemizedlist>
           <listitem>
             <para>
-              PHP Arrays can obviously handle <literal>NULL</literal> values.
+              PHP 数组显然可以处理 <literal>NULL</literal> 值。
             </para>
           </listitem>
           <listitem>
             <para>
-              You won't need additional files for assertions and can specify them
-              directly in the TestCase.
+              不需要为断言提供任何额外文件，可以直接在 TestCase 中指定。
             </para>
           </listitem>
         </itemizedlist>
         <para>
-          For this dataset like the Flat XML, CSV and YAML DataSets the keys
-          of the first specified row define the table's column names, in the
-          previous case this would be <quote>id</quote>,
-          <quote>content</quote>, <quote>user</quote> and
-          <quote>created</quote>.
+          对于这个数据集而言，和扁平 XML、CSV、YAML 数据集一样，第一个指定行的键名定义了表的列名。在上面这个例子里，就是 <quote>id</quote>、<quote>content</quote>、<quote>user</quote> 和 <quote>created</quote>。
         </para>
         <para>
-          The implementation for this Array DataSet is simple and
-          straightforward:
+          这个数组 DataSet 类的实现是非常简单直接的：
         </para>
         <screen>
 require_once 'PHPUnit/Util/Filter.php';
