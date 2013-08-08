@@ -862,11 +862,9 @@ class CompositeTest extends PHPUnit_Extensions_Database_TestCase
       </para>
     </section>
     <section id="implementing-your-own-datasetsdatatables">
-      <title>实现你自己的 DataSet/DataTable</title>
+      <title>自行实现 DataSet/DataTable</title>
       <para>
-        为了理解 DataSet 和 DataTable 的内在，让我们来看看, lets have a
-        look at the interface of a DataSet. You can skip this part if you
-        do not plan to implement your own DataSet or DataTable.
+        为了理解 DataSet 和 DataTable 的内在，让我们来看看 DataSet 的接口。如果没打算自行实现 DataSet 或者 DataTable，可以直接跳过这一部分。
       </para>
       <screen>
 interface PHPUnit_Extensions_Database_DataSet_IDataSet extends IteratorAggregate
@@ -880,18 +878,11 @@ interface PHPUnit_Extensions_Database_DataSet_IDataSet extends IteratorAggregate
 }
 </screen>
       <para>
-        The public interface is used internally by the
-        <literal>assertDataSetsEqual()</literal> assertion on the Database
-        TestCase to check for dataset quality. From the
-        <literal>IteratorAggregate</literal> interface the IDataSet
-        inherits the <literal>getIterator()</literal> method to iterate
-        over all tables of the dataset. The additional reverse iterator
-        method is required to successfully truncate the tables in reverse
-        of the specified order.
+        这些公用接口由数据库 TestCase 中 <literal>assertDataSetsEqual()</literal> 断言内部使用，用以检测数据集是否相等。IDataSet 中继承自 <literal>IteratorAggregate</literal> 接口的 <literal>getIterator()</literal> 方法用于对数据集中的所有表进行迭代。另外的那个逆序迭代器方法也是必须的，因为要按指定顺序的逆序对所有表执行 TRUNCATE 操作才能保证成功。
       </para>
       <blockquote>
         <para>
-          To understand the need for a reverse iterator think of a two tables
+          为了理解逆序迭代器To understand the need for a reverse iterator think of a two tables
           (<emphasis>TableA</emphasis> and <emphasis>TableB</emphasis>) where
           <emphasis>TableB</emphasis> holds a foreign key on a column of
           <emphasis>TableA</emphasis>. If for fixture setup a row is inserted into
