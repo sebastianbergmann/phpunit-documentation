@@ -219,7 +219,7 @@ class MyGuestbookTest extends PHPUnit_Extensions_Database_TestCase
     <section id="what-about-the-database-schema-ddl">
       <title>有关数据库构架(DDL)？</title>
       <para>
-        PHPUnit 假设在测试运行之前，数据库以及其中的所有表、触发器(trigger)、序列(Sequence)和视图(view)都已经创建好。这意味着开发者必须在运行测试套件之前确保数据库已经正确设置。
+        PHPUnit 假设在测试运行之前，数据库以及其中的所有表(table)、触发器(trigger)、序列(Sequence)和视图(view)都已经创建好。这意味着开发者必须在运行测试套件之前确保数据库已经正确设置。
       </para>
       <para>
         有几种方法来达成这个数据库测试的先决条件。
@@ -313,50 +313,50 @@ user@desktop&gt; phpunit --configuration developer-a.xml MyTests/
 user@desktop&gt; phpunit --configuration developer-b.xml MyTests/
 </screen>
       <para>
-        如果是在开发机上进行开发，能够轻松的针对不同的目标数据库来运行数据库测试就显得非常重要了。如果多个开发人员针对同一个数据库连接运行数据库测试，很容易因为竞态而导致测试失败。
+        如果是在开发机上进行开发，能够轻松的针对不同的目标数据库来运行数据库测试就显得非常重要。如果多个开发人员针对同一个数据库连接运行数据库测试，很容易因为竞态而导致测试失败。
       </para>
     </section>
   </section>
   <section id="understanding-datasets-and-datatables">
-    <title>理解 DataSet 和 DataTable</title>
+    <title>理解 DataSet（数据集）和 DataTable（数据表）</title>
      <para>
       PHPUnit 的数据库扩展模块的核心概念之一就是 DataSet（数据集）和 DataTable（数据表）。为了掌握如何使用 PHPUnit 进行测试，需要试着去了解这些简单的概念。DataSet 和 DataTable 是围绕着数据库表、行、列的抽象层。通过一套简单的API，底层数据库内容被隐藏在对象结构之下，同时，这个对象结构也可以用非数据库数据源来实现。
     </para>
     <para>
-      为了能比较实际内容和预期内容，这个抽象是必须的。预期内容可以用诸如 XML、 YAML、 CSV 文件或者 PHP 数组等方式来表达。DataSet 和 DataTable 接口允许对这两个概念上完全不同的数据源进行比较，以语义相似的方法来模拟关系数据库存储。
+      为了能比较实际内容和预期内容，这个抽象是必须的。预期内容可以用诸如 XML、 YAML、 CSV 文件或者 PHP 数组等方式来表达。DataSet 和 DataTable 接口以语义相似的方式来模拟关系数据库存储，这样就能对这些概念上完全不同的数据源进行比较。
     </para>
     <para>
-      于是，测试中数据库断言的工作流就由以下三个简单的步骤组成：
+      于是，在测试中，数据库断言的工作流就由以下三个简单的步骤组成：
     </para>
     <itemizedlist>
       <listitem>
         <para>
-          用表名称（实际上是数据集）来指定数据库中的一个或多个表。
+          用表名称来指定数据库中的一个或多个表（实际上是指定了一个数据集）
         </para>
       </listitem>
       <listitem>
         <para>
-          用你喜欢的格式（YAML、XML等等）来指定预期数据集。
+          用你喜欢的格式（YAML、XML等等）来指定预期数据集
         </para>
       </listitem>
       <listitem>
         <para>
-          断言两个数据集的表示是彼此相等的。
+          断言这两个数据集陈述是彼此相等的。
         </para>
       </listitem>
     </itemizedlist>
     <para>
-      在 PHPUnit 的数据库扩展中，断言并非唯一使用 DataSet 和 DataTable 的情形。就像上一节中所展示的那样，它们的同样描述了数据库的初始内容。数据库 TestCase 类强制要求定义一个基境数据集，随后用它来：
+      在 PHPUnit 的数据库扩展中，断言并非唯一使用 DataSet 和 DataTable 的情形。就像上一节中所展示的那样，它们同样描述了数据库的初始内容。数据库 TestCase 类强制要求定义一个基境数据集，随后用它来：
     </para>
     <itemizedlist>
       <listitem>
         <para>
-          从数据集中所指定的表内删除所有行。
+          根据此数据集所指定的所有表名，将数据库中对应表内的行全部删除。
         </para>
       </listitem>
       <listitem>
         <para>
-          将数据表内的所有行写入数据库。
+          将数据集内数据表中的所有行写入数据库。
         </para>
       </listitem>
     </itemizedlist>
@@ -386,9 +386,9 @@ user@desktop&gt; phpunit --configuration developer-b.xml MyTests/
         基于文件的数据集和表一般用于初始化基境或描述数据库的预期状态。
       </para>
       <section id="flat-xml-dataset">
-        <title>平整 XML DataSet</title>
+        <title>Flat XML DataSet （扁平 XML 数据集）</title>
         <para>
-          最常用的是名叫平整 XML 的数据集。这是一种非常简单的 XML 格式，根节点为 <literal>&lt;dataset&gt;</literal>，根节点下的每个标签就代表数据库中的一行数据。标签的名称就等于表名，而每个属性代表一个列。一个简单的留言本应用程序的例子大致上可能是这样：
+          最常见的一种数据集名叫 Flat XML。这是一种非常简单的 XML 格式，根节点为 <literal>&lt;dataset&gt;</literal>，根节点下的每个标签就代表数据库中的一行数据。标签的名称就等于表名，而每个属性代表一个列。一个简单的留言本应用程序的例子大致上可能是这样：
         </para>
         <screen>
 &lt;?xml version=&quot;1.0&quot; ?&gt;
@@ -404,7 +404,7 @@ user@desktop&gt; phpunit --configuration developer-b.xml MyTests/
           不过这种简单性是有代价的。
         </para>
         <para>
-          从上面这个例子里不太容易看出该如何指定一个空表。可以插入一个没有属性值的标签，以空表的名字作为标签名。空的 guestbook 表所对应的平整 XML 文件大致上可能是这样：
+          从上面这个例子里不太容易看出该如何指定一个空表。其实可以插入一个没有属性值的标签，以空表的名字作为标签名。空的 guestbook 表所对应的 Flat XML 文件大致上可能是这样：
         </para>
         <screen>
 &lt;?xml version=&quot;1.0&quot; ?&gt;
@@ -413,7 +413,7 @@ user@desktop&gt; phpunit --configuration developer-b.xml MyTests/
 &lt;/dataset&gt;
 </screen>
         <para>
-          在扁平 XML 数据集中，对 NULL 值的处理是非常沉闷的。在几乎所有数据库中（Oracle 是个例外），NULL 值和空字符串值是有区别的。为了表示NULL值，需要在数据行的表述中省略掉对应的属性。如果上面这个留言本通过在 user 列用 NULL 值的方式来允许匿名留言，那么 guestbook 表的内容可能是这样：
+          在 Flat XML DataSet 中，对 NULL 值的处理非常乏味。在几乎所有数据库中（Oracle 是个例外），NULL 值和空字符串值是有区别的，这一点在 Flat XML 格式中很难表述。可以在数据行的表述中省略掉对应的属性来表示NULL值。假定上面这个留言本通过在 user 列使用 NULL 值的方式来允许匿名留言，那么 guestbook 表的内容可能是这样：
         </para>
         <screen>
 &lt;?xml version=&quot;1.0&quot; ?&gt;
@@ -426,22 +426,22 @@ user@desktop&gt; phpunit --configuration developer-b.xml MyTests/
           在这个例子里第二个条目是匿名发表的。但是这为列的辨识带来了一个非常严重的问题。在数据集相等断言的判定过程中，每个数据集都需要指明每个表拥有哪些列。如果某个数据表内存在某个列，在所有数据行中这个列的值都是 NULL，那么数据库扩展模块又该从何得知表中包含这个列呢？
         </para>
         <para>
-          在这里，扁平 XML 数据集做出了一个关键假设：一个表的列信息由此表第一行的属性定义来决定。在上面这个例子里，这意味着 guestbook 有 <quote>id</quote>、<quote>content</quote>、<quote>user</quote> 和 <quote>created</quote> 这几个列。第二行中 <quote>user</quote> 列没有定义，因此将向数据库中插入 NULL 值。
+          在这里，Flat XML DataSet 做了一个关键假设：一个表的列信息由此表第一行的属性定义决定。在上面这个例子里，这意味着 guestbook 有 <quote>id</quote>、<quote>content</quote>、<quote>user</quote> 和 <quote>created</quote> 这几个列。第二行中 <quote>user</quote> 列没有定义，因此将向数据库中插入 NULL 值。
         </para>
         <para>
           如果从数据集中删掉第一行，因为没有指定 <quote>user</quote>，guestbook 表拥有的列就只剩下 <quote>id</quote>、<quote>content</quote> 和 <quote>created</quote>。
         </para>
         <para>
-          要在有 NULL 值得情况下有效地使用扁平 XML 数据集，就必须保证每个表的第一行不包含 NULL 值，只有后继的那些行才能省略属性。这就有点棘手，因为数据行的排列顺序也是数据断言的一个相关因素。
+          要在有 NULL 值得情况下有效地使用 Flat XML Dataset，就必须保证每个表的第一行不包含 NULL 值，只有后继的那些行才能省略属性。这就有点棘手，因为数据行的排列顺序也是数据断言的一个相关因素。
         </para>
         <para>
-          反过来，如果在扁平 XML 数据集中只指明了实际表中所有列的某个子集，那么所有省略掉的值都会设为它们的的默认值。如果某个省略掉的列定义为 <quote>NOT NULL DEFAULT NULL</quote> 的话，就可能出现错误。
+          反过来，如果在 Flat XML Dataset 中只指明了实际表中所有列的某个子集，那么所有省略掉的值都会设为它们的的默认值。如果某个省略掉的列定义为 <quote>NOT NULL DEFAULT NULL</quote> 的话，就可能出现错误。
         </para>
         <para>
-          总的来说，建议只在不需要 NULL 值的情况下使用扁平 XML 数据集。
+          总的来说，建议只在不需要 NULL 值的情况下使用 Flat XML Dataset。
         </para>
         <para>
-          可以在数据库 TestCase 中调用 <literal>createFlatXmlDataSet($filename)</literal> 方法来创建扁平 XML 数据集实例：
+          可以在数据库 TestCase 中调用 <literal>createFlatXmlDataSet($filename)</literal> 方法来创建 Flat XML Dataset 实例：
         </para>
         <screen>
 class MyTestCase extends PHPUnit_Extensions_Database_TestCase
@@ -454,10 +454,10 @@ class MyTestCase extends PHPUnit_Extensions_Database_TestCase
 </screen>
       </section>
       <section id="xml-dataset">
-        <title>XML 数据集</title>
+        <title>XML DataSet （XML 数据集）</title>
         <para>
-          有另外一种更加结构化的 XML 数据集，它写起来有点冗长，但是避开了扁平 XML 数据集所存在的 NULL 问题。在根节点 <literal>&lt;dataset&gt;</literal> 内，可以指定 <literal>&lt;table&gt;</literal>,
-          <literal>&lt;column&gt;</literal>、<literal>&lt;row&gt;</literal>、<literal>&lt;value&gt;</literal> 和 <literal>&lt;null /&gt;</literal> 标签。和上面用扁平 XML 所定义的留言本数据集等价的 XML数据集如下：
+          有另外一种更加结构化的 XML DataSet，它写起来有点冗长，但是避开了 Flat XML DataSet 所存在的 NULL 问题。在根节点 <literal>&lt;dataset&gt;</literal> 内，可以指定 <literal>&lt;table&gt;</literal>,
+          <literal>&lt;column&gt;</literal>、<literal>&lt;row&gt;</literal>、<literal>&lt;value&gt;</literal> 和 <literal>&lt;null /&gt;</literal> 标签。和上面用 Flat XML 所定义的留言本数据集等价的 XML DataSet 如下：
         </para>
         <screen>
 &lt;?xml version=&quot;1.0&quot; ?&gt;
@@ -483,10 +483,10 @@ class MyTestCase extends PHPUnit_Extensions_Database_TestCase
 &lt;/dataset&gt;
 </screen>
         <para>
-          所定义的每个 <literal>&lt;table&gt;</literal> 都有一个名称，并且必须有对所有列及其名称的定义。其下可以包含零个或任意正数个 <literal>&lt;row&gt;</literal> 元素。没有定义 <literal>&lt;row&gt;</literal> 意味着这是个空表。<literal>&lt;row&gt;</literal> 下的<literal>&lt;value&gt;</literal> 和 <literal>&lt;null /&gt;</literal> 标签必须按照之前给定的 <literal>&lt;column&gt;</literal> 元素的顺序来指定。<literal>&lt;null /&gt;</literal> 显然意味着这个值为 NULL。
+          所定义的每个 <literal>&lt;table&gt;</literal> 都有一个名称，并且必须有对所有列及其名称的定义。其下可以包含零个或任意正整数个 <literal>&lt;row&gt;</literal> 元素。没有定义 <literal>&lt;row&gt;</literal> 意味着这是个空表。<literal>&lt;row&gt;</literal> 下的 <literal>&lt;value&gt;</literal> 和 <literal>&lt;null /&gt;</literal> 标签必须按照之前给定的 <literal>&lt;column&gt;</literal> 元素的顺序来指定。<literal>&lt;null /&gt;</literal> 显然意味着这个值为 NULL。
         </para>
         <para>
-          可以在数据库 TestCase 中调用 <literal>createXmlDataSet($filename)</literal> 方法来创建 XML 数据集实例：
+          可以在数据库 TestCase 中调用 <literal>createXmlDataSet($filename)</literal> 方法来创建 XML DataSet 实例：
         </para>
         <screen>
 class MyTestCase extends PHPUnit_Extensions_Database_TestCase
@@ -499,7 +499,7 @@ class MyTestCase extends PHPUnit_Extensions_Database_TestCase
 </screen>
       </section>
       <section id="mysql-xml-dataset">
-        <title>MySQL XML DataSet</title>
+        <title>MySQL XML DataSet （MySQL XML 数据集）</title>
         <para>
           这种新的 XML 格式是 <ulink url="http://www.mysql.com">MySQL 数据库服务器</ulink> 所特有的。PHPUnit 3.5 加入了对这种格式的支持。可以用 <ulink url="http://dev.mysql.com/doc/refman/5.0/en/mysqldump.html"><literal>mysqldump</literal></ulink> 工具来生成这种格式的文件。与同样为 <literal>mysqldump</literal> 所支持的 CSV 数据集不同，单个这种 XML 格式的文件中可以包含多个表的数据。要以这种格式生成文件，可以这样调用 <literal>mysqldump</literal>：
         </para>
@@ -520,9 +520,9 @@ class MyTestCase extends PHPUnit_Extensions_Database_TestCase
 </screen>
       </section>
       <section id="yaml-dataset">
-        <title>YAML DataSet</title>
+        <title>YAML DataSet （YAML 数据集）</title>
         <para>
-          PHPUnit 3.4 的新特性之一是具备了用流行的 YAML 格式来指定数据集的能力。要让这个功能能正常工作，必须从 PEAR 安装 PHPUnit 3.4 及其可选的 Symfony YAML 依赖组件。随后就可以为留言本的例子写个 YAML 数据集：
+          PHPUnit 3.4 的新特性之一是具备了用流行的 YAML 格式来指定数据集的能力。要让这个功能能正常工作，必须从 PEAR 安装 PHPUnit 3.4 及其可选的 Symfony YAML 依赖组件。随后就可以为留言本的例子写个 YAML DataSet：
         </para>
         <screen>
 guestbook:
@@ -538,10 +538,10 @@ guestbook:
     created: 2010-04-26 12:14:20
 </screen>
         <para>
-          简单方便，同时还解决了和它类似的扁平 XML 数据集所具有的 NULL 问题。在 YAML 中，只有列名而没有指定值就表示 NULL。空白字符串则这样指定：<literal>column1: &quot;&quot;</literal>。
+          简单方便，同时还解决了和它类似的 FLat XML DataSet 所具有的 NULL 问题。在 YAML 中，只有列名而没有指定值就表示 NULL。空白字符串则这样指定：<literal>column1: &quot;&quot;</literal>。
         </para>
         <para>
-          目前，数据库 TestCase 中没有 YAML 数据集的工厂方法，因此需要手工进行实例化：
+          目前，数据库 TestCase 中没有 YAML DataSet 的工厂方法，因此需要手工进行实例化：
         </para>
         <screen>
 require_once &quot;PHPUnit/Extensions/Database/DataSet/YamlDataSet.php&quot;;
@@ -558,9 +558,9 @@ class YamlGuestbookTest extends PHPUnit_Extensions_Database_TestCase
 </screen>
       </section>
       <section id="csv-dataset">
-        <title>CSV DataSet</title>
+        <title>CSV DataSet （CSV 数据集）</title>
         <para>
-          另外一个基于文件的数据集是基于 CSV 文件的。数据集中的每个表用一个单独的 CSV 文件表示。对于留言本的例子，可以这样定义 guestbook-table.csv 文件：
+          另外一个基于文件的 DataSet 是基于 CSV 文件的。数据集中的每个表用一个单独的 CSV 文件表示。对于留言本的例子，可以这样定义 guestbook-table.csv 文件：
         </para>
         <screen>
 id;content;user;created
@@ -568,10 +568,10 @@ id;content;user;created
 2;&quot;I like it!&quot;&quot;nancy&quot;;&quot;2010-04-26 12:14:20&quot;
 </screen>
         <para>
-          用 Excel 或者 OpenOffice 来对这种格式进行编辑是非常方便的，但是在 CSV 数据集中无法指定 NULL 值。给出一个空白列的结果是往这个列中插入数据库的默认空白值。
+          用 Excel 或者 OpenOffice 来对这种格式进行编辑是非常方便的，但是在 CSV DataSet 中无法指定 NULL 值。给出一个空白列的结果是往这个列中插入数据库的默认空值。
         </para>
         <para>
-          可以这样创建 CSV 数据集：
+          可以这样创建 CSV DataSet：
         </para>
         <screen>
 require_once 'PHPUnit/Extensions/Database/DataSet/CsvDataSet.php';
@@ -588,7 +588,7 @@ class CsvGuestbookTest extends PHPUnit_Extensions_Database_TestCase
 </screen>
       </section>
       <section id="array-dataset">
-        <title>数组 DataSet</title>
+        <title>Array DataSet （数组数据集）</title>
         <para>
           在 PHPUnit 的数据库扩展中，（尚）没有基于数组的 DataSet，不过很容易自行实现它。留言本的例子大致是这样：
         </para>
@@ -607,7 +607,7 @@ class ArrayGuestbookTest extends PHPUnit_Extensions_Database_TestCase
 }
 </screen>
         <para>
-          PHP 数据集与相比所有其他基于文件的数据集相比有很明显的优点：
+          PHP DataSet 相比于所有其他基于文件的 DataSet 相比有很明显的优点：
         </para>
         <itemizedlist>
           <listitem>
@@ -622,7 +622,7 @@ class ArrayGuestbookTest extends PHPUnit_Extensions_Database_TestCase
           </listitem>
         </itemizedlist>
         <para>
-          对于这个数据集而言，和扁平 XML、CSV、YAML 数据集一样，第一个指定行的键名定义了表的列名。在上面这个例子里，就是 <quote>id</quote>、<quote>content</quote>、<quote>user</quote> 和 <quote>created</quote>。
+          对于这种 DataSet 而言，和扁平 XML、CSV、YAML DataSet 一样，表的列名信息由第一个指定的行的键名定义。在上面这个例子里，就是 <quote>id</quote>、<quote>content</quote>、<quote>user</quote> 和 <quote>created</quote>。
         </para>
         <para>
           这个数组 DataSet 类的实现是非常简单直接的：
@@ -682,51 +682,39 @@ class MyApp_DbUnit_ArrayDataSet extends PHPUnit_Extensions_Database_DataSet_Abst
 </screen>
       </section>
       <section id="query-sql-dataset">
-        <title>Query (SQL) DataSet</title>
+        <title>Query (SQL) DataSet （查询(SQL)数据集）</title>
         <para>
-          For database assertions you do not only need the file-based datasets
-          but also a Query/SQL based Dataset that contains the actual
-          contents of the database. This is where the Query DataSet shines:
+          对于数据库断言，不仅需要有基于文件的 DataSet，同时也需要有一种内含数据库实际内容的基于查询/SQL 的 DataSet。Query DataSet 在此闪亮登场：
         </para>
         <screen>
 $ds = new PHPUnit_Extensions_Database_DataSet_QueryDataSet($this-&gt;getConnection());
 $ds-&gt;addTable('guestbook');
 </screen>
         <para>
-          Adding a table just by name is an implicit way to define the
-          data-table with the following query:
+          单纯以名称来添加表是一种隐式地用后继的查询来定义 DataTable 的方法：
         </para>
         <screen>
 $ds = new PHPUnit_Extensions_Database_DataSet_QueryDataSet($this-&gt;getConnection());
 $ds-&gt;addTable('guestbook', 'SELECT * FROM guestbook');
 </screen>
         <para>
-          You can make use of this by specifying arbitrary queries for your
-          tables, for example restricting rows, column or adding
-          <literal>ORDER BY</literal> clauses:
+          可以在这种用法中为你的表任意指定查询，例如限定行、列，或者加上 <literal>ORDER BY</literal> 子句：
         </para>
         <screen>
 $ds = new PHPUnit_Extensions_Database_DataSet_QueryDataSet($this-&gt;getConnection());
 $ds-&gt;addTable('guestbook', 'SELECT id, content FROM guestbook ORDER BY created DESC');
 </screen>
         <para>
-          The section on Database Assertions will show some more details on
-          how to make use of the Query DataSet.
+          在关于数据库断言的那一节中有更多关于如何使用 Query DataSet 的细节。
         </para>
       </section>
       <section id="database-db-dataset">
-        <title>Database (DB) Dataset</title>
+        <title>Database (DB) DataSet （数据库数据集）</title>
         <para>
-          Accessing the Test Connection you can automatically create a
-          DataSet that consists of all the tables with their content in the
-          database specified as second parameter to the Connections Factory
-          method.
+          通过访问测试所使用的数据库连接，可以自动创建包含数据库所有表以及其内容的 DataSet。所使用的数据库由数据库连接工厂方法的第二个参数指定。
         </para>
         <para>
-          You can either create a dataset for the complete database as shown
-          in <literal>testGuestbook()</literal>, or restrict it to a set of
-          specified table names with a whitelist as shown in
-          <literal>testFilteredGuestbook()</literal> method.
+          既可以像 <literal>testGuestbook()</literal> 中那样创建整个数据库所对应的 DataSet，或者像 <literal>testFilteredGuestbook()</literal> 方法中那样用一个白名单来将 DataSet 限制在若干表名的集合上。
         </para>
         <screen>
 class MySqlGuestbookTest extends PHPUnit_Extensions_Database_TestCase
@@ -757,17 +745,12 @@ class MySqlGuestbookTest extends PHPUnit_Extensions_Database_TestCase
 </screen>
       </section>
       <section id="replacement-dataset">
-        <title>Replacement DataSet</title>
+        <title>Replacement DataSet （替换数据集）</title>
         <para>
-          I have been talking about NULL problems with the Flat XML and CSV
-          DataSet, but there is a slightly complicated workaround to get both
-          types of datasets working with NULLs.
+          前面谈到了 Flat XML 和 CSV DataSet 所存在的 NULL 问题，不过有一种稍微有点复杂的解决方法可以让这两种数据集都能正常处理 NULL。
         </para>
         <para>
-          The Replacement DataSet is a decorator for an existing dataset and
-          allows you to replace values in any column of the dataset by another
-          replacement value. To get our guestbook example working with NULL
-          values we specify the file like:
+          Replacement DataSet 是已存在的数据集的修饰器(decorator)，能够将数据集中任意列的值替换为其他替代值。为了让留言本的例子能够处理 NULL 值，首先指定类似这样的文件：
         </para>
         <screen>
 &lt;?xml version=&quot;1.0&quot; ?&gt;
@@ -777,7 +760,7 @@ class MySqlGuestbookTest extends PHPUnit_Extensions_Database_TestCase
 &lt;/dataset&gt;
 </screen>
         <para>
-          We then wrap the Flat XML DataSet into a Replacement DataSet:
+          然后将 Flat XML DataSet 包装在 Replacement DataSet 中：
         </para>
         <screen>
 require_once 'PHPUnit/Extensions/Database/DataSet/ReplacementDataSet.php';
@@ -795,12 +778,9 @@ class ReplacementTest extends PHPUnit_Extensions_Database_TestCase
 </screen>
       </section>
       <section id="dataset-filter">
-        <title>DataSet Filter</title>
+        <title>DataSet 过滤器</title>
         <para>
-          If you have a large fixture file you can use the DataSet Filter for
-          white- and blacklisting of tables and columns that should be
-          contained in a sub-dataset. This is especially handy in combination
-          with the DB DataSet to filter the columns of the datasets.
+          如果有一个非常大的基境文件，可以用 Dataset 过滤器来为需要包含在子数据集中的表和列指定白/黑名单。与 DB DataSet 联用来对数据集中的列进行过滤尤其方便。
         </para>
         <screen>
 class DataSetFilterTest extends PHPUnit_Extensions_Database_TestCase
@@ -822,7 +802,7 @@ class DataSetFilterTest extends PHPUnit_Extensions_Database_TestCase
         $dataSet = $this-&gt;getConnection()-&gt;createDataSet();
 
         $filterDataSet = new PHPUnit_Extensions_Database_DataSet_DataSetFilter($dataSet);
-        $filterDataSet-&gt;addExcludeTables(array('foo', 'bar', 'baz')); // only keep the guestbook table!
+        $filterDataSet-&gt;addExcludeTables(array('foo', 'bar', 'baz')); // 只保留 guestbook 表！
         $filterDataSet-&gt;setExcludeColumnsForTable('guestbook', array('user', 'created'));
         // ..
     }
@@ -830,21 +810,14 @@ class DataSetFilterTest extends PHPUnit_Extensions_Database_TestCase
 </screen>
         <blockquote>
           <para>
-            <emphasis role="strong">NOTE</emphasis> You cannot use both exclude
-            and include column filtering on the same table, only on different
-            ones. Plus it is only possible to either white- or blacklist
-            tables, not both of them.
+            <emphasis role="strong">注意：</emphasis>不能对同一个表同时应用排除与包含两种列过滤器，只能分别应用于不同的表。另外，表的白名单和黑名单也只能选择其一，不能二者同时使用。
           </para>
         </blockquote>
       </section>
       <section id="composite-dataset">
-        <title>Composite DataSet</title>
+        <title>Composite DataSet （组合数据集）</title>
         <para>
-          The composite DataSet is very useful for aggregating several
-          already existing datasets into a single dataset. When several
-          datasets contain the same table the rows are appended in the
-          specified order. For example if we have two datasets
-          <emphasis>fixture1.xml</emphasis>:
+          Composite DataSet 能将多个已存在的数据集聚合成单个数据集，因此非常有用。如果多个数据集中存在同样的表，其中的数据行将按照指定的顺序进行追加。例如，假设有两个数据集， <emphasis>fixture1.xml</emphasis>：
         </para>
         <screen>
 &lt;?xml version=&quot;1.0&quot; ?&gt;
@@ -853,7 +826,7 @@ class DataSetFilterTest extends PHPUnit_Extensions_Database_TestCase
 &lt;/dataset&gt;
 </screen>
         <para>
-          and <emphasis>fixture2.xml</emphasis>:
+          和 <emphasis>fixture2.xml</emphasis>:
         </para>
         <screen>
 &lt;?xml version=&quot;1.0&quot; ?&gt;
@@ -862,7 +835,7 @@ class DataSetFilterTest extends PHPUnit_Extensions_Database_TestCase
 &lt;/dataset&gt;
 </screen>
         <para>
-          Using the Composite DataSet we can aggregate both fixture files:
+          可以用 Composite DataSet 把这两个基境文件聚合在一起：
         </para>
         <screen>
 class CompositeTest extends PHPUnit_Extensions_Database_TestCase
@@ -883,19 +856,15 @@ class CompositeTest extends PHPUnit_Extensions_Database_TestCase
       </section>
     </section>
     <section id="beware-of-foreign-keys">
-      <title>Beware of Foreign Keys</title>
+      <title>当心外键</title>
       <para>
-        During Fixture SetUp PHPUnit's Database Extension inserts the rows
-        into the database in the order they are specified in your fixture.
-        If your database schema uses foreign keys this means you have to
-        specify the tables in an order that does not cause foreign key
-        constraints to fail.
+        在建立基境的过程中， PHPUnit 的数据库扩展模块按照基境中所指定的顺序将数据行插入到数据库内。假如数据库中使用了外键，这就意味着必须指定好表的顺序，以避免外键约束失败。
       </para>
     </section>
     <section id="implementing-your-own-datasetsdatatables">
-      <title>Implementing your own DataSets/DataTables</title>
+      <title>实现你自己的 DataSet/DataTable</title>
       <para>
-        To understand the internals of DataSets and DataTables, lets have a
+        为了理解 DataSet 和 DataTable 的内在，让我们来看看, lets have a
         look at the interface of a DataSet. You can skip this part if you
         do not plan to implement your own DataSet or DataTable.
       </para>
