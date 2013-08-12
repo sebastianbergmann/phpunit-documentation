@@ -882,20 +882,14 @@ interface PHPUnit_Extensions_Database_DataSet_IDataSet extends IteratorAggregate
       </para>
       <blockquote>
         <para>
-          为了理解逆序迭代器的必要性，不妨考虑两个表（<emphasis>TableA</emphasis> 和 <emphasis>TableB</emphasis>），其中表 <emphasis>TableB</emphasis> 持有一个指向表 <emphasis>TableA</emphasis> 某列的外键。假定在基境建立的过程中先向表 <emphasis>TableA</emphasis> 插入一行记录，然后再向表 <emphasis>TableB</emphasis> 插入了一行依赖于它的记录，于是很显然，如果不使用逆序删除表的内容，就会遭遇, then it is obvious that for deleting all the tables
-          contents the reverse order run you into trouble with foreign key
-          constraints.
+          为了理解逆序迭代器的必要性，不妨考虑两个表（<emphasis>TableA</emphasis> 和 <emphasis>TableB</emphasis>），其中表 <emphasis>TableB</emphasis> 持有一个指向表 <emphasis>TableA</emphasis> 某列的外键。假定在基境建立的过程中先向表 <emphasis>TableA</emphasis> 插入一行记录，然后再向表 <emphasis>TableB</emphasis> 插入了一行依赖于它的记录，于是很显然，如果不使用逆序删除表的内容，就会遭遇到外键约束方面的问题。
         </para>
       </blockquote>
       <para>
-        Depending on the implementation different approaches are taken to
-        add table instances to a dataset. For example, tables are added
-        internally during construction from the source file in all
-        file-based datasets such as <literal>YamlDataSet</literal>,
-        <literal>XmlDataSet</literal> or <literal>FlatXmlDataSet</literal>.
+        根据具体实现的不同，要采取不同的方法来将表实例添加到数据集中。例如，在所有基于文件的数据集中，表都是在构造过程中直接从源文件生成并加入数据集中，比如 <literal>YamlDataSet</literal>、 <literal>XmlDataSet</literal> 以及 <literal>FlatXmlDataSet</literal>， 均是如此。
       </para>
       <para>
-        A table is also represented by the following interface:
+        数据表亦通过以下接口表示：
       </para>
       <screen>
 interface PHPUnit_Extensions_Database_DataSet_ITable
@@ -908,47 +902,34 @@ interface PHPUnit_Extensions_Database_DataSet_ITable
 }
 </screen>
       <para>
-        Except the <literal>getTableMetaData()</literal> method it is
-        pretty self-explainatory. The methods are used are all required for
-        the different assertions of the Database Extension that are
-        explained in the next chapter. The
-        <literal>getTableMetaData()</literal> method has to return an
-        implementation of the
-        <literal>PHPUnit_Extensions_Database_DataSet_ITableMetaData</literal>
-        interface, which describes the structure of the table. It holds
-        information on:
+        除了 <literal>getTableMetaData()</literal> 方法之外，这个接口是一目了然的。数据库扩展模块中的各种断言（将于下一章中介绍）用到了所有这些方法，因此它们全部都是必需的。<literal>getTableMetaData()</literal> 方法需要返回一个实现了 <literal>PHPUnit_Extensions_Database_DataSet_ITableMetaData</literal> 接口的描述表结构的对象。这个对象包含如下信息：
       </para>
       <itemizedlist>
         <listitem>
           <para>
-            The table name
+            表的名称
           </para>
         </listitem>
         <listitem>
           <para>
-            An array of column-names of the table, ordered by their appearance
-            in the result-set.
+            表的列名数组，按照列在结果集中出现的顺序排列。
           </para>
         </listitem>
         <listitem>
           <para>
-            An array of the primary-key columns.
+            构成主键的列的数组。
           </para>
         </listitem>
       </itemizedlist>
       <para>
-        This interface also has an assertion that checks if two instances
-        of Table Metadata equal each other, which is used by the data-set
-        equality assertion.
+        这个接口还包含有检验两个表的元数据实例是否互相相等的断言，供数据集相等断言使用。
       </para>
     </section>
   </section>
   <section id="the-connection-api">
-    <title>The Connection API</title>
+    <title>数据库连接 API</title>
     <para>
-      There are three interesting methods on the Connection interface
-      which has to be returned from the
-      <literal>getConnection()</literal> method on the Database TestCase:
+      由数据库 TestCase 中的 <literal>getConnection()</literal> 方法所返回的连接界面有三个很有意思的方法：
     </para>
     <screen>
 interface PHPUnit_Extensions_Database_DB_IDatabaseConnection
@@ -963,8 +944,7 @@ interface PHPUnit_Extensions_Database_DB_IDatabaseConnection
     <orderedlist numeration="arabic">
       <listitem>
         <para>
-          The <literal>createDataSet()</literal> method creates a Database
-          (DB) DataSet as described in the DataSet implementations section.
+          <literal>createDataSet()</literal> 方法创建一个在数据集实现一节描述过的 Database (DB) DataSet（数据库数据集）。
         </para>
         <screen>
 class ConnectionTest extends PHPUnit_Extensions_Database_TestCase
@@ -979,11 +959,7 @@ class ConnectionTest extends PHPUnit_Extensions_Database_TestCase
       </listitem>
       <listitem>
         <para>
-          The <literal>createQueryTable()</literal> method can be used to
-          create instances of a QueryTable, give them a result name and SQL
-          query. This is a handy method when it comes to result/table
-          assertions as will be shown in the next section on the Database
-          Assertions API.
+          <literal>createQueryTable()</literal>方法用于创建 QueryTable 的实例，需要为其指定结果名称和所使用的 SQL 查询。当涉及到结果/表的断言（如后面关于数据库断言 API 那一节所示）时，这个方法会很方便。
         </para>
         <screen>
 class ConnectionTest extends PHPUnit_Extensions_Database_TestCase
@@ -998,10 +974,7 @@ class ConnectionTest extends PHPUnit_Extensions_Database_TestCase
       </listitem>
       <listitem>
         <para>
-          The <literal>getRowCount()</literal> method is a convienent way to
-          access the number of rows in a table, optionally filtered by an
-          additional where clause. This can be used with a simple equality
-          assertion:
+          <literal>getRowCount()</literal> 方法提供了一种方便的方式来取得表中的行数，并且还可以选择附加一个 WHERE 子句来在计数前对数据行进行过滤。它可以和一个简单的相等断言合用：
         </para>
         <screen>
 class ConnectionTest extends PHPUnit_Extensions_Database_TestCase
@@ -1016,9 +989,10 @@ class ConnectionTest extends PHPUnit_Extensions_Database_TestCase
     </orderedlist>
   </section>
   <section id="database-assertions-api">
-    <title>Database Assertions API</title>
+    <title>数据库断言 API</title>
     <para>
-      For a testing tool the Database Extension surely provides some
+      作为测试工具，数据库扩展模块当然会提供一些断言，可以用来验证数据库的
+	  For a testing tool the Database Extension surely provides some
       assertions that you can use to verify the current state ot the
       database, tables and the row-count of tables. This section
       describes this functionality in detail:
