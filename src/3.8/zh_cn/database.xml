@@ -991,21 +991,12 @@ class ConnectionTest extends PHPUnit_Extensions_Database_TestCase
   <section id="database-assertions-api">
     <title>数据库断言 API</title>
     <para>
-      作为测试工具，数据库扩展模块当然会提供一些断言，可以用来验证数据库的
-	  For a testing tool the Database Extension surely provides some
-      assertions that you can use to verify the current state ot the
-      database, tables and the row-count of tables. This section
-      describes this functionality in detail:
+      作为测试工具，数据库扩展模块当然会提供一些断言，可以用来验证数据库的当前状态、表的当前状态、表中数据行的数量。本节将详细描述这部分功能：
     </para>
     <section id="asserting-the-row-count-of-a-table">
-      <title>Asserting the Row-Count of a Table</title>
+      <title>对表中数据行的数量作出断言</title>
       <para>
-        It is often helpful to check if a table contains a specific amount
-        of rows. You can easily achieve this without additional glue code
-        using the Connection API. Say we wanted to check that after
-        insertion of a row into our guestbook we not only have the two
-        initial entries that have accompanied us in all the previous
-        example, but a third one:
+        很多时候，确认表中是否包含特定数量的数据行是非常有帮助的。可以轻松做到这一点，不需要任何额外的使用连接 API 的粘合剂代码。比如说，在往留言本中插入一个新行之后，想要确认在表中除了之前的例子中一直都有的两行之外还有第三行：
       </para>
       <screen>
 class GuestbookTest extends PHPUnit_Extensions_Database_TestCase
@@ -1023,17 +1014,12 @@ class GuestbookTest extends PHPUnit_Extensions_Database_TestCase
 </screen>
     </section>
     <section id="asserting-the-state-of-a-table">
-      <title>Asserting the State of a Table</title>
+      <title>对表的状态作出断言</title>
       <para>
-        The previous assertion is helpful, but we surely want to check the
-        actual contents of the table to verify that all the values were
-        written into the correct columns. This can be achieved by a table
-        assertion.
+        前面的这个断言很有帮助，但是肯定还想要检验表的实际内容，好核实是否所有值都写到了正确的列中。可以通过表断言来做到这一点。
       </para>
       <para>
-        For this we would define a Query Table instance which derives its
-        content from a table name and SQL query and compare it to a
-        File/Array Based Data Set:
+        为此，先定义一个 QueryTable 实例，从表名称和 SQL 查询派生出其内容，随后将其与一个基于文件/数组的数据集进行比较：
       </para>
       <screen>
 class GuestbookTest extends PHPUnit_Extensions_Database_TestCase
@@ -1053,8 +1039,7 @@ class GuestbookTest extends PHPUnit_Extensions_Database_TestCase
 }
 </screen>
       <para>
-        Now we have to write the <emphasis>expectedBook.xml</emphasis> Flat
-        XML file for this assertion:
+        现在需要为这个断言编写 <emphasis>expectedBook.xml</emphasis> Flat XML 文件：
       </para>
       <screen>
 &lt;?xml version=&quot;1.0&quot; ?&gt;
@@ -1065,16 +1050,10 @@ class GuestbookTest extends PHPUnit_Extensions_Database_TestCase
 &lt;/dataset&gt;
 </screen>
       <para>
-        This assertion would only pass on exactly one second of the
-        universe though, on <emphasis>2010–05–01 21:47:08</emphasis>. Dates
-        pose a special problem to database testing and we can circumvent
-        the failure by omitting the <quote>created</quote> column from the
-        assertion.
+        在整个时间长河中，只有特定的一秒钟内这个断言可以通过检定，在 <emphasis>2010–05–01 21:47:08</emphasis>。在数据库测试中，日期构成了一个特殊的问题。可以从这个断言中省略 <quote>created</quote> 列来规避失败。
       </para>
       <para>
-        The adjusted <emphasis>expectedBook.xml</emphasis> Flat XML file
-        would probably have to look like the following to make the
-        assertion pass:
+        为了让断言能得以通过，<emphasis>expectedBook.xml</emphasis> Flat XML 文件需要调整成大致类似这样：
       </para>
       <screen>
 &lt;?xml version=&quot;1.0&quot; ?&gt;
@@ -1085,7 +1064,7 @@ class GuestbookTest extends PHPUnit_Extensions_Database_TestCase
 &lt;/dataset&gt;
 </screen>
       <para>
-        We have to fix up the Query Table call:
+        还得修正一下 QueryTable 的调用：
       </para>
       <screen>
 $queryTable = $this-&gt;getConnection()-&gt;createQueryTable(
@@ -1094,11 +1073,9 @@ $queryTable = $this-&gt;getConnection()-&gt;createQueryTable(
 </screen>
     </section>
     <section id="asserting-the-result-of-a-query">
-      <title>Asserting the Result of a Query</title>
+      <title>对查询的结果作出断言</title>
       <para>
-        You can also assert the result of complex queries with the Query
-        Table approach, just specify a result name with a query and
-        compare it to a dataset:
+        利用 QueryTable，也可以对复杂查询的结果作出断言，只需要指定查询以及结果名称，并随后将其与某个数据集进行比较：
       </para>
       <screen>
 class ComplexQueryTest extends PHPUnit_Extensions_Database_TestCase
@@ -1116,17 +1093,14 @@ class ComplexQueryTest extends PHPUnit_Extensions_Database_TestCase
 </screen>
     </section>
     <section id="asserting-the-state-of-multiple-tables">
-      <title>Asserting the State of Multiple Tables</title>
+      <title>对多个表的状态作出断言</title>
       <para>
-        For sure you can assert the state of multiple tables at once and
-        compare a query dataset against a file based dataset. There are two
-        different ways for DataSet assertions.
+        当然可以一次性对多个表的状态作出断言，并将查询数据集与基于文件的数据集进行比较。有两种不同的方式来进行数据集断言。
       </para>
       <orderedlist numeration="arabic">
         <listitem>
           <para>
-            You can use the Database (DB) DataSet from the Connection and
-            compare it to a File-Based DataSet.
+            可以从自数据库连接建立数据库数据集，并将其与基于文件的数据集进行比较。
           </para>
           <screen>
 class DataSetAssertionsTest extends PHPUnit_Extensions_Database_TestCase
@@ -1142,7 +1116,7 @@ class DataSetAssertionsTest extends PHPUnit_Extensions_Database_TestCase
         </listitem>
         <listitem>
           <para>
-            You can construct the DataSet on your own:
+            也可以自行构造数据集：
           </para>
           <screen>
 class DataSetAssertionsTest extends PHPUnit_Extensions_Database_TestCase
@@ -1162,61 +1136,39 @@ class DataSetAssertionsTest extends PHPUnit_Extensions_Database_TestCase
     </section>
   </section>
   <section id="frequently-asked-questions">
-    <title>Frequently Asked Questions</title>
+    <title>常见问题（FAQ）</title>
     <section id="will-phpunit-re-create-the-database-schema-for-each-test">
-      <title>Will PHPUnit (re-)create the database schema for each
-             test?</title>
+      <title>PHPUnit 会为每个测试（重新）创建数据库吗？</title>
       <para>
-        No, PHPUnit requires all database objects to be available when the
-        suite is started. The Database, tables, sequences, triggers and
-        views have to be created before you run the test suite.
+        不，PHPUnit 要求在测试套件开始时所有数据库对象必须全部可用。数据库、表、序列、触发器还有视图，必须全部在运行测试套件之前创建好。
       </para>
       <para>
-        <ulink url="http://www.doctrine-project.org">Doctrine 2</ulink> or
-        <ulink url="http://www.ezcomponents.org">eZ Components</ulink> have
-        powerful tools that allows you to create the database schema from
-        pre-defined datastructures, however these have to be hooked into
-        the PHPUnit extension to allow automatic database re-creation
-        before the complete test-suite is run.
+        <ulink url="http://www.doctrine-project.org">Doctrine 2</ulink> 或
+        <ulink url="http://www.ezcomponents.org">eZ Components</ulink> 拥有强力的工具，可以按预定义的数据结构创建数据库，但是这些都必须和 PHPUnit 扩展模块对接之后才能自动在整个测试套件运行之前重新创建数据库。
       </para>
       <para>
-        Since each test completely cleans the database you are not even
-        required to re-create the database for each test-run. A permanently
-        available database works perfectly.
+        由于每个测试都会彻底清空数据库，因此无须为每个测试重新创建数据库。永久可用的数据库同样能够完美工作。
       </para>
     </section>
     <section id="am-i-required-to-use-pdo-in-my-application-for-the-database-extension-to-work">
-      <title>Am I required to use PDO in my application for the Database
-             Extension to work?</title>
+      <title>为了让数据库扩展模块正常工作，需要在应用程序中使用 PDO 吗？</title>
       <para>
-        No, PDO is only required for the fixture clean- and set-up and for
-        assertions. You can use whatever database abstraction you want
-        inside your own code.
+        不，只在基境的清理与建立阶段还有断言检定时用到PDO。在你的自有代码中，可以使用任意数据库抽象。
       </para>
     </section>
     <section id="what-can-i-do-when-i-get-a-too-much-connections-error">
-      <title>What can I do, when I get a
-             <quote>Too much Connections</quote> Error?</title>
+      <title>如果看到 <quote>Too much Connections</quote> 错误该咋办？</title>
       <para>
-        If you do not cache the PDO instance that is created from the
-        TestCase <literal>getConnection()</literal> method the number of
-        connections to the database is increasing by one or more with each
-        database test. With default configuration MySql only allows 100
-        concurrent connections other vendors also have maximum connection
-        limits.
+        如果没有对 TestCase 中 <literal>getConnection()</literal> 方法所创建 PDO 实例进行缓存，那么每个数据库测试都会增加一个或多个数据库连接。MySQL的默认配置只允许100个并发连接，其他供应商的数据库也都有各自的最大连接限制。
       </para>
       <para>
-        The SubSection
-        <quote>Use your own Abstract Database TestCase</quote> shows how
-        you can prevent this error from happening by using a single cached
-        PDO instance in all your tests.
+        子章节<quote>使用你自己的抽象数据库 TestCase 类</quote>展示了如何通过在所有测试中使用单个PDO实例缓存来防止发生此错误。
       </para>
     </section>
     <section id="how-to-handle-null-with-flat-xml-csv-datasets">
-      <title>How to handle NULL with Flat XML / CSV Datasets?</title>
+      <title>Flat XML / CSV 数据集中如何处理 NULL？</title>
       <para>
-        Do not do this. Instead, you should use either the XML or the YAML
-        DataSets.
+        别这么干。应当改用 XML 或者 YAML 数据集。
       </para>
     </section>
   </section>
