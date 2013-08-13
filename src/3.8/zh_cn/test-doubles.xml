@@ -1,72 +1,49 @@
 <?xml version="1.0" encoding="utf-8" ?>
 
 <chapter id="test-doubles">
-  <title>Test Doubles</title>
+  <title>测试替身</title>
 
   <para>
-    Gerard Meszaros introduces the concept of Test Doubles in
-    <xref linkend="Meszaros2007" /> like this:
+    Gerard Meszaros 在 <xref linkend="Meszaros2007" /> 中介绍了测试替身的概念：
   </para>
 
   <blockquote>
     <attribution>Gerard Meszaros</attribution>
     <para>
-      <indexterm><primary>System Under Test</primary></indexterm>
+      <indexterm><primary>System Under Test （被测系统）</primary></indexterm>
 
-      Sometimes it is just plain hard to test the system under test (SUT)
-      because it depends on other components that cannot be used in the test
-      environment. This could be because they aren't available, they will not
-      return the results needed for the test or because executing them would
-      have undesirable side effects. In other cases, our test strategy requires
-      us to have more control or visibility of the internal behavior of the SUT.
+      有时候对被测系统(SUT)进行测试是很困难的，因为它依赖于其他无法在测试环境中使用的组件。这有可能是因为这些组件不可用，它们不会返回测试所需要的结果，或者执行它们会有不良副作用。在其他情况下，我们的测试策略要求对被测系统的内部行为有更多控制或更多可见性。
     </para>
 
     <para>
-      <indexterm><primary>Depended-On Component</primary></indexterm>
-      <indexterm><primary>Test Double</primary></indexterm>
+      <indexterm><primary>Depended-On Component （依赖组件）</primary></indexterm>
+      <indexterm><primary>Test Double （测试替身）</primary></indexterm>
 
-      When we are writing a test in which we cannot (or chose not to) use a real
-      depended-on component (DOC), we can replace it with a Test Double. The
-      Test Double doesn't have to behave exactly like the real DOC; it merely
-      has to provide the same API as the real one so that the SUT thinks it is
-      the real one!
+      如果在编写测试时无法使用（或选择不使用）实际的依赖组件(DOC)，可以用测试替身来代替。测试替身不需要和真正的依赖组件有完全一样的的行为方式；他只需要提供和真正的组件同样的 API 即可，这样被测系统就会以为它是真正的组件！
     </para>
   </blockquote>
 
   <para>
-    The <literal>getMock($className)</literal> method provided by PHPUnit can be
-    used in a test to automatically generate an object that can act as a test
-    double for the specified original class. This test double object can be used
-    in every context where an object of the original class is expected.
+    PHPUnit 提供的 <literal>getMock($className)</literal> 方法可以在测试中用来自动生成一个对象，它可以充当指定原版类的测试替身。在任何预期使用原始类的实例对象的上下文中都可以使用这个测试对象类来代替。
   </para>
 
   <para>
-    By default, all methods of the original class are replaced with a dummy
-    implementation that just returns <literal>NULL</literal> (without calling
-    the original method). Using the <literal>will($this->returnValue())</literal>
-    method, for instance, you can configure these dummy implementations to
-    return a value when called.
+    在默认情况下，原始类的所有方法都会被替换为只会返回 <literal>NULL</literal> 山寨实现（其中不会调用原版方法）。使用诸如 <literal>will($this->returnValue())</literal> 之类的方法可以对这些山寨实现在被调用时应当返回什么值做出配置。
   </para>
 
   <note>
-    <title>Limitations</title>
+    <title>局限性</title>
 
     <para>
-      Please note that <literal>final</literal>, <literal>private</literal>
-      and <literal>static</literal> methods cannot be stubbed or mocked. They
-      are ignored by PHPUnit's test double functionality and retain their
-      original behavior.
+      请注意，<literal>final</literal>、<literal>private</literal> 和 <literal>static</literal> 方法无法对其进行 stub 或 mock。PHPUnit 的测试替身功能将会忽略它们，并维持它们的原始行为。
     </para>
   </note>
 
   <note>
-    <title>Warning</title>
+    <title>警告</title>
 
     <para>
-        Please pay attention to the fact that the parameters managing has been changed.
-        The previous implementation clones all object parameters. It did not allow to check whether the same object was passed to method or not.
-        <xref linkend="test-doubles.mock-objects.examples.clone-object-parameters-usecase.php" /> shows where the new implementation could be useful.
-        <xref linkend="test-doubles.mock-objects.examples.enable-clone-object-parameters.php" /> shows how to switch back to previous behavior.
+        请关注一下这个事实：参数管理方式已经修改过了。在之前的实现中，将会克隆对象的所有参数。这样就无法检查传递给方法的是否是同一个对象。<xref linkend="test-doubles.mock-objects.examples.clone-object-parameters-usecase.php" />展示了新的实现方式在什么情况下会非常有用。<xref linkend="test-doubles.mock-objects.examples.enable-clone-object-parameters.php" />展示了如何切换回之前的行为方式。
     </para>
   </note>
 
@@ -76,38 +53,23 @@
     <para>
       <indexterm><primary>Stub</primary></indexterm>
 
-      The practice of replacing an object with a test double that (optionally)
-      returns configured return values is refered to as
-      <emphasis>stubbing</emphasis>. You can use a <emphasis>stub</emphasis> to
-      "replace a real component on which the SUT depends so that the test has a
-      control point for the indirect inputs of the SUT. This allows the test to
-      force the SUT down paths it might not otherwise execute".
+      将对象替换为（可选地）返回配置好的返回值的测试替身的实践方法被称为 <emphasis>stubbing</emphasis>。可以用 <emphasis>stub</emphasis> 来“替换掉被测系统所依赖的实际组件，这样测试就有了对被测系统的间接输入的控制点。这使得测试能强制安排被测系统的执行路径，否则被测系统可能无法执行”。
     </para>
 
     <para>
-      <indexterm><primary>Fluent Interface</primary></indexterm>
+      <indexterm><primary>Fluent Interface （流畅式接口）</primary></indexterm>
 
-      <xref linkend="test-doubles.stubs.examples.StubTest.php" /> shows how
-      to stub method calls and set up return values. We first use the
-      <literal>getMock()</literal> method that is provided by the
-      <literal>PHPUnit_Framework_TestCase</literal> class to set up a stub
-      object that looks like an object of <literal>SomeClass</literal>
-      (<xref linkend="test-doubles.stubs.examples.SomeClass.php" />). We then
-      use the <ulink url="http://martinfowler.com/bliki/FluentInterface.html">Fluent Interface</ulink>
-      that PHPUnit provides to specify the behavior for the stub. In essence,
-      this means that you do not need to create several temporary objects and
-      wire them together afterwards. Instead, you chain method calls as shown in
-      the example. This leads to more readable and "fluent" code.
+      <xref linkend="test-doubles.stubs.examples.StubTest.php" /> 展示了如何对方法的调用进行 stub 以及如何设定返回值。首先用 <literal>PHPUnit_Framework_TestCase</literal> 类提供的 <literal>getMock()</literal> 方法来建立一个 stub 对象，它表面看起来像是 <literal>SomeClass</literal> <xref linkend="test-doubles.stubs.examples.SomeClass.php" />)类的实例。随后用 PHPUnit 提供的<ulink url="http://martinfowler.com/bliki/FluentInterface.html">流畅式接口</ulink>来指定 stub 的行为。本质上，这意味着不需要建立多个临时对象然后再把它们捆到一起。取而代之的是范例中所示的链式方法调用。这使得代码更加易读并更加“流畅”。
     </para>
 
     <example id="test-doubles.stubs.examples.SomeClass.php">
-      <title>The class we want to stub</title>
+      <title>想要 stub 的类</title>
       <programlisting><![CDATA[<?php
 class SomeClass
 {
     public function doSomething()
     {
-        // Do something.
+        // 随便做点什么。
     }
 }
 ?>]]></programlisting>
@@ -119,7 +81,7 @@ class SomeClass
       <indexterm><primary>method()</primary></indexterm>
       <indexterm><primary>will()</primary></indexterm>
       <indexterm><primary>returnValue()</primary></indexterm>
-      <title>Stubbing a method call to return a fixed value</title>
+      <title>对某个方法的调用进行 stub，返回固定值</title>
       <programlisting><![CDATA[<?php
 require_once 'SomeClass.php';
 
@@ -127,16 +89,15 @@ class StubTest extends PHPUnit_Framework_TestCase
 {
     public function testStub()
     {
-        // Create a stub for the SomeClass class.
+        // 创建 SomeClass 类的 stub。
         $stub = $this->getMock('SomeClass');
 
-        // Configure the stub.
+        // 配置 stub。
         $stub->expects($this->any())
              ->method('doSomething')
              ->will($this->returnValue('foo'));
 
-        // Calling $stub->doSomething() will now return
-        // 'foo'.
+        // 现在调用 $stub->doSomething() 将返回 'foo'。
         $this->assertEquals('foo', $stub->doSomething());
     }
 }
@@ -144,36 +105,30 @@ class StubTest extends PHPUnit_Framework_TestCase
     </example>
 
     <para>
-      "Behind the scenes", PHPUnit automatically generates a new PHP class that
-      implements the desired behavior when the <literal>getMock()</literal>
-      method is used. The generated test double class can be configured through
-      the optional arguments of the <literal>getMock()</literal> method.
+      “在幕后”，当使用了 <literal>getMock()</literal> 方法时， PHPUnit 自动生成了一个新的 PHP 类来实现想要的行为。所生成的测试替身类可以通过 <literal>getMock()</literal> 的可选参数来进行配置。
     </para>
 
     <itemizedlist>
-      <listitem><para>By default, all methods of the given class are replaced with a test double that just returns <literal>NULL</literal> unless a return value is configured using <literal>will($this->returnValue())</literal>, for instance.</para></listitem>
-      <listitem><para>When the second (optional) parameter is provided, only the methods whose names are in the array are replaced with a configurable test double. The behavior of the other methods is not changed. Providing <literal>NULL</literal> as the parameter means that no methods will be replaced.</para></listitem>
-      <listitem><para>The third (optional) parameter may hold a parameter array that is passed to the original class' constructor (which is not replaced with a dummy implementation by default).</para></listitem>
-      <listitem><para>The fourth (optional) parameter can be used to specify a class name for the generated test double class.</para></listitem>
-      <listitem><para>The fifth (optional) parameter can be used to disable the call to the original class' constructor.</para></listitem>
-      <listitem><para>The sixth (optional) parameter can be used to disable the call to the original class' clone constructor.</para></listitem>
-      <listitem><para>The seventh (optional) parameter can be used to disable <literal>__autoload()</literal> during the generation of the test double class.</para></listitem>
+      <listitem><para>默认情况下，给定类的所有方法都会替换为只会返回 <literal>NULL</literal> 的测试替身，除非用 <literal>will($this->returnValue())</literal> 之类的方法配置了测试替身的返回值。</para></listitem>
+      <listitem><para>如果提供了第二个（可选）参数，那么只有名称在数组中的方法会被替换为可配置的测试替身。其他方法的行为不会有所改变。如果以 <literal>NULL</literal> 作为（第二）参数，意味着不会有方法被替换。</para></listitem>
+      <listitem><para>第三（可选）参数持有的是传递给原版类的构造函数（默认情况下不会被替换为山寨实现）的参数数组。</para></listitem>
+      <listitem><para>第四（可选）参数用于指定生成的测试替身类的类名。</para></listitem>
+      <listitem><para>第五（可选）参数可用于禁用对原版类的构造方法的调用。</para></listitem>
+      <listitem><para>第六（可选）参数可用于禁用对原版类的克隆构造方法的调用。</para></listitem>
+      <listitem><para>第七（可选）参数可用于在测试替身类的生成期间禁用 <literal>__autoload()</literal>。</para></listitem>
     </itemizedlist>
 
     <para>
-      Alternatively, the Mock Builder API can be used to configure the generated
-      test double class. <xref linkend="test-doubles.stubs.examples.StubTest2.php"/>
-      shows an example. Here's a list of the methods that can be used with the
-      Mock Builder's fluent interface:
+      另外，Mock 生成器 API 也可以用来对生成的测试替身类进行配置。<xref linkend="test-doubles.stubs.examples.StubTest2.php"/>展示了一个例子。下面是可以用于 Mock 生成器的流畅式接口的方法列表：
     </para>
 
     <itemizedlist>
-      <listitem><para><literal>setMethods(array $methods)</literal> can be called on the Mock Builder object to specify the methods that are to be replaced with a configurable test double. The behavior of the other methods is not changed. If you call <literal>setMethods(NULL)</literal>, then no methods will be replaced.</para></listitem>
-      <listitem><para><literal>setConstructorArgs(array $args)</literal> can be called to provide a parameter array that is passed to the original class' constructor (which is not replaced with a dummy implementation by default).</para></listitem>
-      <listitem><para><literal>setMockClassName($name)</literal> can be used to specify a class name for the generated test double class.</para></listitem>
-      <listitem><para><literal>disableOriginalConstructor()</literal> can be used to disable the call to the original class' constructor.</para></listitem>
-      <listitem><para><literal>disableOriginalClone()</literal> can be used to disable the call to the original class' clone constructor.</para></listitem>
-      <listitem><para><literal>disableAutoload()</literal> can be used to disable <literal>__autoload()</literal> during the generation of the test double class.</para></listitem>
+      <listitem><para><literal>setMethods(array $methods)</literal> 可以在 Mock 生成器对象上调用，来指定哪些方法将被替换为可配置的测试提升。其他方法的行为不会有所改变。如果调用 <literal>setMethods(NULL)</literal>，那么没有方法会被替换。</para></listitem>
+      <listitem><para><literal>setConstructorArgs(array $args)</literal> 可用于提供传递给原版类的构造函数（默认情况下不会被替换为山寨实现）的参数数组。</para></listitem>
+      <listitem><para><literal>setMockClassName($name)</literal> 可用于指定生成的测试替身类的类名。</para></listitem>
+      <listitem><para><literal>disableOriginalConstructor()</literal> 参数可用于禁用对原版类的构造方法的调用。</para></listitem>
+      <listitem><para><literal>disableOriginalClone()</literal> 可用于禁用对原版类的克隆构造方法的调用。</para></listitem>
+      <listitem><para><literal>disableAutoload()</literal> 可用于在测试替身类的生成期间禁用 <literal>__autoload()</literal>。</para></listitem>
     </itemizedlist>
 
     <example id="test-doubles.stubs.examples.StubTest2.php">
@@ -182,7 +137,7 @@ class StubTest extends PHPUnit_Framework_TestCase
       <indexterm><primary>method()</primary></indexterm>
       <indexterm><primary>will()</primary></indexterm>
       <indexterm><primary>returnValue()</primary></indexterm>
-      <title>Using the Mock Builder API can be used to configure the generated test double class</title>
+      <title>使用可用于配置生成的测试替身类的 Mock 生成器 API</title>
       <programlisting><![CDATA[<?php
 require_once 'SomeClass.php';
 
@@ -190,18 +145,17 @@ class StubTest extends PHPUnit_Framework_TestCase
 {
     public function testStub()
     {
-        // Create a stub for the SomeClass class.
+        // 创建 SomeClass 类的 stub。
         $stub = $this->getMockBuilder('SomeClass')
                      ->disableOriginalConstructor()
                      ->getMock();
 
-        // Configure the stub.
+        // 配置 stub。
         $stub->expects($this->any())
              ->method('doSomething')
              ->will($this->returnValue('foo'));
 
-        // Calling $stub->doSomething() will now return
-        // 'foo'.
+        //  现在调用 $stub->doSomething() 将返回 'foo'。
         $this->assertEquals('foo', $stub->doSomething());
     }
 }
@@ -209,11 +163,7 @@ class StubTest extends PHPUnit_Framework_TestCase
     </example>
 
     <para>
-      Sometimes you want to return one of the arguments of a method call
-      (unchanged) as the result of a stubbed method call.
-      <xref linkend="test-doubles.stubs.examples.StubTest3.php"/> shows how you
-      can achieve this using <literal>returnArgument()</literal> instead of
-      <literal>returnValue()</literal>.
+      有时想要将（未改变的）方法调用时所使用的参数之一作为 stub 方法的调用结果来返回。<xref linkend="test-doubles.stubs.examples.StubTest3.php"/>展示了如何用 <literal>returnArgument()</literal> 代替 <literal>returnValue()</literal> 来做到这点。
     </para>
 
     <example id="test-doubles.stubs.examples.StubTest3.php">
@@ -222,7 +172,7 @@ class StubTest extends PHPUnit_Framework_TestCase
       <indexterm><primary>method()</primary></indexterm>
       <indexterm><primary>will()</primary></indexterm>
       <indexterm><primary>returnArgument()</primary></indexterm>
-      <title>Stubbing a method call to return one of the arguments</title>
+      <title>Stub 一个方法的调用，返回参数之一</title>
       <programlisting><![CDATA[<?php
 require_once 'SomeClass.php';
 
@@ -230,18 +180,18 @@ class StubTest extends PHPUnit_Framework_TestCase
 {
     public function testReturnArgumentStub()
     {
-        // Create a stub for the SomeClass class.
+        // 创建 SomeClass 类的 stub。
         $stub = $this->getMock('SomeClass');
 
-        // Configure the stub.
+        // 配置 stub。
         $stub->expects($this->any())
              ->method('doSomething')
              ->will($this->returnArgument(0));
 
-        // $stub->doSomething('foo') returns 'foo'
+        // $stub->doSomething('foo') 返回 'foo'
         $this->assertEquals('foo', $stub->doSomething('foo'));
 
-        // $stub->doSomething('bar') returns 'bar'
+        // $stub->doSomething('bar') 返回 'bar'
         $this->assertEquals('bar', $stub->doSomething('bar'));
     }
 }
@@ -249,10 +199,7 @@ class StubTest extends PHPUnit_Framework_TestCase
     </example>
 
     <para>
-      When testing a fluent interface, it is sometimes useful to have a stubbed
-      method return a reference to the stubbed object.
-      <xref linkend="test-doubles.stubs.examples.StubTest4.php"/> shows how you
-      can use <literal>returnSelf()</literal> to achiveve this.
+      在对流畅式接口进行测试时，让某个 stub 方法返回对 stub 对象的引用有时会很有用。<xref linkend="test-doubles.stubs.examples.StubTest4.php"/> 展示了如何用 <literal>returnSelf()</literal> 来做到这点。
     </para>
 
     <example id="test-doubles.stubs.examples.StubTest4.php">
@@ -261,7 +208,7 @@ class StubTest extends PHPUnit_Framework_TestCase
       <indexterm><primary>method()</primary></indexterm>
       <indexterm><primary>will()</primary></indexterm>
       <indexterm><primary>returnSelf()</primary></indexterm>
-      <title>Stubbing a method call to return a reference to the stub object</title>
+      <title>Stub 一个方法的调用，返回对 stub 对象的引用</title>
       <programlisting><![CDATA[<?php
 require_once 'SomeClass.php';
 
@@ -269,15 +216,15 @@ class StubTest extends PHPUnit_Framework_TestCase
 {
     public function testReturnSelf()
     {
-        // Create a stub for the SomeClass class.
+        // 创建 SomeClass 类的 stub。
         $stub = $this->getMock('SomeClass');
 
-        // Configure the stub.
+        // 配置 stub。
         $stub->expects($this->any())
              ->method('doSomething')
              ->will($this->returnSelf());
 
-        // $stub->doSomething() returns $stub
+        // $stub->doSomething() 返回 $stub
         $this->assertSame($stub, $stub->doSomething());
     }
 }
