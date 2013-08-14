@@ -6,7 +6,7 @@ function webify_directory($directory, $language, $version)
 {
     $toc = get_substring(
       file_get_contents($directory . DIRECTORY_SEPARATOR . 'index.html'),
-      '<dl class="toc">',
+      '<dl class="toc hideOverflow">',
       '</dl>',
       TRUE,
       TRUE,
