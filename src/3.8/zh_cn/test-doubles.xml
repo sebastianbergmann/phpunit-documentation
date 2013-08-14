@@ -35,7 +35,7 @@
     <title>局限性</title>
 
     <para>
-      请注意，<literal>final</literal>、<literal>private</literal> 和 <literal>static</literal> 方法无法对其进行 stub 或 mock。PHPUnit 的测试替身功能将会忽略它们，并维持它们的原始行为。
+      请注意，<literal>final</literal>、<literal>private</literal> 和 <literal>static</literal> 方法无法对其进行短连(stub)或模仿(mock)。PHPUnit 的测试替身功能将会忽略它们，并维持它们的原始行为。
     </para>
   </note>
 
@@ -48,22 +48,22 @@
   </note>
 
   <section id="test-doubles.stubs">
-    <title>Stubs</title>
+    <title>短连件(Stub)</title>
 
     <para>
       <indexterm><primary>Stub</primary></indexterm>
 
-      将对象替换为（可选地）返回配置好的返回值的测试替身的实践方法被称为 <emphasis>stubbing</emphasis>。可以用 <emphasis>stub</emphasis> 来“替换掉被测系统所依赖的实际组件，这样测试就有了对被测系统的间接输入的控制点。这使得测试能强制安排被测系统的执行路径，否则被测系统可能无法执行”。
+      将对象替换为（可选地）返回配置好的返回值的测试替身的实践方法被称为<emphasis>短连(stubbing)</emphasis>。可以用<emphasis>短连件(stub)</emphasis> 来“替换掉被测系统所依赖的实际组件，这样测试就有了对被测系统的间接输入的控制点。这使得测试能强制安排被测系统的执行路径，否则被测系统可能无法执行”。
     </para>
 
     <para>
       <indexterm><primary>Fluent Interface （流畅式接口）</primary></indexterm>
 
-      <xref linkend="test-doubles.stubs.examples.StubTest.php" /> 展示了如何对方法的调用进行 stub 以及如何设定返回值。首先用 <literal>PHPUnit_Framework_TestCase</literal> 类提供的 <literal>getMock()</literal> 方法来建立一个 stub 对象，它表面看起来像是 <literal>SomeClass</literal> <xref linkend="test-doubles.stubs.examples.SomeClass.php" />)类的实例。随后用 PHPUnit 提供的<ulink url="http://martinfowler.com/bliki/FluentInterface.html">流畅式接口</ulink>来指定 stub 的行为。本质上，这意味着不需要建立多个临时对象然后再把它们捆到一起。取而代之的是范例中所示的链式方法调用。这使得代码更加易读并更加“流畅”。
+      <xref linkend="test-doubles.stubs.examples.StubTest.php" /> 展示了如何对方法的调用进行短连以及如何设定返回值。首先用 <literal>PHPUnit_Framework_TestCase</literal> 类提供的 <literal>getMock()</literal> 方法来建立一个短连件对象，它表面看起来像是 <literal>SomeClass</literal>类（<xref linkend="test-doubles.stubs.examples.SomeClass.php" />）的实例。随后用 PHPUnit 提供的<ulink url="http://martinfowler.com/bliki/FluentInterface.html">流畅式接口</ulink>来指定短连件的行为。本质上，这意味着不需要建立多个临时对象然后再把它们捆到一起。取而代之的是范例中所示的链式方法调用。这使得代码更加易读并更加“流畅”。
     </para>
 
     <example id="test-doubles.stubs.examples.SomeClass.php">
-      <title>想要 stub 的类</title>
+      <title>需要对其进行短连的类</title>
       <programlisting><![CDATA[<?php
 class SomeClass
 {
@@ -81,7 +81,7 @@ class SomeClass
       <indexterm><primary>method()</primary></indexterm>
       <indexterm><primary>will()</primary></indexterm>
       <indexterm><primary>returnValue()</primary></indexterm>
-      <title>对某个方法的调用进行 stub，返回固定值</title>
+      <title>对某个方法的调用进行短连，返回固定值</title>
       <programlisting><![CDATA[<?php
 require_once 'SomeClass.php';
 
@@ -89,10 +89,10 @@ class StubTest extends PHPUnit_Framework_TestCase
 {
     public function testStub()
     {
-        // 创建 SomeClass 类的 stub。
+        // 为 SomeClass 类创建短连件。
         $stub = $this->getMock('SomeClass');
 
-        // 配置 stub。
+        // 配置短连件。
         $stub->expects($this->any())
              ->method('doSomething')
              ->will($this->returnValue('foo'));
@@ -119,11 +119,11 @@ class StubTest extends PHPUnit_Framework_TestCase
     </itemizedlist>
 
     <para>
-      另外，Mock 生成器 API 也可以用来对生成的测试替身类进行配置。<xref linkend="test-doubles.stubs.examples.StubTest2.php"/>展示了一个例子。下面是可以用于 Mock 生成器的流畅式接口的方法列表：
+      另外，仿件生成器(Mock Builder) API 也可以用来对生成的测试替身类进行配置。<xref linkend="test-doubles.stubs.examples.StubTest2.php"/>展示了一个例子。下面列出了可以在仿件生成器的流畅式接口中使用的方法：
     </para>
 
     <itemizedlist>
-      <listitem><para><literal>setMethods(array $methods)</literal> 可以在 Mock 生成器对象上调用，来指定哪些方法将被替换为可配置的测试提升。其他方法的行为不会有所改变。如果调用 <literal>setMethods(NULL)</literal>，那么没有方法会被替换。</para></listitem>
+      <listitem><para><literal>setMethods(array $methods)</literal> 可以在仿件生成器对象上调用，来指定哪些方法将被替换为可配置的测试提升。其他方法的行为不会有所改变。如果调用 <literal>setMethods(NULL)</literal>，那么没有方法会被替换。</para></listitem>
       <listitem><para><literal>setConstructorArgs(array $args)</literal> 可用于提供传递给原版类的构造函数（默认情况下不会被替换为山寨实现）的参数数组。</para></listitem>
       <listitem><para><literal>setMockClassName($name)</literal> 可用于指定生成的测试替身类的类名。</para></listitem>
       <listitem><para><literal>disableOriginalConstructor()</literal> 参数可用于禁用对原版类的构造方法的调用。</para></listitem>
@@ -137,7 +137,7 @@ class StubTest extends PHPUnit_Framework_TestCase
       <indexterm><primary>method()</primary></indexterm>
       <indexterm><primary>will()</primary></indexterm>
       <indexterm><primary>returnValue()</primary></indexterm>
-      <title>使用可用于配置生成的测试替身类的 Mock 生成器 API</title>
+      <title>使用可用于配置生成的测试替身类的仿件生成器 API</title>
       <programlisting><![CDATA[<?php
 require_once 'SomeClass.php';
 
@@ -145,12 +145,12 @@ class StubTest extends PHPUnit_Framework_TestCase
 {
     public function testStub()
     {
-        // 创建 SomeClass 类的 stub。
+        // 为 SomeClass 类创建短连件。
         $stub = $this->getMockBuilder('SomeClass')
                      ->disableOriginalConstructor()
                      ->getMock();
 
-        // 配置 stub。
+        // 配置短连件。
         $stub->expects($this->any())
              ->method('doSomething')
              ->will($this->returnValue('foo'));
@@ -163,7 +163,7 @@ class StubTest extends PHPUnit_Framework_TestCase
     </example>
 
     <para>
-      有时想要将（未改变的）方法调用时所使用的参数之一作为 stub 方法的调用结果来返回。<xref linkend="test-doubles.stubs.examples.StubTest3.php"/>展示了如何用 <literal>returnArgument()</literal> 代替 <literal>returnValue()</literal> 来做到这点。
+      有时想要将（未改变的）方法调用时所使用的参数之一作为短连的方法的调用结果来返回。<xref linkend="test-doubles.stubs.examples.StubTest3.php"/>展示了如何用 <literal>returnArgument()</literal> 代替 <literal>returnValue()</literal> 来做到这点。
     </para>
 
     <example id="test-doubles.stubs.examples.StubTest3.php">
@@ -172,7 +172,7 @@ class StubTest extends PHPUnit_Framework_TestCase
       <indexterm><primary>method()</primary></indexterm>
       <indexterm><primary>will()</primary></indexterm>
       <indexterm><primary>returnArgument()</primary></indexterm>
-      <title>Stub 一个方法的调用，返回参数之一</title>
+      <title>对某个方法的调用进行短连，返回参数之一</title>
       <programlisting><![CDATA[<?php
 require_once 'SomeClass.php';
 
@@ -180,10 +180,10 @@ class StubTest extends PHPUnit_Framework_TestCase
 {
     public function testReturnArgumentStub()
     {
-        // 创建 SomeClass 类的 stub。
+        // 为 SomeClass 类创建短连件。
         $stub = $this->getMock('SomeClass');
 
-        // 配置 stub。
+        // 配置短连件。
         $stub->expects($this->any())
              ->method('doSomething')
              ->will($this->returnArgument(0));
@@ -199,7 +199,7 @@ class StubTest extends PHPUnit_Framework_TestCase
     </example>
 
     <para>
-      在对流畅式接口进行测试时，让某个 stub 方法返回对 stub 对象的引用有时会很有用。<xref linkend="test-doubles.stubs.examples.StubTest4.php"/> 展示了如何用 <literal>returnSelf()</literal> 来做到这点。
+      在对流畅式接口进行测试时，让某个短连的方法返回对短连件对象的引用有时会很有用。<xref linkend="test-doubles.stubs.examples.StubTest4.php"/> 展示了如何用 <literal>returnSelf()</literal> 来做到这点。
     </para>
 
     <example id="test-doubles.stubs.examples.StubTest4.php">
@@ -208,7 +208,7 @@ class StubTest extends PHPUnit_Framework_TestCase
       <indexterm><primary>method()</primary></indexterm>
       <indexterm><primary>will()</primary></indexterm>
       <indexterm><primary>returnSelf()</primary></indexterm>
-      <title>Stub 一个方法的调用，返回对 stub 对象的引用</title>
+      <title>对方法的调用进行短连，返回对短连件对象的引用</title>
       <programlisting><![CDATA[<?php
 require_once 'SomeClass.php';
 
@@ -216,10 +216,10 @@ class StubTest extends PHPUnit_Framework_TestCase
 {
     public function testReturnSelf()
     {
-        // 创建 SomeClass 类的 stub。
+        // 为 SomeClass 类创建短连件。
         $stub = $this->getMock('SomeClass');
 
-        // 配置 stub。
+        // 配置短连件。
         $stub->expects($this->any())
              ->method('doSomething')
              ->will($this->returnSelf());
@@ -232,12 +232,7 @@ class StubTest extends PHPUnit_Framework_TestCase
     </example>
 
     <para>
-      Sometimes a stubbed method should return different values depending on
-      a predefined list of arguments.  You can use
-      <literal>returnValueMap()</literal> to create a map that associates
-      arguments with corresponding return values. See
-      <xref linkend="test-doubles.stubs.examples.StubTest5.php"/> for
-      an example.
+      有时候，短连的方法需要根据预定义的参数清单来返回不同的值。可以用 <literal>returnValueMap()</literal> 方法将参数和相应的返回值关联起来建立映射。范例参见<xref linkend="test-doubles.stubs.examples.StubTest5.php"/>。
     </para>
 
     <example id="test-doubles.stubs.examples.StubTest5.php">
@@ -246,7 +241,7 @@ class StubTest extends PHPUnit_Framework_TestCase
       <indexterm><primary>method()</primary></indexterm>
       <indexterm><primary>will()</primary></indexterm>
       <indexterm><primary>returnValueMap()</primary></indexterm>
-      <title>Stubbing a method call to return the value from a map</title>
+      <title>对方法的调用进行短连，按照映射确定返回值</title>
       <programlisting><![CDATA[<?php
 require_once 'SomeClass.php';
 
@@ -254,22 +249,21 @@ class StubTest extends PHPUnit_Framework_TestCase
 {
     public function testReturnValueMapStub()
     {
-        // Create a stub for the SomeClass class.
+        // 为 SomeClass 类创建短连件。
         $stub = $this->getMock('SomeClass');
 
-        // Create a map of arguments to return values.
+        // 创建从参数到返回值的映射。
         $map = array(
           array('a', 'b', 'c', 'd'),
           array('e', 'f', 'g', 'h')
         );
 
-        // Configure the stub.
+        // 配置短连件。
         $stub->expects($this->any())
              ->method('doSomething')
              ->will($this->returnValueMap($map));
 
-        // $stub->doSomething() returns different values depending on
-        // the provided arguments.
+        // $stub->doSomething() 根据提供的参数返回不同的值。
         $this->assertEquals('d', $stub->doSomething('a', 'b', 'c'));
         $this->assertEquals('h', $stub->doSomething('e', 'f', 'g'));
     }
@@ -278,12 +272,7 @@ class StubTest extends PHPUnit_Framework_TestCase
     </example>
 
     <para>
-      When the stubbed method call should return a calculated value instead of
-      a fixed one (see <literal>returnValue()</literal>) or an (unchanged)
-      argument (see <literal>returnArgument()</literal>), you can use
-      <literal>returnCallback()</literal> to have the stubbed method return the
-      result of a callback function or method. See
-      <xref linkend="test-doubles.stubs.examples.StubTest6.php"/> for an example.
+      如果短连的方法需要返回计算得到的值而不是固定值（参见 <literal>returnValue()</literal>）或某个（未改变的）参数（参见 <literal>returnArgument()</literal>），可以用 <literal>returnCallback()</literal> 来让短连的方法返回回调函数或方法的结果。范例参见 <xref linkend="test-doubles.stubs.examples.StubTest6.php"/>。
     </para>
 
     <example id="test-doubles.stubs.examples.StubTest6.php">
@@ -292,7 +281,7 @@ class StubTest extends PHPUnit_Framework_TestCase
       <indexterm><primary>method()</primary></indexterm>
       <indexterm><primary>will()</primary></indexterm>
       <indexterm><primary>returnCallback()</primary></indexterm>
-      <title>Stubbing a method call to return a value from a callback</title>
+      <title>对方法的调用进行短连，由回调生成返回值</title>
       <programlisting><![CDATA[<?php
 require_once 'SomeClass.php';
 
@@ -300,15 +289,15 @@ class StubTest extends PHPUnit_Framework_TestCase
 {
     public function testReturnCallbackStub()
     {
-        // Create a stub for the SomeClass class.
+        // 为 SomeClass 类创建短连件。
         $stub = $this->getMock('SomeClass');
 
-        // Configure the stub.
+        // 配置短连件。
         $stub->expects($this->any())
              ->method('doSomething')
              ->will($this->returnCallback('str_rot13'));
 
-        // $stub->doSomething($argument) returns str_rot13($argument)
+        // $stub->doSomething($argument) 返回 str_rot13($argument)
         $this->assertEquals('fbzrguvat', $stub->doSomething('something'));
     }
 }
@@ -316,11 +305,7 @@ class StubTest extends PHPUnit_Framework_TestCase
     </example>
 
     <para>
-      A simpler alternative to setting up a callback method may be to
-      specify a list of desired return values. You can do this with
-      the <literal>onConsecutiveCalls()</literal> method. See
-      <xref linkend="test-doubles.stubs.examples.StubTest7.php"/> for
-      an example.
+      相比于建立回调方法，有一个更简单的选择是直接给出期望返回值的列表。可以用 <literal>onConsecutiveCalls()</literal> 方法来做到这个。范例参见 <xref linkend="test-doubles.stubs.examples.StubTest7.php"/>。
     </para>
 
     <example id="test-doubles.stubs.examples.StubTest7.php">
@@ -329,8 +314,7 @@ class StubTest extends PHPUnit_Framework_TestCase
       <indexterm><primary>method()</primary></indexterm>
       <indexterm><primary>will()</primary></indexterm>
       <indexterm><primary>onConsecutiveCalls()</primary></indexterm>
-      <title>Stubbing a method call to return a list of values in the
-      specified order</title>
+      <title>对方法的调用进行短连，按照指定顺序返回列表中的值</title>
       <programlisting><![CDATA[<?php
 require_once 'SomeClass.php';
 
@@ -338,15 +322,15 @@ class StubTest extends PHPUnit_Framework_TestCase
 {
     public function testOnConsecutiveCallsStub()
     {
-        // Create a stub for the SomeClass class.
+        // 为 SomeClass 类创建短连件。
         $stub = $this->getMock('SomeClass');
 
-        // Configure the stub.
+        // 配置短连件。
         $stub->expects($this->any())
              ->method('doSomething')
              ->will($this->onConsecutiveCalls(2, 3, 5, 7));
 
-        // $stub->doSomething() returns a different value each time
+        // $stub->doSomething() 每次返回值都不同
         $this->assertEquals(2, $stub->doSomething());
         $this->assertEquals(3, $stub->doSomething());
         $this->assertEquals(5, $stub->doSomething());
@@ -357,9 +341,7 @@ class StubTest extends PHPUnit_Framework_TestCase
 
 
     <para>
-      Instead of returning a value, a stubbed method can also raise an
-      exception. <xref linkend="test-doubles.stubs.examples.StubTest8.php"/>
-      shows how to use <literal>throwException()</literal> to do this.
+      除了返回一个值之外，短连的方法还能抛出一个异常。<xref linkend="test-doubles.stubs.examples.StubTest8.php"/>展示了如何用 <literal>throwException()</literal> 做到这点。
     </para>
 
     <example id="test-doubles.stubs.examples.StubTest8.php">
@@ -368,7 +350,7 @@ class StubTest extends PHPUnit_Framework_TestCase
       <indexterm><primary>method()</primary></indexterm>
       <indexterm><primary>will()</primary></indexterm>
       <indexterm><primary>throwException()</primary></indexterm>
-      <title>Stubbing a method call to throw an exception</title>
+      <title>对方法的调用进行短连，抛出异常</title>
       <programlisting><![CDATA[<?php
 require_once 'SomeClass.php';
 
@@ -376,15 +358,15 @@ class StubTest extends PHPUnit_Framework_TestCase
 {
     public function testThrowExceptionStub()
     {
-        // Create a stub for the SomeClass class.
+        // 为 SomeClass 类创建短连件。
         $stub = $this->getMock('SomeClass');
 
-        // Configure the stub.
+        // 配置短连件。
         $stub->expects($this->any())
              ->method('doSomething')
              ->will($this->throwException(new Exception));
 
-        // $stub->doSomething() throws Exception
+        // $stub->doSomething() 抛出异常
         $stub->doSomething();
     }
 }
@@ -414,7 +396,7 @@ class StubTest extends PHPUnit_Framework_TestCase
   </section>
 
   <section id="test-doubles.mock-objects">
-    <title>Mock Objects</title>
+    <title>仿件对象(Mock Object)</title>
 
     <para>
       The practice of replacing an object with a test double that verifies
