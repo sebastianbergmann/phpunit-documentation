@@ -374,24 +374,11 @@ class StubTest extends PHPUnit_Framework_TestCase
     </example>
 
     <para>
-      Alternatively, you can write the stub yourself and improve your design
-      along the way. Widely used resources are accessed through a single façade,
-      so you can easily replace the resource with the stub. For example,
-      instead of having direct database calls scattered throughout the code,
-      you have a single <literal>Database</literal> object, an implementor of
-      the <literal>IDatabase</literal> interface. Then, you can create a stub
-      implementation of <literal>IDatabase</literal> and use it for your
-      tests. You can even create an option for running the tests with the
-      stub database or the real database, so you can use your tests for both
-      local testing during development and integration testing with the real
-      database.
+      另外，也可以自行编写短连件，并在此过程中改善设计。在系统中被广泛使用的资源是通过单个外观(facade)来访问的，因此很容易就能用短连件替换掉资源。例如，将散落在代码各处的对数据库的直接调用替换为单个 <literal>Database</literal> 对象，这个对象实现了 <literal>IDatabase</literal> 接口。接下来，就可以创建实现了 <literal>IDatabase</literal> 的短连件并在测试中使用之。甚至可以创建一个选项来控制是用短连件还是用真实数据库来运行测试，这样测试就既能在开发过程中用作本地测试，又能在实际数据库环境中进行集成测试。
     </para>
 
     <para>
-      Functionality that needs to be stubbed out tends to cluster in the same
-      object, improving cohesion. By presenting the functionality with a
-      single, coherent interface you reduce the coupling with the rest of the
-      system.
+      需要进行短连的功能往往集中在同一个对象中，这就改善了内聚度。 将功能通过单一且一致的界面呈现出来，就降低了这部分与系统其他部分之间的耦合度。
     </para>
   </section>
 
@@ -399,33 +386,21 @@ class StubTest extends PHPUnit_Framework_TestCase
     <title>仿件对象(Mock Object)</title>
 
     <para>
-      The practice of replacing an object with a test double that verifies
-      expectations, for instance asserting that a method has been called, is
-      refered to as <emphasis>mocking</emphasis>.
+      将对象替换为能验证预期行为（例如断言某个方法必会被调用）的测试替身的实践方法被称为<emphasis>模仿(mocking)</emphasis>。
     </para>
 
     <para>
-      <indexterm><primary>Mock Object</primary></indexterm>
+      <indexterm><primary>Mock Object （仿件对象）</primary></indexterm>
 
-      You can use a <emphasis>mock object</emphasis> "as an observation point
-      that is used to verify the indirect outputs of the SUT as it is exercised.
-      Typically, the mock object also includes the functionality of a test stub
-      in that it must return values to the SUT if it hasn't already failed the
-      tests but the emphasis is on the verification of the indirect outputs.
-      Therefore, a mock object is lot more than just a test stub plus
-      assertions; it is used a fundamentally different way".
+      可以用<emphasis>仿件对象(mock object)</emphasis>“作为观察点来核实被测试系统在测试中的间接输出。通常，仿件对象还需要包括短连件的功能，因为如果测试尚未失败则仿件对象需要向被测系统返回一些值，但是其重点还是在对间接输出的核实上。因此，仿件对象远不止是短连件加断言，它是以一种从根本上完全不同的方式来使用的。”
     </para>
 
     <para>
-      Here is an example: suppose we want to test that the correct method,
-      <literal>update()</literal> in our example, is called on an object that
-      observes another object. <xref linkend="test-doubles.mock-objects.examples.SUT.php"/>
-      shows the code for the <literal>Subject</literal> and <literal>Observer</literal>
-      classes that are part of the System under Test (SUT).
+      这有个例子：假设需要测试当前方法，在例子中是 <literal>update()</literal>，确实在一个观察着另外一个对象的对象中上被调用了。<xref linkend="test-doubles.mock-objects.examples.SUT.php"/>展示了被测系统(SUT)中 <literal>Subject</literal> 和 <literal>Observer</literal> 两个类的代码。
     </para>
 
     <example id="test-doubles.mock-objects.examples.SUT.php">
-      <title>The Subject and Observer classes that are part of the System under Test (SUT)</title>
+      <title>被测系统(SUT)中 Subject 与 Observer 类的代码</title>
       <programlisting><![CDATA[<?php
 class Subject
 {
@@ -438,10 +413,10 @@ class Subject
 
     public function doSomething()
     {
-        // Do something.
+        // 做点什么。
         // ...
 
-        // Notify observers that we did something.
+        // 通知观察者。
         $this->notify('something');
     }
 
@@ -459,69 +434,60 @@ class Subject
         }
     }
 
-    // Other methods.
+    // 其他方法。
 }
 
 class Observer
 {
     public function update($argument)
     {
-        // Do something.
+        // 做点什么。
     }
 
     public function reportError($errorCode, $errorMessage, Subject $subject)
     {
-        // Do something
+        // 做点什么。
     }
 
-    // Other methods.
+    // 其他方法。
 }
 ?>]]></programlisting>
     </example>
 
     <para>
-      <indexterm><primary>Mock Object</primary></indexterm>
+      <indexterm><primary>Mock Object （仿件对象）</primary></indexterm>
 
-      <xref linkend="test-doubles.mock-objects.examples.SubjectTest.php" />
-      shows how to use a mock object to test the interaction between
-      <literal>Subject</literal> and <literal>Observer</literal> objects.
+      <xref linkend="test-doubles.mock-objects.examples.SubjectTest.php" />展示了如何用仿件对象来测试
+      <literal>Subject</literal> 和 <literal>Observer</literal> 对象之间的互动。
     </para>
 
     <para>
-      We first use the <literal>getMock()</literal> method that is provided by
-      the <literal>PHPUnit_Framework_TestCase</literal> class to set up a mock
-      object for the <literal>Observer</literal>. Since we give an array as the
-      second (optional) parameter for the <literal>getMock()</literal> method,
-      only the <literal>update()</literal> method of the
-      <literal>Observer</literal> class is replaced by a mock implementation.
+      首先用 <literal>PHPUnit_Framework_TestCase</literal> 类提供的 <literal>getMock()</literal> 方法建立 <literal>Observer</literal> 的仿件对象。由于给出了一个数组做为 <literal>getMock()</literal> 方法的第二（可选）参数，<literal>Observer</literal> 类只有 <literal>update()</literal> 方法会被替换为仿实现。
     </para>
 
     <example id="test-doubles.mock-objects.examples.SubjectTest.php">
-      <title>Testing that a method gets called once and with a specified argument</title>
+      <title>测试某个方法会以特定参数被调用一次</title>
       <programlisting><![CDATA[<?php
 class SubjectTest extends PHPUnit_Framework_TestCase
 {
     public function testObserversAreUpdated()
     {
-        // Create a mock for the Observer class,
-        // only mock the update() method.
+        // 为 Observer 类建立仿件对象，只模仿 update() 方法。
         $observer = $this->getMock('Observer', array('update'));
 
-        // Set up the expectation for the update() method
-        // to be called only once and with the string 'something'
-        // as its parameter.
+        // 建立预期状况：update() 方法将会被调用一次，
+        // 并且将以字符串 'something' 为参数。
         $observer->expects($this->once())
                  ->method('update')
                  ->with($this->equalTo('something'));
 
-        // Create a Subject object and attach the mocked
-        // Observer object to it.
+        // 创建 Subject 对象，并将模仿的 Observer 对象连接其上。
         $subject = new Subject;
         $subject->attach($observer);
 
-        // Call the doSomething() method on the $subject object
-        // which we expect to call the mocked Observer object's
-        // update() method with the string 'something'.
+        // 在 $subject 对象上调用 doSomething() 方法，
+        // 预期将以字符串 'something' 为参数调用 
+        // Observer 仿件对象的 update() 方法。
         $subject->doSomething();
     }
 }
@@ -529,22 +495,17 @@ class SubjectTest extends PHPUnit_Framework_TestCase
     </example>
 
     <para>
-      The <literal>with()</literal> method can take any number of
-      arguments, corresponding to the number of parameters to the
-      method being mocked. You can specify more advanced constraints
-      on the method argument than a simple match.
+      <literal>with()</literal> 方法可以携带任何数量的参数，对应于被模仿的方法的参数数量。可以对方法的参数指定更加高等的约束而不仅是简单的匹配。
     </para>
 
     <example id="test-doubles.mock-objects.examples.MultiParameterTest.php">
-      <title>Testing that a method gets called with a number of
-      arguments constrained in different ways</title>
+      <title>测试某个方法将会以特定数量的参数进行调用，并且对各个参数以多种方式进行约束</title>
       <programlisting><![CDATA[<?php
 class SubjectTest extends PHPUnit_Framework_TestCase
 {
     public function testErrorReported()
     {
-        // Create a mock for the Observer class, mocking the
-        // reportError() method
+        // 为 Observer 类建立仿件，对 reportError() 方法进行模仿
         $observer = $this->getMock('Observer', array('reportError'));
 
         $observer->expects($this->once())
@@ -556,8 +517,8 @@ class SubjectTest extends PHPUnit_Framework_TestCase
         $subject = new Subject;
         $subject->attach($observer);
 
-        // The doSomethingBad() method should report an error to the observer
-        // via the reportError() method
+        // doSomethingBad() 方法应当会通过（observer的）reportError()方法
+        //向 observer 报告错误。
         $subject->doSomethingBad();
     }
 }
@@ -565,7 +526,7 @@ class SubjectTest extends PHPUnit_Framework_TestCase
     </example>
 
     <example id="test-doubles.mock-objects.examples.clone-object-parameters-usecase.php">
-      <title>Testing that a method gets called once and with the identical object as was passed</title>
+      <title>测试某个方法将会被调用一次，并且以某个特定对象作为参数。</title>
       <programlisting><![CDATA[<?php
 class FooTest extends PHPUnit_Framework_TestCase
 {
@@ -585,7 +546,7 @@ class FooTest extends PHPUnit_Framework_TestCase
     </example>
 
     <example id="test-doubles.mock-objects.examples.enable-clone-object-parameters.php">
-      <title>Create a mock object with cloning parameters enabled</title>
+      <title>创建仿件对象时启用参数克隆</title>
       <programlisting><![CDATA[<?php
 class FooTest extends PHPUnit_Framework_TestCase
 {
@@ -604,60 +565,55 @@ class FooTest extends PHPUnit_Framework_TestCase
             $cloneArguments
         );
 
-        // or using the mock builder
+        // 也可以用仿件生成器
         $mock = $this->getMockBuilder('stdClass')
                      ->enableArgumentCloning()
                      ->getMock();
 
-        // now your mock clones parameters so the identicalTo constraint
-        // will fail.
+        // 现在仿件将对参数进行克隆，因此 identicalTo 约束将会失败。
     }
 }
 ?>]]></programlisting>
     </example>
 
     <para>
-      <xref linkend="writing-tests-for-phpunit.assertions.assertThat.tables.constraints"/>
-      shows the constraints that can be applied to method arguments and
-      <xref linkend="test-doubles.mock-objects.tables.matchers"/>
-      shows the matchers that are available to specify the number of
-      invocations.
+      <xref linkend="writing-tests-for-phpunit.assertions.assertThat.tables.constraints"/>列出了可以应用于方法参数的各种约束，<xref linkend="test-doubles.mock-objects.tables.matchers"/>列出了可以用于指定调用次数的各种匹配器。
     </para>
 
     <table id="test-doubles.mock-objects.tables.matchers">
-      <title>Matchers</title>
+      <title>匹配器</title>
 
       <tgroup cols="2" align="left" colsep="1" rowsep="1">
         <thead>
           <row>
-            <entry>Matcher</entry>
-            <entry>Meaning</entry>
+            <entry>匹配器</entry>
+            <entry>含义</entry>
           </row>
         </thead>
         <tbody>
           <row>
             <entry><literal>PHPUnit_Framework_MockObject_Matcher_AnyInvokedCount any()</literal></entry>
-            <entry>Returns a matcher that matches when the method it is evaluated for is executed zero or more times.</entry>
+            <entry>返回一个匹配器，当被评定的方法执行0次或更多次（即任意次数）时匹配成功。</entry>
           </row>
           <row>
             <entry><literal>PHPUnit_Framework_MockObject_Matcher_InvokedCount never()</literal></entry>
-            <entry>Returns a matcher that matches when the method it is evaluated for is never executed.</entry>
+            <entry>返回一个匹配器，当被评定的方法从未执行时匹配成功。</entry>
           </row>
           <row>
             <entry><literal>PHPUnit_Framework_MockObject_Matcher_InvokedAtLeastOnce atLeastOnce()</literal></entry>
-            <entry>Returns a matcher that matches when the method it is evaluated for is executed at least once.</entry>
+            <entry>返回一个匹配器，当被评定的方法执行至少一次时匹配成功。</entry>
           </row>
           <row>
             <entry><literal>PHPUnit_Framework_MockObject_Matcher_InvokedCount once()</literal></entry>
-            <entry>Returns a matcher that matches when the method it is evaluated for is executed exactly once.</entry>
+            <entry>返回一个匹配器，当被评定的方法执行恰好一次时匹配成功。</entry>
           </row>
           <row>
             <entry><literal>PHPUnit_Framework_MockObject_Matcher_InvokedCount exactly(int $count)</literal></entry>
-            <entry>Returns a matcher that matches when the method it is evaluated for is executed exactly <literal>$count</literal> times.</entry>
+            <entry>返回一个匹配器，当被评定的方法执行恰好 <literal>$count</literal> 次时匹配成功。</entry>
           </row>
           <row>
             <entry><literal>PHPUnit_Framework_MockObject_Matcher_InvokedAtIndex at(int $index)</literal></entry>
-            <entry>Returns a matcher that matches when the method it is evaluated for is invoked at the given <literal>$index</literal>.</entry>
+            <entry>返回一个匹配器，当被评定的方法是第 <literal>$index</literal> 个执行的方法时匹配成功。</entry>
           </row>
         </tbody>
       </tgroup>
@@ -665,18 +621,16 @@ class FooTest extends PHPUnit_Framework_TestCase
   </section>
 
   <section id="test-doubles.mocking-traits-and-abstract-classes">
-    <title>Mocking Traits and Abstract Classes</title>
+    <title>对性状(Trait)与抽象类进行模仿</title>
 
     <para>
       <indexterm><primary>getMockForTrait()</primary></indexterm>
 
-      The <literal>getMockForTrait()</literal> method returns a mock object
-      that uses a specified trait. All abstract methods of the given trait
-      are mocked. This allows for testing the concrete methods of a trait.
+      <literal>getMockForTrait()</literal> 方法返回一个使用了特定性状(trait)的仿件对象。给定性状的所有抽象方法将都被模仿。这样就能对性状的具体方法进行测试。
     </para>
 
     <example id="test-doubles.mock-objects.examples.TraitClassTest.php">
-      <title>Testing the concrete methods of a trait</title>
+      <title>对性状的具体方法进行测试</title>
       <programlisting><![CDATA[<?php
 trait AbstractTrait
 {
@@ -706,14 +660,11 @@ class TraitClassTest extends PHPUnit_Framework_TestCase
     <para>
       <indexterm><primary>getMockForAbstractClass()</primary></indexterm>
 
-      The <literal>getMockForAbstractClass()</literal> method returns a mock
-      object for an abstract class. All abstract methods of the given abstract
-      class are mocked. This allows for testing the concrete methods of an
-      abstract class.
+      <literal>getMockForAbstractClass()</literal> 方法返回一个抽象类的仿件对象。给定抽象类的所有抽象方法将都被模仿。这样就能对抽象类的具体方法进行测试。
     </para>
 
     <example id="test-doubles.mock-objects.examples.AbstractClassTest.php">
-      <title>Testing the concrete methods of an abstract class</title>
+      <title>对抽象类的具体方法进行测试</title>
       <programlisting><![CDATA[<?php
 abstract class AbstractClass
 {
@@ -742,28 +693,20 @@ class AbstractClassTest extends PHPUnit_Framework_TestCase
   </section>
 
   <section id="test-doubles.stubbing-and-mocking-web-services">
-    <title>Stubbing and Mocking Web Services</title>
+    <title>对 Web 服务(Web Services)进行短连或模仿</title>
 
     <para>
       <indexterm><primary>getMockFromWsdl()</primary></indexterm>
 
-      When your application interacts with a web service you want to test it
-      without actually interacting with the web service. To make the stubbing
-      and mocking of web services easy, the <literal>getMockFromWsdl()</literal>
-      can be used just like <literal>getMock()</literal> (see above). The only
-      difference is that <literal>getMockFromWsdl()</literal> returns a stub or
-      mock based on a web service description in WSDL and <literal>getMock()</literal>
-      returns a stub or mock based on a PHP class or interface.
+      当应用程序需要和 web 服务进行交互时，会想要在不与 web 服务进行实际交互的情况下对其进行测试。为了简单地对 web 服务进行短连或模仿，可以像使用 <literal>getMock()</literal>（见上文）那样使用 <literal>getMockFromWsdl()</literal>。唯一的区别是 <literal>getMockFromWsdl()</literal> 所返回的短连件或者仿件是基于以 WSDL 描述的 web 服务，而 <literal>getMock()</literal> 返回的短连件或者仿件是基于 PHP 类或接口的。
     </para>
 
     <para>
-      <xref linkend="test-doubles.stubbing-and-mocking-web-services.examples.GoogleTest.php"/>
-      shows how <literal>getMockFromWsdl()</literal> can be used to stub, for
-      example, the web service described in <filename>GoogleSearch.wsdl</filename>.
+      <xref linkend="test-doubles.stubbing-and-mocking-web-services.examples.GoogleTest.php"/>展示了如何用 <literal>getMockFromWsdl()</literal> 来对（例如）<filename>GoogleSearch.wsdl</filename> 中描述的 web 服务进行短连。
     </para>
 
     <example id="test-doubles.stubbing-and-mocking-web-services.examples.GoogleTest.php">
-      <title>Stubbing a web service</title>
+      <title>对 web 服务进行短连</title>
       <programlisting><![CDATA[<?php
 class GoogleTest extends PHPUnit_Framework_TestCase
 {
@@ -806,8 +749,8 @@ class GoogleTest extends PHPUnit_Framework_TestCase
                      ->will($this->returnValue($result));
 
         /**
-         * $googleSearch->doGoogleSearch() will now return a stubbed result and
-         * the web service's doGoogleSearch() method will not be invoked.
+         * $googleSearch->doGoogleSearch() 将会返回短连的结果，
+         * web 服务的 doGoogleSearch() 方法不会被调用。
          */
         $this->assertEquals(
           $result,
@@ -831,38 +774,30 @@ class GoogleTest extends PHPUnit_Framework_TestCase
   </section>
 
   <section id="test-doubles.mocking-the-filesystem">
-    <title>Mocking the Filesystem</title>
+    <title>对文件系统进行模仿</title>
 
     <para>
-      <ulink url="https://github.com/mikey179/vfsStream">vfsStream</ulink>
-      is a <ulink url="http://www.php.net/streams">stream wrapper</ulink> for a
-      <ulink url="http://en.wikipedia.org/wiki/Virtual_file_system">virtual
-      filesystem</ulink> that may be helpful in unit tests to mock the real
-      filesystem.
+      <ulink url="https://github.com/mikey179/vfsStream">vfsStream</ulink> 是对<ulink url="http://en.wikipedia.org/wiki/Virtual_file_system">虚拟文件系统</ulink>的<ulink url="http://www.php.net/streams">流包装器(stream wrapper)</ulink>，可以用于模仿真实文件系统，在单元测试中可能会有所助益。
     </para>
 
     <para>
-      To install vfsStream, the PEAR channel
-      (<systemitem role="URL">pear.bovigo.org</systemitem>) that is used for
-      its distribution needs to be registered with the local PEAR environment:
+      要安装 vfsStream，需要在本地 PEAR 环境中注册用来分发它的 PEAR 频道(<systemitem role="URL">pear.bovigo.org</systemitem>)：
     </para>
 
     <screen><userinput>pear channel-discover pear.bovigo.org</userinput></screen>
 
     <para>
-      This has to be done only once. Now the PEAR Installer can be used to
-      install vfsStream:
+      这只需要做一次就可以了。现在可以用 PEAR 安装程序来安装 vfsStream 了：
     </para>
 
     <screen><userinput>pear install bovigo/vfsStream-beta</userinput></screen>
 
     <para>
-      <xref linkend="test-doubles.mocking-the-filesystem.examples.Example.php"/>
-      shows a class that interacts with the filesystem.
+      <xref linkend="test-doubles.mocking-the-filesystem.examples.Example.php"/>展示了一个与文件系统交互的类。
     </para>
 
     <example id="test-doubles.mocking-the-filesystem.examples.Example.php">
-      <title>A class that interacts with the filesystem</title>
+      <title>一个与文件系统交互的类</title>
       <programlisting><![CDATA[<?php
 class Example
 {
@@ -886,14 +821,12 @@ class Example
     </example>
 
     <para>
-      Without a virtual filesystem such as vfsStream we cannot test the
-      <literal>setDirectory()</literal> method in isolation from external
-      influence (see <xref
-      linkend="test-doubles.mocking-the-filesystem.examples.ExampleTest.php"/>).
+      如果不使用诸如 vfsStream 这样的虚拟文件系统，就无法在隔离外部影响的情况下对 <literal>setDirectory()</literal> 方法进行测试（参见 <xref
+      linkend="test-doubles.mocking-the-filesystem.examples.ExampleTest.php"/>）。
     </para>
 
     <example id="test-doubles.mocking-the-filesystem.examples.ExampleTest.php">
-      <title>Testing a class that interacts with the filesystem</title>
+      <title>对一个与文件系统交互的类进行测试</title>
       <programlisting><![CDATA[<?php
 require_once 'Example.php';
 
@@ -926,23 +859,21 @@ class ExampleTest extends PHPUnit_Framework_TestCase
     </example>
 
     <para>
-      The approach above has several drawbacks:
+      上面的方法有几个缺点：
     </para>
 
     <itemizedlist>
-      <listitem><para>As with any external resource, there might be intermittent problems with the filesystem. This makes tests interacting with it flaky.</para></listitem>
-      <listitem><para>In the <literal>setUp()</literal> and <literal>tearDown()</literal> methods we have to ensure that the directory does not exist before and after the test.</para></listitem>
-      <listitem><para>When the test execution terminates before the <literal>tearDown()</literal> method is invoked the directory will stay in the filesystem.</para></listitem>
+      <listitem><para>和任何其他外部资源一样，文件系统可能会有一些间歇性的问题，这使得和它交互的测试变得不可靠。</para></listitem>
+      <listitem><para>在 <literal>setUp()</literal> 和 <literal>tearDown()</literal> 方法中，必须确保这个目录在测试前和测试后均不存在。</para></listitem>
+      <listitem><para>如果测试在 <literal>tearDown()</literal> 方法被调用之前就终止了，这个目录就会遗留在文件系统中。</para></listitem>
     </itemizedlist>
 
     <para>
-      <xref linkend="test-doubles.mocking-the-filesystem.examples.ExampleTest2.php"/>
-      shows how vfsStream can be used to mock the filesystem in a test for a
-      class that interacts with the filesystem.
+      <xref linkend="test-doubles.mocking-the-filesystem.examples.ExampleTest2.php"/>展示了如何在对与文件系统交互的类进行的测试中使用 vfsStream 来模仿文件系统。
     </para>
 
     <example id="test-doubles.mocking-the-filesystem.examples.ExampleTest2.php">
-      <title>Mocking the filesystem in a test for a class that interacts with the filesystem</title>
+      <title>在对与文件系统交互的类进行的测试中模仿文件系统</title>
       <programlisting><![CDATA[<?php
 require_once 'vfsStream/vfsStream.php';
 require_once 'Example.php';
@@ -968,13 +899,13 @@ class ExampleTest extends PHPUnit_Framework_TestCase
     </example>
 
     <para>
-      This has several advantages:
+      这有几个优点：
     </para>
 
     <itemizedlist>
-      <listitem><para>The test itself is more concise.</para></listitem>
-      <listitem><para>vfsStream gives the test developer full control over what the filesystem environment looks like to the tested code.</para></listitem>
-      <listitem><para>Since the filesystem operations do not operate on the real filesystem anymore, cleanup operations in a <literal>tearDown()</literal> method are no longer required.</para></listitem>
+      <listitem><para>测试本身更加简洁。</para></listitem>
+      <listitem><para>vfsStream 让开发者能够完全控制被测代码所处的文件系统环境。</para></listitem>
+      <listitem><para>由于文件系统操作不再对真实文件系统进行操作，<literal>tearDown()</literal> 方法中的清理操作不再需要了。</para></listitem>
     </itemizedlist>
   </section>
 </chapter>
