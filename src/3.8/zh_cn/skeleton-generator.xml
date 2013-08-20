@@ -1,32 +1,29 @@
 <?xml version="1.0" encoding="utf-8" ?>
 
 <chapter id="skeleton-generator">
-  <title>Skeleton Generator</title>
+  <title>骨架(Skeleton)生成器</title>
 
   <para>
-    The PHPUnit Skeleton Generator is a tool that can generate skeleton test
-    classes from production code classes and vice versa. It can be installed
-    using the following command:
+    PHPUnit 骨架生成器(Skeleton Generator)是用来从成品代码类中生成骨架测试类（或反之）的工具。可以用如下命令安装：
   </para>
 
   <screen><userinput>pear install phpunit/PHPUnit_SkeletonGenerator</userinput></screen>
 
   <section id="skeleton-generator.test">
-    <title>Generating a Test Case Class Skeleton</title>
+    <title>生成测试用例类的骨架</title>
 
   <para>
-    <indexterm><primary>Skeleton Generator</primary></indexterm>
+    <indexterm><primary>Skeleton Generator （骨架生成器）</primary></indexterm>
 
-    When you are writing tests for existing code, you have to write the
-    same code fragments such as <programlisting>public function testMethod()
+    为已存在的代码编写测试时，不得不反复写下类似这样的代码片段：
+<programlisting>public function testMethod()
 {
-}</programlisting> over and over again. The PHPUnit Skeleton Generator can help
-    you by analyzing the code of the existing class and generating a skeleton
-    test case class for it.
+}</programlisting>
+    PHPUnit 骨架生成器能够分析现有类的代码并帮你生成测试用例类的骨架。
   </para>
 
   <example id="skeleton-generator.examples.Calculator.php">
-    <title>The Calculator class</title>
+    <title>Calculator 类</title>
     <programlisting><![CDATA[<?php
 class Calculator
 {
@@ -39,9 +36,7 @@ class Calculator
   </example>
 
   <para>
-    The following example shows how to generate a skeleton test class
-    for a class named <literal>Calculator</literal>
-    (see <xref linkend="skeleton-generator.examples.Calculator.php" />).
+    下面这个例子展示了如何为名为 <literal>Calculator</literal> 的类（参见<xref linkend="skeleton-generator.examples.Calculator.php" />）生成骨架测试类。
   </para>
 
   <screen><userinput>phpunit-skelgen --test Calculator</userinput>
@@ -50,15 +45,13 @@ PHPUnit Skeleton Generator 1.0.0 by Sebastian Bergmann.
 Wrote skeleton for "CalculatorTest" to "/home/sb/CalculatorTest.php".</screen>
 
   <para>
-    <indexterm><primary>Incomplete Test</primary></indexterm>
+    <indexterm><primary>Incomplete Test （不完整的测试）</primary></indexterm>
 
-    For each method in the original class, there will be an incomplete
-    test case (see <xref linkend="incomplete-and-skipped-tests" />) in
-    the generated test case class.
+    原始类中的每一个方法在生成的测试用例类中都会有一个对应的标为不完整的测试用例（参见<xref linkend="incomplete-and-skipped-tests" />）。
   </para>
 
   <note>
-    <title>Namespaced Classes and the Skeleton Generator</title>
+    <title>使用了命名空间的类与骨架生成器</title>
 
     <para>
       When you are using the skeleton generator to generate code based on a

@@ -278,82 +278,63 @@ if (FALSE) {
   </section>
 
   <section id="code-coverage-analysis.including-excluding-files">
-    <title>Including and Excluding Files</title>
+    <title>包含与排除文件</title>
 
     <para>
-      <indexterm><primary>Code Coverage</primary></indexterm>
-      <indexterm><primary>Blacklist</primary></indexterm>
-      <indexterm><primary>Whitelist</primary></indexterm>
+      <indexterm><primary>Code Coverage （代码覆盖率）</primary></indexterm>
+      <indexterm><primary>Blacklist （黑名单）</primary></indexterm>
+      <indexterm><primary>Whitelist （白名单）</primary></indexterm>
 
-      By default, all sourcecode files that contain at least one line of code
-      that has been executed (and only these files) are included in the report.
-      The sourcecode files that are included in the report can be filtered by
-      using a blacklist or a whitelist approach.
+      默认情况下，报告中包括（且只包括）所有包含至少一行已被执行的代码的源代码文件。可以通过黑名单或者白名单来对报告中包含哪些源代码文件进行过滤。
     </para>
 
     <para>
-      The blacklist is pre-filled with all sourcecode files of PHPUnit itself
-      as well as the tests. When the whitelist is empty (default), blacklisting
-      is used. When the whitelist is not empty, whitelisting is used. Each file
-      on the whitelist is added to the code coverage report regardless of
-      whether or not it was executed. All lines of such a file, including those
-      that are not executable, are counted as not executed.
+      在黑名单中，会预先填充进 PHPUnit 自身的所有源代码文件，以及测试本身的所有源代码文件。如果白名单为空（默认情况），将会使用黑名单机制。如果白名单非空，那么将会使用白名单机制。白名单中的每个文件都会加入代码覆盖率报告中，不管它是否被执行到。此类文件的所有行，包括那些非可执行文件，都按未执行进行计数。
     </para>
 
     <para>
-      When you set <literal>processUncoveredFilesFromWhitelist="true"</literal>
-      in your PHPUnit configuration (see <xref
-      linkend="appendixes.configuration.blacklist-whitelist"/>) then these files
-      will be included by PHP_CodeCoverage to properly calculate the number of
-      executable lines.
+      如果在 PHPUnit 配置信息（参见<xref
+      linkend="appendixes.configuration.blacklist-whitelist"/>）中设置 <literal>processUncoveredFilesFromWhitelist="true"</literal>，那么所有这些文件将会由 PHP_CodeCoverage  进行包含，并正确计算其可执行行数。
     </para>
 
     <note>
       <para>
-        Please note that the loading of sourcecode files that is performed when
-        <literal>processUncoveredFilesFromWhitelist="true"</literal> is set can
-        cause problems when a sourcecode file contains code outside the scope of
-        a class or function, for instance.
+        请注意，当设置了 <literal>processUncoveredFilesFromWhitelist="true"</literal> 时将会进行源代码文件的读取，这有可能会导致一些问题，比如，源代码文件包含有处于类或者函数作用域之外的代码时。
       </para>
     </note>
 
     <para>
-      PHPUnit's XML configuration file (see <xref linkend="appendixes.configuration.blacklist-whitelist"/>)
-      can be used to control the blacklist and the whitelist. Using a whitelist
-      is the recommended best practice to control the list of files included in
-      the code coverage report.
+      PHPUnit 的 XML 配置文件（参见<xref linkend="appendixes.configuration.blacklist-whitelist"/>）可以用于控制黑名单与白名单。使用白名单来控制代码覆盖率报告所包含的文件是推荐的最佳实践。
     </para>
   </section>
 
   <section id="code-coverage-analysis.edge-cases">
-    <title>Edge cases</title>
+    <title>边缘情况</title>
 
     <para>
-      For the most part it can safely be said that PHPUnit offers you "line
-      based" code coverage information but due to how that information is
-      collected there are some noteworthy edge cases.
+      大多数情况下可以放心地说 PHPUnit 提供的是“基于行的”代码覆盖率信息。不过鉴于搜集信息的方式，有一些值得注意的边缘情况。
     </para>
 
     <example id="code-coverage-analysis.edge-cases.examples.Sample.php">
       <programlisting><![CDATA[<?php
-// Because it is "line based" and not statement base coverage
-// one line will always have one coverage status
+// 因为覆盖率是“基于行的”而不是基于语句的，
+// 每行只会有一种覆盖状态。
 if(false) this_function_call_shows_up_as_covered();
 
-// Due to how code coverage works internally these two lines are special.
-// This line will show up as non executable
+// 由于代码覆盖率的内部工作方式，这两行显得很特别。
+// 这一行会显示为非可执行。
 if(false)
-    // This line will show up as covered because it is actually the 
-    // coverage of the if statement in the line above that gets shown here!
+    // 这一行会显示为已覆盖，
+    // 实际上是上一行的 if 语句的覆盖信息显示在这了！
     will_also_show_up_as_coveraged();
 
-// To avoid this it is necessary that braces are used
+// 为了避免这种情况，必须使用大括号
 if(false) {
     this_call_will_never_show_up_as_covered();
 }
 ?>]]></programlisting>
-    </example>      
-        
+    </example>
+
   </section>
 
 </chapter>
