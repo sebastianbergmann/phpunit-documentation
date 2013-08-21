@@ -1129,21 +1129,9 @@ interface PHPUnit_Extensions_Database_DataSet_IDataSet extends IteratorAggregate
         IDataSet は <literal>IteratorAggregate</literal>
         インターフェイスから <literal>getIterator()</literal>
         メソッドを継承しており、これを使ってデータセット内の全テーブルの反復処理を行います。
-        さらにリバースイテレータメソッドも必須です。
-        指定した順の逆順でのテーブルの切り詰めを、このメソッドで行います。
+        リバースイテレータを使うと、PHPUnit で作ったテーブルのデータの切り詰めを、
+        テーブルを作ったときと逆の順番で行えます。これで、外部キー制約に違反せずに済むようになります。
       </para>
-      <blockquote>
-        <para>
-          リバースイテレータがなぜ必要なのか、次のふたつのテーブル
-          (<emphasis>TableA</emphasis> と <emphasis>TableB</emphasis>)
-          を例にして考えましょう。<emphasis>TableB</emphasis> には
-          <emphasis>TableA</emphasis> のカラムへの外部キーが定義されているものとします。
-          フィクスチャを準備するときには、まず
-          <emphasis>TableA</emphasis> に行を追加してから依存レコードを
-          <emphasis>TableB</emphasis> に追加します。当然、テーブルの中身をすべて削除するときには
-          逆順にして先に <emphasis>TableB</emphasis> から削除しないと外部キー制約に違反してしまいます。
-        </para>
-      </blockquote>
       <para>
         テーブルのインスタンスをデータセットに追加するには、
         実装によってさまざまな手法があります。たとえば
