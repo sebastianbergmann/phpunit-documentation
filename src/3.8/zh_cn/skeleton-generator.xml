@@ -54,16 +54,11 @@ Wrote skeleton for "CalculatorTest" to "/home/sb/CalculatorTest.php".</screen>
     <title>使用了命名空间的类与骨架生成器</title>
 
     <para>
-      When you are using the skeleton generator to generate code based on a
-      class that is declared in a <ulink url="http://php.net/namespace">namespace</ulink>
-      you have to provide the qualified name of the class as well as the path to
-      the source file it is declared in.
+      如果打算用骨架生成器来为声明在<ulink url="http://php.net/namespace">命名空间</ulink>中的类生成代码，必须提供和其所在的源文件路径一致的类限定名称。
     </para>
 
     <para>
-      For instance, for a class <literal>Calculator</literal> that is declared
-      in the <literal>project</literal> namespace you need to invoke the
-      skeleton generator like this:
+      例如，对于声明在 <literal>project</literal> 命名空间中的 <literal>Calculator</literal> 类，需要像这样调用骨架生成器：
       <screen><userinput>phpunit-skelgen --test -- &quot;project\Calculator&quot; Calculator.php</userinput>
 PHPUnit Skeleton Generator 1.0.0 by Sebastian Bergmann.
 
@@ -72,7 +67,7 @@ Wrote skeleton for "project\CalculatorTest" to "/home/sb/CalculatorTest.php".</s
   </note>
 
   <para>
-    Below is the output of running the generated test case class.
+    下面是运行生成出来的测试用例类得到的结果：
   </para>
 
   <screen><userinput>phpunit --bootstrap Calculator.php --verbose CalculatorTest</userinput>
@@ -95,15 +90,11 @@ Tests: 1, Assertions: 0, Incomplete: 1.</screen>
       <indexterm><primary>Annotation （标注）</primary></indexterm>
       <indexterm><primary>@assert</primary></indexterm>
 
-      You can use <literal>@assert</literal> annotation in the
-      documentation block of a method to automatically generate simple,
-      yet meaningful tests instead of incomplete test cases.
-      <xref linkend="skeleton-generator.test.examples.Calculator.php" />
-      shows an example.
+      可以在方法的文档注释块中使用 <literal>@assert</literal> 标注来让生成器自动生成简单却有意义的测试而非不完整的测试用例。<xref linkend="skeleton-generator.test.examples.Calculator.php" />展示了一个范例：
     </para>
 
     <example id="skeleton-generator.test.examples.Calculator.php">
-      <title>The Calculator class with @assert annotations</title>
+      <title>带有 @assert 标注的 Calculator 类</title>
       <programlisting><![CDATA[<?php
 class Calculator
 {
@@ -122,8 +113,7 @@ class Calculator
     </example>
 
     <para>
-      Each method in the original class is checked for <literal>@assert</literal>
-      annotations. These are transformed into test code such as
+      生成器会检查原始类中的每个方法查找 <literal>@assert</literal> 标注。这些标注将会转换为测试代码，诸如
       <programlisting>    /**
      * Generated from @assert (0, 0) == 0.
      */
@@ -134,7 +124,7 @@ class Calculator
     </para>
 
     <para>
-      Below is the output of running the generated test case class.
+      下面是运行生成出来的测试用例类得到的结果。
     </para>
 
     <screen><userinput>phpunit --bootstrap Calculator.php --verbose CalculatorTest</userinput>
@@ -147,19 +137,17 @@ Time: 0 seconds, Memory: 3.50Mb
 OK (4 tests, 4 assertions)</screen>
 
     <para>
-      <xref linkend="skeleton-generator.test.tables.assert-annotations" />
-      shows the supported variations of the <literal>@assert</literal>
-      annotation and how they are transformed into test code.
+      <xref linkend="skeleton-generator.test.tables.assert-annotations" />列出了 <literal>@assert</literal> 标注所允许的的各种变体，以及它们是如何转换为测试代码的。
     </para>
 
     <table id="skeleton-generator.test.tables.assert-annotations">
-      <title>Supported variations of the @assert annotation</title>
+      <title>@assert 标注所允许的各种变体</title>
 
       <tgroup cols="2" align="left" colsep="1" rowsep="1">
         <thead>
           <row>
-            <entry>Annotation</entry>
-            <entry>Transformed to</entry>
+            <entry>标注</entry>
+            <entry>转换为</entry>
           </row>
         </thead>
         <tbody>
@@ -205,27 +193,20 @@ OK (4 tests, 4 assertions)</screen>
   </section>
 
   <section id="skeleton-generator.class">
-    <title>Generating a Class Skeleton from a Test Case Class</title>
+    <title>从测试用例类生成类的骨架</title>
 
     <para>
-      When you are doing Test-Driven Development (see <xref linkend="test-driven-development"/>)
-      and write your tests before the code that the tests exercise, PHPUnit can
-      help you generate class skeletons from test case classes.
+      在进行测试驱动开发（参见<xref linkend="test-driven-development"/>）并在编写代码之前先编写其测试时，PHPUnit 能够帮你从测试用例类生成类的骨架。
     </para>
 
     <para>
-      Following the convention that the tests for a class <literal>Unit</literal>
-      are written in a class named <literal>UnitTest</literal>, the test case
-      class' source is searched for variables that reference objects of the
-      <literal>Unit</literal> class and analyzing what methods are called on
-      these objects. For example, take a look at <xref
-      linkend="skeleton-generator.class.examples.BowlingGame.php"/> which has
-      been generated based on the analysis of <xref
-      linkend="skeleton-generator.class.examples.BowlingGameTest.php"/>.
+      按照惯例，针对 <literal>Unit</literal> 类的测试应当写在名为 <literal>UnitTest</literal> 的类中。PHPUnit 将会测试用例类的源代码，寻找引用了 <literal>Unit</literal> 类的对象的变量，并分析在这些对象上调用了什么方法。例如，<xref
+      linkend="skeleton-generator.class.examples.BowlingGame.php"/> 是基于对 <xref
+      linkend="skeleton-generator.class.examples.BowlingGameTest.php"/> 的分析而生成的。
     </para>
 
     <example id="skeleton-generator.class.examples.BowlingGameTest.php">
-      <title>The BowlingGameTest class</title>
+      <title>BowlingGameTest 类</title>
       <programlisting><![CDATA[<?php
 class BowlingGameTest extends PHPUnit_Framework_TestCase
 {
@@ -258,7 +239,7 @@ PHPUnit Skeleton Generator 1.0.0 by Sebastian Bergmann.
 Wrote skeleton for "BowlingGame" to "./BowlingGame.php".</screen>
 
     <example id="skeleton-generator.class.examples.BowlingGame.php">
-      <title>The generated BowlingGame class skeleton</title>
+      <title>生成的 BowlingGame 类的骨架</title>
       <programlisting><![CDATA[<?php
 /**
  * Generated by PHPUnit_SkeletonGenerator on 2012-01-09 at 16:55:58.
@@ -287,7 +268,7 @@ class BowlingGame
     </example>
 
     <para>
-      Below is the output of running the test against the generated class.
+      下面是针对所生成的类运行测试的结果。
     </para>
 
     <screen><userinput>phpunit --bootstrap BowlingGame.php BowlingGameTest</userinput>

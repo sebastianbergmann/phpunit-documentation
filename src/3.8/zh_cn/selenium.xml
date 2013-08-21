@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 
 <chapter id="selenium">
-  <title>PHPUnit and Selenium</title>
+  <title>PHPUnit 与 Selenium</title>
 
   <section id="selenium.selenium-rc">
     <title>Selenium Server</title>
@@ -9,50 +9,38 @@
     <para>
       <indexterm><primary>Selenium Server</primary></indexterm>
 
-      <ulink url="http://seleniumhq.org/">Selenium Server</ulink> is a
-      test tool that allows you to write automated user-interface tests for
-      web applications in any programming language against any HTTP website
-      using any mainstream browser. It performs automated browser tasks 
-      by driving the browser's process through the operating system.
-      Selenium tests run directly in a browser, just as real users do. These 
-      tests can be used for both <emphasis>acceptance testing</emphasis> 
-      (by performing higher-level tests on the integrated system instead of
-      just testing each unit of the system independently) and <emphasis>browser 
-      compatibility testing</emphasis> (by testing the web application on
-      different operating systems and browsers).
+      <ulink url="http://seleniumhq.org/">Selenium Server</ulink> 是一个测试工具，允许你用任意主流浏览器为任意 HTTP 网站上的用任意编程语言开发的 web 应用程序编写自动用户界面测试。它通过操作系统来驱动浏览器进程来执行自动测试。Selenium 测试直接运行于某个浏览器中，就和真实用户一样。这些测试既可以用于<emphasis>验收测试</emphasis>（通过在集成好的系统中执行较高层面的测试而非仅对系统的各个单元分别单独测试。）也可以用于<emphasis>浏览器兼容性测试</emphasis>（通过在不同的操作系统与浏览器上对 web 应用程序进行测试）。
     </para>
     
     <para>
-      The only supported scenario of PHPUnit_Selenium is that of a Selenium 2.x
-      server. The server can be accessed through the classic Selenium RC Api, already present in 1.x, or with the WebDriver API (partially implemented) from PHPUnit_Selenium 1.2.
+      PHPUnit_Selenium 只支持 Selenium 2.x 服务器的脚本。服务器可以通过从 1.x 就提供的传统 Selenium RC API 访问，也可以从 PHPUnit_Selenium 1.2 用 WebDriver API（部分实现）访问。
     </para>
     <para>
-      The reason behind this decision is that Selenium 2 is backward compatible and Selenium RC is not maintained anymore.
+      这个决定的原因是 Selenium 2 是向后兼容的，而 Selenium RC 已经不再维护了。
     </para>
 
-	</section>
-	
-	<section id="selenium.installation">
-    <title>Installation</title>
+  </section>
+
+  <section id="selenium.installation">
+    <title>安装</title>
 
     <para>
-      First, install the Selenium Server:
+      首先，安装 Selenium Server：
     </para>
 
     <orderedlist>
-      <listitem>Download a distribution archive of <ulink url="http://seleniumhq.org/download/">Selenium Server</ulink>.</listitem>
-      <listitem>Unzip the distribution archive and copy <filename>selenium-server-standalone-2.9.0.jar</filename> (check the version suffix) to <filename>/usr/local/bin</filename>, for instance.</listitem>
-      <listitem>Start the Selenium Server server by running <userinput>java -jar /usr/local/bin/selenium-server-standalone-2.9.0.jar</userinput>.</listitem>
+      <listitem>下载 <ulink url="http://seleniumhq.org/download/">Selenium Server</ulink>的分发档。</listitem>
+      <listitem>将分发档解压，然后将 <filename>selenium-server-standalone-2.9.0.jar</filename>（注意版本后缀） 复制到比如说 <filename>/usr/local/bin</filename>。</listitem>
+      <listitem>运行 <userinput>java -jar /usr/local/bin/selenium-server-standalone-2.9.0.jar</userinput> 来启动 Selenium Server 服务器端。</listitem>
     </orderedlist>
 
-		<para>
-      Second, install the PHPUnit_Selenium package, necessary for natively accessing the Selenium Server from PHPUnit:
+    <para>
+      其次，安装 PHPUnit_Selenium 组件包，这是从 PHPUnit 原生地访问 Selenium Server 所必须的：
       <screen><userinput>pear install phpunit/PHPUnit_Selenium</userinput></screen>
     </para>
 
     <para>
-      Now we can send commands to the Selenium Server using its client/server
-      protocol.
+      现在可以用 Selenium Server 的客户端/服务器端协议来向它发送命令了。
     </para>
   </section>
 
@@ -62,17 +50,14 @@
     <para>
       <indexterm><primary><literal>PHPUnit_Extensions_Selenium2TestCase</literal></primary></indexterm>
 
-      The <literal>PHPUnit_Extensions_Selenium2TestCase</literal> test case lets you use the WebDriver API (partially implemented).
+      <literal>PHPUnit_Extensions_Selenium2TestCase</literal> 测试用例让你能够使用 WebDriver API（部分实现）。
     </para>
 
     <para>
-      <xref linkend="selenium.selenium2testcase.examples.WebTest.php" /> shows
-      how to test the contents of the <literal><![CDATA[<title>]]></literal>
-      element of the <systemitem role="URL">http://www.example.com/</systemitem>
-      website.
+      <xref linkend="selenium.selenium2testcase.examples.WebTest.php" />展示了如何测试 <systemitem role="URL">http://www.example.com/</systemitem> 网站的 <literal><![CDATA[<title>]]></literal> 元素的内容。
     </para>
     <example id="selenium.selenium2testcase.examples.WebTest.php">
-      <title>Usage example for PHPUnit_Extensions_Selenium2TestCase</title>
+      <title>PHPUnit_Extensions_Selenium2TestCase 的用法范例</title>
       <programlisting><![CDATA[<?php
 class WebTest extends PHPUnit_Extensions_Selenium2TestCase
 {
@@ -113,7 +98,7 @@ FAILURES!
 Tests: 1, Assertions: 1, Failures: 1.]]></screen></example>
 
   <para>    
-    The commands of Selenium2TestCare are implemented via __call(). Please refer to <ulink url="https://github.com/sebastianbergmann/phpunit-selenium/blob/master/Tests/Selenium2TestCaseTest.php">the end-to-end test for PHPUnit_Extensions_Selenium2TestCase</ulink> for a list of every supported feature.
+    Selenium2TestCare 的命令是通过 __call() 来实现的。请参考 <ulink url="https://github.com/sebastianbergmann/phpunit-selenium/blob/master/Tests/Selenium2TestCaseTest.php">the end-to-end test for PHPUnit_Extensions_Selenium2TestCase</ulink> 以获取所有受支持的特性的列表。
   </para>
   </section>
 
@@ -123,20 +108,15 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen></example>
     <para>
       <indexterm><primary><literal>PHPUnit_Extensions_SeleniumTestCase</literal></primary></indexterm>
 
-      The <literal>PHPUnit_Extensions_SeleniumTestCase</literal> test case
-      extension implements the client/server protocol to talk to Selenium Server as
-      well as specialized assertion methods for web testing.
+      <literal>PHPUnit_Extensions_SeleniumTestCase</literal> 测试用例扩展实现了客户端/服务器端协议来与 Selenium Server 沟通，同时还为 web 测试实现了一些特殊的断言方法。
     </para>
 
     <para>
-      <xref linkend="selenium.seleniumtestcase.examples.WebTest.php" /> shows
-      how to test the contents of the <literal><![CDATA[<title>]]></literal>
-      element of the <systemitem role="URL">http://www.example.com/</systemitem>
-      website.
+      <xref linkend="selenium.seleniumtestcase.examples.WebTest.php" />展示了如何测试 <systemitem role="URL">http://www.example.com/</systemitem> 网站的 <literal><![CDATA[<title>]]></literal> 元素的内容。
     </para>
 
     <example id="selenium.seleniumtestcase.examples.WebTest.php">
-      <title>Usage example for PHPUnit_Extensions_SeleniumTestCase</title>
+      <title>PHPUnit_Extensions_SeleniumTestCase 的用法范例</title>
       <programlisting><![CDATA[<?php
 require_once 'PHPUnit/Extensions/SeleniumTestCase.php';
 
@@ -176,59 +156,52 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
 
 
     <para>
-      Unlike with the <literal>PHPUnit_Framework_TestCase</literal> class,
-      test case classes that extend <literal>PHPUnit_Extensions_SeleniumTestCase</literal>
-      have to provide a <literal>setUp()</literal> method. This method is used
-      to configure the Selenium Server session. See
-      <xref linkend="selenium.seleniumtestcase.tables.seleniumrc-api.setup" />
-      for the list of methods that are available for this.
+      与 <literal>PHPUnit_Framework_TestCase</literal> 类不同，扩展自 <literal>PHPUnit_Extensions_SeleniumTestCase</literal> 的测试用例类必须提供 <literal>setUp()</literal> 方法。这个方法用来配置 Selenium Server 会话。<xref linkend="selenium.seleniumtestcase.tables.seleniumrc-api.setup" />中列出了所有用于这方面的方法。
     </para>
 
     <table id="selenium.seleniumtestcase.tables.seleniumrc-api.setup">
-      <title>Selenium Server API: Setup</title>
+      <title>Selenium Server API: 建立</title>
 
       <tgroup cols="2" align="left" colsep="1" rowsep="1">
         <thead>
           <row>
-            <entry>Method</entry>
-            <entry>Meaning</entry>
+            <entry>方法</entry>
+            <entry>含义</entry>
           </row>
         </thead>
         <tbody>
           <row>
             <entry><literal>void setBrowser(string $browser)</literal></entry>
-            <entry>Set the browser to be used by the Selenium Server server.</entry>
+            <entry>设置用于 Selenium Server 服务器的浏览器。</entry>
           </row>
           <row>
             <entry><literal>void setBrowserUrl(string $browserUrl)</literal></entry>
-            <entry>Set the base URL for the tests.</entry>
+            <entry>设置测试的基准 URL (base URL)。</entry>
           </row>
           <row>
             <entry><literal>void setHost(string $host)</literal></entry>
-            <entry>Set the hostname for the connection to the Selenium Server server.</entry>
+            <entry>设定 Selenium Server 服务器连接的主机名。</entry>
           </row>
           <row>
             <entry><literal>void setPort(int $port)</literal></entry>
-            <entry>Set the port for the connection to the Selenium Server server.</entry>
+            <entry>设定 Selenium Server 服务器连接的端口号。</entry>
           </row>
           <row>
             <entry><literal>void setTimeout(int $timeout)</literal></entry>
-            <entry>Set the timeout for the connection to the Selenium Server server.</entry>
+            <entry>设定 Selenium Server 服务器连接的超时时间。</entry>
           </row>
           <row>
             <entry><literal>void setSleep(int $seconds)</literal></entry>
-            <entry>Set the number of seconds the Selenium Server client should sleep between sending action commands to the Selenium Server server.</entry>
+            <entry>设定 Selenium Server 客户端向 Selenium Server 服务器端发送动作多个命令之间需要休眠的秒数</entry>
           </row>
         </tbody>
       </tgroup>
     </table>
 
     <para>
-      PHPUnit can optionally capture a screenshot when a Selenium test fails. To
-      enable this, set <literal>$captureScreenshotOnFailure</literal>,
-      <literal>$screenshotPath</literal>, and <literal>$screenshotUrl</literal>
-      in your test case class as shown in
-      <xref linkend="selenium.seleniumtestcase.examples.WebTest2.php" />.
+      PHPUnit 还可以在 Selenium 测试失败时截屏。要启用这个功能，在测试用例类里设置 <literal>$captureScreenshotOnFailure</literal>、
+      <literal>$screenshotPath</literal> 和 <literal>$screenshotUrl</literal>，如
+      <xref linkend="selenium.seleniumtestcase.examples.WebTest2.php" />中所示。
     </para>
 
     <example id="selenium.seleniumtestcase.examples.WebTest2.php">
