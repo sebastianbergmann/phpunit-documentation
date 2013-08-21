@@ -1139,22 +1139,10 @@ interface PHPUnit_Extensions_Database_DataSet_IDataSet extends IteratorAggregate
         TestCase to check for dataset quality. From the
         <literal>IteratorAggregate</literal> interface the IDataSet
         inherits the <literal>getIterator()</literal> method to iterate
-        over all tables of the dataset. The additional reverse iterator
-        method is required to successfully truncate the tables in reverse
-        of the specified order.
+        over all tables of the dataset. The reverse iterator allows PHPUnit to 
+        truncate tables opposite the order they were created to satisfy foreign 
+        key constraints.
       </para>
-      <blockquote>
-        <para>
-          To understand the need for a reverse iterator think of a two tables
-          (<emphasis>TableA</emphasis> and <emphasis>TableB</emphasis>) where
-          <emphasis>TableB</emphasis> holds a foreign key on a column of
-          <emphasis>TableA</emphasis>. If for fixture setup a row is inserted into
-          <emphasis>TableA</emphasis> and then a dependant record into
-          <emphasis>TableB</emphasis>, then it is obvious that for deleting all the tables
-          contents the reverse order run you into trouble with foreign key
-          constraints.
-        </para>
-      </blockquote>
       <para>
         Depending on the implementation different approaches are taken to
         add table instances to a dataset. For example, tables are added
