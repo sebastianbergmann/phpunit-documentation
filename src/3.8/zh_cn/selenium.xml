@@ -205,7 +205,7 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
     </para>
 
     <example id="selenium.seleniumtestcase.examples.WebTest2.php">
-      <title>Capturing a screenshot when a test fails</title>
+      <title>当测试失败时截屏</title>
       <programlisting><![CDATA[<?php
 require_once 'PHPUnit/Extensions/SeleniumTestCase.php';
 
@@ -249,18 +249,12 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
     </example>
 
     <para>
-      You can run each test using a set of browsers: Instead of using
-      <literal>setBrowser()</literal> to set up one browser you declare a
-      <literal>public static</literal> array named <literal>$browsers</literal>
-      in your test case class. Each item in this array describes one browser
-      configuration. Each of these browsers can be hosted by different
-      Selenium Server servers.
-      <xref linkend="selenium.seleniumtestcase.examples.WebTest3.php" /> shows
-      an example.
+      可以对每个测试都用一组浏览器运行：不要用 <literal>setBrowser()</literal> 来设定单个浏览器，而是在测试用例类里声明一个名称为 <literal>$browsers</literal> 的 <literal>public static</literal> 数组。这个数组里的每个项目都描述了一个浏览器配置。这些浏览器可以各自由不同的 Selenium Server 服务器承载。
+      <xref linkend="selenium.seleniumtestcase.examples.WebTest3.php" /> 展示了一个例子。
     </para>
 
     <example id="selenium.seleniumtestcase.examples.WebTest3.php">
-      <title>Setting up multiple browser configurations</title>
+      <title>设定多个浏览器配置</title>
       <programlisting><![CDATA[<?php
 require_once 'PHPUnit/Extensions/SeleniumTestCase.php';
 
@@ -312,130 +306,118 @@ class WebTest extends PHPUnit_Extensions_SeleniumTestCase
     </example>
 
     <para>
-      <literal>PHPUnit_Extensions_SeleniumTestCase</literal> can collect code
-      coverage information for tests run through Selenium:
+      <literal>PHPUnit_Extensions_SeleniumTestCase</literal> 可以为通过 Selenium 运行的测试收集代码覆盖率信息：
     </para>
 
     <orderedlist>
-      <listitem>Copy <filename>PHPUnit/Extensions/SeleniumCommon/phpunit_coverage.php</filename> into your webserver's document root directory.</listitem>
-      <listitem>In your webserver's <filename>php.ini</filename> configuration file, configure <filename>PHPUnit/Extensions/SeleniumCommon/prepend.php</filename> and <filename>PHPUnit/Extensions/SeleniumCommon/append.php</filename> as the <literal>auto_prepend_file</literal> and <literal>auto_append_file</literal>, respectively.</listitem>
-      <listitem>In your test case class that extends <literal>PHPUnit_Extensions_SeleniumTestCase</literal>, use <programlisting>protected $coverageScriptUrl = 'http://host/phpunit_coverage.php';</programlisting> to configure the URL for the <filename>phpunit_coverage.php</filename> script.</listitem>
+      <listitem>将 <filename>PHPUnit/Extensions/SeleniumCommon/phpunit_coverage.php</filename> 复制到 web 服务器文档根目录下。</listitem>
+      <listitem>在 web 服务器上的 <filename>php.ini</filename> 配置文件中，分别将 <filename>PHPUnit/Extensions/SeleniumCommon/prepend.php</filename> 与 <filename>PHPUnit/Extensions/SeleniumCommon/append.php</filename> 配置为 <literal>auto_prepend_file</literal> 和 <literal>auto_append_file</literal>。</listitem>
+      <listitem>在扩展自 <literal>PHPUnit_Extensions_SeleniumTestCase</literal> 的测试用例类中，用<programlisting>protected $coverageScriptUrl = 'http://host/phpunit_coverage.php';</programlisting> 来配置 <filename>phpunit_coverage.php</filename> 脚本所在的 URL。</listitem>
     </orderedlist>
 
     <para>
-      <xref linkend="selenium.seleniumtestcase.tables.assertions" /> lists the
-      various assertion methods that <literal>PHPUnit_Extensions_SeleniumTestCase</literal>
-      provides.
+      <xref linkend="selenium.seleniumtestcase.tables.assertions" /> 列出了 <literal>PHPUnit_Extensions_SeleniumTestCase</literal> 所提供的各种断言方法。
     </para>
 
     <table id="selenium.seleniumtestcase.tables.assertions">
-      <title>Assertions</title>
+      <title>断言</title>
 
       <tgroup cols="2" align="left" colsep="1" rowsep="1">
         <thead>
           <row>
-            <entry>Assertion</entry>
-            <entry>Meaning</entry>
+            <entry>断言</entry>
+            <entry>含义</entry>
           </row>
         </thead>
         <tbody>
           <row>
             <entry><literal>void assertElementValueEquals(string $locator, string $text)</literal></entry>
-            <entry>Reports an error if the value of the element identified by <literal>$locator</literal> is not equal to the given <literal>$text</literal>.</entry>
+            <entry>当由 <literal>$locator</literal> 所标识的元素的值与给定的 <literal>$text</literal> 不等时报告一个错误。</entry>
           </row>
           <row>
             <entry><literal>void assertElementValueNotEquals(string $locator, string $text)</literal></entry>
-            <entry>Reports an error if the value of the element identified by <literal>$locator</literal> is equal to the given <literal>$text</literal>.</entry>
+            <entry>当由 <literal>$locator</literal> 所标识的元素的值与给定的 <literal>$text</literal> 时报告一个错误。</entry>
           </row>
           <row>
             <entry><literal>void assertElementValueContains(string $locator, string $text)</literal></entry>
-            <entry>Reports an error if the value of the element identified by <literal>$locator</literal> does not contain the given <literal>$text</literal>.</entry>
+            <entry>当由 <literal>$locator</literal> 所标识的元素的值不包含给定的 <literal>$text</literal> 时报告一个错误。</entry>
           </row>
           <row>
             <entry><literal>void assertElementValueNotContains(string $locator, string $text)</literal></entry>
-            <entry>Reports an error if the value of the element identified by <literal>$locator</literal> contains the given <literal>$text</literal>.</entry>
+            <entry>当由 <literal>$locator</literal> 所标识的元素的值包含给定的 <literal>$text</literal> 时报告一个错误。</entry>
           </row>
           <row>
             <entry><literal>void assertElementContainsText(string $locator, string $text)</literal></entry>
-            <entry>Reports an error if the element identified by <literal>$locator</literal> does not contain the given <literal>$text</literal>.</entry>
+            <entry>当由 <literal>$locator</literal> 所标识的元素不包含给定的 <literal>$text</literal> 时报告一个错误。</entry>
           </row>
           <row>
             <entry><literal>void assertElementNotContainsText(string $locator, string $text)</literal></entry>
-            <entry>Reports an error if the element identified by <literal>$locator</literal> contains the given <literal>$text</literal>.</entry>
+            <entry>当由 <literal>$locator</literal> 所标识的元素包含给定的 <literal>$text</literal> 时报告一个错误。</entry>
           </row>
           <row>
             <entry><literal>void assertSelectHasOption(string $selectLocator, string $option)</literal></entry>
-            <entry>Reports an error if the given option is not available.</entry>
+            <entry>当给定的选项不可用时报告一个错误。</entry>
           </row>
           <row>
             <entry><literal>void assertSelectNotHasOption(string $selectLocator, string $option)</literal></entry>
-            <entry>Reports an error if the given option is available.</entry>
+            <entry>当给定的选项可用时报告一个错误。</entry>
           </row>
           <row>
             <entry><literal>void assertSelected($selectLocator, $option)</literal></entry>
-            <entry>Reports an error if the given label is not selected.</entry>
+            <entry>当给定的标签被未被选定时报告一个错误。</entry>
           </row>
           <row>
             <entry><literal>void assertNotSelected($selectLocator, $option)</literal></entry>
-            <entry>Reports an error if the given label is selected.</entry>
+            <entry>当给定的标签被被选定时报告一个错误。</entry>
           </row>
           <row>
             <entry><literal>void assertIsSelected(string $selectLocator, string $value)</literal></entry>
-            <entry>Reports an error if the given value is not selected.</entry>
+            <entry>当给定的值被未被选定时报告一个错误。</entry>
           </row>
           <row>
             <entry><literal>void assertIsNotSelected(string $selectLocator, string $value)</literal></entry>
-            <entry>Reports an error if the given value is selected.</entry>
+            <entry>当给定的值被被选定时报告一个错误。</entry>
           </row>
         </tbody>
       </tgroup>
     </table>
 
     <para>
-      <xref linkend="selenium.seleniumtestcase.tables.template-methods" /> shows
-      the template method of <literal>PHPUnit_Extensions_SeleniumTestCase</literal>:
+      <xref linkend="selenium.seleniumtestcase.tables.template-methods" />列出了 <literal>PHPUnit_Extensions_SeleniumTestCase</literal> 的模板方法：
     </para>
 
     <table id="selenium.seleniumtestcase.tables.template-methods">
-      <title>Template Methods</title>
+      <title>模板方法</title>
 
       <tgroup cols="2" align="left" colsep="1" rowsep="1">
         <thead>
           <row>
-            <entry>Method</entry>
-            <entry>Meaning</entry>
+            <entry>方法</entry>
+            <entry>含义</entry>
           </row>
         </thead>
         <tbody>
           <row>
             <entry><literal>void defaultAssertions()</literal></entry>
-            <entry>Override to perform assertions that are shared by all tests of a test case. This method is called after each command that is sent to the Selenium Server server.</entry>
+            <entry>覆盖本方法来为所有测试用例中的测试执行公用的断言。每个发送往 Selenium Server 服务器的命名之后都会调用本方法。</entry>
           </row>
         </tbody>
       </tgroup>
     </table>
 
     <para>
-      Please refer to the <ulink url="http://release.seleniumhq.org/selenium-core/1.0.1/reference.html">documentation of Selenium commands</ulink>
-      for a reference of the commands available and how they are used.
+      请查看 <ulink url="http://release.seleniumhq.org/selenium-core/1.0.1/reference.html">Selenium 命令文档</ulink>来获得所有可用的命令的参考以及它们的使用方法。
     </para>
     <para>
-    The commands of Selenium 1 are implemented dynamically via __call. Refer also to <ulink url="https://github.com/sebastianbergmann/phpunit-selenium/blob/master/PHPUnit/Extensions/SeleniumTestCase/Driver.php#L410">the API docs for PHPUnit_Extensions_SeleniumTestCase_Driver::__call()</ulink> for a list of all the supported methods on the PHP side, along with arguments and return type where available.
+      Selenium 1 命令是通过 __call 来动态实现的。请查看 <ulink url="https://github.com/sebastianbergmann/phpunit-selenium/blob/master/PHPUnit/Extensions/SeleniumTestCase/Driver.php#L410">PHPUnit_Extensions_SeleniumTestCase_Driver::__call() 的 API 文档</ulink> 来获取所有 PHP 侧所支持的所有方法的列表以及它们的参数和返回类型。
     </para>
 
     <para>
-      Using the <literal>runSelenese($filename)</literal> method, you can also
-      run a Selenium test from its Selenese/HTML specification. Furthermore,
-      using the static attribute <literal>$seleneseDirectory</literal>, you can
-      automatically create test objects from a directory that contains
-      Selenese/HTML files. The specified directory is recursively searched for
-      <literal>.htm</literal> files that are expected to contain Selenese/HTML.
-      <xref linkend="selenium.seleniumtestcase.examples.WebTest4.php" /> shows an
-      example.
+      通过使用 <literal>runSelenese($filename)</literal> 方法，可以从 Selenese/HTML 规格来运行 Selenium 测试。此外，通过使用静态属性 <literal>$seleneseDirectory</literal>，可以从包含 Selenese/HTML 文件的目录里自动创建测试对象。PHPUnit 会在指定的目录中的递归查找 <literal>.htm</literal> 文件，并预期这些文件内含 Selenese/HTML。<xref linkend="selenium.seleniumtestcase.examples.WebTest4.php" />展示了一个例子。
     </para>
 
     <example id="selenium.seleniumtestcase.examples.WebTest4.php">
-      <title>Use a directory of Selenese/HTML files as tests</title>
+      <title>用包含 Selenese/HTML 文件的目录作为测试</title>
       <programlisting><![CDATA[<?php
 require_once 'PHPUnit/Extensions/SeleniumTestCase.php';
 
@@ -447,9 +429,7 @@ class SeleneseTests extends PHPUnit_Extensions_SeleniumTestCase
     </example>
 
     <para>
-    From Selenium 1.1.1, an experimental feature is included allowing the user to share the session between tests. The only supported case is to share the session between all tests when a single browser is used.
-    Call <literal>PHPUnit_Extensions_SeleniumTestCase::shareSession(true)</literal> in your bootstrap file to enable session sharing.
-    The session will be reset in the case of not successul tests (failed or incomplete); it is up to the user to avoid interactions between tests by resetting cookies or logging out from the application under test (with a tearDown() method).
+      从 Selenium 1.1.1 开始，包含了一个实验性的特性，允许用户在不同测试之间共享会话(session)。唯一支持的情况是当使用单个浏览器时在所有测试间共享会话。在初始启动(bootstrap)文件中调用 <literal>PHPUnit_Extensions_SeleniumTestCase::shareSession(true)</literal> 来启用会话共享。在碰到不成功的测试（失败或不完整）时会话将会重置；用户自行决定如何避免测试之间的互动，可以重设 cookies 或者从被测应用程序登出（通过 tearDown() 方法）。
     </para>
   </section>
 </chapter>

@@ -1,49 +1,38 @@
 <?xml version="1.0" encoding="utf-8" ?>
 
 <chapter id="extending-phpunit">
-  <title>Extending PHPUnit</title>
+  <title>扩展 PHPUnit</title>
 
   <para>
-    PHPUnit can be extended in various ways to make the writing of tests
-    easier and customize the feedback you get from running tests. Here are
-    common starting points to extend PHPUnit.
+    可以用多种方式对 PHPUnit 进行扩展，使编写测试更容易，以及对运行测试所得到的反馈进行定制。扩展 PHPUnit 时，一般从这些点入手：
   </para>
 
   <section id="extending-phpunit.PHPUnit_Framework_TestCase">
-    <title>Subclass PHPUnit_Framework_TestCase</title>
+    <title>从 PHPUnit_Framework_TestCase 派生子类</title>
 
     <para>
       <indexterm><primary>PHPUnit_Framework_TestCase</primary></indexterm>
 
-      Write custom assertions and utility methods in an abstract subclass of
-      <literal>PHPUnit_Framework_TestCase</literal> and derive your test case
-      classes from that class. This is one of the easiest ways to extend
-      PHPUnit.
+      将自定义的断言和工具方法写在 <literal>PHPUnit_Framework_TestCase</literal> 的一个抽象子类中，然后从这个抽象子类派生你的测试用例类。这是扩展 PHPUnit 的最容易的方法。
     </para>
   </section>
 
   <section id="extending-phpunit.custom-assertions">
-    <title>Write custom assertions</title>
+    <title>编写自定义断言</title>
 
     <para>
-      When writing custom assertions it is the best practice to follow how
-      PHPUnit's own assertions are implemented. As you can see in
-      <xref linkend="extending-phpunit.examples.Assert.php"/>, the
-      <literal>assertTrue()</literal> method is just a wrapper around the
-      <literal>isTrue()</literal> and <literal>assertThat()</literal> methods:
-      <literal>isTrue()</literal> creates a matcher object that is passed on to
-      <literal>assertThat()</literal> for evaluation.
+      编写自定义断言时，最佳实践是遵循 PHPUnit 自有断言的实现方式。正如<xref linkend="extending-phpunit.examples.Assert.php"/>中所示，<literal>assertTrue()</literal> 方法只是对 <literal>isTrue()</literal> 和 <literal>assertThat()</literal> 方法的外包覆：<literal>isTrue()</literal> 创建了一个匹配器对象，将其传递给 <literal>assertThat()</literal> 进行评定。
     </para>
 
     <example id="extending-phpunit.examples.Assert.php">
-      <title>The assertTrue() and isTrue() methods of the PHPUnit_Framework_Assert class</title>
+      <title>PHPUnit_Framework_Assert 类的 assertTrue() 与 isTrue() 方法</title>
       <programlisting><![CDATA[<?php
 abstract class PHPUnit_Framework_Assert
 {
     // ...
 
     /**
-     * Asserts that a condition is true.
+     * 断言某个条件为真。
      *
      * @param  boolean $condition
      * @param  string  $message
@@ -57,7 +46,7 @@ abstract class PHPUnit_Framework_Assert
     // ...
 
     /**
-     * Returns a PHPUnit_Framework_Constraint_IsTrue matcher object.
+     * 返回一个 PHPUnit_Framework_Constraint_IsTrue 匹配器对象
      *
      * @return PHPUnit_Framework_Constraint_IsTrue
      * @since  Method available since Release 3.3.0
