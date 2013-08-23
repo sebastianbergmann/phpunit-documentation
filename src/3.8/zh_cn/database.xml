@@ -878,13 +878,8 @@ interface PHPUnit_Extensions_Database_DataSet_IDataSet extends IteratorAggregate
 }
 </screen>
       <para>
-        这些公用接口由数据库 TestCase 中 <literal>assertDataSetsEqual()</literal> 断言内部使用，用以检测数据集是否相等。IDataSet 中继承自 <literal>IteratorAggregate</literal> 接口的 <literal>getIterator()</literal> 方法用于对数据集中的所有表进行迭代。另外的那个逆序迭代器方法也是必须的，因为要按指定顺序的逆序对所有表执行 TRUNCATE 操作才能保证成功。
+        这些公用接口由数据库 TestCase 中 <literal>assertDataSetsEqual()</literal> 断言内部使用，用以检测数据集是否相等。IDataSet 中继承自 <literal>IteratorAggregate</literal> 接口的 <literal>getIterator()</literal> 方法用于对数据集中的所有表进行迭代。逆序迭代器让 PHPUnit 能够按照与创建时相反的顺序对所有表执行 TRUNCATE 操作，以此来保证满足外键约束。
       </para>
-      <blockquote>
-        <para>
-          为了理解逆序迭代器的必要性，不妨考虑两个表（<emphasis>TableA</emphasis> 和 <emphasis>TableB</emphasis>），其中表 <emphasis>TableB</emphasis> 持有一个指向表 <emphasis>TableA</emphasis> 某列的外键。假定在基境建立的过程中先向表 <emphasis>TableA</emphasis> 插入一行记录，然后再向表 <emphasis>TableB</emphasis> 插入了一行依赖于它的记录，于是很显然，如果不使用逆序删除表的内容，就会遭遇到外键约束方面的问题。
-        </para>
-      </blockquote>
       <para>
         根据具体实现的不同，要采取不同的方法来将表实例添加到数据集中。例如，在所有基于文件的数据集中，表都是在构造过程中直接从源文件生成并加入数据集中，比如 <literal>YamlDataSet</literal>、 <literal>XmlDataSet</literal> 以及 <literal>FlatXmlDataSet</literal>， 均是如此。
       </para>

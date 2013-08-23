@@ -6,19 +6,11 @@
   <para>
     <indexterm><primary>Annotation （标注）</primary></indexterm>
 
-    An annotation is a special form of syntactic metadata that can be added to
-    the source code of some programming languages. While PHP has no dedicated
-    language feature for annotating source code, the usage of tags such as
-    <literal>@annotation arguments</literal> in documentation block has been
-    established in the PHP community to annotate source code. In PHP
-    documentation blocks are reflective: they can be accessed through the
-    Reflection API's <literal>getDocComment()</literal> method on the function,
-    class, method, and attribute level. Applications such as PHPUnit use this
-    information at runtime to configure their behaviour.
+    所谓标注，是指某些编程语言中允许加在源代码中的一种特殊形式的语法元数据。PHP 并没有专门的语言特性来支持对源代码进行标注，然而 PHP 社区早已经形成惯例，通过在文档注释块中使用诸如 <literal>@annotation arguments</literal> 这样的标签来对标注源代码。在 PHP 中，文档注释块是可反射的：可以通过在函数、方法、类以及属性级别调用反射 API 的 <literal>getDocComment()</literal> 方法来访问它们。诸如 PHPUnit 这样的应用程序在运行时用这些信息来配置其行为。
   </para>
 
   <para>
-    This appendix shows all the varieties of annotations supported by PHPUnit.
+    本附录列出了 PHPUnit 所支持的所有标注种类。
   </para>
 
   <section id="appendixes.annotations.author">
@@ -27,10 +19,8 @@
     <para>
       <indexterm><primary>@author</primary></indexterm>
 
-      The <literal>@author</literal> annotation is an alias for the
-      <literal>@group</literal> annotation (see <xref
-      linkend="appendixes.annotations.group"/>) and allows to filter tests based
-      on their authors.
+      <literal>@author</literal> 标注是 <literal>@group</literal> 标注（参见 <xref
+      linkend="appendixes.annotations.group"/>）的别名，允许基于作者对测试进行过滤。
     </para>
   </section>
 
@@ -39,8 +29,7 @@
 
     <para>
 
-      The <literal>@after</literal> annotation can be used to specify methods
-      that should be called after each test method in a test case class.
+      <literal>@after</literal> 标注用于指定若干方法，这些方法在测试用例类中的每个测试方法运行完成之后调用。
       <programlisting>class MyTest extends PHPUnit_Framework_TestCase
 {
     /**
@@ -67,9 +56,7 @@
 
     <para>
 
-      The <literal>@afterClass</literal> annotation can be used to specify
-      static methods that should be called after all test methods in a test
-      class have been run to clean up shared fixtures.
+      <literal>@afterClass</literal> 标注用于指定若干静态方法，这些方法在测试类中的所有测试方法都运行完成之后调用，用来清理共享基境。
       <programlisting>class MyTest extends PHPUnit_Framework_TestCase
 {
     /**
@@ -97,8 +84,8 @@
     <para>
       <indexterm><primary><literal>@backupGlobals</literal></primary></indexterm>
 
-      The backup and restore operations for global variables can be completely
-      disabled for all tests of a test case class like this <programlisting>/**
+      全局变量的备份与还原操作可以对测试用例类中的所有测试彻底禁用，像这样：
+ <programlisting>/**
  * @backupGlobals disabled
  */
 class MyTest extends PHPUnit_Framework_TestCase
@@ -110,9 +97,8 @@ class MyTest extends PHPUnit_Framework_TestCase
     <para>
       <indexterm><primary><literal>@backupGlobals</literal></primary></indexterm>
 
-      The <literal>@backupGlobals</literal> annotation can also be used on the
-      test method level. This allows for a fine-grained configuration of the
-      backup and restore operations: <programlisting>/**
+      <literal>@backupGlobals</literal> 标注也可以用在测试方法这一级别。这样可以对备份与还原操作进行更细粒度的配置：
+<programlisting>/**
  * @backupGlobals disabled
  */
 class MyTest extends PHPUnit_Framework_TestCase
@@ -134,8 +120,7 @@ class MyTest extends PHPUnit_Framework_TestCase
     <para>
       <indexterm><primary><literal>@backupStaticAttributes</literal></primary></indexterm>
 
-      The backup and restore operations for static attributes of classes can be
-      completely disabled for all tests of a test case class like this
+      类的静态属性的备份与还原操作可以对测试用例类的所有测试彻底禁用，像这样：
       <programlisting>/**
  * @backupStaticAttributes disabled
  */
@@ -148,9 +133,8 @@ class MyTest extends PHPUnit_Framework_TestCase
     <para>
       <indexterm><primary><literal>@backupStaticAttributes</literal></primary></indexterm>
 
-      The <literal>@backupStaticAttributes</literal> annotation can also be used
-      on the test method level. This allows for a fine-grained configuration of
-      the backup and restore operations: <programlisting>/**
+      <literal>@backupStaticAttributes</literal> 标注也可以用在测试方法这一级别。这样可以对备份与还原操作进行更细粒度的配置：
+    <programlisting>/**
  * @backupStaticAttributes disabled
  */
 class MyTest extends PHPUnit_Framework_TestCase
@@ -170,9 +154,8 @@ class MyTest extends PHPUnit_Framework_TestCase
     <title>@before</title>
 
     <para>
+      The <literal>@before</literal> 标注用于指定若干方法，这些方法在测试用例类中的每个测试方法运行之前调用。
 
-      The <literal>@before</literal> annotation can be used to specify methods
-      that should be called before each test method in a test case class.
       <programlisting>class MyTest extends PHPUnit_Framework_TestCase
 {
     /**
@@ -198,10 +181,8 @@ class MyTest extends PHPUnit_Framework_TestCase
     <title>@beforeClass</title>
 
     <para>
+      <literal>@beforeClass</literal> 标注用于指定若干静态方法，这些方法在测试类中的任何测试方法运行之前调用，用来建立共享基境。
 
-      The <literal>@beforeClass</literal> annotation can be used to specify
-      static methods that should be called before any test methods in a test
-      class are run to set up shared fixtures.
       <programlisting>class MyTest extends PHPUnit_Framework_TestCase
 {
     /**
@@ -231,15 +212,12 @@ class MyTest extends PHPUnit_Framework_TestCase
       <indexterm><primary>@codeCoverageIgnoreStart</primary></indexterm>
       <indexterm><primary>@codeCoverageIgnoreEnd</primary></indexterm>
 
-      The <literal>@codeCoverageIgnore</literal>,
-      <literal>@codeCoverageIgnoreStart</literal> and
-      <literal>@codeCoverageIgnoreEnd</literal> annotations can be used
-      to exclude lines of code from the coverage analysis.
+      <literal>@codeCoverageIgnore</literal>、<literal>@codeCoverageIgnoreStart</literal> 和 <literal>@codeCoverageIgnoreEnd</literal> 标注用于从覆盖率分析中排出掉某些代码行。
     </para>
 
     <para>
-      For usage see <xref
-      linkend="code-coverage-analysis.ignoring-code-blocks"/>.
+      用法参见<xref
+      linkend="code-coverage-analysis.ignoring-code-blocks"/>。
     </para>
   </section>
 
@@ -247,11 +225,11 @@ class MyTest extends PHPUnit_Framework_TestCase
     <title>@covers</title>
 
     <para>
-      <indexterm><primary>Code Coverage</primary></indexterm>
+      <indexterm><primary>Code Coverage （代码覆盖率）</primary></indexterm>
       <indexterm><primary>@covers</primary></indexterm>
 
-      The <literal>@covers</literal> annotation can be used in the test code to
-      specify which method(s) a test method wants to test: <programlisting>/**
+      <literal>@covers</literal> 标注用在测试代码中，来指明测试方法想要对哪些方法进行测试：
+<programlisting>/**
  * @covers BankAccount::getBalance
  */
 public function testBalanceIsInitiallyZero()
@@ -261,65 +239,63 @@ public function testBalanceIsInitiallyZero()
     </para>
 
     <para>
-      If provided, only the code coverage information for the specified
-      method(s) will be considered.
+      如果提供了这个标注，则只考虑指明的这些方法的测试覆盖率信息。
     </para>
 
     <para>
-      <xref linkend="appendixes.annotations.covers.tables.annotations"/> shows
-      the syntax of the <literal>@covers</literal> annotation.
+      <xref linkend="appendixes.annotations.covers.tables.annotations"/>列出了 <literal>@covers</literal>  标注的语法。
     </para>
 
     <table id="appendixes.annotations.covers.tables.annotations">
-      <title>Annotations for specifying which methods are covered by a test</title>
+      <title>用于指明测试覆盖哪些方法的标注</title>
 
       <tgroup cols="2" align="left" colsep="1" rowsep="1">
         <thead>
           <row>
-            <entry>Annotation</entry>
-            <entry>Description</entry>
+            <entry>标注</entry>
+            <entry>描述</entry>
           </row>
         </thead>
         <tbody>
           <row>
             <entry><literal><![CDATA[@covers ClassName::methodName]]></literal></entry>
-            <entry><literal>Specifies that the annotated test method covers the specified method.</literal></entry>
+            <entry><literal>指明所标注的测试方法覆盖指定的方法。</literal></entry>
           </row>
           <row>
             <entry><literal><![CDATA[@covers ClassName]]></literal></entry>
-            <entry><literal>Specifies that the annotated test method covers all methods of a given class.</literal></entry>
+            <entry><literal>指明所标注的测试方法覆盖给定类的全部方法。</literal></entry>
           </row>
           <row>
             <entry><literal><![CDATA[@covers ClassName<extended>]]></literal></entry>
-            <entry><literal>Specifies that the annotated test method covers all methods of a given class and its parent class(es) and interface(s).</literal></entry>
+            <entry><literal>指明所标注的测试方法覆盖给定类以及其所有父类与接口的全部方法。</literal></entry>
           </row>
           <row>
             <entry><literal><![CDATA[@covers ClassName::<public>]]></literal></entry>
-            <entry><literal>Specifies that the annotated test method covers all public methods of a given class.</literal></entry>
+            <entry><literal>指明所标注的测试方法覆盖给定类的所有 public 方法。</literal></entry>
           </row>
           <row>
             <entry><literal><![CDATA[@covers ClassName::<protected>]]></literal></entry>
-            <entry><literal>Specifies that the annotated test method covers all protected methods of a given class.</literal></entry>
+            <entry><literal>指明所标注的测试方法覆盖给定类的所有 protected 方法。</literal></entry>
           </row>
           <row>
             <entry><literal><![CDATA[@covers ClassName::<private>]]></literal></entry>
-            <entry><literal>Specifies that the annotated test method covers all private methods of a given class.</literal></entry>
+            <entry><literal>指明所标注的测试方法覆盖给定类的所有 private 方法。</literal></entry>
           </row>
           <row>
             <entry><literal><![CDATA[@covers ClassName::<!public>]]></literal></entry>
-            <entry><literal>Specifies that the annotated test method covers all methods of a given class that are not public.</literal></entry>
+            <entry><literal>指明所标注的测试方法覆盖给定类的所有非 public 方法。</literal></entry>
           </row>
           <row>
             <entry><literal><![CDATA[@covers ClassName::<!protected>]]></literal></entry>
-            <entry><literal>Specifies that the annotated test method covers all methods of a given class that are not protected.</literal></entry>
+            <entry><literal>指明所标注的测试方法覆盖给定类的所有非 protected 方法。</literal></entry>
           </row>
           <row>
             <entry><literal><![CDATA[@covers ClassName::<!private>]]></literal></entry>
-            <entry><literal>Specifies that the annotated test method covers all methods of a given class that are not private.</literal></entry>
+            <entry><literal>指明所标注的测试方法覆盖给定类的所有非 private 方法。</literal></entry>
           </row>
           <row>
             <entry><literal><![CDATA[@covers ::functionName]]></literal></entry>
-            <entry><literal>Specifies that the annotated test method covers the specified global function.</literal></entry>
+            <entry><literal>指明所标注的测试方法覆盖给定的全局函数。</literal></entry>
           </row>
          </tbody>
       </tgroup>
@@ -332,20 +308,15 @@ public function testBalanceIsInitiallyZero()
     <para>
       <indexterm><primary>@coversNothing</primary></indexterm>
 
-      The <literal>@coversNothing</literal> annotation can be used in the
-      test code to specify that no code coverage information will be
-      recorded for the annotated test case.
+      <literal>@coversNothing</literal> 标注用在测试代码中，来指明所标注的测试用例不记录任何代码覆盖率信息。
     </para>
 
     <para>
-        This can be used for integration testing. See
-        <xref linkend="code-coverage-analysis.specifying-covered-methods.examples.GuestbookIntegrationTest.php"/>
-        for an example.
+        这可以用于集成测试。例子可参见<xref linkend="code-coverage-analysis.specifying-covered-methods.examples.GuestbookIntegrationTest.php"/>。
     </para>
 
     <para>
-        The annotation can be used on the class and the method level and
-        will override any <literal>@covers</literal> tags.
+        这个标注可以用在类级别或者方法级别，并且会覆盖掉任何 <literal>@covers</literal> 标签。
     </para>
   </section>
 
@@ -355,16 +326,11 @@ public function testBalanceIsInitiallyZero()
     <para>
       <indexterm><primary>@dataProvider</primary></indexterm>
 
-      A test method can accept arbitrary arguments. These arguments are to be
-      provided by a data provider method (<literal>provider()</literal> in
-      <xref linkend="writing-tests-for-phpunit.data-providers.examples.DataTest.php" />).
-      The data provider method to be used is specified using the
-      <literal>@dataProvider</literal> annotation.
+      测试方法可以接受任意参数。这些参数可以由数据供给器方法（<xref linkend="writing-tests-for-phpunit.data-providers.examples.DataTest.php" />中的 <literal>provider()</literal>）提供。所要使用的数据供给器方法用 <literal>@dataProvider</literal> 标注来指定。
     </para>
 
     <para>
-      See <xref linkend="writing-tests-for-phpunit.data-providers"/> for more
-      details.
+      更多细节参见<xref linkend="writing-tests-for-phpunit.data-providers"/>。
     </para>
   </section>
 
@@ -374,18 +340,11 @@ public function testBalanceIsInitiallyZero()
     <para>
       <indexterm><primary>@depends</primary></indexterm>
 
-      PHPUnit supports the declaration of explicit dependencies between test
-      methods. Such dependencies do not define the order in which the test
-      methods are to be executed but they allow the returning of an instance of
-      the test fixture by a producer and passing it to the dependent consumers.
-      <xref linkend="writing-tests-for-phpunit.examples.StackTest2.php"/> shows
-      how to use the <literal>@depends</literal> annotation to express
-      dependencies between test methods.
+      PHPUnit支持对测试方法之间的显式依赖关系进行声明。这种依赖关系并不是定义在测试方法的执行顺序中，而是允许生产者(producer)返回一个测试基境(fixture)的实例，并将此实例传递给依赖于它的消费者(consumer)们。<xref linkend="writing-tests-for-phpunit.examples.StackTest2.php"/>展示了如何用 <literal>@depends</literal> 标注来表达测试方法之间的依赖关系。
     </para>
 
     <para>
-      See <xref linkend="writing-tests-for-phpunit.test-dependencies"/> for more
-      details.
+      更多细节参见<xref linkend="writing-tests-for-phpunit.test-dependencies"/>。
     </para>
   </section>
 
@@ -395,14 +354,11 @@ public function testBalanceIsInitiallyZero()
     <para>
       <indexterm><primary>@expectedException</primary></indexterm>
 
-      <xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest.php" />
-      shows how to use the <literal>@expectedException</literal> annotation to
-      test whether an exception is thrown inside the tested code.
+      <xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest.php" />展示了如何用 <literal>@expectedException</literal> 标注来测试被测代码中是否抛出了异常。
     </para>
 
     <para>
-      See <xref linkend="writing-tests-for-phpunit.exceptions"/> for more
-      details.
+      更多细节参见<xref linkend="writing-tests-for-phpunit.exceptions"/>。
     </para>
   </section>
 
@@ -412,11 +368,7 @@ public function testBalanceIsInitiallyZero()
     <para>
       <indexterm><primary>@expectedExceptionCode</primary></indexterm>
 
-      The <literal>@expectedExceptionCode</literal> annotation, in conjunction
-      with the <literal>@expectedException</literal> allows making assertions on
-      the error code of a thrown exception thus being able to narrow down a
-      specific exception.
-
+      <literal>@expectedExceptionCode</literal> 标注，与 <literal>@expectedException</literal> 联合使用时，可以对来对抛出的异常的代号作出断言，这样可以缩小具体异常的范围。
       <programlisting>class MyTest extends PHPUnit_Framework_TestCase
 {
     /**
@@ -429,10 +381,7 @@ public function testBalanceIsInitiallyZero()
     }
 }</programlisting>
 
-      To ease testing and reduce duplication a shortcut can be used to
-      specify a class constant as an
-      <literal>@expectedExceptionCode</literal> using the
-      "<literal>@expectedExceptionCode ClassName::CONST</literal>" syntax.
+      为了方便测试，并减少冗余，可以在 <literal>@expectedExceptionCode</literal> 中用"<literal>@expectedExceptionCode ClassName::CONST</literal>"这样的语法为其指定类常数。
 
       <programlisting>class MyTest extends PHPUnit_Framework_TestCase
 {
@@ -460,9 +409,7 @@ class MyClass
     <para>
       <indexterm><primary>@expectedExceptionMessage</primary></indexterm>
 
-      The <literal>@expectedExceptionMessage</literal> annotation works similar
-      to <literal>@expectedExceptionCode</literal> as it lets you make an
-      assertion on the error message of an exception.
+      <literal>@expectedExceptionMessage</literal> 标注的运作方式类似于 <literal>@expectedExceptionCode</literal>，它允许你对异常的错误讯息作出断言。
 
       <programlisting>class MyTest extends PHPUnit_Framework_TestCase
 {
@@ -476,10 +423,7 @@ class MyClass
     }
 }</programlisting>
 
-      The expected message can be a substring of the exception Message.
-      This can be useful to only assert that a certain name or parameter that
-      was passed in shows up in the exception and not fixate the whole
-      exception message in the test.
+      预期讯息可以是异常讯息的子串。在只需要断言传入的特定名称或参数确实出现于异常中时这个特性很有用，这样就无需在测试中关注完整的异常讯息。
 
       <programlisting>class MyTest extends PHPUnit_Framework_TestCase
 {
@@ -494,12 +438,9 @@ class MyClass
      }
 }</programlisting>
 
-      To ease testing and reduce duplication a shortcut can be used to
-      specify a class constant as an
-      <literal>@expectedExceptionMessage</literal> using the
-      "<literal>@expectedExceptionMessage ClassName::CONST</literal>" syntax.
+      为了方便测试，并减少冗余，可以在 <literal>@expectedExceptionMessage</literal> 中用"<literal>@expectedExceptionMessage ClassName::CONST</literal>"这样的语法为其指定类常数。
 
-      A sample can be found in <xref linkend="appendixes.annotations.expectedExceptionCode"/>.
+      例子可以参看<xref linkend="appendixes.annotations.expectedExceptionCode"/>。
     </para>
 
   </section>
@@ -510,8 +451,8 @@ class MyClass
     <para>
       <indexterm><primary>@group</primary></indexterm>
 
-      A test can be tagged as belonging to one or more groups using the
-      <literal>@group</literal> annotation like this <programlisting>class MyTest extends PHPUnit_Framework_TestCase
+      测试可以用 <literal>@group</literal> 标注来标记为属于一个或多个组，就像这样：
+	  <programlisting>class MyTest extends PHPUnit_Framework_TestCase
 {
     /**
      * @group specification
@@ -531,10 +472,7 @@ class MyClass
     </para>
 
     <para>
-      Tests can be selected for execution based on groups using the
-      <literal>--group</literal> and <literal>--exclude-group</literal> switches
-      of the command-line test runner or using the respective directives of the
-      XML configuration file.
+      测试可以基于组来选择性的执行，使用命令行测试执行器的 <literal>--group</literal> 和 <literal>--exclude-group</literal> 开关，或者使用对应的 XML 配置文件指令。
     </para>
   </section>
 
@@ -544,9 +482,8 @@ class MyClass
     <para>
       <indexterm><primary><literal>@outputBuffering</literal></primary></indexterm>
 
-      The <literal>@outputBuffering</literal> annotation can be used to control
-      PHP's <ulink url="http://www.php.net/manual/en/intro.outcontrol.php">output buffering</ulink>
-      like this <programlisting>/**
+      <literal>@outputBuffering</literal> 标注用于控制 PHP 的<ulink url="http://www.php.net/manual/en/intro.outcontrol.php">输出缓冲</ulink>，就像这样：
+<programlisting>/**
  * @outputBuffering enabled
  */
 class MyTest extends PHPUnit_Framework_TestCase
@@ -558,9 +495,8 @@ class MyTest extends PHPUnit_Framework_TestCase
     <para>
       <indexterm><primary><literal>@outputBuffering</literal></primary></indexterm>
 
-      The <literal>@outputBuffering</literal> annotation can also be used on the
-      test method level. This allows for fine-grained control over the output
-      buffering: <programlisting>/**
+      <literal>@outputBuffering</literal> 标注也可用在测试方法级别。这样可以对输出缓冲进行更细粒度的控制：
+  <programlisting>/**
  * @outputBuffering disabled
  */
 class MyTest extends PHPUnit_Framework_TestCase
@@ -582,13 +518,8 @@ class MyTest extends PHPUnit_Framework_TestCase
     <para>
       <indexterm><primary>@preserveGlobalState</primary></indexterm>
 
-      When a test is run in a separate process, PHPUnit will
-      attempt to preserve the global state from the parent process by
-      serializing all globals in the parent process and unserializing them
-      in the child process. This can cause problems if the parent process
-      contains globals that are not serializable. To fix this, you can prevent
-      PHPUnit from preserving global state with the
-      <literal>@preserveGlobalState</literal> annotation.
+      在单独的进程中运行测试时，PHPUnit 会尝试保持来自父进程的全局状态（通过在父进程序列化全局状态然后在子进程反序列化的方式）。这当父进程包含非可序列化的全局内容时可能会导致问题。为了修正这种问题，可以用 <literal>@preserveGlobalState</literal> 标注来禁止 PHPUnit 保持全局状态。
+
       <programlisting>class MyTest extends PHPUnit_Framework_TestCase
 {
     /**
@@ -609,14 +540,12 @@ class MyTest extends PHPUnit_Framework_TestCase
     <para>
       <indexterm><primary><literal>@requires</literal></primary></indexterm>
 
-      The <literal>@requires</literal> annotation can be used skip tests when common
-      preconditions, like the PHP Version or installed extensions, are not met.
+      <literal>@requires</literal> 标注用于在常见前提条件（例如 PHP 版本或所安装的扩展）不满足时跳过测试。
     </para>
 
     <para>
       <indexterm><primary><literal>@requires</literal></primary></indexterm>
-      A complete list of possibilities and examples can be found at
-      <xref linkend="incomplete-and-skipped-tests.requires.tables.api" />
+      完整的可能用法以及例子见<xref linkend="incomplete-and-skipped-tests.requires.tables.api" />
     </para>
   </section>
 
@@ -626,8 +555,7 @@ class MyTest extends PHPUnit_Framework_TestCase
     <para>
       <indexterm><primary>@runTestsInSeparateProcesses</primary></indexterm>
 
-      Indicates that all tests in a test class should be run in a separate
-      PHP process. <programlisting>/**
+      指明单个测试类内的所有测试要各自运行在独立的 PHP 进程中。 <programlisting>/**
  * @runTestsInSeparateProcesses
  */
 class MyTest extends PHPUnit_Framework_TestCase
@@ -635,13 +563,8 @@ class MyTest extends PHPUnit_Framework_TestCase
     // ...
 }</programlisting>
 
-      <emphasis role="strong">Note:</emphasis> By default, PHPUnit will
-      attempt to preserve the global state from the parent process by
-      serializing all globals in the parent process and unserializing them
-      in the child process. This can cause problems if the parent process
-      contains globals that are not serializable. See <xref
-      linkend="appendixes.annotations.preserveGlobalState"/> for information
-      on how to fix this.
+      <emphasis role="strong">注意：</emphasis> 默认情况下，PHPUnit 会尝试保持来自父进程的全局状态（通过在父进程序列化全局状态然后在子进程反序列化的方式）。这当父进程包含非可序列化的全局内容时可能会导致问题。关于如何修正此问题的信息参见<xref
+      linkend="appendixes.annotations.preserveGlobalState"/>。
     </para>
   </section>
 
@@ -651,7 +574,7 @@ class MyTest extends PHPUnit_Framework_TestCase
     <para>
       <indexterm><primary>@runInSeparateProcess</primary></indexterm>
 
-      Indicates that a test should be run in a separate PHP process.
+      指明某个测试要运行在独立的 PHP 进程中。 
       <programlisting>class MyTest extends PHPUnit_Framework_TestCase
 {
     /**
@@ -663,13 +586,8 @@ class MyTest extends PHPUnit_Framework_TestCase
     }
 }</programlisting>
 
-      <emphasis role="strong">Note:</emphasis> By default, PHPUnit will
-      attempt to preserve the global state from the parent process by
-      serializing all globals in the parent process and unserializing them
-      in the child process. This can cause problems if the parent process
-      contains globals that are not serializable. See <xref
-      linkend="appendixes.annotations.preserveGlobalState"/> for information
-      on how to fix this.
+      <emphasis role="strong">注意：</emphasis> 默认情况下，PHPUnit 会尝试保持来自父进程的全局状态（通过在父进程序列化全局状态然后在子进程反序列化的方式）。这当父进程包含非可序列化的全局内容时可能会导致问题。关于如何修正此问题的信息参见<xref
+      linkend="appendixes.annotations.preserveGlobalState"/>。
     </para>
   </section>
 
@@ -679,9 +597,7 @@ class MyTest extends PHPUnit_Framework_TestCase
     <para>
       <indexterm><primary>@test</primary></indexterm>
 
-      As an alternative to prefixing your test method names with
-      <literal>test</literal>, you can use the <literal>@test</literal>
-      annotation in a method's DocBlock to mark it as a test method.
+      除了用 <literal>test</literal> 作为测试方法名称的前缀外，还可以在方法的文档注释块中用 <literal>@test</literal> 标注来将其标记为测试方法。
       <programlisting>/**
  * @test
  */

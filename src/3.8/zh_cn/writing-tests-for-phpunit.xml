@@ -375,7 +375,7 @@ Tests: 1, Assertions: 1, Failures: 1.</screen>
       <indexterm><primary>@expectedException</primary></indexterm>
       <indexterm><primary>@expectedExceptionMessage</primary></indexterm>
       <indexterm><primary>@expectedExceptionCode</primary></indexterm>
-      另外，你可以将 <literal>@expectedExceptionMessage</literal> 和 <literal>@expectedExceptionCode</literal> 与 <literal>@expectedException</literal> 组合使用，来对异常的讯息与代号进行测试，如<xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest2.php" />所示。
+      另外，你可以将 <literal>@expectedExceptionMessage</literal> 和 <literal>@expectedExceptionCode</literal> 与 <literal>@expectedException</literal> 联合使用，来对异常的讯息与代号进行测试，如<xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest2.php" />所示。
     </para>
 
     <example id="writing-tests-for-phpunit.exceptions.examples.ExceptionTest2.php">
@@ -548,6 +548,13 @@ class ExceptionTest extends PHPUnit_Framework_TestCase {
       默认情况下，PHPUnit 将测试在执行中触发的 PHP 错误、警告、通知都转换为异常。利用这些异常，就可以，比如说，预期测试将触发 PHP 错误，如<xref linkend="writing-tests-for-phpunit.exceptions.examples.ErrorTest.php" />所示。
     </para>
 
+
+    <note>
+      <para>
+        PHP 的 <literal>error_reporting</literal> 运行时配置会对 PHPUnit 将哪些错误转换为异常有所限制。如果在这个特性上碰到问题，请确认 PHP 的配置中没有抑制想要测试的错误类型。
+      </para>
+    </note>
+
     <example id="writing-tests-for-phpunit.exceptions.examples.ErrorTest.php">
       <title>用 @expectedException 来预期 PHP 错误</title>
       <programlisting><![CDATA[<?php
@@ -562,7 +569,7 @@ class ExpectedErrorTest extends PHPUnit_Framework_TestCase
     }
 }
 ?>]]></programlisting>
-      <screen><userinput>phpunit ExpectedErrorTest</userinput>
+      <screen><userinput>phpunit -d error_reporting=2 ExpectedErrorTest</userinput>
 PHPUnit 3.8.0 by Sebastian Bergmann.
 
 .
