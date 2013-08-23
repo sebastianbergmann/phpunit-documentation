@@ -133,18 +133,6 @@ function webify_file($file, $toc, $languageList, $versionList)
       $template
     );
 
-    if (function_exists('tidy_repair_string')) {
-        $buffer = tidy_repair_string(
-          $buffer,
-          array(
-            'indent'       => TRUE,
-            'output-xhtml' => TRUE,
-            'wrap'         => 0
-          ),
-          'utf8'
-        );
-    }
-
     file_put_contents($file, $buffer);
 }
 

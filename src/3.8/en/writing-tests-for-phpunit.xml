@@ -624,6 +624,15 @@ class ExceptionTest extends PHPUnit_Framework_TestCase {
       shown in <xref linkend="writing-tests-for-phpunit.exceptions.examples.ErrorTest.php" />.
     </para>
 
+    <note>
+      <para>
+        PHP's <literal>error_reporting</literal> runtime configuration can
+        limit which errors PHPUnit will convert to exceptions. If you are
+        having issues with this feature, be sure PHP is not configured to
+        suppress the type of errors you're testing.
+      </para>
+    </note>
+
     <example id="writing-tests-for-phpunit.exceptions.examples.ErrorTest.php">
       <title>Expecting a PHP error using @expectedException</title>
       <programlisting><![CDATA[<?php
@@ -638,7 +647,7 @@ class ExpectedErrorTest extends PHPUnit_Framework_TestCase
     }
 }
 ?>]]></programlisting>
-      <screen><userinput>phpunit ExpectedErrorTest</userinput>
+      <screen><userinput>phpunit -d error_reporting=2 ExpectedErrorTest</userinput>
 PHPUnit 3.8.0 by Sebastian Bergmann.
 
 .

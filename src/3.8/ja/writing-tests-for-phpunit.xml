@@ -645,6 +645,15 @@ class ExceptionTest extends PHPUnit_Framework_TestCase {
       のように PHP のエラーが発生することをテストできます。
     </para>
 
+    <note>
+      <para>
+        PHP の実行時設定 <literal>error_reporting</literal> を使うと、
+        PHPUnit がどのエラーを例外に変換するのかを制限できます。
+        この機能に関して何か問題がでた場合は、PHP の設定を見直し、
+        調べたいと思っているエラーを抑制するようになっていないかどうか確認しましょう。
+      </para>
+    </note>
+
     <example id="writing-tests-for-phpunit.exceptions.examples.ErrorTest.php">
       <title>@expectedException を用いた、PHP エラーが発生することのテスト</title>
       <programlisting><![CDATA[<?php
@@ -659,7 +668,7 @@ class ExpectedErrorTest extends PHPUnit_Framework_TestCase
     }
 }
 ?>]]></programlisting>
-      <screen><userinput>phpunit ExpectedErrorTest</userinput>
+      <screen><userinput>phpunit -d error_reporting=2 ExpectedErrorTest</userinput>
 PHPUnit 3.8.0 by Sebastian Bergmann.
 
 .
