@@ -86,5 +86,20 @@
       <l:gentext key="Index" text=""/>
       <l:gentext key="index" text=""/>
     </l:l10n>
+    <l:l10n language="zh_cn">
+      <l:context name="title">
+        <l:template name="example" text="例 %n: %t"/>
+      </l:context>
+      <l:context name="xref-number-and-title">
+        <l:template name="part" text="%n 部分"/>
+        <l:template name="appendix" text="附录 %n"/>
+        <l:template name="chapter" text="第 %n 章"/>
+        <l:template name="example" text="例 %n"/>
+        <l:template name="figure" text="图 %n"/>
+        <l:template name="table" text="表 %n"/>
+      </l:context>
+      <l:gentext key="Index" text=""/>
+      <l:gentext key="index" text=""/>
+    </l:l10n>
   </l:i18n>
 </xsl:stylesheet>

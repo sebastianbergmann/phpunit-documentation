@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="goals">
+  <title>PHPUnit 的目标</title>
+
+  <para>
+    到目前为止，我们还只有2个测试，用于PHP内建的 <literal>array</literal> 和 <literal>count()</literal> 函数。当我们开始对 PHP 提供的为数众多的 <literal>array_*()</literal> 函数进行测试时，需要为它们逐一编写测试。对于这些测试，可以每一个都从头编写相关的基础部分。但是，显然有更好的办法：一次性的编写一套通用的基础，然后每个测试都只要编写它特有的部分即可。PHPUnit 就是这样一套基础。
+  </para>
+
+  <para>
+    象 PHPUnit 这样的框架必须处理一系列的约束条件，其中有中有一些看上去是互相矛盾的。测试应当同时做到以下几点：
+  </para>
+
+  <variablelist>
+    <varlistentry>
+      <term><emphasis>易于学习编写。</emphasis></term>
+      <listitem>
+        <para>
+          如果很难学会如何编写测试，那么开发者们就不会去学。
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><emphasis>易于编写。</emphasis></term>
+      <listitem>
+        <para>
+          如果测试不容易编写，开发者们就不会去写。
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><emphasis>易于阅读。</emphasis></term>
+      <listitem>
+        <para>
+          测试代码不应当引入额外的开销，避免淹没测试内容本身。
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><emphasis>执行方便。</emphasis></term>
+      <listitem>
+        <para>
+          测试应当只要点一个按钮就能运行，并且以清晰明确的格式呈现结果。
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><emphasis>执行快速。</emphasis></term>
+      <listitem>
+        <para>
+          测试需要运行的很快，这样才能每天都运行成百上千次。
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><emphasis>相互隔离。</emphasis></term>
+      <listitem>
+        <para>
+          不同测试之间应当互不影响。改变测试的运行顺序应当不影响测试的结果。
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><emphasis>可组合。</emphasis></term>
+      <listitem>
+        <para>
+          应当能将任意数量的测试以任意组合方式运行。这是相互独立的必然结果。
+        </para>
+      </listitem>
+    </varlistentry>
+  </variablelist>
+
+  <para>
+    这些约束条件中有两个主要的矛盾：
+  </para>
+
+  <variablelist>
+    <varlistentry>
+      <term><emphasis>易于学习编写 VS 易于编写</emphasis></term>
+      <listitem>
+        <para>
+          一般来说，测试并不需要编程语言的全部灵活性。许多测试工具都提供了自有的脚本语言，这些脚本语言只包含编写测试所必须的那些特性。这样得到的测试易于阅读也易于编写，因为没有会让你从测试内容本身分心的干扰内容。但是，学习其他编程语言和编程工具集并不方便，并且还会干扰思维。
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><emphasis>相互隔离 VS 执行快速</emphasis></term>
+      <listitem>
+        <para>
+          如果想要单个测试的结果不会影响其他测试，那么每个测试都需要在运行前创建完整的运行场景，并在运行结束后将所有状态复原。但是，建立场景可能需要很长时间：例如连接数据库并用实际数据将其初始化为已知状态。
+        </para>
+      </listitem>
+    </varlistentry>
+  </variablelist>
+
+  <para>
+    PHPUnit 使用 PHP 本身来作为测试语言，尝试以此解决这些矛盾。在某些情况下，用功能强大的 PHP 的来写个小小的测试显得有些杀鸡用牛刀。但是使用 PHP，让程序员们可以直接利用已经掌握的全部经验和工具。由于我们要说服心存抵触的测试人员，因此降低开始编写测试的门槛是很重要的。
+  </para>
+
+  <para>
+    PHPUnit 侧重于相互隔离而非执行快速。相互隔离的测试能提供高质量的反馈，这是很宝贵的。不会碰到这样的情况：其实仅仅只有测试套件开头的某个测试失败，但因为它给后继测试留下了混乱的测试场景，结果导致在测试报告里出现了一连串的测试失败信息。对相互隔离的侧重鼓励在设计中采用大量简单对象。每个对象都能在互相隔离的情况下快速完成测试。由此得到的结果是更好的设计<emphasis>和</emphasis>更快的测试。
+  </para>
+
+  <para>
+    PHPUnit 假定绝大多数测试都会成功，并且这些成功的测试其细节无需报告。只有失败的测试才值得关注并报告。除了统计运行的测试数量外，对占绝大多数的成功的测试无需关注。这个假设实际上是内建于报告类中，而非 PHPUnit 的内核中。在测试报告中，你可以看到一共运行了多少测试，但是只有失败的测试才有明细信息。
+  </para>
+
+  <para>
+    测试应当有良好的粒度划分，每个测试应当只测试一个对象的一个方面。因此，第一个失败的测试就会中止测试的执行，同时 PHPUnit 会报告此错误。通过运行大量小测试来对软件进行测试是一种艺术。具有良好粒度划分的测试能够帮助改善系统的总体设计。
+  </para>
+
+  <para>
+    使用 PHPUnit 测试一个对象时，只能利用对象的公共接口。只基于公共可见行为进行测试，有助于让你差劲的设计造成的后果在系统中广为蔓延之前就尽早面对并解决困难的设计问题。
+  </para>
+</chapter>

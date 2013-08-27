@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="behaviour-driven-development">
+  <title>行为驱动开发</title>
+
+  <para>
+    <indexterm><primary>Extreme Programming （极限编程）</primary></indexterm>
+    <indexterm><primary>Test-Driven Development （测试驱动开发）</primary></indexterm>
+
+    在<xref linkend="Astels2006" />中，, Dave Astels 提出了以下几点：
+  </para>
+
+  <itemizedlist>
+    <listitem>
+      <para>
+        <ulink url="http://en.wikipedia.org/wiki/Extreme_Programming">极限编程</ulink>原本就有测试所有可能出错的东西的规则。
+      </para>
+    </listitem>
+    <listitem>
+      <para>
+        现在，不管怎样，极限编程中的测试实践已经进化为<ulink url="http://en.wikipedia.org/wiki/Test-driven_development">测试驱动开发</ulink>（参见 <xref linkend="test-driven-development" />）。
+      </para>
+    </listitem>
+    <listitem>
+      <para>
+        但是工具依然强迫开发者从测试与断言这方面去考虑，而不是从规格方面去考虑。
+      </para>
+    </listitem>
+  </itemizedlist>
+
+  <blockquote>
+    <attribution>Dave Astels</attribution>
+    <title>这么说来它不是关于测试的，那么是关于什么的？</title>
+    <para>
+      这是关于在轻率地开始尝试之前先搞明白你到底要做什么的。你要编写以简洁、明确、可执行的形式编写一份规范，来明确行为的一个小方面。就是这么简单。这是否意味着编写测试呢？不。这意味着就代码需要做什么编写规范。这意味着提前指定代码的行为。不过并不提前很多。实际上，恰好在编写代码之前是最好的，因为在这个时刻你拥有最多的信息。就像 TDD 中那样，以很小的增量工作……一次只指定行为的一个小方面，然后实现之。
+    </para>
+    <para>
+      当你认识到它完全是关于指定行为而非编写测试时，你的观点就提升了。突然间，为每个生产类编写对应的测试类的想法就变成一种可笑的限制。同时，每个方法都用对应的测试方法（以一一对应关系）来测试的想法也一样变得很可笑。
+    </para>
+  </blockquote>
+
+  <para>
+    <indexterm><primary>Behaviour-Driven Development （行为驱动开发）</primary></indexterm>
+    <indexterm><primary>Domain-Driven Design （领域驱动设计）</primary></indexterm>
+
+    <ulink url="http://en.wikipedia.org/wiki/Behavior_driven_development">行为驱动开发(Behaviour-Driven Development)</ulink>的焦点是软件开发过程中所使用的语言与交互。行为驱动的开发者使用他们的原生语言配合<ulink url="http://en.wikipedia.org/wiki/Domain_driven_design">领域驱动设计(Domain-Driven Design)</ulink>的普遍语言来描述代码的目的与收益。这使得开发者能够将精力集中于为什么需要创建这些代码，而不是技术细节，并且能最小化编写代码所使用的技术语言和领域专家所使用的领域语言之间的转换。
+  </para>
+
+  <caution>
+    <para>
+      你要用 <ulink url="http://behat.org/">Behat</ulink> 来进行行为驱动开发，而非本章其余部分所讨论的 PHPUnit 的 <literal>PHPUnit_Extensions_Story_TestCase</literal> 扩展。
+    </para>
+  </caution>
+
+  <para>
+    <indexterm><primary><literal>PHPUnit_Extensions_Story_TestCase</literal></primary></indexterm>
+
+    <literal>PHPUnit_Extensions_Story_TestCase</literal> 类添加了一个便于为行为驱动开发定义<ulink url="http://en.wikipedia.org/wiki/Domain-specific_programming_language">特定领域语言(Domain-Specific Language)</ulink>的故事框架。他可以这样安装：
+  </para>
+
+  <screen><userinput>pear install phpunit/PHPUnit_Story</userinput></screen>
+
+  <para>
+    在<emphasis>剧本(scenario)</emphasis>内，<literal>given()</literal>、<literal>when()</literal> 和 <literal>then()</literal> 每个都代表了一个<emphasis>步骤(step)</emphasis>。<literal>and()</literal> 同样也是这类步骤。以下方法在 <literal>PHPUnit_Extensions_Story_TestCase</literal> 中声明为 <literal>abstract</literal> 并且需要实现之：
+  </para>
+
+  <itemizedlist>
+    <listitem>
+      <para><literal>runGiven(&amp;$world, $action, $arguments)</literal></para>
+      <para>...</para>
+    </listitem>
+
+    <listitem>
+      <para><literal>runWhen(&amp;$world, $action, $arguments)</literal></para>
+      <para>...</para>
+    </listitem>
+
+    <listitem>
+      <para><literal>runThen(&amp;$world, $action, $arguments)</literal></para>
+      <para>...</para>
+    </listitem>
+  </itemizedlist>
+
+  <section id="behaviour-driven-development.bowlinggame-example">
+    <title>保龄球游戏(BowlingGame)的例子</title>
+
+    <para>
+      在本节中，我们来看一个例子，关于一个计算一局保龄球得分的类。规则如下：
+    </para>
+
+    <itemizedlist>
+      <listitem>
+        <para>一局分为10轮(frame)。</para>
+      </listitem>
+      <listitem>
+        <para>每一轮有两次投球机会来将10个球瓶击倒。</para>
+      </listitem>
+      <listitem>
+        <para>每轮的得分是击倒的球瓶总数加上全中(strike)和补中(spare)带来的奖励。</para>
+      </listitem>
+      <listitem>
+        <para>补中是指运动员用两次击球将10个球瓶全部击倒。</para>
+        <para>本轮的奖励是下一次击球所击倒的球瓶数。</para>
+      </listitem>
+      <listitem>
+        <para>全中指运动员在第一次击球尝试时就将10个球瓶全部击倒。</para>
+        <para>本轮的奖励是下两次击球所击倒的球瓶数。</para>
+      </listitem>
+    </itemizedlist>
+
+    <para>
+      <xref linkend="behaviour-driven-development.bowlinggame-example.examples.BowlingGameSpec.php" />展示了如何用 <literal>PHPUnit_Extensions_Story_TestCase</literal> 把上述规则写成规格脚本。
+    </para>
+
+    <example id="behaviour-driven-development.bowlinggame-example.examples.BowlingGameSpec.php">
+      <title>BowlingGame 类的规格</title>
+      <programlisting><![CDATA[<?php
+require_once 'PHPUnit/Extensions/Story/TestCase.php';
+require_once 'BowlingGame.php';
+
+class BowlingGameSpec extends PHPUnit_Extensions_Story_TestCase
+{
+    /**
+     * @scenario
+     */
+    public function scoreForGutterGameIs0()
+    {
+        $this->given('New game')
+             ->then('Score should be', 0);
+    }
+
+    /**
+     * @scenario
+     */
+    public function scoreForAllOnesIs20()
+    {
+        $this->given('New game')
+             ->when('Player rolls', 1)
+             ->and('Player rolls', 1)
+             ->and('Player rolls', 1)
+             ->and('Player rolls', 1)
+             ->and('Player rolls', 1)
+             ->and('Player rolls', 1)
+             ->and('Player rolls', 1)
+             ->and('Player rolls', 1)
+             ->and('Player rolls', 1)
+             ->and('Player rolls', 1)
+             ->and('Player rolls', 1)
+             ->and('Player rolls', 1)
+             ->and('Player rolls', 1)
+             ->and('Player rolls', 1)
+             ->and('Player rolls', 1)
+             ->and('Player rolls', 1)
+             ->and('Player rolls', 1)
+             ->and('Player rolls', 1)
+             ->and('Player rolls', 1)
+             ->and('Player rolls', 1)
+             ->then('Score should be', 20);
+    }
+
+    /**
+     * @scenario
+     */
+    public function scoreForOneSpareAnd3Is16()
+    {
+        $this->given('New game')
+             ->when('Player rolls', 5)
+             ->and('Player rolls', 5)
+             ->and('Player rolls', 3)
+             ->then('Score should be', 16);
+    }
+
+    /**
+     * @scenario
+     */
+    public function scoreForOneStrikeAnd3And4Is24()
+    {
+        $this->given('New game')
+             ->when('Player rolls', 10)
+             ->and('Player rolls', 3)
+             ->and('Player rolls', 4)
+             ->then('Score should be', 24);
+    }
+
+    /**
+     * @scenario
+     */
+    public function scoreForPerfectGameIs300()
+    {
+        $this->given('New game')
+             ->when('Player rolls', 10)
+             ->and('Player rolls', 10)
+             ->and('Player rolls', 10)
+             ->and('Player rolls', 10)
+             ->and('Player rolls', 10)
+             ->and('Player rolls', 10)
+             ->and('Player rolls', 10)
+             ->and('Player rolls', 10)
+             ->and('Player rolls', 10)
+             ->and('Player rolls', 10)
+             ->and('Player rolls', 10)
+             ->and('Player rolls', 10)
+             ->then('Score should be', 300);
+    }
+
+    public function runGiven(&$world, $action, $arguments)
+    {
+        switch($action) {
+            case 'New game': {
+                $world['game']  = new BowlingGame;
+                $world['rolls'] = 0;
+            }
+            break;
+
+            default: {
+                return $this->notImplemented($action);
+            }
+        }
+    }
+
+    public function runWhen(&$world, $action, $arguments)
+    {
+        switch($action) {
+            case 'Player rolls': {
+                $world['game']->roll($arguments[0]);
+                $world['rolls']++;
+            }
+            break;
+
+            default: {
+                return $this->notImplemented($action);
+            }
+        }
+    }
+
+    public function runThen(&$world, $action, $arguments)
+    {
+        switch($action) {
+            case 'Score should be': {
+                for ($i = $world['rolls']; $i < 20; $i++) {
+                    $world['game']->roll(0);
+                }
+
+                $this->assertEquals($arguments[0], $world['game']->score());
+            }
+            break;
+
+            default: {
+                return $this->notImplemented($action);
+            }
+        }
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit --printer PHPUnit_Extensions_Story_ResultPrinter_Text BowlingGameSpec</userinput>
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+BowlingGameSpec
+ [x] Score for gutter game is 0
+
+   Given New game 
+    Then Score should be 0
+
+ [x] Score for all ones is 20
+
+   Given New game 
+    When Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+     and Player rolls 1
+    Then Score should be 20
+
+ [x] Score for one spare and 3 is 16
+
+   Given New game 
+    When Player rolls 5
+     and Player rolls 5
+     and Player rolls 3
+    Then Score should be 16
+
+ [x] Score for one strike and 3 and 4 is 24
+
+   Given New game 
+    When Player rolls 10
+     and Player rolls 3
+     and Player rolls 4
+    Then Score should be 24
+
+ [x] Score for perfect game is 300
+
+   Given New game 
+    When Player rolls 10
+     and Player rolls 10
+     and Player rolls 10
+     and Player rolls 10
+     and Player rolls 10
+     and Player rolls 10
+     and Player rolls 10
+     and Player rolls 10
+     and Player rolls 10
+     and Player rolls 10
+     and Player rolls 10
+     and Player rolls 10
+    Then Score should be 300
+
+Scenarios: 5, Failed: 0, Skipped: 0, Incomplete: 0.</screen>
+    </example>
+  </section>
+</chapter>
