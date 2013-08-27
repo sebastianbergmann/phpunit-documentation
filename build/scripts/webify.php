@@ -17,7 +17,8 @@ function webify_directory($directory, $language, $version)
       'en'    => array('3.8', '3.7'),
       'fr'    => array('3.8', '3.7'),
       'ja'    => array('3.8', '3.7'),
-      'pt_br' => array('3.8', '3.7')
+      'pt_br' => array('3.8', '3.7'),
+      'zh_cn' => array('3.8')
     );
 
     $languageList = '';
@@ -32,16 +33,6 @@ function webify_directory($directory, $language, $version)
 
             case 'en': {
                 $_languageName = 'English';
-
-                foreach ($versions as $_version) {
-                    $versionList .= sprintf(
-                      '<li%s><a href="../../%s/%s/index.html">PHPUnit %s</a></li>',
-                      $version == $_version ? ' class="active"' : '',
-                      $_version,
-                      $language,
-                      $_version
-                    );
-                }
             }
             break;
 
@@ -59,6 +50,12 @@ function webify_directory($directory, $language, $version)
                 $_languageName = 'Brazilian Portuguese';
             }
             break;
+
+            case 'zh_cn': {
+                $_languageName = 'Simplified Chinese';
+            }
+            break;
+
         }
 
         $languageList .= sprintf(
@@ -67,14 +64,29 @@ function webify_directory($directory, $language, $version)
           $_language,
           $_languageName
         );
+
+    }
+
+
+    //$versionList:
+    //only list available version in current language, default-language = en.
+    $versions = $editions[ array_key_exists($language, $editions) ? $language : 'en' ];
+    foreach ($versions as $_version) {
+        $versionList .= sprintf(
+          '<li%s><a href="../../%s/%s/index.html">PHPUnit %s</a></li>',
+          $version == $_version ? ' class="active"' : '',
+          $_version,
+          $language,
+          $_version
+        );
     }
 
     foreach (new HTMLFilterIterator(new DirectoryIterator($directory)) as $file) {
-        webify_file($file->getPathName(), $toc, $languageList, $versionList);
+        webify_file($file->getPathName(), $toc, $languageList, $versionList, $language);
     }
 }
 
-function webify_file($file, $toc, $languageList, $versionList)
+function webify_file($file, $toc, $languageList, $versionList, $language)
 {
     $filename = basename($file);
 
@@ -98,6 +110,19 @@ function webify_file($file, $toc, $languageList, $versionList)
     $next        = '';
     $suggestions = '';
 
+    $prev_text = array(
+		'en' => 'Prev',
+		'zh_cn' => '上一章',
+    );
+    $next_text = array(
+		'en' => 'Next',
+		'zh_cn' => '下一章',
+    );
+	$suggestions_text = array(
+		'en' => 'Please <a href="https://github.com/sebastianbergmann/phpunit-documentation/issues">open a ticket</a> on GitHub to suggest improvements to this page. Thanks!',
+		'zh_cn' => '请在 GitHub 上 <a href="https://github.com/sebastianbergmann/phpunit-documentation/issues">开启任务单</a> 来对本页提出改进建议。万分感谢！',
+	);
+
     if ($filename !== 'index.html') {
         if (strpos($filename, 'appendixes') === 0) {
             $type = 'appendix';
@@ -116,14 +141,14 @@ function webify_file($file, $toc, $languageList, $versionList)
         $content     = get_substring($buffer, '<div class="' . $type . '"', '<div class="navfooter">', TRUE, FALSE);
         $prev        = get_substring($buffer, '<link rel="prev" href="', '" title', FALSE, FALSE);
         $next        = get_substring($buffer, '<link rel="next" href="', '" title', FALSE, FALSE);
-        $suggestions = '<div class="row"><div class="span2"></div><div class="span8"><div class="alert alert-info" style="text-align: center;">Please <a href="https://github.com/sebastianbergmann/phpunit-documentation/issues">open a ticket</a> on GitHub to suggest improvements to this page. Thanks!</div></div><div class="span2"></div></div>';
+        $suggestions = '<div class="row"><div class="span2"></div><div class="span8"><div class="alert alert-info" style="text-align: center;">' . getTextInLang($suggestions_text, $language) . '</div></div><div class="span2"></div></div>';
 
         if (!empty($prev)) {
-            $prev = '<a accesskey="p" href="' . $prev . '">Prev</a>';
+            $prev = '<a accesskey="p" href="' . $prev . '">' . getTextInLang($prev_text, $language) . '</a>';
         }
 
         if (!empty($next)) {
-            $next = '<a accesskey="n" href="' . $next . '">Next</a>';
+            $next = '<a accesskey="n" href="' . $next . '">' . getTextInLang($next_text, $language) . '</a>';
         }
     }
 
@@ -134,6 +159,16 @@ function webify_file($file, $toc, $languageList, $versionList)
     );
 
     file_put_contents($file, $buffer);
+}
+
+function getTextInLang($text_list, $lang)
+{
+    if(array_key_exists($lang, $text_list)){
+        return $text_list[$lang];
+    }
+    else{
+        return $text_list['en'];
+    }
 }
 
 function get_substring($buffer, $start, $end, $includeStart = TRUE, $includeEnd = TRUE, $strrpos = FALSE)
