@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="utf-8" ?>
 
 <appendix id="appendixes.configuration">
-  <title>The XML Configuration File</title>
+  <title>XML 配置文件</title>
 
   <section id="appendixes.configuration.phpunit">
     <title>PHPUnit</title>
 
     <para>
-      The attributes of the <literal><![CDATA[<phpunit>]]></literal> element can
-      be used to configure PHPUnit's core functionality.
+      <literal><![CDATA[<phpunit>]]></literal> 元素的属性用于配置 PHPUnit 的核心功能。
     </para>
 
     <screen><![CDATA[<phpunit backupGlobals="true"
@@ -36,12 +35,11 @@
 </phpunit>]]></screen>
 
     <para>
-      The XML configuration above corresponds to the default behaviour of the
-      TextUI test runner documented in <xref linkend="textui.clioptions" />.
+      以上 XML 配置对应的是在 <xref linkend="textui.clioptions" /> 描述过的 TextUI 测试执行器的默认行为。
     </para>
 
     <para>
-      Additional options that are not available as command-line switches are:
+      其他那些不能用命令行选项来配置的选项有：
     </para>
 
     <variablelist>
@@ -50,8 +48,7 @@
         <term><literal>convertErrorsToExceptions</literal></term>
         <listitem>
           <para>
-            By default, PHPUnit will install an error handler that converts
-            the following errors to exceptions:
+            默认情况下，PHPUnit 将会安插一个错误处理程序来将以下错误转换为异常：
           </para>
 
           <itemizedlist>
@@ -67,8 +64,8 @@
           </itemizedlist>
 
           <para>
-            Set <literal>convertErrorsToExceptions</literal> to
-            <literal>false</literal> to disable this feature.
+            将 <literal>convertErrorsToExceptions</literal> 设为
+            <literal>false</literal> 可以禁用此功能。
           </para>
         </listitem>
       </varlistentry>
@@ -77,10 +74,7 @@
         <term><literal>convertNoticesToExceptions</literal></term>
         <listitem>
           <para>
-            When set to <literal>false</literal>, the error handler installed
-            by <literal>convertErrorsToExceptions</literal> will not convert
-            <literal>E_NOTICE</literal>, <literal>E_USER_NOTICE</literal>, or
-            <literal>E_STRICT</literal> errors to exceptions.
+            设置为 <literal>false</literal> 时，由 <literal>convertErrorsToExceptions</literal> 安插的错误处理程序不会将 <literal>E_NOTICE</literal>、<literal>E_USER_NOTICE</literal>、<literal>E_STRICT</literal> 错误转换为异常。
           </para>
         </listitem>
       </varlistentry>
@@ -89,10 +83,7 @@
         <term><literal>convertWarningsToExceptions</literal></term>
         <listitem>
           <para>
-            When set to <literal>false</literal>, the error handler installed
-            by <literal>convertErrorsToExceptions</literal> will not convert
-            <literal>E_WARNING</literal> or <literal>E_USER_WARNING</literal>
-            errors to exceptions.
+             设置为 <literal>false</literal> 时，由 <literal>convertErrorsToExceptions</literal> 安插的错误处理程序不会将 <literal>E_WARNING</literal> 或 <literal>E_USER_WARNING</literal> 错误转换为异常。
           </para>
         </listitem>
       </varlistentry>
@@ -101,9 +92,7 @@
         <term><literal>forceCoversAnnotation</literal></term>
         <listitem>
           <para>
-            Code Coverage will only be recorded for tests that use the
-            <literal>@covers</literal> annotation documented in
-            <xref linkend="appendixes.annotations.covers" />.
+            只记录使用了 <xref linkend="appendixes.annotations.covers" /> 描述的 <literal>@covers</literal> 标注的测试的代码覆盖率。
           </para>
         </listitem>
       </varlistentry>
@@ -113,14 +102,12 @@
   </section>
 
   <section id="appendixes.configuration.testsuites">
-    <title>Test Suites</title>
+    <title>测试套件</title>
 
     <para>
-      <indexterm><primary>Test Suite</primary></indexterm>
+      <indexterm><primary>Test Suite （测试套件）</primary></indexterm>
 
-      The <literal><![CDATA[<testsuites>]]></literal> element and its
-      one or more <literal><![CDATA[<testsuite>]]></literal> children can be
-      used to compose a test suite out of test suites and test cases.
+      带有一个或多个 <literal><![CDATA[<testsuite>]]></literal> 子元素的 <literal><![CDATA[<testsuites>]]></literal> 元素用于将测试用例与测试套件组合成测试套件。
     </para>
 
     <screen><![CDATA[<testsuites>
@@ -132,12 +119,7 @@
 </testsuites>]]></screen>
 
     <para>
-      Using the <literal>phpVersion</literal> and
-      <literal>phpVersionOperator</literal> attributes, a required PHP version
-      can be specified. The example below will only add the
-      <filename>/path/to/*Test.php</filename> files and
-      <filename>/path/to/MyTest.php</filename> file if the PHP version is at
-      least 5.3.0.
+      可以用 <literal>phpVersion</literal> 和 <literal>phpVersionOperator</literal> 属性来指定 PHP 版本需求。在以下例子中，仅当 PHP 版本至少为 5.3.0 时才会将 <filename>/path/to/*Test.php</filename> 文件与 <filename>/path/to/MyTest.php</filename> 添加到测试套件中。
     </para>
 
     <screen><![CDATA[  <testsuites>
@@ -148,22 +130,17 @@
   </testsuites>]]></screen>
 
     <para>
-      The <literal>phpVersionOperator</literal> attribute is optional and
-      defaults to <literal><![CDATA[>=]]></literal>.
+      <literal>phpVersionOperator</literal> 属性是可选的，默认为 <literal><![CDATA[>=]]></literal>。
     </para>
   </section>
 
   <section id="appendixes.configuration.groups">
-    <title>Groups</title>
+    <title>分组</title>
 
     <para>
-      <indexterm><primary>Test Groups</primary></indexterm>
+      <indexterm><primary>Test Groups （测试分组）</primary></indexterm>
 
-      The <literal><![CDATA[<groups>]]></literal> element and its
-      <literal><![CDATA[<include>]]></literal>,
-      <literal><![CDATA[<exclude>]]></literal>, and
-      <literal><![CDATA[<group>]]></literal> children can be used to select
-      groups of tests from a suite of tests that should (not) be run.
+      <literal><![CDATA[<groups>]]></literal> 元素及其 <literal><![CDATA[<include>]]></literal>、<literal><![CDATA[<exclude>]]></literal>、<literal><![CDATA[<group>]]></literal> 子元素用于从测试套件中选择需要运行（或不运行）的分组。
     </para>
 
     <screen><![CDATA[<groups>
@@ -176,8 +153,7 @@
 </groups>]]></screen>
 
     <para>
-      The XML configuration above corresponds to invoking the TextUI test runner
-      with the following switches:
+      以上 XML 配置对应于用以下命令行选项来调用 TextUI 测试执行器：
     </para>
 
     <itemizedlist>
@@ -187,16 +163,14 @@
   </section>
 
   <section id="appendixes.configuration.blacklist-whitelist">
-    <title>Including and Excluding Files for Code Coverage</title>
+    <title>为代码覆盖率包含或排除文件</title>
 
     <para>
-      <indexterm><primary>Code Coverage</primary></indexterm>
-      <indexterm><primary>Blacklist</primary></indexterm>
-      <indexterm><primary>Whitelist</primary></indexterm>
+      <indexterm><primary>Code Coverage （代码覆盖率）</primary></indexterm>
+      <indexterm><primary>Blacklist （黑名单）</primary></indexterm>
+      <indexterm><primary>Whitelist （白名单）</primary></indexterm>
 
-      The <literal><![CDATA[<filter>]]></literal> element and its children can
-      be used to configure the blacklist and whitelist for the code coverage
-      reporting.
+      <literal><![CDATA[<filter>]]></literal> 元素及其子元素用于配置代码覆盖率报告的黑名单与白名单。
     </para>
 
     <screen><![CDATA[<filter>
@@ -220,14 +194,12 @@
   </section>
 
   <section id="appendixes.configuration.logging">
-    <title>Logging</title>
+    <title>日志记录</title>
 
     <para>
-      <indexterm><primary>Logging</primary></indexterm>
+      <indexterm><primary>Logging （日志记录）</primary></indexterm>
 
-      The <literal><![CDATA[<logging>]]></literal> element and its
-      <literal><![CDATA[<log>]]></literal> children can be used to configure the
-      logging of the test execution.
+      <literal><![CDATA[<logging>]]></literal> 元素及其 <literal><![CDATA[<log>]]></literal> 子元素用于配置测试执行情况的日志记录。
     </para>
 
     <screen><![CDATA[<logging>
@@ -244,8 +216,7 @@
 </logging>]]></screen>
 
     <para>
-      The XML configuration above corresponds to invoking the TextUI test runner
-      with the following switches:
+      以上 XML 配置对应于用以下命令行选项来调用 TextUI 测试执行器：
     </para>
 
     <itemizedlist>
@@ -262,32 +233,26 @@
     </itemizedlist>
 
     <para>
-      The <literal>charset</literal>, <literal>highlight</literal>,
-      <literal>lowUpperBound</literal>, <literal>highLowerBound</literal>,
-      <literal>logIncompleteSkipped</literal> and
-      <literal>showUncoveredFiles</literal> attributes have no equivalent TextUI
-      test runner switch.
+      <literal>charset</literal>、<literal>highlight</literal>、<literal>lowUpperBound</literal>、<literal>highLowerBound</literal>、<literal>logIncompleteSkipped</literal> 和 <literal>showUncoveredFiles</literal> 属性没有等价的 TextUI 测试执行器选项。
     </para>
 
     <itemizedlist>
-      <listitem><para><literal>charset</literal>: Character set to be used for the generated HTML pages</para></listitem>
-      <listitem><para><literal>highlight</literal>: When set to <literal>true</literal>, the code in your coverage reports is syntax highlighted.</para></listitem>
-      <listitem><para><literal>lowUpperBound</literal>: Maximum coverage percentage to be considered "lowly" covered.</para></listitem>
-      <listitem><para><literal>highLowerBound</literal>: Minimum coverage percentage to be considered "highly" covered.</para></listitem>
-      <listitem><para><literal>showUncoveredFiles</literal>: Show all whitelisted files in <literal>--coverage-text</literal> output not just the ones with coverage information.</para></listitem>
+      <listitem><para><literal>charset</literal>：生成的 HTML 页面所要使用的字符集。</para></listitem>
+      <listitem><para><literal>highlight</literal>：设置为 <literal>true</literal> 时，覆盖率报告中的代码将会进行语法高亮标注。</para></listitem>
+      <listitem><para><literal>lowUpperBound</literal>：“低”覆盖率区间的百分比上限。</para></listitem>
+      <listitem><para><literal>highLowerBound</literal>：“高”覆盖率区间的百分比下限。</para></listitem>
+      <listitem><para><literal>showUncoveredFiles</literal>：在 <literal>--coverage-text</literal> 输出中显示所有白名单中的文件，而不只是有覆盖率信息的那些。</para></listitem>
     </itemizedlist>
   </section>
 
   <section id="appendixes.configuration.test-listeners">
-    <title>Test Listeners</title>
+    <title>测试监听器(Test Listeners)</title>
 
     <para>
       <indexterm><primary>PHPUnit_Framework_TestListener</primary></indexterm>
-      <indexterm><primary>Test Listener</primary></indexterm>
+      <indexterm><primary>Test Listener （测试监听器）</primary></indexterm>
 
-      The <literal><![CDATA[<listeners>]]></literal> element and its
-      <literal><![CDATA[<listener>]]></literal> children can be used to attach
-      additional test listeners to the test execution.
+      带有一个或多个 <literal><![CDATA[<listener>]]></literal> 子元素的 <literal><![CDATA[<listeners>]]></literal> 元素用于将测试监听器接入到测试执行过程中。
     </para>
 
     <screen><![CDATA[<listeners>
@@ -308,8 +273,7 @@
 </listeners>]]></screen>
 
     <para>
-      The XML configuration above corresponds to attaching the
-      <literal>$listener</literal> object (see below) to the test execution:
+      上述 XML 配置表示将 <literal>$listener</literal> 对象（如下）接入到测试执行过程中：
     </para>
 
     <screen><![CDATA[$listener = new MyListener(
@@ -323,16 +287,14 @@
   </section>
 
   <section id="appendixes.configuration.php-ini-constants-variables">
-    <title>Setting PHP INI settings, Constants and Global Variables</title>
+    <title>设定 PHP INI 配置、常量、全局变量</title>
 
     <para>
-      <indexterm><primary>Constant</primary></indexterm>
-      <indexterm><primary>Global Variable</primary></indexterm>
+      <indexterm><primary>Constant （常量）</primary></indexterm>
+      <indexterm><primary>Global Variable （全局变量）</primary></indexterm>
       <indexterm><primary><literal>php.ini</literal></primary></indexterm>
 
-      The <literal><![CDATA[<php>]]></literal> element and its children can be
-      used to configure PHP settings, constants, and global variables. It can
-      also be used to prepend the <literal>include_path</literal>.
+      <literal><![CDATA[<php>]]></literal> 元素及其子元素用于配置 PHP 配置选项、常量和全局变量。还可以用来向 <literal>include_path</literal> 开头附加内容。
     </para>
 
     <screen><![CDATA[<php>
@@ -350,7 +312,7 @@
 </php>]]></screen>
 
     <para>
-      The XML configuration above corresponds to the following PHP code:
+      以上 XML 配置对应于以下 PHP 代码：
     </para>
 
     <screen><![CDATA[ini_set('foo', 'bar');
@@ -366,14 +328,12 @@ $_REQUEST['foo'] = 'bar';]]></screen>
   </section>
 
   <section id="appendixes.configuration.selenium-rc">
-    <title>Configuring Browsers for Selenium RC</title>
+    <title>为 Selenium RC 配置浏览器</title>
 
     <para>
       <indexterm><primary>Selenium RC</primary></indexterm>
 
-      The <literal><![CDATA[<selenium>]]></literal> element and its
-      <literal><![CDATA[<browser>]]></literal> children can be used to
-      configure a list of Selenium RC servers.
+      <literal><![CDATA[<selenium>]]></literal> 元素及其 <literal><![CDATA[<browser>]]></literal> 子元素用于配置 Selenium RC 服务器列表。
     </para>
 
     <screen><![CDATA[<selenium>
@@ -385,7 +345,7 @@ $_REQUEST['foo'] = 'bar';]]></screen>
 </selenium>]]></screen>
 
     <para>
-      The XML configuration above corresponds to the following PHP code:
+      以上 XML 配置对应于以下 PHP 代码：
     </para>
 
     <screen><![CDATA[class WebTest extends PHPUnit_Extensions_SeleniumTestCase
