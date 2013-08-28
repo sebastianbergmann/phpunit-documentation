@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="skeleton-generator">
+  <title>骨架(Skeleton)生成器</title>
+
+  <para>
+    PHPUnit 骨架生成器(Skeleton Generator)是用来从成品代码类中生成骨架测试类（或反之）的工具。可以用如下命令安装：
+  </para>
+
+  <screen><userinput>pear install phpunit/PHPUnit_SkeletonGenerator</userinput></screen>
+
+  <section id="skeleton-generator.test">
+    <title>生成测试用例类的骨架</title>
+
+  <para>
+    <indexterm><primary>Skeleton Generator （骨架生成器）</primary></indexterm>
+
+    为已存在的代码编写测试时，不得不反复写下类似这样的代码片段：
+<programlisting>public function testMethod()
+{
+}</programlisting>
+    PHPUnit 骨架生成器能够分析现有类的代码并帮你生成测试用例类的骨架。
+  </para>
+
+  <example id="skeleton-generator.examples.Calculator.php">
+    <title>Calculator 类</title>
+    <programlisting><![CDATA[<?php
+class Calculator
+{
+    public function add($a, $b)
+    {
+        return $a + $b;
+    }
+}
+?>]]></programlisting>
+  </example>
+
+  <para>
+    下面这个例子展示了如何为名为 <literal>Calculator</literal> 的类（参见<xref linkend="skeleton-generator.examples.Calculator.php" />）生成骨架测试类。
+  </para>
+
+  <screen><userinput>phpunit-skelgen --test Calculator</userinput>
+PHPUnit Skeleton Generator 1.0.0 by Sebastian Bergmann.
+
+Wrote skeleton for "CalculatorTest" to "/home/sb/CalculatorTest.php".</screen>
+
+  <para>
+    <indexterm><primary>Incomplete Test （不完整的测试）</primary></indexterm>
+
+    原始类中的每一个方法在生成的测试用例类中都会有一个对应的标为不完整的测试用例（参见<xref linkend="incomplete-and-skipped-tests" />）。
+  </para>
+
+  <note>
+    <title>使用了命名空间的类与骨架生成器</title>
+
+    <para>
+      如果打算用骨架生成器来为声明在<ulink url="http://php.net/namespace">命名空间</ulink>中的类生成代码，必须提供和其所在的源文件路径一致的类限定名称。
+    </para>
+
+    <para>
+      例如，对于声明在 <literal>project</literal> 命名空间中的 <literal>Calculator</literal> 类，需要像这样调用骨架生成器：
+      <screen><userinput>phpunit-skelgen --test -- &quot;project\Calculator&quot; Calculator.php</userinput>
+PHPUnit Skeleton Generator 1.0.0 by Sebastian Bergmann.
+
+Wrote skeleton for "project\CalculatorTest" to "/home/sb/CalculatorTest.php".</screen>
+    </para>
+  </note>
+
+  <para>
+    下面是运行生成出来的测试用例类得到的结果：
+  </para>
+
+  <screen><userinput>phpunit --bootstrap Calculator.php --verbose CalculatorTest</userinput>
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+I
+
+Time: 0 seconds, Memory: 3.50Mb
+
+There was 1 incomplete test:
+
+1) CalculatorTest::testAdd
+This test has not been implemented yet.
+
+/home/sb/CalculatorTest.php:38
+OK, but incomplete or skipped tests!
+Tests: 1, Assertions: 0, Incomplete: 1.</screen>
+
+    <para>
+      <indexterm><primary>Annotation （标注）</primary></indexterm>
+      <indexterm><primary>@assert</primary></indexterm>
+
+      可以在方法的文档注释块中使用 <literal>@assert</literal> 标注来让生成器自动生成简单却有意义的测试而非不完整的测试用例。<xref linkend="skeleton-generator.test.examples.Calculator.php" />展示了一个范例：
+    </para>
+
+    <example id="skeleton-generator.test.examples.Calculator.php">
+      <title>带有 @assert 标注的 Calculator 类</title>
+      <programlisting><![CDATA[<?php
+class Calculator
+{
+    /**
+     * @assert (0, 0) == 0
+     * @assert (0, 1) == 1
+     * @assert (1, 0) == 1
+     * @assert (1, 1) == 2
+     */
+    public function add($a, $b)
+    {
+        return $a + $b;
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      生成器会检查原始类中的每个方法查找 <literal>@assert</literal> 标注。这些标注将会转换为测试代码，诸如
+      <programlisting>    /**
+     * Generated from @assert (0, 0) == 0.
+     */
+    public function testAdd() {
+        $o = new Calculator;
+        $this->assertEquals(0, $o->add(0, 0));
+    }</programlisting>
+    </para>
+
+    <para>
+      下面是运行生成出来的测试用例类得到的结果。
+    </para>
+
+    <screen><userinput>phpunit --bootstrap Calculator.php --verbose CalculatorTest</userinput>
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+....
+
+Time: 0 seconds, Memory: 3.50Mb
+
+OK (4 tests, 4 assertions)</screen>
+
+    <para>
+      <xref linkend="skeleton-generator.test.tables.assert-annotations" />列出了 <literal>@assert</literal> 标注所允许的的各种变体，以及它们是如何转换为测试代码的。
+    </para>
+
+    <table id="skeleton-generator.test.tables.assert-annotations">
+      <title>@assert 标注所允许的各种变体</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>标注</entry>
+            <entry>转换为</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>@assert (...) == X</literal></entry>
+            <entry><literal>assertEquals(X, method(...))</literal></entry>
+          </row>
+          <row>
+            <entry><literal>@assert (...) != X</literal></entry>
+            <entry><literal>assertNotEquals(X, method(...))</literal></entry>
+          </row>
+          <row>
+            <entry><literal>@assert (...) === X</literal></entry>
+            <entry><literal>assertSame(X, method(...))</literal></entry>
+          </row>
+          <row>
+            <entry><literal>@assert (...) !== X</literal></entry>
+            <entry><literal>assertNotSame(X, method(...))</literal></entry>
+          </row>
+          <row>
+            <entry><literal>@assert (...) &gt; X</literal></entry>
+            <entry><literal>assertGreaterThan(X, method(...))</literal></entry>
+          </row>
+          <row>
+            <entry><literal>@assert (...) &gt;= X</literal></entry>
+            <entry><literal>assertGreaterThanOrEqual(X, method(...))</literal></entry>
+          </row>
+          <row>
+            <entry><literal>@assert (...) &lt; X</literal></entry>
+            <entry><literal>assertLessThan(X, method(...))</literal></entry>
+          </row>
+          <row>
+            <entry><literal>@assert (...) &lt;= X</literal></entry>
+            <entry><literal>assertLessThanOrEqual(X, method(...))</literal></entry>
+          </row>
+          <row>
+            <entry><literal>@assert (...) throws X</literal></entry>
+            <entry><literal>@expectedException X</literal></entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+  </section>
+
+  <section id="skeleton-generator.class">
+    <title>从测试用例类生成类的骨架</title>
+
+    <para>
+      在进行测试驱动开发（参见<xref linkend="test-driven-development"/>）并在编写代码之前先编写其测试时，PHPUnit 能够帮你从测试用例类生成类的骨架。
+    </para>
+
+    <para>
+      按照惯例，针对 <literal>Unit</literal> 类的测试应当写在名为 <literal>UnitTest</literal> 的类中。PHPUnit 将会测试用例类的源代码，寻找引用了 <literal>Unit</literal> 类的对象的变量，并分析在这些对象上调用了什么方法。例如，<xref
+      linkend="skeleton-generator.class.examples.BowlingGame.php"/> 是基于对 <xref
+      linkend="skeleton-generator.class.examples.BowlingGameTest.php"/> 的分析而生成的。
+    </para>
+
+    <example id="skeleton-generator.class.examples.BowlingGameTest.php">
+      <title>BowlingGameTest 类</title>
+      <programlisting><![CDATA[<?php
+class BowlingGameTest extends PHPUnit_Framework_TestCase
+{
+    protected $game;
+
+    protected function setUp()
+    {
+        $this->game = new BowlingGame;
+    }
+
+    protected function rollMany($n, $pins)
+    {
+        for ($i = 0; $i < $n; $i++) {
+            $this->game->roll($pins);
+        }
+    }
+
+    public function testScoreForGutterGameIs0()
+    {
+        $this->rollMany(20, 0);
+        $this->assertEquals(0, $this->game->score());
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <screen><userinput>phpunit-skelgen --class BowlingGameTest</userinput>
+PHPUnit Skeleton Generator 1.0.0 by Sebastian Bergmann.
+
+Wrote skeleton for "BowlingGame" to "./BowlingGame.php".</screen>
+
+    <example id="skeleton-generator.class.examples.BowlingGame.php">
+      <title>生成的 BowlingGame 类的骨架</title>
+      <programlisting><![CDATA[<?php
+/**
+ * Generated by PHPUnit_SkeletonGenerator on 2012-01-09 at 16:55:58.
+ */
+class BowlingGame
+{
+    /**
+     * @todo Implement roll().
+     */
+    public function roll()
+    {
+        // Remove the following line when you implement this method.
+        throw new RuntimeException('Not yet implemented.');
+    }
+
+    /**
+     * @todo Implement score().
+     */
+    public function score()
+    {
+        // Remove the following line when you implement this method.
+        throw new RuntimeException('Not yet implemented.');
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      下面是针对所生成的类运行测试的结果。
+    </para>
+
+    <screen><userinput>phpunit --bootstrap BowlingGame.php BowlingGameTest</userinput>
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+E
+
+Time: 0 seconds, Memory: 3.50Mb
+
+There was 1 error:
+
+1) BowlingGameTest::testScoreForGutterGameIs0
+RuntimeException: Not yet implemented.
+
+/home/sb/BowlingGame.php:13
+/home/sb/BowlingGameTest.php:14
+/home/sb/BowlingGameTest.php:20
+
+FAILURES!
+Tests: 1, Assertions: 0, Errors: 1.</screen>
+  </section>
+</chapter>

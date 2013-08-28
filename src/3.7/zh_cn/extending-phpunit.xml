@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="extending-phpunit">
+  <title>扩展 PHPUnit</title>
+
+  <para>
+    可以用多种方式对 PHPUnit 进行扩展，使编写测试更容易，以及对运行测试所得到的反馈进行定制。扩展 PHPUnit 时，一般从这些点入手：
+  </para>
+
+  <section id="extending-phpunit.PHPUnit_Framework_TestCase">
+    <title>从 PHPUnit_Framework_TestCase 派生子类</title>
+
+    <para>
+      <indexterm><primary>PHPUnit_Framework_TestCase</primary></indexterm>
+
+      将自定义的断言和工具方法写在 <literal>PHPUnit_Framework_TestCase</literal> 的一个抽象子类中，然后从这个抽象子类派生你的测试用例类。这是扩展 PHPUnit 的最容易的方法。
+    </para>
+  </section>
+
+  <section id="extending-phpunit.custom-assertions">
+    <title>编写自定义断言</title>
+
+    <para>
+      编写自定义断言时，最佳实践是遵循 PHPUnit 自有断言的实现方式。正如<xref linkend="extending-phpunit.examples.Assert.php"/>中所示，<literal>assertTrue()</literal> 方法只是对 <literal>isTrue()</literal> 和 <literal>assertThat()</literal> 方法的外包覆：<literal>isTrue()</literal> 创建了一个匹配器对象，将其传递给 <literal>assertThat()</literal> 进行评定。
+    </para>
+
+    <example id="extending-phpunit.examples.Assert.php">
+      <title>PHPUnit_Framework_Assert 类的 assertTrue() 与 isTrue() 方法</title>
+      <programlisting><![CDATA[<?php
+abstract class PHPUnit_Framework_Assert
+{
+    // ...
+
+    /**
+     * 断言某个条件为真。
+     *
+     * @param  boolean $condition
+     * @param  string  $message
+     * @throws PHPUnit_Framework_AssertionFailedError
+     */
+    public static function assertTrue($condition, $message = '')
+    {
+        self::assertThat($condition, self::isTrue(), $message);
+    }
+
+    // ...
+
+    /**
+     * 返回一个 PHPUnit_Framework_Constraint_IsTrue 匹配器对象
+     *
+     * @return PHPUnit_Framework_Constraint_IsTrue
+     * @since  Method available since Release 3.3.0
+     */
+    public static function isTrue()
+    {
+        return new PHPUnit_Framework_Constraint_IsTrue;
+    }
+
+    // ...
+}?>]]></programlisting>
+    </example>
+
+    <para>
+      <xref linkend="extending-phpunit.examples.IsTrue.php"/> 展示了 <literal>PHPUnit_Framework_Constraint_IsTrue</literal> 是如何扩展针对匹配器对象（或约束）的抽象基类 <literal>PHPUnit_Framework_Constraint</literal>的。
+    </para>
+
+    <example id="extending-phpunit.examples.IsTrue.php">
+      <title>PHPUnit_Framework_Constraint_IsTrue 类</title>
+      <programlisting><![CDATA[<?php
+class PHPUnit_Framework_Constraint_IsTrue extends PHPUnit_Framework_Constraint
+{
+    /**
+     * 对参数 $other 进行约束评定。如果符合约束，
+     * 返回 TRUE，否则返回 FALSE。
+     *
+     * @param mixed $other Value or object to evaluate.
+     * @return bool
+     */
+    public function matches($other)
+    {
+        return $other === TRUE;
+    }
+
+    /**
+     * 返回代表此约束的字符串。
+     *
+     * @return string
+     */
+    public function toString()
+    {
+        return 'is true';
+    }
+}?>]]></programlisting>
+    </example>
+
+    <para>
+      在实现 <literal>assertTrue()</literal> 和 <literal>isTrue()</literal> 方法及 <literal>PHPUnit_Framework_Constraint_IsTrue</literal> 类时所付出的努力带来了一些好处，<literal>assertThat()</literal> 能够自动负责起断言的评定与任务簿记（例如为了统计目的而对其进行计数）工作。此外， <literal>isTrue()</literal> 方法还可以在配置仿件对象时用来作为匹配器。
+    </para>
+  </section>
+
+  <section id="extending-phpunit.PHPUnit_Framework_TestListener">
+    <title>实现 PHPUnit_Framework_TestListener</title>
+
+    <para>
+      <indexterm><primary>PHPUnit_Framework_TestListener</primary></indexterm>
+
+      <xref linkend="extending-phpunit.examples.SimpleTestListener.php" />展示了 <literal>PHPUnit_Framework_TestListener</literal> 接口的一个简单实现。
+    </para>
+
+    <example id="extending-phpunit.examples.SimpleTestListener.php">
+      <title>简单的测试监听器</title>
+      <programlisting><![CDATA[<?php
+class SimpleTestListener implements PHPUnit_Framework_TestListener
+{
+    public function addError(PHPUnit_Framework_Test $test, Exception $e, $time)
+    {
+        printf("Error while running test '%s'.\n", $test->getName());
+    }
+
+    public function addFailure(PHPUnit_Framework_Test $test, PHPUnit_Framework_AssertionFailedError $e, $time)
+    {
+        printf("Test '%s' failed.\n", $test->getName());
+    }
+
+    public function addIncompleteTest(PHPUnit_Framework_Test $test, Exception $e, $time)
+    {
+        printf("Test '%s' is incomplete.\n", $test->getName());
+    }
+
+    public function addSkippedTest(PHPUnit_Framework_Test $test, Exception $e, $time)
+    {
+        printf("Test '%s' has been skipped.\n", $test->getName());
+    }
+
+    public function startTest(PHPUnit_Framework_Test $test)
+    {
+        printf("Test '%s' started.\n", $test->getName());
+    }
+
+    public function endTest(PHPUnit_Framework_Test $test, $time)
+    {
+        printf("Test '%s' ended.\n", $test->getName());
+    }
+
+    public function startTestSuite(PHPUnit_Framework_TestSuite $suite)
+    {
+        printf("TestSuite '%s' started.\n", $suite->getName());
+    }
+
+    public function endTestSuite(PHPUnit_Framework_TestSuite $suite)
+    {
+        printf("TestSuite '%s' ended.\n", $suite->getName());
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      在<xref linkend="appendixes.configuration.test-listeners"/>中可以看到如何配置 PHPUnit 来将你的测试监听器接入到测试执行过程中。
+    </para>
+  </section>
+
+  <section id="extending-phpunit.PHPUnit_Extensions_TestDecorator">
+    <title>从 PHPUnit_Extensions_TestDecorator 派生子类</title>
+
+    <para>
+      <indexterm><primary>PHPUnit_Extensions_TestDecorator</primary></indexterm>
+
+      可以将测试用例或者测试套件包装在 <literal>PHPUnit_Extensions_TestDecorator</literal> 的子类中并运用 Decorator（修饰器）设计模式来在测试运行前后执行一些动作。
+    </para>
+
+    <para>
+      <indexterm><primary>PHPUnit_Extensions_RepeatedTest</primary></indexterm>
+      <indexterm><primary>PHPUnit_Extensions_TestSetup</primary></indexterm>
+
+      PHPUnit 了包含了两个具体的测试修饰器： <literal>PHPUnit_Extensions_RepeatedTest</literal> 和 <literal>PHPUnit_Extensions_TestSetup</literal>。前者用于重复运行某个测试，并且只在全部次数都成功时计为成功。后者则在 <xref linkend="fixtures" /> 中讨论过。
+    </para>
+
+    <para>
+      <xref linkend="extending-phpunit.examples.RepeatedTest.php" />展示了测试修饰器 <literal>PHPUnit_Extensions_RepeatedTest</literal> 的一个删减版本，用以说明如何编写你自己的测试修饰器。
+    </para>
+
+    <example id="extending-phpunit.examples.RepeatedTest.php">
+      <title>RepeatedTest 修饰器</title>
+      <programlisting><![CDATA[<?php
+require_once 'PHPUnit/Extensions/TestDecorator.php';
+
+class PHPUnit_Extensions_RepeatedTest extends PHPUnit_Extensions_TestDecorator
+{
+    private $timesRepeat = 1;
+
+    public function __construct(PHPUnit_Framework_Test $test, $timesRepeat = 1)
+    {
+        parent::__construct($test);
+
+        if (is_integer($timesRepeat) &&
+            $timesRepeat >= 0) {
+            $this->timesRepeat = $timesRepeat;
+        }
+    }
+
+    public function count()
+    {
+        return $this->timesRepeat * $this->test->count();
+    }
+
+    public function run(PHPUnit_Framework_TestResult $result = NULL)
+    {
+        if ($result === NULL) {
+            $result = $this->createResult();
+        }
+
+        for ($i = 0; $i < $this->timesRepeat && !$result->shouldStop(); $i++) {
+            $this->test->run($result);
+        }
+
+        return $result;
+    }
+}
+?>]]></programlisting>
+    </example>
+  </section>
+
+  <section id="extending-phpunit.PHPUnit_Framework_Test">
+    <title>实现 PHPUnit_Framework_Test</title> 
+
+    <para>
+      <indexterm><primary>PHPUnit_Framework_Test</primary></indexterm>
+      <indexterm><primary>Data-Driven Tests （数据驱动测试）</primary></indexterm>
+
+      <literal>PHPUnit_Framework_Test</literal> 接口是很有限的，十分容易实现。举例来说，你可以自行为 <literal>PHPUnit_Framework_Test</literal> 编写一个类似于 <literal>PHPUnit_Framework_TestCase</literal> 的实现来运行<emphasis>数据驱动测试</emphasis>。
+    </para>
+
+    <para>
+      <xref linkend="extending-phpunit.examples.DataDrivenTest.php" />展示了一个数据驱动的测试用例类，对来自 CSV 文件内的值进行比较。这个文件内的每个行看起来类似于 <literal>foo;bar</literal>，第一个值是期望值，第二个值则是实际值。
+    </para>
+
+    <example id="extending-phpunit.examples.DataDrivenTest.php">
+      <title>一个数据驱动的测试</title>
+      <programlisting><![CDATA[<?php
+class DataDrivenTest implements PHPUnit_Framework_Test
+{
+    private $lines;
+
+    public function __construct($dataFile)
+    {
+        $this->lines = file($dataFile);
+    }
+
+    public function count()
+    {
+        return 1;
+    }
+
+    public function run(PHPUnit_Framework_TestResult $result = NULL)
+    {
+        if ($result === NULL) {
+            $result = new PHPUnit_Framework_TestResult;
+        }
+
+        foreach ($this->lines as $line) {
+            $result->startTest($this);
+            PHP_Timer::start();
+            $stopTime = NULL;
+
+            list($expected, $actual) = explode(';', $line);
+
+            try {
+                PHPUnit_Framework_Assert::assertEquals(
+                  trim($expected), trim($actual)
+                );
+            }
+
+            catch (PHPUnit_Framework_AssertionFailedError $e) {
+                $stopTime = PHP_Timer::stop();
+                $result->addFailure($this, $e, $stopTime);
+            }
+
+            catch (Exception $e) {
+                $stopTime = PHP_Timer::stop();
+                $result->addError($this, $e, $stopTime);
+            }
+
+            if ($stopTime === NULL) {
+                $stopTime = PHP_Timer::stop();
+            }
+
+            $result->endTest($this, $stopTime);
+        }
+
+        return $result;
+    }
+}
+
+$test = new DataDrivenTest('data_file.csv');
+$result = PHPUnit_TextUI_TestRunner::run($test);
+?>]]></programlisting>
+
+      <screen><![CDATA[PHPUnit 3.8.0 by Sebastian Bergmann.
+
+.F
+
+Time: 0 seconds
+
+There was 1 failure:
+
+1) DataDrivenTest
+Failed asserting that two strings are equal.
+expected string <bar>
+difference      <  x>
+got string      <baz>
+/home/sb/DataDrivenTest.php:32
+/home/sb/DataDrivenTest.php:53
+
+FAILURES!
+Tests: 2, Failures: 1.]]></screen>
+    </example>
+  </section>
+</chapter>

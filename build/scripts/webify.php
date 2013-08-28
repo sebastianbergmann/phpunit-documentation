@@ -18,7 +18,7 @@ function webify_directory($directory, $language, $version)
       'fr'    => array('3.8', '3.7'),
       'ja'    => array('3.8', '3.7'),
       'pt_br' => array('3.8', '3.7'),
-      'zh_cn' => array('3.8')
+      'zh_cn' => array('3.8', '3.7')
     );
 
     $languageList = '';
@@ -110,18 +110,19 @@ function webify_file($file, $toc, $languageList, $versionList, $language)
     $next        = '';
     $suggestions = '';
 
+    // i18n for text on page.
     $prev_text = array(
-		'en' => 'Prev',
-		'zh_cn' => '上一章',
+        'en' => 'Prev',
+        'zh_cn' => '上一章',
     );
     $next_text = array(
-		'en' => 'Next',
-		'zh_cn' => '下一章',
+        'en' => 'Next',
+        'zh_cn' => '下一章',
     );
-	$suggestions_text = array(
-		'en' => 'Please <a href="https://github.com/sebastianbergmann/phpunit-documentation/issues">open a ticket</a> on GitHub to suggest improvements to this page. Thanks!',
-		'zh_cn' => '请在 GitHub 上 <a href="https://github.com/sebastianbergmann/phpunit-documentation/issues">开启任务单</a> 来对本页提出改进建议。万分感谢！',
-	);
+    $suggestions_text = array(
+        'en' => 'Please <a href="https://github.com/sebastianbergmann/phpunit-documentation/issues">open a ticket</a> on GitHub to suggest improvements to this page. Thanks!',
+        'zh_cn' => '请在 GitHub 上 <a href="https://github.com/sebastianbergmann/phpunit-documentation/issues">开启任务单</a> 来对本页提出改进建议。万分感谢！',
+    );
 
     if ($filename !== 'index.html') {
         if (strpos($filename, 'appendixes') === 0) {

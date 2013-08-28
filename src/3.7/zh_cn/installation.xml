@@ -27,12 +27,12 @@
     <title>Composer</title>
 
     <para>
-      如果你用 <ulink url="http://getcomposer.org/">Composer</ulink> 来管理项目的依赖关系，只需要简单的在项目的 <filename>composer.json</filename> 文件中加上一个对 <literal>phpunit/phpunit</literal> 的依赖关系即可。下面是一个最小化的 <filename>composer.json</filename> 文件的例子，只定义了一个对 PHPUnit 3.8 的开发时(development-time)依赖：
+      如果你用 <ulink url="http://getcomposer.org/">Composer</ulink> 来管理项目的依赖关系，只需要简单的在项目的 <filename>composer.json</filename> 文件中加上一个对 <literal>phpunit/phpunit</literal> 的依赖关系即可。下面是一个最小化的 <filename>composer.json</filename> 文件的例子，只定义了一个对 PHPUnit 3.7 的开发时(development-time)依赖：
     </para>
 
     <programlisting><![CDATA[{
     "require-dev": {
-        "phpunit/phpunit": "3.8.*"
+        "phpunit/phpunit": "3.7.*"
     }
 }]]></programlisting>
 
@@ -40,11 +40,17 @@
       要通过 Composer 完成系统级的安装，可以运行：
     </para>
 
-    <screen><userinput>composer global require 'phpunit/phpunit=3.8.*'</userinput></screen>
+    <screen><userinput>composer global require 'phpunit/phpunit=3.7.*'</userinput></screen>
 
     <para>
       请确保 path 变量中包含有 <literal>~/.composer/vendor/bin/</literal>。
     </para>
+
+    <note>
+      <para>
+        对于 Composer 和 PHP 档案包(PHAR) 的支持是于 PHPUnit 3.7（从 PHPUnit 3.7.5 开始是稳定(stable)版本）加入的。更早的 PHPUnit 发行版本在这些分发渠道上不可用。
+      </para>
+    </note>
   </section>
 
   <section id="installation.pear">
@@ -69,11 +75,11 @@
 
     <note>
       <para>
-        PHPUnit 3.8 需要 PHP 5.4.7（或更高版本），强烈推荐 PHP 5.5.1（或更高版本）。
+        PHPUnit 3.7 需要 PHP 5.3.3（或更高版本），强烈推荐 PHP 5.5.1（或更高版本）。
       </para>
 
       <para>
-        PHPUnit 使用了 PHP_CodeCoverage 这个库来收集与处理代码覆盖率信息。它依赖于 Xdebug 2.2.3（或更高版本），强烈推荐 Xdebug 2.3.0（或更高版本）。
+        PHPUnit 使用了 PHP_CodeCoverage 这个库来收集与处理代码覆盖率信息。它依赖于 Xdebug 2.0.5（或更高版本），强烈推荐 Xdebug 2.2.3（或更高版本）。
       </para>
     </note>
   </section>
@@ -303,12 +309,77 @@
     <title>升级</title>
 
     <para>
-      此部分收集了从 PHPUnit 3.7 升级到 PHPUnit 3.8 时可能遭遇的一些小的向后兼容问题。
+      此部分收集了从 PHPUnit 3.6 升级到 PHPUnit 3.7 时可能遭遇的一些小的向后兼容问题。
     </para>
 
     <para>
       升级应当是十分简单且不会遭遇任何问题的，因为这个过程已经针对所有主要的开源框架进行过测试并且不存在任何问题。但是每个项目毕竟是各有不同的，如果你已经尝试了某个候选发布版本并且遭遇到了问题，本文档也许能提供一些帮助。
     </para>
 
+    <variablelist>
+      <varlistentry>
+        <term><emphasis role="strong">已移除废弃的 OutputTestCase</emphasis></term>
+        <listitem>
+          <para>
+            类 <literal>PHPUnit_Extensions_OutputTestCase</literal> 已经移除。在 PHPUnit 3.6 中，用到这个类时会产生一个废弃提示。关于现在该如何测试输出参见<xref linkend="writing-tests-for-phpunit.output" />。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><emphasis role="strong">当前工作目录将会在每个测试用例之后还原</emphasis></term>
+        <listitem>
+          <para>
+            如果某个测试改变了当前工作目录(<literal>cwd</literal>)，PHPUnit 在生成代码覆盖率报告时会碰到问题。现在当前工作目录将会在每个测试用例之后还原，于是可能会发现某个测试依赖于另外一个改变了当前工作目录的测试。这是不可取的，并且应当很容易修正。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><emphasis role="strong">测试监听器触发了一次对自动加载(autoload)的调用</emphasis></term>
+        <listitem>
+          <para>
+            当像<xref linkend="appendixes.configuration.test-listeners"/>中描述的那样使用自定义测试监听器时，PHPUnit 静默地忽略掉缺失的测试监听器。对于用户来说，这方面的问题极其难于调试。现在，在尝试定位这些类时会触发一次对自动加载(autoload)的调用。如果你所使用的自动加载器在找不到测试监听器时生成一个错误，就可能让你在这里碰到问题。要这个问题，移除这个监听器或者在 <literal>bootstrap.php</literal> 中确保这个类已被加载。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><emphasis role="strong">不再克隆(clone)仿件对象(mock object)的参数</emphasis></term>
+        <listitem>
+          <para>
+            之前，在模仿(mock)一个对象时会克隆(clone)起所有参数。这导致在测试中尝试判定传递给方法的是否是同一个参数是碰到问题，另外在碰到不可克隆的对象时还会有其他问题。作为一直以来都被许多人所要求的特性，这个行为已经改变了。<xref linkend="test-doubles.mock-objects.examples.clone-object-parameters-usecase.php" />展示了新实现方式的有益之处。<xref linkend="test-doubles.mock-objects.examples.enable-clone-object-parameters.php" />展示了如何切换回之前的行为方式。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><emphasis role="strong">
+          <literal>addUncoveredFilesFromWhitelist</literal>已移除，以<literal>processUncoveredFilesFromWhitelist</literal>取而代之</emphasis>
+        </term>
+        <listitem>
+          <para>
+            在生成代码覆盖率时，如果使用了 <literal><![CDATA[<whitelist addUncoveredFilesFromWhitelist="true">]]></literal>，PHPUnit 将会对所有无覆盖的文件进行包含(include)操作。对于这些文件中包含可执行代码的人而言这会是个问题。PHPUnit 现在将扫描文件并在不执行包含操作的情况下尝试猜测确定哪些代码是可执行的哪些代码是不可执行的。这有可能导致代码覆盖率报告有所不同。
+          </para>
+          <para>
+            如果需要切换回旧的行为方式，可以使用 <literal><![CDATA[<whitelist processUncoveredFilesFromWhitelist="true">]]></literal>。如果需要同时支持 PHPUnit 3.6 和 3.7，可以同时使用这两个设置。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><emphasis role="strong">
+          <literal>cacheTokens</literal> 的默认值改为 <literal>false</literal></emphasis>
+        </term>
+        <listitem>
+          <para>
+            从 PHPUnit <literal>3.7.2</literal> 开始，对已词法分析(tokenized)的文件的缓存默认关闭。在处理大型项目的代码覆盖率报告时，这个缓存会消耗大量内存，并且由于白名单行为的变化，对于那些代码基于成千上万个类的人来说会很成问题。
+          </para>
+          <para>
+            如果项目比较小或者有足够多内存，可以通过在 <literal>phpunit.xml</literal> 文件中添加 <literal>cacheTokens="true"</literal> 来获得运行时间上的收益。参见<xref linkend="appendixes.configuration.phpunit"/>。
+          </para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
   </section>
 </chapter>
