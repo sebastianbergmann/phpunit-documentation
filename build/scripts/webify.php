@@ -13,6 +13,12 @@ function webify_directory($directory, $language, $version)
       TRUE
     );
 
+    $toc = str_replace(
+      'class="toc"',
+      'class="toc nav hidden-print"',
+      $toc
+    );
+
     $editions  = array(
       'en'    => array('3.8', '3.7'),
       'fr'    => array('3.8', '3.7'),
@@ -142,7 +148,7 @@ function webify_file($file, $toc, $languageList, $versionList, $language)
         $content     = get_substring($buffer, '<div class="' . $type . '"', '<div class="navfooter">', TRUE, FALSE);
         $prev        = get_substring($buffer, '<link rel="prev" href="', '" title', FALSE, FALSE);
         $next        = get_substring($buffer, '<link rel="next" href="', '" title', FALSE, FALSE);
-        $suggestions = '<div class="row"><div class="span2"></div><div class="span8"><div class="alert alert-info" style="text-align: center;">' . getTextInLang($suggestions_text, $language) . '</div></div><div class="span2"></div></div>';
+        $suggestions = '<div class="row"><div class="col-md-2"></div><div class="col-md-8"><div class="alert alert-info" style="text-align: center;">' . getTextInLang($suggestions_text, $language) . '</div></div><div class="col-md-2"></div></div>';
 
         if (!empty($prev)) {
             $prev = '<a accesskey="p" href="' . $prev . '">' . getTextInLang($prev_text, $language) . '</a>';
