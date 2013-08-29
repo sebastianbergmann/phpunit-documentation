@@ -148,14 +148,14 @@ function webify_file($file, $toc, $languageList, $versionList, $language)
         $content     = get_substring($buffer, '<div class="' . $type . '"', '<div class="navfooter">', TRUE, FALSE);
         $prev        = get_substring($buffer, '<link rel="prev" href="', '" title', FALSE, FALSE);
         $next        = get_substring($buffer, '<link rel="next" href="', '" title', FALSE, FALSE);
-        $suggestions = '<div class="row"><div class="col-md-2"></div><div class="col-md-8"><div class="alert alert-info" style="text-align: center;">' . getTextInLang($suggestions_text, $language) . '</div></div><div class="col-md-2"></div></div>';
+        $suggestions = '<div class="row"><div class="col-md-2"></div><div class="col-md-8"><div class="alert alert-info" style="text-align: center;">' . get_text_in_language($suggestions_text, $language) . '</div></div><div class="col-md-2"></div></div>';
 
         if (!empty($prev)) {
-            $prev = '<a accesskey="p" href="' . $prev . '">' . getTextInLang($prev_text, $language) . '</a>';
+            $prev = '<a accesskey="p" href="' . $prev . '">' . get_text_in_language($prev_text, $language) . '</a>';
         }
 
         if (!empty($next)) {
-            $next = '<a accesskey="n" href="' . $next . '">' . getTextInLang($next_text, $language) . '</a>';
+            $next = '<a accesskey="n" href="' . $next . '">' . get_text_in_language($next_text, $language) . '</a>';
         }
     }
 
@@ -168,7 +168,7 @@ function webify_file($file, $toc, $languageList, $versionList, $language)
     file_put_contents($file, $buffer);
 }
 
-function getTextInLang($text_list, $lang)
+function get_text_in_language($text_list, $lang)
 {
     if(array_key_exists($lang, $text_list)){
         return $text_list[$lang];
