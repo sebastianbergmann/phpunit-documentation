@@ -194,6 +194,54 @@ Tests: 1, Assertions: 1, Failures: 1, Skipped: 1.]]></screen>
       ensure that the dependencies of a test can actually be met before the test
       is run.
     </para>
+
+    <para>
+      A test that has more than one <literal>@depends</literal> annotation
+      will get a fixture from the first producer as the first argument, a fixture
+      from the second producer as the second argument, and so on.
+      See <xref linkend="writing-tests-for-phpunit.examples.MultipleDependencies.php" />
+    </para>
+
+    <example id="writing-tests-for-phpunit.examples.MultipleDependencies.php">
+      <title>Test with multiple dependencies</title>
+      <programlisting><![CDATA[<?php
+class MultipleDependenciesTest extends PHPUnit_Framework_TestCase
+{
+    public function testProducerFirst()
+    {
+        $this->assertTrue(true);
+        return 'first';
+    }
+
+    public function testProducerSecond()
+    {
+        $this->assertTrue(true);
+        return 'second';
+    }
+
+    /**
+     * @depends testProducerFirst
+     * @depends testProducerSecond
+     */
+    public function testConsumer()
+    {
+        $this->assertEquals(
+            array('first', 'second'),
+            func_get_args()
+        );
+    }
+}
+?>]]></programlisting>
+
+      <screen><userinput>phpunit --verbose MultipleDependenciesTest</userinput><![CDATA[
+PHPUnit 3.7.0 by Sebastian Bergmann.
+
+...
+
+Time: 0 seconds, Memory: 3.25Mb
+
+OK (3 tests, 3 assertions)]]></screen>
+    </example>
   </section>
 
   <section id="writing-tests-for-phpunit.data-providers">
@@ -342,18 +390,82 @@ class CsvFileIterator implements Iterator {
 ?>]]></programlisting>
     </example>
 
-    <note>
-      <para>
-        <indexterm><primary>Annotation</primary></indexterm>
-        <indexterm><primary>@dataProvider</primary></indexterm>
-        <indexterm><primary>@depends</primary></indexterm>
+    <para>
+      <indexterm><primary>Annotation</primary></indexterm>
+      <indexterm><primary>@dataProvider</primary></indexterm>
+      <indexterm><primary>@depends</primary></indexterm>
 
-        When a test receives input from both a <literal>@dataProvider</literal>
-        method and from one or more tests it <literal>@depends</literal> on, the
-        arguments from the data provider will come before the ones from
-        depended-upon tests.
-      </para>
-    </note>
+      When a test receives input from both a <literal>@dataProvider</literal>
+      method and from one or more tests it <literal>@depends</literal> on, the
+      arguments from the data provider will come before the ones from
+      depended-upon tests. The arguments from depended-upon tests will be the
+      same for each data set.
+      See <xref linkend="writing-tests-for-phpunit.data-providers.examples.DependencyAndDataProviderCombo.php"/>
+    </para>
+
+    <example id="writing-tests-for-phpunit.data-providers.examples.DependencyAndDataProviderCombo.php">
+      <title>Combination of @depends and @dataProvider in same test</title>
+      <programlisting><![CDATA[<?php
+class DependencyAndDataProviderComboTest extends PHPUnit_Framework_TestCase
+{
+    public function provider()
+    {
+        return array(array('provider1'), array('provider2'));
+    }
+
+    public function testProducerFirst()
+    {
+        $this->assertTrue(true);
+        return 'first';
+    }
+
+    public function testProducerSecond()
+    {
+        $this->assertTrue(true);
+        return 'second';
+    }
+
+    /**
+     * @depends testProducerFirst
+     * @depends testProducerSecond
+     * @dataProvider provider
+     */
+    public function testConsumer()
+    {
+        $this->assertEquals(
+            array('provider1', 'first', 'second'),
+            func_get_args()
+        );
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit --verbose DependencyAndDataProviderComboTest</userinput><![CDATA[
+PHPUnit 3.7.0 by Sebastian Bergmann.
+
+...F
+
+Time: 0 seconds, Memory: 3.50Mb
+
+There was 1 failure:
+
+1) DependencyAndDataProviderComboTest::testConsumer with data set #1 ('provider2')
+Failed asserting that two arrays are equal.
+--- Expected
++++ Actual
+@@ @@
+Array (
+-    0 => 'provider1'
++    0 => 'provider2'
+1 => 'first'
+2 => 'second'
+)
+
+/home/sb/DependencyAndDataProviderComboTest.php:31
+
+FAILURES!
+Tests: 4, Assertions: 4, Failures: 1.
+]]></screen>
+    </example>
 
     <note>
       <para>
