@@ -210,6 +210,55 @@ Tests: 1, Assertions: 1, Failures: 1, Skipped: 1.]]></screen>
       PHPUnit はテストが実行される順序を変更しないので、
       テストが実行されるときに確実に依存性が満たされているようにしておく必要があります。
     </para>
+
+    <para>
+      複数の <literal>@depends</literal> アノテーションを持つテストは、
+      最初のプロデューサーからのフィクスチャを最初の引数、二番目のプロデューサーからのフィクスチャを二番目の引数、……
+      として受け取ります。
+      <xref linkend="writing-tests-for-phpunit.examples.MultipleDependencies.php" />
+      を参照ください。
+    </para>
+
+    <example id="writing-tests-for-phpunit.examples.MultipleDependencies.php">
+      <title>複数の依存性を持つテスト</title>
+      <programlisting><![CDATA[<?php
+class MultipleDependenciesTest extends PHPUnit_Framework_TestCase
+{
+    public function testProducerFirst()
+    {
+        $this->assertTrue(true);
+        return 'first';
+    }
+
+    public function testProducerSecond()
+    {
+        $this->assertTrue(true);
+        return 'second';
+    }
+
+    /**
+     * @depends testProducerFirst
+     * @depends testProducerSecond
+     */
+    public function testConsumer()
+    {
+        $this->assertEquals(
+            array('first', 'second'),
+            func_get_args()
+        );
+    }
+}
+?>]]></programlisting>
+
+      <screen><userinput>phpunit --verbose MultipleDependenciesTest</userinput><![CDATA[
+PHPUnit 3.7.0 by Sebastian Bergmann.
+
+...
+
+Time: 0 seconds, Memory: 3.25Mb
+
+OK (3 tests, 3 assertions)]]></screen>
+    </example>
   </section>
 
   <section id="writing-tests-for-phpunit.data-providers">
@@ -360,17 +409,82 @@ class CsvFileIterator implements Iterator {
 ?>]]></programlisting>
     </example>
 
-    <note>
-      <para>
-        <indexterm><primary>Annotation</primary></indexterm>
-        <indexterm><primary>@dataProvider</primary></indexterm>
-        <indexterm><primary>@depends</primary></indexterm>
+    <para>
+      <indexterm><primary>Annotation</primary></indexterm>
+      <indexterm><primary>@dataProvider</primary></indexterm>
+      <indexterm><primary>@depends</primary></indexterm>
 
-        <literal>@dataProvider</literal> で指定したメソッドと
-        <literal>@depends</literal> で指定したテストの両方からの入力を受け取るテストの場合、
-        データプロバイダからの引数のほうが依存するテストからの引数より先にきます。
-      </para>
-    </note>
+      <literal>@dataProvider</literal> で指定したメソッドと
+      <literal>@depends</literal> で指定したテストの両方からの入力を受け取るテストの場合、
+      データプロバイダからの引数のほうが依存するテストからの引数より先にきます。
+      依存するテストからの引数は、どちらのデータセットに対しても同じになります。
+      <xref linkend="writing-tests-for-phpunit.data-providers.examples.DependencyAndDataProviderCombo.php"/>
+      を参照ください。
+    </para>
+
+    <example id="writing-tests-for-phpunit.data-providers.examples.DependencyAndDataProviderCombo.php">
+      <title>同じテストでの @depends と @dataProvider の組み合わせ</title>
+      <programlisting><![CDATA[<?php
+class DependencyAndDataProviderComboTest extends PHPUnit_Framework_TestCase
+{
+    public function provider()
+    {
+        return array(array('provider1'), array('provider2'));
+    }
+
+    public function testProducerFirst()
+    {
+        $this->assertTrue(true);
+        return 'first';
+    }
+
+    public function testProducerSecond()
+    {
+        $this->assertTrue(true);
+        return 'second';
+    }
+
+    /**
+     * @depends testProducerFirst
+     * @depends testProducerSecond
+     * @dataProvider provider
+     */
+    public function testConsumer()
+    {
+        $this->assertEquals(
+            array('provider1', 'first', 'second'),
+            func_get_args()
+        );
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit --verbose DependencyAndDataProviderComboTest</userinput><![CDATA[
+PHPUnit 3.7.0 by Sebastian Bergmann.
+
+...F
+
+Time: 0 seconds, Memory: 3.50Mb
+
+There was 1 failure:
+
+1) DependencyAndDataProviderComboTest::testConsumer with data set #1 ('provider2')
+Failed asserting that two arrays are equal.
+--- Expected
++++ Actual
+@@ @@
+Array (
+-    0 => 'provider1'
++    0 => 'provider2'
+1 => 'first'
+2 => 'second'
+)
+
+/home/sb/DependencyAndDataProviderComboTest.php:31
+
+FAILURES!
+Tests: 4, Assertions: 4, Failures: 1.
+]]></screen>
+    </example>
 
     <note>
       <para>
