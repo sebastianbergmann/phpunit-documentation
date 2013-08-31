@@ -538,6 +538,51 @@ class MyClass
     </para>
   </section>
 
+  <section id="appendixes.annotations.large">
+    <title>@large</title>
+
+    <para>
+      <indexterm><primary><literal>@large</literal></primary></indexterm>
+
+      The <literal>@large</literal> annotation is an alias for
+      <literal>@group large</literal>.
+    </para>
+
+    <para>
+      <indexterm><primary><literal>PHP_Invoker</literal></primary></indexterm>
+      <indexterm><primary><literal>timeoutForLargeTests</literal></primary></indexterm>
+
+      If the <literal>PHP_Invoker</literal> package is installed and strict
+      mode is enabled, a large test will fail if it takes longer than 60
+      seconds to execute. This timeout is configurable via the
+      <literal>timeoutForLargeTests</literal> attribute in the XML
+      configuration file.
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.medium">
+    <title>@medium</title>
+
+    <para>
+      <indexterm><primary><literal>@medium</literal></primary></indexterm>
+
+      The <literal>@medium</literal> annotation is an alias for
+      <literal>@group medium</literal>. A medium test must not depend on a test
+      marked as <literal>@large</literal>.
+    </para>
+
+    <para>
+      <indexterm><primary><literal>PHP_Invoker</literal></primary></indexterm>
+      <indexterm><primary><literal>timeoutForMediumTests</literal></primary></indexterm>
+
+      If the <literal>PHP_Invoker</literal> package is installed and strict
+      mode is enabled, a medium test will fail if it takes longer than 10
+      seconds to execute. This timeout is configurable via the
+      <literal>timeoutForMediumTests</literal> attribute in the XML
+      configuration file.
+    </para>
+  </section>
+
   <section id="appendixes.annotations.preserveGlobalState">
     <title>@preserveGlobalState</title>
 
@@ -633,6 +678,39 @@ class MyTest extends PHPUnit_Framework_TestCase
       linkend="appendixes.annotations.preserveGlobalState"/> for information
       on how to fix this.
     </para>
+  </section>
+
+  <section id="appendixes.annotations.small">
+    <title>@small</title>
+
+    <para>
+      <indexterm><primary><literal>@small</literal></primary></indexterm>
+
+      The <literal>@small</literal> annotation is an alias for
+      <literal>@group small</literal>. A small test must not depend on a test
+      marked as <literal>@medium</literal> or <literal>@large</literal>.
+    </para>
+
+    <para>
+      <indexterm><primary><literal>PHP_Invoker</literal></primary></indexterm>
+      <indexterm><primary><literal>timeoutForSmallTests</literal></primary></indexterm>
+
+      If the <literal>PHP_Invoker</literal> package is installed and strict
+      mode is enabled, a small test will fail if it takes longer than 1
+      second to execute. This timeout is configurable via the
+      <literal>timeoutForSmallTests</literal> attribute in the XML
+      configuration file.
+    </para>
+
+    <note>
+      <para>
+        By default, all tests are considered to be small if they are not marked
+        as <literal>@medium</literal> or <literal>@large</literal>. Please note,
+        however, that <literal>--group</literal> and the related options will
+        only consider a test to be in the <literal>small</literal> group if it
+        is explicitly marked with the appropriate annotation.
+      </para>
+    </note>
   </section>
 
   <section id="appendixes.annotations.test">
