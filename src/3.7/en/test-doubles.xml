@@ -511,6 +511,17 @@ class StubTest extends PHPUnit_Framework_TestCase
 class Subject
 {
     protected $observers = array();
+    protected $name;
+    
+    public function __construct($name)
+    {
+        $this->name = $name;
+    }
+    
+    public function getName()
+    {
+        return $this->name;
+    }
 
     public function attach(Observer $observer)
     {
@@ -597,7 +608,7 @@ class SubjectTest extends PHPUnit_Framework_TestCase
 
         // Create a Subject object and attach the mocked
         // Observer object to it.
-        $subject = new Subject;
+        $subject = new Subject('My subject');
         $subject->attach($observer);
 
         // Call the doSomething() method on the $subject object
@@ -611,12 +622,12 @@ class SubjectTest extends PHPUnit_Framework_TestCase
 
     <para>
       The <literal>with()</literal> method can take any number of
-      arguments, corresponding to the number of parameters to the
+      arguments, corresponding to the number of arguments to the
       method being mocked. You can specify more advanced constraints
-      on the method argument than a simple match.
+      on the method's arguments than a simple match.
     </para>
 
-    <example id="test-doubles.mock-objects.examples.MultiParameterTest.php">
+    <example id="test-doubles.mock-objects.examples.SubjectTest2.php">
       <title>Testing that a method gets called with a number of
       arguments constrained in different ways</title>
       <programlisting><![CDATA[<?php
@@ -634,7 +645,46 @@ class SubjectTest extends PHPUnit_Framework_TestCase
                         $this->stringContains('Something'),
                         $this->anything());
 
-        $subject = new Subject;
+        $subject = new Subject('My subject');
+        $subject->attach($observer);
+
+        // The doSomethingBad() method should report an error to the observer
+        // via the reportError() method
+        $subject->doSomethingBad();
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      The <literal>callback()</literal> constraint can be used for more complex
+      argument verification. This constraint takes a PHP callback as its only
+      argument. The PHP callback will receive the argument to be verified as
+      its only argument and should return <literal>TRUE</literal> if the
+      argument passes verification and <literal>FALSE</literal> otherwise.
+    </para>
+
+    <example id="test-doubles.mock-objects.examples.SubjectTest3.php">
+      <title>More complex argument verification</title>
+      <programlisting><![CDATA[<?php
+class SubjectTest extends PHPUnit_Framework_TestCase
+{
+    public function testErrorReported()
+    {
+        // Create a mock for the Observer class, mocking the
+        // reportError() method
+        $observer = $this->getMock('Observer', array('reportError'));
+
+        $observer->expects($this->once())
+                 ->method('reportError')
+                 ->with($this->greaterThan(0),
+                        $this->stringContains('Something'),
+                        $this->callback(function($subject){
+                          return is_callable(array($subject, 'getName')) &&
+                                 $subject->getName() == 'My subject';
+                        }));
+
+        $subject = new Subject('My subject');
         $subject->attach($observer);
 
         // The doSomethingBad() method should report an error to the observer
