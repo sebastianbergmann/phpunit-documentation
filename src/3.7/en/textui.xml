@@ -487,11 +487,62 @@ Usage: phpunit [switches] UnitTest [UnitTest.php]
       </varlistentry>
 
       <varlistentry>
+        <indexterm><primary>Strict Mode</primary></indexterm>
         <term><literal>--strict</literal></term>
         <listitem>
           <para>
-            Run tests in strict mode.
+            Run tests in strict mode. When strict mode is enabled:
           </para>
+
+          <itemizedlist>
+            <listitem>
+              <para>
+                Tests that emit output will fail.
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+                Tests with no assertions will fail and will not generate code
+                coverage information.
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+                If the <literal>PHP_Invoker</literal> package is installed:
+              </para>
+              <itemizedlist>
+                <listitem>
+                  <para>
+                    A test marked as <literal>@large</literal> will fail if it
+                    takes longer than 60 seconds to execute. This timeout is
+                    configurable via the
+                    <literal>timeoutForLargeTests</literal> attribute in the
+                    XML configuration file.
+                  </para>
+                </listitem>
+
+                <listitem>
+                  <para>
+                    A test marked as <literal>@medium</literal> will fail if it
+                    takes longer than 10 seconds to execute. This timeout is
+                    configurable via the
+                    <literal>timeoutForMediumTests</literal> attribute in the
+                    XML configuration file.
+                  </para>
+                </listitem>
+
+                <listitem>
+                  <para>
+                    A test not marked as <literal>@medium</literal> or
+                    <literal>@large</literal> will fail if it takes longer than
+                    1 second to execute. This timeout is configurable via the
+                    <literal>timeoutForSmallTests</literal> attribute in the
+                    XML configuration file.
+                  </para>
+                </listitem>
+              </itemizedlist>
+            </listitem>
+          </itemizedlist>
         </listitem>
       </varlistentry>
 
