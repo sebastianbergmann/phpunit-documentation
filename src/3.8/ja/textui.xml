@@ -506,11 +506,58 @@ Usage: phpunit [switches] UnitTest [UnitTest.php]
       </varlistentry>
 
       <varlistentry>
+        <indexterm><primary>Strict Mode</primary></indexterm>
         <term><literal>--strict</literal></term>
         <listitem>
           <para>
-            テストを strict モードで実行します。
+            テストを strict モードで実行します。strict モードを有効にすると、
           </para>
+
+          <itemizedlist>
+            <listitem>
+              <para>
+                何かを出力するテストは失敗します。
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+                アサーションが一つもないテストは失敗し、コードカバレッジ情報も生成しません。
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+                <literal>PHP_Invoker</literal> パッケージがインストールされている場合は、
+              </para>
+              <itemizedlist>
+                <listitem>
+                  <para>
+                    <literal>@large</literal> とマークされたテストは、
+                    実行時間が 60 秒を超えたら失敗します。
+                    このタイムアウト時間は、XML 設定ファイルの
+                    <literal>timeoutForLargeTests</literal> 属性で変更できます。
+                  </para>
+                </listitem>
+
+                <listitem>
+                  <para>
+                    <literal>@medium</literal> とマークされたテストは、
+                    実行時間が 10 秒を超えたら失敗します。
+                    このタイムアウト時間は、XML 設定ファイルの
+                    <literal>timeoutForMediumTests</literal> 属性で変更できます。
+                  </para>
+                </listitem>
+
+                <listitem>
+                  <para>
+                    <literal>@medium</literal> とも <literal>@large</literal> ともマークされていないテストは、
+                    実行時間が 1 秒を超えたら失敗します。
+                    このタイムアウト時間は、XML 設定ファイルの
+                    <literal>timeoutForSmallTests</literal> 属性で変更できます。
+                  </para>
+                </listitem>
+              </itemizedlist>
+            </listitem>
+          </itemizedlist>
         </listitem>
       </varlistentry>
 
