@@ -325,6 +325,39 @@ public function testBalanceIsInitiallyZero()
     </table>
   </section>
 
+  <section id="appendixes.annotations.coversDefaultClass">
+    <title>@coversDefaultClass</title>
+
+    <para>
+      <indexterm><primary>@coversDefaultClass</primary></indexterm>
+
+      The <literal>@coversDefaultClass</literal> annotation can be used to
+      specify a default namespace or class name so long names don't need to be
+      repeated for every <literal>@covers</literal> annotation. See
+      <xref linkend="appendixes.annotations.examples.CoversDefaultClassTest.php" />.
+    </para>
+
+    <example id="appendixes.annotations.examples.CoversDefaultClassTest.php">
+      <title>Using @coversDefaultClass to shorten annotations</title>
+      <programlisting><![CDATA[<?php
+/**
+ * @coversDefaultClass \Foo\CoveredClass
+ */
+class CoversDefaultClassTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @covers ::publicMethod
+     */
+    public function testSomething()
+    {
+        $o = new Foo\CoveredClass;
+        $o->publicMethod();
+    }
+}
+?>]]></programlisting>
+    </example>
+  </section>
+
   <section id="appendixes.annotations.coversNothing">
     <title>@coversNothing</title>
 
