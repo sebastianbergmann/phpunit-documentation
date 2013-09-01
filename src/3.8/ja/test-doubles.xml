@@ -532,6 +532,17 @@ class StubTest extends PHPUnit_Framework_TestCase
 class Subject
 {
     protected $observers = array();
+    protected $name;
+    
+    public function __construct($name)
+    {
+        $this->name = $name;
+    }
+    
+    public function getName()
+    {
+        return $this->name;
+    }
 
     public function attach(Observer $observer)
     {
@@ -620,7 +631,7 @@ class SubjectTest extends PHPUnit_Framework_TestCase
 
         // Subject オブジェクトを作成し、Observer オブジェクトの
         // モックをアタッチします。
-        $subject = new Subject;
+        $subject = new Subject('My subject');
         $subject->attach($observer);
 
         // $subject オブジェクトの doSomething() メソッドをコールします。
@@ -634,11 +645,11 @@ class SubjectTest extends PHPUnit_Framework_TestCase
 
     <para>
       <literal>with()</literal> メソッドには任意の数の引数を渡すことができます。
-      これは、モック対象のメソッドのパラメータ数に対応します。
+      これは、モック対象のメソッドの引数の数に対応します。
       メソッドの引数に対して、単なるマッチだけでなくより高度な制約を指定することもできます。
     </para>
 
-    <example id="test-doubles.mock-objects.examples.MultiParameterTest.php">
+    <example id="test-doubles.mock-objects.examples.SubjectTest2.php">
       <title>メソッドが引数つきでコールされることを、さまざまな制約の下でテストする例</title>
       <programlisting><![CDATA[<?php
 class SubjectTest extends PHPUnit_Framework_TestCase
@@ -655,7 +666,45 @@ class SubjectTest extends PHPUnit_Framework_TestCase
                         $this->stringContains('Something'),
                         $this->anything());
 
-        $subject = new Subject;
+        $subject = new Subject('My subject');
+        $subject->attach($observer);
+
+        // doSomethingBad() メソッドは、
+        // reportError() メソッドを通じてオブザーバにエラーを報告しなければなりません。
+        $subject->doSomethingBad();
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      <literal>callback()</literal> 制約を使えば、より複雑な引数の検証ができます。
+      この制約は、PHP のコールバックを引数として受け取ります。
+      このコールバックは、検証したい引数を受け取って、検証を通過した場合に <literal>TRUE</literal>、
+      それ以外の場合に <literal>FALSE</literal> を返します。
+    </para>
+
+    <example id="test-doubles.mock-objects.examples.SubjectTest3.php">
+      <title>より複雑な引数の検証</title>
+      <programlisting><![CDATA[<?php
+class SubjectTest extends PHPUnit_Framework_TestCase
+{
+    public function testErrorReported()
+    {
+        // Observer クラスのモックを作成します。
+        // reportError() メソッドをモックします。
+        $observer = $this->getMock('Observer', array('reportError'));
+
+        $observer->expects($this->once())
+                 ->method('reportError')
+                 ->with($this->greaterThan(0),
+                        $this->stringContains('Something'),
+                        $this->callback(function($subject){
+                          return is_callable(array($subject, 'getName')) &&
+                                 $subject->getName() == 'My subject';
+                        }));
+
+        $subject = new Subject('My subject');
         $subject->attach($observer);
 
         // doSomethingBad() メソッドは、
