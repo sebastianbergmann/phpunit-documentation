@@ -41,7 +41,7 @@
     performing a series of operations. It can be installed like this:
   </para>
   <screen><userinput>pear install phpunit/DbUnit</userinput></screen>
-  <section id="supported-vendors-for-database-testing">
+  <section id="database.supported-vendors-for-database-testing">
     <title>Supported Vendors for Database Testing</title>
     <para>
       DbUnit currently supports MySQL, PostgreSQL, Oracle and SQLite. Through
@@ -51,7 +51,7 @@
       Microsoft SQL Server.
     </para>
   </section>
-  <section id="difficulties-in-database-testing">
+  <section id="database.difficulties-in-database-testing">
     <title>Difficulties in Database Testing</title>
     <para>
       There is a good reason why all the examples on unit testing do not include
@@ -133,7 +133,7 @@
       desktop computer.
     </para>
   </section>
-  <section id="the-four-stages-of-a-database-test">
+  <section id="database.the-four-stages-of-a-database-test">
     <title>The four stages of a database test</title>
     <para>
       In his book on xUnit Test Patterns Gerard Meszaros lists the four
@@ -177,7 +177,7 @@
       revert the four stages in a database test to resemble the following
       workflow that is executed for each single test:
     </para>
-    <section id="clean-up-database">
+    <section id="database.clean-up-database">
       <title>1. Clean-Up Database</title>
       <para>
         Since there is always a first test that runs against the database
@@ -186,14 +186,14 @@
         specified to reset their status to empty.
       </para>
     </section>
-    <section id="set-up-fixture">
+    <section id="database.set-up-fixture">
       <title>2. Set up fixture</title>
       <para>
         PHPUnit will then iterate over all the fixture rows specified and
         insert them into their respective tables.
       </para>
     </section>
-    <section id="run-test-verify-outcome-and-teardown">
+    <section id="database.run-test-verify-outcome-and-teardown">
       <title>3–5. Run Test, Verify outcome and Teardown</title>
       <para>
         After the database is reset and loaded with its initial state the
@@ -209,24 +209,24 @@
       </para>
     </section>
   </section>
-  <section id="configuration-of-a-phpunit-database-testcase">
+  <section id="database.configuration-of-a-phpunit-database-testcase">
     <title>Configuration of a PHPUnit Database TestCase</title>
     <para>
       Usually when using PHPUnit your testcases would extend the
       <literal>PHPUnit_Framework_TestCase</literal> class in the
       following way:
     </para>
-    <screen>
-require_once &quot;PHPUnit/Framework/TestCase.php&quot;;
+    <programlisting><![CDATA[<?php
+require_once "PHPUnit/Framework/TestCase.php";
 
 class MyTest extends PHPUnit_Framework_TestCase
 {
     public function testCalculate()
     {
-        $this-&gt;assertEquals(2, 1 + 1);
+        $this->assertEquals(2, 1 + 1);
     }
 }
-</screen>
+?>]]></programlisting>
     <para>
       If you want to test code that works with the Database Extension the
       setup is a bit more complex and you have to extend a different
@@ -234,8 +234,8 @@ class MyTest extends PHPUnit_Framework_TestCase
       <literal>getConnection()</literal> and
       <literal>getDataSet()</literal>:
     </para>
-    <screen>
-require_once &quot;PHPUnit/Extensions/Database/TestCase.php&quot;;
+    <programlisting><![CDATA[<?php
+require_once "PHPUnit/Extensions/Database/TestCase.php";
 
 class MyGuestbookTest extends PHPUnit_Extensions_Database_TestCase
 {
@@ -245,7 +245,7 @@ class MyGuestbookTest extends PHPUnit_Extensions_Database_TestCase
     public function getConnection()
     {
         $pdo = new PDO('sqlite::memory:');
-        return $this-&gt;createDefaultDBConnection($pdo, ':memory:');
+        return $this->createDefaultDBConnection($pdo, ':memory:');
     }
 
     /**
@@ -253,11 +253,11 @@ class MyGuestbookTest extends PHPUnit_Extensions_Database_TestCase
      */
     public function getDataSet()
     {
-        return $this-&gt;createFlatXMLDataSet(dirname(__FILE__).'/_files/guestbook-seed.xml');
+        return $this->createFlatXMLDataSet(dirname(__FILE__).'/_files/guestbook-seed.xml');
     }
 }
-</screen>
-    <section id="implementing-getconnection">
+?>]]></programlisting>
+    <section id="database.implementing-getconnection">
       <title>Implementing getConnection()</title>
       <para>
         To allow the clean-up and fixture loading functionalities to work
@@ -280,7 +280,7 @@ class MyGuestbookTest extends PHPUnit_Extensions_Database_TestCase
         the API of this interface and how you can make the best use of it.
       </para>
     </section>
-    <section id="implementing-getdataset">
+    <section id="database.implementing-getdataset">
       <title>Implementing getDataSet()</title>
       <para>
         The <literal>getDataSet()</literal> method defines how the initial
@@ -302,7 +302,7 @@ class MyGuestbookTest extends PHPUnit_Extensions_Database_TestCase
         represents a data-set through an XML representation.
       </para>
     </section>
-    <section id="what-about-the-database-schema-ddl">
+    <section id="database.what-about-the-database-schema-ddl">
       <title>What about the Database Schema (DDL)?</title>
       <para>
         PHPUnit assumes that the database schema with all its tables,
@@ -335,7 +335,7 @@ class MyGuestbookTest extends PHPUnit_Extensions_Database_TestCase
         </listitem>
       </orderedlist>
     </section>
-    <section id="tip-use-your-own-abstract-database-testcase">
+    <section id="database.tip-use-your-own-abstract-database-testcase">
       <title>Tip: Use your own Abstract Database TestCase</title>
       <para>
         From the previous implementation example you can easily see that
@@ -346,8 +346,8 @@ class MyGuestbookTest extends PHPUnit_Extensions_Database_TestCase
         case for your application, which still allows you to specify a
         different data-fixture for each test case:
       </para>
-      <screen>
-require_once &quot;PHPUnit/Extensions/Database/TestCase.php&quot;;
+      <programlisting><![CDATA[<?php
+require_once "PHPUnit/Extensions/Database/TestCase.php";
 
 abstract class MyApp_Tests_DatabaseTestCase extends PHPUnit_Extensions_Database_TestCase
 {
@@ -359,17 +359,17 @@ abstract class MyApp_Tests_DatabaseTestCase extends PHPUnit_Extensions_Database_
 
     final public function getConnection()
     {
-        if ($this-&gt;conn === null) {
+        if ($this->conn === null) {
             if (self::$pdo == null) {
                 self::$pdo = new PDO('sqlite::memory:');
             }
-            $this-&gt;conn = $this-&gt;createDefaultDBConnection(self::$pdo, ':memory:');
+            $this->conn = $this->createDefaultDBConnection(self::$pdo, ':memory:');
         }
 
-        return $this-&gt;conn;
+        return $this->conn;
     }
 }
-</screen>
+?>]]></programlisting>
       <para>
         This has the database connection hardcoded in the PDO connection
         though. PHPUnit has another awesome feature that could make this
@@ -379,21 +379,21 @@ abstract class MyApp_Tests_DatabaseTestCase extends PHPUnit_Extensions_Database_
         First let's create a <quote>phpunit.xml</quote> file in our tests/
         directory of the application that looks like:
       </para>
-      <screen>
-&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;
-&lt;phpunit&gt;
-    &lt;php&gt;
-        &lt;var name=&quot;DB_DSN&quot; value=&quot;mysql:dbname=myguestbook;host=localhost&quot; /&gt;
-        &lt;var name=&quot;DB_USER&quot; value=&quot;user&quot; /&gt;
-        &lt;var name=&quot;DB_PASSWD&quot; value=&quot;passwd&quot; /&gt;
-        &lt;var name=&quot;DB_DBNAME&quot; value=&quot;myguestbook&quot; /&gt;
-    &lt;/php&gt;
-&lt;/phpunit&gt;
-</screen>
+      <screen><![CDATA[
+<?xml version="1.0" encoding="UTF-8" ?>
+<phpunit>
+    <php>
+        <var name="DB_DSN" value="mysql:dbname=myguestbook;host=localhost" />
+        <var name="DB_USER" value="user" />
+        <var name="DB_PASSWD" value="passwd" />
+        <var name="DB_DBNAME" value="myguestbook" />
+    </php>
+</phpunit>
+]]></screen>
       <para>
         We can now modify our test-case to look like:
       </para>
-      <screen>
+      <programlisting><![CDATA[<?php
 abstract class Generic_Tests_DatabaseTestCase extends PHPUnit_Extensions_Database_TestCase
 {
     // only instantiate pdo once for test clean-up/fixture load
@@ -404,25 +404,23 @@ abstract class Generic_Tests_DatabaseTestCase extends PHPUnit_Extensions_Databas
 
     final public function getConnection()
     {
-        if ($this-&gt;conn === null) {
+        if ($this->conn === null) {
             if (self::$pdo == null) {
                 self::$pdo = new PDO( $GLOBALS['DB_DSN'], $GLOBALS['DB_USER'], $GLOBALS['DB_PASSWD'] );
             }
-            $this-&gt;conn = $this-&gt;createDefaultDBConnection(self::$pdo, $GLOBALS['DB_DBNAME']);
+            $this->conn = $this->createDefaultDBConnection(self::$pdo, $GLOBALS['DB_DBNAME']);
         }
 
-        return $this-&gt;conn;
+        return $this->conn;
     }
 }
-</screen>
+?>]]></programlisting>
       <para>
         We can now run the database test suite using different
         configurations from the command-line interface:
       </para>
-      <screen>
-user@desktop&gt; phpunit --configuration developer-a.xml MyTests/
-user@desktop&gt; phpunit --configuration developer-b.xml MyTests/
-</screen>
+      <screen><userinput>phpunit --configuration developer-a.xml MyTests/</userinput>
+<userinput>phpunit --configuration developer-b.xml MyTests/</userinput></screen>
       <para>
         The possibility to run the database tests against different
         database targets easily is very important if you are developing on
@@ -432,7 +430,7 @@ user@desktop&gt; phpunit --configuration developer-b.xml MyTests/
       </para>
     </section>
   </section>
-  <section id="understanding-datasets-and-datatables">
+  <section id="database.understanding-datasets-and-datatables">
     <title>Understanding DataSets and DataTables</title>
     <para>
       A central concept of PHPUnit's Database Extension are DataSets and
@@ -493,7 +491,7 @@ user@desktop&gt; phpunit --configuration developer-b.xml MyTests/
         </para>
       </listitem>
     </itemizedlist>
-    <section id="available-implementations">
+    <section id="database.available-implementations">
       <title>Available Implementations</title>
       <para>
         There are three different types of datasets/datatables:
@@ -519,26 +517,26 @@ user@desktop&gt; phpunit --configuration developer-b.xml MyTests/
         The file-based datasets and tables are generally used for the
         initial fixture and to describe the expected state of the database.
       </para>
-      <section id="flat-xml-dataset">
+      <section id="database.flat-xml-dataset">
         <title>Flat XML DataSet</title>
         <para>
           The most common dataset is called Flat XML. It is a very simple xml
           format where a tag inside the root node
-          <literal>&lt;dataset&gt;</literal> represents exactly one row in the
+          <literal><![CDATA[<dataset>]]></literal> represents exactly one row in the
           database. The tags name equals the table to insert the row into and
           an attribute represents the column. An example for a simple guestbook
           application could look like this:
         </para>
-        <screen>
-&lt;?xml version=&quot;1.0&quot; ?&gt;
-&lt;dataset&gt;
-    &lt;guestbook id=&quot;1&quot; content=&quot;Hello buddy!&quot; user=&quot;joe&quot; created=&quot;2010-04-24 17:15:23&quot; /&gt;
-    &lt;guestbook id=&quot;2&quot; content=&quot;I like it!&quot; user=&quot;nancy&quot; created=&quot;2010-04-26 12:14:20&quot; /&gt;
-&lt;/dataset&gt;
-</screen>
+        <screen><![CDATA[
+<?xml version="1.0" ?>
+<dataset>
+    <guestbook id="1" content="Hello buddy!" user="joe" created="2010-04-24 17:15:23" />
+    <guestbook id="2" content="I like it!" user="nancy" created="2010-04-26 12:14:20" />
+</dataset>
+]]></screen>
         <para>
           This is obviously easy to write. Here
-          <literal>&lt;guestbook&gt;</literal> is the table name where two rows
+          <literal><![CDATA[<guestbook>]]></literal> is the table name where two rows
           are inserted into each with four columns <quote>id</quote>,
           <quote>content</quote>, <quote>user</quote> and
           <quote>created</quote> with their respective values.
@@ -552,12 +550,12 @@ user@desktop&gt; phpunit --configuration developer-b.xml MyTests/
           of the empty table. A flat xml file for an empty guestbook table
           would then look like:
         </para>
-        <screen>
-&lt;?xml version=&quot;1.0&quot; ?&gt;
-&lt;dataset&gt;
-    &lt;guestbook /&gt;
-&lt;/dataset&gt;
-</screen>
+        <screen><![CDATA[
+<?xml version="1.0" ?>
+<dataset>
+    <guestbook />
+</dataset>
+]]></screen>
         <para>
           The handling of NULL values with the flat xml dataset is tedious. A
           NULL value is different than an empty string value in almost any
@@ -568,13 +566,13 @@ user@desktop&gt; phpunit --configuration developer-b.xml MyTests/
           in the user column, a hypothetical state of the guestbook table
           could look like:
         </para>
-        <screen>
-&lt;?xml version=&quot;1.0&quot; ?&gt;
-&lt;dataset&gt;
-    &lt;guestbook id=&quot;1&quot; content=&quot;Hello buddy!&quot; user=&quot;joe&quot; created=&quot;2010-04-24 17:15:23&quot; /&gt;
-    &lt;guestbook id=&quot;2&quot; content=&quot;I like it!&quot; created=&quot;2010-04-26 12:14:20&quot; /&gt;
-&lt;/dataset&gt;
-</screen>
+        <screen><![CDATA[
+<?xml version="1.0" ?>
+<dataset>
+    <guestbook id="1" content="Hello buddy!" user="joe" created="2010-04-24 17:15:23" />
+    <guestbook id="2" content="I like it!" created="2010-04-26 12:14:20" />
+</dataset>
+]]></screen>
         <para>
           In this case the second entry is posted anonymously. However this
           leads to a serious problem with column recognition. During dataset
@@ -620,60 +618,60 @@ user@desktop&gt; phpunit --configuration developer-b.xml MyTests/
           Database TestCase by calling the
           <literal>createFlatXmlDataSet($filename)</literal> method:
         </para>
-        <screen>
+        <programlisting><![CDATA[<?php
 class MyTestCase extends PHPUnit_Extensions_Database_TestCase
 {
     public function getDataSet()
     {
-        return $this-&gt;createFlatXmlDataSet('myFlatXmlFixture.xml');
+        return $this->createFlatXmlDataSet('myFlatXmlFixture.xml');
     }
 }
-</screen>
+?>]]></programlisting>
       </section>
-      <section id="xml-dataset">
+      <section id="database.xml-dataset">
         <title>XML DataSet</title>
         <para>
           There is another more structured XML dataset, which is a bit more
           verbose to write but avoids the NULL problems of the Flat XML
-          dataset. Inside the root node <literal>&lt;dataset&gt;</literal> you
-          can specify <literal>&lt;table&gt;</literal>,
-          <literal>&lt;column&gt;</literal>, <literal>&lt;row&gt;</literal>,
-          <literal>&lt;value&gt;</literal> and
-          <literal>&lt;null /&gt;</literal> tags. An equivalent dataset to the
+          dataset. Inside the root node <literal><![CDATA[<dataset>]]></literal> you
+          can specify <literal><![CDATA[<table>]]></literal>,
+          <literal><![CDATA[<column>]]></literal>, <literal><![CDATA[<row>]]></literal>,
+          <literal><![CDATA[<value>]]></literal> and
+          <literal><![CDATA[<null />]]></literal> tags. An equivalent dataset to the
           previously defined Guestbook Flat XML looks like:
         </para>
-        <screen>
-&lt;?xml version=&quot;1.0&quot; ?&gt;
-&lt;dataset&gt;
-    &lt;table name=&quot;guestbook&quot;&gt;
-        &lt;column&gt;id&lt;/column&gt;
-        &lt;column&gt;content&lt;/column&gt;
-        &lt;column&gt;user&lt;/column&gt;
-        &lt;column&gt;created&lt;/column&gt;
-        &lt;row&gt;
-            &lt;value&gt;1&lt;/value&gt;
-            &lt;value&gt;Hello buddy!&lt;/value&gt;
-            &lt;value&gt;joe&lt;/value&gt;
-            &lt;value&gt;2010-04-24 17:15:23&lt;/value&gt;
-        &lt;/row&gt;
-        &lt;row&gt;
-            &lt;value&gt;2&lt;/value&gt;
-            &lt;value&gt;I like it!&lt;/value&gt;
-            &lt;null /&gt;
-            &lt;value&gt;2010-04-26 12:14:20&lt;/value&gt;
-        &lt;/row&gt;
-    &lt;/table&gt;
-&lt;/dataset&gt;
-</screen>
+        <screen><![CDATA[
+<?xml version="1.0" ?>
+<dataset>
+    <table name="guestbook">
+        <column>id</column>
+        <column>content</column>
+        <column>user</column>
+        <column>created</column>
+        <row>
+            <value>1</value>
+            <value>Hello buddy!</value>
+            <value>joe</value>
+            <value>2010-04-24 17:15:23</value>
+        </row>
+        <row>
+            <value>2</value>
+            <value>I like it!</value>
+            <null />
+            <value>2010-04-26 12:14:20</value>
+        </row>
+    </table>
+</dataset>
+]]></screen>
         <para>
-          Any defined <literal>&lt;table&gt;</literal> has a name and requires
+          Any defined <literal><![CDATA[<table>]]></literal> has a name and requires
           a definition of all the columns with their names. It can contain zero
-          or any positive number of nested <literal>&lt;row&gt;</literal>
-          elements. Defining no <literal>&lt;row&gt;</literal> element means
-          the table is empty. The <literal>&lt;value&gt;</literal> and
-          <literal>&lt;null /&gt;</literal> tags have to be specified in the
-          order of the previously given <literal>&lt;column&gt;</literal>
-          elements. The <literal>&lt;null /&gt;</literal> tag obviously means
+          or any positive number of nested <literal><![CDATA[<row>]]></literal>
+          elements. Defining no <literal><![CDATA[<row>]]></literal> element means
+          the table is empty. The <literal><![CDATA[<value>]]></literal> and
+          <literal><![CDATA[<null />]]></literal> tags have to be specified in the
+          order of the previously given <literal><![CDATA[<column>]]></literal>
+          elements. The <literal><![CDATA[<null />]]></literal> tag obviously means
           that the value is NULL.
         </para>
         <para>
@@ -681,17 +679,17 @@ class MyTestCase extends PHPUnit_Extensions_Database_TestCase
           Database TestCase by calling the
           <literal>createXmlDataSet($filename)</literal> method:
         </para>
-        <screen>
+        <programlisting><![CDATA[<?php
 class MyTestCase extends PHPUnit_Extensions_Database_TestCase
 {
     public function getDataSet()
     {
-        return $this-&gt;createXMLDataSet('myXmlFixture.xml');
+        return $this->createXMLDataSet('myXmlFixture.xml');
     }
 }
-</screen>
+?>]]></programlisting>
       </section>
-      <section id="mysql-xml-dataset">
+      <section id="database.mysql-xml-dataset">
         <title>MySQL XML DataSet</title>
         <para>
           This new XML format is specific to the
@@ -704,24 +702,22 @@ class MyTestCase extends PHPUnit_Extensions_Database_TestCase
           for multiple tables. You can create a file in this format by
           invoking <literal>mysqldump</literal> like so:
         </para>
-        <screen>
-mysqldump --xml -t -u [username] --password=[password] [database] > /path/to/file.xml
-        </screen>
+        <screen><userinput>mysqldump --xml -t -u [username] --password=[password] [database] > /path/to/file.xml</userinput></screen>
         <para>
           This file can be used in your Database TestCase by calling the
           <literal>createMySQLXMLDataSet($filename)</literal> method:
         </para>
-        <screen>
+        <programlisting><![CDATA[<?php
 class MyTestCase extends PHPUnit_Extensions_Database_TestCase
 {
     public function getDataSet()
     {
-        return $this-&gt;createMySQLXMLDataSet('/path/to/file.xml');
+        return $this->createMySQLXMLDataSet('/path/to/file.xml');
     }
 }
-</screen>
+?>]]></programlisting>
       </section>
-      <section id="yaml-dataset">
+      <section id="database.yaml-dataset">
         <title>YAML DataSet</title>
         <para>
           New with PHPUnit 3.4 is the ability to specify a dataset in the
@@ -729,55 +725,55 @@ class MyTestCase extends PHPUnit_Extensions_Database_TestCase
           3.4 from PEAR with its optional Symfony YAML dependency. You can
           then write a YAML dataset for the guestbook example:
         </para>
-        <screen>
+        <screen><![CDATA[
 guestbook:
   -
     id: 1
-    content: &quot;Hello buddy!&quot;
-    user: &quot;joe&quot;
+    content: "Hello buddy!"
+    user: "joe"
     created: 2010-04-24 17:15:23
   -
     id: 2
-    content: &quot;I like it!&quot;
+    content: "I like it!"
     user:
     created: 2010-04-26 12:14:20
-</screen>
+]]></screen>
         <para>
           This is simple, convient AND it solves the NULL issue that the
           similar Flat XML dataset has. A NULL in YAML is just the column
           name without no value specified. An empty string is specified as
-          <literal>column1: &quot;&quot;</literal>.
+          <literal><![CDATA[column1: ""]]></literal>.
         </para>
         <para>
           The YAML Dataset has no factory method on the Database TestCase
           currently, so you have to instantiate it manually:
         </para>
-        <screen>
-require_once &quot;PHPUnit/Extensions/Database/DataSet/YamlDataSet.php&quot;;
+        <programlisting><![CDATA[<?php
+require_once "PHPUnit/Extensions/Database/DataSet/YamlDataSet.php";
 
 class YamlGuestbookTest extends PHPUnit_Extensions_Database_TestCase
 {
     protected function getDataSet()
     {
         return new PHPUnit_Extensions_Database_DataSet_YamlDataSet(
-            dirname(__FILE__).&quot;/_files/guestbook.yml&quot;
+            dirname(__FILE__)."/_files/guestbook.yml"
         );
     }
 }
-</screen>
+?>]]></programlisting>
       </section>
-      <section id="csv-dataset">
+      <section id="database.csv-dataset">
         <title>CSV DataSet</title>
         <para>
           Another file-based dataset is based on CSV files. Each table of the
           dataset is represented as a single CSV file. For our guestbook
           example we would define a guestbook-table.csv file:
         </para>
-        <screen>
+        <screen><![CDATA[
 id;content;user;created
-1;&quot;Hello buddy!&quot;;&quot;joe&quot;;&quot;2010-04-24 17:15:23&quot;
-2;&quot;I like it!&quot;&quot;nancy&quot;;&quot;2010-04-26 12:14:20&quot;
-</screen>
+1;"Hello buddy!";"joe";"2010-04-24 17:15:23"
+2;"I like it!""nancy";"2010-04-26 12:14:20"
+]]></screen>
         <para>
           While this is very convenient for editing with Excel or OpenOffice,
           you cannot specify NULL values with the CSV dataset. An empty
@@ -787,7 +783,7 @@ id;content;user;created
         <para>
           You can create a CSV DataSet by calling:
         </para>
-        <screen>
+        <programlisting><![CDATA[<?php
 require_once 'PHPUnit/Extensions/Database/DataSet/CsvDataSet.php';
 
 class CsvGuestbookTest extends PHPUnit_Extensions_Database_TestCase
@@ -795,33 +791,33 @@ class CsvGuestbookTest extends PHPUnit_Extensions_Database_TestCase
     protected function getDataSet()
     {
         $dataSet = new PHPUnit_Extensions_Database_DataSet_CsvDataSet();
-        $dataSet-&gt;addTable('guestbook', dirname(__FILE__).&quot;/_files/guestbook.csv&quot;);
+        $dataSet->addTable('guestbook', dirname(__FILE__)."/_files/guestbook.csv");
         return $dataSet;
     }
 }
-</screen>
+?>]]></programlisting>
       </section>
-      <section id="array-dataset">
+      <section id="database.array-dataset">
         <title>Array DataSet</title>
         <para>
           There is no Array based DataSet in PHPUnit's Database Extension
           (yet), but we can implement our own easily. Our guestbook example
           should look like:
         </para>
-        <screen>
+        <programlisting><![CDATA[<?php
 class ArrayGuestbookTest extends PHPUnit_Extensions_Database_TestCase
 {
     protected function getDataSet()
     {
         return new MyApp_DbUnit_ArrayDataSet(array(
-            'guestbook' =&gt; array(
-                array('id' =&gt; 1, 'content' =&gt; 'Hello buddy!', 'user' =&gt; 'joe', 'created' =&gt; '2010-04-24 17:15:23'),
-                array('id' =&gt; 2, 'content' =&gt; 'I like it!',   'user' =&gt; null,  'created' =&gt; '2010-04-26 12:14:20'),
+            'guestbook' => array(
+                array('id' => 1, 'content' => 'Hello buddy!', 'user' => 'joe', 'created' => '2010-04-24 17:15:23'),
+                array('id' => 2, 'content' => 'I like it!',   'user' => null,  'created' => '2010-04-26 12:14:20'),
             ),
         ));
     }
 }
-</screen>
+?>]]></programlisting>
         <para>
           A PHP DataSet has obvious advantages over all the other file-based
           datasets:
@@ -850,7 +846,7 @@ class ArrayGuestbookTest extends PHPUnit_Extensions_Database_TestCase
           The implementation for this Array DataSet is simple and
           straightforward:
         </para>
-        <screen>
+        <programlisting><![CDATA[<?php
 require_once 'PHPUnit/Util/Filter.php';
 
 require_once 'PHPUnit/Extensions/Database/DataSet/AbstractDataSet.php';
@@ -872,7 +868,7 @@ class MyApp_DbUnit_ArrayDataSet extends PHPUnit_Extensions_Database_DataSet_Abst
      */
     public function __construct(array $data)
     {
-        foreach ($data AS $tableName =&gt; $rows) {
+        foreach ($data AS $tableName => $rows) {
             $columns = array();
             if (isset($rows[0])) {
                 $columns = array_keys($rows[0]);
@@ -882,62 +878,62 @@ class MyApp_DbUnit_ArrayDataSet extends PHPUnit_Extensions_Database_DataSet_Abst
             $table = new PHPUnit_Extensions_Database_DataSet_DefaultTable($metaData);
 
             foreach ($rows AS $row) {
-                $table-&gt;addRow($row);
+                $table->addRow($row);
             }
-            $this-&gt;tables[$tableName] = $table;
+            $this->tables[$tableName] = $table;
         }
     }
 
     protected function createIterator($reverse = FALSE)
     {
-        return new PHPUnit_Extensions_Database_DataSet_DefaultTableIterator($this-&gt;tables, $reverse);
+        return new PHPUnit_Extensions_Database_DataSet_DefaultTableIterator($this->tables, $reverse);
     }
 
     public function getTable($tableName)
     {
-        if (!isset($this-&gt;tables[$tableName])) {
-            throw new InvalidArgumentException(&quot;$tableName is not a table in the current database.&quot;);
+        if (!isset($this->tables[$tableName])) {
+            throw new InvalidArgumentException("$tableName is not a table in the current database.");
         }
 
-        return $this-&gt;tables[$tableName];
+        return $this->tables[$tableName];
     }
 }
-</screen>
+?>]]></programlisting>
       </section>
-      <section id="query-sql-dataset">
+      <section id="database.query-sql-dataset">
         <title>Query (SQL) DataSet</title>
         <para>
           For database assertions you do not only need the file-based datasets
           but also a Query/SQL based Dataset that contains the actual
           contents of the database. This is where the Query DataSet shines:
         </para>
-        <screen>
-$ds = new PHPUnit_Extensions_Database_DataSet_QueryDataSet($this-&gt;getConnection());
-$ds-&gt;addTable('guestbook');
-</screen>
+        <programlisting><![CDATA[<?php
+$ds = new PHPUnit_Extensions_Database_DataSet_QueryDataSet($this->getConnection());
+$ds->addTable('guestbook');
+?>]]></programlisting>
         <para>
           Adding a table just by name is an implicit way to define the
           data-table with the following query:
         </para>
-        <screen>
-$ds = new PHPUnit_Extensions_Database_DataSet_QueryDataSet($this-&gt;getConnection());
-$ds-&gt;addTable('guestbook', 'SELECT * FROM guestbook');
-</screen>
+        <programlisting><![CDATA[<?php
+$ds = new PHPUnit_Extensions_Database_DataSet_QueryDataSet($this->getConnection());
+$ds->addTable('guestbook', 'SELECT * FROM guestbook');
+?>]]></programlisting>
         <para>
           You can make use of this by specifying arbitrary queries for your
           tables, for example restricting rows, column or adding
           <literal>ORDER BY</literal> clauses:
         </para>
-        <screen>
-$ds = new PHPUnit_Extensions_Database_DataSet_QueryDataSet($this-&gt;getConnection());
-$ds-&gt;addTable('guestbook', 'SELECT id, content FROM guestbook ORDER BY created DESC');
-</screen>
+        <programlisting><![CDATA[<?php
+$ds = new PHPUnit_Extensions_Database_DataSet_QueryDataSet($this->getConnection());
+$ds->addTable('guestbook', 'SELECT id, content FROM guestbook ORDER BY created DESC');
+?>]]></programlisting>
         <para>
           The section on Database Assertions will show some more details on
           how to make use of the Query DataSet.
         </para>
       </section>
-      <section id="database-db-dataset">
+      <section id="database.database-db-dataset">
         <title>Database (DB) Dataset</title>
         <para>
           Accessing the Test Connection you can automatically create a
@@ -951,7 +947,7 @@ $ds-&gt;addTable('guestbook', 'SELECT id, content FROM guestbook ORDER BY create
           specified table names with a whitelist as shown in
           <literal>testFilteredGuestbook()</literal> method.
         </para>
-        <screen>
+        <programlisting><![CDATA[<?php
 class MySqlGuestbookTest extends PHPUnit_Extensions_Database_TestCase
 {
     /**
@@ -961,25 +957,25 @@ class MySqlGuestbookTest extends PHPUnit_Extensions_Database_TestCase
     {
         $database = 'my_database';
         $pdo = new PDO('mysql:...', $user, $password);
-        return $this-&gt;createDefaultDBConnection($pdo, $database);
+        return $this->createDefaultDBConnection($pdo, $database);
     }
 
     public function testGuestbook()
     {
-        $dataSet = $this-&gt;getConnection()-&gt;createDataSet();
+        $dataSet = $this->getConnection()->createDataSet();
         // ...
     }
 
     public function testFilteredGuestbook()
     {
         $tableNames = array('guestbook');
-        $dataSet = $this-&gt;getConnection()-&gt;createDataSet($tableNames);
+        $dataSet = $this->getConnection()->createDataSet($tableNames);
         // ...
     }
 }
-</screen>
+?>]]></programlisting>
       </section>
-      <section id="replacement-dataset">
+      <section id="database.replacement-dataset">
         <title>Replacement DataSet</title>
         <para>
           I have been talking about NULL problems with the Flat XML and CSV
@@ -992,32 +988,32 @@ class MySqlGuestbookTest extends PHPUnit_Extensions_Database_TestCase
           replacement value. To get our guestbook example working with NULL
           values we specify the file like:
         </para>
-        <screen>
-&lt;?xml version=&quot;1.0&quot; ?&gt;
-&lt;dataset&gt;
-    &lt;guestbook id=&quot;1&quot; content=&quot;Hello buddy!&quot; user=&quot;joe&quot; created=&quot;2010-04-24 17:15:23&quot; /&gt;
-    &lt;guestbook id=&quot;2&quot; content=&quot;I like it!&quot; user=&quot;##NULL##&quot; created=&quot;2010-04-26 12:14:20&quot; /&gt;
-&lt;/dataset&gt;
-</screen>
+        <screen><![CDATA[
+<?xml version="1.0" ?>
+<dataset>
+    <guestbook id="1" content="Hello buddy!" user="joe" created="2010-04-24 17:15:23" />
+    <guestbook id="2" content="I like it!" user="##NULL##" created="2010-04-26 12:14:20" />
+</dataset>
+]]></screen>
         <para>
           We then wrap the Flat XML DataSet into a Replacement DataSet:
         </para>
-        <screen>
+        <programlisting><![CDATA[<?php
 require_once 'PHPUnit/Extensions/Database/DataSet/ReplacementDataSet.php';
 
 class ReplacementTest extends PHPUnit_Extensions_Database_TestCase
 {
     public function getDataSet()
     {
-        $ds = $this-&gt;createFlatXmlDataSet('myFlatXmlFixture.xml');
+        $ds = $this->createFlatXmlDataSet('myFlatXmlFixture.xml');
         $rds = new PHPUnit_Extensions_Database_DataSet_ReplacementDataSet($ds);
-        $rds-&gt;addFullReplacement('##NULL##', null);
+        $rds->addFullReplacement('##NULL##', null);
         return $rds;
     }
 }
-</screen>
+?>]]></programlisting>
       </section>
-      <section id="dataset-filter">
+      <section id="database.dataset-filter">
         <title>DataSet Filter</title>
         <para>
           If you have a large fixture file you can use the DataSet Filter for
@@ -1025,32 +1021,32 @@ class ReplacementTest extends PHPUnit_Extensions_Database_TestCase
           contained in a sub-dataset. This is especially handy in combination
           with the DB DataSet to filter the columns of the datasets.
         </para>
-        <screen>
+        <programlisting><![CDATA[<?php
 class DataSetFilterTest extends PHPUnit_Extensions_Database_TestCase
 {
     public function testIncludeFilteredGuestbook()
     {
         $tableNames = array('guestbook');
-        $dataSet = $this-&gt;getConnection()-&gt;createDataSet();
+        $dataSet = $this->getConnection()->createDataSet();
 
         $filterDataSet = new PHPUnit_Extensions_Database_DataSet_DataSetFilter($dataSet);
-        $filterDataSet-&gt;addIncludeTables(array('guestbook'));
-        $filterDataSet-&gt;setIncludeColumnsForTable('guestbook', array('id', 'content'));
+        $filterDataSet->addIncludeTables(array('guestbook'));
+        $filterDataSet->setIncludeColumnsForTable('guestbook', array('id', 'content'));
         // ..
     }
 
     public function testExcludeFilteredGuestbook()
     {
         $tableNames = array('guestbook');
-        $dataSet = $this-&gt;getConnection()-&gt;createDataSet();
+        $dataSet = $this->getConnection()->createDataSet();
 
         $filterDataSet = new PHPUnit_Extensions_Database_DataSet_DataSetFilter($dataSet);
-        $filterDataSet-&gt;addExcludeTables(array('foo', 'bar', 'baz')); // only keep the guestbook table!
-        $filterDataSet-&gt;setExcludeColumnsForTable('guestbook', array('user', 'created'));
+        $filterDataSet->addExcludeTables(array('foo', 'bar', 'baz')); // only keep the guestbook table!
+        $filterDataSet->setExcludeColumnsForTable('guestbook', array('user', 'created'));
         // ..
     }
 }
-</screen>
+?>]]></programlisting>
         <blockquote>
           <para>
             <emphasis role="strong">NOTE</emphasis> You cannot use both exclude
@@ -1060,7 +1056,7 @@ class DataSetFilterTest extends PHPUnit_Extensions_Database_TestCase
           </para>
         </blockquote>
       </section>
-      <section id="composite-dataset">
+      <section id="database.composite-dataset">
         <title>Composite DataSet</title>
         <para>
           The composite DataSet is very useful for aggregating several
@@ -1069,43 +1065,43 @@ class DataSetFilterTest extends PHPUnit_Extensions_Database_TestCase
           specified order. For example if we have two datasets
           <emphasis>fixture1.xml</emphasis>:
         </para>
-        <screen>
-&lt;?xml version=&quot;1.0&quot; ?&gt;
-&lt;dataset&gt;
-    &lt;guestbook id=&quot;1&quot; content=&quot;Hello buddy!&quot; user=&quot;joe&quot; created=&quot;2010-04-24 17:15:23&quot; /&gt;
-&lt;/dataset&gt;
-</screen>
+        <screen><![CDATA[
+<?xml version="1.0" ?>
+<dataset>
+    <guestbook id="1" content="Hello buddy!" user="joe" created="2010-04-24 17:15:23" />
+</dataset>
+]]></screen>
         <para>
           and <emphasis>fixture2.xml</emphasis>:
         </para>
-        <screen>
-&lt;?xml version=&quot;1.0&quot; ?&gt;
-&lt;dataset&gt;
-    &lt;guestbook id=&quot;2&quot; content=&quot;I like it!&quot; user=&quot;##NULL##&quot; created=&quot;2010-04-26 12:14:20&quot; /&gt;
-&lt;/dataset&gt;
-</screen>
+        <screen><![CDATA[
+<?xml version="1.0" ?>
+<dataset>
+    <guestbook id="2" content="I like it!" user="##NULL##" created="2010-04-26 12:14:20" />
+</dataset>
+]]></screen>
         <para>
           Using the Composite DataSet we can aggregate both fixture files:
         </para>
-        <screen>
+        <programlisting><![CDATA[<?php
 class CompositeTest extends PHPUnit_Extensions_Database_TestCase
 {
     public function getDataSet()
     {
-        $ds1 = $this-&gt;createFlatXmlDataSet('fixture1.xml');
-        $ds2 = $this-&gt;createFlatXmlDataSet('fixture2.xml');
+        $ds1 = $this->createFlatXmlDataSet('fixture1.xml');
+        $ds2 = $this->createFlatXmlDataSet('fixture2.xml');
 
         $compositeDs = new PHPUnit_Extensions_Database_DataSet_CompositeDataSet();
-        $compositeDs-&gt;addDataSet($ds1);
-        $compositeDs-&gt;addDataSet($ds2);
+        $compositeDs->addDataSet($ds1);
+        $compositeDs->addDataSet($ds2);
 
         return $compositeDs;
     }
 }
-</screen>
+?>]]></programlisting>
       </section>
     </section>
-    <section id="beware-of-foreign-keys">
+    <section id="database.beware-of-foreign-keys">
       <title>Beware of Foreign Keys</title>
       <para>
         During Fixture SetUp PHPUnit's Database Extension inserts the rows
@@ -1115,14 +1111,14 @@ class CompositeTest extends PHPUnit_Extensions_Database_TestCase
         constraints to fail.
       </para>
     </section>
-    <section id="implementing-your-own-datasetsdatatables">
+    <section id="database.implementing-your-own-datasetsdatatables">
       <title>Implementing your own DataSets/DataTables</title>
       <para>
         To understand the internals of DataSets and DataTables, lets have a
         look at the interface of a DataSet. You can skip this part if you
         do not plan to implement your own DataSet or DataTable.
       </para>
-      <screen>
+      <programlisting><![CDATA[<?php
 interface PHPUnit_Extensions_Database_DataSet_IDataSet extends IteratorAggregate
 {
     public function getTableNames();
@@ -1132,7 +1128,7 @@ interface PHPUnit_Extensions_Database_DataSet_IDataSet extends IteratorAggregate
 
     public function getReverseIterator();
 }
-</screen>
+?>]]></programlisting>
       <para>
         The public interface is used internally by the
         <literal>assertDataSetsEqual()</literal> assertion on the Database
@@ -1153,7 +1149,7 @@ interface PHPUnit_Extensions_Database_DataSet_IDataSet extends IteratorAggregate
       <para>
         A table is also represented by the following interface:
       </para>
-      <screen>
+      <programlisting><![CDATA[<?php
 interface PHPUnit_Extensions_Database_DataSet_ITable
 {
     public function getTableMetaData();
@@ -1162,7 +1158,7 @@ interface PHPUnit_Extensions_Database_DataSet_ITable
     public function getRow($row);
     public function assertEquals(PHPUnit_Extensions_Database_DataSet_ITable $other);
 }
-</screen>
+?>]]></programlisting>
       <para>
         Except the <literal>getTableMetaData()</literal> method it is
         pretty self-explainatory. The methods are used are all required for
@@ -1199,14 +1195,14 @@ interface PHPUnit_Extensions_Database_DataSet_ITable
       </para>
     </section>
   </section>
-  <section id="the-connection-api">
+  <section id="database.the-connection-api">
     <title>The Connection API</title>
     <para>
       There are three interesting methods on the Connection interface
       which has to be returned from the
       <literal>getConnection()</literal> method on the Database TestCase:
     </para>
-    <screen>
+    <programlisting><![CDATA[<?php
 interface PHPUnit_Extensions_Database_DB_IDatabaseConnection
 {
     public function createDataSet(Array $tableNames = NULL);
@@ -1215,23 +1211,23 @@ interface PHPUnit_Extensions_Database_DB_IDatabaseConnection
 
     // ...
 }
-</screen>
+?>]]></programlisting>
     <orderedlist numeration="arabic">
       <listitem>
         <para>
           The <literal>createDataSet()</literal> method creates a Database
           (DB) DataSet as described in the DataSet implementations section.
         </para>
-        <screen>
+        <programlisting><![CDATA[<?php
 class ConnectionTest extends PHPUnit_Extensions_Database_TestCase
 {
     public function testCreateDataSet()
     {
         $tableNames = array('guestbook');
-        $dataSet = $this-&gt;getConnection()-&gt;createDataSet();
+        $dataSet = $this->getConnection()->createDataSet();
     }
 }
-</screen>
+?>]]></programlisting>
       </listitem>
       <listitem>
         <para>
@@ -1241,16 +1237,16 @@ class ConnectionTest extends PHPUnit_Extensions_Database_TestCase
           assertions as will be shown in the next section on the Database
           Assertions API.
         </para>
-        <screen>
+        <programlisting><![CDATA[<?php
 class ConnectionTest extends PHPUnit_Extensions_Database_TestCase
 {
     public function testCreateQueryTable()
     {
         $tableNames = array('guestbook');
-        $queryTable = $this-&gt;getConnection()-&gt;createQueryTable('guestbook', 'SELECT * FROM guestbook');
+        $queryTable = $this->getConnection()->createQueryTable('guestbook', 'SELECT * FROM guestbook');
     }
 }
-</screen>
+?>]]></programlisting>
       </listitem>
       <listitem>
         <para>
@@ -1259,19 +1255,19 @@ class ConnectionTest extends PHPUnit_Extensions_Database_TestCase
           additional where clause. This can be used with a simple equality
           assertion:
         </para>
-        <screen>
+        <programlisting><![CDATA[<?php
 class ConnectionTest extends PHPUnit_Extensions_Database_TestCase
 {
     public function testGetRowCount()
     {
-        $this-&gt;assertEquals(2, $this-&gt;getConnection()-&gt;getRowCount('guestbook'));
+        $this->assertEquals(2, $this->getConnection()->getRowCount('guestbook'));
     }
 }
-</screen>
+?>]]></programlisting>
       </listitem>
     </orderedlist>
   </section>
-  <section id="database-assertions-api">
+  <section id="database.database-assertions-api">
     <title>Database Assertions API</title>
     <para>
       For a testing tool the Database Extension surely provides some
@@ -1279,7 +1275,7 @@ class ConnectionTest extends PHPUnit_Extensions_Database_TestCase
       database, tables and the row-count of tables. This section
       describes this functionality in detail:
     </para>
-    <section id="asserting-the-row-count-of-a-table">
+    <section id="database.asserting-the-row-count-of-a-table">
       <title>Asserting the Row-Count of a Table</title>
       <para>
         It is often helpful to check if a table contains a specific amount
@@ -1289,22 +1285,22 @@ class ConnectionTest extends PHPUnit_Extensions_Database_TestCase
         initial entries that have accompanied us in all the previous
         example, but a third one:
       </para>
-      <screen>
+      <programlisting><![CDATA[<?php
 class GuestbookTest extends PHPUnit_Extensions_Database_TestCase
 {
     public function testAddEntry()
     {
-        $this-&gt;assertEquals(2, $this-&gt;getConnection()-&gt;getRowCount('guestbook'), &quot;Pre-Condition&quot;);
+        $this->assertEquals(2, $this->getConnection()->getRowCount('guestbook'), "Pre-Condition");
 
         $guestbook = new Guestbook();
-        $guestbook-&gt;addEntry(&quot;suzy&quot;, &quot;Hello world!&quot;);
+        $guestbook->addEntry("suzy", "Hello world!");
 
-        $this-&gt;assertEquals(3, $this-&gt;getConnection()-&gt;getRowCount('guestbook'), &quot;Inserting failed&quot;);
+        $this->assertEquals(3, $this->getConnection()->getRowCount('guestbook'), "Inserting failed");
     }
 }
-</screen>
+?>]]></programlisting>
     </section>
-    <section id="asserting-the-state-of-a-table">
+    <section id="database.asserting-the-state-of-a-table">
       <title>Asserting the State of a Table</title>
       <para>
         The previous assertion is helpful, but we surely want to check the
@@ -1317,35 +1313,35 @@ class GuestbookTest extends PHPUnit_Extensions_Database_TestCase
         content from a table name and SQL query and compare it to a
         File/Array Based Data Set:
       </para>
-      <screen>
+      <programlisting><![CDATA[<?php
 class GuestbookTest extends PHPUnit_Extensions_Database_TestCase
 {
     public function testAddEntry()
     {
         $guestbook = new Guestbook();
-        $guestbook-&gt;addEntry(&quot;suzy&quot;, &quot;Hello world!&quot;);
+        $guestbook->addEntry("suzy", "Hello world!");
 
-        $queryTable = $this-&gt;getConnection()-&gt;createQueryTable(
+        $queryTable = $this->getConnection()->createQueryTable(
             'guestbook', 'SELECT * FROM guestbook'
         );
-        $expectedTable = $this-&gt;createFlatXmlDataSet(&quot;expectedBook.xml&quot;)
-                              -&gt;getTable(&quot;guestbook&quot;);
-        $this-&gt;assertTablesEqual($expectedTable, $queryTable);
+        $expectedTable = $this->createFlatXmlDataSet("expectedBook.xml")
+                              ->getTable("guestbook");
+        $this->assertTablesEqual($expectedTable, $queryTable);
     }
 }
-</screen>
+?>]]></programlisting>
       <para>
         Now we have to write the <emphasis>expectedBook.xml</emphasis> Flat
         XML file for this assertion:
       </para>
-      <screen>
-&lt;?xml version=&quot;1.0&quot; ?&gt;
-&lt;dataset&gt;
-    &lt;guestbook id=&quot;1&quot; content=&quot;Hello buddy!&quot; user=&quot;joe&quot; created=&quot;2010-04-24 17:15:23&quot; /&gt;
-    &lt;guestbook id=&quot;2&quot; content=&quot;I like it!&quot; user=&quot;nancy&quot; created=&quot;2010-04-26 12:14:20&quot; /&gt;
-    &lt;guestbook id=&quot;3&quot; content=&quot;Hello world!&quot; user=&quot;suzy&quot; created=&quot;2010-05-01 21:47:08&quot; /&gt;
-&lt;/dataset&gt;
-</screen>
+      <screen><![CDATA[
+<?xml version="1.0" ?>
+<dataset>
+    <guestbook id="1" content="Hello buddy!" user="joe" created="2010-04-24 17:15:23" />
+    <guestbook id="2" content="I like it!" user="nancy" created="2010-04-26 12:14:20" />
+    <guestbook id="3" content="Hello world!" user="suzy" created="2010-05-01 21:47:08" />
+</dataset>
+]]></screen>
       <para>
         This assertion would only pass on exactly one second of the
         universe though, on <emphasis>2010–05–01 21:47:08</emphasis>. Dates
@@ -1358,46 +1354,46 @@ class GuestbookTest extends PHPUnit_Extensions_Database_TestCase
         would probably have to look like the following to make the
         assertion pass:
       </para>
-      <screen>
-&lt;?xml version=&quot;1.0&quot; ?&gt;
-&lt;dataset&gt;
-    &lt;guestbook id=&quot;1&quot; content=&quot;Hello buddy!&quot; user=&quot;joe&quot; /&gt;
-    &lt;guestbook id=&quot;2&quot; content=&quot;I like it!&quot; user=&quot;nancy&quot; /&gt;
-    &lt;guestbook id=&quot;3&quot; content=&quot;Hello world!&quot; user=&quot;suzy&quot; /&gt;
-&lt;/dataset&gt;
-</screen>
+      <screen><![CDATA[
+<?xml version="1.0" ?>
+<dataset>
+    <guestbook id="1" content="Hello buddy!" user="joe" />
+    <guestbook id="2" content="I like it!" user="nancy" />
+    <guestbook id="3" content="Hello world!" user="suzy" />
+</dataset>
+]]></screen>
       <para>
         We have to fix up the Query Table call:
       </para>
-      <screen>
-$queryTable = $this-&gt;getConnection()-&gt;createQueryTable(
+      <programlisting><![CDATA[<?php
+$queryTable = $this->getConnection()->createQueryTable(
     'guestbook', 'SELECT id, content, user FROM guestbook'
 );
-</screen>
+?>]]></programlisting>
     </section>
-    <section id="asserting-the-result-of-a-query">
+    <section id="database.asserting-the-result-of-a-query">
       <title>Asserting the Result of a Query</title>
       <para>
         You can also assert the result of complex queries with the Query
         Table approach, just specify a result name with a query and
         compare it to a dataset:
       </para>
-      <screen>
+      <programlisting><![CDATA[<?php
 class ComplexQueryTest extends PHPUnit_Extensions_Database_TestCase
 {
     public function testComplexQuery()
     {
-        $queryTable = $this-&gt;getConnection()-&gt;createQueryTable(
+        $queryTable = $this->getConnection()->createQueryTable(
             'myComplexQuery', 'SELECT complexQuery...'
         );
-        $expectedTable = $this-&gt;createFlatXmlDataSet(&quot;complexQueryAssertion.xml&quot;)
-                              -&gt;getTable(&quot;myComplexQuery&quot;);
-        $this-&gt;assertTablesEqual($expectedTable, $queryTable);
+        $expectedTable = $this->createFlatXmlDataSet("complexQueryAssertion.xml")
+                              ->getTable("myComplexQuery");
+        $this->assertTablesEqual($expectedTable, $queryTable);
     }
 }
-</screen>
+?>]]></programlisting>
     </section>
-    <section id="asserting-the-state-of-multiple-tables">
+    <section id="database.asserting-the-state-of-multiple-tables">
       <title>Asserting the State of Multiple Tables</title>
       <para>
         For sure you can assert the state of multiple tables at once and
@@ -1410,42 +1406,42 @@ class ComplexQueryTest extends PHPUnit_Extensions_Database_TestCase
             You can use the Database (DB) DataSet from the Connection and
             compare it to a File-Based DataSet.
           </para>
-          <screen>
+          <programlisting><![CDATA[<?php
 class DataSetAssertionsTest extends PHPUnit_Extensions_Database_TestCase
 {
     public function testCreateDataSetAssertion()
     {
-        $dataSet = $this-&gt;getConnection()-&gt;createDataSet(array('guestbook'));
-        $expectedDataSet = $this-&gt;createFlatXmlDataSet('guestbook.xml');
-        $this-&gt;assertDataSetsEqual($expectedDataSet, $dataSet);
+        $dataSet = $this->getConnection()->createDataSet(array('guestbook'));
+        $expectedDataSet = $this->createFlatXmlDataSet('guestbook.xml');
+        $this->assertDataSetsEqual($expectedDataSet, $dataSet);
     }
 }
-</screen>
+?>]]></programlisting>
         </listitem>
         <listitem>
           <para>
             You can construct the DataSet on your own:
           </para>
-          <screen>
+          <programlisting><![CDATA[<?php
 class DataSetAssertionsTest extends PHPUnit_Extensions_Database_TestCase
 {
     public function testManualDataSetAssertion()
     {
         $dataSet = new PHPUnit_Extensions_Database_DataSet_QueryDataSet();
-        $dataSet-&gt;addTable('guestbook', 'SELECT id, content, user FROM guestbook'); // additional tables
-        $expectedDataSet = $this-&gt;createFlatXmlDataSet('guestbook.xml');
+        $dataSet->addTable('guestbook', 'SELECT id, content, user FROM guestbook'); // additional tables
+        $expectedDataSet = $this->createFlatXmlDataSet('guestbook.xml');
 
-        $this-&gt;assertDataSetsEqual($expectedDataSet, $dataSet);
+        $this->assertDataSetsEqual($expectedDataSet, $dataSet);
     }
 }
-</screen>
+?>]]></programlisting>
         </listitem>
       </orderedlist>
     </section>
   </section>
-  <section id="frequently-asked-questions">
+  <section id="database.frequently-asked-questions">
     <title>Frequently Asked Questions</title>
-    <section id="will-phpunit-re-create-the-database-schema-for-each-test">
+    <section id="database.will-phpunit-re-create-the-database-schema-for-each-test">
       <title>Will PHPUnit (re-)create the database schema for each
              test?</title>
       <para>
@@ -1467,7 +1463,7 @@ class DataSetAssertionsTest extends PHPUnit_Extensions_Database_TestCase
         available database works perfectly.
       </para>
     </section>
-    <section id="am-i-required-to-use-pdo-in-my-application-for-the-database-extension-to-work">
+    <section id="database.am-i-required-to-use-pdo-in-my-application-for-the-database-extension-to-work">
       <title>Am I required to use PDO in my application for the Database
              Extension to work?</title>
       <para>
@@ -1476,7 +1472,7 @@ class DataSetAssertionsTest extends PHPUnit_Extensions_Database_TestCase
         inside your own code.
       </para>
     </section>
-    <section id="what-can-i-do-when-i-get-a-too-much-connections-error">
+    <section id="database.what-can-i-do-when-i-get-a-too-much-connections-error">
       <title>What can I do, when I get a
              <quote>Too much Connections</quote> Error?</title>
       <para>
@@ -1494,7 +1490,7 @@ class DataSetAssertionsTest extends PHPUnit_Extensions_Database_TestCase
         PDO instance in all your tests.
       </para>
     </section>
-    <section id="how-to-handle-null-with-flat-xml-csv-datasets">
+    <section id="database.how-to-handle-null-with-flat-xml-csv-datasets">
       <title>How to handle NULL with Flat XML / CSV Datasets?</title>
       <para>
         Do not do this. Instead, you should use either the XML or the YAML
