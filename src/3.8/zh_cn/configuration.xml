@@ -29,6 +29,9 @@
          stopOnSkipped="false"
          testSuiteLoaderClass="PHPUnit_Runner_StandardTestSuiteLoader"
          <!--testSuiteLoaderFile="/path/to/StandardTestSuiteLoader.php"-->
+         timeoutForSmallTests="1"
+         timeoutForMediumTests="10"
+         timeoutForLargeTests="60"
          strict="false"
          verbose="false">
   <!-- ... -->
@@ -93,6 +96,33 @@
         <listitem>
           <para>
             只记录使用了 <xref linkend="appendixes.annotations.covers" /> 描述的 <literal>@covers</literal> 标注的测试的代码覆盖率。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>timeoutForLargeTests</literal></term>
+        <listitem>
+          <para>
+            如果安装了 <literal>PHP_Invoker</literal> 组件包并启用了严格模式，此属性为所有标记为 <literal>@large</literal> 的测试设定超时限制。如果测试未能在这个配置所指定的超时限制时间内完成，即视为失败。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>timeoutForMediumTests</literal></term>
+        <listitem>
+          <para>
+            如果安装了 <literal>PHP_Invoker</literal> 组件包并启用了严格模式，此属性为所有标记为 <literal>@medium</literal> 的测试设定超时限制。如果测试未能在这个配置所指定的超时限制时间内完成，即视为失败。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>timeoutForSmallTests</literal></term>
+        <listitem>
+          <para>
+            如果安装了 <literal>PHP_Invoker</literal> 组件包并启用了严格模式，此属性为所有未标记为 <literal>@medium</literal> 或 <literal>@large</literal> 的测试设定超时限制。如果测试未能在这个配置所指定的超时限制时间内完成，即视为失败。
           </para>
         </listitem>
       </varlistentry>

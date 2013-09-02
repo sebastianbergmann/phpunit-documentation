@@ -476,6 +476,40 @@ class MyClass
     </para>
   </section>
 
+  <section id="appendixes.annotations.large">
+    <title>@large</title>
+
+    <para>
+      <indexterm><primary><literal>@large</literal></primary></indexterm>
+
+      <literal>@large</literal> 标注是 <literal>@group large</literal> 的别名。
+    </para>
+
+    <para>
+      <indexterm><primary><literal>PHP_Invoker</literal></primary></indexterm>
+      <indexterm><primary><literal>timeoutForLargeTests</literal></primary></indexterm>
+
+      如果安装了 <literal>PHP_Invoker</literal> 组件包并启用了严格模式，一个执行时间超过60秒的大型(large)测试将会视为失败。这个超时限制可以通过 XML 配置文件的 <literal>timeoutForLargeTests</literal> 属性进行配置。
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.medium">
+    <title>@medium</title>
+
+    <para>
+      <indexterm><primary><literal>@medium</literal></primary></indexterm>
+
+      <literal>@medium</literal> 标注是 <literal>@group medium</literal> 的别名。中型(medium)测试不能依赖于标记为 <literal>@large</literal> 的测试。
+    </para>
+
+    <para>
+      <indexterm><primary><literal>PHP_Invoker</literal></primary></indexterm>
+      <indexterm><primary><literal>timeoutForMediumTests</literal></primary></indexterm>
+
+      如果安装了 <literal>PHP_Invoker</literal> 组件包并启用了严格模式，一个执行时间超过10秒的中型(medium)测试将会视为失败。这个超时限制可以通过 XML 配置文件的 <literal>timeoutForMediumTests</literal> 属性进行配置。
+    </para>
+  </section>
+
   <section id="appendixes.annotations.preserveGlobalState">
     <title>@preserveGlobalState</title>
 
@@ -553,6 +587,29 @@ class MyTest extends PHPUnit_Framework_TestCase
       <emphasis role="strong">注意：</emphasis> 默认情况下，PHPUnit 会尝试保持来自父进程的全局状态（通过在父进程序列化全局状态然后在子进程反序列化的方式）。这当父进程包含非可序列化的全局内容时可能会导致问题。关于如何修正此问题的信息参见<xref
       linkend="appendixes.annotations.preserveGlobalState"/>。
     </para>
+  </section>
+
+  <section id="appendixes.annotations.small">
+    <title>@small</title>
+
+    <para>
+      <indexterm><primary><literal>@small</literal></primary></indexterm>
+
+      <literal>@small</literal> 标注是 <literal>@group small</literal> 的别名。小型(small)测试不能依赖于标记为  <literal>@medium</literal> 或 <literal>@large</literal> 的测试。
+    </para>
+
+    <para>
+      <indexterm><primary><literal>PHP_Invoker</literal></primary></indexterm>
+      <indexterm><primary><literal>timeoutForSmallTests</literal></primary></indexterm>
+
+      如果安装了 <literal>PHP_Invoker</literal> 组件包并启用了严格模式，一个执行时间超过1秒的小型(small)测试将会视为失败。这个超时限制可以通过 XML 配置文件的 <literal>timeoutForSmallTests</literal> 属性进行配置。
+    </para>
+
+    <note>
+      <para>
+        默认情况下，所有未标记为 <literal>@medium</literal> 或 <literal>@large</literal> 的测试都视为小型(small)测试。请注意，虽然如此，<literal>--group</literal> 和有关的选项都只会将用恰当的标注显式标记好的测试视为在 <literal>small</literal> 组中。
+      </para>
+    </note>
   </section>
 
   <section id="appendixes.annotations.test">
