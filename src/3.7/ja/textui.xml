@@ -296,12 +296,102 @@ Usage: phpunit [switches] UnitTest [UnitTest.php]
         <term><literal>--filter</literal></term>
         <listitem>
           <para>
-            指定したパターンにマッチする名前のテストのみを実行します。
-            パターンとして指定できるのは、単一のテスト名か、
-            あるいは複数のテスト名にマッチする
-            <ulink url="http://www.php.net/pcre">正規表現</ulink>
-            です。
+            指定した正規表現パターンにマッチする名前のテストのみを実行します。
+            パターンがデリミタで囲まれていない場合は、PHPUnit はパターンをデリミタ <literal>/</literal> で囲みます。
           </para>
+
+          <para>
+            マッチするテスト名は、次のいずれかのフォーマットになります。
+          </para>
+
+          <variablelist>
+            <varlistentry>
+              <term><literal>TestNamespace\TestCaseClass::testMethod</literal></term>
+              <listitem>
+                <para>
+                  デフォルトのテスト名のフォーマットは、テストメソッドの中でマジック定数
+                  <literal>__METHOD__</literal> を使うのと同等です。
+                </para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term><literal>TestNamespace\TestCaseClass::testMethod with data set #0</literal></term>
+              <listitem>
+                <para>
+                  テストがデータプロバイダーを持つ場合、データを処理するたびに、
+                  現在のインデックスをデフォルトのテスト名の後に続けたものを取得します。
+                </para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term><literal>TestNamespace\TestCaseClass::testMethod with data set "my named data"</literal></term>
+              <listitem>
+                <para>
+                  テストが持つデータプロバイダーが名前つきセットを使う場合、データを処理するたびに、
+                  現在の名前をデフォルトのテスト名の後に続けたものを取得します。
+                  名前つきデータセットの例は
+                  <xref linkend="textui.examples.TestCaseClass.php" />
+                  を参照ください。
+                </para>
+
+                <example id="textui.examples.TestCaseClass.php">
+                  <title>名前つきデータセット</title>
+                  <programlisting><![CDATA[<?php
+
+namespace TestNamespace;
+
+class TestCaseClass extends \PHPUnit_Framework_TestCase
+{
+    /**
+     * @dataProvider provider
+     */
+    public function testMethod($data)
+    {
+        $this->assertTrue($data);
+    }
+
+    public function provider()
+    {
+        return array(
+           'my named data' => array(true),
+           'my data'       => array(true)
+        );
+    }
+}]]></programlisting>
+                </example>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term><literal>/path/to/my/test.phpt</literal></term>
+              <listitem>
+                <para>
+                  PHPT のテストのテスト名は、ファイルシステムのパスになります。
+                </para>
+              </listitem>
+            </varlistentry>
+          </variablelist>
+
+          <para>
+            有効なフィルターパターンの例は、<xref linkend="textui.examples.filter-patterns" /> を参照ください。
+          </para>
+
+          <example id="textui.examples.filter-patterns">
+            <title>フィルターパターンの例</title>
+
+            <itemizedlist>
+              <listitem><para><literal>--filter 'TestNamespace\\TestCaseClass::testMethod'</literal></para></listitem>
+              <listitem><para><literal>--filter 'TestNamespace\\TestCaseClass'</literal></para></listitem>
+              <listitem><para><literal>--filter TestNamespace</literal></para></listitem>
+              <listitem><para><literal>--filter TestCaseClass</literal></para></listitem>
+              <listitem><para><literal>--filter testMethod</literal></para></listitem>
+              <listitem><para><literal>--filter '/::testMethod .*"my named data"/'</literal></para></listitem>
+              <listitem><para><literal>--filter '/::testMethod .*#5$/'</literal></para></listitem>
+              <listitem><para><literal>--filter '/::testMethod .*#(5|6|7)$/'</literal></para></listitem>
+            </itemizedlist>
+          </example>
         </listitem>
       </varlistentry>
 
