@@ -413,6 +413,17 @@ class StubTest extends PHPUnit_Framework_TestCase
 class Subject
 {
     protected $observers = array();
+    protected $name;
+    
+    public function __construct($name)
+    {
+        $this->name = $name;
+    }
+    
+    public function getName()
+    {
+        return $this->name;
+    } 
 
     public function attach(Observer $observer)
     {
@@ -490,7 +501,7 @@ class SubjectTest extends PHPUnit_Framework_TestCase
                  ->with($this->equalTo('something'));
 
         // 创建 Subject 对象，并将模仿的 Observer 对象连接其上。
-        $subject = new Subject;
+        subject = new Subject('My subject');
         $subject->attach($observer);
 
         // 在 $subject 对象上调用 doSomething() 方法，
@@ -506,7 +517,7 @@ class SubjectTest extends PHPUnit_Framework_TestCase
       <literal>with()</literal> 方法可以携带任何数量的参数，对应于被模仿的方法的参数数量。可以对方法的参数指定更加高等的约束而不仅是简单的匹配。
     </para>
 
-    <example id="test-doubles.mock-objects.examples.MultiParameterTest.php">
+    <example id="test-doubles.mock-objects.examples.SubjectTest2.php">
       <title>测试某个方法将会以特定数量的参数进行调用，并且对各个参数以多种方式进行约束</title>
       <programlisting><![CDATA[<?php
 class SubjectTest extends PHPUnit_Framework_TestCase
@@ -522,7 +533,42 @@ class SubjectTest extends PHPUnit_Framework_TestCase
                         $this->stringContains('Something'),
                         $this->anything());
 
-        $subject = new Subject;
+        $subject = new Subject('My subject');
+        $subject->attach($observer);
+
+        // doSomethingBad() 方法应当会通过（observer的）reportError()方法
+        //向 observer 报告错误。
+        $subject->doSomethingBad();
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      <literal>callback()</literal> 约束用来进行更加复杂的参数校验。此约束的唯一参数是一个 PHP 回调项(callback)。此 PHP 回调项接受需要校验的参数作为其唯一参数，并应当在参数通过校验时返回 <literal>TRUE</literal>，否则返回 <literal>FALSE</literal>。
+    </para>
+
+    <example id="test-doubles.mock-objects.examples.SubjectTest3.php">
+      <title>更加复杂的参数校验</title>
+      <programlisting><![CDATA[<?php
+class SubjectTest extends PHPUnit_Framework_TestCase
+{
+    public function testErrorReported()
+    {
+        // Create a mock for the Observer class, mocking the
+        // reportError() method
+        $observer = $this->getMock('Observer', array('reportError'));
+
+        $observer->expects($this->once())
+                 ->method('reportError')
+                 ->with($this->greaterThan(0),
+                        $this->stringContains('Something'),
+                        $this->callback(function($subject){
+                          return is_callable(array($subject, 'getName')) &&
+                                 $subject->getName() == 'My subject';
+                        }));
+
+        $subject = new Subject('My subject'); 
         $subject->attach($observer);
 
         // doSomethingBad() 方法应当会通过（observer的）reportError()方法
