@@ -261,8 +261,95 @@ Usage: phpunit [switches] UnitTest [UnitTest.php]
         <term><literal>--filter</literal></term>
         <listitem>
           <para>
-            只运行名称与给定模式匹配的测试。模式可以是单个测试的名称或者匹配多个测试名称的<ulink url="http://www.php.net/pcre">正则表达式</ulink>。
+            只运行名称与给定模式匹配的测试。如果模式未闭合包裹于分隔符，PHPUnit 将用 <literal>/</literal> 分隔符对其进行闭合包裹。
           </para>
+
+          <para>
+            测试名称将以以下格式之一进行匹配：
+          </para>
+
+          <variablelist>
+            <varlistentry>
+              <term><literal>TestNamespace\TestCaseClass::testMethod</literal></term>
+              <listitem>
+                <para>
+                  默认的测试名称格式等价于在测试方法内使用 <literal>__METHOD__</literal> 魔术常量。
+                </para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term><literal>TestNamespace\TestCaseClass::testMethod with data set #0</literal></term>
+              <listitem>
+                <para>
+                  当测试拥有数据供给器时，数据的每轮迭代都会将其当前索引附加在默认测试名称结尾处。
+                </para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term><literal>TestNamespace\TestCaseClass::testMethod with data set "my named data"</literal></term>
+              <listitem>
+                <para>
+                  当测试拥有使用命名数据集的数据供给器时，数据的每轮迭代都会将当前名称附加在默认测试名称结尾处。命名数据集的例子参见<xref linkend="textui.examples.TestCaseClass.php" />。
+                </para>
+
+                <example id="textui.examples.TestCaseClass.php">
+                  <title>命名数据集</title>
+                  <programlisting><![CDATA[<?php
+
+namespace TestNamespace;
+
+class TestCaseClass extends \PHPUnit_Framework_TestCase
+{
+    /**
+     * @dataProvider provider
+     */
+    public function testMethod($data)
+    {
+        $this->assertTrue($data);
+    }
+
+    public function provider()
+    {
+        return array(
+           'my named data' => array(true),
+           'my data'       => array(true)
+        );
+    }
+}]]></programlisting>
+                </example>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term><literal>/path/to/my/test.phpt</literal></term>
+              <listitem>
+                <para>
+                  对于 PHPT 测试，其测试名称是文件系统路径。
+                </para>
+              </listitem>
+            </varlistentry>
+          </variablelist>
+
+          <para>
+            有效的过滤器模式例子参见<xref linkend="textui.examples.filter-patterns" />。
+          </para>
+
+          <example id="textui.examples.filter-patterns">
+            <title>过滤器模式例子</title>
+
+            <itemizedlist>
+              <listitem><para><literal>--filter 'TestNamespace\\TestCaseClass::testMethod'</literal></para></listitem>
+              <listitem><para><literal>--filter 'TestNamespace\\TestCaseClass'</literal></para></listitem>
+              <listitem><para><literal>--filter TestNamespace</literal></para></listitem>
+              <listitem><para><literal>--filter TestCaseClass</literal></para></listitem>
+              <listitem><para><literal>--filter testMethod</literal></para></listitem>
+              <listitem><para><literal>--filter '/::testMethod .*"my named data"/'</literal></para></listitem>
+              <listitem><para><literal>--filter '/::testMethod .*#5$/'</literal></para></listitem>
+              <listitem><para><literal>--filter '/::testMethod .*#(5|6|7)$/'</literal></para></listitem>
+            </itemizedlist>
+          </example> 
         </listitem>
       </varlistentry>
 
