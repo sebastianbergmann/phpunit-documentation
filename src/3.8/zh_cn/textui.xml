@@ -447,11 +447,49 @@ Usage: phpunit [switches] UnitTest [UnitTest.php]
       </varlistentry>
 
       <varlistentry>
+        <indexterm><primary>Strict Mode （严格模式）</primary></indexterm>
         <term><literal>--strict</literal></term>
         <listitem>
           <para>
-            以严格模式运行测试。
+            以严格模式运行测试。当启用严格模式时：
           </para>
+
+          <itemizedlist>
+            <listitem>
+              <para>
+                本身产生输出的测试将会失败。
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+                不含断言的错误将会失败，并且不会生成代码覆盖率信息。
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+                如果安装了 <literal>PHP_Invoker</literal> 组件包：
+              </para>
+              <itemizedlist>
+                <listitem>
+                  <para>
+                    标记为 <literal>@large</literal> 的测试如果其执行时间超过60秒将视为失败。这个超时限制可以通过 XML 配置文件的 <literal>timeoutForLargeTests</literal> 属性进行配置。
+                  </para>
+                </listitem>
+
+                <listitem>
+                  <para>
+                    标记为 <literal>@medium</literal> 的测试如果其执行时间超过10秒将视为失败。这个超时限制可以通过 XML 配置文件的 <literal>timeoutForMediumTests</literal> 属性进行配置。
+                  </para>
+                </listitem>
+
+                <listitem>
+                  <para>
+                    未标记为 <literal>@medium</literal> 或 <literal>@large</literal> 的测试如果其执行时间超过1秒将视为失败。这个超时限制可以通过 XML 配置文件的 <literal>timeoutForSmallTests</literal> 属性进行配置。
+                  </para>
+                </listitem>
+              </itemizedlist>
+            </listitem>
+          </itemizedlist> 
         </listitem>
       </varlistentry>
 
