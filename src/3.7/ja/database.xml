@@ -41,7 +41,7 @@
     データベース操作後の内容の検証もすることができます。次のようにインストールします。
   </para>
   <screen><userinput>pear install phpunit/DbUnit</userinput></screen>
-  <section id="supported-vendors-for-database-testing">
+  <section id="database.supported-vendors-for-database-testing">
     <title>データベースのテストに対応しているベンダー</title>
     <para>
       DBUnit が現在サポートしているのは、MySQL および
@@ -51,7 +51,7 @@
       を使うと、IBM DB2 や Microsoft SQL Server のような他のデータベースにもアクセスできます。
     </para>
   </section>
-  <section id="difficulties-in-database-testing">
+  <section id="database.difficulties-in-database-testing">
     <title>データベースのテストの難しさ</title>
     <para>
       ウェブ上にあるユニットテストのサンプルの中にデータベースを扱うものが全く見当たらない理由はなぜか。
@@ -130,7 +130,7 @@
       を使ってテストスイートを実行しても 15 秒程度でテストが完了します。
     </para>
   </section>
-  <section id="the-four-stages-of-a-database-test">
+  <section id="database.the-four-stages-of-a-database-test">
     <title>データベーステストの四段階</title>
     <para>
       Gerard Meszaros は、著書 xUnit Test Patterns でユニットテストを次の四段階に分類しています。
@@ -173,7 +173,7 @@
       データベーステストの四段階を次のようなワークフローに振り向ける十分な理由があります。
       このフローは、個々のテストに対して実行します。
     </para>
-    <section id="clean-up-database">
+    <section id="database.clean-up-database">
       <title>1. データベースのクリーンアップ</title>
       <para>
         データベースを扱う最初のテストというのはいつでも存在します。
@@ -182,13 +182,13 @@
         テーブルの中身を空にします。
       </para>
     </section>
-    <section id="set-up-fixture">
+    <section id="database.set-up-fixture">
       <title>2. フィクスチャの準備</title>
       <para>
         その後、PHPUnit はフィクスチャの各行を順次処理し、対応するテーブルに書き込みます。
       </para>
     </section>
-    <section id="run-test-verify-outcome-and-teardown">
+    <section id="database.run-test-verify-outcome-and-teardown">
       <title>3–5. テストの実行、結果の検証、そして後始末</title>
       <para>
         データベースをリセットして初期状態を読み込んだら、
@@ -204,32 +204,32 @@
       </para>
     </section>
   </section>
-  <section id="configuration-of-a-phpunit-database-testcase">
+  <section id="database.configuration-of-a-phpunit-database-testcase">
     <title>PHPUnit のデータベーステストケースの設定</title>
     <para>
       通常、PHPUnit を使うテストケースでは
       <literal>PHPUnit_Framework_TestCase</literal>
       クラスを継承してこのようにします。
     </para>
-    <screen>
-require_once &quot;PHPUnit/Framework/TestCase.php&quot;;
+    <programlisting><![CDATA[<?php
+require_once "PHPUnit/Framework/TestCase.php";
 
 class MyTest extends PHPUnit_Framework_TestCase
 {
     public function testCalculate()
     {
-        $this-&gt;assertEquals(2, 1 + 1);
+        $this->assertEquals(2, 1 + 1);
     }
 }
-</screen>
+?>]]></programlisting>
     <para>
       テストコードで Database Extension を使う場合は少しだけ複雑になり、
       別の抽象テストケースを継承しなければなりません。そして、二つの抽象メソッド
       <literal>getConnection()</literal> と
       <literal>getDataSet()</literal> を実装します。
     </para>
-    <screen>
-require_once &quot;PHPUnit/Extensions/Database/TestCase.php&quot;;
+    <programlisting><![CDATA[<?php
+require_once "PHPUnit/Extensions/Database/TestCase.php";
 
 class MyGuestbookTest extends PHPUnit_Extensions_Database_TestCase
 {
@@ -239,7 +239,7 @@ class MyGuestbookTest extends PHPUnit_Extensions_Database_TestCase
     public function getConnection()
     {
         $pdo = new PDO('sqlite::memory:');
-        return $this-&gt;createDefaultDBConnection($pdo, ':memory:');
+        return $this->createDefaultDBConnection($pdo, ':memory:');
     }
 
     /**
@@ -247,11 +247,11 @@ class MyGuestbookTest extends PHPUnit_Extensions_Database_TestCase
      */
     public function getDataSet()
     {
-        return $this-&gt;createFlatXMLDataSet(dirname(__FILE__).'/_files/guestbook-seed.xml');
+        return $this->createFlatXMLDataSet(dirname(__FILE__).'/_files/guestbook-seed.xml');
     }
 }
-</screen>
-    <section id="implementing-getconnection">
+?>]]></programlisting>
+    <section id="database.implementing-getconnection">
       <title>getConnection() の実装</title>
       <para>
         クリーンアップとフィクスチャの読み込みの機能を動かすには、
@@ -273,7 +273,7 @@ class MyGuestbookTest extends PHPUnit_Extensions_Database_TestCase
         と、その活用法について説明します。
       </para>
     </section>
-    <section id="implementing-getdataset">
+    <section id="database.implementing-getdataset">
       <title>getDataSet() の実装</title>
       <para>
         <literal>getDataSet()</literal> メソッドで定義するのは、
@@ -295,7 +295,7 @@ class MyGuestbookTest extends PHPUnit_Extensions_Database_TestCase
         を使って XML 形式のデータセットを表しました。
       </para>
     </section>
-    <section id="what-about-the-database-schema-ddl">
+    <section id="database.what-about-the-database-schema-ddl">
       <title>データベーススキーマ (DDL) とは?</title>
       <para>
         PHPUnit は、テストの実行前にデータベーススキーマ
@@ -325,7 +325,7 @@ class MyGuestbookTest extends PHPUnit_Extensions_Database_TestCase
         </listitem>
       </orderedlist>
     </section>
-    <section id="tip-use-your-own-abstract-database-testcase">
+    <section id="database.tip-use-your-own-abstract-database-testcase">
       <title>ヒント: 自前でのデータベーステストケースの抽象化</title>
       <para>
         先の実装例を見ればすぐにわかるでしょうが、
@@ -335,30 +335,29 @@ class MyGuestbookTest extends PHPUnit_Extensions_Database_TestCase
         ちょっとしたリファクタリングを施して汎用的な抽象テストケースを用意しましょう。
         このようにしても、テストケースごとに異なるデータフィクスチャを指定することができます。
       </para>
-      <screen>
-require_once &quot;PHPUnit/Extensions/Database/TestCase.php&quot;;
+      <programlisting><![CDATA[<?php
+require_once "PHPUnit/Extensions/Database/TestCase.php";
 
 abstract class MyApp_Tests_DatabaseTestCase extends PHPUnit_Extensions_Database_TestCase
 {
     // PDO のインスタンス生成は、クリーンアップおよびフィクスチャ読み込みのときに一度だけ
     static private $pdo = null;
 
-    // PHPUnit_Extensions_Database_DB_IDatabaseConnection のインスタンス生成は、テストごとに一度だけ
-    private $conn = null;
+    // PHPUnit_Extensions_Database_DB_IDatabaseConnection のインスタンス生成は、テストご    private $conn = null;
 
     final public function getConnection()
     {
-        if ($this-&gt;conn === null) {
+        if ($this->conn === null) {
             if (self::$pdo == null) {
                 self::$pdo = new PDO('sqlite::memory:');
             }
-            $this-&gt;conn = $this-&gt;createDefaultDBConnection(self::$pdo, ':memory:');
+            $this->conn = $this->createDefaultDBConnection(self::$pdo, ':memory:');
         }
 
-        return $this-&gt;conn;
+        return $this->conn;
     }
 }
-</screen>
+?>]]></programlisting>
       <para>
         しかし、これはまだデータベースへの接続情報を
         PDO 接続の設定にハードコードしてしまっています。
@@ -368,21 +367,21 @@ abstract class MyApp_Tests_DatabaseTestCase extends PHPUnit_Extensions_Database_
         まずは <quote>phpunit.xml</quote> というファイルをアプリケーションの tests/ ディレクトリに作り、
         中身をこのようにします。
       </para>
-      <screen>
-&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;
-&lt;phpunit&gt;
-    &lt;php&gt;
-        &lt;var name=&quot;DB_DSN&quot; value=&quot;mysql:dbname=myguestbook;host=localhost&quot; /&gt;
-        &lt;var name=&quot;DB_USER&quot; value=&quot;user&quot; /&gt;
-        &lt;var name=&quot;DB_PASSWD&quot; value=&quot;passwd&quot; /&gt;
-        &lt;var name=&quot;DB_DBNAME&quot; value=&quot;myguestbook&quot; /&gt;
-    &lt;/php&gt;
-&lt;/phpunit&gt;
-</screen>
+      <screen><![CDATA[
+<?xml version="1.0" encoding="UTF-8" ?>
+<phpunit>
+    <php>
+        <var name="DB_DSN" value="mysql:dbname=myguestbook;host=localhost" />
+        <var name="DB_USER" value="user" />
+        <var name="DB_PASSWD" value="passwd" />
+        <var name="DB_DBNAME" value="myguestbook" />
+    </php>
+</phpunit>
+]]></screen>
       <para>
         テストケースはこのように書き直せます。
       </para>
-      <screen>
+      <programlisting><![CDATA[<?php
 abstract class Generic_Tests_DatabaseTestCase extends PHPUnit_Extensions_Database_TestCase
 {
     // PDO のインスタンス生成は、クリーンアップおよびフィクスチャ読み込みのときに一度だけ
@@ -393,25 +392,23 @@ abstract class Generic_Tests_DatabaseTestCase extends PHPUnit_Extensions_Databas
 
     final public function getConnection()
     {
-        if ($this-&gt;conn === null) {
+        if ($this->conn === null) {
             if (self::$pdo == null) {
                 self::$pdo = new PDO( $GLOBALS['DB_DSN'], $GLOBALS['DB_USER'], $GLOBALS['DB_PASSWD'] );
             }
-            $this-&gt;conn = $this-&gt;createDefaultDBConnection(self::$pdo, $GLOBALS['DB_DBNAME']);
+            $this->conn = $this->createDefaultDBConnection(self::$pdo, $GLOBALS['DB_DBNAME']);
         }
 
-        return $this-&gt;conn;
+        return $this->conn;
     }
 }
-</screen>
+?>]]></programlisting>
       <para>
         データベースの設定情報を切り替えてテストスイートを実行するには、
         コマンドラインから次のようにします。
       </para>
-      <screen>
-user@desktop&gt; phpunit --configuration developer-a.xml MyTests/
-user@desktop&gt; phpunit --configuration developer-b.xml MyTests/
-</screen>
+      <screen><userinput>phpunit --configuration developer-a.xml MyTests/</userinput>
+<userinput>phpunit --configuration developer-b.xml MyTests/</userinput></screen>
       <para>
         データベースのテストを実行するときにターゲットデータベースを切り替えられるようにしておくことは、
         開発機で作業をしている場合などは特に重要です。
@@ -420,7 +417,7 @@ user@desktop&gt; phpunit --configuration developer-b.xml MyTests/
       </para>
     </section>
   </section>
-  <section id="understanding-datasets-and-datatables">
+  <section id="database.understanding-datasets-and-datatables">
     <title>データセットとデータテーブルについて知る</title>
     <para>
       PHPUnit Database Extension の中心となる概念が
@@ -482,7 +479,7 @@ user@desktop&gt; phpunit --configuration developer-b.xml MyTests/
         </para>
       </listitem>
     </itemizedlist>
-    <section id="available-implementations">
+    <section id="database.available-implementations">
       <title>利用できる実装</title>
       <para>
         これら三種類のデータセット/データテーブルが用意されています。
@@ -508,27 +505,27 @@ user@desktop&gt; phpunit --configuration developer-b.xml MyTests/
         ファイルベースのデータセットやデータテーブルは、
         初期状態のフィクスチャを定義したり期待する状態を定義したりするときによく使います。
       </para>
-      <section id="flat-xml-dataset">
+      <section id="database.flat-xml-dataset">
         <title>フラット XML データセット</title>
         <para>
           最も一般的なデータセットは、フラット XML と呼ばれるものです。
           これは非常にシンプルな xml 形式で、ルートノード
-          <literal>&lt;dataset&gt;</literal>
+          <literal><![CDATA[<dataset>]]></literal>
           の中のタグがデータベースのひとつの行を表します。
           テーブルと同じ名前のタグが追加する行を表し、
           その属性がカラムを表します。
           単純な掲示板アプリケーションの例は、このようになります。
         </para>
-        <screen>
-&lt;?xml version=&quot;1.0&quot; ?&gt;
-&lt;dataset&gt;
-    &lt;guestbook id=&quot;1&quot; content=&quot;Hello buddy!&quot; user=&quot;joe&quot; created=&quot;2010-04-24 17:15:23&quot; /&gt;
-    &lt;guestbook id=&quot;2&quot; content=&quot;I like it!&quot; user=&quot;nancy&quot; created=&quot;2010-04-26 12:14:20&quot; /&gt;
-&lt;/dataset&gt;
-</screen>
+        <screen><![CDATA[
+<?xml version="1.0" ?>
+<dataset>
+    <guestbook id="1" content="Hello buddy!" user="joe" created="2010-04-24 17:15:23" />
+    <guestbook id="2" content="I like it!" user="nancy" created="2010-04-26 12:14:20" />
+</dataset>
+]]></screen>
         <para>
           見るからに書きやすそうですね。この場合は
-          <literal>&lt;guestbook&gt;</literal> がテーブル名で、
+          <literal><![CDATA[<guestbook>]]></literal> がテーブル名で、
           2 行が追加されます。そして、四つのカラム <quote>id</quote>、
           <quote>content</quote>、<quote>user</quote> そして
           <quote>created</quote> に、それぞれ対応する値が設定されています。
@@ -541,12 +538,12 @@ user@desktop&gt; phpunit --configuration developer-b.xml MyTests/
           実は、何も属性を指定せずにテーブルと同じ名前のタグを追加すれば、空のテーブルを表すことができます。
           空の guestbook テーブルを表すフラット xml ファイルは、このようになります。
         </para>
-        <screen>
-&lt;?xml version=&quot;1.0&quot; ?&gt;
-&lt;dataset&gt;
-    &lt;guestbook /&gt;
-&lt;/dataset&gt;
-</screen>
+        <screen><![CDATA[
+<?xml version="1.0" ?>
+<dataset>
+    <guestbook />
+</dataset>
+]]></screen>
         <para>
           フラット xml データセットでの NULL 値の処理は、あまりおもしろいものではありません。
           ほとんどのデータベースでは、NULL 値と空文字列は別のものとして扱います
@@ -557,13 +554,13 @@ user@desktop&gt; phpunit --configuration developer-b.xml MyTests/
           user カラムに NULL を指定することにしましょう。
           guestbook テーブルの状態は、このようになります。
         </para>
-        <screen>
-&lt;?xml version=&quot;1.0&quot; ?&gt;
-&lt;dataset&gt;
-    &lt;guestbook id=&quot;1&quot; content=&quot;Hello buddy!&quot; user=&quot;joe&quot; created=&quot;2010-04-24 17:15:23&quot; /&gt;
-    &lt;guestbook id=&quot;2&quot; content=&quot;I like it!&quot; created=&quot;2010-04-26 12:14:20&quot; /&gt;
-&lt;/dataset&gt;
-</screen>
+        <screen><![CDATA[
+<?xml version="1.0" ?>
+<dataset>
+    <guestbook id="1" content="Hello buddy!" user="joe" created="2010-04-24 17:15:23" />
+    <guestbook id="2" content="I like it!" created="2010-04-26 12:14:20" />
+</dataset>
+]]></screen>
         <para>
           この例では、二番目のエントリが匿名の投稿を表します。
           しかし、これはカラムの認識において深刻な問題につながります。
@@ -609,61 +606,61 @@ user@desktop&gt; phpunit --configuration developer-b.xml MyTests/
           Database TestCase から作るには、
           <literal>createFlatXmlDataSet($filename)</literal> メソッドを使います。
         </para>
-        <screen>
+        <programlisting><![CDATA[<?php
 class MyTestCase extends PHPUnit_Extensions_Database_TestCase
 {
     public function getDataSet()
     {
-        return $this-&gt;createFlatXmlDataSet('myFlatXmlFixture.yml');
+        return $this->createFlatXmlDataSet('myFlatXmlFixture.xml');
     }
 }
-</screen>
+?>]]></programlisting>
       </section>
-      <section id="xml-dataset">
+      <section id="database.xml-dataset">
         <title>XML データセット</title>
         <para>
           もうひとつ別の構造の XML データセットもあります。これは多少冗長な書き方ですが、
           フラット XML データセットにおける NULL の問題は発生しません。
-          ルートノード <literal>&lt;dataset&gt;</literal> の配下に指定できるタグは、
-          <literal>&lt;table&gt;</literal> や
-          <literal>&lt;column&gt;</literal>、<literal>&lt;row&gt;</literal>、
-          <literal>&lt;value&gt;</literal> そして
-          <literal>&lt;null /&gt;</literal> です。
+          ルートノード <literal><![CDATA[<dataset>]]></literal> の配下に指定できるタグは、
+          <literal><![CDATA[<table>]]></literal> や
+          <literal><![CDATA[<column>]]></literal>、<literal><![CDATA[<row>]]></literal>、
+          <literal><![CDATA[<value>]]></literal> そして
+          <literal><![CDATA[<null />]]></literal> です。
           先に定義した Guestbook のフラット XML と同様のデータセットは、このようになります。
         </para>
-        <screen>
-&lt;?xml version=&quot;1.0&quot; ?&gt;
-&lt;dataset&gt;
-    &lt;table name=&quot;guestbook&quot;&gt;
-        &lt;column&gt;id&lt;/column&gt;
-        &lt;column&gt;content&lt;/column&gt;
-        &lt;column&gt;user&lt;/column&gt;
-        &lt;column&gt;created&lt;/column&gt;
-        &lt;row&gt;
-            &lt;value&gt;1&lt;/value&gt;
-            &lt;value&gt;Hello buddy!&lt;/value&gt;
-            &lt;value&gt;joe&lt;/value&gt;
-            &lt;value&gt;2010-04-24 17:15:23&lt;/value&gt;
-        &lt;/row&gt;
-        &lt;row&gt;
-            &lt;value&gt;2&lt;/value&gt;
-            &lt;value&gt;I like it!&lt;/value&gt;
-            &lt;null /&gt;
-            &lt;value&gt;2010-04-26 12:14:20&lt;/value&gt;
-        &lt;/row&gt;
-    &lt;/table&gt;
-&lt;/dataset&gt;
-</screen>
+        <screen><![CDATA[
+<?xml version="1.0" ?>
+<dataset>
+    <table name="guestbook">
+        <column>id</column>
+        <column>content</column>
+        <column>user</column>
+        <column>created</column>
+        <row>
+            <value>1</value>
+            <value>Hello buddy!</value>
+            <value>joe</value>
+            <value>2010-04-24 17:15:23</value>
+        </row>
+        <row>
+            <value>2</value>
+            <value>I like it!</value>
+            <null />
+            <value>2010-04-26 12:14:20</value>
+        </row>
+    </table>
+</dataset>
+]]></screen>
         <para>
-          <literal>&lt;table&gt;</literal> には name が必須で、
+          <literal><![CDATA[<table>]]></literal> には name が必須で、
           さらにすべてのカラムの名前を定義しなければなりません。
-          また、ゼロ個以上の <literal>&lt;row&gt;</literal>
-          要素を含めることができます。<literal>&lt;row&gt;</literal>
+          また、ゼロ個以上の <literal><![CDATA[<row>]]></literal>
+          要素を含めることができます。<literal><![CDATA[<row>]]></literal>
           要素を定義しなければ、そのテーブルが空であることになります。
-          <literal>&lt;value&gt;</literal> タグや
-          <literal>&lt;null /&gt;</literal> タグは、先に指定した
-          <literal>&lt;column&gt;</literal> 要素の順番で指定しなければなりません。
-          <literal>&lt;null /&gt;</literal> タグは、
+          <literal><![CDATA[<value>]]></literal> タグや
+          <literal><![CDATA[<null />]]></literal> タグは、先に指定した
+          <literal><![CDATA[column>]]></literal> 要素の順番で指定しなければなりません。
+          <literal><![CDATA[<null />]]></literal> タグは、
           見た目の通り、値が NULL であることを表します。
         </para>
         <para>
@@ -671,17 +668,17 @@ class MyTestCase extends PHPUnit_Extensions_Database_TestCase
           Database TestCase から作るには、
           <literal>createXmlDataSet($filename)</literal> メソッドを使います。
         </para>
-        <screen>
+        <programlisting><![CDATA[<?php
 class MyTestCase extends PHPUnit_Extensions_Database_TestCase
 {
     public function getDataSet()
     {
-        return $this-&gt;createXMLDataSet('myXmlFixture.xml');
+        return $this->createXMLDataSet('myXmlFixture.xml');
     }
 }
-</screen>
+?>]]></programlisting>
       </section>
-      <section id="mysql-xml-dataset">
+      <section id="database.mysql-xml-dataset">
         <title>MySQL XML データセット</title>
         <para>
           この新しい XML フォーマットは、
@@ -693,24 +690,22 @@ class MyTestCase extends PHPUnit_Extensions_Database_TestCase
           この形式のファイルを作るには、
           <literal>mysqldump</literal> を次のように実行します。
         </para>
-        <screen>
-mysqldump --xml -t -u [username] --password=[password] [database] > /path/to/file.xml
-        </screen>
+        <screen><userinput>mysqldump --xml -t -u [username] --password=[password] [database] > /path/to/file.xml</userinput></screen>
         <para>
           このファイルを Database TestCase で使うには、
           <literal>createMySQLXMLDataSet($filename)</literal> メソッドをコールします。
         </para>
-        <screen>
+        <programlisting><![CDATA[<?php
 class MyTestCase extends PHPUnit_Extensions_Database_TestCase
 {
     public function getDataSet()
     {
-        return $this-&gt;createMySQLXMLDataSet('/path/to/file.xml');
+        return $this->createMySQLXMLDataSet('/path/to/file.xml');
     }
 }
-</screen>
+?>]]></programlisting>
       </section>
-      <section id="yaml-dataset">
+      <section id="database.yaml-dataset">
         <title>YAML データセット</title>
         <para>
           PHPUnit 3.4 以降では、データセットを YAML 形式でも指定できるようになりました。
@@ -718,46 +713,46 @@ class MyTestCase extends PHPUnit_Extensions_Database_TestCase
           依存パッケージ Symfony/YAML もインストールしなければなりません。
           guestbook の例を YAML データセットで表すと、このようになります。
         </para>
-        <screen>
+        <screen><![CDATA[
 guestbook:
   -
     id: 1
-    content: &quot;Hello buddy!&quot;
-    user: &quot;joe&quot;
+    content: "Hello buddy!"
+    user: "joe"
     created: 2010-04-24 17:15:23
   -
     id: 2
-    content: &quot;I like it!&quot;
+    content: "I like it!"
     user:
     created: 2010-04-26 12:14:20
-</screen>
+]]></screen>
         <para>
           これは、シンプルで便利なうえに、さらにフラット XML
           データセットが持つ NULL の問題も解決しています。
           NULL を YAML で表すには、単にカラム名の後に何も値を指定しなければよいのです。
           空文字列を指定する場合は
-          <literal>column1: &quot;&quot;</literal>
+          <literal><![CDATA[column1: ""]]></literal>
           のようにします。
         </para>
         <para>
           YAML Dataset 用のファクトリーメソッドは今のところ Database TestCase
           に存在しないので、手動でインスタンスを生成しなければなりません。
         </para>
-        <screen>
-require_once &quot;PHPUnit/Extensions/Database/DataSet/YamlDataSet.php&quot;;
+        <programlisting><![CDATA[<?php
+require_once "PHPUnit/Extensions/Database/DataSet/YamlDataSet.php";
 
 class YamlGuestbookTest extends PHPUnit_Extensions_Database_TestCase
 {
     protected function getDataSet()
     {
         return new PHPUnit_Extensions_Database_DataSet_YamlDataSet(
-            dirname(__FILE__).&quot;/_files/guestbook.yml&quot;
+            dirname(__FILE__)."/_files/guestbook.yml"
         );
     }
 }
-</screen>
+?>]]></programlisting>
       </section>
-      <section id="csv-dataset">
+      <section id="database.csv-dataset">
         <title>CSV データセット</title>
         <para>
           さらにもうひとつのファイルベースのデータセットとして、CSV
@@ -766,11 +761,11 @@ class YamlGuestbookTest extends PHPUnit_Extensions_Database_TestCase
           guestbook の例では、このようなファイル
           guestbook-table.csv を定義します。
         </para>
-        <screen>
+        <screen><![CDATA[
 id;content;user;created
-1;&quot;Hello buddy!&quot;;&quot;joe&quot;;&quot;2010-04-24 17:15:23&quot;
-2;&quot;I like it!&quot;&quot;nancy&quot;;&quot;2010-04-26 12:14:20&quot;
-</screen>
+1;"Hello buddy!";"joe";"2010-04-24 17:15:23"
+2;"I like it!""nancy";"2010-04-26 12:14:20"
+]]></screen>
         <para>
           この形式は Excel や OpenOffice で編集できるという点で非常に便利ですが、
           CSV データセットでは NULL 値を指定することができません。
@@ -779,7 +774,7 @@ id;content;user;created
         <para>
           CSV データセットを作るには、このようにします。
         </para>
-        <screen>
+        <programlisting><![CDATA[<?php
 require_once 'PHPUnit/Extensions/Database/DataSet/CsvDataSet.php';
 
 class CsvGuestbookTest extends PHPUnit_Extensions_Database_TestCase
@@ -787,33 +782,33 @@ class CsvGuestbookTest extends PHPUnit_Extensions_Database_TestCase
     protected function getDataSet()
     {
         $dataSet = new PHPUnit_Extensions_Database_DataSet_CsvDataSet();
-        $dataSet-&gt;addTable('guestbook', dirname(__FILE__).&quot;/_files/guestbook.csv&quot;);
+        $dataSet->addTable('guestbook', dirname(__FILE__)."/_files/guestbook.csv");
         return $dataSet;
     }
 }
-</screen>
+?>]]></programlisting>
       </section>
-      <section id="array-dataset">
+      <section id="database.array-dataset">
         <title>Array データセット</title>
         <para>
           PHPUnit の Database Extension には、(今のところ)
           配列ベースのデータセットが存在しません。しかし、自分で簡単に実装できます。
           guestbook の例だと、このようになります。
         </para>
-        <screen>
+        <programlisting><![CDATA[<?php
 class ArrayGuestbookTest extends PHPUnit_Extensions_Database_TestCase
 {
     protected function getDataSet()
     {
         return new MyApp_DbUnit_ArrayDataSet(array(
-            'guestbook' =&gt; array(
-                array('id' =&gt; 1, 'content' =&gt; 'Hello buddy!', 'user' =&gt; 'joe', 'created' =&gt; '2010-04-24 17:15:23'),
-                array('id' =&gt; 2, 'content' =&gt; 'I like it!',   'user' =&gt; null,  'created' =&gt; '2010-04-26 12:14:20'),
+            'guestbook' => array(
+                array('id' => 1, 'content' => 'Hello buddy!', 'user' => 'joe', 'created' => '2010-04-24 17:15:23'),
+                array('id' => 2, 'content' => 'I like it!',   'user' => null,  'created' => '2010-04-26 12:14:20'),
             ),
         ));
     }
 }
-</screen>
+?>]]></programlisting>
         <para>
           PHP の DataSet には、これまでのファイルベースのデータセットに比べて明らかな利点があります。
         </para>
@@ -840,7 +835,7 @@ class ArrayGuestbookTest extends PHPUnit_Extensions_Database_TestCase
         <para>
           この Array データセットの実装は、シンプルで直感的なものです。
         </para>
-        <screen>
+        <programlisting><![CDATA[<?php
 require_once 'PHPUnit/Util/Filter.php';
 
 require_once 'PHPUnit/Extensions/Database/DataSet/AbstractDataSet.php';
@@ -862,7 +857,7 @@ class MyApp_DbUnit_ArrayDataSet extends PHPUnit_Extensions_Database_DataSet_Abst
      */
     public function __construct(array $data)
     {
-        foreach ($data AS $tableName =&gt; $rows) {
+        foreach ($data AS $tableName => $rows) {
             $columns = array();
             if (isset($rows[0])) {
                 $columns = array_keys($rows[0]);
@@ -872,61 +867,61 @@ class MyApp_DbUnit_ArrayDataSet extends PHPUnit_Extensions_Database_DataSet_Abst
             $table = new PHPUnit_Extensions_Database_DataSet_DefaultTable($metaData);
 
             foreach ($rows AS $row) {
-                $table-&gt;addRow($row);
+                $table->addRow($row);
             }
-            $this-&gt;tables[$tableName] = $table;
+            $this->tables[$tableName] = $table;
         }
     }
 
     protected function createIterator($reverse = FALSE)
     {
-        return new PHPUnit_Extensions_Database_DataSet_DefaultTableIterator($this-&gt;tables, $reverse);
+        return new PHPUnit_Extensions_Database_DataSet_DefaultTableIterator($this->tables, $reverse);
     }
 
     public function getTable($tableName)
     {
-        if (!isset($this-&gt;tables[$tableName])) {
-            throw new InvalidArgumentException(&quot;$tableName is not a table in the current database.&quot;);
+        if (!isset($this->tables[$tableName])) {
+            throw new InvalidArgumentException("$tableName is not a table in the current database.");
         }
 
-        return $this-&gt;tables[$tableName];
+        return $this->tables[$tableName];
     }
 }
-</screen>
+?>]]></programlisting>
       </section>
-      <section id="query-sql-dataset">
+      <section id="database.query-sql-dataset">
         <title>Query (SQL) データセット</title>
         <para>
           データベースのアサーションでは、ファイルベースのデータセットだけでなく
           Query/SQL ベースのデータセットでデータベースの実際の中身を含むものが必要になることもあります。
           そんなときに使えるのが Query データセットです。
         </para>
-        <screen>
-$ds = new PHPUnit_Extensions_Database_DataSet_QueryDataSet($this-&gt;getConnection());
-$ds-&gt;addTable('guestbook');
-</screen>
+        <programlisting><![CDATA[<?php
+$ds = new PHPUnit_Extensions_Database_DataSet_QueryDataSet($this->getConnection());
+$ds->addTable('guestbook');
+?>]]></programlisting>
         <para>
           単にテーブル名だけを指定してテーブルを追加すると、
           次のクエリを実行してデータテーブルを定義したのと同じ意味になります。
         </para>
-        <screen>
-$ds = new PHPUnit_Extensions_Database_DataSet_QueryDataSet($this-&gt;getConnection());
-$ds-&gt;addTable('guestbook', 'SELECT * FROM guestbook');
-</screen>
+        <programlisting><![CDATA[<?php
+$ds = new PHPUnit_Extensions_Database_DataSet_QueryDataSet($this->getConnection());
+$ds->addTable('guestbook', 'SELECT * FROM guestbook');
+?>]]></programlisting>
         <para>
           ここでテーブルに対して任意のクエリを実行して、
           取得する行や列を絞り込んだり
           <literal>ORDER BY</literal> 句を追加したりすることができます。
         </para>
-        <screen>
-$ds = new PHPUnit_Extensions_Database_DataSet_QueryDataSet($this-&gt;getConnection());
-$ds-&gt;addTable('guestbook', 'SELECT id, content FROM guestbook ORDER BY created DESC');
-</screen>
+        <programlisting><![CDATA[<?php
+$ds = new PHPUnit_Extensions_Database_DataSet_QueryDataSet($this->getConnection());
+$ds->addTable('guestbook', 'SELECT id, content FROM guestbook ORDER BY created DESC');
+?>]]></programlisting>
         <para>
           データベースアサーションの節で、このデータセットを使う方法をより詳しく説明しています。
         </para>
       </section>
-      <section id="database-db-dataset">
+      <section id="database.database-db-dataset">
         <title>Database (DB) データセット</title>
         <para>
           テスト用のデータベース接続にアクセスすると、
@@ -939,7 +934,7 @@ $ds-&gt;addTable('guestbook', 'SELECT id, content FROM guestbook ORDER BY create
           ホワイトリスト形式で指定したテーブルだけに絞り込むには
           <literal>testFilteredGuestbook()</literal> メソッドのようにします。
         </para>
-        <screen>
+        <programlisting><![CDATA[<?php
 class MySqlGuestbookTest extends PHPUnit_Extensions_Database_TestCase
 {
     /**
@@ -949,25 +944,25 @@ class MySqlGuestbookTest extends PHPUnit_Extensions_Database_TestCase
     {
         $database = 'my_database';
         $pdo = new PDO('mysql:...', $user, $password);
-        return $this-&gt;createDefaultDBConnection($pdo, $database);
+        return $this->createDefaultDBConnection($pdo, $database);
     }
 
     public function testGuestbook()
     {
-        $dataSet = $this-&gt;getConnection()-&gt;createDataSet();
+        $dataSet = $this->getConnection()->createDataSet();
         // ...
     }
 
     public function testFilteredGuestbook()
     {
         $tableNames = array('guestbook');
-        $dataSet = $this-&gt;getConnection()-&gt;createDataSet($tableNames);
+        $dataSet = $this->getConnection()->createDataSet($tableNames);
         // ...
     }
 }
-</screen>
+?>]]></programlisting>
       </section>
-      <section id="replacement-dataset">
+      <section id="database.replacement-dataset">
         <title>Replacement データセット</title>
         <para>
           これまで、フラット XML や CSV のデータセットには NULL
@@ -980,32 +975,32 @@ class MySqlGuestbookTest extends PHPUnit_Extensions_Database_TestCase
           データセットの任意のカラムの値を別の値で置換することができます。
           guestbook の例で NULL 値を扱うには、このようなファイルを作ります。
         </para>
-        <screen>
-&lt;?xml version=&quot;1.0&quot; ?&gt;
-&lt;dataset&gt;
-    &lt;guestbook id=&quot;1&quot; content=&quot;Hello buddy!&quot; user=&quot;joe&quot; created=&quot;2010-04-24 17:15:23&quot; /&gt;
-    &lt;guestbook id=&quot;2&quot; content=&quot;I like it!&quot; user=&quot;##NULL##&quot; created=&quot;2010-04-26 12:14:20&quot; /&gt;
-&lt;/dataset&gt;
-</screen>
+        <screen><![CDATA[
+<?xml version="1.0" ?>
+<dataset>
+    <guestbook id="1" content="Hello buddy!" user="joe" created="2010-04-24 17:15:23" />
+    <guestbook id="2" content="I like it!" user="##NULL##" created="2010-04-26 12:14:20" />
+</dataset>
+]]></screen>
         <para>
           そして、フラット XML データセットを Replacement データセットでラップします。
         </para>
-        <screen>
+        <programlisting><![CDATA[<?php
 require_once 'PHPUnit/Extensions/Database/DataSet/ReplacementDataSet.php';
 
 class ReplacementTest extends PHPUnit_Extensions_Database_TestCase
 {
     public function getDataSet()
     {
-        $ds = $this-&gt;createFlatXmlDataSet('myFlatXmlFixture.xml');
+        $ds = $this->createFlatXmlDataSet('myFlatXmlFixture.xml');
         $rds = new PHPUnit_Extensions_Database_DataSet_ReplacementDataSet($ds);
-        $rds-&gt;addFullReplacement('##NULL##', null);
+        $rds->addFullReplacement('##NULL##', null);
         return $rds;
     }
 }
-</screen>
+?>]]></programlisting>
       </section>
-      <section id="dataset-filter">
+      <section id="database.dataset-filter">
         <title>データセットフィルタ</title>
         <para>
           巨大なフィクスチャファイルを扱うときには、
@@ -1014,32 +1009,32 @@ class ReplacementTest extends PHPUnit_Extensions_Database_TestCase
           これは、DB データセットと組み合わせて
           データセットのカラムを絞り込むときに使うと非常に便利です。
         </para>
-        <screen>
+        <programlisting><![CDATA[<?php
 class DataSetFilterTest extends PHPUnit_Extensions_Database_TestCase
 {
     public function testIncludeFilteredGuestbook()
     {
         $tableNames = array('guestbook');
-        $dataSet = $this-&gt;getConnection()-&gt;createDataSet();
+        $dataSet = $this->getConnection()->createDataSet();
 
         $filterDataSet = new PHPUnit_Extensions_Database_DataSet_DataSetFilter($dataSet);
-        $filterDataSet-&gt;addIncludeTables(array('guestbook'));
-        $filterDataSet-&gt;setIncludeColumnsForTable('guestbook', array('id', 'content'));
+        $filterDataSet->addIncludeTables(array('guestbook'));
+        $filterDataSet->setIncludeColumnsForTable('guestbook', array('id', 'content'));
         // ..
     }
 
     public function testExcludeFilteredGuestbook()
     {
         $tableNames = array('guestbook');
-        $dataSet = $this-&gt;getConnection()-&gt;createDataSet();
+        $dataSet = $this->getConnection()->createDataSet();
 
         $filterDataSet = new PHPUnit_Extensions_Database_DataSet_DataSetFilter($dataSet);
-        $filterDataSet-&gt;addExcludeTables(array('foo', 'bar', 'baz')); // guestbook だけをキープ!
-        $filterDataSet-&gt;setExcludeColumnsForTable('guestbook', array('user', 'created'));
+        $filterDataSet->addExcludeTables(array('foo', 'bar', 'baz')); // only keep the guestbook table!
+        $filterDataSet->setExcludeColumnsForTable('guestbook', array('user', 'created'));
         // ..
     }
 }
-</screen>
+?>]]></programlisting>
         <blockquote>
           <para>
             <emphasis role="strong">注意</emphasis>
@@ -1049,7 +1044,7 @@ class DataSetFilterTest extends PHPUnit_Extensions_Database_TestCase
           </para>
         </blockquote>
       </section>
-      <section id="composite-dataset">
+      <section id="database.composite-dataset">
         <title>Composite データセット</title>
         <para>
           Composite データセットは、既存の複数のデータセットをひとつにまとめるときに有用です。
@@ -1058,43 +1053,43 @@ class DataSetFilterTest extends PHPUnit_Extensions_Database_TestCase
           たとえば、このようなふたつのデータセットがあるものとしましょう。
           まずは <emphasis>fixture1.xml</emphasis>。
         </para>
-        <screen>
-&lt;?xml version=&quot;1.0&quot; ?&gt;
-&lt;dataset&gt;
-    &lt;guestbook id=&quot;1&quot; content=&quot;Hello buddy!&quot; user=&quot;joe&quot; created=&quot;2010-04-24 17:15:23&quot; /&gt;
-&lt;/dataset&gt;
-</screen>
+        <screen><![CDATA[
+<?xml version="1.0" ?>
+<dataset>
+    <guestbook id="1" content="Hello buddy!" user="joe" created="2010-04-24 17:15:23" />
+</dataset>
+]]></screen>
         <para>
           そして <emphasis>fixture2.xml</emphasis>。
         </para>
-        <screen>
-&lt;?xml version=&quot;1.0&quot; ?&gt;
-&lt;dataset&gt;
-    &lt;guestbook id=&quot;2&quot; content=&quot;I like it!&quot; user=&quot;##NULL##&quot; created=&quot;2010-04-26 12:14:20&quot; /&gt;
-&lt;/dataset&gt;
-</screen>
+        <screen><![CDATA[
+<?xml version="1.0" ?>
+<dataset>
+    <guestbook id="2" content="I like it!" user="##NULL##" created="2010-04-26 12:14:20" />
+</dataset>
+]]></screen>
         <para>
           Composite データセットを使えば、両方のフィクスチャファイルをまとめることができます。
         </para>
-        <screen>
+        <programlisting><![CDATA[<?php
 class CompositeTest extends PHPUnit_Extensions_Database_TestCase
 {
     public function getDataSet()
     {
-        $ds1 = $this-&gt;createFlatXmlDataSet('fixture1.xml');
-        $ds2 = $this-&gt;createFlatXmlDataSet('fixture2.xml');
+        $ds1 = $this->createFlatXmlDataSet('fixture1.xml');
+        $ds2 = $this->createFlatXmlDataSet('fixture2.xml');
 
         $compositeDs = new PHPUnit_Extensions_Database_DataSet_CompositeDataSet();
-        $compositeDs-&gt;addDataSet($ds1);
-        $compositeDs-&gt;addDataSet($ds2);
+        $compositeDs->addDataSet($ds1);
+        $compositeDs->addDataSet($ds2);
 
         return $compositeDs;
     }
 }
-</screen>
+?>]]></programlisting>
       </section>
     </section>
-    <section id="beware-of-foreign-keys">
+    <section id="database.beware-of-foreign-keys">
       <title>外部キーには注意</title>
       <para>
         フィクスチャを準備するとき、PHPUnit の Database Extension
@@ -1103,7 +1098,7 @@ class CompositeTest extends PHPUnit_Extensions_Database_TestCase
         外部キー制約に違反しないような順番でテーブルを指定しなければなりません。
       </para>
     </section>
-    <section id="implementing-your-own-datasetsdatatables">
+    <section id="database.implementing-your-own-datasetsdatatables">
       <title>自作のデータセットやデータテーブルの実装</title>
       <para>
         データセットやデータテーブルの内部構造を理解するために、
@@ -1111,7 +1106,7 @@ class CompositeTest extends PHPUnit_Extensions_Database_TestCase
         自分でデータセットやデータテーブルを作るつもりのない人は、
         読み飛ばしてもかまいません。
       </para>
-      <screen>
+      <programlisting><![CDATA[<?php
 interface PHPUnit_Extensions_Database_DataSet_IDataSet extends IteratorAggregate
 {
     public function getTableNames();
@@ -1121,7 +1116,7 @@ interface PHPUnit_Extensions_Database_DataSet_IDataSet extends IteratorAggregate
 
     public function getReverseIterator();
 }
-</screen>
+?>]]></programlisting>
       <para>
         公開インターフェイスは、データベーステストケースの
         <literal>assertDataSetsEqual()</literal>
@@ -1143,7 +1138,7 @@ interface PHPUnit_Extensions_Database_DataSet_IDataSet extends IteratorAggregate
       <para>
         テーブルは、このようなインターフェイスを使って表します。
       </para>
-      <screen>
+      <programlisting><![CDATA[<?php
 interface PHPUnit_Extensions_Database_DataSet_ITable
 {
     public function getTableMetaData();
@@ -1152,7 +1147,7 @@ interface PHPUnit_Extensions_Database_DataSet_ITable
     public function getRow($row);
     public function assertEquals(PHPUnit_Extensions_Database_DataSet_ITable $other);
 }
-</screen>
+?>]]></programlisting>
       <para>
         <literal>getTableMetaData()</literal> メソッドは別として、
         それ以外のメソッドはまさに文字通りの働きをするものです。
@@ -1187,14 +1182,14 @@ interface PHPUnit_Extensions_Database_DataSet_ITable
       </para>
     </section>
   </section>
-  <section id="the-connection-api">
+  <section id="database.the-connection-api">
     <title>接続 API</title>
     <para>
       Connection インターフェイスには、三種類のおもしろいメソッドが用意されています。
       このインターフェイスは、データベーステストケースの
       <literal>getConnection()</literal> メソッドが返すものです。
     </para>
-    <screen>
+    <programlisting><![CDATA[<?php
 interface PHPUnit_Extensions_Database_DB_IDatabaseConnection
 {
     public function createDataSet(Array $tableNames = NULL);
@@ -1203,23 +1198,23 @@ interface PHPUnit_Extensions_Database_DB_IDatabaseConnection
 
     // ...
 }
-</screen>
+?>]]></programlisting>
     <orderedlist numeration="arabic">
       <listitem>
         <para>
           <literal>createDataSet()</literal> メソッドは、Database
           (DB) データセットを作ります。これは、データセットの実装の節で説明したものです。
         </para>
-        <screen>
+        <programlisting><![CDATA[<?php
 class ConnectionTest extends PHPUnit_Extensions_Database_TestCase
 {
     public function testCreateDataSet()
     {
         $tableNames = array('guestbook');
-        $dataSet = $this-&gt;getConnection()-&gt;createDataSet();
+        $dataSet = $this->getConnection()->createDataSet();
     }
 }
-</screen>
+?>]]></programlisting>
       </listitem>
       <listitem>
         <para>
@@ -1228,16 +1223,16 @@ class ConnectionTest extends PHPUnit_Extensions_Database_TestCase
           これは、次の節 (データベースアサーション API)
           で説明する結果やテーブルのアサーションで有用なメソッドです。
         </para>
-        <screen>
+        <programlisting><![CDATA[<?php
 class ConnectionTest extends PHPUnit_Extensions_Database_TestCase
 {
     public function testCreateQueryTable()
     {
         $tableNames = array('guestbook');
-        $queryTable = $this-&gt;getConnection()-&gt;createQueryTable('guestbook', 'SELECT * FROM guestbook');
+        $queryTable = $this->getConnection()->createQueryTable('guestbook', 'SELECT * FROM guestbook');
     }
 }
-</screen>
+?>]]></programlisting>
       </listitem>
       <listitem>
         <para>
@@ -1246,19 +1241,19 @@ class ConnectionTest extends PHPUnit_Extensions_Database_TestCase
           オプションで、where 句によるフィルタリングもできます。
           これを使えば、シンプルな同一性のアサーションが可能です。
         </para>
-        <screen>
+        <programlisting><![CDATA[<?php
 class ConnectionTest extends PHPUnit_Extensions_Database_TestCase
 {
     public function testGetRowCount()
     {
-        $this-&gt;assertEquals(2, $this-&gt;getConnection()-&gt;getRowCount('guestbook'));
+        $this->assertEquals(2, $this->getConnection()->getRowCount('guestbook'));
     }
 }
-</screen>
+?>]]></programlisting>
       </listitem>
     </orderedlist>
   </section>
-  <section id="database-assertions-api">
+  <section id="database.database-assertions-api">
     <title>データベースアサーション API</title>
     <para>
       テストツール用として、Database Extension ではいくつかのアサーションを提供しています。
@@ -1266,7 +1261,7 @@ class ConnectionTest extends PHPUnit_Extensions_Database_TestCase
       そしてテーブルの行数を検証できます。この節では、
       これらの機能の詳細を説明します。
     </para>
-    <section id="asserting-the-row-count-of-a-table">
+    <section id="database.asserting-the-row-count-of-a-table">
       <title>テーブルの行数のアサーション</title>
       <para>
         テーブルの行数が特定の値であるかどうかを調べられれば便利なことがよくあります。
@@ -1274,22 +1269,22 @@ class ConnectionTest extends PHPUnit_Extensions_Database_TestCase
         guestbook に行を追加した後で、初期登録した 2 エントリ以外にもう一行増えて
         3 行になっていることを調べるには、このようにします。
       </para>
-      <screen>
+      <programlisting><![CDATA[<?php
 class GuestbookTest extends PHPUnit_Extensions_Database_TestCase
 {
     public function testAddEntry()
     {
-        $this-&gt;assertEquals(2, $this-&gt;getConnection()-&gt;getRowCount('guestbook'), &quot;事前条件&quot;);
+        $this->assertEquals(2, $this->getConnection()->getRowCount('guestbook'), "Pre-Condition");
 
         $guestbook = new Guestbook();
-        $guestbook-&gt;addEntry(&quot;suzy&quot;, &quot;Hello world!&quot;);
+        $guestbook->addEntry("suzy", "Hello world!");
 
-        $this-&gt;assertEquals(3, $this-&gt;getConnection()-&gt;getRowCount('guestbook'), &quot;追加に失敗&quot;);
+        $this->assertEquals(3, $this->getConnection()->getRowCount('guestbook'), "Inserting failed");
     }
 }
-</screen>
+?>]]></programlisting>
     </section>
-    <section id="asserting-the-state-of-a-table">
+    <section id="database.asserting-the-state-of-a-table">
       <title>テーブルの状態のアサーション</title>
       <para>
         先ほどのアサーションも有用ですが、本当にチェックしたいのは、
@@ -1301,35 +1296,35 @@ class GuestbookTest extends PHPUnit_Extensions_Database_TestCase
         テーブル名と SQL クエリからその内容を取得し、
         それをファイルベースあるいは配列ベースのデータセットと比較します。
       </para>
-      <screen>
+      <programlisting><![CDATA[<?php
 class GuestbookTest extends PHPUnit_Extensions_Database_TestCase
 {
     public function testAddEntry()
     {
         $guestbook = new Guestbook();
-        $guestbook-&gt;addEntry(&quot;suzy&quot;, &quot;Hello world!&quot;);
+        $guestbook->addEntry("suzy", "Hello world!");
 
-        $queryTable = $this-&gt;getConnection()-&gt;createQueryTable(
+        $queryTable = $this->getConnection()->createQueryTable(
             'guestbook', 'SELECT * FROM guestbook'
         );
-        $expectedTable = $this-&gt;createFlatXmlDataSet(&quot;expectedBook.xml&quot;)
-                              -&gt;getTable(&quot;guestbook&quot;);
-        $this-&gt;assertTablesEqual($expectedTable, $queryTable);
+        $expectedTable = $this->createFlatXmlDataSet("expectedBook.xml")
+                              ->getTable("guestbook");
+        $this->assertTablesEqual($expectedTable, $queryTable);
     }
 }
-</screen>
+?>]]></programlisting>
       <para>
         さて次に、このアサーションに使うフラット XML ファイル
         <emphasis>expectedBook.xml</emphasis> を用意しましょう。
       </para>
-      <screen>
-&lt;?xml version=&quot;1.0&quot; ?&gt;
-&lt;dataset&gt;
-    &lt;guestbook id=&quot;1&quot; content=&quot;Hello buddy!&quot; user=&quot;joe&quot; created=&quot;2010-04-24 17:15:23&quot; /&gt;
-    &lt;guestbook id=&quot;2&quot; content=&quot;I like it!&quot; user=&quot;nancy&quot; created=&quot;2010-04-26 12:14:20&quot; /&gt;
-    &lt;guestbook id=&quot;3&quot; content=&quot;Hello world!&quot; user=&quot;suzy&quot; created=&quot;2010-05-01 21:47:08&quot; /&gt;
-&lt;/dataset&gt;
-</screen>
+      <screen><![CDATA[
+<?xml version="1.0" ?>
+<dataset>
+    <guestbook id="1" content="Hello buddy!" user="joe" created="2010-04-24 17:15:23" />
+    <guestbook id="2" content="I like it!" user="nancy" created="2010-04-26 12:14:20" />
+    <guestbook id="3" content="Hello world!" user="suzy" created="2010-05-01 21:47:08" />
+</dataset>
+]]></screen>
       <para>
         残念ながら、このアサーションが成功するのは、ちょうど
         <emphasis>2010–05–01 21:47:08</emphasis> に実行したときだけになります。
@@ -1340,46 +1335,46 @@ class GuestbookTest extends PHPUnit_Extensions_Database_TestCase
         調整後のフラット XML ファイル <emphasis>expectedBook.xml</emphasis>
         はこのようになり、これでアサーションを通過させることができます。
       </para>
-      <screen>
-&lt;?xml version=&quot;1.0&quot; ?&gt;
-&lt;dataset&gt;
-    &lt;guestbook id=&quot;1&quot; content=&quot;Hello buddy!&quot; user=&quot;joe&quot; /&gt;
-    &lt;guestbook id=&quot;2&quot; content=&quot;I like it!&quot; user=&quot;nancy&quot; /&gt;
-    &lt;guestbook id=&quot;3&quot; content=&quot;Hello world!&quot; user=&quot;suzy&quot; /&gt;
-&lt;/dataset&gt;
-</screen>
+      <screen><![CDATA[
+<?xml version="1.0" ?>
+<dataset>
+    <guestbook id="1" content="Hello buddy!" user="joe" />
+    <guestbook id="2" content="I like it!" user="nancy" />
+    <guestbook id="3" content="Hello world!" user="suzy" />
+</dataset>
+]]></screen>
       <para>
         QueryTable の呼び出しも修正しなければなりません。
       </para>
-      <screen>
-$queryTable = $this-&gt;getConnection()-&gt;createQueryTable(
+      <programlisting><![CDATA[<?php
+$queryTable = $this->getConnection()->createQueryTable(
     'guestbook', 'SELECT id, content, user FROM guestbook'
 );
-</screen>
+?>]]></programlisting>
     </section>
-    <section id="asserting-the-result-of-a-query">
+    <section id="database.asserting-the-result-of-a-query">
       <title>クエリの結果のアサーション</title>
       <para>
         複雑なクエリの結果に対するアサーションも、
         QueryTable 方式で可能です。単に結果の名前とクエリを指定して、
         それをデータセットと比較すればよいのです。
       </para>
-      <screen>
+      <programlisting><![CDATA[<?php
 class ComplexQueryTest extends PHPUnit_Extensions_Database_TestCase
 {
     public function testComplexQuery()
     {
-        $queryTable = $this-&gt;getConnection()-&gt;createQueryTable(
-            'myComplexQuery', 'SELECT ...複雑なクエリ...'
+        $queryTable = $this->getConnection()->createQueryTable(
+            'myComplexQuery', 'SELECT complexQuery...'
         );
-        $expectedTable = $this-&gt;createFlatXmlDataSet(&quot;complexQueryAssertion.xml&quot;)
-                              -&gt;getTable(&quot;myComplexQuery&quot;);
-        $this-&gt;assertTablesEqual($expectedTable, $queryTable);
+        $expectedTable = $this->createFlatXmlDataSet("complexQueryAssertion.xml")
+                              ->getTable("myComplexQuery");
+        $this->assertTablesEqual($expectedTable, $queryTable);
     }
 }
-</screen>
+?>]]></programlisting>
     </section>
-    <section id="asserting-the-state-of-multiple-tables">
+    <section id="database.asserting-the-state-of-multiple-tables">
       <title>複数のテーブルの状態のアサーション</title>
       <para>
         もちろん、複数のテーブルの状態を一度に確かめたり
@@ -1392,42 +1387,42 @@ class ComplexQueryTest extends PHPUnit_Extensions_Database_TestCase
             接続の Database (DB) データセットを使い、
             それをファイルベースのデータセットと比較する。
           </para>
-          <screen>
+          <programlisting><![CDATA[<?php
 class DataSetAssertionsTest extends PHPUnit_Extensions_Database_TestCase
 {
     public function testCreateDataSetAssertion()
     {
-        $dataSet = $this-&gt;getConnection()-&gt;createDataSet(array('guestbook'));
-        $expectedDataSet = $this-&gt;createFlatXmlDataSet('guestbook.xml');
-        $this-&gt;assertDataSetsEqual($expectedDataSet, $dataSet);
+        $dataSet = $this->getConnection()->createDataSet(array('guestbook'));
+        $expectedDataSet = $this->createFlatXmlDataSet('guestbook.xml');
+        $this->assertDataSetsEqual($expectedDataSet, $dataSet);
     }
 }
-</screen>
+?>]]></programlisting>
         </listitem>
         <listitem>
           <para>
             データセットを自分で作ることもできます。
           </para>
-          <screen>
+          <programlisting><![CDATA[<?php
 class DataSetAssertionsTest extends PHPUnit_Extensions_Database_TestCase
 {
     public function testManualDataSetAssertion()
     {
         $dataSet = new PHPUnit_Extensions_Database_DataSet_QueryDataSet();
-        $dataSet-&gt;addTable('guestbook', 'SELECT id, content, user FROM guestbook'); // 追加のテーブル
-        $expectedDataSet = $this-&gt;createFlatXmlDataSet('guestbook.xml');
+        $dataSet->addTable('guestbook', 'SELECT id, content, user FROM guestbook'); // additional tables
+        $expectedDataSet = $this->createFlatXmlDataSet('guestbook.xml');
 
-        $this-&gt;assertDataSetsEqual($expectedDataSet, $dataSet);
+        $this->assertDataSetsEqual($expectedDataSet, $dataSet);
     }
 }
-</screen>
+?>]]></programlisting>
         </listitem>
       </orderedlist>
     </section>
   </section>
-  <section id="frequently-asked-questions">
+  <section id="database.frequently-asked-questions">
     <title>よくある質問</title>
-    <section id="will-phpunit-re-create-the-database-schema-for-each-test">
+    <section id="database.will-phpunit-re-create-the-database-schema-for-each-test">
       <title>PHPUnit は、テストごとにデータベーススキーマを作り直すの?</title>
       <para>
         いいえ。PHPUnit は、テストスイートの開始時にすべてのデータベースオブジェクトが存在することを前提とします。
@@ -1447,14 +1442,14 @@ class DataSetAssertionsTest extends PHPUnit_Extensions_Database_TestCase
         事前に作ったデータベースをずっと使いまわすことができます。
       </para>
     </section>
-    <section id="am-i-required-to-use-pdo-in-my-application-for-the-database-extension-to-work">
+    <section id="database.am-i-required-to-use-pdo-in-my-application-for-the-database-extension-to-work">
       <title>PDO を使ったアプリケーションじゃないと Database Extension を使えないの?</title>
       <para>
         いいえ。PDO が必要なのは、フィクスチャの準備や後始末とアサーションのときだけです。
         テスト対象のコード内では、なんでもお好みの方法でデータベースにアクセスできます。
       </para>
     </section>
-    <section id="what-can-i-do-when-i-get-a-too-much-connections-error">
+    <section id="database.what-can-i-do-when-i-get-a-too-much-connections-error">
       <title><quote>Too much Connections</quote> というエラーが出たらどうすればいい?</title>
       <para>
         テストケースの <literal>getConnection()</literal> メソッドで作った
@@ -1469,7 +1464,7 @@ class DataSetAssertionsTest extends PHPUnit_Extensions_Database_TestCase
         ひとつの PDO インスタンスをキャッシュして、すべてのテストで使いまわす方法です。
       </para>
     </section>
-    <section id="how-to-handle-null-with-flat-xml-csv-datasets">
+    <section id="database.how-to-handle-null-with-flat-xml-csv-datasets">
       <title>フラット XML や CSV のデータセットで NULL を扱う方法は?</title>
       <para>
         そんな方法はありません。NULL が使いたければ XML あるいは YAML データセットを使わないといけません。
