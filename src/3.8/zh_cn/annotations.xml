@@ -302,6 +302,36 @@ public function testBalanceIsInitiallyZero()
     </table>
   </section>
 
+  <section id="appendixes.annotations.coversDefaultClass">
+    <title>@coversDefaultClass</title>
+
+    <para>
+      <indexterm><primary>@coversDefaultClass</primary></indexterm>
+
+      <literal>@coversDefaultClass</literal> 标注用于指定一个默认的命名空间或类名，这样就不用在每个 <literal>@covers</literal> 标注中重复长名称。参见<xref linkend="appendixes.annotations.examples.CoversDefaultClassTest.php" />。
+    </para>
+
+    <example id="appendixes.annotations.examples.CoversDefaultClassTest.php">
+      <title>用 @coversDefaultClass 缩短标注</title>
+      <programlisting><![CDATA[<?php
+/**
+ * @coversDefaultClass \Foo\CoveredClass
+ */
+class CoversDefaultClassTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @covers ::publicMethod
+     */
+    public function testSomething()
+    {
+        $o = new Foo\CoveredClass;
+        $o->publicMethod();
+    }
+}
+?>]]></programlisting>
+    </example>
+  </section> 
+
   <section id="appendixes.annotations.coversNothing">
     <title>@coversNothing</title>
 
