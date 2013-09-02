@@ -298,11 +298,106 @@ Usage: phpunit [switches] UnitTest [UnitTest.php]
         <term><literal>--filter</literal></term>
         <listitem>
           <para>
-            Only runs tests whose name matches the given pattern. The pattern
-            can be either the name of a single test or a
-            <ulink url="http://www.php.net/pcre">regular expression</ulink>
-            that matches multiple test names.
+            Only runs tests whose name matches the given regular expression
+            pattern. If the pattern is not enclosed in delimiters, PHPUnit
+            will enclose the pattern in <literal>/</literal> delimiters.
           </para>
+
+          <para>
+            The test names to match will be in one of the following formats:
+          </para>
+
+          <variablelist>
+            <varlistentry>
+              <term><literal>TestNamespace\TestCaseClass::testMethod</literal></term>
+              <listitem>
+                <para>
+                  The default test name format is the equivalent of using
+                  the <literal>__METHOD__</literal> magic constant inside
+                  the test method.
+                </para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term><literal>TestNamespace\TestCaseClass::testMethod with data set #0</literal></term>
+              <listitem>
+                <para>
+                  When a test has a data provider, each iteration of the
+                  data gets the current index appended to the end of the
+                  default test name.
+                </para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term><literal>TestNamespace\TestCaseClass::testMethod with data set "my named data"</literal></term>
+              <listitem>
+                <para>
+                  When a test has a data provider that uses named sets, each
+                  iteration of the data gets the current name appended to the
+                  end of the default test name. See
+                  <xref linkend="textui.examples.TestCaseClass.php" /> for an
+                  example of named data sets.
+                </para>
+
+                <example id="textui.examples.TestCaseClass.php">
+                  <title>Named data sets</title>
+                  <programlisting><![CDATA[<?php
+
+namespace TestNamespace;
+
+class TestCaseClass extends \PHPUnit_Framework_TestCase
+{
+    /**
+     * @dataProvider provider
+     */
+    public function testMethod($data)
+    {
+        $this->assertTrue($data);
+    }
+
+    public function provider()
+    {
+        return array(
+           'my named data' => array(true),
+           'my data'       => array(true)
+        );
+    }
+}]]></programlisting>
+                </example>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term><literal>/path/to/my/test.phpt</literal></term>
+              <listitem>
+                <para>
+                  The test name for a PHPT test is the filesystem path.
+                </para>
+              </listitem>
+            </varlistentry>
+          </variablelist>
+
+          <para>
+            See <xref linkend="textui.examples.filter-patterns" /> for examples
+            of valid filter patterns.
+          </para>
+
+          <example id="textui.examples.filter-patterns">
+            <title>Filter pattern examples</title>
+
+            <itemizedlist>
+              <listitem><para><literal>--filter 'TestNamespace\\TestCaseClass::testMethod'</literal></para></listitem>
+              <listitem><para><literal>--filter 'TestNamespace\\TestCaseClass'</literal></para></listitem>
+              <listitem><para><literal>--filter TestNamespace</literal></para></listitem>
+              <listitem><para><literal>--filter TestCaseClass</literal></para></listitem>
+              <listitem><para><literal>--filter testMethod</literal></para></listitem>
+              <listitem><para><literal>--filter '/::testMethod .*"my named data"/'</literal></para></listitem>
+              <listitem><para><literal>--filter '/::testMethod .*#5$/'</literal></para></listitem>
+              <listitem><para><literal>--filter '/::testMethod .*#(5|6|7)$/'</literal></para></listitem>
+            </itemizedlist>
+          </example>
         </listitem>
       </varlistentry>
 
