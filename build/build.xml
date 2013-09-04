@@ -19,15 +19,15 @@
     </copy>
 
     <exec dir="${basedir}" executable="xsltproc" failonerror="true">
-      <arg line="--stringparam base.dir output/${version}/${language}/ --stringparam l10n.gentext.language ${language} html-chunked.xsl ../src/${version}/${language}/book.xml"/>
+      <arg line="--xinclude --stringparam base.dir output/${version}/${language}/ --stringparam l10n.gentext.language ${language} html-chunked.xsl ../src/${version}/${language}/book.xml"/>
     </exec>
 
     <exec dir="${basedir}" executable="xsltproc" failonerror="true">
-      <arg line="--stringparam l10n.gentext.language ${language} --output output/${version}/${language}/phpunit-book.html html.xsl ../src/${version}/${language}/book.xml"/>
+      <arg line="--xinclude --stringparam l10n.gentext.language ${language} --output output/${version}/${language}/phpunit-book.html html.xsl ../src/${version}/${language}/book.xml"/>
     </exec>
 
     <exec dir="${basedir}" executable="xsltproc" failonerror="true">
-      <arg line="--stringparam fop1.extensions 1 --stringparam l10n.gentext.language ${language} --output output/${version}/${language}/phpunit-book.fo fo.xsl ../src/${version}/${language}/book.xml"/>
+      <arg line="--xinclude --stringparam fop1.extensions 1 --stringparam l10n.gentext.language ${language} --output output/${version}/${language}/phpunit-book.fo fo.xsl ../src/${version}/${language}/book.xml"/>
     </exec>
 
     <exec dir="${basedir}" executable="docbook-xsl/epub/bin/dbtoepub" failonerror="true">
