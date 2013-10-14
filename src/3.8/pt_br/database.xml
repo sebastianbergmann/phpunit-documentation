@@ -250,7 +250,7 @@ class MeuLivroDeVisitasTest extends PHPUnit_Extensions_Database_TestCase
             Se você estiver usando bibliotecas como
             <ulink url="http://www.doctrine-project.org">Doctrine 2</ulink> ou
             <ulink url="http://www.propelorm.org/">Propel</ulink>
-            você pode usar suas APIs para criar o esquema de banco de dados que precisa antes de rodar os testes. Você pode utilizar as capacidades de Configuração e Bootstrap 
+            você pode usar suas APIs para criar o esquema de banco de dados que precisa antes de rodar os testes. Você pode utilizar as capacidades de Configuração e Bootstrap
             <ulink url="http://www.phpunit.de/manual/current/en/textui.html"> do PHPUnit</ulink>
             para executar esse código sempre que seus testes forem executados.
           </para>
@@ -535,7 +535,7 @@ class MeuCasoDeTest extends PHPUnit_Extensions_Database_TestCase
       <section id="mysql-xml-dataset">
         <title>Conjunto de Dados XML MySQL</title>
         <para>
-          Este novo formato de arquivo XML é específico para o 
+          Este novo formato de arquivo XML é específico para o
           <ulink url="http://www.mysql.com">servidor de banco de dados MySQL</ulink>.
           O suporte para ele foi adicionado no PHPUnit 3.5. Arquivos nesse formato podem ser gerados usando o utilitário<ulink url="http://dev.mysql.com/doc/refman/5.0/en/mysqldump.html"><literal>mysqldump</literal></ulink>. Diferente dos conjuntos de dados CSV, que o <literal>mysqldump</literal>
           também suporta, um único arquivo neste formato XML pode conter dados para múltiplas tabelas. Você pode criar um arquivo nesse formato invocando o <literal>mysqldump</literal> desta forma:
@@ -774,14 +774,14 @@ class MeuTesteLivrodevisitasMySqlTest extends PHPUnit_Extensions_Database_TestCa
 
     public function testLivrodevisitas()
     {
-        $conjuntoDados = $this-&gt;getConnection()-&gt;criarDataSet();
+        $conjuntoDados = $this-&gt;getConnection()-&gt;createDataSet();
         // ...
     }
 
     public function testLivrodevisitasFiltrado()
     {
         $nomesTabelas = array('livrodevisitas');
-        $conjuntoDados = $this-&gt;getConnection()-&gt;criarConjuntoDeDados($nomesTabelas);
+        $conjuntoDados = $this-&gt;getConnection()-&gt;createDataSet($nomesTabelas);
         // ...
     }
 }
@@ -860,7 +860,7 @@ class FiltroConjuntoDeDadosTest extends PHPUnit_Extensions_Database_TestCase
       <section id="composite-dataset">
         <title>Conjunto de Dados Composto</title>
         <para>
-          O Conjunto de Dados composto é muito útil para agregar vários conjuntos de dados já existentes em um único Conjunto de Dados. Quando vários conjuntos de dados contém as mesmas tabelas, as linhas são anexadas na ordem especificada. Por exemplo se tivermos dois conjuntos de dados 
+          O Conjunto de Dados composto é muito útil para agregar vários conjuntos de dados já existentes em um único Conjunto de Dados. Quando vários conjuntos de dados contém as mesmas tabelas, as linhas são anexadas na ordem especificada. Por exemplo se tivermos dois conjuntos de dados
           <emphasis>ambiente1.xml</emphasis>:
         </para>
         <screen>
@@ -886,12 +886,12 @@ class CompostoTest extends PHPUnit_Extensions_Database_TestCase
 {
     public function getDataSet()
     {
-        $ds1 = $this-&gt;criarConjuntoDeDadosXmlPlano('ambiente1.xml');
-        $ds2 = $this-&gt;criarConjuntoDeDadosXmlPlano('ambiente2.xml');
+        $ds1 = $this-&gt;createFlatXmlDataSet('ambiente1.xml');
+        $ds2 = $this-&gt;createFlatXmlDataSet('ambiente2.xml');
 
         $dsComposta = new PHPUnit_Extensions_Database_DataSet_CompositeDataSet();
-        $dsComposta-&gt;adicionarConjuntoDeDados($ds1);
-        $dsComposta-&gt;adicionarConjuntoDeDados($ds2);
+        $dsComposta-&gt;addDataSet($ds1);
+        $dsComposta-&gt;addDataSet($ds2);
 
         return $dsComposta;
     }
@@ -913,12 +913,12 @@ class CompostoTest extends PHPUnit_Extensions_Database_TestCase
       <screen>
 interface PHPUnit_Extensions_Database_DataSet_IDataSet extends IteratorAggregate
 {
-    public function getNomesTabelas();
-    public function getTabelasMetaData($nomeTabela);
-    public function getTabela($nomeTabela);
+    public function getTableNames();
+    public function getTableMetaData($nomeTabela);
+    public function getTable($nomeTabela);
     public function assertEquals(PHPUnit_Extensions_Database_DataSet_IDataSet $outra);
 
-    public function getIteradorReverso();
+    public function getReverseIterator();
 }
 </screen>
       <para>
@@ -946,10 +946,10 @@ interface PHPUnit_Extensions_Database_DataSet_IDataSet extends IteratorAggregate
       <screen>
 interface PHPUnit_Extensions_Database_DataSet_ITable
 {
-    public function getTabelaMetaDados();
-    public function getContagemLinhas();
-    public function getValor($linha, $coluna);
-    public function getLinha($linha);
+    public function getTableMetaData();
+    public function getRowCount();
+    public function getValue($linha, $coluna);
+    public function getRow($linha);
     public function assertEquals(PHPUnit_Extensions_Database_DataSet_ITable $outro);
 }
 </screen>
@@ -990,9 +990,9 @@ interface PHPUnit_Extensions_Database_DataSet_ITable
     <screen>
 interface PHPUnit_Extensions_Database_DB_IDatabaseConnection
 {
-    public function criarConjuntoDeDados(Array $nomesTabelas = NULL);
-    public function criarTabelaQuery($nomeResultado, $sql);
-    public function getContagemLinhas($nomeTabela, $clausulaWhere = NULL);
+    public function createDataSet(Array $nomesTabelas = NULL);
+    public function createQueryTable($nomeResultado, $sql);
+    public function getRowCount($nomeTabela, $clausulaWhere = NULL);
 
     // ...
 }
@@ -1000,7 +1000,7 @@ interface PHPUnit_Extensions_Database_DB_IDatabaseConnection
     <orderedlist numeration="arabic">
       <listitem>
         <para>
-          O método <literal>criarConjuntoDeDados()</literal> cria um Conjunto de Dados de Banco de Dados (BD) como descrito na seção de implementações de Conjunto de Dados.
+          O método <literal>createDataSet()</literal> cria um Conjunto de Dados de Banco de Dados (BD) como descrito na seção de implementações de Conjunto de Dados.
         </para>
         <screen>
 class ConexaoTest extends PHPUnit_Extensions_Database_TestCase
@@ -1008,14 +1008,14 @@ class ConexaoTest extends PHPUnit_Extensions_Database_TestCase
     public function testCriarConjuntoDeDados()
     {
         $nomesTabelas = array('livrodevisitas');
-        $conjuntoDados = $this-&gt;getConnection()-&gt;criarConjuntoDeDados();
+        $conjuntoDados = $this-&gt;getConnection()-&gt;createDataSet();
     }
 }
 </screen>
       </listitem>
       <listitem>
         <para>
-          O método <literal>criarTabelaQuery()</literal> 2. pode ser usado para criar instâncias de uma TabelaQuery, dê a eles um nome de resultado e uma query SQL. Este é um método conveniente quando se fala sobre asserções de tabela/resultado como será mostrado na próxima seção de API de Asserções de Banco de Dados.
+          O método <literal>createQueryTable()</literal> 2. pode ser usado para criar instâncias de uma TabelaQuery, dê a eles um nome de resultado e uma query SQL. Este é um método conveniente quando se fala sobre asserções de tabela/resultado como será mostrado na próxima seção de API de Asserções de Banco de Dados.
         </para>
         <screen>
 class ConexaoTest extends PHPUnit_Extensions_Database_TestCase
@@ -1023,21 +1023,21 @@ class ConexaoTest extends PHPUnit_Extensions_Database_TestCase
     public function testCriarTabelaQuery()
     {
         $nomesTabela = array('livrodevisitas');
-        $tabelaQuery = $this-&gt;getConnection()-&gt;criarTabelaQuery('livrodevisitas', 'SELECT * FROM livrodevisitas');
+        $tabelaQuery = $this-&gt;getConnection()-&gt;createQueryTable('livrodevisitas', 'SELECT * FROM livrodevisitas');
     }
 }
 </screen>
       </listitem>
       <listitem>
         <para>
-          O método <literal>getContagemLinhas()</literal> é uma forma conveniente de acessar o número de linhas em uma tabela, opcionalmente filtradas por uma cláusula where adicional. Isso pode ser usado com uma simples asserção de igualdade:
+          O método <literal>getRowCount()</literal> é uma forma conveniente de acessar o número de linhas em uma tabela, opcionalmente filtradas por uma cláusula where adicional. Isso pode ser usado com uma simples asserção de igualdade:
         </para>
         <screen>
 class ConexaoTest extends PHPUnit_Extensions_Database_TestCase
 {
     public function testGetContagemLinhas()
     {
-        $this-&gt;assertEquals(2, $this-&gt;getConnection()-&gt;getContagemLinhas('livrodevisitas'));
+        $this-&gt;assertEquals(2, $this-&gt;getConnection()-&gt;getRowCount('livrodevisitas'));
     }
 }
 </screen>
@@ -1085,11 +1085,11 @@ class LivroDeVisitasTest extends PHPUnit_Extensions_Database_TestCase
         $livrodevisitas = new LivrodeVisitas();
         $livrodevisitas-&gt;addEntry(&quot;suzy&quot;, &quot;Olá mundo!&quot;);
 
-        $tabelaQuery = $this-&gt;getConnection()-&gt;criaTabelaQuery(
+        $tabelaQuery = $this-&gt;getConnection()-&gt;createQueryTable(
             'livrodevisitas', 'SELECT * FROM livrodevisitas'
         );
-        $tabelaEsperada = $this-&gt;criaDatasetXmlPlano(&quot;livroEsperado.xml&quot;)
-                              -&gt;getTabela(&quot;livrodevisitas&quot;);
+        $tabelaEsperada = $this-&gt;createFlatXmlDataSet(&quot;livroEsperado.xml&quot;)
+                              -&gt;getTable(&quot;livrodevisitas&quot;);
         $this-&gt;assertTablesEqual($tabelaEsperada, $tabelaQuery);
     }
 }
@@ -1123,7 +1123,7 @@ class LivroDeVisitasTest extends PHPUnit_Extensions_Database_TestCase
         Nós temos que consertar a chamada da Tabela Query:
       </para>
       <screen>
-$tabelaQuery = $this-&gt;getConnection()-&gt;criarTabelaQuery(
+$tabelaQuery = $this-&gt;getConnection()-&gt;createQueryTable(
     'livrodevisitas', 'SELECT id, conteudo, usuario FROM livrodevisitas'
 );
 </screen>
@@ -1138,11 +1138,11 @@ class QueryComplexaTest extends PHPUnit_Extensions_Database_TestCase
 {
     public function testQueryComplexa()
     {
-        $tabelaQuery = $this-&gt;getConnection()-&gt;criarTabelaQuery(
+        $tabelaQuery = $this-&gt;getConnection()-&gt;createQueryTable(
             'minhaQueryComplexa', 'SELECT queryComplexa...'
         );
-        $tabelaEsperada = $this-&gt;criarConjuntoDeDadosXmlPlano(&quot;assercaoQueryComplexa.xml&quot;)
-                              -&gt;getTabela(&quot;minhaQueryComplexa&quot;);
+        $tabelaEsperada = $this-&gt;createFlatXmlDataSet(&quot;assercaoQueryComplexa.xml&quot;)
+                              -&gt;getTable(&quot;minhaQueryComplexa&quot;);
         $this-&gt;assertTablesEqual($tabelaEsperada, $tabelaQuery);
     }
 }
@@ -1163,7 +1163,7 @@ class AssercaoConjuntoDeDadosTest extends PHPUnit_Extensions_Database_TestCase
 {
     public function testCriarAssercaoDeConjuntoDeDados()
     {
-        $conjuntoDeDados = $this-&gt;getConnection()-&gt;criaConjuntoDeDados(array('livrodevisitas'));
+        $conjuntoDeDados = $this-&gt;getConnection()-&gt;createDataSet(array('livrodevisitas'));
         $conjuntoDeDadosEsperado = $this-&gt;createFlatXmlDataSet('livrodevisitas.xml');
         $this-&gt;assertDataSetsEqual($conjuntoDeDadosEsperado, $conjuntoDeDados);
     }
@@ -1213,7 +1213,7 @@ class AssercoesConjuntoDeDadosTest extends PHPUnit_Extensions_Database_TestCase
       </para>
     </section>
     <section id="what-can-i-do-when-i-get-a-too-much-connections-error">
-      <title>O que posso fazer quando recebo um Erro 
+      <title>O que posso fazer quando recebo um Erro
              <quote>Too much Connections</quote>?</title>
       <para>
         Se você não armazena em cache a instância de PDO que é criada a partir do método do Caso de Teste <literal>getConnection()</literal> o número de conexões ao banco de dados é aumentado em um ou mais com cada teste do banco de dados. Com a configuração padrão o MySQL só permite 100 conexões concorrentes e outros fornecedores também têm um limite máximo de conexões.
