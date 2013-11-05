@@ -684,9 +684,9 @@ class FooTest extends PHPUnit_Framework_TestCase
     <title>对性状(Trait)与抽象类进行模仿</title>
 
     <para>
-      <indexterm><primary>getMockForTrait()</primary></indexterm>
+      <indexterm><primary>getObjectForTrait()</primary></indexterm>
 
-      <literal>getMockForTrait()</literal> 方法返回一个使用了特定性状(trait)的仿件对象。给定性状的所有抽象方法将都被模仿。这样就能对性状的具体方法进行测试。
+      <literal>getObjectForTrait()</literal> 方法返回一个使用了特定性状(trait)的仿件对象。给定性状的所有抽象方法将都被模仿。这样就能对性状的具体方法进行测试。
     </para>
 
     <example id="test-doubles.mock-objects.examples.TraitClassTest.php">
@@ -706,7 +706,7 @@ class TraitClassTest extends PHPUnit_Framework_TestCase
 {
     public function testConcreteMethod()
     {
-        $mock = $this->getMockForTrait('AbstractTrait');
+        $mock = $this->getObjectForTrait('AbstractTrait');
         $mock->expects($this->any())
              ->method('abstractMethod')
              ->will($this->returnValue(TRUE));
