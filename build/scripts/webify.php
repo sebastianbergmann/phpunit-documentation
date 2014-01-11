@@ -110,7 +110,7 @@ function webify_file($file, $toc, $languageList, $versionList, $language)
       dirname(__FILE__) . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR . 'page.html'
     );
 
-    $title       = '';
+    $title       = 'PHPUnit Manual';
     $content     = '';
     $prev        = '';
     $next        = '';
@@ -144,7 +144,7 @@ function webify_file($file, $toc, $languageList, $versionList, $language)
         }
 
         $buffer      = file_get_contents($file);
-        $title       = get_substring($buffer, '<title>', '</title>', FALSE, FALSE);
+        $_title      = get_substring($buffer, '<title>', '</title>', FALSE, FALSE);
         $content     = get_substring($buffer, '<div class="' . $type . '"', '<div class="navfooter">', TRUE, FALSE);
         $prev        = get_substring($buffer, '<link rel="prev" href="', '" title', FALSE, FALSE);
         $next        = get_substring($buffer, '<link rel="next" href="', '" title', FALSE, FALSE);
@@ -156,6 +156,10 @@ function webify_file($file, $toc, $languageList, $versionList, $language)
 
         if (!empty($next)) {
             $next = '<a accesskey="n" href="' . $next . '">' . get_text_in_language($next_text, $language) . '</a>';
+        }
+
+        if (!empty($_title)) {
+            $title .= ' &#8211; ' . $_title;
         }
     }
 
