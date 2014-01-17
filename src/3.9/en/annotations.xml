@@ -1,0 +1,788 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<appendix id="appendixes.annotations">
+  <title>Annotations</title>
+
+  <para>
+    <indexterm><primary>Annotation</primary></indexterm>
+
+    An annotation is a special form of syntactic metadata that can be added to
+    the source code of some programming languages. While PHP has no dedicated
+    language feature for annotating source code, the usage of tags such as
+    <literal>@annotation arguments</literal> in documentation block has been
+    established in the PHP community to annotate source code. In PHP
+    documentation blocks are reflective: they can be accessed through the
+    Reflection API's <literal>getDocComment()</literal> method on the function,
+    class, method, and attribute level. Applications such as PHPUnit use this
+    information at runtime to configure their behaviour.
+  </para>
+
+  <para>
+    This appendix shows all the varieties of annotations supported by PHPUnit.
+  </para>
+
+  <section id="appendixes.annotations.author">
+    <title>@author</title>
+
+    <para>
+      <indexterm><primary>@author</primary></indexterm>
+
+      The <literal>@author</literal> annotation is an alias for the
+      <literal>@group</literal> annotation (see <xref
+      linkend="appendixes.annotations.group"/>) and allows to filter tests based
+      on their authors.
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.after">
+    <title>@after</title>
+
+    <para>
+
+      The <literal>@after</literal> annotation can be used to specify methods
+      that should be called after each test method in a test case class.
+      <programlisting>class MyTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @after
+     */
+    public function tearDownSomeFixtures()
+    {
+        // ...
+    }
+
+    /**
+     * @after
+     */
+    public function tearDownSomeOtherFixtures()
+    {
+        // ...
+    }
+}</programlisting>
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.afterClass">
+    <title>@afterClass</title>
+
+    <para>
+
+      The <literal>@afterClass</literal> annotation can be used to specify
+      static methods that should be called after all test methods in a test
+      class have been run to clean up shared fixtures.
+      <programlisting>class MyTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @afterClass
+     */
+    public static function tearDownSomeSharedFixtures()
+    {
+        // ...
+    }
+
+    /**
+     * @afterClass
+     */
+    public static function tearDownSomeOtherSharedFixtures()
+    {
+        // ...
+    }
+}</programlisting>
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.backupGlobals">
+    <title>@backupGlobals</title>
+
+    <para>
+      <indexterm><primary><literal>@backupGlobals</literal></primary></indexterm>
+
+      The backup and restore operations for global variables can be completely
+      disabled for all tests of a test case class like this <programlisting>/**
+ * @backupGlobals disabled
+ */
+class MyTest extends PHPUnit_Framework_TestCase
+{
+    // ...
+}</programlisting>
+    </para>
+
+    <para>
+      <indexterm><primary><literal>@backupGlobals</literal></primary></indexterm>
+
+      The <literal>@backupGlobals</literal> annotation can also be used on the
+      test method level. This allows for a fine-grained configuration of the
+      backup and restore operations: <programlisting>/**
+ * @backupGlobals disabled
+ */
+class MyTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @backupGlobals enabled
+     */
+    public function testThatInteractsWithGlobalVariables()
+    {
+        // ...
+    }
+}</programlisting>
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.backupStaticAttributes">
+    <title>@backupStaticAttributes</title>
+
+    <para>
+      <indexterm><primary><literal>@backupStaticAttributes</literal></primary></indexterm>
+
+      The backup and restore operations for static attributes of classes can be
+      completely disabled for all tests of a test case class like this
+      <programlisting>/**
+ * @backupStaticAttributes disabled
+ */
+class MyTest extends PHPUnit_Framework_TestCase
+{
+    // ...
+}</programlisting>
+    </para>
+
+    <para>
+      <indexterm><primary><literal>@backupStaticAttributes</literal></primary></indexterm>
+
+      The <literal>@backupStaticAttributes</literal> annotation can also be used
+      on the test method level. This allows for a fine-grained configuration of
+      the backup and restore operations: <programlisting>/**
+ * @backupStaticAttributes disabled
+ */
+class MyTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @backupStaticAttributes enabled
+     */
+    public function testThatInteractsWithStaticAttributes()
+    {
+        // ...
+    }
+}</programlisting>
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.before">
+    <title>@before</title>
+
+    <para>
+
+      The <literal>@before</literal> annotation can be used to specify methods
+      that should be called before each test method in a test case class.
+      <programlisting>class MyTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @before
+     */
+    public function setupSomeFixtures()
+    {
+        // ...
+    }
+
+    /**
+     * @before
+     */
+    public function setupSomeOtherFixtures()
+    {
+        // ...
+    }
+}</programlisting>
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.beforeClass">
+    <title>@beforeClass</title>
+
+    <para>
+
+      The <literal>@beforeClass</literal> annotation can be used to specify
+      static methods that should be called before any test methods in a test
+      class are run to set up shared fixtures.
+      <programlisting>class MyTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @beforeClass
+     */
+    public static function setUpSomeSharedFixtures()
+    {
+        // ...
+    }
+
+    /**
+     * @beforeClass
+     */
+    public static function setUpSomeOtherSharedFixtures()
+    {
+        // ...
+    }
+}</programlisting>
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.codeCoverageIgnore">
+    <title>@codeCoverageIgnore*</title>
+
+    <para>
+      <indexterm><primary>@codeCoverageIgnore</primary></indexterm>
+      <indexterm><primary>@codeCoverageIgnoreStart</primary></indexterm>
+      <indexterm><primary>@codeCoverageIgnoreEnd</primary></indexterm>
+
+      The <literal>@codeCoverageIgnore</literal>,
+      <literal>@codeCoverageIgnoreStart</literal> and
+      <literal>@codeCoverageIgnoreEnd</literal> annotations can be used
+      to exclude lines of code from the coverage analysis.
+    </para>
+
+    <para>
+      For usage see <xref
+      linkend="code-coverage-analysis.ignoring-code-blocks"/>.
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.covers">
+    <title>@covers</title>
+
+    <para>
+      <indexterm><primary>Code Coverage</primary></indexterm>
+      <indexterm><primary>@covers</primary></indexterm>
+
+      The <literal>@covers</literal> annotation can be used in the test code to
+      specify which method(s) a test method wants to test: <programlisting>/**
+ * @covers BankAccount::getBalance
+ */
+public function testBalanceIsInitiallyZero()
+{
+    $this->assertEquals(0, $this->ba->getBalance());
+}</programlisting>
+    </para>
+
+    <para>
+      If provided, only the code coverage information for the specified
+      method(s) will be considered.
+    </para>
+
+    <para>
+      <xref linkend="appendixes.annotations.covers.tables.annotations"/> shows
+      the syntax of the <literal>@covers</literal> annotation.
+    </para>
+
+    <table id="appendixes.annotations.covers.tables.annotations">
+      <title>Annotations for specifying which methods are covered by a test</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>Annotation</entry>
+            <entry>Description</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal><![CDATA[@covers ClassName::methodName]]></literal></entry>
+            <entry><literal>Specifies that the annotated test method covers the specified method.</literal></entry>
+          </row>
+          <row>
+            <entry><literal><![CDATA[@covers ClassName]]></literal></entry>
+            <entry><literal>Specifies that the annotated test method covers all methods of a given class.</literal></entry>
+          </row>
+          <row>
+            <entry><literal><![CDATA[@covers ClassName<extended>]]></literal></entry>
+            <entry><literal>Specifies that the annotated test method covers all methods of a given class and its parent class(es) and interface(s).</literal></entry>
+          </row>
+          <row>
+            <entry><literal><![CDATA[@covers ClassName::<public>]]></literal></entry>
+            <entry><literal>Specifies that the annotated test method covers all public methods of a given class.</literal></entry>
+          </row>
+          <row>
+            <entry><literal><![CDATA[@covers ClassName::<protected>]]></literal></entry>
+            <entry><literal>Specifies that the annotated test method covers all protected methods of a given class.</literal></entry>
+          </row>
+          <row>
+            <entry><literal><![CDATA[@covers ClassName::<private>]]></literal></entry>
+            <entry><literal>Specifies that the annotated test method covers all private methods of a given class.</literal></entry>
+          </row>
+          <row>
+            <entry><literal><![CDATA[@covers ClassName::<!public>]]></literal></entry>
+            <entry><literal>Specifies that the annotated test method covers all methods of a given class that are not public.</literal></entry>
+          </row>
+          <row>
+            <entry><literal><![CDATA[@covers ClassName::<!protected>]]></literal></entry>
+            <entry><literal>Specifies that the annotated test method covers all methods of a given class that are not protected.</literal></entry>
+          </row>
+          <row>
+            <entry><literal><![CDATA[@covers ClassName::<!private>]]></literal></entry>
+            <entry><literal>Specifies that the annotated test method covers all methods of a given class that are not private.</literal></entry>
+          </row>
+          <row>
+            <entry><literal><![CDATA[@covers ::functionName]]></literal></entry>
+            <entry><literal>Specifies that the annotated test method covers the specified global function.</literal></entry>
+          </row>
+         </tbody>
+      </tgroup>
+    </table>
+  </section>
+
+  <section id="appendixes.annotations.coversDefaultClass">
+    <title>@coversDefaultClass</title>
+
+    <para>
+      <indexterm><primary>@coversDefaultClass</primary></indexterm>
+
+      The <literal>@coversDefaultClass</literal> annotation can be used to
+      specify a default namespace or class name so long names don't need to be
+      repeated for every <literal>@covers</literal> annotation. See
+      <xref linkend="appendixes.annotations.examples.CoversDefaultClassTest.php" />.
+    </para>
+
+    <example id="appendixes.annotations.examples.CoversDefaultClassTest.php">
+      <title>Using @coversDefaultClass to shorten annotations</title>
+      <programlisting><![CDATA[<?php
+/**
+ * @coversDefaultClass \Foo\CoveredClass
+ */
+class CoversDefaultClassTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @covers ::publicMethod
+     */
+    public function testSomething()
+    {
+        $o = new Foo\CoveredClass;
+        $o->publicMethod();
+    }
+}
+?>]]></programlisting>
+    </example>
+  </section>
+
+  <section id="appendixes.annotations.coversNothing">
+    <title>@coversNothing</title>
+
+    <para>
+      <indexterm><primary>@coversNothing</primary></indexterm>
+
+      The <literal>@coversNothing</literal> annotation can be used in the
+      test code to specify that no code coverage information will be
+      recorded for the annotated test case.
+    </para>
+
+    <para>
+        This can be used for integration testing. See
+        <xref linkend="code-coverage-analysis.specifying-covered-methods.examples.GuestbookIntegrationTest.php"/>
+        for an example.
+    </para>
+
+    <para>
+        The annotation can be used on the class and the method level and
+        will override any <literal>@covers</literal> tags.
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.dataProvider">
+    <title>@dataProvider</title>
+
+    <para>
+      <indexterm><primary>@dataProvider</primary></indexterm>
+
+      A test method can accept arbitrary arguments. These arguments are to be
+      provided by a data provider method (<literal>provider()</literal> in
+      <xref linkend="writing-tests-for-phpunit.data-providers.examples.DataTest.php" />).
+      The data provider method to be used is specified using the
+      <literal>@dataProvider</literal> annotation.
+    </para>
+
+    <para>
+      See <xref linkend="writing-tests-for-phpunit.data-providers"/> for more
+      details.
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.depends">
+    <title>@depends</title>
+
+    <para>
+      <indexterm><primary>@depends</primary></indexterm>
+
+      PHPUnit supports the declaration of explicit dependencies between test
+      methods. Such dependencies do not define the order in which the test
+      methods are to be executed but they allow the returning of an instance of
+      the test fixture by a producer and passing it to the dependent consumers.
+      <xref linkend="writing-tests-for-phpunit.examples.StackTest2.php"/> shows
+      how to use the <literal>@depends</literal> annotation to express
+      dependencies between test methods.
+    </para>
+
+    <para>
+      See <xref linkend="writing-tests-for-phpunit.test-dependencies"/> for more
+      details.
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.expectedException">
+    <title>@expectedException</title>
+
+    <para>
+      <indexterm><primary>@expectedException</primary></indexterm>
+
+      <xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest.php" />
+      shows how to use the <literal>@expectedException</literal> annotation to
+      test whether an exception is thrown inside the tested code.
+    </para>
+
+    <para>
+      See <xref linkend="writing-tests-for-phpunit.exceptions"/> for more
+      details.
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.expectedExceptionCode">
+    <title>@expectedExceptionCode</title>
+
+    <para>
+      <indexterm><primary>@expectedExceptionCode</primary></indexterm>
+
+      The <literal>@expectedExceptionCode</literal> annotation, in conjunction
+      with the <literal>@expectedException</literal> allows making assertions on
+      the error code of a thrown exception thus being able to narrow down a
+      specific exception.
+
+      <programlisting>class MyTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @expectedException     MyException
+     * @expectedExceptionCode 20
+     */
+    public function testExceptionHasErrorcode20()
+    {
+        throw new MyException('Some Message', 20);
+    }
+}</programlisting>
+
+      To ease testing and reduce duplication a shortcut can be used to
+      specify a class constant as an
+      <literal>@expectedExceptionCode</literal> using the
+      "<literal>@expectedExceptionCode ClassName::CONST</literal>" syntax.
+
+      <programlisting>class MyTest extends PHPUnit_Framework_TestCase
+{
+    /**
+      * @expectedException     MyException
+      * @expectedExceptionCode MyClass::ERRORCODE
+      */
+    public function testExceptionHasErrorcode20()
+    {
+      throw new MyException('Some Message', 20);
+    }
+}
+class MyClass
+{
+    const ERRORCODE = 20;
+}</programlisting>
+
+    </para>
+
+  </section>
+
+  <section id="appendixes.annotations.expectedExceptionMessage">
+    <title>@expectedExceptionMessage</title>
+
+    <para>
+      <indexterm><primary>@expectedExceptionMessage</primary></indexterm>
+
+      The <literal>@expectedExceptionMessage</literal> annotation works similar
+      to <literal>@expectedExceptionCode</literal> as it lets you make an
+      assertion on the error message of an exception.
+
+      <programlisting>class MyTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @expectedException        MyException
+     * @expectedExceptionMessage Some Message
+     */
+    public function testExceptionHasRightMessage()
+    {
+        throw new MyException('Some Message', 20);
+    }
+}</programlisting>
+
+      The expected message can be a substring of the exception Message.
+      This can be useful to only assert that a certain name or parameter that
+      was passed in shows up in the exception and not fixate the whole
+      exception message in the test.
+
+      <programlisting>class MyTest extends PHPUnit_Framework_TestCase
+{
+     /**
+      * @expectedException        MyException
+      * @expectedExceptionMessage broken
+      */
+     public function testExceptionHasRightMessage()
+     {
+         $param = "broken";
+         throw new MyException('Invalid parameter "'.$param.'".', 20);
+     }
+}</programlisting>
+
+      To ease testing and reduce duplication a shortcut can be used to
+      specify a class constant as an
+      <literal>@expectedExceptionMessage</literal> using the
+      "<literal>@expectedExceptionMessage ClassName::CONST</literal>" syntax.
+
+      A sample can be found in <xref linkend="appendixes.annotations.expectedExceptionCode"/>.
+    </para>
+
+  </section>
+
+  <section id="appendixes.annotations.group">
+    <title>@group</title>
+
+    <para>
+      <indexterm><primary>@group</primary></indexterm>
+
+      A test can be tagged as belonging to one or more groups using the
+      <literal>@group</literal> annotation like this <programlisting>class MyTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @group specification
+     */
+    public function testSomething()
+    {
+    }
+
+    /**
+     * @group regresssion
+     * @group bug2204
+     */
+    public function testSomethingElse()
+    {
+    }
+}</programlisting>
+    </para>
+
+    <para>
+      Tests can be selected for execution based on groups using the
+      <literal>--group</literal> and <literal>--exclude-group</literal> switches
+      of the command-line test runner or using the respective directives of the
+      XML configuration file.
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.large">
+    <title>@large</title>
+
+    <para>
+      <indexterm><primary><literal>@large</literal></primary></indexterm>
+
+      The <literal>@large</literal> annotation is an alias for
+      <literal>@group large</literal>.
+    </para>
+
+    <para>
+      <indexterm><primary><literal>PHP_Invoker</literal></primary></indexterm>
+      <indexterm><primary><literal>timeoutForLargeTests</literal></primary></indexterm>
+
+      If the <literal>PHP_Invoker</literal> package is installed and strict
+      mode is enabled, a large test will fail if it takes longer than 60
+      seconds to execute. This timeout is configurable via the
+      <literal>timeoutForLargeTests</literal> attribute in the XML
+      configuration file.
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.medium">
+    <title>@medium</title>
+
+    <para>
+      <indexterm><primary><literal>@medium</literal></primary></indexterm>
+
+      The <literal>@medium</literal> annotation is an alias for
+      <literal>@group medium</literal>. A medium test must not depend on a test
+      marked as <literal>@large</literal>.
+    </para>
+
+    <para>
+      <indexterm><primary><literal>PHP_Invoker</literal></primary></indexterm>
+      <indexterm><primary><literal>timeoutForMediumTests</literal></primary></indexterm>
+
+      If the <literal>PHP_Invoker</literal> package is installed and strict
+      mode is enabled, a medium test will fail if it takes longer than 10
+      seconds to execute. This timeout is configurable via the
+      <literal>timeoutForMediumTests</literal> attribute in the XML
+      configuration file.
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.preserveGlobalState">
+    <title>@preserveGlobalState</title>
+
+    <para>
+      <indexterm><primary>@preserveGlobalState</primary></indexterm>
+
+      When a test is run in a separate process, PHPUnit will
+      attempt to preserve the global state from the parent process by
+      serializing all globals in the parent process and unserializing them
+      in the child process. This can cause problems if the parent process
+      contains globals that are not serializable. To fix this, you can prevent
+      PHPUnit from preserving global state with the
+      <literal>@preserveGlobalState</literal> annotation.
+      <programlisting>class MyTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
+     */
+    public function testInSeparateProcess()
+    {
+        // ...
+    }
+}</programlisting>
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.requires">
+    <title>@requires</title>
+
+    <para>
+      <indexterm><primary><literal>@requires</literal></primary></indexterm>
+
+      The <literal>@requires</literal> annotation can be used skip tests when common
+      preconditions, like the PHP Version or installed extensions, are not met.
+    </para>
+
+    <para>
+      <indexterm><primary><literal>@requires</literal></primary></indexterm>
+      A complete list of possibilities and examples can be found at
+      <xref linkend="incomplete-and-skipped-tests.requires.tables.api" />
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.runTestsInSeparateProcesses">
+    <title>@runTestsInSeparateProcesses</title>
+
+    <para>
+      <indexterm><primary>@runTestsInSeparateProcesses</primary></indexterm>
+
+      Indicates that all tests in a test class should be run in a separate
+      PHP process. <programlisting>/**
+ * @runTestsInSeparateProcesses
+ */
+class MyTest extends PHPUnit_Framework_TestCase
+{
+    // ...
+}</programlisting>
+
+      <emphasis role="strong">Note:</emphasis> By default, PHPUnit will
+      attempt to preserve the global state from the parent process by
+      serializing all globals in the parent process and unserializing them
+      in the child process. This can cause problems if the parent process
+      contains globals that are not serializable. See <xref
+      linkend="appendixes.annotations.preserveGlobalState"/> for information
+      on how to fix this.
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.runInSeparateProcess">
+    <title>@runInSeparateProcess</title>
+
+    <para>
+      <indexterm><primary>@runInSeparateProcess</primary></indexterm>
+
+      Indicates that a test should be run in a separate PHP process.
+      <programlisting>class MyTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @runInSeparateProcess
+     */
+    public function testInSeparateProcess()
+    {
+        // ...
+    }
+}</programlisting>
+
+      <emphasis role="strong">Note:</emphasis> By default, PHPUnit will
+      attempt to preserve the global state from the parent process by
+      serializing all globals in the parent process and unserializing them
+      in the child process. This can cause problems if the parent process
+      contains globals that are not serializable. See <xref
+      linkend="appendixes.annotations.preserveGlobalState"/> for information
+      on how to fix this.
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.small">
+    <title>@small</title>
+
+    <para>
+      <indexterm><primary><literal>@small</literal></primary></indexterm>
+
+      The <literal>@small</literal> annotation is an alias for
+      <literal>@group small</literal>. A small test must not depend on a test
+      marked as <literal>@medium</literal> or <literal>@large</literal>.
+    </para>
+
+    <para>
+      <indexterm><primary><literal>PHP_Invoker</literal></primary></indexterm>
+      <indexterm><primary><literal>timeoutForSmallTests</literal></primary></indexterm>
+
+      If the <literal>PHP_Invoker</literal> package is installed and strict
+      mode is enabled, a small test will fail if it takes longer than 1
+      second to execute. This timeout is configurable via the
+      <literal>timeoutForSmallTests</literal> attribute in the XML
+      configuration file.
+    </para>
+
+    <note>
+      <para>
+        By default, all tests are considered to be small if they are not marked
+        as <literal>@medium</literal> or <literal>@large</literal>. Please note,
+        however, that <literal>--group</literal> and the related options will
+        only consider a test to be in the <literal>small</literal> group if it
+        is explicitly marked with the appropriate annotation.
+      </para>
+    </note>
+  </section>
+
+  <section id="appendixes.annotations.test">
+    <title>@test</title>
+
+    <para>
+      <indexterm><primary>@test</primary></indexterm>
+
+      As an alternative to prefixing your test method names with
+      <literal>test</literal>, you can use the <literal>@test</literal>
+      annotation in a method's DocBlock to mark it as a test method.
+      <programlisting>/**
+ * @test
+ */
+public function initialBalanceShouldBe0()
+{
+    $this->assertEquals(0, $this->ba->getBalance());
+}</programlisting>
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.testdox">
+    <title>@testdox</title>
+
+    <para>
+      <indexterm><primary>TestDox</primary></indexterm>
+      <indexterm><primary>@testdox</primary></indexterm>
+    </para>
+
+    <programlisting></programlisting>
+  </section>
+
+  <section id="appendixes.annotations.ticket">
+    <title>@ticket</title>
+
+    <para>
+      <indexterm><primary>@ticket</primary></indexterm>
+    </para>
+
+    <programlisting></programlisting>
+  </section>
+</appendix>

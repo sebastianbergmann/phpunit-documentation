@@ -20,13 +20,16 @@ function webify_directory($directory, $language, $version)
     );
 
     $editions  = array(
-      'en'    => array('3.8', '3.7'),
-      'fr'    => array('3.8', '3.7'),
-      'ja'    => array('3.8', '3.7'),
-      'pt_br' => array('3.8', '3.7'),
-      'zh_cn' => array('3.8', '3.7')
+      'en'    => array('3.9', '3.8', '3.7'),
+      'fr'    => array('3.9', '3.8', '3.7'),
+      'ja'    => array('3.9', '3.8', '3.7'),
+      'pt_br' => array('3.9', '3.8', '3.7'),
+      'zh_cn' => array('3.9', '3.8', '3.7')
     );
 
+    $stable       = '3.7';
+    $beta         = '3.8';
+    $alpha        = '3.9';
     $languageList = '';
     $versionList  = '';
 
@@ -73,17 +76,28 @@ function webify_directory($directory, $language, $version)
 
     }
 
+    $versions = $editions[array_key_exists($language, $editions) ? $language : 'en'];
 
-    //$versionList:
-    //only list available version in current language, default-language = en.
-    $versions = $editions[ array_key_exists($language, $editions) ? $language : 'en' ];
     foreach ($versions as $_version) {
+        if ($_version == $stable) {
+            $type = '<strong>stable</strong>';
+        }
+
+        if ($_version == $beta) {
+            $type = 'beta';
+        }
+
+        if ($_version == $alpha) {
+            $type = 'alpha';
+        }
+
         $versionList .= sprintf(
-          '<li%s><a href="../../%s/%s/index.html">PHPUnit %s</a></li>',
+          '<li%s><a href="../../%s/%s/index.html">PHPUnit %s (%s)</a></li>',
           $version == $_version ? ' class="active"' : '',
           $_version,
           $language,
-          $_version
+          $_version,
+          $type
         );
     }
 
