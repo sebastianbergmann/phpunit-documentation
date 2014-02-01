@@ -134,14 +134,17 @@ function webify_file($file, $toc, $languageList, $versionList, $language)
     $prev_text = array(
         'en' => 'Prev',
         'zh_cn' => '上一章',
+        'ja' => '戻る',
     );
     $next_text = array(
         'en' => 'Next',
         'zh_cn' => '下一章',
+        'ja' => '次へ',
     );
     $suggestions_text = array(
         'en' => 'Please <a href="https://github.com/sebastianbergmann/phpunit-documentation/issues">open a ticket</a> on GitHub to suggest improvements to this page. Thanks!',
         'zh_cn' => '请在 GitHub 上 <a href="https://github.com/sebastianbergmann/phpunit-documentation/issues">开启任务单</a> 来对本页提出改进建议。万分感谢！',
+        'ja' => 'このページの改善案を<a href="https://github.com/sebastianbergmann/phpunit-documentation/issues">GitHubで提案</a>してください!',
     );
 
     if ($filename !== 'index.html') {
