@@ -1,0 +1,416 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="code-coverage-analysis">
+  <title>Code Coverage Analysis</title>
+
+  <blockquote>
+    <attribution>Murali Nandigama</attribution>
+    <para>
+      The beauty of testing is found not in the effort but in the efficiency.
+    </para>
+    <para>
+      Knowing what should be tested is beautiful, and knowing what is being
+      tested is beautiful.
+    </para>
+  </blockquote>
+
+  <para>
+    <indexterm><primary>Code Coverage</primary></indexterm>
+
+    In this chapter you will learn all about PHPUnit's code coverage
+    functionality that provides an insight into what parts of the production
+    code are executed when the tests are run. It helps answering questions such
+    as:
+  </para>
+
+  <itemizedlist>
+    <listitem>
+      <para>
+        How do you find code that is not yet tested -- or, in other words, not
+        yet <emphasis>covered</emphasis> by a test?
+      </para>
+    </listitem>
+    <listitem>
+      <para>How do you measure testing completeness?</para>
+    </listitem>
+  </itemizedlist>
+
+  <para>
+    An example of what code coverage statistics can mean is that if there is a
+    method with 100 lines of code, and only 75 of these lines are actually
+    executed when tests are being run, then the method is considered to have a
+    code coverage of 75 percent.
+  </para>
+
+  <para>
+    <indexterm><primary>Xdebug</primary></indexterm>
+
+    PHPUnit's code coverage functionality makes use of the
+    <ulink url="http://github.com/sebastianbergmann/php-code-coverage">PHP_CodeCoverage</ulink>
+    component, which in turn leverages the statement coverage functionality
+    provided by the <ulink url="http://www.xdebug.org/">Xdebug</ulink>
+    extension for PHP.
+  </para>
+  
+  <note>
+    <para>
+      Xdebug is not distributed as part of PHPUnit. If you receive a notice
+      while running tests that the Xdebug extension is not loaded, it means
+      that Xdebug is either not installed or not configured properly. Before
+      you can use the code coverage analysis features in PHPUnit, you should
+      read <ulink url="http://xdebug.org/docs/install">the Xdebug installation guide</ulink>.
+    </para>
+  </note>
+
+  <para>
+    Let us generate a code coverage report for a <literal>BankAccount</literal>
+    class:
+  </para>
+
+  <screen><userinput>phpunit --coverage-html ./report BankAccountTest</userinput>
+PHPUnit 4.1.0 by Sebastian Bergmann.
+
+...
+
+Time: 0 seconds
+
+OK (3 tests, 3 assertions)
+
+Generating report, this may take a moment.</screen>
+
+  <para>
+    <xref linkend="code-coverage-analysis.figures.Code_Coverage.png" /> shows
+    an excerpt from a Code Coverage report. Lines of code that were executed
+    while running the tests are highlighted green, lines of code that are
+    executable but were not executed are highlighted red, and "dead code" is
+    highlighted grey. The number left to the actual line of code indicates
+    how many tests cover that line.
+  </para>
+
+  <figure id="code-coverage-analysis.figures.Code_Coverage.png">
+    <title>Code Coverage for setBalance()</title>
+
+    <graphic fileref="figures/Code_Coverage.png" />
+  </figure>
+
+  <para>
+    Clicking on the line number of a covered line will open a panel (see
+    <xref linkend="code-coverage-analysis.figures.Code_Coverage2.png"/>) that
+    shows the test cases that cover this line.
+  </para>
+
+  <figure id="code-coverage-analysis.figures.Code_Coverage2.png">
+    <title>Panel with information on covering tests</title>
+
+    <graphic fileref="figures/Code_Coverage2.png" />
+  </figure>
+
+  <para>
+    The code coverage report for our <literal>BankAccount</literal> example
+    shows that we do not have any tests yet that call the
+    <literal>setBalance()</literal>, <literal>depositMoney()</literal>, and
+    <literal>withdrawMoney()</literal> methods with legal values.
+    <xref linkend="code-coverage-analysis.examples.BankAccountTest.php" />
+    shows a test that can be added to the <literal>BankAccountTest</literal>
+    test case class to completely cover the <literal>BankAccount</literal>
+    class.
+  </para>
+
+  <example id="code-coverage-analysis.examples.BankAccountTest.php">
+    <title>Test missing to achieve complete code coverage</title>
+    <programlisting><![CDATA[<?php
+require_once 'BankAccount.php';
+
+class BankAccountTest extends PHPUnit_Framework_TestCase
+{
+    // ...
+
+    public function testDepositWithdrawMoney()
+    {
+        $this->assertEquals(0, $this->ba->getBalance());
+        $this->ba->depositMoney(1);
+        $this->assertEquals(1, $this->ba->getBalance());
+        $this->ba->withdrawMoney(1);
+        $this->assertEquals(0, $this->ba->getBalance());
+    }
+}
+?>]]></programlisting>
+  </example>
+
+  <para>
+    <xref linkend="code-coverage-analysis.figures.Code_Coverage3.png" /> shows
+    the code coverage of the <literal>setBalance()</literal> method with the
+    additional test.
+  </para>
+
+  <figure id="code-coverage-analysis.figures.Code_Coverage3.png">
+    <title>Code Coverage for <literal>setBalance()</literal> with additional test</title>
+
+    <graphic fileref="figures/Code_Coverage3.png" />
+  </figure>
+
+  <section id="code-coverage-analysis.specifying-covered-methods">
+    <title>Specifying Covered Methods</title>
+
+    <para>
+      <indexterm><primary>Annotation</primary></indexterm>
+      <indexterm><primary>@covers</primary></indexterm>
+
+      The <literal>@covers</literal> annotation (see
+      <xref linkend="appendixes.annotations.covers.tables.annotations"/>) can be
+      used in the test code to specify which method(s) a test method wants to
+      test. If provided, only the code coverage information for the specified
+      method(s) will be considered.
+      <xref linkend="code-coverage-analysis.specifying-covered-methods.examples.BankAccountTest.php"/>
+      shows an example.
+    </para>
+
+    <example id="code-coverage-analysis.specifying-covered-methods.examples.BankAccountTest.php">
+      <title>Tests that specify which method they want to cover</title>
+      <programlisting><![CDATA[<?php
+require_once 'BankAccount.php';
+
+class BankAccountTest extends PHPUnit_Framework_TestCase
+{
+    protected $ba;
+
+    protected function setUp()
+    {
+        $this->ba = new BankAccount;
+    }
+
+    /**
+     * @covers BankAccount::getBalance
+     */
+    public function testBalanceIsInitiallyZero()
+    {
+        $this->assertEquals(0, $this->ba->getBalance());
+    }
+
+    /**
+     * @covers BankAccount::withdrawMoney
+     */
+    public function testBalanceCannotBecomeNegative()
+    {
+        try {
+            $this->ba->withdrawMoney(1);
+        }
+
+        catch (BankAccountException $e) {
+            $this->assertEquals(0, $this->ba->getBalance());
+
+            return;
+        }
+
+        $this->fail();
+    }
+
+    /**
+     * @covers BankAccount::depositMoney
+     */
+    public function testBalanceCannotBecomeNegative2()
+    {
+        try {
+            $this->ba->depositMoney(-1);
+        }
+
+        catch (BankAccountException $e) {
+            $this->assertEquals(0, $this->ba->getBalance());
+
+            return;
+        }
+
+        $this->fail();
+    }
+
+    /**
+     * @covers BankAccount::getBalance
+     * @covers BankAccount::depositMoney
+     * @covers BankAccount::withdrawMoney
+     */
+
+    public function testDepositWithdrawMoney()
+    {
+        $this->assertEquals(0, $this->ba->getBalance());
+        $this->ba->depositMoney(1);
+        $this->assertEquals(1, $this->ba->getBalance());
+        $this->ba->withdrawMoney(1);
+        $this->assertEquals(0, $this->ba->getBalance());
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      <indexterm><primary>Annotation</primary></indexterm>
+      <indexterm><primary>@coversNothing</primary></indexterm>
+
+      It is also possible to specify that a test should not cover 
+      <emphasis>any</emphasis> method by using the 
+      <literal>@coversNothing</literal> annotation (see
+      <xref linkend="appendixes.annotations.coversNothing"/>). This can be
+      helpful when writing integration tests to make sure you only 
+      generate code coverage with unit tests.
+    </para>
+
+    <example id="code-coverage-analysis.specifying-covered-methods.examples.GuestbookIntegrationTest.php">
+      <title>A test that specifies that no method should be covered</title>
+      <programlisting><![CDATA[<?php
+class GuestbookIntegrationTest extends PHPUnit_Extensions_Database_TestCase
+{
+    /**
+     * @coversNothing
+     */
+    public function testAddEntry()
+    {
+        $guestbook = new Guestbook();
+        $guestbook->addEntry("suzy", "Hello world!");
+
+        $queryTable = $this->getConnection()->createQueryTable(
+            'guestbook', 'SELECT * FROM guestbook'
+        );
+        $expectedTable = $this->createFlatXmlDataSet("expectedBook.xml")
+                              ->getTable("guestbook");
+        $this->assertTablesEqual($expectedTable, $queryTable);
+    }
+}
+?>]]>
+      </programlisting>
+    </example>
+  </section>
+
+  <section id="code-coverage-analysis.ignoring-code-blocks">
+    <title>Ignoring Code Blocks</title>
+
+    <para>
+      <indexterm><primary>Annotation</primary></indexterm>
+      <indexterm><primary>@codeCoverageIgnore</primary></indexterm>
+      <indexterm><primary>@codeCoverageIgnoreStart</primary></indexterm>
+      <indexterm><primary>@codeCoverageIgnoreEnd</primary></indexterm>
+
+      Sometimes you have blocks of code that you cannot test and that you may
+      want to ignore during code coverage analysis. PHPUnit lets you do this
+      using the <literal>@codeCoverageIgnore</literal>,
+      <literal>@codeCoverageIgnoreStart</literal> and
+      <literal>@codeCoverageIgnoreEnd</literal> annotations as shown in
+      <xref linkend="code-coverage-analysis.ignoring-code-blocks.examples.Sample.php"/>.
+    </para>
+
+    <example id="code-coverage-analysis.ignoring-code-blocks.examples.Sample.php">
+      <title>Using the <literal>@codeCoverageIgnore</literal>, <literal>@codeCoverageIgnoreStart</literal> and <literal>@codeCoverageIgnoreEnd</literal> annotations</title>
+        <programlisting><![CDATA[<?php
+/**
+ * @codeCoverageIgnore
+ */
+class Foo
+{
+    public function bar()
+    {
+    }
+}
+
+class Bar
+{
+    /**
+     * @codeCoverageIgnore
+     */
+    public function foo()
+    {
+    }
+}
+
+if (FALSE) {
+    // @codeCoverageIgnoreStart
+    print '*';
+    // @codeCoverageIgnoreEnd
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      The ignored lines of code (marked as ignored using the annotations)
+      are counted as executed (if they are executable) and will not be
+      highlighted.
+    </para>
+  </section>
+
+  <section id="code-coverage-analysis.including-excluding-files">
+    <title>Including and Excluding Files</title>
+
+    <para>
+      <indexterm><primary>Code Coverage</primary></indexterm>
+      <indexterm><primary>Blacklist</primary></indexterm>
+      <indexterm><primary>Whitelist</primary></indexterm>
+
+      By default, all sourcecode files that contain at least one line of code
+      that has been executed (and only these files) are included in the report.
+      The sourcecode files that are included in the report can be filtered by
+      using a blacklist or a whitelist approach.
+    </para>
+
+    <para>
+      The blacklist is pre-filled with all sourcecode files of PHPUnit itself
+      as well as the tests. When the whitelist is empty (default), blacklisting
+      is used. When the whitelist is not empty, whitelisting is used. Each file
+      on the whitelist is added to the code coverage report regardless of
+      whether or not it was executed. All lines of such a file, including those
+      that are not executable, are counted as not executed.
+    </para>
+
+    <para>
+      When you set <literal>processUncoveredFilesFromWhitelist="true"</literal>
+      in your PHPUnit configuration (see <xref
+      linkend="appendixes.configuration.blacklist-whitelist"/>) then these files
+      will be included by PHP_CodeCoverage to properly calculate the number of
+      executable lines.
+    </para>
+
+    <note>
+      <para>
+        Please note that the loading of sourcecode files that is performed when
+        <literal>processUncoveredFilesFromWhitelist="true"</literal> is set can
+        cause problems when a sourcecode file contains code outside the scope of
+        a class or function, for instance.
+      </para>
+    </note>
+
+    <para>
+      PHPUnit's XML configuration file (see <xref linkend="appendixes.configuration.blacklist-whitelist"/>)
+      can be used to control the blacklist and the whitelist. Using a whitelist
+      is the recommended best practice to control the list of files included in
+      the code coverage report.
+    </para>
+  </section>
+
+  <section id="code-coverage-analysis.edge-cases">
+    <title>Edge cases</title>
+
+    <para>
+      For the most part it can safely be said that PHPUnit offers you "line
+      based" code coverage information but due to how that information is
+      collected there are some noteworthy edge cases.
+    </para>
+
+    <example id="code-coverage-analysis.edge-cases.examples.Sample.php">
+      <programlisting><![CDATA[<?php
+// Because it is "line based" and not statement base coverage
+// one line will always have one coverage status
+if(false) this_function_call_shows_up_as_covered();
+
+// Due to how code coverage works internally these two lines are special.
+// This line will show up as non executable
+if(false)
+    // This line will show up as covered because it is actually the 
+    // coverage of the if statement in the line above that gets shown here!
+    will_also_show_up_as_coveraged();
+
+// To avoid this it is necessary that braces are used
+if(false) {
+    this_call_will_never_show_up_as_covered();
+}
+?>]]></programlisting>
+    </example>      
+        
+  </section>
+
+</chapter>

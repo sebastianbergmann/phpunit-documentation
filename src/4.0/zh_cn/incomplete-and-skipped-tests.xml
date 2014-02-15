@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="incomplete-and-skipped-tests">
+  <title>不完整的测试与跳过的测试</title>
+
+  <section id="incomplete-and-skipped-tests.incomplete-tests">
+    <title>不完整的测试</title>
+
+    <para>
+      开始写新的测试用例类时，可能想从写下空测试方法开始，比如：<programlisting>public function testSomething()
+{
+}</programlisting>以此来跟踪需要编写的测试。空测试的问题是 PHPUnit 框架会将它们解读为成功。这种错误解读导致错误报告变得毫无用处——无法分辨出测试是真的成功了还是根本就未编写实现。在未实现的测试中调用 <literal>$this->fail()</literal> 同样没啥帮助，因为测试将被解读为失败。这和将未实现的测试解读为成功是一样的错误。
+    </para>
+
+    <para>
+      <indexterm><primary>Incomplete Test （不完整的测试）</primary></indexterm>
+      <indexterm><primary>PHPUnit_Framework_IncompleteTest</primary></indexterm>
+      <indexterm><primary>PHPUnit_Framework_IncompleteTestError</primary></indexterm>
+      假如把成功的测试视为绿灯、测试失败视为红灯，那么还额外需要黄灯来将测试标记为不完整或尚未实现。<literal>PHPUnit_Framework_IncompleteTest</literal> 是一个标记接口，用于将异常（由测试方法抛出）标记为测试不完整或目前尚未实现而导致的结果。<literal>PHPUnit_Framework_IncompleteTestError</literal> 是这个界面的标准实现。
+    </para>
+
+    <para>
+      <xref linkend="incomplete-and-skipped-tests.incomplete-tests.examples.SampleTest.php" /> 展示了一个测试用例类 <literal>SampleTest</literal>，它有一个测试方法 <literal>testSomething()</literal>。通过在测试方法中调用便捷方法 <literal>markTestIncomplete()</literal>（会自动抛出一个 <literal>PHPUnit_Framework_IncompleteTestError</literal> 异常）将这个测试标记为不完整。
+    </para>
+
+    <example id="incomplete-and-skipped-tests.incomplete-tests.examples.SampleTest.php">
+      <title>将测试标记为不完整</title>
+      <programlisting><![CDATA[<?php
+class SampleTest extends PHPUnit_Framework_TestCase
+{
+    public function testSomething()
+    {
+        // 可选：如果愿意，在这里随便测试点什么。
+        $this->assertTrue(TRUE, '这应该已经是能正常工作的。');
+
+        // 在这里停止，并将此测试标记为不完整。
+        $this->markTestIncomplete(
+          '此测试目前尚未实现。'
+        );
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      在 PHPUnit 命令行测试执行器的输出中，不完整的测试记为 <literal>I</literal>，如下例所示：
+    </para>
+
+    <screen><userinput>phpunit --verbose SampleTest</userinput>
+PHPUnit 4.0.0 by Sebastian Bergmann.
+
+I
+
+Time: 0 seconds, Memory: 3.85Mb
+
+There was 1 incomplete test:
+
+1) SampleTest::testSomething
+This test has not been implemented yet.
+
+/home/sb/SampleTest.php:12
+OK, but incomplete or skipped tests!
+Tests: 1, Assertions: 1, Incomplete: 1.</screen>
+
+    <para>
+      <xref linkend="incomplete-and-skipped-tests.incomplete-tests.tables.api" />
+      列举了用于将测试标记为不完整的 API。
+    </para>
+
+    <table id="incomplete-and-skipped-tests.incomplete-tests.tables.api">
+      <title>用于不完整的测试的 API</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>方法</entry>
+            <entry>含义</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>void markTestIncomplete()</literal></entry>
+            <entry>将当前测试标记为不完整。</entry>
+          </row>
+          <row>
+            <entry><literal>void markTestIncomplete(string $message)</literal></entry>
+            <entry>将当前测试标记为不完整，并用 <literal>$message</literal> 作为说明信息。</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+  </section>
+
+  <section id="incomplete-and-skipped-tests.skipping-tests">
+    <title>跳过测试</title>
+
+    <para>
+      并非所有测试都能在任何环境中运行。比如说，考虑这样一种情况：一个数据库抽象层，针对其所支持的各种数据库系统有多个不同的驱动程序。针对 MySQL 驱动程序的测试当然只在 MySQL 服务器可用才运行。
+    </para>
+
+    <para>
+      <xref linkend="incomplete-and-skipped-tests.skipping-tests.examples.DatabaseTest.php" /> 展示了一个测试用例类 <literal>DatabaseTest</literal>，它有一个测试方法 <literal>testConnection()</literal>。在测试用例类的 <literal>setUp()</literal> 模板方法中，检查了 MySQLi 扩展是否可用，并且在扩展不可用时用 <literal>markTestSkipped()</literal> 方法来跳过此测试。
+    </para>
+
+    <example id="incomplete-and-skipped-tests.skipping-tests.examples.DatabaseTest.php">
+      <title>跳过某个测试</title>
+      <programlisting><![CDATA[<?php
+class DatabaseTest extends PHPUnit_Framework_TestCase
+{
+    protected function setUp()
+    {
+        if (!extension_loaded('mysqli')) {
+            $this->markTestSkipped(
+              'MySQLi 扩展不可用。'
+            );
+        }
+    }
+
+    public function testConnection()
+    {
+        // ...
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      在 PHPUnit 命令行测试执行器的输出中，跳过的测试记为 <literal>S</literal>，如下例所示：
+    </para>
+
+    <screen><userinput>phpunit --verbose DatabaseTest</userinput>
+PHPUnit 4.0.0 by Sebastian Bergmann.
+
+S
+
+Time: 0 seconds, Memory: 3.85Mb
+
+There was 1 skipped test:
+
+1) DatabaseTest::testConnection
+The MySQLi extension is not available.
+
+/home/sb/DatabaseTest.php:9
+OK, but incomplete or skipped tests!
+Tests: 1, Assertions: 0, Skipped: 1.</screen>
+
+    <para>
+      <xref linkend="incomplete-and-skipped-tests.skipped-tests.tables.api" /> 列举了用于跳过测试的 API。
+    </para>
+
+    <table id="incomplete-and-skipped-tests.skipped-tests.tables.api">
+      <title>用于跳过测试的 API</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>方法</entry>
+            <entry>含义</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>void markTestSkipped()</literal></entry>
+            <entry>将当前测试标记为跳过。</entry>
+          </row>
+          <row>
+            <entry><literal>void markTestSkipped(string $message)</literal></entry>
+            <entry>将当前测试标记为不完整，并用 <literal>$message</literal> 作为说明信息。</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+  </section>
+
+  <section id="incomplete-and-skipped-tests.skipping-tests-using-requires">
+    <title>用 @requires 来跳过测试</title>
+
+    <para>
+      除了上述方法，还可以用 <literal>@requires</literal> 标注来表达测试用例的一些常见前提条件。
+    </para>
+
+    <table id="incomplete-and-skipped-tests.requires.tables.api">
+      <title>可能的 @requires 用法</title>
+      <tgroup cols="4" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>类型</entry>
+            <entry>可能的值</entry>
+            <entry>范例</entry>
+            <entry>其他范例</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>PHP</literal></entry>
+            <entry>任何 PHP 版本标识符</entry>
+            <entry>@requires PHP 5.3.3</entry>
+            <entry>@requires PHP 5.4-dev</entry>
+          </row>
+          <row>
+            <entry><literal>PHPUnit</literal></entry>
+            <entry>任何 PHPUnit 版本标识符</entry>
+            <entry>@requires PHPUnit 3.6.3</entry>
+            <entry>@requires PHPUnit 4.0</entry>
+          </row>
+          <row>
+            <entry><literal>OS</literal></entry>
+            <entry>用来对 <ulink url="http://php.net/reserved.constants.php#constant.php-os">PHP_OS</ulink> 进行匹配的正则表达式</entry>
+            <entry>@requires OS Linux</entry>
+            <entry>@requires OS WIN32|WINNT</entry>
+          </row>
+          <row>
+            <entry><literal>function</literal></entry>
+            <entry>任何有效的 <ulink url="http://php.net/function_exists">function_exists</ulink> 参数</entry>
+            <entry>@requires function imap_open</entry>
+            <entry>@requires function ReflectionMethod::setAccessible</entry>
+          </row>
+          <row>
+            <entry><literal>extension</literal></entry>
+            <entry>任何扩展名称</entry>
+            <entry>@requires extension mysqli</entry>
+            <entry>@requires extension curl</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <example id="incomplete-and-skipped-tests.skipping-tests.examples.DatabaseClassSkippingTest.php">
+      <title>用 @requires 来跳过测试</title>
+      <programlisting><![CDATA[<?php
+/**
+ * @requires extension mysqli
+ */
+class DatabaseTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @requires PHP 5.3
+     */
+    public function testConnection()
+    {
+        // 测试要求有 mysqli 扩展，并且要求 PHP >= 5.3
+    }
+
+    // ... 所有其他需要 mysqli 扩展的测试
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      如果在特定版本的 PHP 下使用了某种无法编译的语法，请在 XML 配置信息中查找包含在 <xref linkend="appendixes.configuration.testsuites" /> 中的关于版本依赖的信息。
+    </para>
+  </section>
+
+</chapter>

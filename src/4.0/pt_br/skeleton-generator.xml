@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="skeleton-generator">
+  <title>Gerador de Esqueleto</title>
+
+  <para>
+    O Gerador de Esqueleto do PHPUnit é uma ferramenta que pode gerar esqueletos de classes de teste a partir de classes códigos de produção e vice-versa. Pode ser instalado usando-se o seguinte comando:
+  </para>
+
+  <screen><userinput>pear install phpunit/PHPUnit_SkeletonGenerator</userinput></screen>
+
+  <section id="skeleton-generator.test">
+    <title>Gerando um Esqueleto de Classe de Caso de Teste</title>
+
+  <para>
+    <indexterm><primary>Gerador de Esqueleto</primary></indexterm>
+
+    Quando você está escrevendo testes para um código existente, você tem que escrever os mesmos fragmentos de código como:
+<programlisting>public function testMetodo()
+{
+}</programlisting> 
+de novo e de novo. O Gerador de Esqueleto do PHPUnit pode ajudá-lo analisando o código da classe existente e gerando um esqueleto de classe de caso de teste para ele.
+  </para>
+
+  <example id="skeleton-generator.examples.Calculator.php">
+    <title>A classe Calculadora</title>
+    <programlisting><![CDATA[<?php
+class Calculadora
+{
+public function soma($a, $b)
+{
+return $a + $b;
+}
+}
+?>]]></programlisting>
+  </example>
+
+  <para>
+    O seguinte exemplo mostra como gerar um esqueleto de classe de caso de teste para uma classe chamada <literal>Calculadora</literal>
+    (veja <xref linkend="skeleton-generator.examples.Calculator.php" />).
+  </para>
+
+  <screen><userinput>phpunit-skelgen --test Calculadora</userinput>
+PHPUnit Skeleton Generator 1.0.0 by Sebastian Bergmann.
+
+Wrote skeleton for "CalculadoraTest" to "/home/sb/CalculadoraTest.php".</screen>
+
+  <para>
+    <indexterm><primary>Teste Incompleto</primary></indexterm>
+
+    Para cada método na classe original, haverá um caso de teste incompleto (veja <xref linkend="incomplete-and-skipped-tests" />) na classe de caso de teste gerada.
+  </para>
+
+  <note>
+    <title>Classes separadas por nome e o Gerador de Esqueleto</title>
+
+    <para>
+      Quando você está usando o gerador de esqueleto para gerar código baseado em uma classe que é declarada em um <ulink url="http://php.net/namespace">namespace</ulink>
+      você tem que fornecer o nome qualificado da classe assim como o caminho para o arquivo-fonte em que está declarado.
+    </para>
+
+    <para>
+      Por exemplo, para a classe <literal>Calculadora</literal> que está declarada no namespace <literal>project</literal> você precisa invocar o gerador de esqueleto desta forma:
+      <screen><userinput>phpunit-skelgen --test -- &quot;project\Calculadora&quot; Calculadora.php</userinput>
+PHPUnit Skeleton Generator 1.0.0 by Sebastian Bergmann.
+
+Wrote skeleton for "project\CalculadoraTest" to "/home/sb/CalculadoraTest.php".</screen>
+    </para>
+  </note>
+
+  <para>
+    Abaixo está a saída da execução da classe de caso de teste gerada.
+  </para>
+
+  <screen><userinput>phpunit --bootstrap Calculadora.php --verbose CalculadoraTest</userinput>
+PHPUnit 4.0.0 by Sebastian Bergmann.
+
+I
+
+Time: 0 seconds, Memory: 3.50Mb
+
+There was 1 incomplete test:
+
+1) CalculadoraTest::testSoma
+This test has not been implemented yet.
+
+/home/sb/CalculadoraTest.php:38
+OK, but incomplete or skipped tests!
+Tests: 1, Assertions: 0, Incomplete: 1.</screen>
+
+    <para>
+      <indexterm><primary>Anotação</primary></indexterm>
+      <indexterm><primary>@assert</primary></indexterm>
+
+      Você pode usar a anotação <literal>@assert</literal> no bloco de documentação de um método para gerar automaticamente testes simples, porém significativos, em vez de casos de testes incompletos.
+      <xref linkend="skeleton-generator.test.examples.Calculator.php" />
+      mostra um exemplo.
+    </para>
+
+    <example id="skeleton-generator.test.examples.Calculator.php">
+      <title>A classe Calculadora com anotações @assert</title>
+      <programlisting><![CDATA[<?php
+class Calculadora
+{
+/**
+* @assert (0, 0) == 0
+* @assert (0, 1) == 1
+* @assert (1, 0) == 1
+* @assert (1, 1) == 2
+*/
+public function soma($a, $b)
+{
+return $a + $b;
+}
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      Cada método na classe original é verificada por anotações <literal>@assert</literal>. Estas são transformadas em um código de teste como
+      <programlisting> /**
+     * Generated from @assert (0, 0) == 0.
+     */
+    public function testSoma() {
+        $o = new Calculadora;
+        $this->assertEquals(0, $o->soma(0, 0));
+    }</programlisting>
+    </para>
+
+    <para>
+      Abaixo está a saída da execução da classe de caso de teste gerada.
+    </para>
+
+    <screen><userinput>phpunit --bootstrap Calculadora.php --verbose CalculadoraTest</userinput>
+PHPUnit 4.0.0 by Sebastian Bergmann.
+
+....
+
+Time: 0 seconds, Memory: 3.50Mb
+
+OK (4 tests, 4 assertions)</screen>
+
+    <para>
+      <xref linkend="skeleton-generator.test.tables.assert-annotations" />
+      mostra variantes suportadas para a anotação <literal>@assert</literal>
+      e como elas podem ser transformadas em código de teste.
+    </para>
+
+    <table id="skeleton-generator.test.tables.assert-annotations">
+      <title>Variantes suportadas da anotação @assert</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>Anotação</entry>
+            <entry>Transformada para</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>@assert (...) == X</literal></entry>
+            <entry><literal>assertEquals(X, method(...))</literal></entry>
+          </row>
+          <row>
+            <entry><literal>@assert (...) != X</literal></entry>
+            <entry><literal>assertNotEquals(X, method(...))</literal></entry>
+          </row>
+          <row>
+            <entry><literal>@assert (...) === X</literal></entry>
+            <entry><literal>assertSame(X, method(...))</literal></entry>
+          </row>
+          <row>
+            <entry><literal>@assert (...) !== X</literal></entry>
+            <entry><literal>assertNotSame(X, method(...))</literal></entry>
+          </row>
+          <row>
+            <entry><literal>@assert (...) &gt; X</literal></entry>
+            <entry><literal>assertGreaterThan(X, method(...))</literal></entry>
+          </row>
+          <row>
+            <entry><literal>@assert (...) &gt;= X</literal></entry>
+            <entry><literal>assertGreaterThanOrEqual(X, method(...))</literal></entry>
+          </row>
+          <row>
+            <entry><literal>@assert (...) &lt; X</literal></entry>
+            <entry><literal>assertLessThan(X, method(...))</literal></entry>
+          </row>
+          <row>
+            <entry><literal>@assert (...) &lt;= X</literal></entry>
+            <entry><literal>assertLessThanOrEqual(X, method(...))</literal></entry>
+          </row>
+          <row>
+            <entry><literal>@assert (...) throws X</literal></entry>
+            <entry><literal>@expectedException X</literal></entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+  </section>
+
+  <section id="skeleton-generator.class">
+    <title>Gerando uma Classe Esqueleto de uma Classe de Caso de Teste</title>
+
+    <para>
+      Quando você está fazendo Desenvolvimento Guiado por Teste (veja <xref linkend="test-driven-development"/>)
+      e escreve seus testes antes do código que o teste exercita, o PHPUnit pode ajudá-lo a gerar esqueletos de classe das classes de casos de testes.
+    </para>
+
+    <para>
+      Seguindo a convenção de que os testes para uma classe  <literal>Unidade</literal>
+      são escritos em uma classe chamada <literal>UnidadeTest</literal>, a fonte da classe de caso de teste é pesquisada para encontrar variáveis que referenciem objetos da classe
+      <literal>Unidade</literal> e analisa que métodos são chamados nesses objetos. Por exemplo, dê uma olhada em <xref
+      linkend="skeleton-generator.class.examples.BowlingGame.php"/> que foi gerado baseado na análise de <xref
+      linkend="skeleton-generator.class.examples.BowlingGameTest.php"/>.
+    </para>
+
+    <example id="skeleton-generator.class.examples.BowlingGameTest.php">
+      <title>A classe JogoBolicheTest</title>
+      <programlisting><![CDATA[<?php
+class JogoBolicheTest extends PHPUnit_Framework_TestCase
+{
+protected $jogo;
+
+protected function setUp()
+{
+$this->jogo = new JogoBoliche;
+}
+
+protected function arremessarVarias($n, $pinos)
+{
+for ($i = 0; $i < $n; $i++) {
+$this->jogo->arremessa($pinos);
+}
+}
+
+public function testPontuacaoPorJogarNaCanaletaEh0()
+{
+$this->arremessarVarias(20, 0);
+$this->assertEquals(0, $this->jogo->pontuacao());
+}
+}
+?>]]></programlisting>
+    </example>
+
+    <screen><userinput>phpunit-skelgen --class JogoBolicheTest</userinput>
+PHPUnit Skeleton Generator 1.0.0 by Sebastian Bergmann.
+
+Wrote skeleton for "JogoBoliche" to "./JogoBoliche.php".</screen>
+
+    <example id="skeleton-generator.class.examples.BowlingGame.php">
+      <title>O esqueleto gerado da classe JogoBoliche</title>
+      <programlisting><![CDATA[<?php
+/**
+* Generated by PHPUnit_SkeletonGenerator on 2012-01-09 at 16:55:58.
+*/
+class JogoBoliche
+{
+/**
+* @todo Implement arremessa().
+*/
+public function arremessa()
+{
+// Remove the following line when you implement this method.
+throw new RuntimeException('Not yet implemented.');
+}
+
+/**
+* @todo Implement pontuacao().
+*/
+public function pontuacao()
+{
+// Remove the following line when you implement this method.
+throw new RuntimeException('Not yet implemented.');
+}
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      Abaixo está a saída da execução dos testes contra a classe gerada.
+    </para>
+
+    <screen><userinput>phpunit --bootstrap JogoBoliche.php JogoBolicheTest</userinput>
+PHPUnit 4.0.0 by Sebastian Bergmann.
+
+E
+
+Time: 0 seconds, Memory: 3.50Mb
+
+There was 1 error:
+
+1) JogoBolicheTest::testPontuacaoPorJogarNaCanaletaEh0
+RuntimeException: Not yet implemented.
+
+/home/sb/JogoBoliche.php:13
+/home/sb/JogoBolicheTest.php:14
+/home/sb/JogoBolicheTest.php:20
+
+FAILURES!
+Tests: 1, Assertions: 0, Errors: 1.</screen>
+  </section>
+</chapter>
