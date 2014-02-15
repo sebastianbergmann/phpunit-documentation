@@ -1,0 +1,348 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="installation">
+  <title>PHPUnit のインストール</title>
+
+  <note>
+    <para>
+      PHPUnit 3.9 は PHP 5.3.3 以降のバージョンで動作しますが、最新版の PHP
+      を使うことを強く推奨します。
+    </para>
+
+    <para>
+      コードカバレッジをサポートするには <ulink url="http://xdebug.org/">Xdebug</ulink>
+      2.1.3 以降が必要です。
+      しかし、最新版の Xdebug を使うことを強く推奨します。
+    </para>
+  </note>
+
+  <section id="installation.phar">
+    <title>PHP Archive (PHAR)</title>
+
+    <para>
+      PHPUnit を入手する一番簡単な方法は、<ulink
+      url="http://php.net/phar">PHP Archive (PHAR)</ulink> をダウンロードすることです。
+      必要な依存コンポーネントがすべて (オプションのコンポーネントの一部も含めて)
+      ひとつのファイルにまとめられています。
+    </para>
+
+    <screen><userinput>wget https://phar.phpunit.de/phpunit.phar</userinput>
+<userinput>chmod +x phpunit.phar</userinput>
+<userinput>mv phpunit.phar /usr/local/bin/phpunit</userinput></screen>
+
+    <para>
+      もちろん、ダウンロードした PHAR をそのまますぐに使ってもかまいません。
+    </para>
+
+    <screen><userinput>wget https://phar.phpunit.de/phpunit.phar</userinput>
+<userinput>php phpunit.phar</userinput></screen>
+  </section>
+
+  <section id="installation.composer">
+    <title>Composer</title>
+
+    <para>
+      <ulink url="http://getcomposer.org/">Composer</ulink>
+      を使ってプロジェクトの依存関係を管理するには、
+      <literal>phpunit/phpunit</literal> への依存情報をプロジェクトの
+      <filename>composer.json</filename> ファイルに追加します。
+      次に示すのは最小限の
+      <filename>composer.json</filename> ファイルの例で、
+      開発時の PHPUnit 3.9 への依存を定義しています。
+    </para>
+
+    <programlisting><![CDATA[{
+    "require-dev": {
+        "phpunit/phpunit": "3.9.*"
+    }
+}]]></programlisting>
+
+    <para>
+      システム全体で使えるように Composer でインストールするには、次のようにします。
+    </para>
+
+    <screen><userinput>composer global require 'phpunit/phpunit=3.9.*'</userinput></screen>
+
+    <para>
+      <literal>~/.composer/vendor/bin/</literal> にパスを通すことを忘れないようにしましょう。
+    </para>
+  </section>
+
+  <section id="installation.pear">
+    <title>PEAR</title>
+
+    <para>
+      次のふたつのコマンドを実行するだけで (<literal>root</literal> として実行しなければならないかもしれません)、
+      <ulink url="http://pear.php.net/manual/ja/guide.users.commandline.cli.php">PEAR インストーラー</ulink>
+      を使って PHPUnit をインストールできるようになります。
+    </para>
+
+    <screen><userinput>pear config-set auto_discover 1</userinput>
+<userinput>pear install pear.phpunit.de/PHPUnit</userinput></screen>
+
+    <caution>
+      <para>
+        OS のディストリビューションや PHP の環境によっては、
+        ここで説明する手順を実行する前に
+        まず PEAR をインストールしたり既存の PEAR をアップデートしたりする必要があるかもしれません。
+      </para>
+
+      <para>
+        既存の PEAR 環境のアップデートは、通常は
+        <userinput>sudo pear upgrade PEAR</userinput>
+        を実行するだけのことです。PEAR の新規インストール方法は
+        <ulink url="http://pear.php.net/manual/en/installation.getting.php">PEAR
+        マニュアル</ulink> に説明があります。
+      </para>
+    </caution>
+  </section>
+
+  <section id="installation.optional-packages">
+    <title>オプションのパッケージ</title>
+
+    <para>
+      オプションのパッケージとして、これらが使えます。
+    </para>
+
+    <variablelist>
+      <varlistentry>
+        <term>
+          <literal>DbUnit</literal>
+        </term>
+        <listitem>
+          <para>
+            DbUnit の PHP/PHPUnit 向けの移植。データベースとのやりとりをテスト可能にする。
+          </para>
+
+          <para>
+            このパッケージは、PEAR を使って次のコマンドでインストールします。
+          </para>
+
+          <screen><userinput>pear install phpunit/DbUnit</userinput></screen>
+
+          <para>
+            Composer でインストールするには、
+            <literal>"require-dev"</literal>
+            に次の行を追加します。
+          </para>
+
+          <screen><userinput>"phpunit/dbunit": ">=1.2"</userinput></screen>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <literal>PHP_Invoker</literal>
+        </term>
+        <listitem>
+          <para>
+            callable をタイムアウトつきで実行するユーティリティクラス。
+            テストのタイムアウトを厳格に指定するために必要なパッケージ。
+          </para>
+
+          <para>
+            このパッケージは、次のコマンドでインストールします。
+          </para>
+
+          <screen><userinput>pear install phpunit/PHP_Invoker</userinput></screen>
+
+          <para>
+            Composer でインストールするには、
+            <literal>"require-dev"</literal>
+            に次の行を追加します。
+          </para>
+
+          <screen><userinput>"phpunit/php-invoker": "*"</userinput></screen>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <literal>PHPUnit_Selenium</literal>
+        </term>
+        <listitem>
+          <para>
+            PHPUnit 用の Selenium RC インテグレーション。
+          </para>
+
+          <para>
+            このパッケージは、PEAR を使って次のコマンドでインストールします。
+          </para>
+
+          <screen><userinput>pear install phpunit/PHPUnit_Selenium</userinput></screen>
+
+          <para>
+            Composer でインストールするには、
+            <literal>"require-dev"</literal>
+            に次の行を追加します。
+          </para>
+
+          <screen><userinput>"phpunit/phpunit-selenium": ">=1.2"</userinput></screen>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <literal>PHPUnit_Story</literal>
+        </term>
+        <listitem>
+          <para>
+            PHPUnit で振舞駆動開発をするための、ストーリーベースのテストランナー。
+          </para>
+
+          <para>
+            このパッケージは、PEAR を使って次のコマンドでインストールします。
+          </para>
+
+          <screen><userinput>pear install phpunit/PHPUnit_Story</userinput></screen>
+
+          <para>
+            Composer でインストールするには、
+            <literal>"require-dev"</literal>
+            に次の行を追加します。
+          </para>
+
+          <screen><userinput>"phpunit/phpunit-story": "*"</userinput></screen>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <literal>PHPUnit_SkeletonGenerator</literal>
+        </term>
+        <listitem>
+          <para>
+            プロダクションコードのクラスからテストクラスの雛形を生成したり、
+            その逆の操作をしたりするツール。
+          </para>
+
+          <para>
+            このパッケージは、次のコマンドでインストールします。
+          </para>
+
+          <screen><userinput>pear install phpunit/PHPUnit_SkeletonGenerator</userinput></screen>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <literal>PHPUnit_TestListener_DBUS</literal>
+        </term>
+        <listitem>
+          <para>
+            イベントを DBUS に送信するテストリスナー。
+          </para>
+
+          <para>
+            このパッケージは、次のコマンドでインストールします。
+          </para>
+
+          <screen><userinput>pear install phpunit/PHPUnit_TestListener_DBUS</userinput></screen>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <literal>PHPUnit_TestListener_XHProf</literal>
+        </term>
+        <listitem>
+          <para>
+            XHProf を使ってテスト対象コードの自動プロファイリングを行うテストリスナー。
+          </para>
+
+          <para>
+            このパッケージは、次のコマンドでインストールします。
+          </para>
+
+          <screen><userinput>pear install phpunit/PHPUnit_TestListener_XHProf</userinput></screen>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <literal>PHPUnit_TicketListener_Fogbugz</literal>
+        </term>
+        <listitem>
+          <para>
+            Fogbugz issue API 用のチケットリスナー。
+          </para>
+
+          <para>
+            このパッケージは、次のコマンドでインストールします。
+          </para>
+
+          <screen><userinput>pear install phpunit/PHPUnit_TicketListener_Fogbugz</userinput></screen>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <literal>PHPUnit_TicketListener_GitHub</literal>
+        </term>
+        <listitem>
+          <para>
+            GitHub issue API 用のチケットリスナー。
+          </para>
+
+          <para>
+            このパッケージは、次のコマンドでインストールします。
+          </para>
+
+          <screen><userinput>pear install phpunit/PHPUnit_TicketListener_GitHub</userinput></screen>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <literal>PHPUnit_TicketListener_GoogleCode</literal>
+        </term>
+        <listitem>
+          <para>
+            Google Code issue API 用のチケットリスナー。
+          </para>
+
+          <para>
+            このパッケージは、次のコマンドでインストールします。
+          </para>
+
+          <screen><userinput>pear install phpunit/PHPUnit_TicketListener_GoogleCode</userinput></screen>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <literal>PHPUnit_TicketListener_Trac</literal>
+        </term>
+        <listitem>
+          <para>
+            Trac issue API 用のチケットリスナー。
+          </para>
+
+          <para>
+            このパッケージは、次のコマンドでインストールします。
+          </para>
+
+          <screen><userinput>pear install phpunit/PHPUnit_TicketListener_Trac</userinput></screen>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+  </section>
+
+  <section id="installing.upgrading">
+    <title>アップグレード</title>
+
+    <para>
+      PHPUnit 3.7 から PHPUnit 3.9 へのアップグレードの際に出くわすことになる、
+      過去との互換性に関するちょっとした問題をまとめます。
+    </para>
+
+    <para>
+      アップグレードそのものは極めて簡単で、特に問題も発生しません。
+      主要なオープンソースのフレームワークのすべてを対象にテストをして、
+      まったく問題がありませんでした。
+      しかし、プロジェクトによって事情は異なるでしょう。
+      これまでのリリース候補を一度も試さずにアップグレードした人は戸惑うかもしれません。
+      そんなときは、このドキュメントが助けとなるでしょう。
+    </para>
+  </section>
+</chapter>

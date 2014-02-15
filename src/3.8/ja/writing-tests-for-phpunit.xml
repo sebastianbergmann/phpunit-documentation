@@ -1,0 +1,3241 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="writing-tests-for-phpunit">
+  <title>PHPUnit 用のテストの書き方</title>
+
+  <para>
+    <indexterm><primary>PHPUnit_Framework_TestCase</primary></indexterm>
+
+    <xref linkend="writing-tests-for-phpunit.examples.StackTest.php" /> で、
+    PHP の配列操作のテストを PHPUnit 用に書く方法を示します。
+    この例では、PHPUnit を使ったテストを書く際の基本的な決まり事や手順を紹介します。
+  </para>
+
+  <orderedlist>
+    <listitem><para><literal>Class</literal> という名前のクラスのテストは、<literal>ClassTest</literal> という名前のクラスに記述します。</para></listitem>
+    <listitem><para><literal>ClassTest</literal> は、(ほとんどの場合) <literal>PHPUnit_Framework_TestCase</literal> を継承します。</para></listitem>
+    <listitem><indexterm><primary>Annotation</primary></indexterm><indexterm><primary>@test</primary></indexterm><para>テストは、<literal>test*</literal> という名前のパブリックメソッドとなります。</para><para><indexterm><primary>Annotation</primary></indexterm>あるいは、<literal>@test</literal> アノテーションをメソッドのコメント部で使用することで、それがテストメソッドであることを示すこともできます。</para></listitem>
+    <listitem><para>テストメソッドの中で <literal>assertEquals()</literal> のようなアサーションメソッド (<xref linkend="writing-tests-for-phpunit.assertions" /> を参照ください) を使用して、期待される値と実際の値が等しいことを確かめます。</para></listitem>
+  </orderedlist>
+
+  <example id="writing-tests-for-phpunit.examples.StackTest.php">
+    <title>PHPUnit での配列操作のテスト</title>
+    <programlisting><![CDATA[<?php
+class StackTest extends PHPUnit_Framework_TestCase
+{
+    public function testPushAndPop()
+    {
+        $stack = array();
+        $this->assertEquals(0, count($stack));
+
+        array_push($stack, 'foo');
+        $this->assertEquals('foo', $stack[count($stack)-1]);
+        $this->assertEquals(1, count($stack));
+
+        $this->assertEquals('foo', array_pop($stack));
+        $this->assertEquals(0, count($stack));
+    }
+}
+?>]]></programlisting>
+  </example>
+
+  <blockquote>
+    <attribution>Martin Fowler</attribution>
+    <para>
+      Whenever you are tempted to type something into a
+      <literal>print</literal> statement or a debugger expression, write it
+      as a test instead.
+    </para>
+    <para>
+      何かを <literal>print</literal> 文やデバッガの式に書きたくなったときは、
+      代わりにその内容をテストに書くようにするんだ。
+    </para>
+  </blockquote>
+
+  <section id="writing-tests-for-phpunit.test-dependencies">
+    <title>テストの依存性</title>
+
+    <blockquote>
+      <attribution>Adrian Kuhn et. al.</attribution>
+      <para>
+        Unit Tests are primarily written as a good practice to help developers
+        identify and fix bugs, to refactor code and to serve as documentation
+        for a unit of software under test. To achieve these benefits, unit tests
+        ideally should cover all the possible paths in a program. One unit test
+        usually covers one specific path in one function or method. However a
+        test method is not necessary an encapsulated, independent entity. Often
+        there are implicit dependencies between test methods, hidden in the
+        implementation scenario of a test.
+      </para>
+      <para>
+        ユニットテストを書くそもそもの目的は、バグの発見と修正や
+        コードのリファクタリングを開発者がやりやすくすること。
+        そしてテスト対象のソフトウェアのドキュメントとしての役割を果たすことだ。
+        これらの目的を達成するためには、
+        ユニットテストがプログラム内のすべてのルートをカバーしていることが理想である。
+        ひとつのユニットテストがカバーするのは、
+        通常はひとつの関数やメソッド内の特定のルートだけとなる。
+        しかし、テストメソッドは必ずしもカプセル化して独立させる必要はない。
+        複数のテストメソッドの間に暗黙の依存性があって、
+        隠された実装シナリオがテストの中にあるのもよくあることだ。
+      </para>
+    </blockquote>
+
+    <para>
+      <indexterm><primary>Test Dependencies</primary></indexterm>
+
+      PHPUnit は、テストメソッド間の依存性の明示的な宣言をサポートしています。
+      この依存性とは、テストメソッドが実行される順序を定義するものではありません。
+      プロデューサーがテストフィクスチャを作ってそのインスタンスを返し、
+      依存するコンシューマーがそれを受け取って利用するというものです。
+    </para>
+
+    <itemizedlist>
+      <listitem><para>プロデューサーとは、返り値としてテスト対象のユニットを生成するテストメソッドのこと。</para></listitem>
+      <listitem><para>コンシューマーとは、プロデューサーの返り値に依存するテストメソッドのこと。</para></listitem>
+    </itemizedlist>
+
+    <para>
+      <indexterm><primary>Annotation</primary></indexterm>
+      <indexterm><primary>@depends</primary></indexterm>
+
+      <xref linkend="writing-tests-for-phpunit.examples.StackTest2.php" />
+      は、<literal>@depends</literal> アノテーションを使ってテストメソッドの依存性をあらわす例です。
+    </para>
+
+    <example id="writing-tests-for-phpunit.examples.StackTest2.php">
+      <title><literal>@depends</literal> アノテーションを使った依存性の表現</title>
+      <programlisting><![CDATA[<?php
+class StackTest extends PHPUnit_Framework_TestCase
+{
+    public function testEmpty()
+    {
+        $stack = array();
+        $this->assertEmpty($stack);
+
+        return $stack;
+    }
+
+    /**
+     * @depends testEmpty
+     */
+    public function testPush(array $stack)
+    {
+        array_push($stack, 'foo');
+        $this->assertEquals('foo', $stack[count($stack)-1]);
+        $this->assertNotEmpty($stack);
+
+        return $stack;
+    }
+
+    /**
+     * @depends testPush
+     */
+    public function testPop(array $stack)
+    {
+        $this->assertEquals('foo', array_pop($stack));
+        $this->assertEmpty($stack);
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      上の例では、まず最初のテスト <literal>testEmpty()</literal>
+      で新しい配列を作り、それが空であることを確かめます。
+      このテストは、フィクスチャを返します。
+      二番目のテスト <literal>testPush()</literal> は
+      <literal>testEmpty()</literal> に依存しており、
+      依存するテストの結果を引数として受け取ります。
+      最後の <literal>testPop()</literal> は
+      <literal>testPush()</literal> に依存しています。
+    </para>
+
+    <para>
+      <indexterm><primary>Defect Localization</primary></indexterm>
+
+      問題の局所化を手早く行うには、失敗したテストに目を向けやすくしたいものです。
+      そのため PHPUnit では、
+      あるテストが失敗したときにはそのテストに依存する他のテストの実行をスキップします。
+      テスト間の依存性を活用して問題点を見つけやすくしている例を
+      <xref linkend="writing-tests-for-phpunit.examples.DependencyFailureTest.php" />
+      に示します。
+    </para>
+
+    <example id="writing-tests-for-phpunit.examples.DependencyFailureTest.php">
+      <title>テストの依存性の活用</title>
+      <programlisting><![CDATA[<?php
+class DependencyFailureTest extends PHPUnit_Framework_TestCase
+{
+    public function testOne()
+    {
+        $this->assertTrue(FALSE);
+    }
+
+    /**
+     * @depends testOne
+     */
+    public function testTwo()
+    {
+    }
+}
+?>]]></programlisting>
+
+      <screen><userinput>phpunit --verbose DependencyFailureTest</userinput><![CDATA[
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+FS
+
+Time: 0 seconds, Memory: 5.00Mb
+
+There was 1 failure:
+
+1) DependencyFailureTest::testOne
+Failed asserting that false is true.
+
+/home/sb/DependencyFailureTest.php:6
+
+There was 1 skipped test:
+
+1) DependencyFailureTest::testTwo
+This test depends on "DependencyFailureTest::testOne" to pass.
+
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1, Skipped: 1.]]></screen>
+    </example>
+
+    <para>
+      ひとつのテストに複数の <literal>@depends</literal> アノテーションをつけることもできます。
+      PHPUnit はテストが実行される順序を変更しないので、
+      テストが実行されるときに確実に依存性が満たされているようにしておく必要があります。
+    </para>
+    
+    <para>
+      複数の <literal>@depends</literal> アノテーションを持つテストは、
+      最初のプロデューサーからのフィクスチャを最初の引数、二番目のプロデューサーからのフィクスチャを二番目の引数、……
+      として受け取ります。
+      <xref linkend="writing-tests-for-phpunit.examples.MultipleDependencies.php" />
+      を参照ください。
+    </para>
+
+    <example id="writing-tests-for-phpunit.examples.MultipleDependencies.php">
+      <title>複数の依存性を持つテスト</title>
+      <programlisting><![CDATA[<?php
+class MultipleDependenciesTest extends PHPUnit_Framework_TestCase
+{
+    public function testProducerFirst()
+    {
+        $this->assertTrue(true);
+        return 'first';
+    }
+
+    public function testProducerSecond()
+    {
+        $this->assertTrue(true);
+        return 'second';
+    }
+
+    /**
+     * @depends testProducerFirst
+     * @depends testProducerSecond
+     */
+    public function testConsumer()
+    {
+        $this->assertEquals(
+            array('first', 'second'),
+            func_get_args()
+        );
+    }
+}
+?>]]></programlisting>
+
+      <screen><userinput>phpunit --verbose MultipleDependenciesTest</userinput><![CDATA[
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+...
+
+Time: 0 seconds, Memory: 3.25Mb
+
+OK (3 tests, 3 assertions)]]></screen>
+    </example>
+  </section>
+
+  <section id="writing-tests-for-phpunit.data-providers">
+    <title>データプロバイダ</title>
+
+    <para>
+      <indexterm><primary>Annotation</primary></indexterm>
+      <indexterm><primary>@dataProvider</primary></indexterm>
+      テストメソッドには任意の引数を渡すことができます。
+      この引数は、データプロバイダメソッド
+      (<xref linkend="writing-tests-for-phpunit.data-providers.examples.DataTest.php" />
+      の <literal>provider()</literal>)
+      で指定します。使用するデータプロバイダメソッドを指定するには
+      <literal>@dataProvider</literal> アノテーションを使用します。
+    </para>
+
+    <para>
+      データプロバイダメソッドは、<literal>public</literal>
+      でなければなりません。また、
+      メソッドの返り値の型は、配列の配列あるいはオブジェクト
+      (<literal>Iterator</literal> インターフェイスを実装しており、
+      反復処理の際に配列を返すもの) である必要があります。
+      この返り値の各要素に対して、その配列の中身を引数としてテストメソッドがコールされます。
+    </para>
+
+    <example id="writing-tests-for-phpunit.data-providers.examples.DataTest.php">
+      <title>配列の配列を返すデータプロバイダの使用</title>
+      <programlisting><![CDATA[<?php
+class DataTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @dataProvider provider
+     */
+    public function testAdd($a, $b, $c)
+    {
+        $this->assertEquals($c, $a + $b);
+    }
+
+    public function provider()
+    {
+        return array(
+          array(0, 0, 0),
+          array(0, 1, 1),
+          array(1, 0, 1),
+          array(1, 1, 3)
+        );
+    }
+}
+?>]]></programlisting>
+
+    <screen><userinput>phpunit DataTest</userinput><![CDATA[
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+...F
+
+Time: 0 seconds, Memory: 5.75Mb
+
+There was 1 failure:
+
+1) DataTest::testAdd with data set #3 (1, 1, 3)
+Failed asserting that 2 matches expected 3.
+
+/home/sb/DataTest.php:9
+
+FAILURES!
+Tests: 4, Assertions: 4, Failures: 1.]]></screen>
+    </example>
+
+    <example id="writing-tests-for-phpunit.data-providers.examples.DataTest2.php">
+      <title>Iterator オブジェクトを返すデータプロバイダの使用</title>
+      <programlisting><![CDATA[<?php
+require 'CsvFileIterator.php';
+
+class DataTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @dataProvider provider
+     */
+    public function testAdd($a, $b, $c)
+    {
+        $this->assertEquals($c, $a + $b);
+    }
+
+    public function provider()
+    {
+        return new CsvFileIterator('data.csv');
+    }
+}
+?>]]></programlisting>
+
+    <screen><userinput>phpunit DataTest</userinput><![CDATA[
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+...F
+
+Time: 0 seconds, Memory: 5.75Mb
+
+There was 1 failure:
+
+1) DataTest::testAdd with data set #3 ('1', '1', '3')
+Failed asserting that 2 matches expected '3'.
+
+/home/sb/DataTest.php:11
+
+FAILURES!
+Tests: 4, Assertions: 4, Failures: 1.]]></screen>
+    </example>
+
+    <example id="writing-tests-for-phpunit.data-providers.examples.CsvFileIterator.php">
+      <title>CsvFileIterator クラス</title>
+      <programlisting><![CDATA[<?php
+class CsvFileIterator implements Iterator {
+    protected $file;
+    protected $key = 0;
+    protected $current;
+
+    public function __construct($file) {
+        $this->file = fopen($file, 'r');
+    }
+
+    public function __destruct() {
+        fclose($this->file);
+    }
+
+    public function rewind() {
+        rewind($this->file);
+        $this->current = fgetcsv($this->file);
+        $this->key = 0;
+    }
+
+    public function valid() {
+        return !feof($this->file);
+    }
+
+    public function key() {
+        return $this->key;
+    }
+
+    public function current() {
+        return $this->current;
+    }
+
+    public function next() {
+        $this->current = fgetcsv($this->file);
+        $this->key++;
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      <indexterm><primary>Annotation</primary></indexterm>
+      <indexterm><primary>@dataProvider</primary></indexterm>
+      <indexterm><primary>@depends</primary></indexterm>
+
+      <literal>@dataProvider</literal> で指定したメソッドと
+      <literal>@depends</literal> で指定したテストの両方からの入力を受け取るテストの場合、
+      データプロバイダからの引数のほうが依存するテストからの引数より先にきます。
+      依存するテストからの引数は、どちらのデータセットに対しても同じになります。
+      <xref linkend="writing-tests-for-phpunit.data-providers.examples.DependencyAndDataProviderCombo.php"/>
+      を参照ください。
+    </para>
+
+    <example id="writing-tests-for-phpunit.data-providers.examples.DependencyAndDataProviderCombo.php">
+      <title>同じテストでの @depends と @dataProvider の組み合わせ</title>
+      <programlisting><![CDATA[<?php
+class DependencyAndDataProviderComboTest extends PHPUnit_Framework_TestCase
+{
+    public function provider()
+    {
+        return array(array('provider1'), array('provider2'));
+    }
+
+    public function testProducerFirst()
+    {
+        $this->assertTrue(true);
+        return 'first';
+    }
+
+    public function testProducerSecond()
+    {
+        $this->assertTrue(true);
+        return 'second';
+    }
+
+    /**
+     * @depends testProducerFirst
+     * @depends testProducerSecond
+     * @dataProvider provider
+     */
+    public function testConsumer()
+    {
+        $this->assertEquals(
+            array('provider1', 'first', 'second'),
+            func_get_args()
+        );
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit --verbose DependencyAndDataProviderComboTest</userinput><![CDATA[
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+...F
+
+Time: 0 seconds, Memory: 3.50Mb
+
+There was 1 failure:
+
+1) DependencyAndDataProviderComboTest::testConsumer with data set #1 ('provider2')
+Failed asserting that two arrays are equal.
+--- Expected
++++ Actual
+@@ @@
+Array (
+-    0 => 'provider1'
++    0 => 'provider2'
+1 => 'first'
+2 => 'second'
+)
+
+/home/sb/DependencyAndDataProviderComboTest.php:31
+
+FAILURES!
+Tests: 4, Assertions: 4, Failures: 1.
+]]></screen>
+    </example>
+
+    <note>
+      <para>
+        <indexterm><primary>Annotation</primary></indexterm>
+        <indexterm><primary>@dataProvider</primary></indexterm>
+        <indexterm><primary>@depends</primary></indexterm>
+
+        あるテストがデータプロバイダを使う別のテストに依存している場合、
+        別のテストで少なくともひとつのデータセットに対するテストが成功すれば
+        そのテストも実行されます。
+        データプロバイダを使ったテストの結果をそのテストに注入することはできません。
+      </para>
+    </note>
+
+    <note>
+      <para>
+        <indexterm><primary>Annotation</primary></indexterm>
+        <indexterm><primary>@dataProvider</primary></indexterm>
+        <indexterm><primary>@depends</primary></indexterm>
+
+        すべてのデータプロバイダを実行してから、
+        静的メソッド <literal>setUpBeforeClass</literal>
+        や <literal>setUp</literal> メソッドの最初の呼び出しが発生します。そのため、
+        これらのメソッドで作った変数にデータプロバイダ内からアクセスすることはできません。
+        そうなっている理由は、PHPUnit がテストの総数を算出できるようにするためです。
+      </para>
+    </note>
+  </section>
+
+  <section id="writing-tests-for-phpunit.exceptions">
+    <title>例外のテスト</title>
+
+    <para>
+      <indexterm><primary>Annotation</primary></indexterm>
+      <indexterm><primary>@expectedException</primary></indexterm>
+
+      <xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest.php" />
+      は、テストするコード内で例外がスローされたかどうかを
+      <literal>@expectedException</literal> アノテーションを使用して調べる方法を示すものです。
+    </para>
+
+    <example id="writing-tests-for-phpunit.exceptions.examples.ExceptionTest.php">
+      <title>@expectedException アノテーションの使用法</title>
+      <programlisting><![CDATA[<?php
+class ExceptionTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testException()
+    {
+    }
+}
+?>]]></programlisting>
+      <screen><userinput>phpunit ExceptionTest</userinput>
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds, Memory: 4.75Mb
+
+There was 1 failure:
+
+1) ExceptionTest::testException
+Expected exception InvalidArgumentException
+
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.</screen>
+    </example>
+
+    <para>
+      <indexterm><primary>Annotation</primary></indexterm>
+      <indexterm><primary>@expectedException</primary></indexterm>
+      <indexterm><primary>@expectedExceptionMessage</primary></indexterm>
+      <indexterm><primary>@expectedExceptionCode</primary></indexterm>
+
+      さらに、<literal>@expectedExceptionMessage</literal> や
+      <literal>@expectedExceptionCode</literal> を
+      <literal>@expectedException</literal> と組み合わせて使うと、
+      例外メッセージや例外コードを
+      <xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest2.php" />
+      のようにテストできます。
+    </para>
+
+    <example id="writing-tests-for-phpunit.exceptions.examples.ExceptionTest2.php">
+      <title>@expectedExceptionMessage および @expectedExceptionCode アノテーションの使用法</title>
+      <programlisting><![CDATA[<?php
+class ExceptionTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @expectedException        InvalidArgumentException
+     * @expectedExceptionMessage Right Message
+     */
+    public function testExceptionHasRightMessage()
+    {
+        throw new InvalidArgumentException('Some Message', 10);
+    }
+
+    /**
+     * @expectedException     InvalidArgumentException
+     * @expectedExceptionCode 20
+     */
+    public function testExceptionHasRightCode()
+    {
+        throw new InvalidArgumentException('Some Message', 10);
+    }
+}
+?>]]></programlisting>
+      <screen><userinput>phpunit ExceptionTest</userinput><![CDATA[
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+FF
+
+Time: 0 seconds, Memory: 3.00Mb
+
+There were 2 failures:
+
+1) ExceptionTest::testExceptionHasRightMessage
+Failed asserting that exception message 'Some Message' contains 'Right Message'.
+
+
+2) ExceptionTest::testExceptionHasRightCode
+Failed asserting that expected exception code 20 is equal to 10.
+
+
+FAILURES!
+Tests: 2, Assertions: 4, Failures: 2.]]></screen>
+    </example>
+
+    <para>
+      <literal>@expectedExceptionMessage</literal> や <literal>@expectedExceptionCode</literal>
+      を使ったその他の例が、それぞれ
+      <xref linkend="appendixes.annotations.expectedExceptionMessage"/> と
+      <xref linkend="appendixes.annotations.expectedExceptionCode"/> にあります。
+    </para>
+
+
+    <para>
+      一方、<literal>setExpectedException()</literal>
+      メソッドを使用して、発生するであろう例外を指定することもできます。この方法を
+      <xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest3.php" />
+      に示します。
+    </para>
+
+    <example id="writing-tests-for-phpunit.exceptions.examples.ExceptionTest3.php">
+      <title>テスト対象のコードで発生するであろう例外の指定</title>
+      <programlisting><![CDATA[<?php
+class ExceptionTest extends PHPUnit_Framework_TestCase
+{
+    public function testException()
+    {
+        $this->setExpectedException('InvalidArgumentException');
+    }
+
+    public function testExceptionHasRightMessage()
+    {
+        $this->setExpectedException(
+          'InvalidArgumentException', 'Right Message'
+        );
+        throw new InvalidArgumentException('Some Message', 10);
+    }
+
+    public function testExceptionHasRightCode()
+    {
+        $this->setExpectedException(
+          'InvalidArgumentException', 'Right Message', 20
+        );
+        throw new InvalidArgumentException('The Right Message', 10);
+    }
+}?>]]></programlisting>
+      <screen><userinput>phpunit ExceptionTest</userinput><![CDATA[
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+FFF
+
+Time: 0 seconds, Memory: 3.00Mb
+
+There were 3 failures:
+
+1) ExceptionTest::testException
+Expected exception InvalidArgumentException
+
+
+2) ExceptionTest::testExceptionHasRightMessage
+Failed asserting that exception message 'Some Message' contains 'Right Message'.
+
+
+3) ExceptionTest::testExceptionHasRightCode
+Failed asserting that expected exception code 20 is equal to 10.
+
+
+FAILURES!
+Tests: 3, Assertions: 6, Failures: 3.]]></screen>
+    </example>
+
+    <para>
+      <xref linkend="writing-tests-for-phpunit.exceptions.tables.api" />
+      は、例外をテストするために用意されているメソッドをまとめたものです。
+    </para>
+
+    <table id="writing-tests-for-phpunit.exceptions.tables.api">
+      <title>例外のテスト用のメソッド</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>メソッド</entry>
+            <entry>意味</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>void setExpectedException(string $exceptionName[, string $exceptionMessage = '', integer $exceptionCode = NULL])</literal></entry>
+            <entry>期待する <literal>$exceptionName</literal>、<literal>$exceptionMessage</literal> および <literal>$exceptionCode</literal> を設定します。</entry>
+          </row>
+          <row>
+            <entry><literal>String getExpectedException()</literal></entry>
+            <entry>発生することを期待する例外の名前を返します。</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <para>
+      一方、
+      <xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest4.php" />
+      のような方法で例外をテストすることもできます。
+    </para>
+
+    <example id="writing-tests-for-phpunit.exceptions.examples.ExceptionTest4.php">
+      <title>例外をテストするための、別の方法</title>
+      <programlisting><![CDATA[<?php
+class ExceptionTest extends PHPUnit_Framework_TestCase {
+    public function testException() {
+        try {
+            // ... 例外が発生するであろうコード ...
+        }
+
+        catch (InvalidArgumentException $expected) {
+            return;
+        }
+
+        $this->fail('期待通りの例外が発生しませんでした。');
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      例外が発生するはずの
+      <xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest4.php" />
+      のコードで例外が発生しなかった場合、それに続く
+      <literal>fail()</literal>
+      によってテストが終了し、問題を報告します。期待通りに例外が発生すると、
+      <literal>catch</literal> ブロックが実行されてテストは正常終了します。
+    </para>
+  </section>
+
+  <section id="writing-tests-for-phpunit.errors">
+    <title>PHP のエラーのテスト</title>
+    <para>
+      <indexterm><primary>Error Handler</primary></indexterm>
+      <indexterm><primary>PHP Error</primary></indexterm>
+      <indexterm><primary>PHP Notice</primary></indexterm>
+      <indexterm><primary>PHP Warning</primary></indexterm>
+      <indexterm><primary>PHPUnit_Framework_Error</primary></indexterm>
+
+      デフォルトでは、PHPUnit はテストの実行中に発生した PHP のエラーや警告そして notice
+      を例外に変換します。これらの例外を用いて、たとえば
+      <xref linkend="writing-tests-for-phpunit.exceptions.examples.ErrorTest.php" />
+      のように PHP のエラーが発生することをテストできます。
+    </para>
+
+    <note>
+      <para>
+        PHP の実行時設定 <literal>error_reporting</literal> を使うと、
+        PHPUnit がどのエラーを例外に変換するのかを制限できます。
+        この機能に関して何か問題がでた場合は、PHP の設定を見直し、
+        調べたいと思っているエラーを抑制するようになっていないかどうか確認しましょう。
+      </para>
+    </note>
+
+    <example id="writing-tests-for-phpunit.exceptions.examples.ErrorTest.php">
+      <title>@expectedException を用いた、PHP エラーが発生することのテスト</title>
+      <programlisting><![CDATA[<?php
+class ExpectedErrorTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @expectedException PHPUnit_Framework_Error
+     */
+    public function testFailingInclude()
+    {
+        include 'not_existing_file.php';
+    }
+}
+?>]]></programlisting>
+      <screen><userinput>phpunit -d error_reporting=2 ExpectedErrorTest</userinput>
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+.
+
+Time: 0 seconds
+
+OK (1 test, 1 assertion)</screen>
+    </example>
+
+    <para>
+      <indexterm><primary>PHPUnit_Framework_Error_Notice</primary></indexterm>
+      <indexterm><primary>PHPUnit_Framework_Error_Warning</primary></indexterm>
+
+      <literal>PHPUnit_Framework_Error_Notice</literal> および
+      <literal>PHPUnit_Framework_Error_Warning</literal> は、
+      それぞれ PHP の notice と警告に対応します。
+    </para>
+
+    <note>
+      <para>
+        例外をテストするときには可能な限り限定的にしなければいけません。
+        あまりに一般化されすぎたクラスをテストすると、予期せぬ副作用を引き起こしかねません。
+        というわけで、
+        <literal>@expectedException</literal> や
+        <literal>setExpectedException()</literal>
+        を使った <literal>Exception</literal>
+        クラスのテストはできないようにしました。
+      </para>
+    </note>
+
+    <para>
+        エラーを引き起こすような PHP の関数、たとえば <literal>fopen</literal>
+        などに依存するテストを行うときには、テスト中にエラーを抑制できれば便利なことがあります。
+        そうすれば、notice のせいで
+        <literal>PHPUnit_Framework_Error_Notice</literal>
+        が出てしまうことなく、返り値だけをチェックできるようになります。
+        <example id="writing-tests-for-phpunit.exceptions.examples.TriggerErrorReturnValue.php">
+
+            <title>PHP のエラーが発生するコードの返り値のテスト</title>
+            <programlisting><![CDATA[<?php
+class ErrorSuppressionTest extends PHPUnit_Framework_TestCase
+{
+    public function testFileWriting() {
+        $writer = new FileWriter;
+        $this->assertFalse(@$writer->write('/is-not-writeable/file', 'stuff'));
+    }
+}
+class FileWriter
+{
+    public function write($file, $content) {
+        $file = fopen($file, 'w');
+        if($file == false) {
+            return false;
+        }
+        // ...
+    }
+}
+
+?>]]></programlisting>
+      <screen><userinput>phpunit ErrorSuppressionTest</userinput>
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+.
+
+Time: 1 seconds, Memory: 5.25Mb
+
+OK (1 test, 1 assertion)</screen>
+        </example>
+    もしエラーを抑制しなければ、このテストは失敗して
+    <literal>fopen(/is-not-writeable/file): failed to open stream:
+    No such file or directory</literal> となります。
+
+    </para>
+  </section>
+
+  <section id="writing-tests-for-phpunit.output">
+    <title>出力内容のテスト</title>
+
+    <para>
+      メソッドの実行結果を確かめる方法として、(<literal>echo</literal> や
+      <literal>print</literal> などによる)
+      出力が期待通りのものかを調べたいこともあるでしょう。
+      <literal>PHPUnit_Framework_TestCase</literal> クラスは、PHP の
+      <ulink url="http://www.php.net/manual/ja/ref.outcontrol.php">
+      出力バッファリング</ulink> 機能を使用してこの仕組みを提供します。
+    </para>
+
+    <para>
+      <xref linkend="writing-tests-for-phpunit.output.examples.OutputTest.php" />
+      では、期待する出力内容を <literal>expectOutputString()</literal>
+      メソッドで設定する方法を示します。
+      期待通りの出力が得られなかった場合は、そのテストは失敗という扱いになります。
+    </para>
+
+    <example id="writing-tests-for-phpunit.output.examples.OutputTest.php">
+      <title>関数やメソッドの出力内容のテスト</title>
+      <programlisting><![CDATA[<?php
+class OutputTest extends PHPUnit_Framework_TestCase
+{
+    public function testExpectFooActualFoo()
+    {
+        $this->expectOutputString('foo');
+        print 'foo';
+    }
+
+    public function testExpectBarActualBaz()
+    {
+        $this->expectOutputString('bar');
+        print 'baz';
+    }
+}
+?>]]></programlisting>
+      <screen><userinput>phpunit OutputTest</userinput>
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+.F
+
+Time: 0 seconds, Memory: 5.75Mb
+
+There was 1 failure:
+
+1) OutputTest::testExpectBarActualBaz
+Failed asserting that two strings are equal.
+--- Expected
++++ Actual
+@@ @@
+-'bar'
++'baz'
+
+
+FAILURES!
+Tests: 2, Assertions: 2, Failures: 1.</screen>
+    </example>
+
+    <para>
+      <xref linkend="writing-tests-for-phpunit.output.tables.api" /> は、
+      テストの出力用に提供するメソッドをまとめたものです。
+    </para>
+
+    <table id="writing-tests-for-phpunit.output.tables.api">
+      <title>テストの出力用のメソッド</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>メソッド</entry>
+            <entry>意味</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>void expectOutputRegex(string $regularExpression)</literal></entry>
+            <entry>出力が正規表現 <literal>$regularExpression</literal> にマッチするであろうという予測を設定します。</entry>
+          </row>
+          <row>
+            <entry><literal>void expectOutputString(string $expectedString)</literal></entry>
+            <entry>出力が文字列 <literal>$expectedString</literal> と等しくなるであろうという予測を設定します。</entry>
+          </row>
+          <row>
+            <entry><literal>bool setOutputCallback(callable $callback)</literal></entry>
+            <entry>たとえば出力時の正規化などに使用するコールバック関数を設定します。</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <note>
+      <para>
+        strict モードでは、出力を発生させるテストは失敗します。
+      </para>
+    </note>
+  </section>
+
+  <section id="writing-tests-for-phpunit.assertions">
+    <title>アサーション</title>
+
+    <para>
+      この節では、利用可能なアサーションメソッドの一覧を示します。
+    </para>
+
+    <section id="writing-tests-for-phpunit.assertions.assertArrayHasKey">
+      <title>assertArrayHasKey()</title>
+      <indexterm><primary>assertArrayHasKey()</primary></indexterm>
+      <indexterm><primary>assertArrayNotHasKey()</primary></indexterm>
+      <para><literal>assertArrayHasKey(mixed $key, array $array[, string $message = ''])</literal></para>
+      <para><literal>$array</literal> にキー <literal>$key</literal> が存在しない場合にエラー <literal>$message</literal> を報告します。</para>
+      <para><literal>assertArrayNotHasKey()</literal> はこのアサーションの逆で、同じ引数をとります。</para>
+      <example id="writing-tests-for-phpunit.assertions.assertArrayHasKey.example">
+        <title>assertArrayHasKey() の使用法</title>
+        <programlisting><![CDATA[<?php
+class ArrayHasKeyTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertArrayHasKey('foo', array('bar' => 'baz'));
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit ArrayHasKeyTest</userinput>
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds, Memory: 5.00Mb
+
+There was 1 failure:
+
+1) ArrayHasKeyTest::testFailure
+Failed asserting that an array has the key 'foo'.
+
+/home/sb/ArrayHasKeyTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.</screen>
+      </example>
+    </section>
+
+    <section id="writing-tests-for-phpunit.assertions.assertClassHasAttribute">
+      <title>assertClassHasAttribute()</title>
+      <indexterm><primary>assertClassHasAttribute()</primary></indexterm>
+      <indexterm><primary>assertClassNotHasAttribute()</primary></indexterm>
+      <para><literal>assertClassHasAttribute(string $attributeName, string $className[, string $message = ''])</literal></para>
+      <para><literal>$className::attributeName</literal> が存在しない場合にエラー <literal>$message</literal> を報告します。</para>
+      <para><literal>assertClassNotHasAttribute()</literal> はこのアサーションの逆で、同じ引数をとります。</para>
+      <example id="writing-tests-for-phpunit.assertions.assertClassHasAttribute.example">
+        <title>assertClassHasAttribute() の使用法</title>
+        <programlisting><![CDATA[<?php
+class ClassHasAttributeTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertClassHasAttribute('foo', 'stdClass');
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit ClassHasAttributeTest</userinput><![CDATA[
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds, Memory: 4.75Mb
+
+There was 1 failure:
+
+1) ClassHasAttributeTest::testFailure
+Failed asserting that class "stdClass" has attribute "foo".
+
+/home/sb/ClassHasAttributeTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+      </example>
+    </section>
+
+    <section id="writing-tests-for-phpunit.assertions.assertClassHasStaticAttribute">
+      <title>assertClassHasStaticAttribute()</title>
+      <indexterm><primary>assertClassHasStaticAttribute()</primary></indexterm>
+      <indexterm><primary>assertClassNotHasStaticAttribute()</primary></indexterm>
+      <para><literal>assertClassHasStaticAttribute(string $attributeName, string $className[, string $message = ''])</literal></para>
+      <para><literal>$className::attributeName</literal> が存在しない場合にエラー <literal>$message</literal> を報告します。</para>
+      <para><literal>assertClassNotHasStaticAttribute()</literal> はこのアサーションの逆で、同じ引数をとります。</para>
+      <example id="writing-tests-for-phpunit.assertions.assertClassHasStaticAttribute.example">
+        <title>assertClassHasStaticAttribute() の使用法</title>
+        <programlisting><![CDATA[<?php
+class ClassHasStaticAttributeTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertClassHasStaticAttribute('foo', 'stdClass');
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit ClassHasStaticAttributeTest</userinput><![CDATA[
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds, Memory: 4.75Mb
+
+There was 1 failure:
+
+1) ClassHasStaticAttributeTest::testFailure
+Failed asserting that class "stdClass" has static attribute "foo".
+
+/home/sb/ClassHasStaticAttributeTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+      </example>
+    </section>
+
+    <section id="writing-tests-for-phpunit.assertions.assertContains">
+      <title>assertContains()</title>
+      <indexterm><primary>assertContains()</primary></indexterm>
+      <indexterm><primary>assertNotContains()</primary></indexterm>
+      <indexterm><primary>assertAttributeContains()</primary></indexterm>
+      <indexterm><primary>assertAttributeNotContains()</primary></indexterm>
+      <para><literal>assertContains(mixed $needle, Iterator|array $haystack[, string $message = ''])</literal></para>
+      <para><literal>$needle</literal> が <literal>$haystack</literal> の要素でない場合にエラー <literal>$message</literal> を報告します。</para>
+      <para><literal>assertNotContains()</literal> はこのアサーションの逆で、同じ引数をとります。</para>
+      <para><literal>assertAttributeContains()</literal> と <literal>assertAttributeNotContains()</literal> は便利なラッパーで、クラスやオブジェクトの <literal>public</literal>、<literal>protected</literal>、<literal>private</literal> 属性を haystack として使用することができます。</para>
+      <example id="writing-tests-for-phpunit.assertions.assertContains.example">
+        <title>assertContains() の使用法</title>
+        <programlisting><![CDATA[<?php
+class ContainsTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertContains(4, array(1, 2, 3));
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit ContainsTest</userinput>
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds, Memory: 5.00Mb
+
+There was 1 failure:
+
+1) ContainsTest::testFailure
+Failed asserting that an array contains 4.
+
+/home/sb/ContainsTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.</screen>
+      </example>
+
+      <para><literal>assertContains(string $needle, string $haystack[, string $message = ''])</literal></para>
+      <para><literal>$needle</literal> が <literal>$haystack</literal> の部分文字列でない場合にエラー <literal>$message</literal> を報告します。</para>
+      <example id="writing-tests-for-phpunit.assertions.assertContains.example2">
+        <title>assertContains() の使用法</title>
+        <programlisting><![CDATA[<?php
+class ContainsTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertContains('baz', 'foobar');
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit ContainsTest</userinput><![CDATA[
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds, Memory: 5.00Mb
+
+There was 1 failure:
+
+1) ContainsTest::testFailure
+Failed asserting that 'foobar' contains "baz".
+
+/home/sb/ContainsTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+      </example>
+    </section>
+
+    <section id="writing-tests-for-phpunit.assertions.assertContainsOnly">
+      <title>assertContainsOnly()</title>
+      <indexterm><primary>assertContainsOnly()</primary></indexterm>
+      <indexterm><primary>assertNotContainsOnly()</primary></indexterm>
+      <indexterm><primary>assertAttributeContainsOnly()</primary></indexterm>
+      <indexterm><primary>assertAttributeNotContainsOnly()</primary></indexterm>
+      <para><literal>assertContainsOnly(string $type, Iterator|array $haystack[, boolean $isNativeType = NULL, string $message = ''])</literal></para>
+      <para><literal>$haystack</literal> の中身の型が <literal>$type</literal> だけではない場合にエラー <literal>$message</literal> を報告します。</para>
+      <para><literal>$isNativeType</literal> はフラグで、<literal>$type</literal> がネイティブな PHP の型であるかどうかを表します。</para>
+      <para><literal>assertNotContainsOnly()</literal> はこのアサーションの逆で、同じ引数をとります。</para>
+      <para><literal>assertAttributeContainsOnly()</literal> と <literal>assertAttributeNotContainsOnly()</literal> は便利なラッパーで、クラスやオブジェクトの <literal>public</literal>、<literal>protected</literal>、<literal>private</literal> 属性を haystack として使用することができます。</para>
+      <example id="writing-tests-for-phpunit.assertions.assertContainsOnly.example">
+        <title>assertContainsOnly() の使用法</title>
+        <programlisting><![CDATA[<?php
+class ContainsOnlyTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertContainsOnly('string', array('1', '2', 3));
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit ContainsOnlyTest</userinput><![CDATA[
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds, Memory: 5.00Mb
+
+There was 1 failure:
+
+1) ContainsOnlyTest::testFailure
+Failed asserting that Array (
+    0 => '1'
+    1 => '2'
+    2 => 3
+) contains only values of type "string".
+
+/home/sb/ContainsOnlyTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+      </example>
+    </section>
+	<section id="writing-tests-for-phpunit.assertions.assertContainsOnlyInstancesOf">
+	  <title>assertContainsOnlyInstancesOf()</title>
+      <indexterm><primary>assertContainsOnlyInstancesOf()</primary></indexterm>
+      <para><literal>assertContainsOnlyInstancesOf(string $classname, Traversable|array $haystack[, string $message = ''])</literal></para>
+      <para><literal>$haystack</literal> が <literal>$classname</literal> クラスの唯一のインスタンスを含まない場合にエラー <literal>$message</literal> を報告します。</para>
+      <example id="writing-tests-for-phpunit.assertions.assertContainsOnlyInstancesOf.example">
+        <title>assertContainsOnlyInstancesOf() の使用法</title>
+        <programlisting><![CDATA[<?php
+class ContainsOnlyInstancesOfTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertContainsOnlyInstancesOf('Foo', array(new Foo(), new Bar(), new Foo()));
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit ContainsOnlyInstancesOfTest</userinput><![CDATA[
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds, Memory: 5.00Mb
+
+There was 1 failure:
+
+1) ContainsOnlyInstancesOfTest::testFailure
+Failed asserting that Array ([0]=> Bar Object(...)) is an instance of class "Foo".
+
+/home/sb/ContainsOnlyInstancesOfTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+      </example>
+	</section>
+    <section id="writing-tests-for-phpunit.assertions.assertCount">
+      <title>assertCount()</title>
+      <indexterm><primary>assertCount()</primary></indexterm>
+      <indexterm><primary>assertNotCount()</primary></indexterm>
+      <para><literal>assertCount($expectedCount, $haystack[, string $message = ''])</literal></para>
+      <para><literal>$haystack</literal> の要素数が <literal>$expectedCount</literal> でない場合にエラー <literal>$message</literal> を報告します。</para>
+      <para><literal>assertNotCount()</literal> はこのアサーションの逆で、同じ引数をとります。</para>
+      <example id="writing-tests-for-phpunit.assertions.assertCount.example">
+        <title>assertCount() の使用法</title>
+        <programlisting><![CDATA[<?php
+class CountTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertCount(0, array('foo'));
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit CountTest</userinput>
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds, Memory: 4.75Mb
+
+There was 1 failure:
+
+1) CountTest::testFailure
+Failed asserting that actual size 1 matches expected size 0.
+
+/home/sb/CountTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.</screen>
+      </example>
+    </section>
+
+    <section id="writing-tests-for-phpunit.assertions.assertEmpty">
+      <title>assertEmpty()</title>
+      <indexterm><primary>assertEmpty()</primary></indexterm>
+      <indexterm><primary>assertNotEmpty()</primary></indexterm>
+      <indexterm><primary>assertAttributeEmpty()</primary></indexterm>
+      <indexterm><primary>assertAttributeNotEmpty()</primary></indexterm>
+      <para><literal>assertEmpty(mixed $actual[, string $message = ''])</literal></para>
+      <para><literal>$actual</literal> が空でない場合にエラー <literal>$message</literal> を報告します。</para>
+      <para><literal>assertNotEmpty()</literal> はこのアサーションの逆で、同じ引数をとります。</para>
+      <para><literal>assertAttributeEmpty()</literal> および <literal>assertAttributeNotEmpty()</literal> は便利なラッパーで、クラスやオブジェクトの <literal>public</literal>、<literal>protected</literal>、<literal>private</literal> 属性に対して使えます。</para>
+      <example id="writing-tests-for-phpunit.assertions.assertEmpty.example">
+        <title>assertEmpty() の使用法</title>
+        <programlisting><![CDATA[<?php
+class EmptyTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertEmpty(array('foo'));
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit EmptyTest</userinput>
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds, Memory: 4.75Mb
+
+There was 1 failure:
+
+1) EmptyTest::testFailure
+Failed asserting that an array is empty.
+
+/home/sb/EmptyTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.</screen>
+      </example>
+    </section>
+
+    <section id="writing-tests-for-phpunit.assertions.assertEqualXMLStructure">
+      <title>assertEqualXMLStructure()</title>
+      <indexterm><primary>assertEqualXMLStructure()</primary></indexterm>
+      <para><literal>assertEqualXMLStructure(DOMElement $expectedElement, DOMElement $actualElement[, boolean $checkAttributes = FALSE, string $message = ''])</literal></para>
+      <para><literal>$actualElement</literal> の DOMElement の XML 構造が <literal>$expectedElement</literal> の DOMElement の XML 構造と等しくない場合にエラー <literal>$message</literal> を報告します。</para>
+      <example id="writing-tests-for-phpunit.assertions.assertEqualXMLStructure.example">
+        <title>assertEqualXMLStructure() の使用法</title>
+        <programlisting><![CDATA[<?php
+class EqualXMLStructureTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailureWithDifferentNodeNames()
+    {
+        $expected = new DOMElement('foo');
+        $actual = new DOMElement('bar');
+
+        $this->assertEqualXMLStructure($expected, $actual);
+    }
+
+    public function testFailureWithDifferentNodeAttributes()
+    {
+        $expected = new DOMDocument;
+        $expected->loadXML('<foo bar="true" />');
+
+        $actual = new DOMDocument;
+        $actual->loadXML('<foo/>');
+
+        $this->assertEqualXMLStructure(
+          $expected->firstChild, $actual->firstChild, TRUE
+        );
+    }
+
+    public function testFailureWithDifferentChildrenCount()
+    {
+        $expected = new DOMDocument;
+        $expected->loadXML('<foo><bar/><bar/><bar/></foo>');
+
+        $actual = new DOMDocument;
+        $actual->loadXML('<foo><bar/></foo>');
+
+        $this->assertEqualXMLStructure(
+          $expected->firstChild, $actual->firstChild
+        );
+    }
+
+    public function testFailureWithDifferentChildren()
+    {
+        $expected = new DOMDocument;
+        $expected->loadXML('<foo><bar/><bar/><bar/></foo>');
+
+        $actual = new DOMDocument;
+        $actual->loadXML('<foo><baz/><baz/><baz/></foo>');
+
+        $this->assertEqualXMLStructure(
+          $expected->firstChild, $actual->firstChild
+        );
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit EqualXMLStructureTest</userinput><![CDATA[
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+FFFF
+
+Time: 0 seconds, Memory: 5.75Mb
+
+There were 4 failures:
+
+1) EqualXMLStructureTest::testFailureWithDifferentNodeNames
+Failed asserting that two strings are equal.
+--- Expected
++++ Actual
+@@ @@
+-'foo'
++'bar'
+
+/home/sb/EqualXMLStructureTest.php:9
+
+2) EqualXMLStructureTest::testFailureWithDifferentNodeAttributes
+Number of attributes on node "foo" does not match
+Failed asserting that 0 matches expected 1.
+
+/home/sb/EqualXMLStructureTest.php:22
+
+3) EqualXMLStructureTest::testFailureWithDifferentChildrenCount
+Number of child nodes of "foo" differs
+Failed asserting that 1 matches expected 3.
+
+/home/sb/EqualXMLStructureTest.php:35
+
+4) EqualXMLStructureTest::testFailureWithDifferentChildren
+Failed asserting that two strings are equal.
+--- Expected
++++ Actual
+@@ @@
+-'bar'
++'baz'
+
+/home/sb/EqualXMLStructureTest.php:48
+
+FAILURES!
+Tests: 4, Assertions: 8, Failures: 4.]]></screen>
+      </example>
+    </section>
+
+    <section id="writing-tests-for-phpunit.assertions.assertEquals">
+      <title>assertEquals()</title>
+      <indexterm><primary>assertEquals()</primary></indexterm>
+      <indexterm><primary>assertNotEquals()</primary></indexterm>
+      <indexterm><primary>assertAttributeEquals()</primary></indexterm>
+      <indexterm><primary>assertAttributeNotEquals()</primary></indexterm>
+      <para><literal>assertEquals(mixed $expected, mixed $actual[, string $message = ''])</literal></para>
+      <para>2 つの変数 <literal>$expected</literal> と <literal>$actual</literal> が等しくない場合にエラー <literal>$message</literal> を報告します。</para>
+      <para><literal>assertNotEquals()</literal> はこのアサーションの逆で、同じ引数をとります。</para>
+      <para><literal>assertAttributeEquals()</literal> と <literal>assertAttributeNotEquals()</literal> は便利なラッパーで、クラスやオブジェクトの <literal>public</literal>、<literal>protected</literal>、<literal>private</literal> 属性を実際の値として使用することができます。</para>
+      <example id="writing-tests-for-phpunit.assertions.assertEquals.example">
+        <title>assertEquals() の使用法</title>
+        <programlisting><![CDATA[<?php
+class EqualsTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertEquals(1, 0);
+    }
+
+    public function testFailure2()
+    {
+        $this->assertEquals('bar', 'baz');
+    }
+
+    public function testFailure3()
+    {
+        $this->assertEquals("foo\nbar\nbaz\n", "foo\nbah\nbaz\n");
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit EqualsTest</userinput>
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+FFF
+
+Time: 0 seconds, Memory: 5.25Mb
+
+There were 3 failures:
+
+1) EqualsTest::testFailure
+Failed asserting that 0 matches expected 1.
+
+/home/sb/EqualsTest.php:6
+
+2) EqualsTest::testFailure2
+Failed asserting that two strings are equal.
+--- Expected
++++ Actual
+@@ @@
+-'bar'
++'baz'
+
+/home/sb/EqualsTest.php:11
+
+3) EqualsTest::testFailure3
+Failed asserting that two strings are equal.
+--- Expected
++++ Actual
+@@ @@
+ 'foo
+-bar
++bah
+ baz
+ '
+
+/home/sb/EqualsTest.php:16
+
+FAILURES!
+Tests: 3, Assertions: 3, Failures: 3.</screen>
+      </example>
+
+      <para>引数 <literal>$expected</literal> と <literal>$actual</literal> の型により特化した比較については、以下を参照ください。</para>
+
+      <para><literal>assertEquals(float $expected, float $actual[, string $message = '', float $delta = 0])</literal></para>
+      <para>2 つの float 値 <literal>$expected</literal> と <literal>$actual</literal> の誤差が <literal>$delta</literal> より大きい場合にエラー <literal>$message</literal> を報告します。</para>
+      <para>なぜ <literal>$delta</literal> が必要となるのかについては "<ulink url="http://docs.oracle.com/cd/E19957-01/806-3568/ncg_goldberg.html">What Every Computer Scientist Should Know About Floating-Point Arithmetic</ulink>" を参照ください。</para>
+      <example id="writing-tests-for-phpunit.assertions.assertEquals.example2">
+        <title>float 値での assertEquals() の使用法</title>
+        <programlisting><![CDATA[<?php
+class EqualsTest extends PHPUnit_Framework_TestCase
+{
+    public function testSuccess()
+    {
+        $this->assertEquals(1.0, 1.1, '', 0.2);
+    }
+
+    public function testFailure()
+    {
+        $this->assertEquals(1.0, 1.1);
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit EqualsTest</userinput>
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+.F
+
+Time: 0 seconds, Memory: 5.75Mb
+
+There was 1 failure:
+
+1) EqualsTest::testFailure
+Failed asserting that 1.1 matches expected 1.0.
+
+/home/sb/EqualsTest.php:11
+
+FAILURES!
+Tests: 2, Assertions: 2, Failures: 1.</screen>
+      </example>
+
+      <para><literal>assertEquals(DOMDocument $expected, DOMDocument $actual[, string $message = ''])</literal></para>
+      <para>2 つの DOMDocument オブジェクト <literal>$expected</literal> と <literal>$actual</literal> で表される XML ドキュメントが (コメントを除去して正規化した状態で) 等しくない場合にエラー <literal>$message</literal> を報告します。</para>
+      <example id="writing-tests-for-phpunit.assertions.assertEquals.example3">
+        <title>DOMDocument オブジェクトでの assertEquals() の使用法</title>
+        <programlisting><![CDATA[<?php
+class EqualsTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $expected = new DOMDocument;
+        $expected->loadXML('<foo><bar/></foo>');
+
+        $actual = new DOMDocument;
+        $actual->loadXML('<bar><foo/></bar>');
+
+        $this->assertEquals($expected, $actual);
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit EqualsTest</userinput><![CDATA[
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds, Memory: 5.00Mb
+
+There was 1 failure:
+
+1) EqualsTest::testFailure
+Failed asserting that two DOM documents are equal.
+--- Expected
++++ Actual
+@@ @@
+ <?xml version="1.0"?>
+-<foo>
+-  <bar/>
+-</foo>
++<bar>
++  <foo/>
++</bar>
+
+/home/sb/EqualsTest.php:12
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+      </example>
+
+      <para><literal>assertEquals(object $expected, object $actual[, string $message = ''])</literal></para>
+      <para>2 つのオブジェクト <literal>$expected</literal> と <literal>$actual</literal> が同じ属性値を持たない場合にエラー <literal>$message</literal> を報告します。</para>
+      <example id="writing-tests-for-phpunit.assertions.assertEquals.example4">
+        <title>オブジェクトでの assertEquals() の使用法</title>
+        <programlisting><![CDATA[<?php
+class EqualsTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $expected = new stdClass;
+        $expected->foo = 'foo';
+        $expected->bar = 'bar';
+
+        $actual = new stdClass;
+        $actual->foo = 'bar';
+        $actual->baz = 'bar';
+
+        $this->assertEquals($expected, $actual);
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit EqualsTest</userinput><![CDATA[
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds, Memory: 5.25Mb
+
+There was 1 failure:
+
+1) EqualsTest::testFailure
+Failed asserting that two objects are equal.
+--- Expected
++++ Actual
+@@ @@
+ stdClass Object (
+-    'foo' => 'foo'
+-    'bar' => 'bar'
++    'foo' => 'bar'
++    'baz' => 'bar'
+ )
+
+/home/sb/EqualsTest.php:14
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+      </example>
+
+      <para><literal>assertEquals(array $expected, array $actual[, string $message = ''])</literal></para>
+      <para>2 つの配列 <literal>$expected</literal> と <literal>$actual</literal> が等しくない場合にエラー <literal>$message</literal> を報告します。</para>
+
+      <example id="writing-tests-for-phpunit.assertions.assertEquals.example5">
+        <title>配列での assertEquals() の使用法</title>
+        <programlisting><![CDATA[<?php
+class EqualsTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertEquals(array('a', 'b', 'c'), array('a', 'c', 'd'));
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit EqualsTest</userinput><![CDATA[
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds, Memory: 5.25Mb
+
+There was 1 failure:
+
+1) EqualsTest::testFailure
+Failed asserting that two arrays are equal.
+--- Expected
++++ Actual
+@@ @@
+ Array (
+     0 => 'a'
+-    1 => 'b'
+-    2 => 'c'
++    1 => 'c'
++    2 => 'd'
+ )
+
+/home/sb/EqualsTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+      </example>
+    </section>
+
+    <section id="writing-tests-for-phpunit.assertions.assertFalse">
+      <title>assertFalse()</title>
+      <indexterm><primary>assertFalse()</primary></indexterm>
+      <para><literal>assertFalse(bool $condition[, string $message = ''])</literal></para>
+      <para><literal>$condition</literal> が <literal>TRUE</literal> の場合にエラー <literal>$message</literal> を報告します。</para>
+      <example id="writing-tests-for-phpunit.assertions.assertFalse.example">
+        <title>assertFalse() の使用法</title>
+        <programlisting><![CDATA[<?php
+class FalseTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertFalse(TRUE);
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit FalseTest</userinput>
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds, Memory: 5.00Mb
+
+There was 1 failure:
+
+1) FalseTest::testFailure
+Failed asserting that true is false.
+
+/home/sb/FalseTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.</screen>
+      </example>
+    </section>
+
+    <section id="writing-tests-for-phpunit.assertions.assertFileEquals">
+      <title>assertFileEquals()</title>
+      <indexterm><primary>assertFileEquals()</primary></indexterm>
+      <indexterm><primary>assertFileNotEquals()</primary></indexterm>
+      <para><literal>assertFileEquals(string $expected, string $actual[, string $message = ''])</literal></para>
+      <para><literal>$expected</literal> で指定したファイルと <literal>$actual</literal> で指定したファイルの内容が異なる場合にエラー <literal>$message</literal> を報告します。</para>
+      <para><literal>assertFileNotEquals()</literal> はこのアサーションの逆で、同じ引数をとります。</para>
+      <example id="writing-tests-for-phpunit.assertions.assertFileEquals.example">
+        <title>assertFileEquals() の使用法</title>
+        <programlisting><![CDATA[<?php
+class FileEqualsTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertFileEquals('/home/sb/expected', '/home/sb/actual');
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit FileEqualsTest</userinput>
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds, Memory: 5.25Mb
+
+There was 1 failure:
+
+1) FileEqualsTest::testFailure
+Failed asserting that two strings are equal.
+--- Expected
++++ Actual
+@@ @@
+-'expected
++'actual
+ '
+
+/home/sb/FileEqualsTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 3, Failures: 1.</screen>
+      </example>
+    </section>
+
+    <section id="writing-tests-for-phpunit.assertions.assertFileExists">
+      <title>assertFileExists()</title>
+      <indexterm><primary>assertFileExists()</primary></indexterm>
+      <indexterm><primary>assertFileNotExists()</primary></indexterm>
+      <para><literal>assertFileExists(string $filename[, string $message = ''])</literal></para>
+      <para>ファイル <literal>$filename</literal> が存在しない場合にエラー <literal>$message</literal> を報告します。</para>
+      <para><literal>assertFileNotExists()</literal> はこのアサーションの逆で、同じ引数をとります。</para>
+      <example id="writing-tests-for-phpunit.assertions.assertFileExists.example">
+        <title>assertFileExists() の使用法</title>
+        <programlisting><![CDATA[<?php
+class FileExistsTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertFileExists('/path/to/file');
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit FileExistsTest</userinput><![CDATA[
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds, Memory: 4.75Mb
+
+There was 1 failure:
+
+1) FileExistsTest::testFailure
+Failed asserting that file "/path/to/file" exists.
+
+/home/sb/FileExistsTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+      </example>
+    </section>
+
+    <section id="writing-tests-for-phpunit.assertions.assertGreaterThan">
+      <title>assertGreaterThan()</title>
+      <indexterm><primary>assertGreaterThan()</primary></indexterm>
+      <indexterm><primary>assertAttributeGreaterThan()</primary></indexterm>
+      <para><literal>assertGreaterThan(mixed $expected, mixed $actual[, string $message = ''])</literal></para>
+      <para><literal>$actual</literal> の値が <literal>$expected</literal> の値より大きくない場合にエラー <literal>$message</literal> を報告します。</para>
+      <para><literal>assertAttributeGreaterThan()</literal> は便利なラッパーで、クラスやオブジェクトの <literal>public</literal>、<literal>protected</literal>、<literal>private</literal> 属性を実際の値として使用することができます。</para>
+      <example id="writing-tests-for-phpunit.assertions.assertGreaterThan.example">
+        <title>assertGreaterThan() の使用法</title>
+        <programlisting><![CDATA[<?php
+class GreaterThanTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertGreaterThan(2, 1);
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit GreaterThanTest</userinput>
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds, Memory: 5.00Mb
+
+There was 1 failure:
+
+1) GreaterThanTest::testFailure
+Failed asserting that 1 is greater than 2.
+
+/home/sb/GreaterThanTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.</screen>
+      </example>
+    </section>
+
+    <section id="writing-tests-for-phpunit.assertions.assertGreaterThanOrEqual">
+      <title>assertGreaterThanOrEqual()</title>
+      <indexterm><primary>assertGreaterThanOrEqual()</primary></indexterm>
+      <indexterm><primary>assertAttributeGreaterThanOrEqual()</primary></indexterm>
+      <para><literal>assertGreaterThanOrEqual(mixed $expected, mixed $actual[, string $message = ''])</literal></para>
+      <para><literal>$actual</literal> の値が <literal>$expected</literal> の値以上でない場合にエラー <literal>$message</literal> を報告します。</para>
+      <para><literal>assertAttributeGreaterThanOrEqual()</literal> は便利なラッパーで、クラスやオブジェクトの <literal>public</literal>、<literal>protected</literal>、<literal>private</literal> 属性を実際の値として使用することができます。</para>
+      <example id="writing-tests-for-phpunit.assertions.assertGreaterThanOrEqual.example">
+        <title>assertGreaterThanOrEqual() の使用法</title>
+        <programlisting><![CDATA[<?php
+class GreatThanOrEqualTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertGreaterThanOrEqual(2, 1);
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit GreaterThanOrEqualTest</userinput>
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds, Memory: 5.25Mb
+
+There was 1 failure:
+
+1) GreatThanOrEqualTest::testFailure
+Failed asserting that 1 is equal to 2 or is greater than 2.
+
+/home/sb/GreaterThanOrEqualTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 2, Failures: 1.</screen>
+      </example>
+    </section>
+
+    <section id="writing-tests-for-phpunit.assertions.assertInstanceOf">
+      <title>assertInstanceOf()</title>
+      <indexterm><primary>assertInstanceOf()</primary></indexterm>
+      <indexterm><primary>assertNotInstanceOf()</primary></indexterm>
+      <indexterm><primary>assertAttributeInstanceOf()</primary></indexterm>
+      <indexterm><primary>assertAttributeNotInstanceOf()</primary></indexterm>
+      <para><literal>assertInstanceOf($expected, $actual[, $message = ''])</literal></para>
+      <para><literal>$actual</literal> が <literal>$expected</literal> のインスタンスでない場合にエラー <literal>$message</literal> を報告します。</para>
+      <para><literal>assertNotInstanceOf()</literal> はこのアサーションの逆で、同じ引数をとります。</para>
+      <para><literal>assertAttributeInstanceOf()</literal> および <literal>assertAttributeNotInstanceOf()</literal> は便利なラッパーで、クラスやオブジェクトの <literal>public</literal>、<literal>protected</literal>、<literal>private</literal> 属性に対して使えます。</para>
+      <example id="writing-tests-for-phpunit.assertions.assertInstanceOf.example">
+        <title>assertInstanceOf() の使用法</title>
+        <programlisting><![CDATA[<?php
+class InstanceOfTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertInstanceOf('RuntimeException', new Exception);
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit InstanceOfTest</userinput><![CDATA[
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds, Memory: 5.00Mb
+
+There was 1 failure:
+
+1) InstanceOfTest::testFailure
+Failed asserting that Exception Object (...) is an instance of class "RuntimeException".
+
+/home/sb/InstanceOfTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+      </example>
+    </section>
+
+    <section id="writing-tests-for-phpunit.assertions.assertInternalType">
+      <title>assertInternalType()</title>
+      <indexterm><primary>assertInternalType()</primary></indexterm>
+      <indexterm><primary>assertNotInternalType()</primary></indexterm>
+      <indexterm><primary>assertAttributeInternalType()</primary></indexterm>
+      <indexterm><primary>assertAttributeNotInternalType()</primary></indexterm>
+      <para><literal>assertInternalType($expected, $actual[, $message = ''])</literal></para>
+      <para><literal>$actual</literal> の型が <literal>$expected</literal> でない場合にエラー <literal>$message</literal> を報告します。</para>
+      <para><literal>assertNotInternalType()</literal> はこのアサーションの逆で、同じ引数をとります。</para>
+      <para><literal>assertAttributeInternalType()</literal> および <literal>assertAttributeNotInternalType()</literal> は便利なラッパーで、クラスやオブジェクトの <literal>public</literal>、<literal>protected</literal>、<literal>private</literal> 属性に対して使えます。</para>
+      <example id="writing-tests-for-phpunit.assertions.assertInternalType.example">
+        <title>assertInternalType() の使用法</title>
+        <programlisting><![CDATA[<?php
+class InternalTypeTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertInternalType('string', 42);
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit InternalTypeTest</userinput><![CDATA[
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds, Memory: 5.00Mb
+
+There was 1 failure:
+
+1) InternalTypeTest::testFailure
+Failed asserting that 42 is of type "string".
+
+/home/sb/InternalTypeTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+      </example>
+    </section>
+
+    <section id="writing-tests-for-phpunit.assertions.assertJsonFileEqualsJsonFile">
+      <title>assertJsonFileEqualsJsonFile()</title>
+      <indexterm><primary>assertJsonFileEqualsJsonFile()</primary></indexterm>
+      <indexterm><primary>assertJsonFileNotEqualsJsonFile()</primary></indexterm>
+      <para><literal>assertJsonFileEqualsJsonFile(mixed $expectedFile, mixed $actualFile[, string $message = ''])</literal></para>
+      <para>
+        <literal>$actualFile</literal> の値が
+        <literal>$expectedFile</literal> の値にマッチしない場合にエラー <literal>$message</literal> を報告します。
+      </para>
+      <example id="writing-tests-for-phpunit.assertions.assertJsonFileEqualsJsonFile.example">
+        <title>assertJsonFileEqualsJsonFile() の使用法</title>
+        <programlisting><![CDATA[<?php
+class JsonFileEqualsJsonFileTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertJsonFileEqualsJsonFile(
+          'path/to/fixture/file', 'path/to/actual/file');
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit JsonFileEqualsJsonFileTest</userinput>
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds, Memory: 5.00Mb
+
+There was 1 failure:
+
+1) JsonFileEqualsJsonFile::testFailure
+Failed asserting that '{"Mascott":"Tux"}' matches JSON string "["Mascott", "Tux", "OS", "Linux"]".
+
+/home/sb/JsonFileEqualsJsonFileTest.php:5
+
+FAILURES!
+Tests: 1, Assertions: 3, Failures: 1.</screen>
+      </example>
+    </section>
+
+    <section id="writing-tests-for-phpunit.assertions.assertJsonStringEqualsJsonFile">
+      <title>assertJsonStringEqualsJsonFile()</title>
+      <indexterm><primary>assertJsonStringEqualsJsonFile()</primary></indexterm>
+      <indexterm><primary>assertJsonStringNotEqualsJsonFile()</primary></indexterm>
+      <para><literal>assertJsonStringEqualsJsonFile(mixed $expectedFile, mixed $actualJson[, string $message = ''])</literal></para>
+      <para>
+        <literal>$actualJson</literal> の値が
+        <literal>$expectedFile</literal> の値にマッチしない場合にエラー <literal>$message</literal> を報告します。
+      </para>
+      <example id="writing-tests-for-phpunit.assertions.assertJsonStringEqualsJsonFile.example">
+        <title>assertJsonStringEqualsJsonFile() の使用法</title>
+        <programlisting><![CDATA[<?php
+class JsonStringEqualsJsonFileTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertJsonStringEqualsJsonFile(
+          'path/to/fixture/file', json_encode(array("Mascott" => "ux"));
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit JsonStringEqualsJsonFileTest</userinput>
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds, Memory: 5.00Mb
+
+There was 1 failure:
+
+1) JsonStringEqualsJsonFile::testFailure
+Failed asserting that '{"Mascott":"ux"}' matches JSON string "{"Mascott":"Tux"}".
+
+/home/sb/JsonStringEqualsJsonFileTest.php:5
+
+FAILURES!
+Tests: 1, Assertions: 3, Failures: 1.</screen>
+      </example>
+    </section>
+
+    <section id="writing-tests-for-phpunit.assertions.assertJsonStringEqualsJsonString">
+      <title>assertJsonStringEqualsJsonString()</title>
+      <indexterm><primary>assertJsonStringEqualsJsonString()</primary></indexterm>
+      <indexterm><primary>assertJsonStringNotEqualsJsonString()</primary></indexterm>
+      <para><literal>assertJsonStringEqualsJsonString(mixed $expectedJson, mixed $actualJson[, string $message = ''])</literal></para>
+      <para>
+        <literal>$actualJson</literal> の値が
+        <literal>$expectedJson</literal> の値にマッチしない場合にエラー <literal>$message</literal> を報告します。
+      </para>
+      <example id="writing-tests-for-phpunit.assertions.assertJsonStringEqualsJsonString.example">
+        <title>assertJsonStringEqualsJsonString() の使用法</title>
+        <programlisting><![CDATA[<?php
+class JsonStringEqualsJsonStringTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertJsonStringEqualsJsonString(
+          json_encode(array("Mascott" => "Tux")), json_encode(array("Mascott" => "ux"))
+        );
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit JsonStringEqualsJsonStringTest</userinput>
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds, Memory: 5.00Mb
+
+There was 1 failure:
+
+1) JsonStringEqualsJsonStringTest::testFailure
+Failed asserting that two objects are equal.
+--- Expected
++++ Actual
+@@ @@
+ stdClass Object (
+ -    'Mascott' => 'Tux'
+ +    'Mascott' => 'ux'
+)
+
+/home/sb/JsonStringEqualsJsonStringTest.php:5
+
+FAILURES!
+Tests: 1, Assertions: 3, Failures: 1.</screen>
+      </example>
+    </section>
+
+    <section id="writing-tests-for-phpunit.assertions.assertLessThan">
+      <title>assertLessThan()</title>
+      <indexterm><primary>assertLessThan()</primary></indexterm>
+      <indexterm><primary>assertAttributeLessThan()</primary></indexterm>
+      <para><literal>assertLessThan(mixed $expected, mixed $actual[, string $message = ''])</literal></para>
+      <para><literal>$actual</literal> の値が <literal>$expected</literal> の値より小さくない場合にエラー <literal>$message</literal> を報告します。</para>
+      <para><literal>assertAttributeLessThan()</literal> は便利なラッパーで、クラスやオブジェクトの <literal>public</literal>、<literal>protected</literal>、<literal>private</literal> 属性を実際の値として使用することができます。</para>
+      <example id="writing-tests-for-phpunit.assertions.assertLessThan.example">
+        <title>assertLessThan() の使用法</title>
+        <programlisting><![CDATA[<?php
+class LessThanTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertLessThan(1, 2);
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit LessThanTest</userinput>
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds, Memory: 5.00Mb
+
+There was 1 failure:
+
+1) LessThanTest::testFailure
+Failed asserting that 2 is less than 1.
+
+/home/sb/LessThanTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.</screen>
+      </example>
+    </section>
+
+    <section id="writing-tests-for-phpunit.assertions.assertLessThanOrEqual">
+      <title>assertLessThanOrEqual()</title>
+      <indexterm><primary>assertLessThanOrEqual()</primary></indexterm>
+      <indexterm><primary>assertAttributeLessThanOrEqual()</primary></indexterm>
+      <para><literal>assertLessThanOrEqual(mixed $expected, mixed $actual[, string $message = ''])</literal></para>
+      <para><literal>$actual</literal> の値が <literal>$expected</literal> の値以下でない場合にエラー <literal>$message</literal> を報告します。</para>
+      <para><literal>assertAttributeLessThanOrEqual()</literal> は便利なラッパーで、クラスやオブジェクトの <literal>public</literal>、<literal>protected</literal>、<literal>private</literal> 属性を実際の値として使用することができます。</para>
+      <example id="writing-tests-for-phpunit.assertions.assertLessThanOrEqual.example">
+        <title>assertLessThanOrEqual() の使用法</title>
+        <programlisting><![CDATA[<?php
+class LessThanOrEqualTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertLessThanOrEqual(1, 2);
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit LessThanOrEqualTest</userinput>
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds, Memory: 5.25Mb
+
+There was 1 failure:
+
+1) LessThanOrEqualTest::testFailure
+Failed asserting that 2 is equal to 1 or is less than 1.
+
+/home/sb/LessThanOrEqualTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 2, Failures: 1.</screen>
+      </example>
+    </section>
+
+    <section id="writing-tests-for-phpunit.assertions.assertNull">
+      <title>assertNull()</title>
+      <indexterm><primary>assertNull()</primary></indexterm>
+      <indexterm><primary>assertNotNull()</primary></indexterm>
+      <para><literal>assertNull(mixed $variable[, string $message = ''])</literal></para>
+      <para><literal>$variable</literal> が <literal>NULL</literal> でないときにエラー <literal>$message</literal> を報告します。</para>
+      <para><literal>assertNotNull()</literal> はこのアサーションの逆で、同じ引数をとります。</para>
+      <example id="writing-tests-for-phpunit.assertions.assertNull.example">
+        <title>assertNull() の使用法</title>
+        <programlisting><![CDATA[<?php
+class NullTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertNull('foo');
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit NotNullTest</userinput>
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds, Memory: 5.00Mb
+
+There was 1 failure:
+
+1) NullTest::testFailure
+Failed asserting that 'foo' is null.
+
+/home/sb/NotNullTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.</screen>
+      </example>
+    </section>
+
+    <section id="writing-tests-for-phpunit.assertions.assertObjectHasAttribute">
+      <title>assertObjectHasAttribute()</title>
+      <indexterm><primary>assertObjectHasAttribute()</primary></indexterm>
+      <indexterm><primary>assertObjectNotHasAttribute()</primary></indexterm>
+      <para><literal>assertObjectHasAttribute(string $attributeName, object $object[, string $message = ''])</literal></para>
+      <para><literal>$object-&gt;attributeName</literal> が存在しない場合にエラー <literal>$message</literal> を報告します。</para>
+      <para><literal>assertObjectNotHasAttribute()</literal> はこのアサーションの逆で、同じ引数をとります。</para>
+      <example id="writing-tests-for-phpunit.assertions.assertObjectHasAttribute.example">
+        <title>assertObjectHasAttribute() の使用法</title>
+        <programlisting><![CDATA[<?php
+class ObjectHasAttributeTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertObjectHasAttribute('foo', new stdClass);
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit ObjectHasAttributeTest</userinput><![CDATA[
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds, Memory: 4.75Mb
+
+There was 1 failure:
+
+1) ObjectHasAttributeTest::testFailure
+Failed asserting that object of class "stdClass" has attribute "foo".
+
+/home/sb/ObjectHasAttributeTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+      </example>
+    </section>
+
+    <section id="writing-tests-for-phpunit.assertions.assertRegExp">
+      <title>assertRegExp()</title>
+      <indexterm><primary>assertRegExp()</primary></indexterm>
+      <indexterm><primary>assertNotRegExp()</primary></indexterm>
+      <para><literal>assertRegExp(string $pattern, string $string[, string $message = ''])</literal></para>
+      <para><literal>$string</literal> が正規表現 <literal>$pattern</literal> にマッチしない場合にエラー <literal>$message</literal> を報告します。</para>
+      <para><literal>assertNotRegExp()</literal> はこのアサーションの逆で、同じ引数をとります。</para>
+      <example id="writing-tests-for-phpunit.assertions.assertRegExp.example">
+        <title>assertRegExp() の使用法</title>
+        <programlisting><![CDATA[<?php
+class RegExpTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertRegExp('/foo/', 'bar');
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit RegExpTest</userinput><![CDATA[
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds, Memory: 5.00Mb
+
+There was 1 failure:
+
+1) RegExpTest::testFailure
+Failed asserting that 'bar' matches PCRE pattern "/foo/".
+
+/home/sb/RegExpTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+      </example>
+    </section>
+
+    <section id="writing-tests-for-phpunit.assertions.assertStringMatchesFormat">
+      <title>assertStringMatchesFormat()</title>
+      <indexterm><primary>assertStringMatchesFormat()</primary></indexterm>
+      <indexterm><primary>assertStringNotMatchesFormat()</primary></indexterm>
+      <para><literal>assertStringMatchesFormat(string $format, string $string[, string $message = ''])</literal></para>
+      <para><literal>$string</literal> が書式文字列 <literal>$format</literal> にマッチしない場合にエラー <literal>$message</literal> を報告します。</para>
+      <para><literal>assertStringNotMatchesFormat()</literal> はこのアサーションの逆で、同じ引数をとります。</para>
+      <example id="writing-tests-for-phpunit.assertions.assertStringMatchesFormat.example">
+        <title>assertStringMatchesFormat() の使用法</title>
+        <programlisting><![CDATA[<?php
+class StringMatchesFormatTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertStringMatchesFormat('%i', 'foo');
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit StringMatchesFormatTest</userinput><![CDATA[
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds, Memory: 5.00Mb
+
+There was 1 failure:
+
+1) StringMatchesFormatTest::testFailure
+Failed asserting that 'foo' matches PCRE pattern "/^[+-]?\d+$/s".
+
+/home/sb/StringMatchesFormatTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+      </example>
+      <para>書式文字列には次のプレースホルダを含めることができます。</para>
+      <itemizedlist>
+        <listitem><para><literal>%e</literal>: ディレクトリ区切り文字、たとえば Linux なら <literal>/</literal> を表します。</para></listitem>
+        <listitem><para><literal>%s</literal>: 一文字以上の何か (文字あるいは空白)、ただし改行文字は含みません。</para></listitem>
+        <listitem><para><literal>%S</literal>: ゼロ文字以上の何か (文字あるいは空白)、ただし改行文字は含みません。</para></listitem>
+        <listitem><para><literal>%a</literal>: 一文字以上の何か (文字あるいは空白)、改行文字も含みます。</para></listitem>
+        <listitem><para><literal>%A</literal>: ゼロ文字以上の何か (文字あるいは空白)、改行文字も含みます。</para></listitem>
+        <listitem><para><literal>%w</literal>: ゼロ文字以上の空白。</para></listitem>
+        <listitem><para><literal>%i</literal>: 符号付き整数値。例: <literal>+3142</literal>, <literal>-3142</literal></para></listitem>
+        <listitem><para><literal>%d</literal>: 符号なし整数値。例: <literal>123.66</literal></para></listitem>
+        <listitem><para><literal>%x</literal>: 一文字以上の十六進文字 (<literal>0-9</literal>, <literal>a-f</literal>, <literal>A-F</literal>)。</para></listitem>
+        <listitem><para><literal>%f</literal>: 浮動小数点数値。例: <literal>3.142</literal>, <literal>-3.142</literal>, <literal>3.142E-10</literal>, <literal>3.142e+10</literal></para></listitem>
+        <listitem><para><literal>%c</literal>: 任意の一文字。</para></listitem>
+      </itemizedlist>
+    </section>
+
+    <section id="writing-tests-for-phpunit.assertions.assertStringMatchesFormatFile">
+      <title>assertStringMatchesFormatFile()</title>
+      <indexterm><primary>assertStringMatchesFormatFile()</primary></indexterm>
+      <indexterm><primary>assertStringNotMatchesFormatFile()</primary></indexterm>
+      <para><literal>assertStringMatchesFormatFile(string $formatFile, string $string[, string $message = ''])</literal></para>
+      <para><literal>$string</literal> が <literal>$formatFile</literal> の内容にマッチしない場合にエラー <literal>$message</literal> を報告します。</para>
+      <para><literal>assertStringNotMatchesFormatFile()</literal> はこのアサーションの逆で、同じ引数をとります。</para>
+      <example id="writing-tests-for-phpunit.assertions.assertStringMatchesFormatFile.example">
+        <title>assertStringMatchesFormatFile() の使用法</title>
+        <programlisting><![CDATA[<?php
+class StringMatchesFormatFileTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertStringMatchesFormatFile('/path/to/expected.txt', 'foo');
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit StringMatchesFormatFileTest</userinput><![CDATA[
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds, Memory: 5.00Mb
+
+There was 1 failure:
+
+1) StringMatchesFormatFileTest::testFailure
+Failed asserting that 'foo' matches PCRE pattern "/^[+-]?\d+
+$/s".
+
+/home/sb/StringMatchesFormatFileTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 2, Failures: 1.]]></screen>
+      </example>
+    </section>
+
+    <section id="writing-tests-for-phpunit.assertions.assertSame">
+      <title>assertSame()</title>
+      <indexterm><primary>assertSame()</primary></indexterm>
+      <indexterm><primary>assertNotSame()</primary></indexterm>
+      <indexterm><primary>assertAttributeSame()</primary></indexterm>
+      <indexterm><primary>assertAttributeNotSame()</primary></indexterm>
+      <para><literal>assertSame(mixed $expected, mixed $actual[, string $message = ''])</literal></para>
+      <para>2 つの変数 <literal>$expected</literal> と <literal>$actual</literal> が同じ型・同じ値でない場合にエラー <literal>$message</literal> を報告します。</para>
+      <para><literal>assertNotSame()</literal> はこのアサーションの逆で、同じ引数をとります。</para>
+      <para><literal>assertAttributeSame()</literal> と <literal>assertAttributeNotSame()</literal> は便利なラッパーで、クラスやオブジェクトの <literal>public</literal>、<literal>protected</literal>、<literal>private</literal> 属性を実際の値として使用することができます。</para>
+      <example id="writing-tests-for-phpunit.assertions.assertSame.example">
+        <title>assertSame() の使用法</title>
+        <programlisting><![CDATA[<?php
+class SameTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertSame('2204', 2204);
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit SameTest</userinput>
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds, Memory: 5.00Mb
+
+There was 1 failure:
+
+1) SameTest::testFailure
+Failed asserting that 2204 is identical to '2204'.
+
+/home/sb/SameTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.</screen>
+      </example>
+
+      <para><literal>assertSame(object $expected, object $actual[, string $message = ''])</literal></para>
+      <para>2 つの変数 <literal>$expected</literal> と <literal>$actual</literal> が同じオブジェクトを参照していない場合にエラー <literal>$message</literal> を報告します。</para>
+
+      <example id="writing-tests-for-phpunit.assertions.assertSame.example2">
+        <title>オブジェクトでの assertSame() の使用法</title>
+        <programlisting><![CDATA[<?php
+class SameTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertSame(new stdClass, new stdClass);
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit SameTest</userinput>
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds, Memory: 4.75Mb
+
+There was 1 failure:
+
+1) SameTest::testFailure
+Failed asserting that two variables reference the same object.
+
+/home/sb/SameTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.</screen>
+      </example>
+    </section>
+
+    <section id="writing-tests-for-phpunit.assertions.assertSelectCount">
+      <title>assertSelectCount()</title>
+      <indexterm><primary>assertSelectCount()</primary></indexterm>
+      <para><literal>assertSelectCount(array $selector, integer $count, mixed $actual[, string $message = '', boolean $isHtml = TRUE])</literal></para>
+      <para>CSS セレクタ <literal>$selector</literal> が DOMNode <literal>$actual</literal> の <literal>$count</literal> 要素にマッチしない場合にエラー <literal>$message</literal> を報告します。</para>
+      <para><literal>$count</literal> には次の型のいずれかを指定できます。</para>
+      <itemizedlist>
+        <listitem><literal>boolean</literal>: セレクタにマッチする要素が存在する (<literal>TRUE</literal>) か存在しない (<literal>FALSE</literal>) かを調べます。</listitem>
+        <listitem><literal>integer</literal>: 要素の数を調べます。</listitem>
+        <listitem><literal>array</literal>: 要素の数が指定した範囲にあるかどうかを調べます。<literal>&lt;</literal>, <literal>&gt;</literal>, <literal>&lt;=</literal>, および <literal>&gt;=</literal> をキーとして範囲を指定します。</listitem>
+      </itemizedlist>
+      <example id="writing-tests-for-phpunit.assertions.assertSelectCount.example">
+        <title>assertSelectCount() の使用法</title>
+        <programlisting><![CDATA[<?php
+class SelectCountTest extends PHPUnit_Framework_TestCase
+{
+    protected function setUp()
+    {
+        $this->xml = new DomDocument;
+        $this->xml->loadXML('<foo><bar/><bar/><bar/></foo>');
+    }
+
+    public function testAbsenceFailure()
+    {
+        $this->assertSelectCount('foo bar', FALSE, $this->xml);
+    }
+
+    public function testPresenceFailure()
+    {
+        $this->assertSelectCount('foo baz', TRUE, $this->xml);
+    }
+
+    public function testExactCountFailure()
+    {
+        $this->assertSelectCount('foo bar', 5, $this->xml);
+    }
+
+    public function testRangeFailure()
+    {
+        $this->assertSelectCount('foo bar', array('>'=>6, '<'=>8), $this->xml);
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit SelectCountTest</userinput>
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+FFFF
+
+Time: 0 seconds, Memory: 5.50Mb
+
+There were 4 failures:
+
+1) SelectCountTest::testAbsenceFailure
+Failed asserting that true is false.
+
+/home/sb/SelectCountTest.php:12
+
+2) SelectCountTest::testPresenceFailure
+Failed asserting that false is true.
+
+/home/sb/SelectCountTest.php:17
+
+3) SelectCountTest::testExactCountFailure
+Failed asserting that 3 matches expected 5.
+
+/home/sb/SelectCountTest.php:22
+
+4) SelectCountTest::testRangeFailure
+Failed asserting that false is true.
+
+/home/sb/SelectCountTest.php:27
+
+FAILURES!
+Tests: 4, Assertions: 4, Failures: 4.</screen>
+      </example>
+    </section>
+
+    <section id="writing-tests-for-phpunit.assertions.assertSelectEquals">
+      <title>assertSelectEquals()</title>
+      <indexterm><primary>assertSelectEquals()</primary></indexterm>
+      <para><literal>assertSelectEquals(array $selector, string $content, integer $count, mixed $actual[, string $message = '', boolean $isHtml = TRUE])</literal></para>
+      <para>CSS セレクタ <literal>$selector</literal> が DOMNode <literal>$actual</literal> の値 <literal>$content</literal> の <literal>$count</literal> 要素にマッチしない場合にエラー <literal>$message</literal> を報告します。</para>
+      <para><literal>$count</literal> には次の型のいずれかを指定できます。</para>
+      <itemizedlist>
+        <listitem><literal>boolean</literal>: セレクタにマッチする要素が存在する (<literal>TRUE</literal>) か存在しない (<literal>FALSE</literal>) かを調べます。</listitem>
+        <listitem><literal>integer</literal>: 要素の数を調べます。</listitem>
+        <listitem><literal>array</literal>: 要素の数が指定した範囲にあるかどうかを調べます。<literal>&lt;</literal>, <literal>&gt;</literal>, <literal>&lt;=</literal>, および <literal>&gt;=</literal> をキーとして範囲を指定します。</listitem>
+      </itemizedlist>
+      <example id="writing-tests-for-phpunit.assertions.assertSelectEquals.example">
+        <title>assertSelectEquals() の使用法</title>
+        <programlisting><![CDATA[<?php
+class SelectEqualsTest extends PHPUnit_Framework_TestCase
+{
+    protected function setUp()
+    {
+        $this->xml = new DomDocument;
+        $this->xml->loadXML('<foo><bar>Baz</bar><bar>Baz</bar></foo>');
+    }
+
+    public function testAbsenceFailure()
+    {
+        $this->assertSelectEquals('foo bar', 'Baz', FALSE, $this->xml);
+    }
+
+    public function testPresenceFailure()
+    {
+        $this->assertSelectEquals('foo bar', 'Bat', TRUE, $this->xml);
+    }
+
+    public function testExactCountFailure()
+    {
+        $this->assertSelectEquals('foo bar', 'Baz', 5, $this->xml);
+    }
+
+    public function testRangeFailure()
+    {
+        $this->assertSelectEquals('foo bar', 'Baz', array('>'=>6, '<'=>8), $this->xml);
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit SelectEqualsTest</userinput>
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+FFFF
+
+Time: 0 seconds, Memory: 5.50Mb
+
+There were 4 failures:
+
+1) SelectEqualsTest::testAbsenceFailure
+Failed asserting that true is false.
+
+/home/sb/SelectEqualsTest.php:12
+
+2) SelectEqualsTest::testPresenceFailure
+Failed asserting that false is true.
+
+/home/sb/SelectEqualsTest.php:17
+
+3) SelectEqualsTest::testExactCountFailure
+Failed asserting that 2 matches expected 5.
+
+/home/sb/SelectEqualsTest.php:22
+
+4) SelectEqualsTest::testRangeFailure
+Failed asserting that false is true.
+
+/home/sb/SelectEqualsTest.php:27
+
+FAILURES!
+Tests: 4, Assertions: 4, Failures: 4.</screen>
+      </example>
+    </section>
+
+    <section id="writing-tests-for-phpunit.assertions.assertSelectRegExp">
+      <title>assertSelectRegExp()</title>
+      <indexterm><primary>assertSelectRegExp()</primary></indexterm>
+      <para><literal>assertSelectRegExp(array $selector, string $pattern, integer $count, mixed $actual[, string $message = '', boolean $isHtml = TRUE])</literal></para>
+      <para>CSS セレクタ <literal>$selector</literal> が DOMNode <literal>$actual</literal> のパターン <literal>$pattern</literal> にマッチする値の <literal>$count</literal> 要素にマッチしない場合にエラー <literal>$message</literal> を報告します。</para>
+      <para><literal>$count</literal> には次の型のいずれかを指定できます。</para>
+      <itemizedlist>
+        <listitem><literal>boolean</literal>: セレクタにマッチする要素が存在する (<literal>TRUE</literal>) か存在しない (<literal>FALSE</literal>) かを調べます。</listitem>
+        <listitem><literal>integer</literal>: 要素の数を調べます。</listitem>
+        <listitem><literal>array</literal>: 要素の数が指定した範囲にあるかどうかを調べます。<literal>&lt;</literal>, <literal>&gt;</literal>, <literal>&lt;=</literal>, および <literal>&gt;=</literal> をキーとして範囲を指定します。</listitem>
+      </itemizedlist>
+      <example id="writing-tests-for-phpunit.assertions.assertSelectRegExp.example">
+        <title>assertSelectRegExp() の使用法</title>
+        <programlisting><![CDATA[<?php
+class SelectRegExpTest extends PHPUnit_Framework_TestCase
+{
+    protected function setUp()
+    {
+        $this->xml = new DomDocument;
+        $this->xml->loadXML('<foo><bar>Baz</bar><bar>Baz</bar></foo>');
+    }
+
+    public function testAbsenceFailure()
+    {
+        $this->assertSelectRegExp('foo bar', '/Ba.*/', FALSE, $this->xml);
+    }
+
+    public function testPresenceFailure()
+    {
+        $this->assertSelectRegExp('foo bar', '/B[oe]z]/', TRUE, $this->xml);
+    }
+
+    public function testExactCountFailure()
+    {
+        $this->assertSelectRegExp('foo bar', '/Ba.*/', 5, $this->xml);
+    }
+
+    public function testRangeFailure()
+    {
+        $this->assertSelectRegExp('foo bar', '/Ba.*/', array('>'=>6, '<'=>8), $this->xml);
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit SelectRegExpTest</userinput>
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+FFFF
+
+Time: 0 seconds, Memory: 5.50Mb
+
+There were 4 failures:
+
+1) SelectRegExpTest::testAbsenceFailure
+Failed asserting that true is false.
+
+/home/sb/SelectRegExpTest.php:12
+
+2) SelectRegExpTest::testPresenceFailure
+Failed asserting that false is true.
+
+/home/sb/SelectRegExpTest.php:17
+
+3) SelectRegExpTest::testExactCountFailure
+Failed asserting that 2 matches expected 5.
+
+/home/sb/SelectRegExpTest.php:22
+
+4) SelectRegExpTest::testRangeFailure
+Failed asserting that false is true.
+
+/home/sb/SelectRegExpTest.php:27
+
+FAILURES!
+Tests: 4, Assertions: 4, Failures: 4.</screen>
+      </example>
+    </section>
+
+    <section id="writing-tests-for-phpunit.assertions.assertStringEndsWith">
+      <title>assertStringEndsWith()</title>
+      <indexterm><primary>assertStringEndsWith()</primary></indexterm>
+      <indexterm><primary>assertStringEndsNotWith()</primary></indexterm>
+      <para><literal>assertStringEndsWith(string $suffix, string $string[, string $message = ''])</literal></para>
+      <para><literal>$string</literal> が <literal>$suffix</literal> で終わっていない場合にエラー <literal>$message</literal> を報告します。</para>
+      <para><literal>assertStringEndsNotWith()</literal> はこのアサーションの逆で、同じ引数をとります。</para>
+      <example id="writing-tests-for-phpunit.assertions.assertStringEndsWith.example">
+        <title>assertStringEndsWith() の使用法</title>
+        <programlisting><![CDATA[<?php
+class StringEndsWithTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertStringEndsWith('suffix', 'foo');
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit StringEndsWithTest</userinput><![CDATA[
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+F
+
+Time: 1 second, Memory: 5.00Mb
+
+There was 1 failure:
+
+1) StringEndsWithTest::testFailure
+Failed asserting that 'foo' ends with "suffix".
+
+/home/sb/StringEndsWithTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+      </example>
+    </section>
+
+    <section id="writing-tests-for-phpunit.assertions.assertStringEqualsFile">
+      <title>assertStringEqualsFile()</title>
+      <indexterm><primary>assertStringEqualsFile()</primary></indexterm>
+      <indexterm><primary>assertStringNotEqualsFile()</primary></indexterm>
+      <para><literal>assertStringEqualsFile(string $expectedFile, string $actualString[, string $message = ''])</literal></para>
+      <para><literal>$expectedFile</literal> で指定したファイルの内容に <literal>$actualString</literal> が含まれない場合にエラー <literal>$message</literal> を報告します。</para>
+      <para><literal>assertStringNotEqualsFile()</literal> はこのアサーションの逆で、同じ引数をとります。</para>
+      <example id="writing-tests-for-phpunit.assertions.assertStringEqualsFile.example">
+        <title>assertStringEqualsFile() の使用法</title>
+        <programlisting><![CDATA[<?php
+class StringEqualsFileTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertStringEqualsFile('/home/sb/expected', 'actual');
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit StringEqualsFileTest</userinput>
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds, Memory: 5.25Mb
+
+There was 1 failure:
+
+1) StringEqualsFileTest::testFailure
+Failed asserting that two strings are equal.
+--- Expected
++++ Actual
+@@ @@
+-'expected
+-'
++'actual'
+
+/home/sb/StringEqualsFileTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 2, Failures: 1.</screen>
+      </example>
+    </section>
+
+    <section id="writing-tests-for-phpunit.assertions.assertStringStartsWith">
+      <title>assertStringStartsWith()</title>
+      <indexterm><primary>assertStringStartsWith()</primary></indexterm>
+      <indexterm><primary>assertStringStartsNotWith()</primary></indexterm>
+      <para><literal>assertStringStartsWith(string $prefix, string $string[, string $message = ''])</literal></para>
+      <para><literal>$string</literal> が <literal>$prefix</literal> で始まっていない場合にエラー <literal>$message</literal> を報告します。</para>
+      <para><literal>assertStringStartsNotWith()</literal> はこのアサーションの逆で、同じ引数をとります。</para>
+      <example id="writing-tests-for-phpunit.assertions.assertStringStartsWith.example">
+        <title>assertStringStartsWith() の使用法</title>
+        <programlisting><![CDATA[<?php
+class StringStartsWithTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertStringStartsWith('prefix', 'foo');
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit StringStartsWithTest</userinput><![CDATA[
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds, Memory: 5.00Mb
+
+There was 1 failure:
+
+1) StringStartsWithTest::testFailure
+Failed asserting that 'foo' starts with "prefix".
+
+/home/sb/StringStartsWithTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+      </example>
+    </section>
+
+    <section id="writing-tests-for-phpunit.assertions.assertTag">
+      <title>assertTag()</title>
+      <indexterm><primary>assertTag()</primary></indexterm>
+      <indexterm><primary>assertNotTag()</primary></indexterm>
+      <para><literal>assertTag(array $matcher, string $actual[, string $message = '', boolean $isHtml = TRUE])</literal></para>
+      <para><literal>$actual</literal> が <literal>$matcher</literal> にマッチしない場合にエラー <literal>$message</literal> を報告します。</para>
+      <para><literal>$matcher</literal> は連想配列で、アサーションに使用するマッチ条件を指定します。</para>
+      <itemizedlist>
+        <listitem><literal>id</literal>: 指定した <literal>id</literal> 属性のノードが対応する値にマッチすること。</listitem>
+        <listitem><literal>tag</literal>: ノードの型が対応する値にマッチすること。</listitem>
+        <listitem><literal>attributes</literal>: ノードの属性が、対応する値の連想配列 <literal>$attributes</literal> にマッチすること。</listitem>
+        <listitem><literal>content</literal>: テキストの内容が指定した値にマッチすること。</listitem>
+        <listitem><literal>parent</literal>: ノードの親が連想配列 <literal>$parent</literal> にマッチすること。</listitem>
+        <listitem><literal>child</literal>: ノードの直接の子のうち少なくともひとつが連想配列 <literal>$child</literal> の条件を満たすこと。</listitem>
+        <listitem><literal>ancestor</literal>: ノードの先祖のうちの少なくともひとつが連想配列 <literal>$ancestor</literal> の条件を満たすこと。</listitem>
+        <listitem><literal>descendant</literal>: ノードの子孫のうちの少なくともひとつが連想配列 <literal>$descendant</literal> の条件を満たすこと。</listitem>
+        <listitem><literal>children</literal>: ノードの子の数を数えるための連想配列。
+          <itemizedlist>
+            <listitem><literal>count</literal>: マッチする子の数がこの数に等しいこと。</listitem>
+            <listitem><literal>less_than</literal>: マッチする子の数がこの数より少ないこと。</listitem>
+            <listitem><literal>greater_than</literal>: マッチする子の数がこの数より多いこと。</listitem>
+            <listitem><literal>only</literal>: 連想配列で子のマッチに使用するキーを指定し、それにマッチした子のみを数える。</listitem>
+          </itemizedlist>
+        </listitem>
+      </itemizedlist>
+      <para><literal>assertNotTag()</literal> はこのアサーションの逆で、同じ引数をとります。</para>
+      <example id="writing-tests-for-phpunit.assertions.assertTag.example">
+        <title>assertTag() の使用法</title>
+        <programlisting><![CDATA[<?php
+// id="my_id" という要素があることを表明する matcher
+$matcher = array('id' => 'my_id');
+
+// "span" タグが存在することを表明する matcher
+$matcher = array('tag' => 'span');
+
+// 中身が "Hello World" である "span" タグが存在することを表明する
+// matcher
+$matcher = array('tag' => 'span', 'content' => 'Hello World');
+
+// 正規表現で指定した内容にマッチする中身を持つ "span" タグが
+// 存在することを表明する matcher
+$matcher = array('tag' => 'span', 'content' => 'regexp:/Try P(HP|ython)/');
+
+// class 属性に "list" が指定された "span" タグが存在することを表明する matcher
+$matcher = array(
+  'tag'        => 'span',
+  'attributes' => array('class' => 'list')
+);
+
+// "span" が "div" の内部に存在することを表明する matcher
+$matcher = array(
+  'tag'    => 'span',
+  'parent' => array('tag' => 'div')
+);
+
+// "span" が "table" 内のどこかに存在することを表明する matcher
+$matcher = array(
+  'tag'      => 'span',
+  'ancestor' => array('tag' => 'table')
+);
+
+// 子要素に少なくともひとつの "em" を持つ "span" が存在することを表明する matcher
+$matcher = array(
+  'tag'   => 'span',
+  'child' => array('tag' => 'em')
+);
+
+// "span" の中 (何段階か下でも可) に
+// "strong" タグが存在することを表明する matcher
+$matcher = array(
+  'tag'        => 'span',
+  'descendant' => array('tag' => 'strong')
+);
+
+// 直接の子として 5 から 10 の "em" タグを持つ "span"
+// が存在することを表明する matcher
+$matcher = array(
+  'tag'      => 'span',
+  'children' => array(
+    'less_than'    => 11,
+    'greater_than' => 4,
+    'only'         => array('tag' => 'em')
+  )
+);
+
+// "div" というタグが存在し、先祖に "ul" そして直接の親に "li"
+// (class="enum") を持つこと、そして id="my_test" で中身が
+// "Hello World" である "span" を子孫にもつことを表明する matcher
+$matcher = array(
+  'tag'        => 'div',
+  'ancestor'   => array('tag' => 'ul'),
+  'parent'     => array(
+    'tag'        => 'li',
+    'attributes' => array('class' => 'enum')
+  ),
+  'descendant' => array(
+    'tag'   => 'span',
+    'child' => array(
+      'id'      => 'my_test',
+      'content' => 'Hello World'
+    )
+  )
+);
+
+// assertTag() を使用して、$matcher を $html に適用します
+$this->assertTag($matcher, $html);
+
+// assertTag() を使用して、$matcher を $xml に適用します
+$this->assertTag($matcher, $xml, '', FALSE);
+?>]]></programlisting>
+      </example>
+    </section>
+
+    <section id="writing-tests-for-phpunit.assertions.assertThat">
+      <title>assertThat()</title>
+      <indexterm><primary>assertThat()</primary></indexterm>
+
+      <para>
+        もっと複雑なアサーションを行う場合には、
+        <literal>PHPUnit_Framework_Constraint</literal> クラスを使用します。
+        これらは、<literal>assertThat()</literal> メソッドを使用して評価されます。
+        <xref linkend="writing-tests-for-phpunit.assertions.assertThat.example" /> は、
+        <literal>logicalNot()</literal> と <literal>equalTo()</literal>
+        を用いて <literal>assertNotEquals()</literal>
+        と同じアサーションを行う方法を示すものです。
+      </para>
+
+      <para><literal>assertThat(mixed $value, PHPUnit_Framework_Constraint $constraint[, $message = ''])</literal></para>
+      <para><literal>$value</literal> が <literal>$constraint</literal> にマッチしない場合にエラー <literal>$message</literal> を報告します。</para>
+      <example id="writing-tests-for-phpunit.assertions.assertThat.example">
+        <title>assertThat() の使用法</title>
+        <programlisting><![CDATA[<?php
+class BiscuitTest extends PHPUnit_Framework_TestCase
+{
+    public function testEquals()
+    {
+        $theBiscuit = new Biscuit('Ginger');
+        $myBiscuit  = new Biscuit('Ginger');
+
+        $this->assertThat(
+          $theBiscuit,
+          $this->logicalNot(
+            $this->equalTo($myBiscuit)
+          )
+        );
+    }
+}
+?>]]></programlisting>
+      </example>
+
+      <para>
+        <xref linkend="writing-tests-for-phpunit.assertions.assertThat.tables.constraints" /> に、
+        使用できる <literal>PHPUnit_Framework_Constraint</literal> クラスをまとめます。
+      </para>
+
+      <table id="writing-tests-for-phpunit.assertions.assertThat.tables.constraints">
+        <title>制約</title>
+
+        <tgroup cols="2" align="left" colsep="1" rowsep="1">
+          <thead>
+            <row>
+              <entry>制約</entry>
+              <entry>意味</entry>
+            </row>
+          </thead>
+          <tbody>
+            <row>
+              <indexterm><primary>attribute()</primary></indexterm>
+              <entry><literal>PHPUnit_Framework_Constraint_Attribute attribute(PHPUnit_Framework_Constraint $constraint, $attributeName)</literal></entry>
+              <entry>別の制約を、クラスあるいはオブジェクトの属性として適用する制約。</entry>
+            </row>
+            <row>
+              <indexterm><primary>anything()</primary></indexterm>
+              <entry><literal>PHPUnit_Framework_Constraint_IsAnything anything()</literal></entry>
+              <entry>あらゆる入力値を受け入れる制約。</entry>
+            </row>
+            <row>
+              <indexterm><primary>arrayHasKey()</primary></indexterm>
+              <entry><literal>PHPUnit_Framework_Constraint_ArrayHasKey arrayHasKey(mixed $key)</literal></entry>
+              <entry>配列が指定したキーを保持していることを保証する制約。</entry>
+            </row>
+            <row>
+              <indexterm><primary>contains()</primary></indexterm>
+              <entry><literal>PHPUnit_Framework_Constraint_TraversableContains contains(mixed $value)</literal></entry>
+              <entry><literal>Iterator</literal> インターフェイスを実装している <literal>array</literal> やオブジェクトが、指定した値を保持していることを保証する制約。</entry>
+            </row>
+			<row>
+			  <indexterm><primary>containsOnly()</primary></indexterm>
+              <entry><literal>PHPUnit_Framework_Constraint_TraversableContainsOnly containsOnly(string $type)</literal></entry>
+              <entry>評価対象の <literal>array</literal>、あるいは <literal>Iterator</literal> インターフェイスを実装したオブジェクトが、指定した型の唯一の値を含むことを保証する制約。</entry>
+			</row>
+			<row>
+			  <indexterm><primary>containsOnlyInstancesOf()</primary></indexterm>
+              <entry><literal>PHPUnit_Framework_Constraint_TraversableContainsOnly containsOnlyInstancesOf(string $classname)</literal></entry>
+              <entry>評価対象の <literal>array</literal>、あるいは <literal>Iterator</literal> インターフェイスを実装したオブジェクトが、指定したクラスの唯一のインスタンスを含むことを保証する制約。</entry>
+			</row>
+            <row>
+              <indexterm><primary>equalTo()</primary></indexterm>
+              <entry><literal>PHPUnit_Framework_Constraint_IsEqual equalTo($value, $delta = 0, $maxDepth = 10)</literal></entry>
+              <entry>ある値が別の値と等しいかどうかを調べる制約。</entry>
+            </row>
+            <row>
+              <indexterm><primary>attributeEqualTo()</primary></indexterm>
+              <entry><literal>PHPUnit_Framework_Constraint_Attribute attributeEqualTo($attributeName, $value, $delta = 0, $maxDepth = 10)</literal></entry>
+              <entry>ある値がクラスあるいはオブジェクトの属性と等しいかどうかを調べる制約。</entry>
+            </row>
+            <row>
+              <indexterm><primary>fileExists()</primary></indexterm>
+              <entry><literal>PHPUnit_Framework_Constraint_FileExists fileExists()</literal></entry>
+              <entry>指定した名前のファイルが存在するかどうかを調べる制約。</entry>
+            </row>
+            <row>
+              <indexterm><primary>greaterThan()</primary></indexterm>
+              <entry><literal>PHPUnit_Framework_Constraint_GreaterThan greaterThan(mixed $value)</literal></entry>
+              <entry>評価される値が、指定した値より大きいことを保証する制約。</entry>
+            </row>
+            <row>
+              <indexterm><primary>greaterThanOrEqual()</primary></indexterm>
+              <entry><literal>PHPUnit_Framework_Constraint_Or greaterThanOrEqual(mixed $value)</literal></entry>
+              <entry>評価される値が、指定した値以上であることを保証する制約。</entry>
+            </row>
+            <row>
+              <indexterm><primary>classHasAttribute()</primary></indexterm>
+              <entry><literal>PHPUnit_Framework_Constraint_ClassHasAttribute classHasAttribute(string $attributeName)</literal></entry>
+              <entry>評価されるクラスに、指定した属性があることを保証する制約。</entry>
+            </row>
+            <row>
+              <indexterm><primary>classHasStaticAttribute()</primary></indexterm>
+              <entry><literal>PHPUnit_Framework_Constraint_ClassHasStaticAttribute classHasStaticAttribute(string $attributeName)</literal></entry>
+              <entry>評価されるクラスに、指定した static 属性があることを保証する制約。</entry>
+            </row>
+            <row>
+              <indexterm><primary>hasAttribute()</primary></indexterm>
+              <entry><literal>PHPUnit_Framework_Constraint_ObjectHasAttribute hasAttribute(string $attributeName)</literal></entry>
+              <entry>評価されるオブジェクトが、指定した属性を保持していることを保証する制約。</entry>
+            </row>
+            <row>
+              <indexterm><primary>identicalTo()</primary></indexterm>
+              <entry><literal>PHPUnit_Framework_Constraint_IsIdentical identicalTo(mixed $value)</literal></entry>
+              <entry>ある値が別の値と同一であることを保証する制約。</entry>
+            </row>
+            <row>
+              <indexterm><primary>isFalse()</primary></indexterm>
+              <entry><literal>PHPUnit_Framework_Constraint_IsFalse isFalse()</literal></entry>
+              <entry>評価される値が <literal>FALSE</literal> であることを保証する制約。</entry>
+            </row>
+            <row>
+              <indexterm><primary>isInstanceOf()</primary></indexterm>
+              <entry><literal>PHPUnit_Framework_Constraint_IsInstanceOf isInstanceOf(string $className)</literal></entry>
+              <entry>評価されるオブジェクトが、指定したクラスのインスタンスであることを保証する制約。</entry>
+            </row>
+            <row>
+              <indexterm><primary>isNull()</primary></indexterm>
+              <entry><literal>PHPUnit_Framework_Constraint_IsNull isNull()</literal></entry>
+              <entry>評価される値が <literal>NULL</literal> であることを保証する制約。</entry>
+            </row>
+            <row>
+              <indexterm><primary>isTrue()</primary></indexterm>
+              <entry><literal>PHPUnit_Framework_Constraint_IsTrue isTrue()</literal></entry>
+              <entry>評価される値が <literal>TRUE</literal> であることを保証する制約。</entry>
+            </row>
+            <row>
+              <indexterm><primary>isType()</primary></indexterm>
+              <entry><literal>PHPUnit_Framework_Constraint_IsType isType(string $type)</literal></entry>
+              <entry>評価される値が、指定した型であることを保証する制約。</entry>
+            </row>
+            <row>
+              <indexterm><primary>lessThan()</primary></indexterm>
+              <entry><literal>PHPUnit_Framework_Constraint_LessThan lessThan(mixed $value)</literal></entry>
+              <entry>評価される値が、指定した値より小さいことを保証する制約。</entry>
+            </row>
+            <row>
+              <indexterm><primary>lessThanOrEqual()</primary></indexterm>
+              <entry><literal>PHPUnit_Framework_Constraint_Or lessThanOrEqual(mixed $value)</literal></entry>
+              <entry>評価される値が、指定した値以下であることを保証する制約。</entry>
+            </row>
+            <row>
+              <indexterm><primary>logicalAnd()</primary></indexterm>
+              <entry><literal>logicalAnd()</literal></entry>
+              <entry>論理積 (AND)。</entry>
+            </row>
+            <row>
+              <indexterm><primary>logicalNot()</primary></indexterm>
+              <entry><literal>logicalNot(PHPUnit_Framework_Constraint $constraint)</literal></entry>
+              <entry>論理否定 (NOT)。</entry>
+            </row>
+            <row>
+              <indexterm><primary>logicalOr()</primary></indexterm>
+              <entry><literal>logicalOr()</literal></entry>
+              <entry>論理和 (OR)。</entry>
+            </row>
+            <row>
+              <indexterm><primary>logicalXor()</primary></indexterm>
+              <entry><literal>logicalXor()</literal></entry>
+              <entry>排他的論理和 (XOR)。</entry>
+            </row>
+            <row>
+              <indexterm><primary>matchesRegularExpression()</primary></indexterm>
+              <entry><literal>PHPUnit_Framework_Constraint_PCREMatch matchesRegularExpression(string $pattern)</literal></entry>
+              <entry>評価される文字列が、正規表現にマッチすることを保証する制約。</entry>
+            </row>
+            <row>
+              <indexterm><primary>stringContains()</primary></indexterm>
+              <entry><literal>PHPUnit_Framework_Constraint_StringContains stringContains(string $string, bool $case)</literal></entry>
+              <entry>評価される文字列が、指定した文字列を含むことを保証する制約。</entry>
+            </row>
+            <row>
+              <indexterm><primary>stringEndsWith()</primary></indexterm>
+              <entry><literal>PHPUnit_Framework_Constraint_StringEndsWith stringEndsWith(string $suffix)</literal></entry>
+              <entry>評価される文字列が、指定したサフィックスで終わることを保証する制約。</entry>
+            </row>
+            <row>
+              <indexterm><primary>stringStartsWith()</primary></indexterm>
+              <entry><literal>PHPUnit_Framework_Constraint_StringStartsWith stringStartsWith(string $prefix)</literal></entry>
+              <entry>評価される文字列が、指定したプレフィックスで始まることを保証する制約。</entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+    </section>
+
+    <section id="writing-tests-for-phpunit.assertions.assertTrue">
+      <title>assertTrue()</title>
+      <indexterm><primary>assertTrue()</primary></indexterm>
+      <para><literal>assertTrue(bool $condition[, string $message = ''])</literal></para>
+      <para><literal>$condition</literal> が <literal>FALSE</literal> の場合にエラー <literal>$message</literal> を報告します。</para>
+      <example id="writing-tests-for-phpunit.assertions.assertTrue.example">
+        <title>assertTrue() の使用法</title>
+        <programlisting><![CDATA[<?php
+class TrueTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertTrue(FALSE);
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit TrueTest</userinput>
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds, Memory: 5.00Mb
+
+There was 1 failure:
+
+1) TrueTest::testFailure
+Failed asserting that false is true.
+
+/home/sb/TrueTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.</screen>
+      </example>
+    </section>
+
+    <section id="writing-tests-for-phpunit.assertions.assertXmlFileEqualsXmlFile">
+      <title>assertXmlFileEqualsXmlFile()</title>
+      <indexterm><primary>assertXmlFileEqualsXmlFile()</primary></indexterm>
+      <indexterm><primary>assertXmlFileNotEqualsXmlFile()</primary></indexterm>
+      <para><literal>assertXmlFileEqualsXmlFile(string $expectedFile, string $actualFile[, string $message = ''])</literal></para>
+      <para><literal>$actualFile</literal> の XML ドキュメントが <literal>$expectedFile</literal> の XML ドキュメントと異なる場合にエラー <literal>$message</literal> を報告します。</para>
+      <para><literal>assertXmlFileNotEqualsXmlFile()</literal> はこのアサーションの逆で、同じ引数をとります。</para>
+      <example id="writing-tests-for-phpunit.assertions.assertXmlFileEqualsXmlFile.example">
+        <title>assertXmlFileEqualsXmlFile() の使用法</title>
+        <programlisting><![CDATA[<?php
+class XmlFileEqualsXmlFileTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertXmlFileEqualsXmlFile(
+          '/home/sb/expected.xml', '/home/sb/actual.xml');
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit XmlFileEqualsXmlFileTest</userinput><![CDATA[
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds, Memory: 5.25Mb
+
+There was 1 failure:
+
+1) XmlFileEqualsXmlFileTest::testFailure
+Failed asserting that two DOM documents are equal.
+--- Expected
++++ Actual
+@@ @@
+ <?xml version="1.0"?>
+ <foo>
+-  <bar/>
++  <baz/>
+ </foo>
+
+/home/sb/XmlFileEqualsXmlFileTest.php:7
+
+FAILURES!
+Tests: 1, Assertions: 3, Failures: 1.]]></screen>
+      </example>
+    </section>
+
+    <section id="writing-tests-for-phpunit.assertions.assertXmlStringEqualsXmlFile">
+      <title>assertXmlStringEqualsXmlFile()</title>
+      <indexterm><primary>assertXmlStringEqualsXmlFile()</primary></indexterm>
+      <indexterm><primary>assertXmlStringNotEqualsXmlFile()</primary></indexterm>
+      <para><literal>assertXmlStringEqualsXmlFile(string $expectedFile, string $actualXml[, string $message = ''])</literal></para>
+      <para><literal>$actualXml</literal> の XML ドキュメントが <literal>$expectedFile</literal> の XML ドキュメントと異なる場合にエラー <literal>$message</literal> を報告します。</para>
+      <para><literal>assertXmlStringNotEqualsXmlFile()</literal> はこのアサーションの逆で、同じ引数をとります。</para>
+      <example id="writing-tests-for-phpunit.assertions.assertXmlStringEqualsXmlFile.example">
+        <title>assertXmlStringEqualsXmlFile() の使用法</title>
+        <programlisting><![CDATA[<?php
+class XmlStringEqualsXmlFileTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertXmlStringEqualsXmlFile(
+          '/home/sb/expected.xml', '<foo><baz/></foo>');
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit XmlStringEqualsXmlFileTest</userinput><![CDATA[
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds, Memory: 5.25Mb
+
+There was 1 failure:
+
+1) XmlStringEqualsXmlFileTest::testFailure
+Failed asserting that two DOM documents are equal.
+--- Expected
++++ Actual
+@@ @@
+ <?xml version="1.0"?>
+ <foo>
+-  <bar/>
++  <baz/>
+ </foo>
+
+/home/sb/XmlStringEqualsXmlFileTest.php:7
+
+FAILURES!
+Tests: 1, Assertions: 2, Failures: 1.]]></screen>
+      </example>
+    </section>
+
+    <section id="writing-tests-for-phpunit.assertions.assertXmlStringEqualsXmlString">
+      <title>assertXmlStringEqualsXmlString()</title>
+      <indexterm><primary>assertXmlStringEqualsXmlString()</primary></indexterm>
+      <indexterm><primary>assertXmlStringNotEqualsXmlString()</primary></indexterm>
+      <para><literal>assertXmlStringEqualsXmlString(string $expectedXml, string $actualXml[, string $message = ''])</literal></para>
+      <para><literal>$actualXml</literal> の XML ドキュメントが <literal>$expectedXml</literal> の XML ドキュメントと異なる場合にエラー <literal>$message</literal> を報告します。</para>
+      <para><literal>assertXmlStringNotEqualsXmlString()</literal> はこのアサーションの逆で、同じ引数をとります。</para>
+      <example id="writing-tests-for-phpunit.assertions.assertXmlStringEqualsXmlString.example">
+        <title>assertXmlStringEqualsXmlString() の使用法</title>
+        <programlisting><![CDATA[<?php
+class XmlStringEqualsXmlStringTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertXmlStringEqualsXmlString(
+          '<foo><bar/></foo>', '<foo><baz/></foo>');
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit XmlStringEqualsXmlStringTest</userinput><![CDATA[
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds, Memory: 5.00Mb
+
+There was 1 failure:
+
+1) XmlStringEqualsXmlStringTest::testFailure
+Failed asserting that two DOM documents are equal.
+--- Expected
++++ Actual
+@@ @@
+ <?xml version="1.0"?>
+ <foo>
+-  <bar/>
++  <baz/>
+ </foo>
+
+/home/sb/XmlStringEqualsXmlStringTest.php:7
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+      </example>
+    </section>
+  </section>
+</chapter>

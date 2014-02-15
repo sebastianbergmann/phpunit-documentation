@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="organizing-tests">
+  <title>テストの構成</title>
+
+  <para>
+    <indexterm><primary>Test Suite</primary></indexterm>
+
+    PHPUnit の目指すところのひとつに
+    「自由に組み合わせられる」ということがあります。つまり、
+    例えば「そのプロジェクトのすべてのテストを実行する」「プロジェクトの中の
+    ある部品を構成するすべてのクラスについて、すべてのテストを実行する」
+    「特定のひとつのクラスのテストのみを実行する」など、
+    数や組み合わせにとらわれずに好きなテストを一緒に実行できるということです。
+  </para>
+
+  <para>
+    PHPUnit では、さまざまな方法でテストを組み合わせてテストスイートにまとめることができます。
+    本章では、その中でもよく使われる手法を説明します。
+  </para>
+
+  <section id="organizing-tests.filesystem">
+    <title>ファイルシステムを用いたテストスイートの構成</title>
+
+    <para>
+      おそらく、テストスイートをとりまとめるもっとも簡単な方法は
+      すべてのテストケースのソースファイルを一つのテストディレクトリにまとめることでしょう。
+      PHPUnit はテストディレクトリを再帰的に探索し、
+      テストを自動的に見つけて実行します。
+    </para>
+
+    <para>
+      <ulink url="http://github.com/sebastianbergmann/php-object-freezer/">Object_Freezer</ulink>
+      ライブラリのテストスイートを見てみましょう。このプロジェクトのディレクトリ構成を見ると、
+      テストケースクラスが <filename>Tests</filename> ディレクトリにまとめられていることがわかります。
+      その中のディレクトリの構造は、テスト対象のシステム (SUT) がある
+      <filename>Object</filename> ディレクトリ以下の構造と同じになっています。
+    </para>
+
+    <screen>Object                              Tests
+|-- Freezer                         |-- Freezer
+|   |-- HashGenerator               |   |-- HashGenerator
+|   |   `-- NonRecursiveSHA1.php    |   |   `-- NonRecursiveSHA1Test.php
+|   |-- HashGenerator.php           |   |
+|   |-- IdGenerator                 |   |-- IdGenerator
+|   |   `-- UUID.php                |   |   `-- UUIDTest.php
+|   |-- IdGenerator.php             |   |
+|   |-- LazyProxy.php               |   |
+|   |-- Storage                     |   |-- Storage
+|   |   `-- CouchDB.php             |   |   `-- CouchDB
+|   |                               |   |       |-- WithLazyLoadTest.php
+|   |                               |   |       `-- WithoutLazyLoadTest.php
+|   |-- Storage.php                 |   |-- StorageTest.php
+|   `-- Util.php                    |   `-- UtilTest.php
+`-- Freezer.php                     `-- FreezerTest.php</screen>
+
+    <para>
+      PHPUnit のコマンドラインテストランナーに
+      テストディレクトリの場所を指示してやるだけで、
+      このライブラリのすべてのテストを実行できます。
+    </para>
+
+    <screen><userinput>phpunit Tests</userinput>
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+............................................................ 60 / 75
+...............
+
+Time: 0 seconds
+
+OK (75 tests, 164 assertions)</screen>
+
+    <note>
+      <para>
+        PHPUnit のコマンドラインテストランナーでディレクトリを指定すると、
+        その中の <filename>*Test.php</filename> ファイルを見つけて実行します。
+      </para>
+    </note>
+
+    <para>
+      <filename>Tests/FreezerTest.php</filename> にあるテストケースクラス
+      <literal>Object_FreezerTest</literal> で宣言されているテストだけを実行するには、
+      次のコマンドを実行します。
+    </para>
+
+    <screen><userinput>phpunit Tests/FreezerTest</userinput>
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+............................
+
+Time: 0 seconds
+
+OK (28 tests, 60 assertions)</screen>
+
+    <para>
+      実行したいテストをより細かく指示するには
+      <literal>--filter</literal> スイッチを使います。
+    </para>
+
+    <screen><userinput>phpunit --filter testFreezingAnObjectWorks Tests</userinput>
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+.
+
+Time: 0 seconds
+
+OK (1 test, 2 assertions)</screen>
+
+    <note>
+      <para>
+        この方式の欠点は、テストの実行順を制御できないことです。
+        そのため、テストの依存性に関する問題を引き起こすことがあります。
+        <xref linkend="writing-tests-for-phpunit.test-dependencies"/>
+        を参照ください。
+        次の節では、テストの実行順序を XML 設定ファイルで明示的に指定する方法を説明します。
+      </para>
+    </note>
+  </section>
+
+  <section id="organizing-tests.xml-configuration">
+    <title>XML 設定ファイルを用いたテストスイートの構成</title>
+    <indexterm><primary>XML Configuration</primary></indexterm>
+
+    <para>
+      PHPUnit の XML 設定ファイル (<xref linkend="appendixes.configuration"/>)
+      を使ってテストスイートを構成することもできます。
+      <xref linkend="organizing-tests.xml-configuration.examples.phpunit.xml"/>
+      に、最小限の例を示します。これは、
+      <filename>Tests</filename> を再帰的に探索して
+      <filename>*Test.php</filename> というファイルにある
+      <literal>*Test</literal> クラスをすべて追加する設定です。
+    </para>
+
+    <example id="organizing-tests.xml-configuration.examples.phpunit.xml">
+      <title>XML 設定ファイルを用いたテストスイートの構成</title>
+      <programlisting><![CDATA[<phpunit>
+  <testsuites>
+    <testsuite name="Object_Freezer">
+      <directory>Tests</directory>
+    </testsuite>
+  </testsuites>
+</phpunit>]]></programlisting>
+    </example>
+
+    <para>
+      どのテストを実行するのかを明示的に指定することができます。
+    </para>
+
+    <example id="organizing-tests.xml-configuration.examples.phpunit.xml2">
+      <title>XML 設定ファイルを用いたテストスイートの構成</title>
+      <programlisting><![CDATA[<phpunit>
+  <testsuites>
+    <testsuite name="Object_Freezer">
+      <file>Tests/Freezer/HashGenerator/NonRecursiveSHA1Test.php</file>
+      <file>Tests/Freezer/IdGenerator/UUIDTest.php</file>
+      <file>Tests/Freezer/UtilTest.php</file>
+      <file>Tests/FreezerTest.php</file>
+      <file>Tests/Freezer/StorageTest.php</file>
+      <file>Tests/Freezer/Storage/CouchDB/WithLazyLoadTest.php</file>
+      <file>Tests/Freezer/Storage/CouchDB/WithoutLazyLoadTest.php</file>
+    </testsuite>
+  </testsuites>
+</phpunit>]]></programlisting>
+    </example>
+  </section>
+</chapter>

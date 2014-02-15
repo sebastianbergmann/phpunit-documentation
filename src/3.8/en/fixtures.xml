@@ -1,0 +1,421 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="fixtures">
+  <title>Fixtures</title>
+
+  <para>
+    <indexterm><primary>Fixture</primary></indexterm>
+
+    One of the most time-consuming parts of writing tests is writing the
+    code to set the world up in a known state and then return it to its
+    original state when the test is complete. This known state is called
+    the <emphasis>fixture</emphasis> of the test.
+  </para>
+
+  <para>
+    In <xref linkend="writing-tests-for-phpunit.examples.StackTest.php" />, the
+    fixture was simply the array that is stored in the <literal>$stack</literal>
+    variable. Most of the time, though, the fixture will be more complex
+    than a simple array, and the amount of code needed to set it up will
+    grow accordingly. The actual content of the test gets lost in the noise
+    of setting up the fixture. This problem gets even worse when you write
+    several tests with similar fixtures. Without some help from the testing
+    framework, we would have to duplicate the code that sets up the fixture
+    for each test we write.
+  </para>
+
+  <para>
+    <indexterm><primary>Template Method</primary></indexterm>
+    <indexterm><primary>setUp()</primary></indexterm>
+    <indexterm><primary>tearDown()</primary></indexterm>
+
+    PHPUnit supports sharing the setup code. Before a test method is run, a
+    template method called <literal>setUp()</literal> is invoked.
+    <literal>setUp()</literal> is where you create the objects against which
+    you will test. Once the test method has finished running, whether it
+    succeeded or failed, another template method called
+    <literal>tearDown()</literal> is invoked. <literal>tearDown()</literal>
+    is where you clean up the objects against which you tested.
+  </para>
+
+  <para>
+    In <xref linkend="writing-tests-for-phpunit.examples.StackTest2.php" /> we
+    used the producer-consumer relationship between tests to share fixture. This
+    is not always desired or even possible. <xref linkend="fixtures.examples.StackTest.php"/>
+    shows how we can write the tests of the <literal>StackTest</literal> in such
+    a way that not the fixture itself is reused but the code that creates it.
+    First we declare the instance variable, <literal>$stack</literal>, that we
+    are going to use instead of a method-local variable. Then we put the
+    creation of the <literal>array</literal> fixture into the
+    <literal>setUp()</literal> method. Finally, we remove the redundant code
+    from the test methods and use the newly introduced instance variable,
+    <literal>$this->stack</literal>, instead of the method-local variable
+    <literal>$stack</literal> with the <literal>assertEquals()</literal>
+    assertion method.
+  </para>
+
+  <example id="fixtures.examples.StackTest.php">
+    <title>Using setUp() to create the stack fixture</title>
+    <programlisting><![CDATA[<?php
+class StackTest extends PHPUnit_Framework_TestCase
+{
+    protected $stack;
+
+    protected function setUp()
+    {
+        $this->stack = array();
+    }
+
+    public function testEmpty()
+    {
+        $this->assertTrue(empty($this->stack));
+    }
+
+    public function testPush()
+    {
+        array_push($this->stack, 'foo');
+        $this->assertEquals('foo', $this->stack[count($this->stack)-1]);
+        $this->assertFalse(empty($this->stack));
+    }
+
+    public function testPop()
+    {
+        array_push($this->stack, 'foo');
+        $this->assertEquals('foo', array_pop($this->stack));
+        $this->assertTrue(empty($this->stack));
+    }
+}
+?>]]></programlisting>
+  </example>
+
+  <para>
+    <indexterm><primary>Template Method</primary></indexterm>
+    <indexterm><primary>setUpBeforeClass()</primary></indexterm>
+    <indexterm><primary>setUp()</primary></indexterm>
+    <indexterm><primary>tearDown()</primary></indexterm>
+    <indexterm><primary>tearDownAfterClass()</primary></indexterm>
+
+    The <literal>setUp()</literal> and <literal>tearDown()</literal> template
+    methods are run once for each test method (and on fresh instances) of the
+    test case class.
+  </para>
+
+  <para>
+    <indexterm><primary>Template Method</primary></indexterm>
+    <indexterm><primary>setUpBeforeClass()</primary></indexterm>
+    <indexterm><primary>setUp()</primary></indexterm>
+    <indexterm><primary>assertPreConditions()</primary></indexterm>
+    <indexterm><primary>assertPostConditions()</primary></indexterm>
+    <indexterm><primary>tearDown()</primary></indexterm>
+    <indexterm><primary>tearDownAfterClass()</primary></indexterm>
+    <indexterm><primary>onNotSuccessfulTest()</primary></indexterm>
+
+    In addition, the <literal>setUpBeforeClass()</literal> and
+    <literal>tearDownAfterClass()</literal> template methods are called before
+    the first test of the test case class is run and after the last test of the
+    test case class is run, respectively.
+  </para>
+
+  <para>
+    <indexterm><primary>Template Method</primary></indexterm>
+
+    The example below shows all template methods that are available in a test
+    case class.
+  </para>
+
+  <example id="fixtures.examples.TemplateMethodsTest.php">
+    <title>Example showing all template methods available</title>
+    <programlisting><![CDATA[<?php
+class TemplateMethodsTest extends PHPUnit_Framework_TestCase
+{
+    public static function setUpBeforeClass()
+    {
+        fwrite(STDOUT, __METHOD__ . "\n");
+    }
+
+    protected function setUp()
+    {
+        fwrite(STDOUT, __METHOD__ . "\n");
+    }
+
+    protected function assertPreConditions()
+    {
+        fwrite(STDOUT, __METHOD__ . "\n");
+    }
+
+    public function testOne()
+    {
+        fwrite(STDOUT, __METHOD__ . "\n");
+        $this->assertTrue(TRUE);
+    }
+
+    public function testTwo()
+    {
+        fwrite(STDOUT, __METHOD__ . "\n");
+        $this->assertTrue(FALSE);
+    }
+
+    protected function assertPostConditions()
+    {
+        fwrite(STDOUT, __METHOD__ . "\n");
+    }
+
+    protected function tearDown()
+    {
+        fwrite(STDOUT, __METHOD__ . "\n");
+    }
+
+    public static function tearDownAfterClass()
+    {
+        fwrite(STDOUT, __METHOD__ . "\n");
+    }
+
+    protected function onNotSuccessfulTest(Exception $e)
+    {
+        fwrite(STDOUT, __METHOD__ . "\n");
+        throw $e;
+    }
+}
+?>]]></programlisting>
+     <screen><userinput>phpunit TemplateMethodsTest</userinput><![CDATA[
+PHPUnit 3.8.0 by Sebastian Bergmann.
+
+TemplateMethodsTest::setUpBeforeClass
+TemplateMethodsTest::setUp
+TemplateMethodsTest::assertPreConditions
+TemplateMethodsTest::testOne
+TemplateMethodsTest::assertPostConditions
+TemplateMethodsTest::tearDown
+.TemplateMethodsTest::setUp
+TemplateMethodsTest::assertPreConditions
+TemplateMethodsTest::testTwo
+TemplateMethodsTest::tearDown
+TemplateMethodsTest::onNotSuccessfulTest
+FTemplateMethodsTest::tearDownAfterClass
+
+
+Time: 0 seconds, Memory: 5.25Mb
+
+There was 1 failure:
+
+1) TemplateMethodsTest::testTwo
+Failed asserting that <boolean:false> is true.
+/home/sb/TemplateMethodsTest.php:30
+
+FAILURES!
+Tests: 2, Assertions: 2, Failures: 1.]]></screen>
+  </example>
+
+  <section id="fixtures.more-setup-than-teardown">
+    <title>More setUp() than tearDown()</title>
+
+    <para>
+      <literal>setUp()</literal> and <literal>tearDown()</literal> are nicely
+      symmetrical in theory but not in practice. In practice, you only need
+      to implement <literal>tearDown()</literal> if you have allocated
+      external resources like files or sockets in <literal>setUp()</literal>.
+      If your <literal>setUp()</literal> just creates plain PHP objects, you
+      can generally ignore <literal>tearDown()</literal>. However, if you
+      create many objects in your <literal>setUp()</literal>, you might want
+      to <literal>unset()</literal> the variables pointing to those objects
+      in your <literal>tearDown()</literal> so they can be garbage collected.
+      The garbage collection of test case objects is not predictable.
+    </para>
+  </section>
+
+  <section id="fixtures.variations">
+    <title>Variations</title>
+
+    <para>
+      What happens when you have two tests with slightly different setups?
+      There are two possibilities:
+    </para>
+
+    <itemizedlist>
+      <listitem>
+        <para>
+          If the <literal>setUp()</literal> code differs only slightly, move
+          the code that differs from the <literal>setUp()</literal> code to
+          the test method.
+        </para>
+      </listitem>
+
+      <listitem>
+        <para>
+          If you really have a different <literal>setUp()</literal>, you need
+          a different test case class. Name the class after the difference in
+          the setup.
+        </para>
+      </listitem>
+    </itemizedlist>
+  </section>
+
+  <section id="fixtures.sharing-fixture">
+    <title>Sharing Fixture</title>
+
+    <para>
+      There are few good reasons to share fixtures between tests, but in most
+      cases the need to share a fixture between tests stems from an unresolved
+      design problem.
+    </para>
+
+    <para>
+      A good example of a fixture that makes sense to share across several
+      tests is a database connection: you log into the database once and reuse
+      the database connection instead of creating a new connection for each
+      test. This makes your tests run faster.
+    </para>
+
+    <para>
+      <indexterm><primary>setUpBeforeClass</primary></indexterm>
+      <indexterm><primary>tearDownAfterClass</primary></indexterm>
+
+      <xref linkend="fixtures.sharing-fixture.examples.DatabaseTest.php" />
+      uses the <literal>setUpBeforeClass()</literal> and
+      <literal>tearDownAfterClass()</literal> template methods to connect to the
+      database before the test case class' first test and to disconnect from the
+      database after the last test of the test case, respectively.
+    </para>
+
+    <example id="fixtures.sharing-fixture.examples.DatabaseTest.php">
+      <title>Sharing fixture between the tests of a test suite</title>
+      <programlisting><![CDATA[<?php
+class DatabaseTest extends PHPUnit_Framework_TestCase
+{
+    protected static $dbh;
+
+    public static function setUpBeforeClass()
+    {
+        self::$dbh = new PDO('sqlite::memory:');
+    }
+
+    public static function tearDownAfterClass()
+    {
+        self::$dbh = NULL;
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      It cannot be emphasized enough that sharing fixtures between tests
+      reduces the value of the tests. The underlying design problem is
+      that objects are not loosely coupled. You will achieve better
+      results solving the underlying design problem and then writing tests
+      using stubs (see <xref linkend="test-doubles" />), than by creating
+      dependencies between tests at runtime and ignoring the opportunity
+      to improve your design.
+    </para>
+  </section>
+
+  <section id="fixtures.global-state">
+    <title>Global State</title>
+
+    <para>
+      <ulink url="http://googletesting.blogspot.com/2008/05/tott-using-dependancy-injection-to.html">It is hard to test code that uses singletons.</ulink>
+      The same is true for code that uses global variables. Typically, the code
+      you want to test is coupled strongly with a global variable and you cannot
+      control its creation. An additional problem is the fact that one test's
+      change to a global variable might break another test.
+    </para>
+
+    <para>
+      In PHP, global variables work like this:
+    </para>
+
+    <itemizedlist>
+      <listitem><para>A global variable <literal>$foo = 'bar';</literal> is stored as <literal>$GLOBALS['foo'] = 'bar';</literal>.</para></listitem>
+      <listitem><para>The <literal>$GLOBALS</literal> variable is a so-called <emphasis>super-global</emphasis> variable.</para></listitem>
+      <listitem><para>Super-global variables are built-in variables that are always available in all scopes.</para></listitem>
+      <listitem><para>In the scope of a function or method, you may access the global variable <literal>$foo</literal> by either directly accessing <literal>$GLOBALS['foo']</literal> or by using <literal>global $foo;</literal> to create a local variable with a reference to the global variable.</para></listitem>
+    </itemizedlist>
+
+    <para>
+      Besides global variables, static attributes of classes are also part of
+      the global state.
+    </para>
+
+    <para>
+      <indexterm><primary>Global Variable</primary></indexterm>
+      <indexterm><primary>Test Isolation</primary></indexterm>
+
+      By default, PHPUnit runs your tests in a way where changes to global
+      and super-global variables (<literal>$GLOBALS</literal>,
+      <literal>$_ENV</literal>, <literal>$_POST</literal>,
+      <literal>$_GET</literal>, <literal>$_COOKIE</literal>,
+      <literal>$_SERVER</literal>, <literal>$_FILES</literal>,
+      <literal>$_REQUEST</literal>) do not affect other tests. Optionally, this
+      isolation can be extended to static attributes of classes.
+    </para>
+
+    <note>
+      <para>
+        The implementation of the backup and restore operations for static
+        attributes of classes requires PHP 5.3 (or greater).
+      </para>
+      <para>
+        The implementation of the backup and restore operations for global
+        variables and static attributes of classes uses <literal>serialize()</literal>
+        and <literal>unserialize()</literal>.
+      </para>
+      <para>
+        Objects of some classes that are provided by PHP itself, such as
+        <literal>PDO</literal> for example, cannot be serialized and the backup
+        operation will break when such an object is stored in the
+        <literal>$GLOBALS</literal> array, for instance.
+      </para>
+    </note>
+
+    <para>
+      <indexterm><primary><literal>@backupGlobals</literal></primary></indexterm>
+      <indexterm><primary><literal>$backupGlobalsBlacklist</literal></primary></indexterm>
+
+      The <literal>@backupGlobals</literal> annotation that is discussed in
+      <xref linkend="appendixes.annotations.backupGlobals"/> can be used to
+      control the backup and restore operations for global variables.
+      Alternatively, you can provide a blacklist of global variables that are to
+      be excluded from the backup and restore operations like this
+      <programlisting>class MyTest extends PHPUnit_Framework_TestCase
+{
+    protected $backupGlobalsBlacklist = array('globalVariable');
+
+    // ...
+}</programlisting>
+    </para>
+
+    <note>
+      <para>
+        Please note that setting the <literal>$backupGlobalsBlacklist</literal>
+        attribute inside the <literal>setUp()</literal> method, for instance,
+        has no effect.
+      </para>
+    </note>
+
+    <para>
+      <indexterm><primary><literal>@backupStaticAttributes</literal></primary></indexterm>
+      <indexterm><primary><literal>$backupStaticAttributesBlacklist</literal></primary></indexterm>
+
+      The <literal>@backupStaticAttributes</literal> annotation that is
+      discussed in <xref linkend="appendixes.annotations.backupStaticAttributes"/>
+      can be used to control the backup and restore operations for static
+      attributes. Alternatively, you can provide a blacklist of static
+      attributes that are to be excluded from the backup and restore operations
+      like this <programlisting>class MyTest extends PHPUnit_Framework_TestCase
+{
+    protected $backupStaticAttributesBlacklist = array(
+      'className' => array('attributeName')
+    );
+
+    // ...
+}</programlisting>
+    </para>
+
+    <note>
+      <para>
+        Please note that setting the <literal>$backupStaticAttributesBlacklist</literal>
+        attribute inside the <literal>setUp()</literal> method, for instance,
+        has no effect.
+      </para>
+    </note>
+  </section>
+</chapter>
