@@ -124,7 +124,15 @@ function webify_file($file, $toc, $languageList, $versionList, $language)
       dirname(__FILE__) . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR . 'page.html'
     );
 
-    $title       = 'PHPUnit Manual';
+
+	//i18n for title
+	$title_text = array(
+        'en' => 'PHPUnit Manual',
+        'zh_cn' => 'PHPUnit 手册',
+		'ja' => 'PHPUnit マニュアル',
+    );
+
+    $title       = get_text_in_language($title_text, $language);
     $content     = '';
     $prev        = '';
     $next        = '';
