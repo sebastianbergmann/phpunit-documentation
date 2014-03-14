@@ -657,6 +657,35 @@ class SubjectTest extends PHPUnit_Framework_TestCase
     </example>
 
     <para>
+      The <literal>withConsecutive()</literal> method can take any number of
+      arrays of arguments, depending on the calls you want to test against.
+      Each array is a list of constraints corresponding to the arguments of the
+      method being mocked, like in <literal>with()</literal>.
+    </para>
+
+    <example id="test-doubles.mock-objects.examples.with-consecutive.php">
+      <title>Testing that a method gets called two times with specific arguments.</title>
+      <programlisting><![CDATA[<?php
+class FooTest extends PHPUnit_Framework_TestCase
+{
+    public function testFunctionCalledTwoTimesWithSpecificArguments()
+    {
+        $mock = $this->getMock('stdClass', array('set'));
+        $mock->expects($this->exactly(2))
+             ->method('set')
+             ->withConsecutive(
+                 array($this->equalTo('foo'), $this->greaterThan(0)),
+                 array($this->equalTo('bar'), $this->greaterThan(0))
+             );
+
+        $mock->set('foo', 21);
+        $mock->set('bar', 48);
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
       The <literal>callback()</literal> constraint can be used for more complex
       argument verification. This constraint takes a PHP callback as its only
       argument. The PHP callback will receive the argument to be verified as
