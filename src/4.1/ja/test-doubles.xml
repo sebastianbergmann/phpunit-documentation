@@ -678,6 +678,35 @@ class SubjectTest extends PHPUnit_Framework_TestCase
     </example>
 
     <para>
+      <literal>withConsecutive()</literal> メソッドには、
+      テスト対象の呼び出しにあわせて、引数の配列を好きなだけ渡せます。
+      個々の配列は制約のリストです。
+      <literal>with()</literal> と同様に、これがモック対象メソッドのそれぞれの引数に対応します。
+    </para>
+
+    <example id="test-doubles.mock-objects.examples.with-consecutive.php">
+      <title>あるメソッドが、指定した引数つきで 2 回呼び出されることを確かめるテスト</title>
+      <programlisting><![CDATA[<?php
+class FooTest extends PHPUnit_Framework_TestCase
+{
+    public function testFunctionCalledTwoTimesWithSpecificArguments()
+    {
+        $mock = $this->getMock('stdClass', array('set'));
+        $mock->expects($this->exactly(2))
+             ->method('set')
+             ->withConsecutive(
+                 array($this->equalTo('foo'), $this->greaterThan(0)),
+                 array($this->equalTo('bar'), $this->greaterThan(0))
+             );
+
+        $mock->set('foo', 21);
+        $mock->set('bar', 48);
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
       <literal>callback()</literal> 制約を使えば、より複雑な引数の検証ができます。
       この制約は、PHP のコールバックを引数として受け取ります。
       このコールバックは、検証したい引数を受け取って、検証を通過した場合に <literal>TRUE</literal>、
