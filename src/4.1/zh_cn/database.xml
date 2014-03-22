@@ -159,8 +159,6 @@
       一般在使用 PHPUnit 的时候测试用例都是按如下方式扩展自 <literal>PHPUnit_Framework_TestCase</literal> 类的：
     </para>
     <programlisting><![CDATA[<?php
-require_once "PHPUnit/Framework/TestCase.php";
-
 class MyTest extends PHPUnit_Framework_TestCase
 {
     public function testCalculate()
@@ -173,8 +171,6 @@ class MyTest extends PHPUnit_Framework_TestCase
       如果测试代码用到了数据库扩展模块，那么建立的过程就会更复杂一些，需要扩展另外一个抽象 TestCase 类，它要求实现两个抽象方法，<literal>getConnection()</literal> 和 <literal>getDataSet()</literal>：
     </para>
     <programlisting><![CDATA[<?php
-require_once "PHPUnit/Extensions/Database/TestCase.php"; 
-
 class MyGuestbookTest extends PHPUnit_Extensions_Database_TestCase
 {
     /**
@@ -243,8 +239,6 @@ class MyGuestbookTest extends PHPUnit_Extensions_Database_TestCase
         从前面的实现范例中可以看出，<literal>getConnection()</literal> 方法是相当稳定的，可以在不同的数据库测试用例中重用。另外，为了保持测试的性能良好和数据库的开销较低，可以对代码进行一点重构，来为应用程序形成一个通用的抽象 TestCase 类，并且依然可以为每个测试用例指定不同的数据基境：
       </para>
       <programlisting><![CDATA[<?php
-require_once "PHPUnit/Extensions/Database/TestCase.php"; 
-
 abstract class MyApp_Tests_DatabaseTestCase extends PHPUnit_Extensions_Database_TestCase
 {
     // 只实例化 pdo 一次，供测试的清理和基境读取使用。
@@ -539,8 +533,6 @@ guestbook:
           目前，数据库 TestCase 中没有 YAML DataSet 的工厂方法，因此需要手工进行实例化：
         </para>
         <programlisting><![CDATA[<?php
-require_once "PHPUnit/Extensions/Database/DataSet/YamlDataSet.php"; 
-
 class YamlGuestbookTest extends PHPUnit_Extensions_Database_TestCase
 {
     protected function getDataSet()
@@ -569,8 +561,6 @@ id;content;user;created
           可以这样创建 CSV DataSet：
         </para>
         <programlisting><![CDATA[<?php
-require_once 'PHPUnit/Extensions/Database/DataSet/CsvDataSet.php';
-
 class CsvGuestbookTest extends PHPUnit_Extensions_Database_TestCase
 {
     protected function getDataSet()
@@ -623,15 +613,6 @@ class ArrayGuestbookTest extends PHPUnit_Extensions_Database_TestCase
           这个数组 DataSet 类的实现是非常简单直接的：
         </para>
          <programlisting><![CDATA[<?php
-require_once 'PHPUnit/Util/Filter.php';
-
-require_once 'PHPUnit/Extensions/Database/DataSet/AbstractDataSet.php';
-require_once 'PHPUnit/Extensions/Database/DataSet/DefaultTableIterator.php';
-require_once 'PHPUnit/Extensions/Database/DataSet/DefaultTable.php';
-require_once 'PHPUnit/Extensions/Database/DataSet/DefaultTableMetaData.php';
-
-PHPUnit_Util_Filter::addFileToFilter(__FILE__, 'PHPUNIT');
-
 class MyApp_DbUnit_ArrayDataSet extends PHPUnit_Extensions_Database_DataSet_AbstractDataSet
 {
     /**
@@ -758,8 +739,6 @@ class MySqlGuestbookTest extends PHPUnit_Extensions_Database_TestCase
           然后将 Flat XML DataSet 包装在 Replacement DataSet 中：
         </para>
         <programlisting><![CDATA[<?php
-require_once 'PHPUnit/Extensions/Database/DataSet/ReplacementDataSet.php';
-
 class ReplacementTest extends PHPUnit_Extensions_Database_TestCase
 {
     public function getDataSet()
