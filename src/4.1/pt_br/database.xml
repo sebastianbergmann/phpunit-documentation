@@ -165,8 +165,6 @@
       <literal>PHPUnit_Framework_TestCase</literal> da seguinte forma:
     </para>
     <screen>
-require_once &quot;PHPUnit/Framework/TestCase.php&quot;;
-
 class MeuTest extends PHPUnit_Framework_TestCase
 {
     public function testCalculo()
@@ -181,8 +179,6 @@ class MeuTest extends PHPUnit_Framework_TestCase
       <literal>getDataSet()</literal>:
     </para>
     <screen>
-require_once &quot;PHPUnit/Extensions/Database/TestCase.php&quot;;
-
 class MeuLivroDeVisitasTest extends PHPUnit_Extensions_Database_TestCase
 {
     /**
@@ -264,8 +260,6 @@ class MeuLivroDeVisitasTest extends PHPUnit_Extensions_Database_TestCase
         <literal>getConnection()</literal> é bastante estático e pode ser reutilizado em diferentes casos de teste de banco de dados. Adicionalmente para manter uma boa performance dos seus testes e pouca carga sobre seu banco de dados, você pode refatorar o código um pouco para obter um caso de teste abstrato genérico para sua aplicação, o que ainda permite a você especificar um ambiente de dados diferente para cada caso de teste:
       </para>
       <screen>
-require_once &quot;PHPUnit/Extensions/Database/TestCase.php&quot;;
-
 abstract class MinhaApp_Testes_CasosDeTesteDeBancoDeDadosTest extends PHPUnit_Extensions_Database_TestCase
 {
     // instancie o pdo apenas uma vez por limpeza de teste/carregamento de ambiente
@@ -583,8 +577,6 @@ livrodevisitas:
           O Conjunto de Dados YAML atualmente não possui método de fábrica no Caso de Teste de Banco de Dados, então você tem que instanciar manualmente:
         </para>
         <screen>
-require_once &quot;PHPUnit/Extensions/Database/DataSet/YamlDataSet.php&quot;;
-
 class LivroDeVisitasYamlTest extends PHPUnit_Extensions_Database_TestCase
 {
     protected function getDataSet()
@@ -613,8 +605,6 @@ id;conteudo;usuario;criado
           Você pode criar um Conjunto de Dados CSV chamando:
         </para>
         <screen>
-require_once 'PHPUnit/Extensions/Database/DataSet/CsvDataSet.php';
-
 class LivroDeVisitasCsvTest extends PHPUnit_Extensions_Database_TestCase
 {
     protected function getDataSet()
@@ -669,15 +659,6 @@ class VetorLivroDeVisitasTest extends PHPUnit_Extensions_Database_TestCase
           A implementação para este vetor Conjunto de Dados é simples e direta:
         </para>
         <screen>
-require_once 'PHPUnit/Util/Filter.php';
-
-require_once 'PHPUnit/Extensions/Database/DataSet/AbstractDataSet.php';
-require_once 'PHPUnit/Extensions/Database/DataSet/DefaultTableIterator.php';
-require_once 'PHPUnit/Extensions/Database/DataSet/DefaultTable.php';
-require_once 'PHPUnit/Extensions/Database/DataSet/DefaultTableMetaData.php';
-
-PHPUnit_Util_Filter::addFileToFilter(__FILE__, 'PHPUNIT');
-
 class MinhaApp_DbUnit_VetorConjuntoDeDadosTest extends PHPUnit_Extensions_Database_DataSet_AbstractDataSet
 {
     /**
@@ -806,8 +787,6 @@ class MeuTesteLivrodevisitasMySqlTest extends PHPUnit_Extensions_Database_TestCa
           Então envolvemos o Conjunto de Dados em XML Plano dentro de um Conjunto de Dados de Reposição:
         </para>
         <screen>
-require_once 'PHPUnit/Extensions/Database/DataSet/ReplacementDataSet.php';
-
 class ReposicaoTest extends PHPUnit_Extensions_Database_TestCase
 {
     public function getDataSet()
