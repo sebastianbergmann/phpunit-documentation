@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="incomplete-and-skipped-tests">
+  <title>Incomplete and Skipped Tests</title>
+
+  <section id="incomplete-and-skipped-tests.incomplete-tests">
+    <title>Incomplete Tests</title>
+
+    <para>
+      When you are working on a new test case class, you might want to begin
+      by writing empty test methods such as: <programlisting>public function testSomething()
+{
+}</programlisting> to keep track of the tests that you have to write. The
+      problem with empty test methods is that they are interpreted as a
+      success by the PHPUnit framework. This misinterpretation leads to the
+      test reports being useless -- you cannot see whether a test is actually
+      successful or just not yet implemented. Calling
+      <literal>$this->fail()</literal> in the unimplemented test method
+      does not help either, since then the test will be interpreted as a
+      failure. This would be just as wrong as interpreting an unimplemented
+      test as a success.
+    </para>
+
+    <para>
+      <indexterm><primary>Incomplete Test</primary></indexterm>
+      <indexterm><primary>PHPUnit_Framework_IncompleteTest</primary></indexterm>
+      <indexterm><primary>PHPUnit_Framework_IncompleteTestError</primary></indexterm>
+
+      If we think of a successful test as a green light and a test failure
+      as a red light, we need an additional yellow light to mark a test
+      as being incomplete or not yet implemented.
+      <literal>PHPUnit_Framework_IncompleteTest</literal> is a marker
+      interface for marking an exception that is raised by a test method as
+      the result of the test being incomplete or currently not implemented.
+      <literal>PHPUnit_Framework_IncompleteTestError</literal> is the
+      standard implementation of this interface.
+    </para>
+
+    <para>
+      <xref linkend="incomplete-and-skipped-tests.incomplete-tests.examples.SampleTest.php" />
+      shows a test case class, <literal>SampleTest</literal>, that contains one test
+      method, <literal>testSomething()</literal>. By calling the convenience
+      method <literal>markTestIncomplete()</literal> (which automatically
+      raises an <literal>PHPUnit_Framework_IncompleteTestError</literal>
+      exception) in the test method, we mark the test as being incomplete.
+    </para>
+
+    <example id="incomplete-and-skipped-tests.incomplete-tests.examples.SampleTest.php">
+      <title>Marking a test as incomplete</title>
+      <programlisting><![CDATA[<?php
+class SampleTest extends PHPUnit_Framework_TestCase
+{
+    public function testSomething()
+    {
+        // Optional: Test anything here, if you want.
+        $this->assertTrue(TRUE, 'This should already work.');
+
+        // Stop here and mark this test as incomplete.
+        $this->markTestIncomplete(
+          'This test has not been implemented yet.'
+        );
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      An incomplete test is denoted by an <literal>I</literal> in the output
+      of the PHPUnit command-line test runner, as shown in the following
+      example:
+    </para>
+
+    <screen><userinput>phpunit --verbose SampleTest</userinput>
+PHPUnit 4.2.0 by Sebastian Bergmann.
+
+I
+
+Time: 0 seconds, Memory: 3.95Mb
+
+There was 1 incomplete test:
+
+1) SampleTest::testSomething
+This test has not been implemented yet.
+
+/home/sb/SampleTest.php:12
+OK, but incomplete or skipped tests!
+Tests: 1, Assertions: 1, Incomplete: 1.</screen>
+
+    <para>
+      <xref linkend="incomplete-and-skipped-tests.incomplete-tests.tables.api" />
+      shows the API for marking tests as incomplete.
+    </para>
+
+    <table id="incomplete-and-skipped-tests.incomplete-tests.tables.api">
+      <title>API for Incomplete Tests</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>Method</entry>
+            <entry>Meaning</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>void markTestIncomplete()</literal></entry>
+            <entry>Marks the current test as incomplete.</entry>
+          </row>
+          <row>
+            <entry><literal>void markTestIncomplete(string $message)</literal></entry>
+            <entry>Marks the current test as incomplete using <literal>$message</literal> as an explanatory message.</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+  </section>
+
+  <section id="incomplete-and-skipped-tests.skipping-tests">
+    <title>Skipping Tests</title>
+
+    <para>
+      Not all tests can be run in every environment. Consider, for instance,
+      a database abstraction layer that has several drivers for the different
+      database systems it supports. The tests for the MySQL driver can of
+      course only be run if a MySQL server is available.
+    </para>
+
+    <para>
+      <xref linkend="incomplete-and-skipped-tests.skipping-tests.examples.DatabaseTest.php" />
+      shows a test case class, <literal>DatabaseTest</literal>, that contains one test
+      method, <literal>testConnection()</literal>. In the test case class'
+      <literal>setUp()</literal> template method we check whether the MySQLi
+      extension is available and use the <literal>markTestSkipped()</literal>
+      method to skip the test if it is not.
+    </para>
+
+    <example id="incomplete-and-skipped-tests.skipping-tests.examples.DatabaseTest.php">
+      <title>Skipping a test</title>
+      <programlisting><![CDATA[<?php
+class DatabaseTest extends PHPUnit_Framework_TestCase
+{
+    protected function setUp()
+    {
+        if (!extension_loaded('mysqli')) {
+            $this->markTestSkipped(
+              'The MySQLi extension is not available.'
+            );
+        }
+    }
+
+    public function testConnection()
+    {
+        // ...
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      A test that has been skipped is denoted by an <literal>S</literal> in
+      the output of the PHPUnit command-line test runner, as shown in the
+      following example:
+    </para>
+
+    <screen><userinput>phpunit --verbose DatabaseTest</userinput>
+PHPUnit 4.2.0 by Sebastian Bergmann.
+
+S
+
+Time: 0 seconds, Memory: 3.95Mb
+
+There was 1 skipped test:
+
+1) DatabaseTest::testConnection
+The MySQLi extension is not available.
+
+/home/sb/DatabaseTest.php:9
+OK, but incomplete or skipped tests!
+Tests: 1, Assertions: 0, Skipped: 1.</screen>
+
+    <para>
+      <xref linkend="incomplete-and-skipped-tests.skipped-tests.tables.api" />
+      shows the API for skipping tests.
+    </para>
+
+    <table id="incomplete-and-skipped-tests.skipped-tests.tables.api">
+      <title>API for Skipping Tests</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>Method</entry>
+            <entry>Meaning</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>void markTestSkipped()</literal></entry>
+            <entry>Marks the current test as skipped.</entry>
+          </row>
+          <row>
+            <entry><literal>void markTestSkipped(string $message)</literal></entry>
+            <entry>Marks the current test as skipped using <literal>$message</literal> as an explanatory message.</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+  </section>
+
+  <section id="incomplete-and-skipped-tests.skipping-tests-using-requires">
+    <title>Skipping Tests using @requires</title>
+
+    <para>
+      In addition to the above methods it is also possible to use the
+      <literal>@requires</literal> annotation to express common preconditions for a test case.
+    </para>
+
+    <table id="incomplete-and-skipped-tests.requires.tables.api">
+      <title>Possible @requires usages</title>
+      <tgroup cols="4" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>Type</entry>
+            <entry>Possible Values</entry>
+            <entry>Examples</entry>
+            <entry>Another example</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>PHP</literal></entry>
+            <entry>Any PHP version identifier</entry>
+            <entry>@requires PHP 5.3.3</entry>
+            <entry>@requires PHP 5.4-dev</entry>
+          </row>
+          <row>
+            <entry><literal>PHPUnit</literal></entry>
+            <entry>Any PHPUnit version identifier</entry>
+            <entry>@requires PHPUnit 3.6.3</entry>
+            <entry>@requires PHPUnit 4.2</entry>
+          </row>
+          <row>
+            <entry><literal>OS</literal></entry>
+            <entry>A regexp matching <ulink url="http://php.net/reserved.constants.php#constant.php-os">PHP_OS</ulink></entry>
+            <entry>@requires OS Linux</entry>
+            <entry>@requires OS WIN32|WINNT</entry>
+          </row>
+          <row>
+            <entry><literal>function</literal></entry>
+            <entry>Any valid parameter to <ulink url="http://php.net/function_exists">function_exists</ulink></entry>
+            <entry>@requires function imap_open</entry>
+            <entry>@requires function ReflectionMethod::setAccessible</entry>
+          </row>
+          <row>
+            <entry><literal>extension</literal></entry>
+            <entry>Any extension name</entry>
+            <entry>@requires extension mysqli</entry>
+            <entry>@requires extension curl</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <example id="incomplete-and-skipped-tests.skipping-tests.examples.DatabaseClassSkippingTest.php">
+      <title>Skipping test cases using @requires</title>
+      <programlisting><![CDATA[<?php
+/**
+ * @requires extension mysqli
+ */
+class DatabaseTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @requires PHP 5.3
+     */
+    public function testConnection()
+    {
+        // Test requires the mysqli extension and PHP >= 5.3
+    }
+
+    // ... All other tests require the mysqli extension
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      If you are using syntax that doesn't compile with a certain PHP Version look into the xml
+      configuration for version dependent includes in <xref linkend="appendixes.configuration.testsuites" />
+    </para>
+  </section>
+
+</chapter>

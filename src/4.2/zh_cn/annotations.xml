@@ -1,0 +1,682 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<appendix id="appendixes.annotations">
+  <title>标注</title>
+
+  <para>
+    <indexterm><primary>Annotation （标注）</primary></indexterm>
+
+    所谓标注，是指某些编程语言中允许加在源代码中的一种特殊形式的语法元数据。PHP 并没有专门的语言特性来支持对源代码进行标注，然而 PHP 社区早已经形成惯例，通过在文档注释块中使用诸如 <literal>@annotation arguments</literal> 这样的标签来对标注源代码。在 PHP 中，文档注释块是可反射的：可以通过在函数、方法、类以及属性级别调用反射 API 的 <literal>getDocComment()</literal> 方法来访问它们。诸如 PHPUnit 这样的应用程序在运行时用这些信息来配置其行为。
+  </para>
+
+  <para>
+    本附录列出了 PHPUnit 所支持的所有标注种类。
+  </para>
+
+  <section id="appendixes.annotations.author">
+    <title>@author</title>
+
+    <para>
+      <indexterm><primary>@author</primary></indexterm>
+
+      <literal>@author</literal> 标注是 <literal>@group</literal> 标注（参见 <xref
+      linkend="appendixes.annotations.group"/>）的别名，允许基于作者对测试进行过滤。
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.after">
+    <title>@after</title>
+
+    <para>
+
+      <literal>@after</literal> 标注用于指定若干方法，这些方法在测试用例类中的每个测试方法运行完成之后调用。
+      <programlisting>class MyTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @after
+     */
+    public function tearDownSomeFixtures()
+    {
+        // ...
+    }
+
+    /**
+     * @after
+     */
+    public function tearDownSomeOtherFixtures()
+    {
+        // ...
+    }
+}</programlisting>
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.afterClass">
+    <title>@afterClass</title>
+
+    <para>
+
+      <literal>@afterClass</literal> 标注用于指定若干静态方法，这些方法在测试类中的所有测试方法都运行完成之后调用，用来清理共享基境。
+      <programlisting>class MyTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @afterClass
+     */
+    public static function tearDownSomeSharedFixtures()
+    {
+        // ...
+    }
+
+    /**
+     * @afterClass
+     */
+    public static function tearDownSomeOtherSharedFixtures()
+    {
+        // ...
+    }
+}</programlisting>
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.backupGlobals">
+    <title>@backupGlobals</title>
+
+    <para>
+      <indexterm><primary><literal>@backupGlobals</literal></primary></indexterm>
+
+      全局变量的备份与还原操作可以对测试用例类中的所有测试彻底禁用，像这样：
+ <programlisting>/**
+ * @backupGlobals disabled
+ */
+class MyTest extends PHPUnit_Framework_TestCase
+{
+    // ...
+}</programlisting>
+    </para>
+
+    <para>
+      <indexterm><primary><literal>@backupGlobals</literal></primary></indexterm>
+
+      <literal>@backupGlobals</literal> 标注也可以用在测试方法这一级别。这样可以对备份与还原操作进行更细粒度的配置：
+<programlisting>/**
+ * @backupGlobals disabled
+ */
+class MyTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @backupGlobals enabled
+     */
+    public function testThatInteractsWithGlobalVariables()
+    {
+        // ...
+    }
+}</programlisting>
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.backupStaticAttributes">
+    <title>@backupStaticAttributes</title>
+
+    <para>
+      <indexterm><primary><literal>@backupStaticAttributes</literal></primary></indexterm>
+
+      类的静态属性的备份与还原操作可以对测试用例类的所有测试彻底禁用，像这样：
+      <programlisting>/**
+ * @backupStaticAttributes disabled
+ */
+class MyTest extends PHPUnit_Framework_TestCase
+{
+    // ...
+}</programlisting>
+    </para>
+
+    <para>
+      <indexterm><primary><literal>@backupStaticAttributes</literal></primary></indexterm>
+
+      <literal>@backupStaticAttributes</literal> 标注也可以用在测试方法这一级别。这样可以对备份与还原操作进行更细粒度的配置：
+    <programlisting>/**
+ * @backupStaticAttributes disabled
+ */
+class MyTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @backupStaticAttributes enabled
+     */
+    public function testThatInteractsWithStaticAttributes()
+    {
+        // ...
+    }
+}</programlisting>
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.before">
+    <title>@before</title>
+
+    <para>
+      The <literal>@before</literal> 标注用于指定若干方法，这些方法在测试用例类中的每个测试方法运行之前调用。
+
+      <programlisting>class MyTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @before
+     */
+    public function setupSomeFixtures()
+    {
+        // ...
+    }
+
+    /**
+     * @before
+     */
+    public function setupSomeOtherFixtures()
+    {
+        // ...
+    }
+}</programlisting>
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.beforeClass">
+    <title>@beforeClass</title>
+
+    <para>
+      <literal>@beforeClass</literal> 标注用于指定若干静态方法，这些方法在测试类中的任何测试方法运行之前调用，用来建立共享基境。
+
+      <programlisting>class MyTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @beforeClass
+     */
+    public static function setUpSomeSharedFixtures()
+    {
+        // ...
+    }
+
+    /**
+     * @beforeClass
+     */
+    public static function setUpSomeOtherSharedFixtures()
+    {
+        // ...
+    }
+}</programlisting>
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.codeCoverageIgnore">
+    <title>@codeCoverageIgnore*</title>
+
+    <para>
+      <indexterm><primary>@codeCoverageIgnore</primary></indexterm>
+      <indexterm><primary>@codeCoverageIgnoreStart</primary></indexterm>
+      <indexterm><primary>@codeCoverageIgnoreEnd</primary></indexterm>
+
+      <literal>@codeCoverageIgnore</literal>、<literal>@codeCoverageIgnoreStart</literal> 和 <literal>@codeCoverageIgnoreEnd</literal> 标注用于从覆盖率分析中排出掉某些代码行。
+    </para>
+
+    <para>
+      用法参见<xref
+      linkend="code-coverage-analysis.ignoring-code-blocks"/>。
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.covers">
+    <title>@covers</title>
+
+    <para>
+      <indexterm><primary>Code Coverage （代码覆盖率）</primary></indexterm>
+      <indexterm><primary>@covers</primary></indexterm>
+
+      <literal>@covers</literal> 标注用在测试代码中，来指明测试方法想要对哪些方法进行测试：
+<programlisting>/**
+ * @covers BankAccount::getBalance
+ */
+public function testBalanceIsInitiallyZero()
+{
+    $this->assertEquals(0, $this->ba->getBalance());
+}</programlisting>
+    </para>
+
+    <para>
+      如果提供了这个标注，则只考虑指明的这些方法的测试覆盖率信息。
+    </para>
+
+    <para>
+      <xref linkend="appendixes.annotations.covers.tables.annotations"/>列出了 <literal>@covers</literal>  标注的语法。
+    </para>
+
+    <table id="appendixes.annotations.covers.tables.annotations">
+      <title>用于指明测试覆盖哪些方法的标注</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>标注</entry>
+            <entry>描述</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal><![CDATA[@covers ClassName::methodName]]></literal></entry>
+            <entry><literal>指明所标注的测试方法覆盖指定的方法。</literal></entry>
+          </row>
+          <row>
+            <entry><literal><![CDATA[@covers ClassName]]></literal></entry>
+            <entry><literal>指明所标注的测试方法覆盖给定类的全部方法。</literal></entry>
+          </row>
+          <row>
+            <entry><literal><![CDATA[@covers ClassName<extended>]]></literal></entry>
+            <entry><literal>指明所标注的测试方法覆盖给定类以及其所有父类与接口的全部方法。</literal></entry>
+          </row>
+          <row>
+            <entry><literal><![CDATA[@covers ClassName::<public>]]></literal></entry>
+            <entry><literal>指明所标注的测试方法覆盖给定类的所有 public 方法。</literal></entry>
+          </row>
+          <row>
+            <entry><literal><![CDATA[@covers ClassName::<protected>]]></literal></entry>
+            <entry><literal>指明所标注的测试方法覆盖给定类的所有 protected 方法。</literal></entry>
+          </row>
+          <row>
+            <entry><literal><![CDATA[@covers ClassName::<private>]]></literal></entry>
+            <entry><literal>指明所标注的测试方法覆盖给定类的所有 private 方法。</literal></entry>
+          </row>
+          <row>
+            <entry><literal><![CDATA[@covers ClassName::<!public>]]></literal></entry>
+            <entry><literal>指明所标注的测试方法覆盖给定类的所有非 public 方法。</literal></entry>
+          </row>
+          <row>
+            <entry><literal><![CDATA[@covers ClassName::<!protected>]]></literal></entry>
+            <entry><literal>指明所标注的测试方法覆盖给定类的所有非 protected 方法。</literal></entry>
+          </row>
+          <row>
+            <entry><literal><![CDATA[@covers ClassName::<!private>]]></literal></entry>
+            <entry><literal>指明所标注的测试方法覆盖给定类的所有非 private 方法。</literal></entry>
+          </row>
+          <row>
+            <entry><literal><![CDATA[@covers ::functionName]]></literal></entry>
+            <entry><literal>指明所标注的测试方法覆盖给定的全局函数。</literal></entry>
+          </row>
+         </tbody>
+      </tgroup>
+    </table>
+  </section>
+
+  <section id="appendixes.annotations.coversDefaultClass">
+    <title>@coversDefaultClass</title>
+
+    <para>
+      <indexterm><primary>@coversDefaultClass</primary></indexterm>
+
+      <literal>@coversDefaultClass</literal> 标注用于指定一个默认的命名空间或类名，这样就不用在每个 <literal>@covers</literal> 标注中重复长名称。参见<xref linkend="appendixes.annotations.examples.CoversDefaultClassTest.php" />。
+    </para>
+
+    <example id="appendixes.annotations.examples.CoversDefaultClassTest.php">
+      <title>用 @coversDefaultClass 缩短标注</title>
+      <programlisting><![CDATA[<?php
+/**
+ * @coversDefaultClass \Foo\CoveredClass
+ */
+class CoversDefaultClassTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @covers ::publicMethod
+     */
+    public function testSomething()
+    {
+        $o = new Foo\CoveredClass;
+        $o->publicMethod();
+    }
+}
+?>]]></programlisting>
+    </example>
+  </section> 
+
+  <section id="appendixes.annotations.coversNothing">
+    <title>@coversNothing</title>
+
+    <para>
+      <indexterm><primary>@coversNothing</primary></indexterm>
+
+      <literal>@coversNothing</literal> 标注用在测试代码中，来指明所标注的测试用例不记录任何代码覆盖率信息。
+    </para>
+
+    <para>
+        这可以用于集成测试。例子可参见<xref linkend="code-coverage-analysis.specifying-covered-methods.examples.GuestbookIntegrationTest.php"/>。
+    </para>
+
+    <para>
+        这个标注可以用在类级别或者方法级别，并且会覆盖掉任何 <literal>@covers</literal> 标签。
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.dataProvider">
+    <title>@dataProvider</title>
+
+    <para>
+      <indexterm><primary>@dataProvider</primary></indexterm>
+
+      测试方法可以接受任意参数。这些参数可以由数据供给器方法（<xref linkend="writing-tests-for-phpunit.data-providers.examples.DataTest.php" />中的 <literal>provider()</literal>）提供。所要使用的数据供给器方法用 <literal>@dataProvider</literal> 标注来指定。
+    </para>
+
+    <para>
+      更多细节参见<xref linkend="writing-tests-for-phpunit.data-providers"/>。
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.depends">
+    <title>@depends</title>
+
+    <para>
+      <indexterm><primary>@depends</primary></indexterm>
+
+      PHPUnit支持对测试方法之间的显式依赖关系进行声明。这种依赖关系并不是定义在测试方法的执行顺序中，而是允许生产者(producer)返回一个测试基境(fixture)的实例，并将此实例传递给依赖于它的消费者(consumer)们。<xref linkend="writing-tests-for-phpunit.examples.StackTest2.php"/>展示了如何用 <literal>@depends</literal> 标注来表达测试方法之间的依赖关系。
+    </para>
+
+    <para>
+      更多细节参见<xref linkend="writing-tests-for-phpunit.test-dependencies"/>。
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.expectedException">
+    <title>@expectedException</title>
+
+    <para>
+      <indexterm><primary>@expectedException</primary></indexterm>
+
+      <xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest.php" />展示了如何用 <literal>@expectedException</literal> 标注来测试被测代码中是否抛出了异常。
+    </para>
+
+    <para>
+      更多细节参见<xref linkend="writing-tests-for-phpunit.exceptions"/>。
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.expectedExceptionCode">
+    <title>@expectedExceptionCode</title>
+
+    <para>
+      <indexterm><primary>@expectedExceptionCode</primary></indexterm>
+
+      <literal>@expectedExceptionCode</literal> 标注，与 <literal>@expectedException</literal> 联合使用时，可以对来对抛出的异常的代号作出断言，这样可以缩小具体异常的范围。
+      <programlisting>class MyTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @expectedException     MyException
+     * @expectedExceptionCode 20
+     */
+    public function testExceptionHasErrorcode20()
+    {
+        throw new MyException('Some Message', 20);
+    }
+}</programlisting>
+
+      为了方便测试，并减少冗余，可以在 <literal>@expectedExceptionCode</literal> 中用"<literal>@expectedExceptionCode ClassName::CONST</literal>"这样的语法为其指定类常数。
+
+      <programlisting>class MyTest extends PHPUnit_Framework_TestCase
+{
+    /**
+      * @expectedException     MyException
+      * @expectedExceptionCode MyClass::ERRORCODE
+      */
+    public function testExceptionHasErrorcode20()
+    {
+      throw new MyException('Some Message', 20);
+    }
+}
+class MyClass
+{
+    const ERRORCODE = 20;
+}</programlisting>
+
+    </para>
+
+  </section>
+
+  <section id="appendixes.annotations.expectedExceptionMessage">
+    <title>@expectedExceptionMessage</title>
+
+    <para>
+      <indexterm><primary>@expectedExceptionMessage</primary></indexterm>
+
+      <literal>@expectedExceptionMessage</literal> 标注的运作方式类似于 <literal>@expectedExceptionCode</literal>，它允许你对异常的错误讯息作出断言。
+
+      <programlisting>class MyTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @expectedException        MyException
+     * @expectedExceptionMessage Some Message
+     */
+    public function testExceptionHasRightMessage()
+    {
+        throw new MyException('Some Message', 20);
+    }
+}</programlisting>
+
+      预期讯息可以是异常讯息的子串。在只需要断言传入的特定名称或参数确实出现于异常中时这个特性很有用，这样就无需在测试中关注完整的异常讯息。
+
+      <programlisting>class MyTest extends PHPUnit_Framework_TestCase
+{
+     /**
+      * @expectedException        MyException
+      * @expectedExceptionMessage broken
+      */
+     public function testExceptionHasRightMessage()
+     {
+         $param = "broken";
+         throw new MyException('Invalid parameter "'.$param.'".', 20);
+     }
+}</programlisting>
+
+      为了方便测试，并减少冗余，可以在 <literal>@expectedExceptionMessage</literal> 中用"<literal>@expectedExceptionMessage ClassName::CONST</literal>"这样的语法为其指定类常数。
+
+      例子可以参看<xref linkend="appendixes.annotations.expectedExceptionCode"/>。
+    </para>
+
+  </section>
+
+  <section id="appendixes.annotations.group">
+    <title>@group</title>
+
+    <para>
+      <indexterm><primary>@group</primary></indexterm>
+
+      测试可以用 <literal>@group</literal> 标注来标记为属于一个或多个组，就像这样：
+	  <programlisting>class MyTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @group specification
+     */
+    public function testSomething()
+    {
+    }
+
+    /**
+     * @group regresssion
+     * @group bug2204
+     */
+    public function testSomethingElse()
+    {
+    }
+}</programlisting>
+    </para>
+
+    <para>
+      测试可以基于组来选择性的执行，使用命令行测试执行器的 <literal>--group</literal> 和 <literal>--exclude-group</literal> 开关，或者使用对应的 XML 配置文件指令。
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.large">
+    <title>@large</title>
+
+    <para>
+      <indexterm><primary><literal>@large</literal></primary></indexterm>
+
+      <literal>@large</literal> 标注是 <literal>@group large</literal> 的别名。
+    </para>
+
+    <para>
+      <indexterm><primary><literal>PHP_Invoker</literal></primary></indexterm>
+      <indexterm><primary><literal>timeoutForLargeTests</literal></primary></indexterm>
+
+      如果安装了 <literal>PHP_Invoker</literal> 组件包并启用了严格模式，一个执行时间超过60秒的大型(large)测试将会视为失败。这个超时限制可以通过 XML 配置文件的 <literal>timeoutForLargeTests</literal> 属性进行配置。
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.medium">
+    <title>@medium</title>
+
+    <para>
+      <indexterm><primary><literal>@medium</literal></primary></indexterm>
+
+      <literal>@medium</literal> 标注是 <literal>@group medium</literal> 的别名。中型(medium)测试不能依赖于标记为 <literal>@large</literal> 的测试。
+    </para>
+
+    <para>
+      <indexterm><primary><literal>PHP_Invoker</literal></primary></indexterm>
+      <indexterm><primary><literal>timeoutForMediumTests</literal></primary></indexterm>
+
+      如果安装了 <literal>PHP_Invoker</literal> 组件包并启用了严格模式，一个执行时间超过10秒的中型(medium)测试将会视为失败。这个超时限制可以通过 XML 配置文件的 <literal>timeoutForMediumTests</literal> 属性进行配置。
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.preserveGlobalState">
+    <title>@preserveGlobalState</title>
+
+    <para>
+      <indexterm><primary>@preserveGlobalState</primary></indexterm>
+
+      在单独的进程中运行测试时，PHPUnit 会尝试保持来自父进程的全局状态（通过在父进程序列化全局状态然后在子进程反序列化的方式）。这当父进程包含非可序列化的全局内容时可能会导致问题。为了修正这种问题，可以用 <literal>@preserveGlobalState</literal> 标注来禁止 PHPUnit 保持全局状态。
+
+      <programlisting>class MyTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
+     */
+    public function testInSeparateProcess()
+    {
+        // ...
+    }
+}</programlisting>
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.requires">
+    <title>@requires</title>
+
+    <para>
+      <indexterm><primary><literal>@requires</literal></primary></indexterm>
+
+      <literal>@requires</literal> 标注用于在常见前提条件（例如 PHP 版本或所安装的扩展）不满足时跳过测试。
+    </para>
+
+    <para>
+      <indexterm><primary><literal>@requires</literal></primary></indexterm>
+      完整的可能用法以及例子见<xref linkend="incomplete-and-skipped-tests.requires.tables.api" />
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.runTestsInSeparateProcesses">
+    <title>@runTestsInSeparateProcesses</title>
+
+    <para>
+      <indexterm><primary>@runTestsInSeparateProcesses</primary></indexterm>
+
+      指明单个测试类内的所有测试要各自运行在独立的 PHP 进程中。 <programlisting>/**
+ * @runTestsInSeparateProcesses
+ */
+class MyTest extends PHPUnit_Framework_TestCase
+{
+    // ...
+}</programlisting>
+
+      <emphasis role="strong">注意：</emphasis> 默认情况下，PHPUnit 会尝试保持来自父进程的全局状态（通过在父进程序列化全局状态然后在子进程反序列化的方式）。这当父进程包含非可序列化的全局内容时可能会导致问题。关于如何修正此问题的信息参见<xref
+      linkend="appendixes.annotations.preserveGlobalState"/>。
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.runInSeparateProcess">
+    <title>@runInSeparateProcess</title>
+
+    <para>
+      <indexterm><primary>@runInSeparateProcess</primary></indexterm>
+
+      指明某个测试要运行在独立的 PHP 进程中。 
+      <programlisting>class MyTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @runInSeparateProcess
+     */
+    public function testInSeparateProcess()
+    {
+        // ...
+    }
+}</programlisting>
+
+      <emphasis role="strong">注意：</emphasis> 默认情况下，PHPUnit 会尝试保持来自父进程的全局状态（通过在父进程序列化全局状态然后在子进程反序列化的方式）。这当父进程包含非可序列化的全局内容时可能会导致问题。关于如何修正此问题的信息参见<xref
+      linkend="appendixes.annotations.preserveGlobalState"/>。
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.small">
+    <title>@small</title>
+
+    <para>
+      <indexterm><primary><literal>@small</literal></primary></indexterm>
+
+      <literal>@small</literal> 标注是 <literal>@group small</literal> 的别名。小型(small)测试不能依赖于标记为  <literal>@medium</literal> 或 <literal>@large</literal> 的测试。
+    </para>
+
+    <para>
+      <indexterm><primary><literal>PHP_Invoker</literal></primary></indexterm>
+      <indexterm><primary><literal>timeoutForSmallTests</literal></primary></indexterm>
+
+      如果安装了 <literal>PHP_Invoker</literal> 组件包并启用了严格模式，一个执行时间超过1秒的小型(small)测试将会视为失败。这个超时限制可以通过 XML 配置文件的 <literal>timeoutForSmallTests</literal> 属性进行配置。
+    </para>
+
+    <note>
+      <para>
+        默认情况下，所有未标记为 <literal>@medium</literal> 或 <literal>@large</literal> 的测试都视为小型(small)测试。请注意，虽然如此，<literal>--group</literal> 和有关的选项都只会将用恰当的标注显式标记好的测试视为在 <literal>small</literal> 组中。
+      </para>
+    </note>
+  </section>
+
+  <section id="appendixes.annotations.test">
+    <title>@test</title>
+
+    <para>
+      <indexterm><primary>@test</primary></indexterm>
+
+      除了用 <literal>test</literal> 作为测试方法名称的前缀外，还可以在方法的文档注释块中用 <literal>@test</literal> 标注来将其标记为测试方法。
+      <programlisting>/**
+ * @test
+ */
+public function initialBalanceShouldBe0()
+{
+    $this->assertEquals(0, $this->ba->getBalance());
+}</programlisting>
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.testdox">
+    <title>@testdox</title>
+
+    <para>
+      <indexterm><primary>TestDox</primary></indexterm>
+      <indexterm><primary>@testdox</primary></indexterm>
+    </para>
+
+    <programlisting></programlisting>
+  </section>
+
+  <section id="appendixes.annotations.ticket">
+    <title>@ticket</title>
+
+    <para>
+      <indexterm><primary>@ticket</primary></indexterm>
+    </para>
+
+    <programlisting></programlisting>
+  </section>
+</appendix>
