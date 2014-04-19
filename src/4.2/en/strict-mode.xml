@@ -4,14 +4,28 @@
   <title>Strict Mode</title>
 
   <para>
-    ...
+    PHPUnit can perform additional checks while it executes the tests. In
+    addition to the fine-grained control over the various strict mode checks
+    (see below) you may use the <literal>--strict</literal> commandline option
+    or set <literal>strict="true"</literal> in PHPUnit's XML configuration file
+    to enable all of them.
   </para>
 
   <section id="strict-mode.useless-tests">
     <title>Useless Tests</title>
 
     <para>
-      ...
+      PHPUnit can be strict about tests that do not test anything. This check
+      can be enabled by using the <literal>--report-useless-tests</literal>
+      option on the commandline or by setting
+      <literal>beStrictAboutTestsThatDoNotTestAnything"true"</literal> in
+      PHPUnit's XML configuration file.
+    </para>
+
+    <para>
+      A test that that does not perform an assertion will be marked as risky
+      when this check is enabled. Expectations on mock objects or annotations
+      such as <code>@expectedException</code> count as an assertion.
     </para>
   </section>
 
@@ -19,7 +33,17 @@
     <title>Unintentionally Covered Code</title>
 
     <para>
-      ...
+      PHPUnit can be strict about unintentionally covered code. This check
+      can be enabled by using the <literal>--strict-coverage</literal> option on
+      the commandline or by setting
+      <literal>checkForUnintentionallyCoveredCode"true"</literal> in PHPUnit's
+      XML configuration file.
+    </para>
+
+    <para>
+      A test that is annotated with <code>@covers</code> and executes code that
+      is not listed using a <code>@covers</code> or <code>@uses</code>
+      annotation will be marked as risky when this check is enabled.
     </para>
   </section>
 
@@ -27,7 +51,17 @@
     <title>Output During Test Execution</title>
 
     <para>
-      ...
+      PHPUnit can be strict about output during tests. This check can be enabled
+      by using the <literal>--disallow-test-output</literal> option on the
+      commandline or by setting
+      <literal>beStrictAboutOutputDuringTests="true"</literal> in PHPUnit's XML
+      configuration file.
+    </para>
+
+    <para>
+      A test that emits output, for instance by invoking <code>print</code> in
+      either the test code or the tested code, will be marked as risky when this
+      check is enabled.
     </para>
   </section>
 
@@ -37,7 +71,11 @@
     <para>
       A time limit can be enforced for the execution of a test if the
       <literal>PHP_Invoker</literal> package is installed and the
-      <literal>pcntl</literal> extension is available.
+      <literal>pcntl</literal> extension is available. The enforcing of this
+      time limit can be enabled by using the
+      <literal>--enforce-time-limit</literal> option on the commandline or by
+      setting <literal>beStrictAboutTestSize="true"</literal> in PHPUnit's XML
+      configuration file.
     </para>
 
     <para>
