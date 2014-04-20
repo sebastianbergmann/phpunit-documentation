@@ -959,19 +959,21 @@ class GoogleTest extends PHPUnit_Framework_TestCase
     </para>
 
     <para>
-      vfsStream をインストールするには、配布元の PEAR チャンネル
-      (<systemitem role="URL">pear.bovigo.org</systemitem>)
-      をローカルの PEAR 環境に登録しなければなりません。
+      <ulink url="http://getcomposer.org/">Composer</ulink>
+      を使ってプロジェクトの依存関係を管理するには、
+      <literal>mikey179/vfsStream</literal> への依存情報をプロジェクトの
+      <filename>composer.json</filename> ファイルに追加します。
+      次に示すのは最小限の
+      <filename>composer.json</filename> ファイルの例で、
+      開発時の PHPUnit 4.0 と vfsStream への依存を定義しています。
     </para>
 
-    <screen><userinput>pear channel-discover pear.bovigo.org</userinput></screen>
-
-    <para>
-      これが必要なのは最初の一度だけです。これで、
-      PEAR インストーラを使って vfsStream をインストールできるようになりました。
-    </para>
-
-    <screen><userinput>pear install bovigo/vfsStream-beta</userinput></screen>
+    <programlisting><![CDATA[{
+    "require-dev": {
+        "phpunit/phpunit": "4.0.*",
+        "mikey179/vfsStream": "1.*"
+    }
+}]]></programlisting>
 
     <para>
       <xref linkend="test-doubles.mocking-the-filesystem.examples.Example.php"/>

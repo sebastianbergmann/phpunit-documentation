@@ -212,8 +212,6 @@
       クラスを継承してこのようにします。
     </para>
     <programlisting><![CDATA[<?php
-require_once "PHPUnit/Framework/TestCase.php";
-
 class MyTest extends PHPUnit_Framework_TestCase
 {
     public function testCalculate()
@@ -229,8 +227,6 @@ class MyTest extends PHPUnit_Framework_TestCase
       <literal>getDataSet()</literal> を実装します。
     </para>
     <programlisting><![CDATA[<?php
-require_once "PHPUnit/Extensions/Database/TestCase.php";
-
 class MyGuestbookTest extends PHPUnit_Extensions_Database_TestCase
 {
     /**
@@ -336,8 +332,6 @@ class MyGuestbookTest extends PHPUnit_Extensions_Database_TestCase
         このようにしても、テストケースごとに異なるデータフィクスチャを指定することができます。
       </para>
       <programlisting><![CDATA[<?php
-require_once "PHPUnit/Extensions/Database/TestCase.php";
-
 abstract class MyApp_Tests_DatabaseTestCase extends PHPUnit_Extensions_Database_TestCase
 {
     // PDO のインスタンス生成は、クリーンアップおよびフィクスチャ読み込みのときに一度だけ
@@ -407,8 +401,8 @@ abstract class Generic_Tests_DatabaseTestCase extends PHPUnit_Extensions_Databas
         データベースの設定情報を切り替えてテストスイートを実行するには、
         コマンドラインから次のようにします。
       </para>
-      <screen><userinput>phpunit --configuration developer-a.xml MyTests/</userinput>
-<userinput>phpunit --configuration developer-b.xml MyTests/</userinput></screen>
+      <screen><userinput>user@desktop> phpunit --configuration developer-a.xml MyTests/</userinput>
+<userinput>user@desktop> phpunit --configuration developer-b.xml MyTests/</userinput></screen>
       <para>
         データベースのテストを実行するときにターゲットデータベースを切り替えられるようにしておくことは、
         開発機で作業をしている場合などは特に重要です。
@@ -708,10 +702,7 @@ class MyTestCase extends PHPUnit_Extensions_Database_TestCase
       <section id="database.yaml-dataset">
         <title>YAML データセット</title>
         <para>
-          PHPUnit 3.4 以降では、データセットを YAML 形式でも指定できるようになりました。
-          この機能を使うには、PHPUnit 3.4 以降を PEAR からインストールするときに、
-          依存パッケージ Symfony/YAML もインストールしなければなりません。
-          guestbook の例を YAML データセットで表すと、このようになります。
+          あるいは、YAML データセットを使って、guestbook の例をこのように表すこともできます。
         </para>
         <screen><![CDATA[
 guestbook:
@@ -739,8 +730,6 @@ guestbook:
           に存在しないので、手動でインスタンスを生成しなければなりません。
         </para>
         <programlisting><![CDATA[<?php
-require_once "PHPUnit/Extensions/Database/DataSet/YamlDataSet.php";
-
 class YamlGuestbookTest extends PHPUnit_Extensions_Database_TestCase
 {
     protected function getDataSet()
@@ -775,8 +764,6 @@ id,content,user,created
           CSV データセットを作るには、このようにします。
         </para>
         <programlisting><![CDATA[<?php
-require_once 'PHPUnit/Extensions/Database/DataSet/CsvDataSet.php';
-
 class CsvGuestbookTest extends PHPUnit_Extensions_Database_TestCase
 {
     protected function getDataSet()
@@ -836,15 +823,6 @@ class ArrayGuestbookTest extends PHPUnit_Extensions_Database_TestCase
           この Array データセットの実装は、シンプルで直感的なものです。
         </para>
         <programlisting><![CDATA[<?php
-require_once 'PHPUnit/Util/Filter.php';
-
-require_once 'PHPUnit/Extensions/Database/DataSet/AbstractDataSet.php';
-require_once 'PHPUnit/Extensions/Database/DataSet/DefaultTableIterator.php';
-require_once 'PHPUnit/Extensions/Database/DataSet/DefaultTable.php';
-require_once 'PHPUnit/Extensions/Database/DataSet/DefaultTableMetaData.php';
-
-PHPUnit_Util_Filter::addFileToFilter(__FILE__, 'PHPUNIT');
-
 class MyApp_DbUnit_ArrayDataSet extends PHPUnit_Extensions_Database_DataSet_AbstractDataSet
 {
     /**
@@ -986,8 +964,6 @@ class MySqlGuestbookTest extends PHPUnit_Extensions_Database_TestCase
           そして、フラット XML データセットを Replacement データセットでラップします。
         </para>
         <programlisting><![CDATA[<?php
-require_once 'PHPUnit/Extensions/Database/DataSet/ReplacementDataSet.php';
-
 class ReplacementTest extends PHPUnit_Extensions_Database_TestCase
 {
     public function getDataSet()
