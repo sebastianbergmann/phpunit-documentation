@@ -38,9 +38,8 @@
   <para>
     The DbUnit extension considerably simplifies the setup of a database for
     testing purposes and allows you to verify the contents of a database after
-    performing a series of operations. It can be installed like this:
+    performing a series of operations.
   </para>
-  <screen><userinput>pear install phpunit/DbUnit</userinput></screen>
   <section id="database.supported-vendors-for-database-testing">
     <title>Supported Vendors for Database Testing</title>
     <para>
@@ -217,8 +216,6 @@
       following way:
     </para>
     <programlisting><![CDATA[<?php
-require_once "PHPUnit/Framework/TestCase.php";
-
 class MyTest extends PHPUnit_Framework_TestCase
 {
     public function testCalculate()
@@ -235,8 +232,6 @@ class MyTest extends PHPUnit_Framework_TestCase
       <literal>getDataSet()</literal>:
     </para>
     <programlisting><![CDATA[<?php
-require_once "PHPUnit/Extensions/Database/TestCase.php";
-
 class MyGuestbookTest extends PHPUnit_Extensions_Database_TestCase
 {
     /**
@@ -347,8 +342,6 @@ class MyGuestbookTest extends PHPUnit_Extensions_Database_TestCase
         different data-fixture for each test case:
       </para>
       <programlisting><![CDATA[<?php
-require_once "PHPUnit/Extensions/Database/TestCase.php";
-
 abstract class MyApp_Tests_DatabaseTestCase extends PHPUnit_Extensions_Database_TestCase
 {
     // only instantiate pdo once for test clean-up/fixture load
@@ -419,8 +412,8 @@ abstract class Generic_Tests_DatabaseTestCase extends PHPUnit_Extensions_Databas
         We can now run the database test suite using different
         configurations from the command-line interface:
       </para>
-      <screen><userinput>phpunit --configuration developer-a.xml MyTests/</userinput>
-<userinput>phpunit --configuration developer-b.xml MyTests/</userinput></screen>
+      <screen><userinput>user@desktop> phpunit --configuration developer-a.xml MyTests/</userinput>
+<userinput>user@desktop> phpunit --configuration developer-b.xml MyTests/</userinput></screen>
       <para>
         The possibility to run the database tests against different
         database targets easily is very important if you are developing on
@@ -720,10 +713,7 @@ class MyTestCase extends PHPUnit_Extensions_Database_TestCase
       <section id="database.yaml-dataset">
         <title>YAML DataSet</title>
         <para>
-          New with PHPUnit 3.4 is the ability to specify a dataset in the
-          popular YAML format. For this to work you have to install PHPUnit
-          3.4 from PEAR with its optional Symfony YAML dependency. You can
-          then write a YAML dataset for the guestbook example:
+          Alternatively, you can use YAML dataset for the guestbook example:
         </para>
         <screen><![CDATA[
 guestbook:
@@ -749,8 +739,6 @@ guestbook:
           currently, so you have to instantiate it manually:
         </para>
         <programlisting><![CDATA[<?php
-require_once "PHPUnit/Extensions/Database/DataSet/YamlDataSet.php";
-
 class YamlGuestbookTest extends PHPUnit_Extensions_Database_TestCase
 {
     protected function getDataSet()
@@ -784,8 +772,6 @@ id,content,user,created
           You can create a CSV DataSet by calling:
         </para>
         <programlisting><![CDATA[<?php
-require_once 'PHPUnit/Extensions/Database/DataSet/CsvDataSet.php';
-
 class CsvGuestbookTest extends PHPUnit_Extensions_Database_TestCase
 {
     protected function getDataSet()
@@ -847,15 +833,6 @@ class ArrayGuestbookTest extends PHPUnit_Extensions_Database_TestCase
           straightforward:
         </para>
         <programlisting><![CDATA[<?php
-require_once 'PHPUnit/Util/Filter.php';
-
-require_once 'PHPUnit/Extensions/Database/DataSet/AbstractDataSet.php';
-require_once 'PHPUnit/Extensions/Database/DataSet/DefaultTableIterator.php';
-require_once 'PHPUnit/Extensions/Database/DataSet/DefaultTable.php';
-require_once 'PHPUnit/Extensions/Database/DataSet/DefaultTableMetaData.php';
-
-PHPUnit_Util_Filter::addFileToFilter(__FILE__, 'PHPUNIT');
-
 class MyApp_DbUnit_ArrayDataSet extends PHPUnit_Extensions_Database_DataSet_AbstractDataSet
 {
     /**
@@ -999,8 +976,6 @@ class MySqlGuestbookTest extends PHPUnit_Extensions_Database_TestCase
           We then wrap the Flat XML DataSet into a Replacement DataSet:
         </para>
         <programlisting><![CDATA[<?php
-require_once 'PHPUnit/Extensions/Database/DataSet/ReplacementDataSet.php';
-
 class ReplacementTest extends PHPUnit_Extensions_Database_TestCase
 {
     public function getDataSet()
