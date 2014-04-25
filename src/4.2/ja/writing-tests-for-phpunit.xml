@@ -957,15 +957,15 @@ Tests: 2, Assertions: 2, Failures: 1.</screen>
   </section>
 
   <section id="writing-tests-for-phpunit.error-output">
-    <title>Error output</title>
+    <title>エラー出力</title>
 
     <para>
-      Whenever a test fails PHPUnit tries its best to provide you with as much
-      context as possible that can help to identify the problem.
+      テストが失敗した場合、PHPUnit は、状況を可能な限り詳細に報告します。
+      これが、何が問題だったのかを調べるのに役立つでしょう。
     </para>
 
     <example id="writing-tests-for-phpunit.error-output.examples.ArrayDiffTest.php">
-      <title>Error output generated when an array comparison fails</title>
+      <title>配列の比較に失敗したときのエラー出力</title>
       <programlisting><![CDATA[<?php
 class ArrayDiffTest extends PHPUnit_Framework_TestCase
 {
@@ -1007,16 +1007,15 @@ FAILURES!
 Tests: 1, Assertions: 1, Failures: 1.]]></screen>
     </example>
     <para>
-      In this example only one of the array values differs and the other values
-      are shown to provide context on where the error occurred.
+      この例では配列の要素のうちひとつだけが異なっています。
+      それ以外の値も表示することで、どこが悪かったのかをわかりやすくしています。
     </para>
 
     <para>
-      When the generated output would be long to read PHPUnit will split it up
-      and provide a few lines of context around every difference.
+      出力が長すぎる場合は PHPUnit が出力を分割し、違っている部分の前後数行だけを出力します。
     </para>
     <example id="writing-tests-for-phpunit.error-output.examples.LongArrayDiffTest.php">
-      <title>Error output when an array comparison of an long array fails</title>
+      <title>要素数の多い配列の比較に失敗したときのエラー出力</title>
       <programlisting><![CDATA[<?php
 class LongArrayDiffTest extends PHPUnit_Framework_TestCase
 {
@@ -1057,21 +1056,20 @@ FAILURES!
 Tests: 1, Assertions: 1, Failures: 1.]]></screen>
     </example>
     <section id="writing-tests-for-phpunit.error-output.edge-cases">
-      <title>Edge cases</title>
+      <title>エッジケース</title>
 
       <para>
-        When a comparison fails PHPUnit creates a textual representations of the
-        input values and compares those. Due to that implementation a diff
-        might show more problems than actually exist.
+        比較に失敗したときに、PHPUnit は入力値をテキスト形式にしてこれを比較します。
+        この実装が原因で、実際の違う箇所よりも多くの問題を報告してしまうことがあります。
       </para>
 
       <para>
-        This only happens when using assertEquals or other 'weak' comparison
-        functions on arrays or objects.
+        この問題が発生するのは、
+        assertEquals などの「緩い」比較の関数を、配列やオブジェクトに対して使った場合だけです。
       </para>
 
       <example id="writing-tests-for-phpunit.error-output.edge-cases.examples.ArrayWeakComparisonTest.php">
-        <title>Edge case in the diff generation when using weak comparison</title>
+        <title>緩い比較を使った場合の diff の生成のエッジケース</title>
         <programlisting><![CDATA[<?php
 class ArrayWeakComparisonTest extends PHPUnit_Framework_TestCase
 {
@@ -1116,9 +1114,9 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
 
       </example>
       <para>
-        In this example the difference in the first index between
-        <literal>1</literal> and <literal>'1'</literal> is
-        reported even though assertEquals considers the values as a match.
+        この例では、最初のインデックスの
+        <literal>1</literal> と <literal>'1'</literal>
+        がエラー報告されていますが、assertEquals ではこれらを等しいとみなしているはずです。
       </para>
 
     </section>
