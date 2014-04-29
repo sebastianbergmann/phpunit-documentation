@@ -5,20 +5,52 @@
 
   <note>
     <para>
-      PHPUnit 4.2 需要 PHP 5.3.3，强烈推荐使用最新版本的 PHP。
-    </para>
-
-     <para>
-     如果需要支持代码覆盖率分析，需要 <ulink url="http://xdebug.org/">Xdebug</ulink> 2.1.3，强烈推荐使用最新版本的 Xdebug。
+      如果从旧版本 PHPUnit 升级，请阅读<xref linkend="appendixes.upgrading.phpunit-4-2"/>。
     </para>
   </note>
 
+  <section id="installation.requirements">
+    <title>需求</title>
+
+    <para>
+      PHPUnit 4.2 需要 PHP 5.3.3，强烈推荐使用最新版本的 PHP。
+    </para>
+
+    <para>
+      PHPUnit 需要使用以下扩展：<ulink
+      url="http://php.net/manual/en/dom.setup.php">dom</ulink>、<ulink
+      url="http://php.net/manual/en/json.installation.php">json</ulink>、
+      <ulink
+      url="http://php.net/manual/en/pcre.installation.php">pcre</ulink>、
+      <ulink
+      url="http://php.net/manual/en/reflection.installation.php">reflection</ulink>
+      以及 <ulink url="http://php.net/manual/en/spl.installation.php">spl</ulink>。通常，这些扩展会被一并编译并默认启用。其中的某些甚至是根本无法禁用的。
+    </para>
+
+    <para>
+      如果需要支持代码覆盖率分析，需要 <ulink url="http://xdebug.org/">Xdebug</ulink> 2.1.3，强烈推荐使用最新版本的 Xdebug。另外，代码覆盖率分析功能还需要有 <ulink
+      url="http://php.net/manual/en/tokenizer.installation.php">tokenizer</ulink> 扩展才能工作。
+      如果要将代码覆盖率信息以 XML 格式记录下来，需要有 <ulink
+      url="http://php.net/manual/en/xmlwriter.installation.php">xmlwriter</ulink> 扩展。
+    </para>
+
+    <para>
+      要以 PHP 档案包(PHAR)方式使用 PHPUnit，需要 <ulink
+      url="http://php.net/manual/en/phar.installation.php">phar</ulink> 扩展。
+      PHPUnit 的 PHAR 的 <literal>--self-update</literal> 功能需要
+      <ulink
+      url="http://de2.php.net/manual/en/openssl.installation.php">openssl</ulink> 扩展才能工作。
+      如果使用了 <ulink url="http://suhosin.org/">Suhosin</ulink> 扩展并同时希望以
+      PHP 档案包(PHAR)方式使用 PHPUnit，需要配置 <literal>suhosin.executor.include.whitelist = phar</literal>。
+    </para>
+  </section>
+
   <section id="installation.phar">
-    <title>PHP档案包(PHAR)</title>
+    <title>PHP 档案包(PHAR)</title>
 
     <para>
       要获取 PHPUnit，最简单的方法是下载 PHPUnit 的 <ulink
-      url="http://php.net/phar">PHP 档案包(PHAR)</ulink>，它将 PHPUnit 所需要的所有依赖组件（包括某些可选的组件）捆绑在单个文件中：
+      url="http://php.net/phar">PHP 档案包(PHAR)</ulink>，它将 PHPUnit 所需要的所有必要组件（以及某些可选组件）捆绑在单个文件中：
     </para>
 
     <screen><userinput>wget https://phar.phpunit.de/phpunit.phar</userinput> 
@@ -26,7 +58,7 @@
 <userinput>mv phpunit.phar /usr/local/bin/phpunit</userinput></screen>
 
     <para>
-      当然，你也可以下载后直接使用这个 PHAR：
+      当然，也可以下载后直接使用这个 PHAR：
     </para>
 
     <screen><userinput>wget https://phar.phpunit.de/phpunit.phar</userinput>
@@ -37,7 +69,7 @@
     <title>Composer</title>
 
     <para>
-      如果你用 <ulink url="http://getcomposer.org/">Composer</ulink> 来管理项目的依赖关系，只需要简单的在项目的 <filename>composer.json</filename> 文件中加上一个对 <literal>phpunit/phpunit</literal> 的依赖关系即可。下面是一个最小化的 <filename>composer.json</filename> 文件的例子，只定义了一个对 PHPUnit 4.2 的开发时(development-time)依赖：
+      如果用 <ulink url="http://getcomposer.org/">Composer</ulink> 来管理项目的依赖关系，只要在项目的 <filename>composer.json</filename> 文件中简单地加上对 <literal>phpunit/phpunit</literal> 的依赖关系即可。下面是一个最小化的 <filename>composer.json</filename> 文件的例子，只定义了一个对 PHPUnit 4.2 的开发时(development-time)依赖：
     </para>
 
     <programlisting><![CDATA[{
