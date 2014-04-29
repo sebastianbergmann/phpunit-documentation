@@ -26,9 +26,8 @@
     </listitem>
   </orderedlist>
   <para>
-    DbUnit 扩展大大简化了为测试目的设置数据库的操作，并且允许在对数据执行了一系列操作之后验证数据库的内容。可以像这样安装它：
+    DbUnit 扩展大大简化了为测试目的设置数据库的操作，并且允许在对数据执行了一系列操作之后验证数据库的内容。
   </para>
-  <screen><userinput>pear install phpunit/DbUnit</userinput></screen>
   <section id="database.supported-vendors-for-database-testing">
     <title>数据库测试所支持的供应商</title>
     <para>
@@ -159,8 +158,6 @@
       一般在使用 PHPUnit 的时候测试用例都是按如下方式扩展自 <literal>PHPUnit_Framework_TestCase</literal> 类的：
     </para>
     <programlisting><![CDATA[<?php
-require_once "PHPUnit/Framework/TestCase.php";
-
 class MyTest extends PHPUnit_Framework_TestCase
 {
     public function testCalculate()
@@ -173,8 +170,6 @@ class MyTest extends PHPUnit_Framework_TestCase
       如果测试代码用到了数据库扩展模块，那么建立的过程就会更复杂一些，需要扩展另外一个抽象 TestCase 类，它要求实现两个抽象方法，<literal>getConnection()</literal> 和 <literal>getDataSet()</literal>：
     </para>
     <programlisting><![CDATA[<?php
-require_once "PHPUnit/Extensions/Database/TestCase.php"; 
-
 class MyGuestbookTest extends PHPUnit_Extensions_Database_TestCase
 {
     /**
@@ -243,8 +238,6 @@ class MyGuestbookTest extends PHPUnit_Extensions_Database_TestCase
         从前面的实现范例中可以看出，<literal>getConnection()</literal> 方法是相当稳定的，可以在不同的数据库测试用例中重用。另外，为了保持测试的性能良好和数据库的开销较低，可以对代码进行一点重构，来为应用程序形成一个通用的抽象 TestCase 类，并且依然可以为每个测试用例指定不同的数据基境：
       </para>
       <programlisting><![CDATA[<?php
-require_once "PHPUnit/Extensions/Database/TestCase.php"; 
-
 abstract class MyApp_Tests_DatabaseTestCase extends PHPUnit_Extensions_Database_TestCase
 {
     // 只实例化 pdo 一次，供测试的清理和基境读取使用。
@@ -308,8 +301,8 @@ abstract class Generic_Tests_DatabaseTestCase extends PHPUnit_Extensions_Databas
       <para>
         现在可以从命令行界面以不同的配置来运行数据库测试套件了：
       </para>
-      <screen><userinput>phpunit --configuration developer-a.xml MyTests/</userinput>
-<userinput>phpunit --configuration developer-b.xml MyTests/</userinput></screen> 
+      <screen><userinput>user@desktop> phpunit --configuration developer-a.xml MyTests/</userinput>
+<userinput>user@desktop> phpunit --configuration developer-b.xml MyTests/</userinput></screen>
       <para>
         如果是在开发机上进行开发，能够轻松的针对不同的目标数据库来运行数据库测试就显得非常重要。如果多个开发人员针对同一个数据库连接运行数据库测试，很容易因为竞态而导致测试失败。
       </para>
@@ -517,7 +510,7 @@ class MyTestCase extends PHPUnit_Extensions_Database_TestCase
       <section id="database.yaml-dataset">
         <title>YAML DataSet （YAML 数据集）</title>
         <para>
-          PHPUnit 3.4 的新特性之一是具备了用流行的 YAML 格式来指定数据集的能力。要让这个功能能正常工作，必须从 PEAR 安装 PHPUnit 3.4 及其可选的 Symfony YAML 依赖组件。随后就可以为留言本的例子写个 YAML DataSet：
+          也可以用 YAML DataSet 来写留言本的例子：
         </para>
         <screen><![CDATA[
 guestbook:
@@ -539,8 +532,6 @@ guestbook:
           目前，数据库 TestCase 中没有 YAML DataSet 的工厂方法，因此需要手工进行实例化：
         </para>
         <programlisting><![CDATA[<?php
-require_once "PHPUnit/Extensions/Database/DataSet/YamlDataSet.php"; 
-
 class YamlGuestbookTest extends PHPUnit_Extensions_Database_TestCase
 {
     protected function getDataSet()
@@ -569,8 +560,6 @@ id,content,user,created
           可以这样创建 CSV DataSet：
         </para>
         <programlisting><![CDATA[<?php
-require_once 'PHPUnit/Extensions/Database/DataSet/CsvDataSet.php';
-
 class CsvGuestbookTest extends PHPUnit_Extensions_Database_TestCase
 {
     protected function getDataSet()
@@ -623,15 +612,6 @@ class ArrayGuestbookTest extends PHPUnit_Extensions_Database_TestCase
           这个数组 DataSet 类的实现是非常简单直接的：
         </para>
          <programlisting><![CDATA[<?php
-require_once 'PHPUnit/Util/Filter.php';
-
-require_once 'PHPUnit/Extensions/Database/DataSet/AbstractDataSet.php';
-require_once 'PHPUnit/Extensions/Database/DataSet/DefaultTableIterator.php';
-require_once 'PHPUnit/Extensions/Database/DataSet/DefaultTable.php';
-require_once 'PHPUnit/Extensions/Database/DataSet/DefaultTableMetaData.php';
-
-PHPUnit_Util_Filter::addFileToFilter(__FILE__, 'PHPUNIT');
-
 class MyApp_DbUnit_ArrayDataSet extends PHPUnit_Extensions_Database_DataSet_AbstractDataSet
 {
     /**
@@ -758,8 +738,6 @@ class MySqlGuestbookTest extends PHPUnit_Extensions_Database_TestCase
           然后将 Flat XML DataSet 包装在 Replacement DataSet 中：
         </para>
         <programlisting><![CDATA[<?php
-require_once 'PHPUnit/Extensions/Database/DataSet/ReplacementDataSet.php';
-
 class ReplacementTest extends PHPUnit_Extensions_Database_TestCase
 {
     public function getDataSet()

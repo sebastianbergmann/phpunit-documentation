@@ -3,29 +3,56 @@
 <chapter id="installation">
   <title>安装 PHPUnit</title>
 
-  <note>
+  <section id="installation.requirements">
+    <title>需求</title>
+
     <para>
       PHPUnit 3.7 需要 PHP 5.3.3，强烈推荐使用最新版本的 PHP。
     </para>
-     <para>
-     如果需要支持代码覆盖率分析，需要 <ulink url="http://xdebug.org/">Xdebug</ulink> 2.1.3，强烈推荐使用最新版本的 Xdebug。
+
+    <para>
+      PHPUnit 需要使用以下扩展：<ulink
+      url="http://php.net/manual/en/dom.setup.php">dom</ulink>、<ulink
+      url="http://php.net/manual/en/json.installation.php">json</ulink>、
+      <ulink
+      url="http://php.net/manual/en/pcre.installation.php">pcre</ulink>、
+      <ulink
+      url="http://php.net/manual/en/reflection.installation.php">reflection</ulink>
+      以及 <ulink url="http://php.net/manual/en/spl.installation.php">spl</ulink>。通常，这些扩展会被一并编译并默认启用。其中的某些甚至是根本无法禁用的。
     </para>
-  </note>
+
+    <para>
+      如果需要支持代码覆盖率分析，需要 <ulink url="http://xdebug.org/">Xdebug</ulink> 2.1.3，强烈推荐使用最新版本的 Xdebug。另外，代码覆盖率分析功能还需要有 <ulink
+      url="http://php.net/manual/en/tokenizer.installation.php">tokenizer</ulink> 扩展才能工作。
+      如果要将代码覆盖率信息以 XML 格式记录下来，需要有 <ulink
+      url="http://php.net/manual/en/xmlwriter.installation.php">xmlwriter</ulink> 扩展。
+    </para>
+
+    <para>
+      要以 PHP 档案包(PHAR)方式使用 PHPUnit，需要 <ulink
+      url="http://php.net/manual/en/phar.installation.php">phar</ulink> 扩展。
+      PHPUnit 的 PHAR 的 <literal>--self-update</literal> 功能需要
+      <ulink
+      url="http://php.net/manual/en/openssl.installation.php">openssl</ulink> 扩展才能工作。
+      如果使用了 <ulink url="http://suhosin.org/">Suhosin</ulink> 扩展并同时希望以
+      PHP 档案包(PHAR)方式使用 PHPUnit，需要配置 <literal>suhosin.executor.include.whitelist = phar</literal>。
+    </para>
+  </section>
 
   <section id="installation.phar">
-    <title>PHP档案包(PHAR)</title>
+    <title>PHP 档案包(PHAR)</title>
 
     <para>
       要获取 PHPUnit，最简单的方法是下载 PHPUnit 的 <ulink
-      url="http://php.net/phar">PHP 档案包(PHAR)</ulink>，它将 PHPUnit 所需要的所有依赖组件（包括某些可选的组件）捆绑在单个文件中：
+      url="http://php.net/phar">PHP 档案包(PHAR)</ulink>，它将 PHPUnit 所需要的所有必要组件（以及某些可选组件）捆绑在单个文件中：
     </para>
 
-    <screen><userinput>wget https://phar.phpunit.de/phpunit.phar</userinput>
+    <screen><userinput>wget https://phar.phpunit.de/phpunit.phar</userinput> 
 <userinput>chmod +x phpunit.phar</userinput>
 <userinput>mv phpunit.phar /usr/local/bin/phpunit</userinput></screen>
 
     <para>
-      当然，你也可以下载后直接使用这个 PHAR：
+      当然，也可以下载后直接使用这个 PHAR：
     </para>
 
     <screen><userinput>wget https://phar.phpunit.de/phpunit.phar</userinput>
@@ -36,7 +63,7 @@
     <title>Composer</title>
 
     <para>
-      如果你用 <ulink url="http://getcomposer.org/">Composer</ulink> 来管理项目的依赖关系，只需要简单的在项目的 <filename>composer.json</filename> 文件中加上一个对 <literal>phpunit/phpunit</literal> 的依赖关系即可。下面是一个最小化的 <filename>composer.json</filename> 文件的例子，只定义了一个对 PHPUnit 3.7 的开发时(development-time)依赖：
+      如果用 <ulink url="http://getcomposer.org/">Composer</ulink> 来管理项目的依赖关系，只要在项目的 <filename>composer.json</filename> 文件中简单地加上对 <literal>phpunit/phpunit</literal> 的依赖关系即可。下面是一个最小化的 <filename>composer.json</filename> 文件的例子，只定义了一个对 PHPUnit 3.7 的开发时(development-time)依赖：
     </para>
 
     <programlisting><![CDATA[{
@@ -54,33 +81,6 @@
     <para>
       请确保 path 变量中包含有 <literal>~/.composer/vendor/bin/</literal>。
     </para>
-
-    <note>
-      <para>
-        对于 Composer 和 PHP 档案包(PHAR) 的支持是于 PHPUnit 3.7（从 PHPUnit 3.7.5 开始是稳定(stable)版本）加入的。更早的 PHPUnit 发行版本在这些分发渠道上不可用。
-      </para>
-    </note>
-  </section>
-
-  <section id="installation.pear">
-    <title>PEAR</title>
-
-    <para>
-      使用 <ulink url="http://pear.php.net/manual/en/guide.users.commandline.cli.php">PEAR 安装程序</ulink>来安装 PHPUnit 只需要执行以下两个指令（可能需要以 <literal>root</literal> 权限运行）：
-    </para>
-
-    <screen><userinput>pear config-set auto_discover 1</userinput>
-<userinput>pear install pear.phpunit.de/PHPUnit</userinput></screen>
-
-    <caution>
-      <para>
-        根据你的操作系统版本与PHP环境的具体情况，有可能需要先安装 PEAR 或者更新已安装的 PEAR 之后才能按照这里的指南来操作。
-      </para>
-
-      <para>
-        一般用 <userinput>sudo pear upgrade PEAR</userinput> 就能完成对已安装 PEAR 的升级。<ulink url="http://pear.php.net/manual/en/installation.getting.php">PEAR 手册</ulink>则解说了如何对 PEAR 进行全新安装。
-      </para>
-    </caution>
   </section>
 
   <section id="installation.optional-packages">
@@ -93,29 +93,6 @@
     <variablelist>
       <varlistentry>
         <term>
-          <literal>DbUnit</literal>
-        </term>
-        <listitem>
-          <para>
-            移植到 PHP/PHPUnit 上的 DbUnit 用于提供对数据库交互测试的支持。
-          </para>
-
-          <para>
-            若要通过 PEAR 安装此组件包，使用如下指令：
-          </para>
-
-          <screen><userinput>pear install phpunit/DbUnit</userinput></screen>
-
-          <para>
-            若要通过 Composer 安装此组件包，添加如下 <literal>"require-dev"</literal> 依赖项：
-          </para>
-
-          <screen><userinput>"phpunit/dbunit": ">=1.2"</userinput></screen>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term>
           <literal>PHP_Invoker</literal>
         </term>
         <listitem>
@@ -124,16 +101,27 @@
           </para>
 
           <para>
-            要安装此组件包，使用如下指令：
-          </para>
-
-          <screen><userinput>pear install phpunit/PHP_Invoker</userinput></screen>
-
-          <para>
-            若要通过 Composer 安装此组件包，添加如下 <literal>"require-dev"</literal> 依赖项：
+            PHPUnit 的 PHAR 分发中已经包含了此组件包。若要通过 Composer 安装此组件包，添加如下 <literal>"require-dev"</literal> 依赖项：
           </para>
 
           <screen><userinput>"phpunit/php-invoker": "*"</userinput></screen>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <literal>DbUnit</literal>
+        </term>
+        <listitem>
+          <para>
+            移植到 PHP/PHPUnit 上的 DbUnit 用于提供对数据库交互测试的支持。
+          </para>
+
+          <para>
+            PHPUnit 的 PHAR 分发中已经包含了此组件包。若要通过 Composer 安装此组件包，添加如下 <literal>"require-dev"</literal> 依赖项：
+          </para>
+
+          <screen><userinput>"phpunit/dbunit": ">=1.2"</userinput></screen>
         </listitem>
       </varlistentry>
 
@@ -147,158 +135,10 @@
           </para>
 
           <para>
-            若要通过 PEAR 安装此组件包，使用如下指令：
-          </para>
-
-          <screen><userinput>pear install phpunit/PHPUnit_Selenium</userinput></screen>
-
-          <para>
-            若要通过 Composer 安装此组件包，添加如下 <literal>"require-dev"</literal> 依赖项：
+            PHPUnit 的 PHAR 分发中已经包含了此组件包。若要通过 Composer 安装此组件包，添加如下 <literal>"require-dev"</literal> 依赖项：
           </para>
 
           <screen><userinput>"phpunit/phpunit-selenium": ">=1.2"</userinput></screen>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term>
-          <literal>PHPUnit_Story</literal>
-        </term>
-        <listitem>
-          <para>
-            使用PHPUnit进行行为驱动开发时所使用的基于故事的测试运行器。
-          </para>
-
-          <para>
-            若要通过 PEAR 安装此组件包，使用如下指令：
-          </para>
-
-          <screen><userinput>pear install phpunit/PHPUnit_Story</userinput></screen>
-
-          <para>
-            若要通过 Composer 安装此组件包，添加如下 <literal>"require-dev"</literal> 依赖项：
-          </para>
-
-          <screen><userinput>"phpunit/phpunit-story": "*"</userinput></screen>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term>
-          <literal>PHPUnit_SkeletonGenerator</literal>
-        </term>
-        <listitem>
-          <para>
-            一个工具，用于从成品代码类中生成骨架测试类，或反之。
-          </para>
-
-          <para>
-            要安装此组件包，使用如下指令：
-          </para>
-
-          <screen><userinput>pear install phpunit/PHPUnit_SkeletonGenerator</userinput></screen>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term>
-          <literal>PHPUnit_TestListener_DBUS</literal>
-        </term>
-        <listitem>
-          <para>
-            一个发送事件给 DBUS 的测试监听器(TestListener)。
-          </para>
-
-          <para>
-            要安装此组件包，使用如下指令：
-          </para>
-
-          <screen><userinput>pear install phpunit/PHPUnit_TestListener_DBUS</userinput></screen>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term>
-          <literal>PHPUnit_TestListener_XHProf</literal>
-        </term>
-        <listitem>
-          <para>
-            一个利用 XHProf 来对测试的代码进行自动性能剖析的测试监听器(TestListener)。
-          </para>
-
-          <para>
-            要安装此组件包，使用如下指令：
-          </para>
-
-          <screen><userinput>pear install phpunit/PHPUnit_TestListener_XHProf</userinput></screen>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term>
-          <literal>PHPUnit_TicketListener_Fogbugz</literal>
-        </term>
-        <listitem>
-          <para>
-            一个与Fogbugz系统的问题API交互的任务单(ticket)监听器。
-          </para>
-
-          <para>
-            要安装此组件包，使用如下指令：
-          </para>
-
-          <screen><userinput>pear install phpunit/PHPUnit_TicketListener_Fogbugz</userinput></screen>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term>
-          <literal>PHPUnit_TicketListener_GitHub</literal>
-        </term>
-        <listitem>
-          <para>
-             一个与GitHub系统的问题API交互的任务单(ticket)监听器。
-          </para>
-
-          <para>
-            要安装此组件包，使用如下指令：
-          </para>
-
-          <screen><userinput>pear install phpunit/PHPUnit_TicketListener_GitHub</userinput></screen>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term>
-          <literal>PHPUnit_TicketListener_GoogleCode</literal>
-        </term>
-        <listitem>
-          <para>
-             一个与Google Code系统的问题API交互的任务单(ticket)监听器。
-          </para>
-
-          <para>
-            要安装此组件包，使用如下指令：
-          </para>
-
-          <screen><userinput>pear install phpunit/PHPUnit_TicketListener_GoogleCode</userinput></screen>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term>
-          <literal>PHPUnit_TicketListener_Trac</literal>
-        </term>
-        <listitem>
-          <para>
-             一个与Trac系统的问题API交互的任务单(ticket)监听器。
-          </para>
-
-          <para>
-            要安装此组件包，使用如下指令：
-          </para>
-
-          <screen><userinput>pear install phpunit/PHPUnit_TicketListener_Trac</userinput></screen>
         </listitem>
       </varlistentry>
     </variablelist>
