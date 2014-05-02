@@ -27,8 +27,8 @@ function webify_directory($directory, $language, $version)
       'zh_cn' => array('4.2', '4.1', '4.0')
     );
 
-    $stable       = '4.0';
-    $beta         = '4.1';
+    $stable       = '4.1';
+    $beta         = null;
     $alpha        = '4.2';
     $languageList = '';
     $versionList  = '';
