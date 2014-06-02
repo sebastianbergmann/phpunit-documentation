@@ -788,4 +788,32 @@ public function initialBalanceShouldBe0()
 
     <programlisting></programlisting>
   </section>
+
+  <section id="appendixes.annotations.uses">
+    <title>@uses</title>
+
+    <para>
+      <indexterm><primary>@uses</primary></indexterm>
+
+      <literal>@uses</literal> アノテーションは、
+      テストから実行されてはいるが、そのテストでカバーするつもりはないコードを指定します。
+      たとえば、コード片をテストするために必要な値オブジェクトなどに使います。
+      <programlisting>/**
+ * @covers BankAccount::deposit
+ * @uses   Money
+ */
+public function testMoneyCanBeDepositedInAccount()
+{
+    // ...
+}</programlisting>
+    </para>
+
+    <para>
+      このアノテーションは、厳密なカバレッジモードで使うと特に有用です。
+      このモードの場合、意図せずカバーしてしまったコードがテストを失敗させてしまうことがあるからです。
+      厳密なカバレッジモードに関する詳細な情報は
+      <xref linkend="strict-mode.unintentionally-covered-code"/>
+      を参照ください。
+    </para>
+  </section>
 </appendix>
