@@ -785,4 +785,31 @@ public function initialBalanceShouldBe0()
 
     <programlisting></programlisting>
   </section>
+
+  <section id="appendixes.annotations.uses">
+    <title>@uses</title>
+
+    <para>
+      <indexterm><primary>@uses</primary></indexterm>
+
+      The <literal>@uses</literal> annotation specifies code which will be
+      executed by a test, but is not intended to be covered by the test. A good
+      example is a value object which is necessary for testing a unit of code.
+      <programlisting>/**
+ * @covers BankAccount::deposit
+ * @uses   Money
+ */
+public function testMoneyCanBeDepositedInAccount()
+{
+    // ...
+}</programlisting>
+    </para>
+
+    <para>
+      This annotation is especially useful in strict coverage mode where
+      unintentionally covered code will cause a test to fail. See
+      <xref linkend="strict-mode.unintentionally-covered-code"/> for more
+      information regarding strict coverage mode.
+    </para>
+  </section>
 </appendix>
