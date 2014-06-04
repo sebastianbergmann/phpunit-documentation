@@ -679,4 +679,25 @@ public function initialBalanceShouldBe0()
 
     <programlisting></programlisting>
   </section>
+
+  <section id="appendixes.annotations.uses">
+    <title>@uses</title>
+
+    <para>
+      <indexterm><primary>@uses</primary></indexterm>
+      <literal>@uses</literal> 标注用来指明那些将会被测试所执行但同时又不打算让其被测试所覆盖的代码。在对一个代码单元进行测试时所必须的值对象就是个很好的例子。
+      <programlisting>/**
+ * @covers BankAccount::deposit
+ * @uses   Money
+ */
+public function testMoneyCanBeDepositedInAccount()
+{
+    // ...
+}</programlisting>
+    </para>
+
+    <para>
+      在严格模式中开启对覆盖率更加严格的检测之后，由于意外覆盖的代码将导致测试判定为失败，这个标注就显得特别有用。关于严格覆盖模式的更多信息，参见<xref linkend="strict-mode.unintentionally-covered-code"/>。
+    </para>
+  </section>
 </appendix>
