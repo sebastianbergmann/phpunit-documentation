@@ -468,6 +468,20 @@ class MyClass
      }
 }</programlisting>
 
+      也可以用正则表达式来指定预期讯息。当无法用子串来完成对给定讯息的匹配时，这种方式就非常有用了。
+
+      <programlisting>class MyTest extends PHPUnit_Framework_TestCase
+{
+     /**
+      * @expectedException        MyException
+      * @expectedExceptionMessage /Argument \d+ can not be an? \w+/
+      */
+     public function testExceptionHasRightMessage()
+     {
+         throw new MyException('Argument 2 can not be an integer');
+     }
+}</programlisting>
+
       为了方便测试，并减少冗余，可以在 <literal>@expectedExceptionMessage</literal> 中用"<literal>@expectedExceptionMessage ClassName::CONST</literal>"这样的语法为其指定类常数。
 
       例子可以参看<xref linkend="appendixes.annotations.expectedExceptionCode"/>。
