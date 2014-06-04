@@ -527,6 +527,22 @@ class MyClass
      }
 }</programlisting>
 
+      The expected message can also be specified as a regular expression. This
+      is helpful for situations where a substring is not adequate for matching
+      a given message.
+
+      <programlisting>class MyTest extends PHPUnit_Framework_TestCase
+{
+     /**
+      * @expectedException        MyException
+      * @expectedExceptionMessage /Argument \d+ can not be an? \w+/
+      */
+     public function testExceptionHasRightMessage()
+     {
+         throw new MyException('Argument 2 can not be an integer');
+     }
+}</programlisting>
+
       To ease testing and reduce duplication a shortcut can be used to
       specify a class constant as an
       <literal>@expectedExceptionMessage</literal> using the
