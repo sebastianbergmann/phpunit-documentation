@@ -65,6 +65,86 @@
 
     <screen><userinput>wget https://phar.phpunit.de/phpunit.phar</userinput>
 <userinput>php phpunit.phar</userinput></screen>
+
+    <section id="installation.phar.verification">
+      <title>Verifying PHPUnit PHAR Releases</title>
+
+      <para>
+        All official releases of code distributed by the PHPUnit Project are
+        signed by the release manager for the release. PGP signatures and SHA1
+        hashes are available for verification on <ulink
+        url="https://phar.phpunit.de/">phar.phpunit.de</ulink>.
+      </para>
+
+      <para>
+        The following example details how release verification works. We start
+        by downloading <filename>phpunit.phar</filename> as well as its
+        detached PGP signature <filename>phpunit.phar.asc</filename>:
+      </para>
+
+      <screen><userinput>wget https://phar.phpunit.de/phpunit.phar</userinput>
+<userinput>wget https://phar.phpunit.de/phpunit.phar.asc</userinput></screen>
+
+      <para>
+        We want to verify PHPUnit's PHP Archive (<filename>phpunit.phar</filename>)
+        against its detached signature (<filename>phpunit.phar.asc</filename>):
+      </para>
+
+      <screen><userinput>gpg phpunit.phar.asc</userinput>
+gpg: Signature made Sat 19 Jul 2014 01:28:02 PM CEST using RSA key ID 6372C20A
+gpg: Can't check signature: public key not found</screen>
+
+      <para>
+        We don't have the release manager's public key (<literal>6372C20A</literal>)
+        in our local system. In order to proceed with the verification we need
+        to retrieve the release manager's public key from a key server. One such
+        server is <filename>pgp.uni-mainz.de</filename>. The public key servers
+        are linked together, so you should be able to connect to any key server.
+      </para>
+
+      <screen><userinput>gpg --keyserver pgp.uni-mainz.de --recv-keys 0x4AA394086372C20A</userinput><![CDATA[
+gpg: requesting key 6372C20A from hkp server pgp.uni-mainz.de
+gpg: key 6372C20A: public key "Sebastian Bergmann <sb@sebastian-bergmann.de>" imported
+gpg: Total number processed: 1
+gpg:               imported: 1  (RSA: 1)]]></screen>
+
+      <para>
+        Now we have received a public key for an entity known as "Sebastian
+        Bergmann &lt;sb@sebastian-bergmann.de&gt;". However, we have no way of
+        verifying this key was created by the person known as Sebastian
+        Bergmann. But, let's try to verify the release signature again.
+      </para>
+
+      <screen><userinput>gpg phpunit.phar.asc</userinput><![CDATA[
+gpg: Signature made Sat 19 Jul 2014 01:28:02 PM CEST using RSA key ID 6372C20A
+gpg: Good signature from "Sebastian Bergmann <sb@sebastian-bergmann.de>"
+gpg:                 aka "Sebastian Bergmann <sebastian@php.net>"
+gpg:                 aka "Sebastian Bergmann <sebastian@thephp.cc>"
+gpg:                 aka "Sebastian Bergmann <sebastian@phpunit.de>"
+gpg:                 aka "Sebastian Bergmann <sebastian.bergmann@thephp.cc>"
+gpg:                 aka "[jpeg image of size 40635]"
+gpg: WARNING: This key is not certified with a trusted signature!
+gpg:          There is no indication that the signature belongs to the owner.
+Primary key fingerprint: D840 6D0D 8294 7747 2937  7831 4AA3 9408 6372 C20A]]></screen>
+
+      <para>
+        At this point, the signature is good, but we don't trust this key. A
+        good signature means that the file has not been tampered. However, due
+        to the nature of public key cryptography, you need to additionally
+        verify that key <literal>6372C20A</literal> was created by the real
+        Sebastian Bergmann.
+      </para>
+
+      <para>
+        Any attacker can create a public key and upload it to the public key
+        servers. They can then create a malicious release signed by this fake
+        key. Then, if you tried to verify the signature of this corrupt release,
+        it would succeed because the key was not the "real" key. Therefore, you
+        need to validate the authenticity of this key. Validating the
+        authenticity of a public key, however, is outside the scope of this
+        documentation.
+      </para>
+    </section>
   </section>
 
   <section id="installation.composer">
