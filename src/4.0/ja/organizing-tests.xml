@@ -30,29 +30,18 @@
     </para>
 
     <para>
-      <ulink url="http://github.com/sebastianbergmann/php-object-freezer/">Object_Freezer</ulink>
+      <ulink url="http://github.com/sebastianbergmann/money/">sebastianbergmann/money</ulink>
       ライブラリのテストスイートを見てみましょう。このプロジェクトのディレクトリ構成を見ると、
-      テストケースクラスが <filename>Tests</filename> ディレクトリにまとめられていることがわかります。
+      テストケースクラスが <filename>tests</filename> ディレクトリにまとめられていることがわかります。
       その中のディレクトリの構造は、テスト対象のシステム (SUT) がある
-      <filename>Object</filename> ディレクトリ以下の構造と同じになっています。
+      <filename>src</filename> ディレクトリ以下の構造と同じになっています。
     </para>
 
-    <screen>Object                              Tests
-|-- Freezer                         |-- Freezer
-|   |-- HashGenerator               |   |-- HashGenerator
-|   |   `-- NonRecursiveSHA1.php    |   |   `-- NonRecursiveSHA1Test.php
-|   |-- HashGenerator.php           |   |
-|   |-- IdGenerator                 |   |-- IdGenerator
-|   |   `-- UUID.php                |   |   `-- UUIDTest.php
-|   |-- IdGenerator.php             |   |
-|   |-- LazyProxy.php               |   |
-|   |-- Storage                     |   |-- Storage
-|   |   `-- CouchDB.php             |   |   `-- CouchDB
-|   |                               |   |       |-- WithLazyLoadTest.php
-|   |                               |   |       `-- WithoutLazyLoadTest.php
-|   |-- Storage.php                 |   |-- StorageTest.php
-|   `-- Util.php                    |   `-- UtilTest.php
-`-- Freezer.php                     `-- FreezerTest.php</screen>
+    <screen>src                                 tests
+`-- Currency.php                    `-- CurrencyTest.php
+`-- IntlFormatter.php               `-- IntlFormatterTest.php
+`-- Money.php                       `-- MoneyTest.php
+`-- autoload.php</screen>
 
     <para>
       PHPUnit のコマンドラインテストランナーに
@@ -60,15 +49,14 @@
       このライブラリのすべてのテストを実行できます。
     </para>
 
-    <screen><userinput>phpunit Tests</userinput>
+    <screen><userinput>phpunit tests</userinput>
 PHPUnit 4.0.0 by Sebastian Bergmann.
 
-............................................................ 60 / 75
-...............
+.................................
 
-Time: 0 seconds
+Time: 636 ms, Memory: 3.50Mb
 
-OK (75 tests, 164 assertions)</screen>
+OK (33 tests, 52 assertions)</screen>
 
     <note>
       <para>
@@ -78,33 +66,33 @@ OK (75 tests, 164 assertions)</screen>
     </note>
 
     <para>
-      <filename>Tests/FreezerTest.php</filename> にあるテストケースクラス
-      <literal>Object_FreezerTest</literal> で宣言されているテストだけを実行するには、
+      <filename>tests/CurrencyTest.php</filename> にあるテストケースクラス
+      <literal>CurrencyTest</literal> で宣言されているテストだけを実行するには、
       次のコマンドを実行します。
     </para>
 
-    <screen><userinput>phpunit Tests/FreezerTest</userinput>
+    <screen><userinput>phpunit tests/CurrencyTest</userinput>
 PHPUnit 4.0.0 by Sebastian Bergmann.
 
-............................
+........
 
-Time: 0 seconds
+Time: 280 ms, Memory: 2.75Mb
 
-OK (28 tests, 60 assertions)</screen>
+OK (8 tests, 8 assertions)</screen>
 
     <para>
       実行したいテストをより細かく指示するには
       <literal>--filter</literal> オプションを使います。
     </para>
 
-    <screen><userinput>phpunit --filter testFreezingAnObjectWorks Tests</userinput>
+    <screen><userinput>phpunit --filter testObjectCanBeConstructedForValidConstructorArgument tests</userinput>
 PHPUnit 4.0.0 by Sebastian Bergmann.
 
-.
+..
 
-Time: 0 seconds
+Time: 167 ms, Memory: 3.00Mb
 
-OK (1 test, 2 assertions)</screen>
+OK (2 test, 2 assertions)</screen>
 
     <note>
       <para>
@@ -126,7 +114,7 @@ OK (1 test, 2 assertions)</screen>
       を使ってテストスイートを構成することもできます。
       <xref linkend="organizing-tests.xml-configuration.examples.phpunit.xml"/>
       に、最小限の例を示します。これは、
-      <filename>Tests</filename> を再帰的に探索して
+      <filename>tests</filename> を再帰的に探索して
       <filename>*Test.php</filename> というファイルにある
       <literal>*Test</literal> クラスをすべて追加する設定です。
     </para>
@@ -135,8 +123,8 @@ OK (1 test, 2 assertions)</screen>
       <title>XML 設定ファイルを用いたテストスイートの構成</title>
       <programlisting><![CDATA[<phpunit>
   <testsuites>
-    <testsuite name="Object_Freezer">
-      <directory>Tests</directory>
+    <testsuite name="money">
+      <directory>tests</directory>
     </testsuite>
   </testsuites>
 </phpunit>]]></programlisting>
@@ -150,14 +138,10 @@ OK (1 test, 2 assertions)</screen>
       <title>XML 設定ファイルを用いたテストスイートの構成</title>
       <programlisting><![CDATA[<phpunit>
   <testsuites>
-    <testsuite name="Object_Freezer">
-      <file>Tests/Freezer/HashGenerator/NonRecursiveSHA1Test.php</file>
-      <file>Tests/Freezer/IdGenerator/UUIDTest.php</file>
-      <file>Tests/Freezer/UtilTest.php</file>
-      <file>Tests/FreezerTest.php</file>
-      <file>Tests/Freezer/StorageTest.php</file>
-      <file>Tests/Freezer/Storage/CouchDB/WithLazyLoadTest.php</file>
-      <file>Tests/Freezer/Storage/CouchDB/WithoutLazyLoadTest.php</file>
+    <testsuite name="money">
+      <file>tests/IntlFormatterTest.php</file>
+      <file>tests/MoneyTest.php</file>
+      <file>tests/CurrencyTest.php</file>
     </testsuite>
   </testsuites>
 </phpunit>]]></programlisting>
