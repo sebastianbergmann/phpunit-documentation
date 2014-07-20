@@ -136,10 +136,8 @@ class SomeClass
 
     <example id="test-doubles.stubs.examples.StubTest.php">
       <indexterm><primary>getMock()</primary></indexterm>
-      <indexterm><primary>expects()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
-      <indexterm><primary>will()</primary></indexterm>
-      <indexterm><primary>returnValue()</primary></indexterm>
+      <indexterm><primary>willReturn()</primary></indexterm>
       <title>メソッドに固定値を返させるスタブ</title>
       <programlisting><![CDATA[<?php
 require_once 'SomeClass.php';
@@ -152,9 +150,8 @@ class StubTest extends PHPUnit_Framework_TestCase
         $stub = $this->getMock('SomeClass');
 
         // スタブの設定を行います
-        $stub->expects($this->any())
-             ->method('doSomething')
-             ->will($this->returnValue('foo'));
+        $stub->method('doSomething')
+             ->willReturn('foo');
 
         // $stub->doSomething() をコールすると
         // 'foo' を返すようになります
@@ -199,10 +196,8 @@ class StubTest extends PHPUnit_Framework_TestCase
 
     <example id="test-doubles.stubs.examples.StubTest2.php">
       <indexterm><primary>getMockBuilder()</primary></indexterm>
-      <indexterm><primary>expects()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
-      <indexterm><primary>will()</primary></indexterm>
-      <indexterm><primary>returnValue()</primary></indexterm>
+      <indexterm><primary>willReturn()</primary></indexterm>
       <title>モックビルダー API を使った、生成されるテストダブルクラスの変更</title>
       <programlisting><![CDATA[<?php
 require_once 'SomeClass.php';
@@ -217,9 +212,8 @@ class StubTest extends PHPUnit_Framework_TestCase
                      ->getMock();
 
         // スタブの設定を行います
-        $stub->expects($this->any())
-             ->method('doSomething')
-             ->will($this->returnValue('foo'));
+        $stub->method('doSomething')
+             ->willReturn('foo');
 
         // $stub->doSomething() をコールすると
         // 'foo' を返すようになります
@@ -228,6 +222,14 @@ class StubTest extends PHPUnit_Framework_TestCase
 }
 ?>]]></programlisting>
     </example>
+
+    <para>
+      ここまでの例では、
+      <literal>willReturn($value)</literal> を使ってシンプルな値を返していました。
+      この構文は、
+      <literal>will($this->returnValue($value))</literal> と同じ意味です。
+      この長い構文での検証を使うと、より複雑な動きをするスタブも作れます。
+    </para>
 
     <para>
       時には、メソッドをコールした際の引数のひとつを
@@ -239,7 +241,6 @@ class StubTest extends PHPUnit_Framework_TestCase
 
     <example id="test-doubles.stubs.examples.StubTest3.php">
       <indexterm><primary>getMock()</primary></indexterm>
-      <indexterm><primary>expects()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
       <indexterm><primary>will()</primary></indexterm>
       <indexterm><primary>returnArgument()</primary></indexterm>
@@ -255,8 +256,7 @@ class StubTest extends PHPUnit_Framework_TestCase
         $stub = $this->getMock('SomeClass');
 
         // スタブの設定を行います
-        $stub->expects($this->any())
-             ->method('doSomething')
+        $stub->method('doSomething')
              ->will($this->returnArgument(0));
 
         // $stub->doSomething('foo') は 'foo' を返します
@@ -278,7 +278,6 @@ class StubTest extends PHPUnit_Framework_TestCase
 
     <example id="test-doubles.stubs.examples.StubTest4.php">
       <indexterm><primary>getMock()</primary></indexterm>
-      <indexterm><primary>expects()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
       <indexterm><primary>will()</primary></indexterm>
       <indexterm><primary>returnSelf()</primary></indexterm>
@@ -294,8 +293,7 @@ class StubTest extends PHPUnit_Framework_TestCase
         $stub = $this->getMock('SomeClass');
 
         // スタブの設定を行います
-        $stub->expects($this->any())
-             ->method('doSomething')
+        $stub->method('doSomething')
              ->will($this->returnSelf());
 
         // $stub->doSomething() は $stub を返します
@@ -315,7 +313,6 @@ class StubTest extends PHPUnit_Framework_TestCase
 
     <example id="test-doubles.stubs.examples.StubTest5.php">
       <indexterm><primary>getMock()</primary></indexterm>
-      <indexterm><primary>expects()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
       <indexterm><primary>will()</primary></indexterm>
       <indexterm><primary>returnValueMap()</primary></indexterm>
@@ -337,8 +334,7 @@ class StubTest extends PHPUnit_Framework_TestCase
         );
 
         // スタブの設定を行います
-        $stub->expects($this->any())
-             ->method('doSomething')
+        $stub->method('doSomething')
              ->will($this->returnValueMap($map));
 
         // $stub->doSomething() は、渡した引数に応じて異なる値を返します
@@ -362,7 +358,6 @@ class StubTest extends PHPUnit_Framework_TestCase
 
     <example id="test-doubles.stubs.examples.StubTest6.php">
       <indexterm><primary>getMock()</primary></indexterm>
-      <indexterm><primary>expects()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
       <indexterm><primary>will()</primary></indexterm>
       <indexterm><primary>returnCallback()</primary></indexterm>
@@ -378,8 +373,7 @@ class StubTest extends PHPUnit_Framework_TestCase
         $stub = $this->getMock('SomeClass');
 
         // スタブの設定を行います
-        $stub->expects($this->any())
-             ->method('doSomething')
+        $stub->method('doSomething')
              ->will($this->returnCallback('str_rot13'));
 
         // $stub->doSomething($argument) は str_rot13($argument) を返します
@@ -399,7 +393,6 @@ class StubTest extends PHPUnit_Framework_TestCase
 
     <example id="test-doubles.stubs.examples.StubTest7.php">
       <indexterm><primary>getMock()</primary></indexterm>
-      <indexterm><primary>expects()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
       <indexterm><primary>will()</primary></indexterm>
       <indexterm><primary>onConsecutiveCalls()</primary></indexterm>
@@ -415,8 +408,7 @@ class StubTest extends PHPUnit_Framework_TestCase
         $stub = $this->getMock('SomeClass');
 
         // スタブの設定を行います
-        $stub->expects($this->any())
-             ->method('doSomething')
+        $stub->method('doSomething')
              ->will($this->onConsecutiveCalls(2, 3, 5, 7));
 
         // $stub->doSomething() は毎回異なる値を返します
@@ -437,7 +429,6 @@ class StubTest extends PHPUnit_Framework_TestCase
 
     <example id="test-doubles.stubs.examples.StubTest8.php">
       <indexterm><primary>getMock()</primary></indexterm>
-      <indexterm><primary>expects()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
       <indexterm><primary>will()</primary></indexterm>
       <indexterm><primary>throwException()</primary></indexterm>
@@ -453,8 +444,7 @@ class StubTest extends PHPUnit_Framework_TestCase
         $stub = $this->getMock('SomeClass');
 
         // スタブの設定を行います
-        $stub->expects($this->any())
-             ->method('doSomething')
+        $stub->method('doSomething')
              ->will($this->throwException(new Exception));
 
         // $stub->doSomething() は例外をスローします
@@ -609,6 +599,12 @@ class Observer
       <literal>getMock()</literal> メソッドの二番目の (オプションの)
       パラメータに配列を指定しているので、<literal>Observer</literal>
       クラスの中の <literal>update()</literal> メソッドについてのみモック実装が作成されます。
+    </para>
+
+    <para>
+      あるメソッドがコールされたのかどうか、そしてどんな引数を渡してコールされたのかを検証したいので、
+      <literal>expects()</literal> メソッドと <literal>with</literal> メソッドを用意しました。
+      これらを使って、このやりとりがどのように行われるのかを指定します。
     </para>
 
     <example id="test-doubles.mock-objects.examples.SubjectTest.php">
