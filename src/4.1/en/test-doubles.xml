@@ -115,10 +115,8 @@ class SomeClass
 
     <example id="test-doubles.stubs.examples.StubTest.php">
       <indexterm><primary>getMock()</primary></indexterm>
-      <indexterm><primary>expects()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
-      <indexterm><primary>will()</primary></indexterm>
-      <indexterm><primary>returnValue()</primary></indexterm>
+      <indexterm><primary>willReturn()</primary></indexterm>
       <title>Stubbing a method call to return a fixed value</title>
       <programlisting><![CDATA[<?php
 require_once 'SomeClass.php';
@@ -131,9 +129,8 @@ class StubTest extends PHPUnit_Framework_TestCase
         $stub = $this->getMock('SomeClass');
 
         // Configure the stub.
-        $stub->expects($this->any())
-             ->method('doSomething')
-             ->will($this->returnValue('foo'));
+        $stub->method('doSomething')
+             ->willReturn('foo');
 
         // Calling $stub->doSomething() will now return
         // 'foo'.
@@ -178,10 +175,8 @@ class StubTest extends PHPUnit_Framework_TestCase
 
     <example id="test-doubles.stubs.examples.StubTest2.php">
       <indexterm><primary>getMockBuilder()</primary></indexterm>
-      <indexterm><primary>expects()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
-      <indexterm><primary>will()</primary></indexterm>
-      <indexterm><primary>returnValue()</primary></indexterm>
+      <indexterm><primary>willReturn()</primary></indexterm>
       <title>Using the Mock Builder API can be used to configure the generated test double class</title>
       <programlisting><![CDATA[<?php
 require_once 'SomeClass.php';
@@ -196,9 +191,8 @@ class StubTest extends PHPUnit_Framework_TestCase
                      ->getMock();
 
         // Configure the stub.
-        $stub->expects($this->any())
-             ->method('doSomething')
-             ->will($this->returnValue('foo'));
+        $stub->method('doSomething')
+             ->willReturn('foo');
 
         // Calling $stub->doSomething() will now return
         // 'foo'.
@@ -207,6 +201,13 @@ class StubTest extends PHPUnit_Framework_TestCase
 }
 ?>]]></programlisting>
     </example>
+
+    <para>
+      In the examples so far we have been returning simple values using
+      <literal>willReturn($value)</literal>. This short syntax is the same as
+      <literal>will($this->returnValue($value))</literal>. We can use variations on this
+        longer syntax to achieve more complex stubbing behaviour.
+    </para>
 
     <para>
       Sometimes you want to return one of the arguments of a method call
@@ -218,7 +219,6 @@ class StubTest extends PHPUnit_Framework_TestCase
 
     <example id="test-doubles.stubs.examples.StubTest3.php">
       <indexterm><primary>getMock()</primary></indexterm>
-      <indexterm><primary>expects()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
       <indexterm><primary>will()</primary></indexterm>
       <indexterm><primary>returnArgument()</primary></indexterm>
@@ -234,8 +234,7 @@ class StubTest extends PHPUnit_Framework_TestCase
         $stub = $this->getMock('SomeClass');
 
         // Configure the stub.
-        $stub->expects($this->any())
-             ->method('doSomething')
+        $stub->method('doSomething')
              ->will($this->returnArgument(0));
 
         // $stub->doSomething('foo') returns 'foo'
@@ -257,7 +256,6 @@ class StubTest extends PHPUnit_Framework_TestCase
 
     <example id="test-doubles.stubs.examples.StubTest4.php">
       <indexterm><primary>getMock()</primary></indexterm>
-      <indexterm><primary>expects()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
       <indexterm><primary>will()</primary></indexterm>
       <indexterm><primary>returnSelf()</primary></indexterm>
@@ -273,8 +271,7 @@ class StubTest extends PHPUnit_Framework_TestCase
         $stub = $this->getMock('SomeClass');
 
         // Configure the stub.
-        $stub->expects($this->any())
-             ->method('doSomething')
+        $stub->method('doSomething')
              ->will($this->returnSelf());
 
         // $stub->doSomething() returns $stub
@@ -295,7 +292,6 @@ class StubTest extends PHPUnit_Framework_TestCase
 
     <example id="test-doubles.stubs.examples.StubTest5.php">
       <indexterm><primary>getMock()</primary></indexterm>
-      <indexterm><primary>expects()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
       <indexterm><primary>will()</primary></indexterm>
       <indexterm><primary>returnValueMap()</primary></indexterm>
@@ -317,8 +313,7 @@ class StubTest extends PHPUnit_Framework_TestCase
         );
 
         // Configure the stub.
-        $stub->expects($this->any())
-             ->method('doSomething')
+        $stub->method('doSomething')
              ->will($this->returnValueMap($map));
 
         // $stub->doSomething() returns different values depending on
@@ -341,7 +336,6 @@ class StubTest extends PHPUnit_Framework_TestCase
 
     <example id="test-doubles.stubs.examples.StubTest6.php">
       <indexterm><primary>getMock()</primary></indexterm>
-      <indexterm><primary>expects()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
       <indexterm><primary>will()</primary></indexterm>
       <indexterm><primary>returnCallback()</primary></indexterm>
@@ -357,8 +351,7 @@ class StubTest extends PHPUnit_Framework_TestCase
         $stub = $this->getMock('SomeClass');
 
         // Configure the stub.
-        $stub->expects($this->any())
-             ->method('doSomething')
+        $stub->method('doSomething')
              ->will($this->returnCallback('str_rot13'));
 
         // $stub->doSomething($argument) returns str_rot13($argument)
@@ -378,7 +371,6 @@ class StubTest extends PHPUnit_Framework_TestCase
 
     <example id="test-doubles.stubs.examples.StubTest7.php">
       <indexterm><primary>getMock()</primary></indexterm>
-      <indexterm><primary>expects()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
       <indexterm><primary>will()</primary></indexterm>
       <indexterm><primary>onConsecutiveCalls()</primary></indexterm>
@@ -395,8 +387,7 @@ class StubTest extends PHPUnit_Framework_TestCase
         $stub = $this->getMock('SomeClass');
 
         // Configure the stub.
-        $stub->expects($this->any())
-             ->method('doSomething')
+        $stub->method('doSomething')
              ->will($this->onConsecutiveCalls(2, 3, 5, 7));
 
         // $stub->doSomething() returns a different value each time
@@ -417,7 +408,6 @@ class StubTest extends PHPUnit_Framework_TestCase
 
     <example id="test-doubles.stubs.examples.StubTest8.php">
       <indexterm><primary>getMock()</primary></indexterm>
-      <indexterm><primary>expects()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
       <indexterm><primary>will()</primary></indexterm>
       <indexterm><primary>throwException()</primary></indexterm>
@@ -433,8 +423,7 @@ class StubTest extends PHPUnit_Framework_TestCase
         $stub = $this->getMock('SomeClass');
 
         // Configure the stub.
-        $stub->expects($this->any())
-             ->method('doSomething')
+        $stub->method('doSomething')
              ->will($this->throwException(new Exception));
 
         // $stub->doSomething() throws Exception
@@ -586,6 +575,12 @@ class Observer
       second (optional) parameter for the <literal>getMock()</literal> method,
       only the <literal>update()</literal> method of the
       <literal>Observer</literal> class is replaced by a mock implementation.
+    </para>
+
+    <para>
+      Because we are interested in verifying that a method is called, and which
+      arguments it is called with, we introduce the <literal>expects()</literal> and
+      <literal>with</literal> methods to specify how this interaction should look.
     </para>
 
     <example id="test-doubles.mock-objects.examples.SubjectTest.php">
