@@ -840,8 +840,9 @@ FAILURES!
 Tests: 1, Assertions: 1, Failures: 1.]]></screen>
       </example>
 
-      <para><literal>assertContains(string $needle, string $haystack[, string $message = ''])</literal></para>
+      <para><literal>assertContains(string $needle, string $haystack[, string $message = '', boolean $ignoreCase = FALSE])</literal></para>
       <para><literal>$needle</literal> が <literal>$haystack</literal> の部分文字列でない場合にエラー <literal>$message</literal> を報告します。</para>
+      <para><literal>$ignoreCase</literal> が <literal>TRUE</literal> の場合、テストで大文字小文字を区別しなくなります。</para>
       <example id="writing-tests-for-phpunit.assertions.assertContains.example2">
         <title>assertContains() の使用法</title>
         <programlisting><![CDATA[<?php
@@ -869,6 +870,40 @@ Failed asserting that <string:foobar> contains "baz".
 
 FAILURES!
 Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+      </example>
+
+      <example id="appendixes.assertions.assertContains.example3">
+        <title>assertContains() で $ignoreCase を使う方法</title>
+        <programlisting><![CDATA[<?php
+class ContainsTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertContains('foo', 'FooBar');
+    }
+
+    public function testOK()
+    {
+        $this->assertContains('foo', 'FooBar', '', true);
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit ContainsTest</userinput><![CDATA[
+PHPUnit 3.5.14 by Sebastian Bergmann.
+
+F.
+
+Time: 0 seconds, Memory: 2.75Mb
+
+There was 1 failure:
+
+1) ContainsTest::testFailure
+Failed asserting that <string:FooBar> contains "foo".
+
+/home/sb/ContainsTest.php:6
+
+FAILURES!
+Tests: 2, Assertions: 2, Failures: 1.]]></screen>
       </example>
     </section>
 
