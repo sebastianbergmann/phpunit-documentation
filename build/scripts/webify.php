@@ -97,7 +97,7 @@ function webify_directory($directory, $language, $version)
         }
 
         $versionList .= sprintf(
-          '<li%s><a href="../../%s/%s/index.html">PHPUnit %s (%s)</a></li>',
+          '<li%s><a href="../../%s/%s/index.html">%s (%s)</a></li>',
           $version == $_version ? ' class="active"' : '',
           $_version,
           $language,
