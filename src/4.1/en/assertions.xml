@@ -156,8 +156,9 @@ FAILURES!
 Tests: 1, Assertions: 1, Failures: 1.</screen>
     </example>
 
-    <para><literal>assertContains(string $needle, string $haystack[, string $message = ''])</literal></para>
+    <para><literal>assertContains(string $needle, string $haystack[, string $message = '', boolean $ignoreCase = FALSE])</literal></para>
     <para>Reports an error identified by <literal>$message</literal> if <literal>$needle</literal> is not a substring of <literal>$haystack</literal>.</para>
+    <para>If <literal>$ignoreCase</literal> is <literal>TRUE</literal>, the test will be case insensitive.</para>
     <example id="appendixes.assertions.assertContains.example2">
       <title>Usage of assertContains()</title>
       <programlisting><![CDATA[<?php
@@ -185,6 +186,40 @@ Failed asserting that 'foobar' contains "baz".
 
 FAILURES!
 Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+    </example>
+
+    <example id="appendixes.assertions.assertContains.example3">
+      <title>Usage of assertContains() with $ignoreCase</title>
+      <programlisting><![CDATA[<?php
+class ContainsTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertContains('foo', 'FooBar');
+    }
+
+    public function testOK()
+    {
+        $this->assertContains('foo', 'FooBar', '', true);
+    }
+}
+?>]]></programlisting>
+      <screen><userinput>phpunit ContainsTest</userinput><![CDATA[
+PHPUnit 4.1.0 by Sebastian Bergmann.
+
+F.
+
+Time: 0 seconds, Memory: 2.75Mb
+
+There was 1 failure:
+
+1) ContainsTest::testFailure
+Failed asserting that 'FooBar' contains "foo".
+
+/home/sb/ContainsTest.php:6
+
+FAILURES!
+Tests: 2, Assertions: 2, Failures: 1.]]></screen>
     </example>
   </section>
 
@@ -972,7 +1007,7 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
     <indexterm><primary>assertJsonFileNotEqualsJsonFile()</primary></indexterm>
     <para><literal>assertJsonFileEqualsJsonFile(mixed $expectedFile, mixed $actualFile[, string $message = ''])</literal></para>
     <para>
-      Reports an error identified by <literal>$message</literal> if the value of <literal>$actualFile</literal> does not match the value of 
+      Reports an error identified by <literal>$message</literal> if the value of <literal>$actualFile</literal> does not match the value of
       <literal>$expectedFile</literal>.
     </para>
     <example id="appendixes.assertions.assertJsonFileEqualsJsonFile.example">
@@ -1012,7 +1047,7 @@ Tests: 1, Assertions: 3, Failures: 1.</screen>
     <indexterm><primary>assertJsonStringNotEqualsJsonFile()</primary></indexterm>
     <para><literal>assertJsonStringEqualsJsonFile(mixed $expectedFile, mixed $actualJson[, string $message = ''])</literal></para>
     <para>
-      Reports an error identified by <literal>$message</literal> if the value of <literal>$actualJson</literal> does not match the value of 
+      Reports an error identified by <literal>$message</literal> if the value of <literal>$actualJson</literal> does not match the value of
       <literal>$expectedFile</literal>.
     </para>
     <example id="appendixes.assertions.assertJsonStringEqualsJsonFile.example">
@@ -1053,7 +1088,7 @@ Tests: 1, Assertions: 3, Failures: 1.</screen>
     <indexterm><primary>assertJsonStringNotEqualsJsonString()</primary></indexterm>
     <para><literal>assertJsonStringEqualsJsonString(mixed $expectedJson, mixed $actualJson[, string $message = ''])</literal></para>
     <para>
-      Reports an error identified by <literal>$message</literal> if the value of <literal>$actualJson</literal> does not match the value of 
+      Reports an error identified by <literal>$message</literal> if the value of <literal>$actualJson</literal> does not match the value of
       <literal>$expectedJson</literal>.
     </para>
     <example id="appendixes.assertions.assertJsonStringEqualsJsonString.example">

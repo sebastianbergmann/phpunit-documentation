@@ -334,8 +334,9 @@ FAILURES!
 Tests: 1, Assertions: 1, Failures: 1.]]></screen>
       </example>
 
-      <para><literal>assertContains(string $needle, string $haystack[, string $message = ''])</literal></para>
+      <para><literal>assertContains(string $needle, string $haystack[, string $message = '', boolean $ignoreCase = FALSE])</literal></para>
       <para>Reports an error identified by <literal>$message</literal> if <literal>$needle</literal> is not a substring of <literal>$haystack</literal>.</para>
+      <para>If <literal>$ignoreCase</literal> is <literal>TRUE</literal>, the test will be case insensitive. Support for <literal>$ignoreCase</literal> was added in PHPUnit 3.4.6.</para>
       <example id="api.assert.assertContains.example2">
         <title>Usage of assertContains()</title>
         <programlisting><![CDATA[<?php
@@ -348,7 +349,7 @@ class ContainsTest extends PHPUnit_Framework_TestCase
 }
 ?>]]></programlisting>
         <screen><userinput>phpunit ContainsTest</userinput><![CDATA[
-PHPUnit 3.4.4 by Sebastian Bergmann.
+PHPUnit 3.4.6 by Sebastian Bergmann.
 
 F
 
@@ -362,6 +363,39 @@ Failed asserting that <string:foobar> contains "baz".
 
 FAILURES!
 Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+      </example>
+
+      <example id="appendixes.assertions.assertContains.example3">
+        <title>Usage of assertContains() with $ignoreCase</title>
+        <programlisting><![CDATA[<?php
+class ContainsTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertContains('foo', 'FooBar');
+    }
+
+    public function testOK()
+    {
+        $this->assertContains('foo', 'FooBar', '', true);
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit ContainsTest</userinput><![CDATA[
+PHPUnit 3.4.4 by Sebastian Bergmann.
+
+F.
+
+Time: 0 seconds
+
+There was 1 failure:
+
+1) ContainsTest::testFailure
+Failed asserting that <string:FooBar> contains "foo".
+/home/sb/ContainsTest.php:6
+
+FAILURES!
+Tests: 2, Assertions: 2, Failures: 1.]]></screen>
       </example>
     </section>
 

@@ -386,8 +386,8 @@ class CsvFileIterator implements Iterator {
         <indexterm><primary>@dataProvider</primary></indexterm>
         <indexterm><primary>@depends</primary></indexterm>
 
-        All data providers are executed before the first call to the 
-        <literal>setUp</literal> function. Because of that you can't access 
+        All data providers are executed before the first call to the
+        <literal>setUp</literal> function. Because of that you can't access
         any variables you create there from within a data provider.
       </para>
     </note>
@@ -671,10 +671,10 @@ OK (1 test, 1 assertion)</screen>
     </note>
 
     <para>
-        When testing that relies on php functions that trigger errors like 
+        When testing that relies on php functions that trigger errors like
         <literal>fopen</literal> it can sometimes be useful to use error
         suppression while testing. This allows you to check the return values by
-        suppressing notices that would lead to a phpunit 
+        suppressing notices that would lead to a phpunit
         <literal>PHPUnit_Framework_Error_Notice</literal>.
         <example id="writing-tests-for-phpunit.exceptions.examples.TriggerErrorReturnValue.php">
 
@@ -972,8 +972,9 @@ FAILURES!
 Tests: 1, Assertions: 1, Failures: 1.</screen>
       </example>
 
-      <para><literal>assertContains(string $needle, string $haystack[, string $message = ''])</literal></para>
+      <para><literal>assertContains(string $needle, string $haystack[, string $message = '', boolean $ignoreCase = FALSE])</literal></para>
       <para>Reports an error identified by <literal>$message</literal> if <literal>$needle</literal> is not a substring of <literal>$haystack</literal>.</para>
+      <para>If <literal>$ignoreCase</literal> is <literal>TRUE</literal>, the test will be case insensitive.</para>
       <example id="writing-tests-for-phpunit.assertions.assertContains.example2">
         <title>Usage of assertContains()</title>
         <programlisting><![CDATA[<?php
@@ -1001,6 +1002,40 @@ Failed asserting that 'foobar' contains "baz".
 
 FAILURES!
 Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+      </example>
+
+      <example id="appendixes.assertions.assertContains.example3">
+        <title>Usage of assertContains() with $ignoreCase</title>
+        <programlisting><![CDATA[<?php
+class ContainsTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertContains('foo', 'FooBar');
+    }
+
+    public function testOK()
+    {
+        $this->assertContains('foo', 'FooBar', '', true);
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit ContainsTest</userinput><![CDATA[
+PHPUnit 3.6.0 by Sebastian Bergmann.
+
+F.
+
+Time: 0 seconds, Memory: 2.75Mb
+
+There was 1 failure:
+
+1) ContainsTest::testFailure
+Failed asserting that 'FooBar' contains "foo".
+
+/home/sb/ContainsTest.php:6
+
+FAILURES!
+Tests: 2, Assertions: 2, Failures: 1.]]></screen>
       </example>
     </section>
 
