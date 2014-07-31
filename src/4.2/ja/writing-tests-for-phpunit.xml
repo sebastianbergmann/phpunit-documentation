@@ -210,7 +210,7 @@ Tests: 1, Assertions: 1, Failures: 1, Skipped: 1.]]></screen>
       PHPUnit はテストが実行される順序を変更しないので、
       テストが実行されるときに確実に依存性が満たされているようにしておく必要があります。
     </para>
-    
+
     <para>
       複数の <literal>@depends</literal> アノテーションを持つテストは、
       最初のプロデューサーからのフィクスチャを最初の引数、二番目のプロデューサーからのフィクスチャを二番目の引数、……
@@ -560,9 +560,11 @@ Tests: 1, Assertions: 1, Failures: 1.</screen>
       <indexterm><primary>Annotation</primary></indexterm>
       <indexterm><primary>@expectedException</primary></indexterm>
       <indexterm><primary>@expectedExceptionMessage</primary></indexterm>
+      <indexterm><primary>@expectedExceptionMessageRegExp</primary></indexterm>
       <indexterm><primary>@expectedExceptionCode</primary></indexterm>
 
       さらに、<literal>@expectedExceptionMessage</literal> や
+      <literal>@expectedExceptionMessageRegExp</literal> そして
       <literal>@expectedExceptionCode</literal> を
       <literal>@expectedException</literal> と組み合わせて使うと、
       例外メッセージや例外コードを
@@ -571,7 +573,11 @@ Tests: 1, Assertions: 1, Failures: 1.</screen>
     </para>
 
     <example id="writing-tests-for-phpunit.exceptions.examples.ExceptionTest2.php">
-      <title>@expectedExceptionMessage および @expectedExceptionCode アノテーションの使用法</title>
+      <title>
+        <literal>@expectedExceptionMessage</literal>、
+        <literal>@expectedExceptionMessageRegExp</literal> および
+        <literal>@expectedExceptionCode</literal> アノテーションの使用法
+      </title>
       <programlisting><![CDATA[<?php
 class ExceptionTest extends PHPUnit_Framework_TestCase
 {
@@ -580,6 +586,15 @@ class ExceptionTest extends PHPUnit_Framework_TestCase
      * @expectedExceptionMessage Right Message
      */
     public function testExceptionHasRightMessage()
+    {
+        throw new InvalidArgumentException('Some Message', 10);
+    }
+
+    /**
+     * @expectedException              InvalidArgumentException
+     * @expectedExceptionMessageRegExp /Right.*/
+     */
+    public function testExceptionMessageMatchesRegExp()
     {
         throw new InvalidArgumentException('Some Message', 10);
     }
@@ -597,34 +612,40 @@ class ExceptionTest extends PHPUnit_Framework_TestCase
       <screen><userinput>phpunit ExceptionTest</userinput><![CDATA[
 PHPUnit 4.2.0 by Sebastian Bergmann.
 
-FF
+FFF
 
 Time: 0 seconds, Memory: 3.00Mb
 
-There were 2 failures:
+There were 3 failures:
 
 1) ExceptionTest::testExceptionHasRightMessage
 Failed asserting that exception message 'Some Message' contains 'Right Message'.
 
+2) ExceptionTest::testExceptionMessageMatchesRegExp
+Failed asserting that exception message 'Some Message' matches '/Right.*/'.
 
-2) ExceptionTest::testExceptionHasRightCode
+3) ExceptionTest::testExceptionHasRightCode
 Failed asserting that expected exception code 20 is equal to 10.
 
 
 FAILURES!
-Tests: 2, Assertions: 4, Failures: 2.]]></screen>
+Tests: 3, Assertions: 6, Failures: 3.]]></screen>
     </example>
 
     <para>
-      <literal>@expectedExceptionMessage</literal> や <literal>@expectedExceptionCode</literal>
+      <literal>@expectedExceptionMessage</literal> や
+      <literal>@expectedExceptionMessageRegExp</literal>、そして
+      <literal>@expectedExceptionCode</literal>
       を使ったその他の例が、それぞれ
       <xref linkend="appendixes.annotations.expectedExceptionMessage"/> と
+      <xref linkend="appendixes.annotations.expectedExceptionMessageRegExp"/> そして
       <xref linkend="appendixes.annotations.expectedExceptionCode"/> にあります。
     </para>
 
 
     <para>
       一方、<literal>setExpectedException()</literal>
+      メソッドや <literal>setExpectedExceptionRegExp()</literal>
       メソッドを使用して、発生するであろう例外を指定することもできます。この方法を
       <xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest3.php" />
       に示します。
@@ -648,6 +669,14 @@ class ExceptionTest extends PHPUnit_Framework_TestCase
         throw new InvalidArgumentException('Some Message', 10);
     }
 
+    public function testExceptionMessageMatchesRegExp()
+    {
+        $this->setExpectedException(
+          'InvalidArgumentException', '/Right.*/', 10
+        );
+        throw new InvalidArgumentException('The Wrong Message', 10);
+    }
+
     public function testExceptionHasRightCode()
     {
         $this->setExpectedException(
@@ -655,30 +684,32 @@ class ExceptionTest extends PHPUnit_Framework_TestCase
         );
         throw new InvalidArgumentException('The Right Message', 10);
     }
-}?>]]></programlisting>
+}
+?>]]></programlisting>
       <screen><userinput>phpunit ExceptionTest</userinput><![CDATA[
 PHPUnit 4.2.0 by Sebastian Bergmann.
 
-FFF
+FFFF
 
 Time: 0 seconds, Memory: 3.00Mb
 
-There were 3 failures:
+There were 4 failures:
 
 1) ExceptionTest::testException
 Expected exception InvalidArgumentException
 
-
 2) ExceptionTest::testExceptionHasRightMessage
 Failed asserting that exception message 'Some Message' contains 'Right Message'.
 
+3) ExceptionTest::testExceptionMessageMatchesRegExp
+Failed asserting that exception message 'The Wrong Message' contains '/Right.*/'.
 
-3) ExceptionTest::testExceptionHasRightCode
+4) ExceptionTest::testExceptionHasRightCode
 Failed asserting that expected exception code 20 is equal to 10.
 
 
 FAILURES!
-Tests: 3, Assertions: 6, Failures: 3.]]></screen>
+Tests: 4, Assertions: 8, Failures: 4.]]></screen>
     </example>
 
     <para>
@@ -700,6 +731,10 @@ Tests: 3, Assertions: 6, Failures: 3.]]></screen>
           <row>
             <entry><literal>void setExpectedException(string $exceptionName[, string $exceptionMessage = '', integer $exceptionCode = NULL])</literal></entry>
             <entry>期待する <literal>$exceptionName</literal>、<literal>$exceptionMessage</literal> および <literal>$exceptionCode</literal> を設定します。</entry>
+          </row>
+          <row>
+            <entry><literal>void setExpectedExceptionRegExp(string $exceptionName[, string $exceptionMessageRegExp = '', integer $exceptionCode = NULL])</literal></entry>
+            <entry>期待する <literal>$exceptionName</literal>、<literal>$exceptionMessageRegExp</literal> および <literal>$exceptionCode</literal> を設定します。</entry>
           </row>
           <row>
             <entry><literal>String getExpectedException()</literal></entry>
