@@ -157,8 +157,9 @@ FAILURES!
 Tests: 1, Assertions: 1, Failures: 1.</screen>
     </example>
 
-    <para><literal>assertContains(string $needle, string $haystack[, string $message = ''])</literal></para>
+    <para><literal>assertContains(string $needle, string $haystack[, string $message = '', boolean $ignoreCase = FALSE])</literal></para>
     <para>当 <literal>$needle</literal> 不是 <literal>$haystack</literal> 的子字符串时，报告一个错误，错误讯息的内容由 <literal>$message</literal> 指定。</para>
+    <para>如果 <literal>$ignoreCase</literal> 为 <literal>TRUE</literal>，测试将按大小写不敏感的方式进行。</para>
     <example id="appendixes.assertions.assertContains.example2">
       <title>assertContains() 的用法</title>
       <programlisting><![CDATA[<?php
@@ -186,6 +187,40 @@ Failed asserting that 'foobar' contains "baz".
 
 FAILURES!
 Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+    </example>
+
+    <example id="appendixes.assertions.assertContains.example3">
+      <title>assertContains() 的 $ignoreCase 参数的用法</title>
+      <programlisting><![CDATA[<?php
+class ContainsTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertContains('foo', 'FooBar');
+    }
+
+    public function testOK()
+    {
+        $this->assertContains('foo', 'FooBar', '', true);
+    }
+}
+?>]]></programlisting>
+      <screen><userinput>phpunit ContainsTest</userinput><![CDATA[
+PHPUnit 4.1.0 by Sebastian Bergmann.
+
+F.
+
+Time: 0 seconds, Memory: 2.75Mb
+
+There was 1 failure:
+
+1) ContainsTest::testFailure
+Failed asserting that 'FooBar' contains "foo".
+
+/home/sb/ContainsTest.php:6
+
+FAILURES!
+Tests: 2, Assertions: 2, Failures: 1.]]></screen>
     </example>
   </section>
 
