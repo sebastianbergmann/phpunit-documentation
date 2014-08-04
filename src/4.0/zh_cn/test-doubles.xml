@@ -77,10 +77,8 @@ class SomeClass
 
     <example id="test-doubles.stubs.examples.StubTest.php">
       <indexterm><primary>getMock()</primary></indexterm>
-      <indexterm><primary>expects()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
-      <indexterm><primary>will()</primary></indexterm>
-      <indexterm><primary>returnValue()</primary></indexterm>
+      <indexterm><primary>willReturn()</primary></indexterm>
       <title>对某个方法的调用进行短连，返回固定值</title>
       <programlisting><![CDATA[<?php
 require_once 'SomeClass.php';
@@ -93,9 +91,8 @@ class StubTest extends PHPUnit_Framework_TestCase
         $stub = $this->getMock('SomeClass');
 
         // 配置短连件。
-        $stub->expects($this->any())
-             ->method('doSomething')
-             ->will($this->returnValue('foo'));
+        $stub->method('doSomething')
+             ->willReturn('foo');
 
         // 现在调用 $stub->doSomething() 将返回 'foo'。
         $this->assertEquals('foo', $stub->doSomething());
@@ -133,10 +130,8 @@ class StubTest extends PHPUnit_Framework_TestCase
 
     <example id="test-doubles.stubs.examples.StubTest2.php">
       <indexterm><primary>getMockBuilder()</primary></indexterm>
-      <indexterm><primary>expects()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
-      <indexterm><primary>will()</primary></indexterm>
-      <indexterm><primary>returnValue()</primary></indexterm>
+      <indexterm><primary>willReturn()</primary></indexterm>
       <title>使用可用于配置生成的测试替身类的仿件生成器 API</title>
       <programlisting><![CDATA[<?php
 require_once 'SomeClass.php';
@@ -151,9 +146,8 @@ class StubTest extends PHPUnit_Framework_TestCase
                      ->getMock();
 
         // 配置短连件。
-        $stub->expects($this->any())
-             ->method('doSomething')
-             ->will($this->returnValue('foo'));
+        $stub->method('doSomething')
+             ->willReturn('foo');
 
         //  现在调用 $stub->doSomething() 将返回 'foo'。
         $this->assertEquals('foo', $stub->doSomething());
@@ -163,12 +157,15 @@ class StubTest extends PHPUnit_Framework_TestCase
     </example>
 
     <para>
+      在之前的例子中，用 <literal>willReturn($value)</literal> 返回简单值。这个简短的语法相当于 <literal>will($this->returnValue($value))</literal>。而在这个长点的语法中，可以使用变量，从而实现更复杂的短连行为。
+    </para>
+
+    <para>
       有时想要将（未改变的）方法调用时所使用的参数之一作为短连的方法的调用结果来返回。<xref linkend="test-doubles.stubs.examples.StubTest3.php"/>展示了如何用 <literal>returnArgument()</literal> 代替 <literal>returnValue()</literal> 来做到这点。
     </para>
 
     <example id="test-doubles.stubs.examples.StubTest3.php">
       <indexterm><primary>getMock()</primary></indexterm>
-      <indexterm><primary>expects()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
       <indexterm><primary>will()</primary></indexterm>
       <indexterm><primary>returnArgument()</primary></indexterm>
@@ -184,8 +181,7 @@ class StubTest extends PHPUnit_Framework_TestCase
         $stub = $this->getMock('SomeClass');
 
         // 配置短连件。
-        $stub->expects($this->any())
-             ->method('doSomething')
+        $stub->method('doSomething')
              ->will($this->returnArgument(0));
 
         // $stub->doSomething('foo') 返回 'foo'
@@ -204,7 +200,6 @@ class StubTest extends PHPUnit_Framework_TestCase
 
     <example id="test-doubles.stubs.examples.StubTest4.php">
       <indexterm><primary>getMock()</primary></indexterm>
-      <indexterm><primary>expects()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
       <indexterm><primary>will()</primary></indexterm>
       <indexterm><primary>returnSelf()</primary></indexterm>
@@ -220,8 +215,7 @@ class StubTest extends PHPUnit_Framework_TestCase
         $stub = $this->getMock('SomeClass');
 
         // 配置短连件。
-        $stub->expects($this->any())
-             ->method('doSomething')
+        $stub->method('doSomething')
              ->will($this->returnSelf());
 
         // $stub->doSomething() 返回 $stub
@@ -237,7 +231,6 @@ class StubTest extends PHPUnit_Framework_TestCase
 
     <example id="test-doubles.stubs.examples.StubTest5.php">
       <indexterm><primary>getMock()</primary></indexterm>
-      <indexterm><primary>expects()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
       <indexterm><primary>will()</primary></indexterm>
       <indexterm><primary>returnValueMap()</primary></indexterm>
@@ -259,8 +252,7 @@ class StubTest extends PHPUnit_Framework_TestCase
         );
 
         // 配置短连件。
-        $stub->expects($this->any())
-             ->method('doSomething')
+        $stub->method('doSomething')
              ->will($this->returnValueMap($map));
 
         // $stub->doSomething() 根据提供的参数返回不同的值。
@@ -277,7 +269,6 @@ class StubTest extends PHPUnit_Framework_TestCase
 
     <example id="test-doubles.stubs.examples.StubTest6.php">
       <indexterm><primary>getMock()</primary></indexterm>
-      <indexterm><primary>expects()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
       <indexterm><primary>will()</primary></indexterm>
       <indexterm><primary>returnCallback()</primary></indexterm>
@@ -293,8 +284,7 @@ class StubTest extends PHPUnit_Framework_TestCase
         $stub = $this->getMock('SomeClass');
 
         // 配置短连件。
-        $stub->expects($this->any())
-             ->method('doSomething')
+        $stub->method('doSomething')
              ->will($this->returnCallback('str_rot13'));
 
         // $stub->doSomething($argument) 返回 str_rot13($argument)
@@ -310,7 +300,6 @@ class StubTest extends PHPUnit_Framework_TestCase
 
     <example id="test-doubles.stubs.examples.StubTest7.php">
       <indexterm><primary>getMock()</primary></indexterm>
-      <indexterm><primary>expects()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
       <indexterm><primary>will()</primary></indexterm>
       <indexterm><primary>onConsecutiveCalls()</primary></indexterm>
@@ -326,8 +315,7 @@ class StubTest extends PHPUnit_Framework_TestCase
         $stub = $this->getMock('SomeClass');
 
         // 配置短连件。
-        $stub->expects($this->any())
-             ->method('doSomething')
+        $stub->method('doSomething')
              ->will($this->onConsecutiveCalls(2, 3, 5, 7));
 
         // $stub->doSomething() 每次返回值都不同
@@ -346,7 +334,6 @@ class StubTest extends PHPUnit_Framework_TestCase
 
     <example id="test-doubles.stubs.examples.StubTest8.php">
       <indexterm><primary>getMock()</primary></indexterm>
-      <indexterm><primary>expects()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
       <indexterm><primary>will()</primary></indexterm>
       <indexterm><primary>throwException()</primary></indexterm>
@@ -362,8 +349,7 @@ class StubTest extends PHPUnit_Framework_TestCase
         $stub = $this->getMock('SomeClass');
 
         // 配置短连件。
-        $stub->expects($this->any())
-             ->method('doSomething')
+        $stub->method('doSomething')
              ->will($this->throwException(new Exception));
 
         // $stub->doSomething() 抛出异常
@@ -484,6 +470,10 @@ class Observer
       首先用 <literal>PHPUnit_Framework_TestCase</literal> 类提供的 <literal>getMock()</literal> 方法建立 <literal>Observer</literal> 的仿件对象。由于给出了一个数组做为 <literal>getMock()</literal> 方法的第二（可选）参数，<literal>Observer</literal> 类只有 <literal>update()</literal> 方法会被替换为仿实现。
     </para>
 
+    <para>
+      由于关注的是检验某个方法是否被调用，以及调用时具体所使用的参数，因此引入 <literal>expects()</literal> 与 <literal>with</literal> 方法来指明此交互应该是什么样的。
+    </para>
+
     <example id="test-doubles.mock-objects.examples.SubjectTest.php">
       <title>测试某个方法会以特定参数被调用一次</title>
       <programlisting><![CDATA[<?php
@@ -527,7 +517,7 @@ class SubjectTest extends PHPUnit_Framework_TestCase
         // 为 Observer 类建立仿件，对 reportError() 方法进行模仿
         $observer = $this->getMock('Observer', array('reportError'));
 
-        $observer->expects($this->once())
+        $observer->`$this->once())
                  ->method('reportError')
                  ->with($this->greaterThan(0),
                         $this->stringContains('Something'),
