@@ -57,7 +57,67 @@
 
     <screen><userinput>wget https://phar.phpunit.de/phpunit.phar</userinput>
 <userinput>php phpunit.phar</userinput></screen>
+
+    <section id="installation.phar.verification">
+      <title>校验 PHPUnit PHAR 发行包</title>
+
+      <para>
+        由 PHPUnit 项目分发的所有官方代码发行包都由发行包管理器进行签名。在 <ulink
+        url="https://phar.phpunit.de/">phar.phpunit.de</ulink> 上有 PGP 签名和 SHA1 散列值可用于校验。
+      </para>
+
+      <para>
+        下面的例子详细说明了如何对发行包进行校验。首先下载 <filename>phpunit.phar</filename> 和与之对应的单独 PGP 签名 <filename>phpunit.phar.asc</filename>：
+      </para>
+
+      <screen><userinput>wget https://phar.phpunit.de/phpunit.phar</userinput>
+<userinput>wget https://phar.phpunit.de/phpunit.phar.asc</userinput></screen>
+
+      <para>
+        用单独的签名(<filename>phpunit.phar.asc</filename>)对 PHPUnit 的 PHP 档案包(<filename>phpunit.phar</filename>)进行校验：
+      </para>
+
+      <screen><userinput>gpg phpunit.phar.asc</userinput>
+gpg: Signature made Sat 19 Jul 2014 01:28:02 PM CEST using RSA key ID 6372C20A
+gpg: Can't check signature: public key not found</screen>
+
+      <para>
+        在本地系统中没有发行包管理器的公钥(<literal>6372C20A</literal>)。为了能进行校验，必须从某个密钥服务器上取得发行包管理器的公钥。其中一个服务器是 <filename>pgp.uni-mainz.de</filename>。所有密钥服务器是链接在一起的，因此连接到任一密钥服务器均可。
+      </para>
+
+      <screen><userinput>gpg --keyserver pgp.uni-mainz.de --recv-keys 0x4AA394086372C20A</userinput><![CDATA[
+gpg: requesting key 6372C20A from hkp server pgp.uni-mainz.de
+gpg: key 6372C20A: public key "Sebastian Bergmann <sb@sebastian-bergmann.de>" imported
+gpg: Total number processed: 1
+gpg:               imported: 1  (RSA: 1)]]></screen>
+
+      <para>
+        现在已经取得了条目名称为"Sebastian Bergmann &lt;sb@sebastian-bergmann.de&gt;"的公钥。不过，无法检验这个密钥确实是由名叫 Sebastian Bergmann 的人创建的。但是可以先试着校验发行包的签名：
+      </para>
+
+      <screen><userinput>gpg phpunit.phar.asc</userinput><![CDATA[
+gpg: Signature made Sat 19 Jul 2014 01:28:02 PM CEST using RSA key ID 6372C20A
+gpg: Good signature from "Sebastian Bergmann <sb@sebastian-bergmann.de>"
+gpg:                 aka "Sebastian Bergmann <sebastian@php.net>"
+gpg:                 aka "Sebastian Bergmann <sebastian@thephp.cc>"
+gpg:                 aka "Sebastian Bergmann <sebastian@phpunit.de>"
+gpg:                 aka "Sebastian Bergmann <sebastian.bergmann@thephp.cc>"
+gpg:                 aka "[jpeg image of size 40635]"
+gpg: WARNING: This key is not certified with a trusted signature!
+gpg:          There is no indication that the signature belongs to the owner.
+Primary key fingerprint: D840 6D0D 8294 7747 2937  7831 4AA3 9408 6372 C20A]]></screen>
+
+      <para>
+        此时，签名已经没问题了，但是这个公钥还不能信任。签名没问题意味着文件未被篡改。不过，由于公钥加密系统的性质，还需要再校验密钥 <literal>6372C20A</literal> 确实是由真正的 Sebastian Bergmann 创建的。
+      </para>
+
+      <para>
+        任何攻击者都能创建公钥并将其上传到公钥服务器。他们可以建立一个带恶意的发行包，并用这个假密钥进行签名。这样，如果尝试对这个损坏了的发行包进行签名校验，由于密钥是“真”密钥，校验将成功完成。因此，需要对这个密钥的真实性进行校验。不过，如何对公钥的真实性进行校验已经超出了本文档的范畴。
+      </para>
+    </section>
   </section>
+
+
 
   <section id="installation.composer">
     <title>Composer</title>
