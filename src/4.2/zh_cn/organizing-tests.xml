@@ -21,39 +21,27 @@
     </para>
 
     <para>
-      让我们一起来看看 <ulink url="http://github.com/sebastianbergmann/php-object-freezer/">Object_Freezer</ulink> 这个库的测试套件。在这个项目的目录结构中，可以看到 <filename>Tests</filename> 目录下的测试用例类镜像了 <filename>Object</filename> 目录下被测系统(SUT, System Under Test)的包(package)与类(class)的结构：
+      让我们一起来看看 <ulink url="http://github.com/sebastianbergmann/money/">sebastianbergmann/money</ulink> 这个库的测试套件。在这个项目的目录结构中，可以看到 <filename>tests</filename> 目录下的测试用例类镜像了 <filename>src</filename> 目录下被测系统(SUT, System Under Test)的包(package)与类(class)的结构：
     </para>
 
-    <screen>Object                              Tests
-|-- Freezer                         |-- Freezer
-|   |-- HashGenerator               |   |-- HashGenerator
-|   |   `-- NonRecursiveSHA1.php    |   |   `-- NonRecursiveSHA1Test.php
-|   |-- HashGenerator.php           |   |
-|   |-- IdGenerator                 |   |-- IdGenerator
-|   |   `-- UUID.php                |   |   `-- UUIDTest.php
-|   |-- IdGenerator.php             |   |
-|   |-- LazyProxy.php               |   |
-|   |-- Storage                     |   |-- Storage
-|   |   `-- CouchDB.php             |   |   `-- CouchDB
-|   |                               |   |       |-- WithLazyLoadTest.php
-|   |                               |   |       `-- WithoutLazyLoadTest.php
-|   |-- Storage.php                 |   |-- StorageTest.php
-|   `-- Util.php                    |   `-- UtilTest.php
-`-- Freezer.php                     `-- FreezerTest.php</screen>
+    <screen>src                                 tests
+`-- Currency.php                    `-- CurrencyTest.php
+`-- IntlFormatter.php               `-- IntlFormatterTest.php
+`-- Money.php                       `-- MoneyTest.php
+`-- autoload.php</screen>
 
     <para>
       要运行这个库的全部测试，只要将 PHPUnit 命令行测试执行器指向测试目录即可：
     </para>
 
-    <screen><userinput>phpunit Tests</userinput>
+    <screen><userinput>phpunit tests</userinput>
 PHPUnit 4.2.0 by Sebastian Bergmann.
 
-............................................................ 60 / 75
-...............
+.................................
 
-Time: 0 seconds
+Time: 636 ms, Memory: 3.50Mb
 
-OK (75 tests, 164 assertions)</screen>
+OK (33 tests, 52 assertions)</screen>
 
     <note>
       <para>
@@ -62,30 +50,30 @@ OK (75 tests, 164 assertions)</screen>
     </note>
 
     <para>
-      如果只想运行在 <filename>Tests/FreezerTest.php</filename> 文件中的 <literal>Object_FreezerTest</literal> 测试用例类中声明的测试，可以使用如下命令：
+      如果只想运行在 <filename>tests/CurrencyTest.php</filename> 文件中的 <literal>CurrencyTest</literal> 测试用例类中声明的测试，可以使用如下命令：
     </para>
 
-    <screen><userinput>phpunit Tests/FreezerTest</userinput>
+    <screen><userinput>phpunit tests/CurrencyTest</userinput>
 PHPUnit 4.2.0 by Sebastian Bergmann.
 
-............................
+........
 
-Time: 0 seconds
+Time: 280 ms, Memory: 2.75Mb
 
-OK (28 tests, 60 assertions)</screen>
+OK (8 tests, 8 assertions)</screen>
 
     <para>
       如果想要对运行哪些测试有更细粒度的控制，可以使用 <literal>--filter</literal> 选项：
     </para>
 
-    <screen><userinput>phpunit --filter testFreezingAnObjectWorks Tests</userinput>
+    <screen><userinput>phpunit --filter testObjectCanBeConstructedForValidConstructorArgument tests</userinput>
 PHPUnit 4.2.0 by Sebastian Bergmann.
 
-.
+..
 
-Time: 0 seconds
+Time: 167 ms, Memory: 3.00Mb
 
-OK (1 test, 2 assertions)</screen>
+OK (2 test, 2 assertions)</screen>
 
     <note>
       <para>
@@ -99,15 +87,15 @@ OK (1 test, 2 assertions)</screen>
     <indexterm><primary>XML Configuration （XML 配置）</primary></indexterm>
 
     <para>
-      PHPUnit的 XML 配置文件（<xref linkend="appendixes.configuration"/>）也可以用于编排测试套件。<xref linkend="organizing-tests.xml-configuration.examples.phpunit.xml"/>展示了一个最小化的例子，它将在循环遍历 <filename>Tests</filename> 时添加所有在 <filename>*Test.php</filename> 文件中找到的 <literal>*Test</literal> 类。
+      PHPUnit的 XML 配置文件（<xref linkend="appendixes.configuration"/>）也可以用于编排测试套件。<xref linkend="organizing-tests.xml-configuration.examples.phpunit.xml"/>展示了一个最小化的例子，它将在循环遍历 <filename>tests</filename> 时添加所有在 <filename>*Test.php</filename> 文件中找到的 <literal>*Test</literal> 类。
     </para>
 
     <example id="organizing-tests.xml-configuration.examples.phpunit.xml">
       <title>用 XML 配置来编排测试套件</title>
       <programlisting><![CDATA[<phpunit>
   <testsuites>
-    <testsuite name="Object_Freezer">
-      <directory>Tests</directory>
+    <testsuite name="money">
+      <directory>tests</directory>
     </testsuite>
   </testsuites>
 </phpunit>]]></programlisting>
@@ -121,14 +109,10 @@ OK (1 test, 2 assertions)</screen>
       <title>用 XML 配置来编排测试套件</title>
       <programlisting><![CDATA[<phpunit>
   <testsuites>
-    <testsuite name="Object_Freezer">
-      <file>Tests/Freezer/HashGenerator/NonRecursiveSHA1Test.php</file>
-      <file>Tests/Freezer/IdGenerator/UUIDTest.php</file>
-      <file>Tests/Freezer/UtilTest.php</file>
-      <file>Tests/FreezerTest.php</file>
-      <file>Tests/Freezer/StorageTest.php</file>
-      <file>Tests/Freezer/Storage/CouchDB/WithLazyLoadTest.php</file>
-      <file>Tests/Freezer/Storage/CouchDB/WithoutLazyLoadTest.php</file>
+    <testsuite name="money">
+      <file>tests/IntlFormatterTest.php</file>
+      <file>tests/MoneyTest.php</file>
+      <file>tests/CurrencyTest.php</file>
     </testsuite>
   </testsuites>
 </phpunit>]]></programlisting>
