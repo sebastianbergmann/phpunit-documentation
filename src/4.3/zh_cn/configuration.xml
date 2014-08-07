@@ -1,0 +1,400 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<appendix id="appendixes.configuration">
+  <title>XML 配置文件</title>
+
+  <section id="appendixes.configuration.phpunit">
+    <title>PHPUnit</title>
+
+    <para>
+      <literal><![CDATA[<phpunit>]]></literal> 元素的属性用于配置 PHPUnit 的核心功能。
+    </para>
+
+    <screen><![CDATA[<phpunit
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/4.3/phpunit.xsd"
+         backupGlobals="true"
+         backupStaticAttributes="false"
+         <!--bootstrap="/path/to/bootstrap.php"-->
+         cacheTokens="false"
+         colors="false"
+         convertErrorsToExceptions="true"
+         convertNoticesToExceptions="true"
+         convertWarningsToExceptions="true"
+         forceCoversAnnotation="false"
+         mapTestClassNameToCoveredClassName="false"
+         printerClass="PHPUnit_TextUI_ResultPrinter"
+         <!--printerFile="/path/to/ResultPrinter.php"-->
+         processIsolation="false"
+         stopOnError="false"
+         stopOnFailure="false"
+         stopOnIncomplete="false"
+         stopOnSkipped="false"
+         testSuiteLoaderClass="PHPUnit_Runner_StandardTestSuiteLoader"
+         <!--testSuiteLoaderFile="/path/to/StandardTestSuiteLoader.php"-->
+         timeoutForSmallTests="1"
+         timeoutForMediumTests="10"
+         timeoutForLargeTests="60"
+         strict="false"
+         verbose="false">
+  <!-- ... -->
+</phpunit>]]></screen>
+
+    <para>
+      以上 XML 配置对应的是在 <xref linkend="textui.clioptions" /> 描述过的 TextUI 测试执行器的默认行为。
+    </para>
+
+    <para>
+      其他那些不能用命令行选项来配置的选项有：
+    </para>
+
+    <variablelist>
+
+      <varlistentry>
+        <term><literal>convertErrorsToExceptions</literal></term>
+        <listitem>
+          <para>
+            默认情况下，PHPUnit 将会安插一个错误处理程序来将以下错误转换为异常：
+          </para>
+
+          <itemizedlist>
+            <listitem><literal>E_WARNING</literal></listitem>
+            <listitem><literal>E_NOTICE</literal></listitem>
+            <listitem><literal>E_USER_ERROR</literal></listitem>
+            <listitem><literal>E_USER_WARNING</literal></listitem>
+            <listitem><literal>E_USER_NOTICE</literal></listitem>
+            <listitem><literal>E_STRICT</literal></listitem>
+            <listitem><literal>E_RECOVERABLE_ERROR</literal></listitem>
+            <listitem><literal>E_DEPRECATED</literal></listitem>
+            <listitem><literal>E_USER_DEPRECATED</literal></listitem>
+          </itemizedlist>
+
+          <para>
+            将 <literal>convertErrorsToExceptions</literal> 设为
+            <literal>false</literal> 可以禁用此功能。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>convertNoticesToExceptions</literal></term>
+        <listitem>
+          <para>
+            设置为 <literal>false</literal> 时，由 <literal>convertErrorsToExceptions</literal> 安插的错误处理程序不会将 <literal>E_NOTICE</literal>、<literal>E_USER_NOTICE</literal>、<literal>E_STRICT</literal> 错误转换为异常。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>convertWarningsToExceptions</literal></term>
+        <listitem>
+          <para>
+             设置为 <literal>false</literal> 时，由 <literal>convertErrorsToExceptions</literal> 安插的错误处理程序不会将 <literal>E_WARNING</literal> 或 <literal>E_USER_WARNING</literal> 错误转换为异常。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>forceCoversAnnotation</literal></term>
+        <listitem>
+          <para>
+            只记录使用了 <xref linkend="appendixes.annotations.covers" /> 描述的 <literal>@covers</literal> 标注的测试的代码覆盖率。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>timeoutForLargeTests</literal></term>
+        <listitem>
+          <para>
+            如果安装了 <literal>PHP_Invoker</literal> 组件包并启用了严格模式，此属性为所有标记为 <literal>@large</literal> 的测试设定超时限制。如果测试未能在这个配置所指定的超时限制时间内完成，即视为失败。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>timeoutForMediumTests</literal></term>
+        <listitem>
+          <para>
+            如果安装了 <literal>PHP_Invoker</literal> 组件包并启用了严格模式，此属性为所有标记为 <literal>@medium</literal> 的测试设定超时限制。如果测试未能在这个配置所指定的超时限制时间内完成，即视为失败。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>timeoutForSmallTests</literal></term>
+        <listitem>
+          <para>
+            如果安装了 <literal>PHP_Invoker</literal> 组件包并启用了严格模式，此属性为所有未标记为 <literal>@medium</literal> 或 <literal>@large</literal> 的测试设定超时限制。如果测试未能在这个配置所指定的超时限制时间内完成，即视为失败。
+          </para>
+        </listitem>
+      </varlistentry>
+
+    </variablelist>
+
+  </section>
+
+  <section id="appendixes.configuration.testsuites">
+    <title>测试套件</title>
+
+    <para>
+      <indexterm><primary>Test Suite （测试套件）</primary></indexterm>
+
+      带有一个或多个 <literal><![CDATA[<testsuite>]]></literal> 子元素的 <literal><![CDATA[<testsuites>]]></literal> 元素用于将测试用例与测试套件组合成测试套件。
+    </para>
+
+    <screen><![CDATA[<testsuites>
+  <testsuite name="My Test Suite">
+    <directory>/path/to/*Test.php files</directory>
+    <file>/path/to/MyTest.php</file>
+    <exclude>/path/to/exclude</exclude>
+  </testsuite>
+</testsuites>]]></screen>
+
+    <para>
+      可以用 <literal>phpVersion</literal> 和 <literal>phpVersionOperator</literal> 属性来指定 PHP 版本需求。在以下例子中，仅当 PHP 版本至少为 5.3.0 时才会将 <filename>/path/to/*Test.php</filename> 文件与 <filename>/path/to/MyTest.php</filename> 添加到测试套件中。
+    </para>
+
+    <screen><![CDATA[  <testsuites>
+    <testsuite name="My Test Suite">
+      <directory suffix="Test.php" phpVersion="5.3.0" phpVersionOperator=">=">/path/to/files</directory>
+      <file phpVersion="5.3.0" phpVersionOperator=">=">/path/to/MyTest.php</file>
+    </testsuite>
+  </testsuites>]]></screen>
+
+    <para>
+      <literal>phpVersionOperator</literal> 属性是可选的，默认为 <literal><![CDATA[>=]]></literal>。
+    </para>
+  </section>
+
+  <section id="appendixes.configuration.groups">
+    <title>分组</title>
+
+    <para>
+      <indexterm><primary>Test Groups （测试分组）</primary></indexterm>
+
+      <literal><![CDATA[<groups>]]></literal> 元素及其 <literal><![CDATA[<include>]]></literal>、<literal><![CDATA[<exclude>]]></literal>、<literal><![CDATA[<group>]]></literal> 子元素用于从带有 <literal>@group</literal> 标注（相关文档参见 <xref linkend="appendixes.annotations.group" />）的测试中选择需要运行（或不运行）的分组。
+    </para>
+
+    <screen><![CDATA[<groups>
+  <include>
+    <group>name</group>
+  </include>
+  <exclude>
+    <group>name</group>
+  </exclude>
+</groups>]]></screen>
+
+    <para>
+      以上 XML 配置对应于用以下命令行选项来调用 TextUI 测试执行器：
+    </para>
+
+    <itemizedlist>
+      <listitem><para><literal>--group name</literal></para></listitem>
+      <listitem><para><literal>--exclude-group name</literal></para></listitem>
+    </itemizedlist>
+  </section>
+
+  <section id="appendixes.configuration.blacklist-whitelist">
+    <title>为代码覆盖率包含或排除文件</title>
+
+    <para>
+      <indexterm><primary>Code Coverage （代码覆盖率）</primary></indexterm>
+      <indexterm><primary>Blacklist （黑名单）</primary></indexterm>
+      <indexterm><primary>Whitelist （白名单）</primary></indexterm>
+
+      <literal><![CDATA[<filter>]]></literal> 元素及其子元素用于配置代码覆盖率报告的黑名单与白名单。
+    </para>
+
+    <screen><![CDATA[<filter>
+  <blacklist>
+    <directory suffix=".php">/path/to/files</directory>
+    <file>/path/to/file</file>
+    <exclude>
+      <directory suffix=".php">/path/to/files</directory>
+      <file>/path/to/file</file>
+    </exclude>
+  </blacklist>
+  <whitelist processUncoveredFilesFromWhitelist="true">
+    <directory suffix=".php">/path/to/files</directory>
+    <file>/path/to/file</file>
+    <exclude>
+      <directory suffix=".php">/path/to/files</directory>
+      <file>/path/to/file</file>
+    </exclude>
+  </whitelist>
+</filter>]]></screen>
+  </section>
+
+  <section id="appendixes.configuration.logging">
+    <title>日志记录</title>
+
+    <para>
+      <indexterm><primary>Logging （日志记录）</primary></indexterm>
+
+      <literal><![CDATA[<logging>]]></literal> 元素及其 <literal><![CDATA[<log>]]></literal> 子元素用于配置测试执行情况的日志记录。
+    </para>
+
+    <screen><![CDATA[<logging>
+  <log type="coverage-html" target="/tmp/report" charset="UTF-8"
+       highlight="false" lowUpperBound="35" highLowerBound="70"/>
+  <log type="coverage-clover" target="/tmp/coverage.xml"/>
+  <log type="coverage-php" target="/tmp/coverage.serialized"/>
+  <log type="coverage-text" target="php://stdout" showUncoveredFiles="false"/>
+  <log type="json" target="/tmp/logfile.json"/>
+  <log type="tap" target="/tmp/logfile.tap"/>
+  <log type="junit" target="/tmp/logfile.xml" logIncompleteSkipped="false"/>
+  <log type="testdox-html" target="/tmp/testdox.html"/>
+  <log type="testdox-text" target="/tmp/testdox.txt"/>
+</logging>]]></screen>
+
+    <para>
+      以上 XML 配置对应于用以下命令行选项来调用 TextUI 测试执行器：
+    </para>
+
+    <itemizedlist>
+      <listitem><para><literal>--coverage-html /tmp/report</literal></para></listitem>
+      <listitem><para><literal>--coverage-clover /tmp/coverage.xml</literal></para></listitem>
+      <listitem><para><literal>--coverage-php /tmp/coverage.serialized</literal></para></listitem>
+      <listitem><para><literal>--coverage-text</literal></para></listitem>
+      <listitem><para><literal>--log-json /tmp/logfile.json</literal></para></listitem>
+      <listitem><para><literal><![CDATA[>]]> /tmp/logfile.txt</literal></para></listitem>
+      <listitem><para><literal>--log-tap /tmp/logfile.tap</literal></para></listitem>
+      <listitem><para><literal>--log-junit /tmp/logfile.xml</literal></para></listitem>
+      <listitem><para><literal>--testdox-html /tmp/testdox.html</literal></para></listitem>
+      <listitem><para><literal>--testdox-text /tmp/testdox.txt</literal></para></listitem>
+    </itemizedlist>
+
+    <para>
+      <literal>charset</literal>、<literal>highlight</literal>、<literal>lowUpperBound</literal>、<literal>highLowerBound</literal>、<literal>logIncompleteSkipped</literal> 和 <literal>showUncoveredFiles</literal> 属性没有等价的 TextUI 测试执行器选项。
+    </para>
+
+    <itemizedlist>
+      <listitem><para><literal>charset</literal>：生成的 HTML 页面所要使用的字符集。</para></listitem>
+      <listitem><para><literal>highlight</literal>：设置为 <literal>true</literal> 时，覆盖率报告中的代码将会进行语法高亮标注。</para></listitem>
+      <listitem><para><literal>lowUpperBound</literal>：“低”覆盖率区间的百分比上限。</para></listitem>
+      <listitem><para><literal>highLowerBound</literal>：“高”覆盖率区间的百分比下限。</para></listitem>
+      <listitem><para><literal>showUncoveredFiles</literal>：在 <literal>--coverage-text</literal> 输出中显示所有白名单中的文件，而不只是有覆盖率信息的那些。</para></listitem>
+      <listitem><para><literal>showOnlySummary</literal>：在 <literal>--coverage-text</literal> 的输出中只显示摘要。</para></listitem>
+    </itemizedlist>
+  </section>
+
+  <section id="appendixes.configuration.test-listeners">
+    <title>测试监听器(Test Listeners)</title>
+
+    <para>
+      <indexterm><primary>PHPUnit_Framework_TestListener</primary></indexterm>
+      <indexterm><primary>Test Listener （测试监听器）</primary></indexterm>
+
+      带有一个或多个 <literal><![CDATA[<listener>]]></literal> 子元素的 <literal><![CDATA[<listeners>]]></literal> 元素用于将测试监听器接入到测试执行过程中。
+    </para>
+
+    <screen><![CDATA[<listeners>
+  <listener class="MyListener" file="/optional/path/to/MyListener.php">
+    <arguments>
+      <array>
+        <element key="0">
+          <string>Sebastian</string>
+        </element>
+      </array>
+      <integer>22</integer>
+      <string>April</string>
+      <double>19.78</double>
+      <null/>
+      <object class="stdClass"/>
+    </arguments>
+  </listener>
+</listeners>]]></screen>
+
+    <para>
+      上述 XML 配置表示将 <literal>$listener</literal> 对象（如下）接入到测试执行过程中：
+    </para>
+
+    <screen><![CDATA[$listener = new MyListener(
+  array('Sebastian'),
+  22,
+  'April',
+  19.78,
+  NULL,
+  new stdClass
+);]]></screen>
+  </section>
+
+  <section id="appendixes.configuration.php-ini-constants-variables">
+    <title>设定 PHP INI 配置、常量、全局变量</title>
+
+    <para>
+      <indexterm><primary>Constant （常量）</primary></indexterm>
+      <indexterm><primary>Global Variable （全局变量）</primary></indexterm>
+      <indexterm><primary><literal>php.ini</literal></primary></indexterm>
+
+      <literal><![CDATA[<php>]]></literal> 元素及其子元素用于配置 PHP 配置选项、常量和全局变量。还可以用来向 <literal>include_path</literal> 开头附加内容。
+    </para>
+
+    <screen><![CDATA[<php>
+  <includePath>.</includePath>
+  <ini name="foo" value="bar"/>
+  <const name="foo" value="bar"/>
+  <var name="foo" value="bar"/>
+  <env name="foo" value="bar"/>
+  <post name="foo" value="bar"/>
+  <get name="foo" value="bar"/>
+  <cookie name="foo" value="bar"/>
+  <server name="foo" value="bar"/>
+  <files name="foo" value="bar"/>
+  <request name="foo" value="bar"/>
+</php>]]></screen>
+
+    <para>
+      以上 XML 配置对应于以下 PHP 代码：
+    </para>
+
+    <screen><![CDATA[ini_set('foo', 'bar');
+define('foo', 'bar');
+$GLOBALS['foo'] = 'bar';
+$_ENV['foo'] = 'bar';
+$_POST['foo'] = 'bar';
+$_GET['foo'] = 'bar';
+$_COOKIE['foo'] = 'bar';
+$_SERVER['foo'] = 'bar';
+$_FILES['foo'] = 'bar';
+$_REQUEST['foo'] = 'bar';]]></screen>
+  </section>
+
+  <section id="appendixes.configuration.selenium-rc">
+    <title>为 Selenium RC 配置浏览器</title>
+
+    <para>
+      <indexterm><primary>Selenium RC</primary></indexterm>
+
+      <literal><![CDATA[<selenium>]]></literal> 元素及其 <literal><![CDATA[<browser>]]></literal> 子元素用于配置 Selenium RC 服务器列表。
+    </para>
+
+    <screen><![CDATA[<selenium>
+  <browser name="Firefox on Linux"
+           browser="*firefox /usr/lib/firefox/firefox-bin"
+           host="my.linux.box"
+           port="4444"
+           timeout="30000"/>
+</selenium>]]></screen>
+
+    <para>
+      以上 XML 配置对应于以下 PHP 代码：
+    </para>
+
+    <screen><![CDATA[class WebTest extends PHPUnit_Extensions_SeleniumTestCase
+{
+    public static $browsers = array(
+      array(
+        'name'    => 'Firefox on Linux',
+        'browser' => '*firefox /usr/lib/firefox/firefox-bin',
+        'host'    => 'my.linux.box',
+        'port'    => 4444,
+        'timeout' => 30000
+      )
+    );
+
+    // ...
+}]]></screen>
+  </section>
+</appendix>

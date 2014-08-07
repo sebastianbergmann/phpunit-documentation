@@ -1,0 +1,430 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<appendix id="appendixes.configuration">
+  <title>XML 設定ファイル</title>
+
+  <section id="appendixes.configuration.phpunit">
+    <title>PHPUnit</title>
+
+    <para>
+      <literal><![CDATA[<phpunit>]]></literal> 要素の属性を使って
+      PHPUnit のコア機能を設定します。
+    </para>
+
+    <screen><![CDATA[<phpunit
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/4.3/phpunit.xsd"
+         backupGlobals="true"
+         backupStaticAttributes="false"
+         <!--bootstrap="/path/to/bootstrap.php"-->
+         cacheTokens="false"
+         colors="false"
+         convertErrorsToExceptions="true"
+         convertNoticesToExceptions="true"
+         convertWarningsToExceptions="true"
+         forceCoversAnnotation="false"
+         mapTestClassNameToCoveredClassName="false"
+         printerClass="PHPUnit_TextUI_ResultPrinter"
+         <!--printerFile="/path/to/ResultPrinter.php"-->
+         processIsolation="false"
+         stopOnError="false"
+         stopOnFailure="false"
+         stopOnIncomplete="false"
+         stopOnSkipped="false"
+         testSuiteLoaderClass="PHPUnit_Runner_StandardTestSuiteLoader"
+         <!--testSuiteLoaderFile="/path/to/StandardTestSuiteLoader.php"-->
+         timeoutForSmallTests="1"
+         timeoutForMediumTests="10"
+         timeoutForLargeTests="60"
+         strict="false"
+         verbose="false">
+  <!-- ... -->
+</phpunit>]]></screen>
+
+    <para>
+      上の XML 設定ファイルは、TextUI テストランナーをデフォルトの設定で起動します。
+      その詳細は <xref linkend="textui.clioptions" /> で説明します。
+    </para>
+
+    <para>
+      その他、コマンドラインからは設定できないオプションもあります。
+    </para>
+
+    <variablelist>
+
+      <varlistentry>
+        <term><literal>convertErrorsToExceptions</literal></term>
+        <listitem>
+          <para>
+            <literal>false</literal> にすると、
+            すべての PHP のエラーを例外に変換するエラーハンドラをインストールしません。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>convertNoticesToExceptions</literal></term>
+        <listitem>
+          <para>
+            <literal>false</literal> にすると、
+            <literal>convertErrorsToExceptions</literal> でインストールしたエラーハンドラが
+            <literal>E_NOTICE</literal> や <literal>E_USER_NOTICE</literal> そして
+            <literal>E_STRICT</literal> を例外に変換しなくなります。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>convertWarningsToExceptions</literal></term>
+        <listitem>
+          <para>
+            <literal>false</literal> にすると、
+            <literal>convertErrorsToExceptions</literal> でインストールしたエラーハンドラが
+            <literal>E_WARNING</literal> や <literal>E_USER_WARNING</literal>
+            を例外に変換しなくなります。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>forceCoversAnnotation</literal></term>
+        <listitem>
+          <para>
+            コードカバレッジの記録を、
+            <literal>@covers</literal> アノテーションを使っている関数だけに限定します。
+            このアノテーションについては
+            <xref linkend="appendixes.annotations.covers" /> で説明します。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>timeoutForLargeTests</literal></term>
+        <listitem>
+          <para>
+            <literal>PHP_Invoker</literal> パッケージがインストールされていて strict モードが有効な場合に、
+            <literal>@large</literal> とマークされたすべてのテストのタイムアウトをこの属性で設定します。
+            ここで指定した時間内にテストが完了しなかった場合、テストは失敗します。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>timeoutForMediumTests</literal></term>
+        <listitem>
+          <para>
+            <literal>PHP_Invoker</literal> パッケージがインストールされていて strict モードが有効な場合に、
+            <literal>@medium</literal> とマークされたすべてのテストのタイムアウトをこの属性で設定します。
+            ここで指定した時間内にテストが完了しなかった場合、テストは失敗します。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>timeoutForSmallTests</literal></term>
+        <listitem>
+          <para>
+            <literal>PHP_Invoker</literal> パッケージがインストールされていて strict モードが有効な場合に、
+            <literal>@medium</literal> あるいは <literal>@large</literal>
+            のいずれのマークもついていないすべてのテストのタイムアウトをこの属性で設定します。
+            ここで指定した時間内にテストが完了しなかった場合、テストは失敗します。
+          </para>
+        </listitem>
+      </varlistentry>
+
+    </variablelist>
+
+  </section>
+
+  <section id="appendixes.configuration.testsuites">
+    <title>テストスイート</title>
+
+    <para>
+      <indexterm><primary>Test Suite</primary></indexterm>
+
+      <literal><![CDATA[<testsuites>]]></literal> 要素とその子要素である
+      <literal><![CDATA[<testsuite>]]></literal> を使って、
+      テストスイート群やテストケース群の中からテストスイートを構成します。
+    </para>
+
+    <screen><![CDATA[<testsuites>
+  <testsuite name="My Test Suite">
+    <directory>/path/to/*Test.php files</directory>
+    <file>/path/to/MyTest.php</file>
+    <exclude>/path/to/exclude</exclude>
+  </testsuite>
+</testsuites>]]></screen>
+
+    <para>
+      <literal>phpVersion</literal> および
+      <literal>phpVersionOperator</literal> 属性を使うと、必要な PHP
+      のバージョンを指定できます。次の例は、PHP のバージョンが 5.3.0 以降である場合にのみ
+      <filename>/path/to/*Test.php</filename> と
+      <filename>/path/to/MyTest.php</filename> を追加します。
+    </para>
+
+    <screen><![CDATA[  <testsuites>
+    <testsuite name="My Test Suite">
+      <directory suffix="Test.php" phpVersion="5.3.0" phpVersionOperator=">=">/path/to/files</directory>
+      <file phpVersion="5.3.0" phpVersionOperator=">=">/path/to/MyTest.php</file>
+    </testsuite>
+  </testsuites>]]></screen>
+
+    <para>
+      <literal>phpVersionOperator</literal> 属性はオプションで、デフォルトは
+      <literal><![CDATA[>=]]></literal> です。
+    </para>
+  </section>
+
+  <section id="appendixes.configuration.groups">
+    <title>グループ</title>
+
+    <para>
+      <indexterm><primary>Test Groups</primary></indexterm>
+
+      <literal><![CDATA[<groups>]]></literal> 要素とその子要素である
+      <literal><![CDATA[<include>]]></literal>、
+      <literal><![CDATA[<exclude>]]></literal> および
+      <literal><![CDATA[<group>]]></literal> を使って、
+      <literal>@group</literal> アノテーション
+      (<xref linkend="appendixes.annotations.group" /> を参照ください)
+      でマークされたテストグループから実行する (しない) ものを選びます。
+    </para>
+
+    <screen><![CDATA[<groups>
+  <include>
+    <group>name</group>
+  </include>
+  <exclude>
+    <group>name</group>
+  </exclude>
+</groups>]]></screen>
+
+    <para>
+      上の XML 設定ファイルは、 TextUI テストランナーを以下の引数で起動します。
+    </para>
+
+    <itemizedlist>
+      <listitem><para><literal>--group name</literal></para></listitem>
+      <listitem><para><literal>--exclude-group name</literal></para></listitem>
+    </itemizedlist>
+  </section>
+
+  <section id="appendixes.configuration.blacklist-whitelist">
+    <title>コードカバレッジ対象のファイルの追加や除外</title>
+
+    <para>
+      <indexterm><primary>Code Coverage</primary></indexterm>
+      <indexterm><primary>Blacklist</primary></indexterm>
+      <indexterm><primary>Whitelist</primary></indexterm>
+
+      <literal><![CDATA[<filter>]]></literal> 要素とその子要素を使って、
+      コードカバレッジレポートのブラックリストとホワイトリストを設定します。
+    </para>
+
+    <screen><![CDATA[<filter>
+  <blacklist>
+    <directory suffix=".php">/path/to/files</directory>
+    <file>/path/to/file</file>
+    <exclude>
+      <directory suffix=".php">/path/to/files</directory>
+      <file>/path/to/file</file>
+    </exclude>
+  </blacklist>
+  <whitelist processUncoveredFilesFromWhitelist="true">
+    <directory suffix=".php">/path/to/files</directory>
+    <file>/path/to/file</file>
+    <exclude>
+      <directory suffix=".php">/path/to/files</directory>
+      <file>/path/to/file</file>
+    </exclude>
+  </whitelist>
+</filter>]]></screen>
+  </section>
+
+  <section id="appendixes.configuration.logging">
+    <title>ログ出力</title>
+
+    <para>
+      <indexterm><primary>Logging</primary></indexterm>
+
+      <literal><![CDATA[<logging>]]></literal> 要素とその子要素である
+      <literal><![CDATA[<log>]]></literal> を使って、
+      テストの実行結果のログ出力を設定します。
+    </para>
+
+    <screen><![CDATA[<logging>
+  <log type="coverage-html" target="/tmp/report" charset="UTF-8"
+       highlight="false" lowUpperBound="35" highLowerBound="70"/>
+  <log type="coverage-clover" target="/tmp/coverage.xml"/>
+  <log type="coverage-php" target="/tmp/coverage.serialized"/>
+  <log type="coverage-text" target="php://stdout" showUncoveredFiles="false"/>
+  <log type="json" target="/tmp/logfile.json"/>
+  <log type="tap" target="/tmp/logfile.tap"/>
+  <log type="junit" target="/tmp/logfile.xml" logIncompleteSkipped="false"/>
+  <log type="testdox-html" target="/tmp/testdox.html"/>
+  <log type="testdox-text" target="/tmp/testdox.txt"/>
+</logging>]]></screen>
+
+    <para>
+      上の XML 設定ファイルは、 TextUI テストランナーを以下の引数で起動します。
+    </para>
+
+    <itemizedlist>
+      <listitem><para><literal>--coverage-html /tmp/report</literal></para></listitem>
+      <listitem><para><literal>--coverage-clover /tmp/coverage.xml</literal></para></listitem>
+      <listitem><para><literal>--coverage-php /tmp/coverage.serialized</literal></para></listitem>
+      <listitem><para><literal>--coverage-text</literal></para></listitem>
+      <listitem><para><literal>--log-json /tmp/logfile.json</literal></para></listitem>
+      <listitem><para><literal><![CDATA[>]]> /tmp/logfile.txt</literal></para></listitem>
+      <listitem><para><literal>--log-tap /tmp/logfile.tap</literal></para></listitem>
+      <listitem><para><literal>--log-junit /tmp/logfile.xml</literal></para></listitem>
+      <listitem><para><literal>--testdox-html /tmp/testdox.html</literal></para></listitem>
+      <listitem><para><literal>--testdox-text /tmp/testdox.txt</literal></para></listitem>
+    </itemizedlist>
+
+    <para>
+      <literal>charset</literal>、<literal>highlight</literal>、
+      <literal>lowUpperBound</literal>、<literal>highLowerBound</literal>、
+      <literal>logIncompleteSkipped</literal>
+      および <literal>showUncoveredFiles</literal>
+      属性には、TextUI テストランナーで対応するオプションがありません。
+    </para>
+
+    <itemizedlist>
+      <listitem><para><literal>charset</literal>: 生成する html ページで使う文字セット。</para></listitem>
+      <listitem><para><literal>highlight</literal>: <literal>true</literal> にすると、カバレッジレポート内のコードにシンタックスハイライト処理を施します。</para></listitem>
+      <listitem><para><literal>lowUpperBound</literal>: カバー率がこの値に満たないときに、カバー率が "低い" とみなします。</para></listitem>
+      <listitem><para><literal>highLowerBound</literal>: カバー率がこの値を超えるときに、カバー率が "高い" とみなします。</para></listitem>
+      <listitem><para><literal>showUncoveredFiles</literal>: <literal>--coverage-text</literal> の出力で、カバレッジ情報だけではなくホワイトリストの全ファイル一覧も表示します。</para></listitem>
+      <listitem><para><literal>showOnlySummary</literal>: Show only the summary in <literal>--coverage-text</literal> output.</para></listitem>
+    </itemizedlist>
+  </section>
+
+  <section id="appendixes.configuration.test-listeners">
+    <title>テストリスナー</title>
+
+    <para>
+      <indexterm><primary>PHPUnit_Framework_TestListener</primary></indexterm>
+      <indexterm><primary>Test Listener</primary></indexterm>
+
+      <literal><![CDATA[<listeners>]]></literal> 要素とその子要素である
+      <literal><![CDATA[<listener>]]></literal> を使って、
+      テスト実行時にテストリスナーをアタッチします。
+    </para>
+
+    <screen><![CDATA[<listeners>
+  <listener class="MyListener" file="/optional/path/to/MyListener.php">
+    <arguments>
+      <array>
+        <element key="0">
+          <string>Sebastian</string>
+        </element>
+      </array>
+      <integer>22</integer>
+      <string>April</string>
+      <double>19.78</double>
+      <null/>
+      <object class="stdClass"/>
+    </arguments>
+  </listener>
+</listeners>]]></screen>
+
+    <para>
+      上の XML 設定は、
+      <literal>$listener</literal> オブジェクト (以下を参照ください)
+      をテストの実行時にアタッチします。
+    </para>
+
+    <screen><![CDATA[$listener = new MyListener(
+  array('Sebastian'),
+  22,
+  'April',
+  19.78,
+  NULL,
+  new stdClass
+);]]></screen>
+  </section>
+
+  <section id="appendixes.configuration.php-ini-constants-variables">
+    <title>PHP INI 項目や定数、グローバル変数の設定</title>
+
+    <para>
+      <indexterm><primary>Constant</primary></indexterm>
+      <indexterm><primary>Global Variable</primary></indexterm>
+      <indexterm><primary><literal>php.ini</literal></primary></indexterm>
+
+      <literal><![CDATA[<php>]]></literal> 要素とその子要素を使って、
+      PHP の設定や定数、グローバル変数を設定します。また、
+      <literal>include_path</literal> の先頭にパスを追加することもできます。
+    </para>
+
+    <screen><![CDATA[<php>
+  <includePath>.</includePath>
+  <ini name="foo" value="bar"/>
+  <const name="foo" value="bar"/>
+  <var name="foo" value="bar"/>
+  <env name="foo" value="bar"/>
+  <post name="foo" value="bar"/>
+  <get name="foo" value="bar"/>
+  <cookie name="foo" value="bar"/>
+  <server name="foo" value="bar"/>
+  <files name="foo" value="bar"/>
+  <request name="foo" value="bar"/>
+</php>]]></screen>
+
+    <para>
+      上の XML 設定は、次の PHP コードに対応します。
+    </para>
+
+    <screen><![CDATA[ini_set('foo', 'bar');
+define('foo', 'bar');
+$GLOBALS['foo'] = 'bar';
+$_ENV['foo'] = 'bar';
+$_POST['foo'] = 'bar';
+$_GET['foo'] = 'bar';
+$_COOKIE['foo'] = 'bar';
+$_SERVER['foo'] = 'bar';
+$_FILES['foo'] = 'bar';
+$_REQUEST['foo'] = 'bar';]]></screen>
+  </section>
+
+  <section id="appendixes.configuration.selenium-rc">
+    <title>Selenium RC の設定ブラウザ</title>
+
+    <para>
+      <indexterm><primary>Selenium RC</primary></indexterm>
+
+      <literal><![CDATA[<selenium>]]></literal> 要素とその子要素である
+      <literal><![CDATA[<browser>]]></literal> を使って、
+      Selenium RC サーバのリストを設定します。
+    </para>
+
+    <screen><![CDATA[<selenium>
+  <browser name="Firefox on Linux"
+           browser="*firefox /usr/lib/firefox/firefox-bin"
+           host="my.linux.box"
+           port="4444"
+           timeout="30000"/>
+</selenium>]]></screen>
+
+    <para>
+      上の XML 設定は、次の PHP コードに対応します。
+    </para>
+
+    <screen><![CDATA[class WebTest extends PHPUnit_Extensions_SeleniumTestCase
+{
+    public static $browsers = array(
+      array(
+        'name'    => 'Firefox on Linux',
+        'browser' => '*firefox /usr/lib/firefox/firefox-bin',
+        'host'    => 'my.linux.box',
+        'port'    => 4444,
+        'timeout' => 30000
+      )
+    );
+
+    // ...
+}]]></screen>
+  </section>
+</appendix>

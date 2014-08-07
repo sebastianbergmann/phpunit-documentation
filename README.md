@@ -22,7 +22,7 @@ To build only one version of the documentation use:
 for example
 
     cd build
-    ant build-en-4.0
+    ant build-en-4.3
 
 # Output
 

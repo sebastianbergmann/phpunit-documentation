@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="code-coverage-analysis">
+  <title>代码覆盖率分析</title>
+
+  <blockquote>
+    <attribution>Murali Nandigama</attribution>
+    <para>
+      测试之美不在力，在乎效率之间也。
+    </para>
+    <para>
+      知何物需测是为美，知何物已测亦为美。
+    </para>
+  </blockquote>
+
+  <para>
+    <indexterm><primary>Code Coverage （代码覆盖率）</primary></indexterm>
+
+    在本章中，你将学到 PHPUnit 代码覆盖率功能的一切。这个功能能洞察测试运行过程中执行了生产代码的哪些部分。他能够帮助回答诸如这些问题：
+  </para>
+
+  <itemizedlist>
+    <listitem>
+      <para>
+        如何找到尚未被测试的代码——或者换句话说，尚未被测试<emphasis>覆盖</emphasis>的？
+      </para>
+    </listitem>
+    <listitem>
+      <para>如何衡量测试的完整度？</para>
+    </listitem>
+  </itemizedlist>
+
+  <para>
+    关于代码覆盖率统计是什么意思，举个例子，假如有个方法有100行代码，而在测试运行过程中实际上只执行了其中的75行，那么这个方法就有75%的代码覆盖率。
+  </para>
+
+  <para>
+    <indexterm><primary>Xdebug</primary></indexterm>
+
+    PHPUnit 的代码覆盖率功能使用了 <ulink url="http://github.com/sebastianbergmann/php-code-coverage">PHP_CodeCoverage</ulink> 组件，这反过来又利用了 <ulink url="http://www.xdebug.org/">Xdebug</ulink> 扩展为 PHP 提供的语句覆盖率功能。
+  </para>
+
+  <note>
+    <para>
+      Xdebug 不随 PHPUnit 分发。如果在运行测试时收到了 Xdebug 扩展未加载的通知，就意味着 Xdebug 未安装或者未正确配置。在使用 PHPUnit 的代码覆盖率分析功能之前，你需要阅读 <ulink url="http://xdebug.org/docs/install">Xdebug 安装指南</ulink>。
+    </para>
+  </note>
+
+  <para>
+    让我们来为<literal>BankAccount</literal> 类生成一份代码覆盖率报告。
+  </para>
+
+  <screen><userinput>phpunit --coverage-html ./report BankAccountTest</userinput>
+PHPUnit 4.3.0 by Sebastian Bergmann.
+
+...
+
+Time: 0 seconds
+
+OK (3 tests, 3 assertions)
+
+Generating report, this may take a moment.</screen>
+
+  <para>
+    <xref linkend="code-coverage-analysis.figures.Code_Coverage.png" />是代码覆盖率报告的摘录。测试运行时被执行到的代码行高亮标为绿色，可执行但是未被执行到的代码行标为红色，“死代码”标为灰色。代码行左边的数字表明有多少测试覆盖了此行。
+  </para>
+
+  <figure id="code-coverage-analysis.figures.Code_Coverage.png">
+    <title>setBalance() 的代码覆盖情况</title>
+
+    <graphic fileref="figures/Code_Coverage.png" />
+  </figure>
+
+  <para>
+    点击已覆盖的代码行的行号将会打开一个面板（参见<xref linkend="code-coverage-analysis.figures.Code_Coverage2.png"/>），显示出所有覆盖了本行的测试用例。
+  </para>
+
+  <figure id="code-coverage-analysis.figures.Code_Coverage2.png">
+    <title>带有覆盖本行代码的测试的信息的面板</title>
+
+    <graphic fileref="figures/Code_Coverage2.png" />
+  </figure>
+
+  <para>
+    对于 <literal>BankAccount</literal> 这个例子，代码覆盖率报告显示目前没有任何测试以合法值调用 <literal>setBalance()</literal>、 <literal>depositMoney()</literal> 和 <literal>withdrawMoney()</literal> 方法。<xref linkend="code-coverage-analysis.examples.BankAccountTest.php" />展示了一个可以加到 <literal>BankAccountTest</literal> 测试用例类中来完全覆盖 <literal>BankAccount</literal> 类的测试。
+  </para>
+
+  <example id="code-coverage-analysis.examples.BankAccountTest.php">
+    <title>达成完全覆盖所缺少的测试</title>
+    <programlisting><![CDATA[<?php
+require_once 'BankAccount.php';
+
+class BankAccountTest extends PHPUnit_Framework_TestCase
+{
+    // ...
+
+    public function testDepositWithdrawMoney()
+    {
+        $this->assertEquals(0, $this->ba->getBalance());
+        $this->ba->depositMoney(1);
+        $this->assertEquals(1, $this->ba->getBalance());
+        $this->ba->withdrawMoney(1);
+        $this->assertEquals(0, $this->ba->getBalance());
+    }
+}
+?>]]></programlisting>
+  </example>
+
+  <para>
+    <xref linkend="code-coverage-analysis.figures.Code_Coverage3.png" />展示了加入额外的测试之后 <literal>setBalance()</literal> 方法的代码覆盖情况。
+  </para>
+
+  <figure id="code-coverage-analysis.figures.Code_Coverage3.png">
+    <title>加上附加方法之后 <literal>setBalance()</literal> 的代码覆盖情况</title>
+
+    <graphic fileref="figures/Code_Coverage3.png" />
+  </figure>
+
+  <section id="code-coverage-analysis.specifying-covered-methods">
+    <title>指明要覆盖的方法</title>
+
+    <para>
+      <indexterm><primary>Annotation （标注）</primary></indexterm>
+      <indexterm><primary>@covers</primary></indexterm>
+
+      The <literal>@covers</literal> 标注（参见<xref linkend="appendixes.annotations.covers.tables.annotations"/>）可以用在测试代码中来指明测试方法想要对哪些方法进行测试。如果提供了这个信息，那么只有指定的方法的代码覆盖率信息会被统计。<xref linkend="code-coverage-analysis.specifying-covered-methods.examples.BankAccountTest.php"/>展示了一个例子。
+    </para>
+
+    <example id="code-coverage-analysis.specifying-covered-methods.examples.BankAccountTest.php">
+      <title>指明了要覆盖哪些方法的测试</title>
+      <programlisting><![CDATA[<?php
+require_once 'BankAccount.php';
+
+class BankAccountTest extends PHPUnit_Framework_TestCase
+{
+    protected $ba;
+
+    protected function setUp()
+    {
+        $this->ba = new BankAccount;
+    }
+
+    /**
+     * @covers BankAccount::getBalance
+     */
+    public function testBalanceIsInitiallyZero()
+    {
+        $this->assertEquals(0, $this->ba->getBalance());
+    }
+
+    /**
+     * @covers BankAccount::withdrawMoney
+     */
+    public function testBalanceCannotBecomeNegative()
+    {
+        try {
+            $this->ba->withdrawMoney(1);
+        }
+
+        catch (BankAccountException $e) {
+            $this->assertEquals(0, $this->ba->getBalance());
+
+            return;
+        }
+
+        $this->fail();
+    }
+
+    /**
+     * @covers BankAccount::depositMoney
+     */
+    public function testBalanceCannotBecomeNegative2()
+    {
+        try {
+            $this->ba->depositMoney(-1);
+        }
+
+        catch (BankAccountException $e) {
+            $this->assertEquals(0, $this->ba->getBalance());
+
+            return;
+        }
+
+        $this->fail();
+    }
+
+    /**
+     * @covers BankAccount::getBalance
+     * @covers BankAccount::depositMoney
+     * @covers BankAccount::withdrawMoney
+     */
+
+    public function testDepositWithdrawMoney()
+    {
+        $this->assertEquals(0, $this->ba->getBalance());
+        $this->ba->depositMoney(1);
+        $this->assertEquals(1, $this->ba->getBalance());
+        $this->ba->withdrawMoney(1);
+        $this->assertEquals(0, $this->ba->getBalance());
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      <indexterm><primary>Annotation （标注）</primary></indexterm>
+      <indexterm><primary>@coversNothing</primary></indexterm>
+
+      可以用 <literal>@coversNothing</literal> 标注来指定一个测试不覆盖<emphasis>任何</emphasis>方法。（参见<xref linkend="appendixes.annotations.coversNothing"/>）。这可以在编写集成测试时用来确保只生成单元测试的代码覆盖率。
+    </para>
+
+    <example id="code-coverage-analysis.specifying-covered-methods.examples.GuestbookIntegrationTest.php">
+      <title>指明了不覆盖任何方法的测试</title>
+      <programlisting><![CDATA[<?php
+class GuestbookIntegrationTest extends PHPUnit_Extensions_Database_TestCase
+{
+    /**
+     * @coversNothing
+     */
+    public function testAddEntry()
+    {
+        $guestbook = new Guestbook();
+        $guestbook->addEntry("suzy", "Hello world!");
+
+        $queryTable = $this->getConnection()->createQueryTable(
+            'guestbook', 'SELECT * FROM guestbook'
+        );
+        $expectedTable = $this->createFlatXmlDataSet("expectedBook.xml")
+                              ->getTable("guestbook");
+        $this->assertTablesEqual($expectedTable, $queryTable);
+    }
+}
+?>]]>
+      </programlisting>
+    </example>
+  </section>
+
+  <section id="code-coverage-analysis.ignoring-code-blocks">
+    <title>忽略代码块</title>
+
+    <para>
+      <indexterm><primary>Annotation （标注）</primary></indexterm>
+      <indexterm><primary>@codeCoverageIgnore</primary></indexterm>
+      <indexterm><primary>@codeCoverageIgnoreStart</primary></indexterm>
+      <indexterm><primary>@codeCoverageIgnoreEnd</primary></indexterm>
+
+      有时候有一些代码块是无法对其进行测试的，因此希望在代码覆盖率分析中忽略它们。PHPUnit 允许你用 <literal>@codeCoverageIgnore</literal>、<literal>@codeCoverageIgnoreStart</literal> 和 <literal>@codeCoverageIgnoreEnd</literal> 标注做到这点，如<xref linkend="code-coverage-analysis.ignoring-code-blocks.examples.Sample.php"/>中所示。
+    </para>
+
+    <example id="code-coverage-analysis.ignoring-code-blocks.examples.Sample.php">
+      <title><literal>@codeCoverageIgnore</literal>、 <literal>@codeCoverageIgnoreStart</literal> 和 <literal>@codeCoverageIgnoreEnd</literal> 标注的使用</title>
+        <programlisting><![CDATA[<?php
+/**
+ * @codeCoverageIgnore
+ */
+class Foo
+{
+    public function bar()
+    {
+    }
+}
+
+class Bar
+{
+    /**
+     * @codeCoverageIgnore
+     */
+    public function foo()
+    {
+    }
+}
+
+if (FALSE) {
+    // @codeCoverageIgnoreStart
+    print '*';
+    // @codeCoverageIgnoreEnd
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      代码中被忽略掉的行（用标注标记为忽略）将会计为已执行（如果它们是可执行的），并且不会在代码覆盖情况中被高亮标记。
+    </para>
+  </section>
+
+  <section id="code-coverage-analysis.including-excluding-files">
+    <title>包含与排除文件</title>
+
+    <para>
+      <indexterm><primary>Code Coverage （代码覆盖率）</primary></indexterm>
+      <indexterm><primary>Blacklist （黑名单）</primary></indexterm>
+      <indexterm><primary>Whitelist （白名单）</primary></indexterm>
+
+      默认情况下，报告中包括（且只包括）所有包含至少一行已被执行的代码的源代码文件。可以通过黑名单或者白名单来对报告中包含哪些源代码文件进行过滤。
+    </para>
+
+    <para>
+      在黑名单中，会预先填充进 PHPUnit 自身的所有源代码文件，以及测试本身的所有源代码文件。如果白名单为空（默认情况），将会使用黑名单机制。如果白名单非空，那么将会使用白名单机制。白名单中的每个文件都会加入代码覆盖率报告中，不管它是否被执行到。此类文件的所有行，包括那些非可执行文件，都按未执行进行计数。
+    </para>
+
+    <para>
+      如果在 PHPUnit 配置信息（参见<xref
+      linkend="appendixes.configuration.blacklist-whitelist"/>）中设置 <literal>processUncoveredFilesFromWhitelist="true"</literal>，那么所有这些文件将会由 PHP_CodeCoverage  进行包含，并正确计算其可执行行数。
+    </para>
+
+    <note>
+      <para>
+        请注意，当设置了 <literal>processUncoveredFilesFromWhitelist="true"</literal> 时将会进行源代码文件的读取，这有可能会导致一些问题，比如，源代码文件包含有处于类或者函数作用域之外的代码时。
+      </para>
+    </note>
+
+    <para>
+      PHPUnit 的 XML 配置文件（参见<xref linkend="appendixes.configuration.blacklist-whitelist"/>）可以用于控制黑名单与白名单。使用白名单来控制代码覆盖率报告所包含的文件是推荐的最佳实践。
+    </para>
+  </section>
+
+  <section id="code-coverage-analysis.edge-cases">
+    <title>边缘情况</title>
+
+    <para>
+      大多数情况下可以放心地说 PHPUnit 提供的是“基于行的”代码覆盖率信息。不过鉴于搜集信息的方式，有一些值得注意的边缘情况。
+    </para>
+
+    <example id="code-coverage-analysis.edge-cases.examples.Sample.php">
+      <programlisting><![CDATA[<?php
+// 因为覆盖率是“基于行的”而不是基于语句的，
+// 每行只会有一种覆盖状态。
+if(false) this_function_call_shows_up_as_covered();
+
+// 由于代码覆盖率的内部工作方式，这两行显得很特别。
+// 这一行会显示为非可执行。
+if(false)
+    // 这一行会显示为已覆盖，
+    // 实际上是上一行的 if 语句的覆盖信息显示在这了！
+    will_also_show_up_as_coveraged();
+
+// 为了避免这种情况，必须使用大括号
+if(false) {
+    this_call_will_never_show_up_as_covered();
+}
+?>]]></programlisting>
+    </example>
+
+  </section>
+
+</chapter>

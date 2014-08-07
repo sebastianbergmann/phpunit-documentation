@@ -1,0 +1,1143 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="database">
+  <title>数据库测试</title>
+  <para>
+    在各种编程语言中，许多入门或者中级的单元测试范例都暗示了这样一种信息：用简单的测试来对应用程序的逻辑进行测试是极其容易的。但是对于以数据库为中心的应用程序而言，这与现实相去甚远。一旦开始在诸如 Wordpress、 TYPO3、或 Symfony 中使用 Doctrine 或者 Propel 之类的组件，很容易在 使用 PHPUnit 时经历数量可观的问题：正是由于这些库和数据库之间实在耦合的太紧密了。
+  </para>
+  <para>
+    你可能从日常工作或者项目中得到对这种情况的认知，正当打算在工作中运用你那或生疏或纯熟的 PHPUnit 技能时，你被以下问题之一卡住了：
+  </para>
+  <orderedlist numeration="arabic">
+    <listitem>
+      <para>
+        待测方法执行了一个相当大的JOIN操作，并使用这些数据计算出了一些重要的结果。
+      </para>
+    </listitem>
+    <listitem>
+      <para>
+        业务逻辑中混合执行了 SELECT、INSERT、UPDATE 和 DELETE 语句。
+      </para>
+    </listitem>
+    <listitem>
+      <para>
+        为了给待测方法建立合理的初始数据，需要在两个以上（可能远超过）表里设置测试数据。
+      </para>
+    </listitem>
+  </orderedlist>
+  <para>
+    DbUnit 扩展大大简化了为测试目的设置数据库的操作，并且允许在对数据执行了一系列操作之后验证数据库的内容。
+  </para>
+  <section id="database.supported-vendors-for-database-testing">
+    <title>数据库测试所支持的供应商</title>
+    <para>
+      DbUnit 目前支持 MySQL、PostgreSQL、Oracle 和 SQLite。通过集成 <ulink url="http://framework.zend.com">Zend Framework</ulink> 或者 <ulink url="http://www.doctrine-project.org">Doctrine 2</ulink>，可以访问其他数据库系统，比如 IBM DB2 或者 Microsoft SQL Server。
+    </para>
+  </section>
+  <section id="database.difficulties-in-database-testing">
+    <title>数据库测试中的难点</title>
+    <para>
+      关于为什么所有单元测试的范例都不包含数据库交互，这里有个很好的理由：这类测试的建立和维护都很复杂。对数据库进行测试时，需要处理以下可变因素：
+    </para>
+    <itemizedlist>
+      <listitem>
+        <para>
+          数据库和表
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          向表中插入测试所需要的行
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          测试运行完毕后验证数据库的状态
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          每个新测试都要清理数据库
+        </para>
+      </listitem>
+    </itemizedlist>
+    <para>
+      许多数据库 API，比如 PDO、MySQLi 或者 OCI8，都十分繁琐且书写起来十分冗长，因此，手工进行这些步骤绝对是噩梦。
+    </para>
+    <para>
+      测试代码应当尽可能简短精确，这有若干原因：
+    </para>
+    <itemizedlist>
+      <listitem>
+        <para>
+          你不希望为生产代码的小变更而对测试代码进行数量可观的修改。
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          你希望在哪怕好几个月以后也能轻松地阅读并理解测试代码。
+        </para>
+      </listitem>
+    </itemizedlist>
+    <para>
+      另外，必须认识到，对于代码而言，本质上来说数据库是全局输入变量。测试套件中的两个不同的测试可以使用同一个数据库，并且可能把数据重用好多次。一个测试中的失败很容易影响到后继测试的结果，从而让测试经历变得非常艰难。前面提到的清理步骤对于解决<quote>数据库是全局输入</quote>的问题是非常重要的。
+    </para>
+    <para>
+      DbUnit 以一种优雅的方式来帮助简化数据库测试中的所有这些问题。
+    </para>
+    <para>
+      PHPUnit 无法帮你解决的问题是，相对于不使用数据的测试而言数据库测试是非常慢的。随着数据库交互规模的增大，测试可能需要运行可观的时间。然而，只要保持每个测试所使用的数据量较小并且尽可能使用非数据库测试来对代码进行测试，即使很大的测试套件也能轻松在一分钟内跑完。
+    </para>
+    <para>
+      以 <ulink url="http://www.doctrine-project.org">Doctrine 2 </ulink> 为例，此项目的测试套件目前包含了大约1000个测试，其中将近一半访问了数据库，但是在一台安装了MySQL的普通的台式机上，整个测试套件依然能在15秒钟内跑完。
+    </para>
+  </section>
+  <section id="database.the-four-stages-of-a-database-test">
+    <title>数据库测试的四个阶段</title>
+    <para>
+      Gerard Meszaros 在他的书《xUnit 测试模式》中列出了单元测试的四个阶段：
+    </para>
+    <orderedlist numeration="arabic">
+      <listitem>
+        <para>
+          建立基境(Setup)
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          执行被测系统(Exercise)
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          验证结果(Verify)
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          拆除基境(Teardown)
+        </para>
+      </listitem>
+    </orderedlist>
+    <blockquote>
+      <para>
+        <emphasis role="strong">什么是基境？</emphasis>
+      </para>
+      <para>
+        基境是对开始执行某个测试时应用程序和数据库的初始状态的描述。
+      </para>
+    </blockquote>
+    <para>
+      对数据库进行测试至少要处理建立与拆除的步骤，在其中完成清理工作，并将所需的基境数据写入表内。然而对于数据库扩展模块而言，在数据库测试中有很好的理由将这四个步骤还原成像下面这样的工作流程，这个流程对于每个测试都会完整执行：
+    </para>
+    <section id="database.clean-up-database">
+      <title>1. 清理数据库</title>
+      <para>
+        由于总是会有某个测试运行在并不确定表中是否有数据的数据库上，PHPUnit 在所有指定表上执行 TRUNCATE 操作来把它们清空。
+      </para>
+    </section>
+    <section id="database.set-up-fixture">
+      <title>2. 建立基境</title>
+      <para>
+        PHPUnit 随后将迭代所有指定的基境数据行并将其插入到对应的表里。
+      </para>
+    </section>
+    <section id="database.run-test-verify-outcome-and-teardown">
+      <title>3–5. 运行测试、验证结果、并拆除基境</title>
+      <para>
+        PHPUnit 在所有数据库都完成重置并加载好初始状态后执行实际测试。这个部分的测试代码完全不需要数据库扩展模块的参与，可以随意测试任何你想测试的内容。
+      </para>
+      <para>
+        在测试中使用一个名为 <literal>assertDataSetsEqual()</literal> 的特殊断言来实现验证的目的。当然，这个完全是可选的。这个特性将在<quote>数据库断言</quote>一节中进行解说。
+      </para>
+    </section>
+  </section>
+  <section id="database.configuration-of-a-phpunit-database-testcase">
+    <title>PHPUnit 数据库测试用例的配置</title>
+    <para>
+      一般在使用 PHPUnit 的时候测试用例都是按如下方式扩展自 <literal>PHPUnit_Framework_TestCase</literal> 类的：
+    </para>
+    <programlisting><![CDATA[<?php
+class MyTest extends PHPUnit_Framework_TestCase
+{
+    public function testCalculate()
+    {
+        $this->assertEquals(2, 1 + 1);
+    }
+}
+?>]]></programlisting> 
+    <para>
+      如果测试代码用到了数据库扩展模块，那么建立的过程就会更复杂一些，需要扩展另外一个抽象 TestCase 类，它要求实现两个抽象方法，<literal>getConnection()</literal> 和 <literal>getDataSet()</literal>：
+    </para>
+    <programlisting><![CDATA[<?php
+class MyGuestbookTest extends PHPUnit_Extensions_Database_TestCase
+{
+    /**
+     * @return PHPUnit_Extensions_Database_DB_IDatabaseConnection
+     */
+    public function getConnection()
+    {
+        $pdo = new PDO('sqlite::memory:');
+        return $this->createDefaultDBConnection($pdo, ':memory:'); 
+    }
+
+    /**
+     * @return PHPUnit_Extensions_Database_DataSet_IDataSet
+     */
+    public function getDataSet()
+    {
+        return $this->createFlatXMLDataSet(dirname(__FILE__).'/_files/guestbook-seed.xml'); 
+    }
+}
+?>]]></programlisting>
+    <section id="database.implementing-getconnection">
+      <title>实现 getConnection()</title>
+      <para>
+        为了让清理与载入基境的功能能正常运作，PHPUnit 数据库扩展模块需要用 PDO 库来对数据库进行跨供应商的抽象连接与访问。重要的是要注意到，使用 PHPUnit 的数据库扩展模块并不要求应用程序本身基于PDO，PDO连接仅仅用于清理和建立基境。
+      </para>
+      <para>
+        在之前的例子里，我们在内存中创建 Sqlite 数据库并建立了一个连接，将此连接传递给 <literal>createDefaultDBConnection</literal> 方法，这个方法将 PDO 实例和第二个参数（数据库名）包装在一个非常简单的数据库连接抽象层中，这个抽象层的类型是 <literal>PHPUnit_Extensions_Database_DB_IDatabaseConnection</literal>。
+      </para>
+      <para>
+        <quote>使用数据库连接</quote>一节解说了这个接口的API以及如何充分利用它们。
+      </para>
+    </section>
+    <section id="database.implementing-getdataset">
+      <title>实现 getDataSet()</title>
+      <para>
+        <literal>getDataSet()</literal> 方法定义了在每个测试执行之前的数据库初始状态应该是什么样。数据库的状态通过由 <literal>PHPUnit_Extensions_Database_DataSet_IDataSet</literal> 所代表的 DataSet 和由 <literal>PHPUnit_Extensions_Database_DataSet_IDataTable</literal> 所代表的 DataTable 这两个概念进行抽象。下一节将详细讲述这些概念是如何运作的以及在数据库测试中使用它们有什么好处。
+      </para>
+      <para>
+        对于具体实现，只需要知道 <literal>setUp()</literal> 中会调用一次 <literal>getDataSet()</literal> 方法来接收基境数据集并将其插入数据库。在范例中使用了工厂方法 <literal>createFlatXMLDataSet($filename)</literal>，它代表了一个用 XML 表示的数据集。
+      </para>
+    </section>
+    <section id="database.what-about-the-database-schema-ddl">
+      <title>有关数据库构架(DDL)？</title>
+      <para>
+        PHPUnit 假设在测试运行之前，数据库以及其中的所有表(table)、触发器(trigger)、序列(Sequence)和视图(view)都已经创建好。这意味着开发者必须在运行测试套件之前确保数据库已经正确设置。
+      </para>
+      <para>
+        有几种方法来达成这个数据库测试的先决条件。
+      </para>
+      <orderedlist numeration="arabic">
+        <listitem>
+          <para>
+            如果使用的是持久化数据库(不是 Sqlite Memory)，可以很轻松地用 phpMyAdmin（针对MySQL）之类的工具来一次性建立数据库，并在每个测试中复用这个数据库。
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            如果使用的是诸如 <ulink url="http://www.doctrine-project.org">Doctrine 2</ulink> 或者 <ulink url="http://www.propelorm.org/">Propel</ulink> 这样的库，可以用它们的API来在测试运行前一次性建立所需的数据库。可以利用 <ulink url="http://www.phpunit.de/manual/current/en/textui.html">PHPUnit 的引导和配置</ulink>功能来在每次测试运行时执行这些代码。
+          </para>
+        </listitem>
+      </orderedlist>
+    </section>
+    <section id="database.tip-use-your-own-abstract-database-testcase">
+      <title>小建议：使用你自己的抽象数据库 TestCase 类</title>
+      <para>
+        从前面的实现范例中可以看出，<literal>getConnection()</literal> 方法是相当稳定的，可以在不同的数据库测试用例中重用。另外，为了保持测试的性能良好和数据库的开销较低，可以对代码进行一点重构，来为应用程序形成一个通用的抽象 TestCase 类，并且依然可以为每个测试用例指定不同的数据基境：
+      </para>
+      <programlisting><![CDATA[<?php
+abstract class MyApp_Tests_DatabaseTestCase extends PHPUnit_Extensions_Database_TestCase
+{
+    // 只实例化 pdo 一次，供测试的清理和基境读取使用。
+    static private $pdo = null;
+
+    // 对于每个测试，只实例化 PHPUnit_Extensions_Database_DB_IDatabaseConnection 一次。
+    private $conn = null;
+
+    final public function getConnection()
+    {
+        if ($this->conn === null) {
+            if (self::$pdo == null) {
+                self::$pdo = new PDO('sqlite::memory:');
+            }
+            $this->conn = $this->createDefaultDBConnection(self::$pdo, ':memory:'); 
+        }
+
+        return $this->conn; 
+    }
+}
+?>]]></programlisting> 
+      <para>
+        这个例子里，数据库连接信息硬编码在 PDO 连接里了。PHPUnit 有另外一个绝妙的特性，可以让这个 TestCase 类更加通用。如果用了 <ulink url="http://www.phpunit.de/manual/current/en/appendixes.configuration.html#appendixes.configuration.php-ini-constants-variables">XML 配置</ulink>，就可以为每个测试单独配置数据库连接信息。首先，在应用程序的 tests/ 目录下创建 <quote>phpunit.xml</quote> 文件，内容大体是这样：
+      </para>
+      <screen><![CDATA[
+<?xml version="1.0" encoding="UTF-8" ?>
+<phpunit>
+    <php>
+        <var name="DB_DSN" value="mysql:dbname=myguestbook;host=localhost" />
+        <var name="DB_USER" value="user" />
+        <var name="DB_PASSWD" value="passwd" />
+        <var name="DB_DBNAME" value="myguestbook" />
+    </php>
+</phpunit>
+]]></screen> 
+      <para>
+        现在可以修改 TestCase 类了，像这样：
+      </para>
+      <programlisting><![CDATA[<?php
+abstract class Generic_Tests_DatabaseTestCase extends PHPUnit_Extensions_Database_TestCase
+{
+    // 只实例化 pdo 一次，供测试的清理和基境读取使用。
+    static private $pdo = null;
+
+    // 对于每个测试，只实例化 PHPUnit_Extensions_Database_DB_IDatabaseConnection 一次。
+    private $conn = null;
+
+    final public function getConnection()
+    {
+        if ($this->conn === null) { 
+            if (self::$pdo == null) {
+                self::$pdo = new PDO( $GLOBALS['DB_DSN'], $GLOBALS['DB_USER'], $GLOBALS['DB_PASSWD'] );
+            }
+           $this->conn = $this->createDefaultDBConnection(self::$pdo, $GLOBALS['DB_DBNAME']); 
+        }
+
+        return $this->conn; 
+    }
+}
+?>]]></programlisting>
+      <para>
+        现在可以从命令行界面以不同的配置来运行数据库测试套件了：
+      </para>
+      <screen><userinput>phpunit --configuration developer-a.xml MyTests/</userinput>
+<userinput>phpunit --configuration developer-b.xml MyTests/</userinput></screen> 
+      <para>
+        如果是在开发机上进行开发，能够轻松的针对不同的目标数据库来运行数据库测试就显得非常重要。如果多个开发人员针对同一个数据库连接运行数据库测试，很容易因为竞态而导致测试失败。
+      </para>
+    </section>
+  </section>
+  <section id="database.understanding-datasets-and-datatables">
+    <title>理解 DataSet（数据集）和 DataTable（数据表）</title>
+     <para>
+      PHPUnit 的数据库扩展模块的核心概念之一就是 DataSet（数据集）和 DataTable（数据表）。为了掌握如何使用 PHPUnit 进行测试，需要试着去了解这些简单的概念。DataSet 和 DataTable 是围绕着数据库表、行、列的抽象层。通过一套简单的API，底层数据库内容被隐藏在对象结构之下，同时，这个对象结构也可以用非数据库数据源来实现。
+    </para>
+    <para>
+      为了能比较实际内容和预期内容，这个抽象是必须的。预期内容可以用诸如 XML、 YAML、 CSV 文件或者 PHP 数组等方式来表达。DataSet 和 DataTable 接口以语义相似的方式来模拟关系数据库存储，这样就能对这些概念上完全不同的数据源进行比较。
+    </para>
+    <para>
+      于是，在测试中，数据库断言的工作流就由以下三个简单的步骤组成：
+    </para>
+    <itemizedlist>
+      <listitem>
+        <para>
+          用表名称来指定数据库中的一个或多个表（实际上是指定了一个数据集）
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          用你喜欢的格式（YAML、XML等等）来指定预期数据集
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          断言这两个数据集陈述是彼此相等的。
+        </para>
+      </listitem>
+    </itemizedlist>
+    <para>
+      在 PHPUnit 的数据库扩展中，断言并非唯一使用 DataSet 和 DataTable 的情形。就像上一节中所展示的那样，它们同样描述了数据库的初始内容。数据库 TestCase 类强制要求定义一个基境数据集，随后用它来：
+    </para>
+    <itemizedlist>
+      <listitem>
+        <para>
+          根据此数据集所指定的所有表名，将数据库中对应表内的行全部删除。
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          将数据集内数据表中的所有行写入数据库。
+        </para>
+      </listitem>
+    </itemizedlist>
+    <section id="database.available-implementations">
+      <title>可用的各种实现</title>
+      <para>
+        有三种不同类型的 DataSet/DataTable：
+      </para>
+      <itemizedlist>
+        <listitem>
+          <para>
+            基于文件的 DataSet 和 DataTable
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            基于查询的 DataSet 和 DataTable
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            过滤与组合 DataSet 和 DataTable
+          </para>
+        </listitem>
+      </itemizedlist>
+      <para>
+        基于文件的数据集和表一般用于初始化基境或描述数据库的预期状态。
+      </para>
+      <section id="database.flat-xml-dataset">
+        <title>Flat XML DataSet （平直 XML 数据集）</title>
+        <para>
+          最常见的一种数据集名叫 Flat XML。这是一种非常简单的 XML 格式，根节点为 <literal><![CDATA[<dataset>]]></literal>，根节点下的每个标签就代表数据库中的一行数据。标签的名称就等于表名，而每个属性代表一个列。一个简单的留言本应用程序的例子大致上可能是这样：
+        </para>
+        <screen><![CDATA[
+<?xml version="1.0" ?>
+<dataset>
+    <guestbook id="1" content="Hello buddy!" user="joe" created="2010-04-24 17:15:23" />
+    <guestbook id="2" content="I like it!" user="nancy" created="2010-04-26 12:14:20" />
+</dataset>
+]]></screen> 
+        <para>
+          显然，这非常易于编写。在这里，<literal><![CDATA[<guestbook>]]></literal> 是表名，这个表内有两行记录，每行有四个列：<quote>id</quote>、<quote>content</quote>、<quote>user</quote> 和 <quote>created</quote>，同时还有它们对应的值。
+        </para>
+        <para>
+          不过这种简单性是有代价的。
+        </para>
+        <para>
+          从上面这个例子里不太容易看出该如何指定一个空表。其实可以插入一个没有属性值的标签，以空表的名字作为标签名。空的 guestbook 表所对应的 Flat XML 文件大致上可能是这样：
+        </para>
+        <screen><![CDATA[
+<?xml version="1.0" ?>
+<dataset>
+    <guestbook />
+</dataset>
+]]></screen> 
+        <para>
+          在 Flat XML DataSet 中，对 NULL 值的处理非常乏味。在几乎所有数据库中（Oracle 是个例外），NULL 值和空字符串值是有区别的，这一点在 Flat XML 格式中很难表述。可以在数据行的表述中省略掉对应的属性来表示NULL值。假定上面这个留言本通过在 user 列使用 NULL 值的方式来允许匿名留言，那么 guestbook 表的内容可能是这样：
+        </para>
+        <screen><![CDATA[
+<?xml version="1.0" ?>
+<dataset>
+    <guestbook id="1" content="Hello buddy!" user="joe" created="2010-04-24 17:15:23" />
+    <guestbook id="2" content="I like it!" created="2010-04-26 12:14:20" />
+</dataset>
+]]></screen> 
+        <para>
+          在这个例子里第二个条目是匿名发表的。但是这为列的辨识带来了一个非常严重的问题。在数据集相等断言的判定过程中，每个数据集都需要指明每个表拥有哪些列。如果某个数据表内存在某个列，在所有数据行中这个列的值都是 NULL，那么数据库扩展模块又该从何得知表中包含这个列呢？
+        </para>
+        <para>
+          在这里，Flat XML DataSet 做了一个关键假设：一个表的列信息由此表第一行的属性定义决定。在上面这个例子里，这意味着 guestbook 有 <quote>id</quote>、<quote>content</quote>、<quote>user</quote> 和 <quote>created</quote> 这几个列。第二行中 <quote>user</quote> 列没有定义，因此将向数据库中插入 NULL 值。
+        </para>
+        <para>
+          如果从数据集中删掉第一行，因为没有指定 <quote>user</quote>，guestbook 表拥有的列就只剩下 <quote>id</quote>、<quote>content</quote> 和 <quote>created</quote>。
+        </para>
+        <para>
+          要在有 NULL 值得情况下有效地使用 Flat XML Dataset，就必须保证每个表的第一行不包含 NULL 值，只有后继的那些行才能省略属性。这就有点棘手，因为数据行的排列顺序也是数据断言的一个相关因素。
+        </para>
+        <para>
+          反过来，如果在 Flat XML Dataset 中只指明了实际表中所有列的某个子集，那么所有省略掉的值都会设为它们的的默认值。如果某个省略掉的列定义为 <quote>NOT NULL DEFAULT NULL</quote> 的话，就可能出现错误。
+        </para>
+        <para>
+          总的来说，建议只在不需要 NULL 值的情况下使用 Flat XML Dataset。
+        </para>
+        <para>
+          可以在数据库 TestCase 中调用 <literal>createFlatXmlDataSet($filename)</literal> 方法来创建 Flat XML Dataset 实例：
+        </para>
+        <programlisting><![CDATA[<?php
+class MyTestCase extends PHPUnit_Extensions_Database_TestCase
+{
+    public function getDataSet()
+    {
+       return $this->createFlatXmlDataSet('myFlatXmlFixture.xml'); 
+    }
+}
+?>]]></programlisting> 
+      </section>
+      <section id="database.xml-dataset">
+        <title>XML DataSet （XML 数据集）</title>
+        <para>
+          有另外一种更加结构化的 XML DataSet，它写起来有点冗长，但是避开了 Flat XML DataSet 所存在的 NULL 问题。在根节点 <literal><![CDATA[<dataset>]]></literal> 内，可以指定<literal><![CDATA[<table>]]></literal>、<literal><![CDATA[<column>]]></literal>、<literal><![CDATA[<row>]]></literal>、<literal><![CDATA[<value>]]></literal> 和 <literal><![CDATA[<null />]]></literal> 标签。和上面用 Flat XML 所定义的留言本数据集等价的 XML DataSet 如下：
+        </para>
+        <screen><![CDATA[
+<?xml version="1.0" ?>
+<dataset>
+    <table name="guestbook">
+        <column>id</column>
+        <column>content</column>
+        <column>user</column>
+        <column>created</column>
+        <row>
+            <value>1</value>
+            <value>Hello buddy!</value>
+            <value>joe</value>
+            <value>2010-04-24 17:15:23</value>
+        </row>
+        <row>
+            <value>2</value>
+            <value>I like it!</value>
+            <null />
+            <value>2010-04-26 12:14:20</value>
+        </row>
+    </table>
+</dataset>
+]]></screen> 
+        <para>
+          所定义的每个 <literal><![CDATA[<table>]]></literal> 都有一个名称，并且必须有对所有列及其名称的定义。其下可以包含零个或任意正整数个 <literal><![CDATA[<row>]]></literal>  元素。没有定义 <literal><![CDATA[<row>]]></literal> 意味着这是个空表。<literal><![CDATA[<row>]]></literal> 下的 <literal><![CDATA[<value>]]></literal> 和 <literal><![CDATA[<null />]]></literal> 标签必须按照之前给定的 <literal><![CDATA[<column>]]></literal> 元素的顺序来指定。<literal><![CDATA[<null />]]></literal> 显然意味着这个值为 NULL。
+        </para>
+        <para>
+          可以在数据库 TestCase 中调用 <literal>createXmlDataSet($filename)</literal> 方法来创建 XML DataSet 实例：
+        </para>
+        <programlisting><![CDATA[<?php
+class MyTestCase extends PHPUnit_Extensions_Database_TestCase
+{
+    public function getDataSet()
+    {
+        return $this->createXMLDataSet('myXmlFixture.xml'); 
+    }
+}
+?>]]></programlisting>
+      </section>
+      <section id="database.mysql-xml-dataset">
+        <title>MySQL XML DataSet （MySQL XML 数据集）</title>
+        <para>
+          这种新的 XML 格式是 <ulink url="http://www.mysql.com">MySQL 数据库服务器</ulink> 所特有的。PHPUnit 3.5 加入了对这种格式的支持。可以用 <ulink url="http://dev.mysql.com/doc/refman/5.0/en/mysqldump.html"><literal>mysqldump</literal></ulink> 工具来生成这种格式的文件。与同样为 <literal>mysqldump</literal> 所支持的 CSV 数据集不同，单个这种 XML 格式的文件中可以包含多个表的数据。要以这种格式生成文件，可以这样调用 <literal>mysqldump</literal>：
+        </para>
+<screen><userinput>mysqldump --xml -t -u [username] --password=[password] [database] > /path/to/file.xml</userinput></screen> 
+        <para>
+          可以在数据库 TestCase 中调用 <literal>createMySQLXMLDataSet($filename)</literal> 方法来使用这个文件：
+        </para>
+        <programlisting><![CDATA[<?php
+class MyTestCase extends PHPUnit_Extensions_Database_TestCase
+{
+    public function getDataSet()
+    {
+        return $this->createMySQLXMLDataSet('/path/to/file.xml'); 
+    }
+}
+?>]]></programlisting>
+      </section>
+      <section id="database.yaml-dataset">
+        <title>YAML DataSet （YAML 数据集）</title>
+        <para>
+          也可以用 YAML DataSet 来写这个留言本的例子：
+        </para>
+        <screen><![CDATA[
+guestbook:
+  -
+    id: 1
+    content: "Hello buddy!"
+    user: "joe" 
+    created: 2010-04-24 17:15:23
+  -
+    id: 2
+    content: "I like it!"
+    user:
+    created: 2010-04-26 12:14:20
+]]></screen> 
+        <para>
+          简单方便，同时还解决了和它类似的 FLat XML DataSet 所具有的 NULL 问题。在 YAML 中，只有列名而没有指定值就表示 NULL。空白字符串则这样指定：<literal><![CDATA[column1: ""]]></literal>。
+        </para>
+        <para>
+          目前，数据库 TestCase 中没有 YAML DataSet 的工厂方法，因此需要手工进行实例化：
+        </para>
+        <programlisting><![CDATA[<?php
+class YamlGuestbookTest extends PHPUnit_Extensions_Database_TestCase
+{
+    protected function getDataSet()
+    {
+        return new PHPUnit_Extensions_Database_DataSet_YamlDataSet(
+            dirname(__FILE__)."/_files/guestbook.yml"
+        );
+    }
+}
+?>]]></programlisting> 
+      </section>
+      <section id="database.csv-dataset">
+        <title>CSV DataSet （CSV 数据集）</title>
+        <para>
+          另外一个基于文件的 DataSet 是基于 CSV 文件的。数据集中的每个表用一个单独的 CSV 文件表示。对于留言本的例子，可以这样定义 guestbook-table.csv 文件：
+        </para>
+        <screen><![CDATA[
+id,content,user,created
+1,"Hello buddy!","joe","2010-04-24 17:15:23"
+2,"I like it!","nancy","2010-04-26 12:14:20"
+]]></screen> 
+        <para>
+          用 Excel 或者 OpenOffice 来对这种格式进行编辑是非常方便的，但是在 CSV DataSet 中无法指定 NULL 值。给出一个空白列的结果是往这个列中插入数据库的默认空值。
+        </para>
+        <para>
+          可以这样创建 CSV DataSet：
+        </para>
+        <programlisting><![CDATA[<?php
+class CsvGuestbookTest extends PHPUnit_Extensions_Database_TestCase
+{
+    protected function getDataSet()
+    {
+        $dataSet = new PHPUnit_Extensions_Database_DataSet_CsvDataSet();
+        $dataSet->addTable('guestbook', dirname(__FILE__)."/_files/guestbook.csv"); 
+        return $dataSet;
+    }
+}
+?>]]></programlisting> 
+      </section>
+      <section id="database.array-dataset">
+        <title>Array DataSet （数组数据集）</title>
+        <para>
+          在 PHPUnit 的数据库扩展中，（尚）没有基于数组的 DataSet，不过很容易自行实现它。留言本的例子大致是这样：
+        </para>
+        <programlisting><![CDATA[<?php
+class ArrayGuestbookTest extends PHPUnit_Extensions_Database_TestCase
+{
+    protected function getDataSet()
+    {
+        return new MyApp_DbUnit_ArrayDataSet(array(
+            'guestbook' => array(
+                array('id' => 1, 'content' => 'Hello buddy!', 'user' => 'joe', 'created' => '2010-04-24 17:15:23'),
+                array('id' => 2, 'content' => 'I like it!',   'user' => null,  'created' => '2010-04-26 12:14:20'),
+            ),
+        ));
+    }
+}
+?>]]></programlisting> 
+        <para>
+          PHP DataSet 相比于所有其他基于文件的 DataSet 相比有很明显的优点：
+        </para>
+        <itemizedlist>
+          <listitem>
+            <para>
+              PHP 数组显然可以处理 <literal>NULL</literal> 值。
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              不需要为断言提供任何额外文件，可以直接在 TestCase 中指定。
+            </para>
+          </listitem>
+        </itemizedlist>
+        <para>
+          对于这种 DataSet 而言，和平直 XML、CSV、YAML DataSet 一样，表的列名信息由第一个指定的行的键名定义。在上面这个例子里，就是 <quote>id</quote>、<quote>content</quote>、<quote>user</quote> 和 <quote>created</quote>。
+        </para>
+        <para>
+          这个数组 DataSet 类的实现是非常简单直接的：
+        </para>
+         <programlisting><![CDATA[<?php
+class MyApp_DbUnit_ArrayDataSet extends PHPUnit_Extensions_Database_DataSet_AbstractDataSet
+{
+    /**
+     * @var array
+     */
+    protected $tables = array();
+
+    /**
+     * @param array $data
+     */
+    public function __construct(array $data)
+    {
+        foreach ($data AS $tableName => $rows) { 
+            $columns = array();
+            if (isset($rows[0])) {
+                $columns = array_keys($rows[0]);
+            }
+
+            $metaData = new PHPUnit_Extensions_Database_DataSet_DefaultTableMetaData($tableName, $columns);
+            $table = new PHPUnit_Extensions_Database_DataSet_DefaultTable($metaData);
+
+            foreach ($rows AS $row) {
+                $table->addRow($row); 
+            }
+            $this->tables[$tableName] = $table; 
+        }
+    }
+
+    protected function createIterator($reverse = FALSE)
+    {
+        return new PHPUnit_Extensions_Database_DataSet_DefaultTableIterator($this->tables, $reverse); 
+    }
+
+    public function getTable($tableName)
+    {
+        if (!isset($this->tables[$tableName])) {
+            throw new InvalidArgumentException("$tableName is not a table in the current database."); 
+        }
+
+        return $this->tables[$tableName]; 
+    }
+}
+?>]]></programlisting> 
+      </section>
+      <section id="database.query-sql-dataset">
+        <title>Query (SQL) DataSet （查询(SQL)数据集）</title>
+        <para>
+          对于数据库断言，不仅需要有基于文件的 DataSet，同时也需要有一种内含数据库实际内容的基于查询/SQL 的 DataSet。Query DataSet 在此闪亮登场：
+        </para>
+        <programlisting><![CDATA[<?php
+$ds = new PHPUnit_Extensions_Database_DataSet_QueryDataSet($this->getConnection());
+$ds->addTable('guestbook');
+?>]]></programlisting> 
+        <para>
+          单纯以名称来添加表是一种隐式地用后继的查询来定义 DataTable 的方法：
+        </para>
+        <programlisting><![CDATA[<?php
+$ds = new PHPUnit_Extensions_Database_DataSet_QueryDataSet($this->getConnection());
+$ds->addTable('guestbook', 'SELECT * FROM guestbook');
+?>]]></programlisting> 
+        <para>
+          可以在这种用法中为你的表任意指定查询，例如限定行、列，或者加上 <literal>ORDER BY</literal> 子句：
+        </para>
+        <programlisting><![CDATA[<?php
+$ds = new PHPUnit_Extensions_Database_DataSet_QueryDataSet($this->getConnection());
+$ds->addTable('guestbook', 'SELECT id, content FROM guestbook ORDER BY created DESC');
+?>]]></programlisting> 
+        <para>
+          在关于数据库断言的那一节中有更多关于如何使用 Query DataSet 的细节。
+        </para>
+      </section>
+      <section id="database.database-db-dataset">
+        <title>Database (DB) DataSet （数据库数据集）</title>
+        <para>
+          通过访问测试所使用的数据库连接，可以自动创建包含数据库所有表以及其内容的 DataSet。所使用的数据库由数据库连接工厂方法的第二个参数指定。
+        </para>
+        <para>
+          既可以像 <literal>testGuestbook()</literal> 中那样创建整个数据库所对应的 DataSet，或者像 <literal>testFilteredGuestbook()</literal> 方法中那样用一个白名单来将 DataSet 限制在若干表名的集合上。
+        </para>
+        <programlisting><![CDATA[<?php
+class MySqlGuestbookTest extends PHPUnit_Extensions_Database_TestCase
+{
+    /**
+     * @return PHPUnit_Extensions_Database_DB_IDatabaseConnection
+     */
+    public function getConnection()
+    {
+        $database = 'my_database';
+        $pdo = new PDO('mysql:...', $user, $password);
+        return $this->createDefaultDBConnection($pdo, $database); 
+    }
+
+    public function testGuestbook()
+    {
+        $dataSet = $this->getConnection()->createDataSet(); 
+        // ...
+    }
+
+    public function testFilteredGuestbook()
+    {
+        $tableNames = array('guestbook');
+        $dataSet = $this->getConnection()->createDataSet($tableNames); 
+        // ...
+    }
+}
+?>]]></programlisting> 
+      </section>
+      <section id="database.replacement-dataset">
+        <title>Replacement DataSet （替换数据集）</title>
+        <para>
+          前面谈到了 Flat XML 和 CSV DataSet 所存在的 NULL 问题，不过有一种稍微有点复杂的解决方法可以让这两种数据集都能正常处理 NULL。
+        </para>
+        <para>
+          Replacement DataSet 是已存在的数据集的修饰器(decorator)，能够将数据集中任意列的值替换为其他替代值。为了让留言本的例子能够处理 NULL 值，首先指定类似这样的文件：
+        </para>
+        <screen><![CDATA[
+<?xml version="1.0" ?>
+<dataset>
+    <guestbook id="1" content="Hello buddy!" user="joe" created="2010-04-24 17:15:23" />
+    <guestbook id="2" content="I like it!" user="##NULL##" created="2010-04-26 12:14:20" />
+</dataset>
+]]></screen> 
+        <para>
+          然后将 Flat XML DataSet 包装在 Replacement DataSet 中：
+        </para>
+        <programlisting><![CDATA[<?php
+class ReplacementTest extends PHPUnit_Extensions_Database_TestCase
+{
+    public function getDataSet()
+    {
+        $ds = $this->createFlatXmlDataSet('myFlatXmlFixture.xml'); 
+        $rds = new PHPUnit_Extensions_Database_DataSet_ReplacementDataSet($ds);
+        $rds->addFullReplacement('##NULL##', null); 
+        return $rds;
+    }
+}
+?>]]></programlisting> 
+      </section>
+      <section id="database.dataset-filter">
+        <title>DataSet 过滤器</title>
+        <para>
+          如果有一个非常大的基境文件，可以用 Dataset 过滤器来为需要包含在子数据集中的表和列指定白/黑名单。与 DB DataSet 联用来对数据集中的列进行过滤尤其方便。
+        </para>
+        <programlisting><![CDATA[<?php
+class DataSetFilterTest extends PHPUnit_Extensions_Database_TestCase
+{
+    public function testIncludeFilteredGuestbook()
+    {
+        $tableNames = array('guestbook');
+        $dataSet = $this->getConnection()->createDataSet(); 
+
+        $filterDataSet = new PHPUnit_Extensions_Database_DataSet_DataSetFilter($dataSet);
+        $filterDataSet->addIncludeTables(array('guestbook'));
+        $filterDataSet->setIncludeColumnsForTable('guestbook', array('id', 'content')); 
+        // ..
+    }
+
+    public function testExcludeFilteredGuestbook()
+    {
+        $tableNames = array('guestbook');
+        $dataSet = $this->getConnection()->createDataSet(); 
+
+        $filterDataSet = new PHPUnit_Extensions_Database_DataSet_DataSetFilter($dataSet);
+        $filterDataSet->addExcludeTables(array('foo', 'bar', 'baz')); // 只保留 guestbook 表！
+        $filterDataSet->setExcludeColumnsForTable('guestbook', array('user', 'created')); 
+        // ..
+    }
+}
+?>]]></programlisting> 
+        <blockquote>
+          <para>
+            <emphasis role="strong">注意：</emphasis>不能对同一个表同时应用排除与包含两种列过滤器，只能分别应用于不同的表。另外，表的白名单和黑名单也只能选择其一，不能二者同时使用。
+          </para>
+        </blockquote>
+      </section>
+      <section id="database.composite-dataset">
+        <title>Composite DataSet （组合数据集）</title>
+        <para>
+          Composite DataSet 能将多个已存在的数据集聚合成单个数据集，因此非常有用。如果多个数据集中存在同样的表，其中的数据行将按照指定的顺序进行追加。例如，假设有两个数据集， <emphasis>fixture1.xml</emphasis>：
+        </para>
+        <screen><![CDATA[
+<?xml version="1.0" ?>
+<dataset>
+    <guestbook id="1" content="Hello buddy!" user="joe" created="2010-04-24 17:15:23" />
+</dataset>
+]]></screen> 
+        <para>
+          和 <emphasis>fixture2.xml</emphasis>:
+        </para>
+        <screen><![CDATA[
+<?xml version="1.0" ?>
+<dataset>
+    <guestbook id="2" content="I like it!" user="##NULL##" created="2010-04-26 12:14:20" />
+</dataset>
+]]></screen> 
+        <para>
+          可以用 Composite DataSet 把这两个基境文件聚合在一起：
+        </para>
+        <programlisting><![CDATA[<?php
+class CompositeTest extends PHPUnit_Extensions_Database_TestCase
+{
+    public function getDataSet()
+    {
+        $ds1 = $this->createFlatXmlDataSet('fixture1.xml');
+        $ds2 = $this->createFlatXmlDataSet('fixture2.xml'); 
+
+        $compositeDs = new PHPUnit_Extensions_Database_DataSet_CompositeDataSet();
+        $compositeDs->addDataSet($ds1);
+        $compositeDs->addDataSet($ds2); 
+
+        return $compositeDs;
+    }
+}
+?>]]></programlisting> 
+      </section>
+    </section>
+    <section id="database.beware-of-foreign-keys">
+      <title>当心外键</title>
+      <para>
+        在建立基境的过程中， PHPUnit 的数据库扩展模块按照基境中所指定的顺序将数据行插入到数据库内。假如数据库中使用了外键，这就意味着必须指定好表的顺序，以避免外键约束失败。
+      </para>
+    </section>
+    <section id="database.implementing-your-own-datasetsdatatables">
+      <title>自行实现 DataSet/DataTable</title>
+      <para>
+        为了理解 DataSet 和 DataTable 的内在，让我们来看看 DataSet 的接口。如果没打算自行实现 DataSet 或者 DataTable，可以直接跳过这一部分。
+      </para>
+      <programlisting><![CDATA[<?php
+interface PHPUnit_Extensions_Database_DataSet_IDataSet extends IteratorAggregate
+{
+    public function getTableNames();
+    public function getTableMetaData($tableName);
+    public function getTable($tableName);
+    public function assertEquals(PHPUnit_Extensions_Database_DataSet_IDataSet $other);
+
+    public function getReverseIterator();
+}
+?>]]></programlisting> 
+      <para>
+        这些公用接口由数据库 TestCase 中 <literal>assertDataSetsEqual()</literal> 断言内部使用，用以检测数据集是否相等。IDataSet 中继承自 <literal>IteratorAggregate</literal> 接口的 <literal>getIterator()</literal> 方法用于对数据集中的所有表进行迭代。逆序迭代器让 PHPUnit 能够按照与创建时相反的顺序对所有表执行 TRUNCATE 操作，以此来保证满足外键约束。
+      </para>
+      <para>
+        根据具体实现的不同，要采取不同的方法来将表实例添加到数据集中。例如，在所有基于文件的数据集中，表都是在构造过程中直接从源文件生成并加入数据集中，比如 <literal>YamlDataSet</literal>、 <literal>XmlDataSet</literal> 以及 <literal>FlatXmlDataSet</literal>， 均是如此。
+      </para>
+      <para>
+        数据表亦通过以下接口表示：
+      </para>
+      <programlisting><![CDATA[<?php
+interface PHPUnit_Extensions_Database_DataSet_ITable
+{
+    public function getTableMetaData();
+    public function getRowCount();
+    public function getValue($row, $column);
+    public function getRow($row);
+    public function assertEquals(PHPUnit_Extensions_Database_DataSet_ITable $other);
+}
+?>]]></programlisting> 
+      <para>
+        除了 <literal>getTableMetaData()</literal> 方法之外，这个接口是一目了然的。数据库扩展模块中的各种断言（将于下一章中介绍）用到了所有这些方法，因此它们全部都是必需的。<literal>getTableMetaData()</literal> 方法需要返回一个实现了 <literal>PHPUnit_Extensions_Database_DataSet_ITableMetaData</literal> 接口的描述表结构的对象。这个对象包含如下信息：
+      </para>
+      <itemizedlist>
+        <listitem>
+          <para>
+            表的名称
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            表的列名数组，按照列在结果集中出现的顺序排列。
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            构成主键的列的数组。
+          </para>
+        </listitem>
+      </itemizedlist>
+      <para>
+        这个接口还包含有检验两个表的元数据实例是否互相相等的断言，供数据集相等断言使用。
+      </para>
+    </section>
+  </section>
+  <section id="database.the-connection-api">
+    <title>数据库连接 API</title>
+    <para>
+      由数据库 TestCase 中的 <literal>getConnection()</literal> 方法所返回的连接界面有三个很有意思的方法：
+    </para>
+    <programlisting><![CDATA[<?php
+interface PHPUnit_Extensions_Database_DB_IDatabaseConnection
+{
+    public function createDataSet(Array $tableNames = NULL);
+    public function createQueryTable($resultName, $sql);
+    public function getRowCount($tableName, $whereClause = NULL);
+
+    // ...
+}
+?>]]></programlisting> 
+    <orderedlist numeration="arabic">
+      <listitem>
+        <para>
+          <literal>createDataSet()</literal> 方法创建一个在数据集实现一节描述过的 Database (DB) DataSet（数据库数据集）。
+        </para>
+        <programlisting><![CDATA[<?php
+class ConnectionTest extends PHPUnit_Extensions_Database_TestCase
+{
+    public function testCreateDataSet()
+    {
+        $tableNames = array('guestbook');
+        $dataSet = $this->getConnection()->createDataSet(); 
+    }
+}
+?>]]></programlisting> 
+      </listitem>
+      <listitem>
+        <para>
+          <literal>createQueryTable()</literal>方法用于创建 QueryTable 的实例，需要为其指定结果名称和所使用的 SQL 查询。当涉及到结果/表的断言（如后面关于数据库断言 API 那一节所示）时，这个方法会很方便。
+        </para>
+        <programlisting><![CDATA[<?php
+class ConnectionTest extends PHPUnit_Extensions_Database_TestCase
+{
+    public function testCreateQueryTable()
+    {
+        $tableNames = array('guestbook');
+        $queryTable = $this->getConnection()->createQueryTable('guestbook', 'SELECT * FROM guestbook'); 
+    }
+}
+?>]]></programlisting> 
+      </listitem>
+      <listitem>
+        <para>
+          <literal>getRowCount()</literal> 方法提供了一种方便的方式来取得表中的行数，并且还可以选择附加一个 WHERE 子句来在计数前对数据行进行过滤。它可以和一个简单的相等断言合用：
+        </para>
+        <programlisting><![CDATA[<?php
+class ConnectionTest extends PHPUnit_Extensions_Database_TestCase
+{
+    public function testGetRowCount()
+    {
+        $this->assertEquals(2, $this->getConnection()->getRowCount('guestbook')); 
+    }
+}
+?>]]></programlisting> 
+      </listitem>
+    </orderedlist>
+  </section>
+  <section id="database.database-assertions-api">
+    <title>数据库断言 API</title>
+    <para>
+      作为测试工具，数据库扩展模块当然会提供一些断言，可以用来验证数据库的当前状态、表的当前状态、表中数据行的数量。本节将详细描述这部分功能：
+    </para>
+    <section id="database.asserting-the-row-count-of-a-table">
+      <title>对表中数据行的数量作出断言</title>
+      <para>
+        很多时候，确认表中是否包含特定数量的数据行是非常有帮助的。可以轻松做到这一点，不需要任何额外的使用连接 API 的粘合剂代码。比如说，在往留言本中插入一个新行之后，想要确认在表中除了之前的例子中一直都有的两行之外还有第三行：
+      </para>
+      <programlisting><![CDATA[<?php
+class GuestbookTest extends PHPUnit_Extensions_Database_TestCase
+{
+    public function testAddEntry()
+    {
+        $this->assertEquals(2, $this->getConnection()->getRowCount('guestbook'), "Pre-Condition"); 
+
+        $guestbook = new Guestbook();
+        $guestbook->addEntry("suzy", "Hello world!"); 
+
+        $this->assertEquals(3, $this->getConnection()->getRowCount('guestbook'), "Inserting failed"); 
+    }
+}
+?>]]></programlisting> 
+    </section>
+    <section id="database.asserting-the-state-of-a-table">
+      <title>对表的状态作出断言</title>
+      <para>
+        前面的这个断言很有帮助，但是肯定还想要检验表的实际内容，好核实是否所有值都写到了正确的列中。可以通过表断言来做到这一点。
+      </para>
+      <para>
+        为此，先定义一个 QueryTable 实例，从表名称和 SQL 查询派生出其内容，随后将其与一个基于文件/数组的数据集进行比较：
+      </para>
+      <programlisting><![CDATA[<?php
+class GuestbookTest extends PHPUnit_Extensions_Database_TestCase
+{
+    public function testAddEntry()
+    {
+        $guestbook = new Guestbook();
+        $guestbook->addEntry("suzy", "Hello world!");
+
+        $queryTable = $this->getConnection()->createQueryTable( 
+            'guestbook', 'SELECT * FROM guestbook'
+        );
+        $expectedTable = $this->createFlatXmlDataSet("expectedBook.xml")
+                              ->getTable("guestbook");
+        $this->assertTablesEqual($expectedTable, $queryTable); 
+    }
+}
+?>]]></programlisting> 
+      <para>
+        现在需要为这个断言编写 <emphasis>expectedBook.xml</emphasis> Flat XML 文件：
+      </para>
+      <screen><![CDATA[
+<?xml version="1.0" ?>
+<dataset>
+    <guestbook id="1" content="Hello buddy!" user="joe" created="2010-04-24 17:15:23" />
+    <guestbook id="2" content="I like it!" user="nancy" created="2010-04-26 12:14:20" />
+    <guestbook id="3" content="Hello world!" user="suzy" created="2010-05-01 21:47:08" />
+</dataset>
+]]></screen> 
+      <para>
+        在整个时间长河中，只有特定的一秒钟内这个断言可以通过检定，在 <emphasis>2010–05–01 21:47:08</emphasis>。在数据库测试中，日期构成了一个特殊的问题。可以从这个断言中省略 <quote>created</quote> 列来规避失败。
+      </para>
+      <para>
+        为了让断言能得以通过，<emphasis>expectedBook.xml</emphasis> Flat XML 文件需要调整成大致类似这样：
+      </para>
+      <screen><![CDATA[
+<?xml version="1.0" ?>
+<dataset>
+    <guestbook id="1" content="Hello buddy!" user="joe" />
+    <guestbook id="2" content="I like it!" user="nancy" />
+    <guestbook id="3" content="Hello world!" user="suzy" />
+</dataset>
+]]></screen> 
+      <para>
+        还得修正一下 QueryTable 的调用：
+      </para>
+      <programlisting><![CDATA[<?php
+$queryTable = $this->getConnection()->createQueryTable( 
+    'guestbook', 'SELECT id, content, user FROM guestbook'
+);
+?>]]></programlisting> 
+    </section>
+    <section id="database.asserting-the-result-of-a-query">
+      <title>对查询的结果作出断言</title>
+      <para>
+        利用 QueryTable，也可以对复杂查询的结果作出断言，只需要指定查询以及结果名称，并随后将其与某个数据集进行比较：
+      </para>
+      <programlisting><![CDATA[<?php
+class ComplexQueryTest extends PHPUnit_Extensions_Database_TestCase
+{
+    public function testComplexQuery()
+    {
+        $queryTable = $this->getConnection()->createQueryTable( 
+            'myComplexQuery', 'SELECT complexQuery...'
+        );
+        $expectedTable = $this->createFlatXmlDataSet("complexQueryAssertion.xml")
+                              ->getTable("myComplexQuery");
+        $this->assertTablesEqual($expectedTable, $queryTable); 
+    }
+}
+?>]]></programlisting> 
+    </section>
+    <section id="database.asserting-the-state-of-multiple-tables">
+      <title>对多个表的状态作出断言</title>
+      <para>
+        当然可以一次性对多个表的状态作出断言，并将查询数据集与基于文件的数据集进行比较。有两种不同的方式来进行数据集断言。
+      </para>
+      <orderedlist numeration="arabic">
+        <listitem>
+          <para>
+            可以从自数据库连接建立数据库数据集，并将其与基于文件的数据集进行比较。
+          </para>
+          <programlisting><![CDATA[<?php
+class DataSetAssertionsTest extends PHPUnit_Extensions_Database_TestCase
+{
+    public function testCreateDataSetAssertion()
+    {
+        $dataSet = $this->getConnection()->createDataSet(array('guestbook'));
+        $expectedDataSet = $this->createFlatXmlDataSet('guestbook.xml');
+        $this->assertDataSetsEqual($expectedDataSet, $dataSet); 
+    }
+}
+?>]]></programlisting> 
+        </listitem>
+        <listitem>
+          <para>
+            也可以自行构造数据集：
+          </para>
+          <programlisting><![CDATA[<?php
+class DataSetAssertionsTest extends PHPUnit_Extensions_Database_TestCase
+{
+    public function testManualDataSetAssertion()
+    {
+        $dataSet = new PHPUnit_Extensions_Database_DataSet_QueryDataSet();
+        $dataSet->addTable('guestbook', 'SELECT id, content, user FROM guestbook'); // 外加的表
+        $expectedDataSet = $this->createFlatXmlDataSet('guestbook.xml'); 
+
+        $this->assertDataSetsEqual($expectedDataSet, $dataSet);
+    }
+}
+?>]]></programlisting> 
+        </listitem>
+      </orderedlist>
+    </section>
+  </section>
+  <section id="database.frequently-asked-questions">
+    <title>常见问题（FAQ）</title>
+    <section id="database.will-phpunit-re-create-the-database-schema-for-each-test">
+      <title>PHPUnit 会为每个测试（重新）创建数据库吗？</title>
+      <para>
+        不，PHPUnit 要求在测试套件开始时所有数据库对象必须全部可用。数据库、表、序列、触发器还有视图，必须全部在运行测试套件之前创建好。
+      </para>
+      <para>
+        <ulink url="http://www.doctrine-project.org">Doctrine 2</ulink> 或
+        <ulink url="http://www.ezcomponents.org">eZ Components</ulink> 拥有强力的工具，可以按预定义的数据结构创建数据库，但是这些都必须和 PHPUnit 扩展模块对接之后才能自动在整个测试套件运行之前重新创建数据库。
+      </para>
+      <para>
+        由于每个测试都会彻底清空数据库，因此无须为每个测试重新创建数据库。永久可用的数据库同样能够完美工作。
+      </para>
+    </section>
+    <section id="database.am-i-required-to-use-pdo-in-my-application-for-the-database-extension-to-work">
+      <title>为了让数据库扩展模块正常工作，需要在应用程序中使用 PDO 吗？</title>
+      <para>
+        不，只在基境的清理与建立阶段还有断言检定时用到PDO。在你的自有代码中，可以使用任意数据库抽象。
+      </para>
+    </section>
+    <section id="database.what-can-i-do-when-i-get-a-too-much-connections-error">
+      <title>如果看到 <quote>Too much Connections</quote> 错误该咋办？</title>
+      <para>
+        如果没有对 TestCase 中 <literal>getConnection()</literal> 方法所创建 PDO 实例进行缓存，那么每个数据库测试都会增加一个或多个数据库连接。MySQL的默认配置只允许100个并发连接，其他供应商的数据库也都有各自的最大连接限制。
+      </para>
+      <para>
+        子章节<quote>使用你自己的抽象数据库 TestCase 类</quote>展示了如何通过在所有测试中使用单个PDO实例缓存来防止发生此错误。
+      </para>
+    </section>
+    <section id="database.how-to-handle-null-with-flat-xml-csv-datasets">
+      <title>Flat XML / CSV 数据集中如何处理 NULL？</title>
+      <para>
+        别这么干。应当改用 XML 或者 YAML 数据集。
+      </para>
+    </section>
+  </section>
+</chapter>
