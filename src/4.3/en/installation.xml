@@ -87,6 +87,75 @@
     <screen><userinput>wget https://phar.phpunit.de/phpunit.phar</userinput>
 <userinput>php phpunit.phar</userinput></screen>
 
+    <section id="installation.phar.windows">
+      <title>Windows</title>
+
+      <para>
+        Globally installing the PHAR involves the same procedure as manually
+        <ulink url="https://getcomposer.org/doc/00-intro.md#installation-windows">
+        installing Composer on Windows</ulink>:
+      </para>
+
+      <orderedlist>
+        <listitem>
+          <para>
+            Create a directory for PHP binaries; e.g., <filename>C:\bin</filename>
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            Append <userinput>;C:\bin</userinput> to your <varname>PATH</varname>
+            environment variable
+            (<ulink url="http://stackoverflow.com/questions/6318156/adding-python-path-on-windows-7">related help</ulink>)
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            Download <ulink url="https://phar.phpunit.de/phpunit.phar"/> and
+            save the file as <filename>C:\bin\phpunit.phar</filename>
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            Open a command line (e.g.,
+            press <keycombo><keycap>Windows</keycap><keycap>R</keycap></keycombo>
+            » type <userinput>cmd</userinput>
+            » <keycap>ENTER</keycap>)
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            Create a wrapping batch script (results in
+            <filename>C:\bin\phpunit.cmd</filename>):
+          </para>
+          <screen>
+<prompt>C:\Users\username&gt;</prompt> <userinput>cd C:\bin</userinput>
+<prompt>C:\bin&gt;</prompt> <userinput>echo @php "%~dp0phpunit.phar" %* &gt; phpunit.cmd</userinput>
+<prompt>C:\bin&gt;</prompt> <userinput>exit</userinput>
+</screen>
+        </listitem>
+        <listitem>
+          <para>
+            Open a new command line and confirm that you can execute PHPUnit
+            from any path:
+          </para>
+          <screen>
+<prompt>C:\Users\username&gt;</prompt> <userinput>phpunit --version</userinput>
+<computeroutput>PHPUnit x.y.z by Sebastian Bergmann.</computeroutput>
+</screen>
+        </listitem>
+      </orderedlist>
+
+      <para>
+        For Cygwin and/or MingW32 (e.g., TortoiseGit) shell environments, you
+        may skip step 5. above, simply save the file as
+        <filename>phpunit</filename> (without <filename>.phar</filename>
+        extension), and make it executable via
+        <userinput>chmod 775 phpunit</userinput>.
+      </para>
+
+    </section>
+
     <section id="installation.phar.verification">
       <title>Verifying PHPUnit PHAR Releases</title>
 
