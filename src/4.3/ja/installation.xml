@@ -90,6 +90,77 @@
     <screen><userinput>wget https://phar.phpunit.de/phpunit.phar</userinput>
 <userinput>php phpunit.phar</userinput></screen>
 
+    <section id="installation.phar.windows">
+      <title>Windows</title>
+
+      <para>
+        PHAR をグローバルにインストールする方法は、
+        <ulink url="https://getcomposer.org/doc/00-intro.md#installation-windows">
+        Composer を Windows に手動でインストールする</ulink>
+        のと同じ手順です。
+      </para>
+
+      <orderedlist>
+        <listitem>
+          <para>
+            PHP バイナリ用のディレクトリを作ります（例：<filename>C:\bin</filename>）
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            <userinput>;C:\bin</userinput> を、環境変数 <varname>PATH</varname>
+            に追記します
+            (<ulink url="http://stackoverflow.com/questions/6318156/adding-python-path-on-windows-7">参考資料</ulink>)。
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            <ulink url="https://phar.phpunit.de/phpunit.phar"/> をダウンロードして、
+            <filename>C:\bin\phpunit.phar</filename> に保存します。
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            コマンドプロンプトを開きます (
+            <keycombo><keycap>Windows</keycap><keycap>R</keycap></keycombo>
+            » <userinput>cmd</userinput>
+            » <keycap>ENTER</keycap>)。
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            以下のようにして、バッチスクリプト
+            (<filename>C:\bin\phpunit.cmd</filename>)
+            を作ります。
+          </para>
+          <screen>
+<prompt>C:\Users\username&gt;</prompt> <userinput>cd C:\bin</userinput>
+<prompt>C:\bin&gt;</prompt> <userinput>echo @php "%~dp0phpunit.phar" %* &gt; phpunit.cmd</userinput>
+<prompt>C:\bin&gt;</prompt> <userinput>exit</userinput>
+</screen>
+        </listitem>
+        <listitem>
+          <para>
+            コマンドプロンプトをもう一枚開き、どこからでも PHPUnit を実行できることを確認します。
+          </para>
+          <screen>
+<prompt>C:\Users\username&gt;</prompt> <userinput>phpunit --version</userinput>
+<computeroutput>PHPUnit x.y.z by Sebastian Bergmann.</computeroutput>
+</screen>
+        </listitem>
+      </orderedlist>
+
+      <para>
+        Cygwin や MingW32 (TortoiseGit など) のシェル環境で使う場合は、
+        五番目のステップは飛ばしてもかまいません。単にファイルを
+        <filename>phpunit</filename>
+        という名前 (拡張子 <filename>.phar</filename> は不要) で保存して、あとは
+        <userinput>chmod 775 phpunit</userinput>
+        で実行可能にしておきましょう。
+      </para>
+
+    </section>
+
     <section id="installation.phar.verification">
       <title>PHPUnit の PHAR リリースの検証</title>
 
