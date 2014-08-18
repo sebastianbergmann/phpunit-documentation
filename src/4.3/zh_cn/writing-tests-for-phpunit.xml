@@ -216,7 +216,7 @@ OK (3 tests, 3 assertions)]]></screen>
     <para>
       <indexterm><primary>Annotation （标注）</primary></indexterm>
       <indexterm><primary>@dataProvider</primary></indexterm>
-      测试方法可以接受任意参数。这些参数由数据供给器方法（在<xref linkend="writing-tests-for-phpunit.data-providers.examples.DataTest.php" />中，是 <literal>provider()</literal> 方法）提供。用 <literal>@dataProvider</literal> 标注来指定使用哪个数据供给器方法。
+      测试方法可以接受任意参数。这些参数由数据供给器方法（在<xref linkend="writing-tests-for-phpunit.data-providers.examples.DataTest.php" />中，是 <literal>additionProvider()</literal> 方法）提供。用 <literal>@dataProvider</literal> 标注来指定使用哪个数据供给器方法。
     </para>
 
     <para>
@@ -481,12 +481,14 @@ Tests: 1, Assertions: 1, Failures: 1.</screen>
       <indexterm><primary>Annotation （标注）</primary></indexterm>
       <indexterm><primary>@expectedException</primary></indexterm>
       <indexterm><primary>@expectedExceptionMessage</primary></indexterm>
+      <indexterm><primary>@expectedExceptionMessageRegExp</primary></indexterm>
       <indexterm><primary>@expectedExceptionCode</primary></indexterm>
-      另外，你可以将 <literal>@expectedExceptionMessage</literal> 和 <literal>@expectedExceptionCode</literal> 与 <literal>@expectedException</literal> 联合使用，来对异常的讯息与代号进行测试，如<xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest2.php" />所示。
+
+      另外，你可以将 <literal>@expectedExceptionMessage</literal>、<literal>@expectedExceptionMessageRegExp</literal> 和 <literal>@expectedExceptionCode</literal> 与 <literal>@expectedException</literal> 联合使用，来对异常的讯息与代号进行测试，如<xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest2.php" />所示。
     </para>
 
     <example id="writing-tests-for-phpunit.exceptions.examples.ExceptionTest2.php">
-      <title>使用 @expectedExceptionMessage 和 @expectedExceptionCode 标注</title>
+      <title>使用 @expectedExceptionMessage、<literal>@expectedExceptionMessageRegExp</literal> 和 @expectedExceptionCode 标注</title>
       <programlisting><![CDATA[<?php
 class ExceptionTest extends PHPUnit_Framework_TestCase
 {
@@ -495,6 +497,15 @@ class ExceptionTest extends PHPUnit_Framework_TestCase
      * @expectedExceptionMessage Right Message
      */
     public function testExceptionHasRightMessage()
+    {
+        throw new InvalidArgumentException('Some Message', 10);
+    }
+
+    /**
+     * @expectedException              InvalidArgumentException
+     * @expectedExceptionMessageRegExp /Right.*/
+     */
+    public function testExceptionMessageMatchesRegExp()
     {
         throw new InvalidArgumentException('Some Message', 10);
     }
@@ -512,30 +523,32 @@ class ExceptionTest extends PHPUnit_Framework_TestCase
       <screen><userinput>phpunit ExceptionTest</userinput><![CDATA[
 PHPUnit 4.3.0 by Sebastian Bergmann.
 
-FF
+FFF
 
 Time: 0 seconds, Memory: 3.00Mb
 
-There were 2 failures:
+There were 3 failures:
 
 1) ExceptionTest::testExceptionHasRightMessage
 Failed asserting that exception message 'Some Message' contains 'Right Message'.
 
+2) ExceptionTest::testExceptionMessageMatchesRegExp
+Failed asserting that exception message 'Some Message' matches '/Right.*/'.
 
-2) ExceptionTest::testExceptionHasRightCode
+3) ExceptionTest::testExceptionHasRightCode
 Failed asserting that expected exception code 20 is equal to 10.
 
 
 FAILURES!
-Tests: 2, Assertions: 4, Failures: 2.]]></screen>
+Tests: 3, Assertions: 6, Failures: 3.]]></screen>
     </example>
 
     <para>
-      关于 <literal>@expectedExceptionMessage</literal> 和 <literal>@expectedExceptionCode</literal>，分别在<xref linkend="appendixes.annotations.expectedExceptionMessage"/>和<xref linkend="appendixes.annotations.expectedExceptionCode"/>有更多相关范例。
+      关于 <literal>@expectedExceptionMessage</literal>、<literal>@expectedExceptionMessageRegExp</literal> 和 <literal>@expectedExceptionCode</literal>，分别在<xref linkend="appendixes.annotations.expectedExceptionMessage"/>、<xref linkend="appendixes.annotations.expectedExceptionMessageRegExp"/>和<xref linkend="appendixes.annotations.expectedExceptionCode"/>有更多相关范例。
     </para>
 
     <para>
-      此外，还可以用 <literal>setExpectedException()</literal> 方法来设定所预期的异常，如<xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest3.php" />所示。
+      此外，还可以用 <literal>setExpectedException()</literal> 或 <literal>setExpectedExceptionRegExp()</literal> 方法来设定所预期的异常，如<xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest3.php" />所示。
     </para>
 
     <example id="writing-tests-for-phpunit.exceptions.examples.ExceptionTest3.php">
@@ -556,6 +569,14 @@ class ExceptionTest extends PHPUnit_Framework_TestCase
         throw new InvalidArgumentException('Some Message', 10);
     }
 
+    public function testExceptionMessageMatchesRegExp()
+    {
+        $this->setExpectedException(
+          'InvalidArgumentException', '/Right.*/', 10
+        );
+        throw new InvalidArgumentException('The Wrong Message', 10);
+    }
+
     public function testExceptionHasRightCode()
     {
         $this->setExpectedException(
@@ -563,30 +584,32 @@ class ExceptionTest extends PHPUnit_Framework_TestCase
         );
         throw new InvalidArgumentException('The Right Message', 10);
     }
-}?>]]></programlisting>
+}
+?>]]></programlisting>
       <screen><userinput>phpunit ExceptionTest</userinput><![CDATA[
 PHPUnit 4.3.0 by Sebastian Bergmann.
 
-FFF
+FFFF
 
 Time: 0 seconds, Memory: 3.00Mb
 
-There were 3 failures:
+There were 4 failures:
 
 1) ExceptionTest::testException
 Expected exception InvalidArgumentException
 
-
 2) ExceptionTest::testExceptionHasRightMessage
 Failed asserting that exception message 'Some Message' contains 'Right Message'.
 
+3) ExceptionTest::testExceptionMessageMatchesRegExp
+Failed asserting that exception message 'The Wrong Message' contains '/Right.*/'.
 
-3) ExceptionTest::testExceptionHasRightCode
+4) ExceptionTest::testExceptionHasRightCode
 Failed asserting that expected exception code 20 is equal to 10.
 
 
 FAILURES!
-Tests: 3, Assertions: 6, Failures: 3.]]></screen>
+Tests: 4, Assertions: 8, Failures: 4.]]></screen>
     </example>
 
     <para>
@@ -606,7 +629,11 @@ Tests: 3, Assertions: 6, Failures: 3.]]></screen>
         <tbody>
           <row>
             <entry><literal>void setExpectedException(string $exceptionName[, string $exceptionMessage = '', integer $exceptionCode = NULL])</literal></entry>
-            <entry>设定预期的 <literal>$exceptionName</literal>， <literal>$exceptionMessage</literal>，和 <literal>$exceptionCode</literal>。</entry>
+            <entry>设定预期的 <literal>$exceptionName</literal>、<literal>$exceptionMessage</literal>、和 <literal>$exceptionCode</literal>。</entry>
+          </row>
+          <row>
+            <entry><literal>void setExpectedExceptionRegExp(string $exceptionName[, string $exceptionMessageRegExp = '', integer $exceptionCode = NULL])</literal></entry>
+            <entry>设定预期的 <literal>$exceptionName</literal>、<literal>$exceptionMessageRegExp</literal>、和 <literal>$exceptionCode</literal>。</entry>
           </row>
           <row>
             <entry><literal>String getExpectedException()</literal></entry>

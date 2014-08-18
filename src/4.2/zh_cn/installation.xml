@@ -70,6 +70,63 @@
     <screen><userinput>wget https://phar.phpunit.de/phpunit.phar</userinput>
 <userinput>php phpunit.phar</userinput></screen>
 
+    <section id="installation.phar.windows">
+      <title>Windows</title>
+
+      <para>
+        整体上说，在 Windows 下安装 PHAR 和手工<ulink url="https://getcomposer.org/doc/00-intro.md#installation-windows">在 Windows 下安装 Composer</ulink> 是一样的过程：
+      </para>
+
+      <orderedlist>
+        <listitem>
+          <para>
+            为 PHP 的二进制可执行文件建立一个目录，例如 <filename>C:\bin</filename>
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            将 <userinput>;C:\bin</userinput> 附加到 <varname>PATH</varname> 环境变量中
+            (<ulink url="http://stackoverflow.com/questions/6318156/adding-python-path-on-windows-7">相关帮助</ulink>)
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            下载 <ulink url="https://phar.phpunit.de/phpunit.phar"/> 并将文件保存到<filename>C:\bin\phpunit.phar</filename>
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            打开命令行（例如，按 <keycombo><keycap>Windows</keycap><keycap>R</keycap></keycombo>
+            » 输入 <userinput>cmd</userinput>
+            » <keycap>ENTER</keycap>）
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            建立外包覆批处理脚本（最后得到 <filename>C:\bin\phpunit.cmd</filename>）：
+          </para>
+          <screen>
+<prompt>C:\Users\username&gt;</prompt> <userinput>cd C:\bin</userinput>
+<prompt>C:\bin&gt;</prompt> <userinput>echo @php "%~dp0phpunit.phar" %* &gt; phpunit.cmd</userinput>
+<prompt>C:\bin&gt;</prompt> <userinput>exit</userinput>
+</screen>
+        </listitem>
+        <listitem>
+          <para>
+            新开一个命令行窗口，确认一下可以在任意路径下执行 PHPUnit：
+          </para>
+          <screen>
+<prompt>C:\Users\username&gt;</prompt> <userinput>phpunit --version</userinput>
+<computeroutput>PHPUnit x.y.z by Sebastian Bergmann.</computeroutput>
+</screen>
+        </listitem>
+      </orderedlist>
+
+      <para>
+        对于 Cygwin 或 MingW32 (例如 TortoiseGit) shell 环境，可以跳过第五步。 取而代之的是，把文件保存为 <filename>phpunit</filename> （没有 <filename>.phar</filename> 扩展名），然后用 <userinput>chmod 775 phpunit</userinput> 将其设为可执行。
+      </para>
+    </section>
+
     <section id="installation.phar.verification">
       <title>校验 PHPUnit PHAR 发行包</title>
 
