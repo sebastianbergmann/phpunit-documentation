@@ -20,39 +20,20 @@
 
     <para>
       PHPUnit requires the <ulink
-      url="http://php.net/manual/en/dom.setup.php">dom</ulink>, <ulink
-      url="http://php.net/manual/en/json.installation.php">json</ulink>,
-      <ulink
-      url="http://php.net/manual/en/pcre.installation.php">pcre</ulink>,
-      <ulink
-      url="http://php.net/manual/en/reflection.installation.php">reflection</ulink>,
-      and <ulink url="http://php.net/manual/en/spl.installation.php">spl</ulink>
-      extensions. These extensions are usually compiled and enabled by default.
-      Some of them cannot even be disabled and are therefore always available.
+      url="http://php.net/manual/en/dom.setup.php">dom</ulink> and <ulink
+      url="http://php.net/manual/en/json.installation.php">json</ulink>
+      extensions, which are normally enabled by default.
     </para>
 
     <para>
-      For code coverage support, <ulink
-      url="http://xdebug.org/">Xdebug</ulink> 2.1.3 is required; using the
-      latest version of Xdebug is highly recommended. The <ulink
-      url="http://php.net/manual/en/tokenizer.installation.php">tokenizer</ulink>
-      extension is also required for the code coverage functionality to work.
-      The <ulink
-      url="http://php.net/manual/en/xmlwriter.installation.php">xmlwriter</ulink>
-      extension is required to log code coverage information as XML.
-    </para>
+      The code coverage report feature requires the
+      <ulink url="http://xdebug.org/">Xdebug</ulink> (2.1.3 or later) and
+      <ulink url="http://php.net/manual/en/tokenizer.installation.php">tokenizer</ulink>
+      extensions.
 
-    <para>
-      The <ulink
-      url="http://php.net/manual/en/phar.installation.php">phar</ulink>
-      extension is required for using PHPUnit from a PHP Archive (PHAR). The
-      <ulink
-      url="http://php.net/manual/en/openssl.installation.php">openssl</ulink>
-      extension is required for the <literal>--self-update</literal>
-      functionality of PHPUnit's PHAR to work. You need to configure
-      <literal>suhosin.executor.include.whitelist = phar</literal> if you are
-      using the <ulink url="http://suhosin.org/">Suhosin</ulink> extension and
-      would like to use PHPUnit from a PHP Archive (PHAR).
+      Generating XML reports requires the
+      <ulink url="http://php.net/manual/en/xmlwriter.installation.php">xmlwriter</ulink>
+      extension.
     </para>
   </section>
 
@@ -63,29 +44,61 @@
       The easiest way to obtain PHPUnit is to download a <ulink
       url="http://php.net/phar">PHP Archive (PHAR)</ulink> that has all required
       (as well as some optional) dependencies of PHPUnit bundled in a single
-      file:
+      file.
     </para>
 
-    <screen><userinput>wget https://phar.phpunit.de/phpunit.phar</userinput>
-<userinput>chmod +x phpunit.phar</userinput>
-<userinput>sudo mv phpunit.phar /usr/local/bin/phpunit</userinput></screen>
+    <para>
+      The <ulink url="http://php.net/manual/en/phar.installation.php">phar</ulink>
+      extension is required for using PHP Archives (PHAR).
+    </para>
+
+    <para>
+      The
+      <ulink url="http://php.net/manual/en/openssl.installation.php">openssl</ulink>
+      extension is required for using the <literal>--self-update</literal>
+      feature of the PHAR.
+    </para>
+
+    <para>
+      If the <ulink url="http://suhosin.org/">Suhosin</ulink> extension is
+      enabled, you need to allow execution of PHARs in your
+      <literal>php.ini</literal>:
+
+      <screen>
+suhosin.executor.include.whitelist = phar
+</screen>
+    </para>
 
     <note>
       <para>
-        To download from <literal>https://phar.phpunit.de/</literal>  you need a
-        client with <ulink
-        url="http://en.wikipedia.org/wiki/Server_Name_Indication">TLS/SNI
-        support</ulink>, wget 1.14 (or later), for instance.
+        To download from <literal>https://phar.phpunit.de/</literal> you need a
+        client with
+        <ulink url="http://en.wikipedia.org/wiki/Server_Name_Indication">TLS/SNI
+        support</ulink>; e.g., wget 1.14 (or later).
       </para>
     </note>
 
     <para>
-      You can also immediately use the PHAR after you have downloaded it, of
-      course:
+      To globally install the PHAR:
     </para>
 
-    <screen><userinput>wget https://phar.phpunit.de/phpunit.phar</userinput>
-<userinput>php phpunit.phar</userinput></screen>
+    <screen>
+<prompt>$</prompt> <userinput>wget https://phar.phpunit.de/phpunit.phar</userinput>
+<prompt>$</prompt> <userinput>chmod +x phpunit.phar</userinput>
+<prompt>$</prompt> <userinput>sudo mv phpunit.phar /usr/local/bin/phpunit</userinput>
+<prompt>$</prompt> <userinput>phpunit --version</userinput>
+<computeroutput>PHPUnit x.y.z by Sebastian Bergmann.</computeroutput>
+</screen>
+
+    <para>
+      You may also use the downloaded PHAR file directly:
+    </para>
+
+    <screen>
+<prompt>$</prompt> <userinput>wget https://phar.phpunit.de/phpunit.phar</userinput>
+<prompt>$</prompt> <userinput>php phpunit.phar --version</userinput>
+<computeroutput>PHPUnit x.y.z by Sebastian Bergmann.</computeroutput>
+</screen>
 
     <section id="installation.phar.windows">
       <title>Windows</title>
