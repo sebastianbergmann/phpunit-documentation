@@ -194,8 +194,8 @@ function webify_file($file, $toc, $languageList, $versionList, $language)
     }
 
     $buffer = str_replace(
-      array('{title}', '{content}', '{toc}', '{languages}', '{versions}', '{prev}', '{next}', '<div class="caution" style="margin-left: 0.5in; margin-right: 0.5in;">', '<div class="warning" style="margin-left: 0.5in; margin-right: 0.5in;">', '<div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">', '{suggestions}'),
-      array($title, $content, $toc, $languageList, $versionList, $prev, $next, '<div class="alert alert-warning">', '<div class="alert alert-danger">', '<div class="alert alert-info">', $suggestions),
+      array('{filename}', '{title}', '{content}', '{toc}', '{languages}', '{language}', '{versions}', '{prev}', '{next}', '<div class="caution" style="margin-left: 0.5in; margin-right: 0.5in;">', '<div class="warning" style="margin-left: 0.5in; margin-right: 0.5in;">', '<div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">', '{suggestions}'),
+      array($filename, $title, $content, $toc, $languageList, $language, $versionList, $prev, $next, '<div class="alert alert-warning">', '<div class="alert alert-danger">', '<div class="alert alert-info">', $suggestions),
       $template
     );
 
