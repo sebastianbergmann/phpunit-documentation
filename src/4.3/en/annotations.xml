@@ -142,36 +142,39 @@ class MyTest extends PHPUnit_Framework_TestCase
     <para>
       <indexterm><primary><literal>@backupStaticAttributes</literal></primary></indexterm>
 
-      The backup and restore operations for static attributes of classes can be
-      completely disabled for all tests of a test case class like this
-      <programlisting>/**
- * @backupStaticAttributes disabled
- */
-class MyTest extends PHPUnit_Framework_TestCase
-{
-    // ...
-}</programlisting>
-    </para>
+      The <literal>@backupStaticAttributes</literal> annotation can be used to
+      back up all static property values in all declared classes before each
+      test and restore them afterwards. It may be used at the test case class or
+      test method level:
 
-    <para>
-      <indexterm><primary><literal>@backupStaticAttributes</literal></primary></indexterm>
-
-      The <literal>@backupStaticAttributes</literal> annotation can also be used
-      on the test method level. This allows for a fine-grained configuration of
-      the backup and restore operations: <programlisting>/**
- * @backupStaticAttributes disabled
+      <programlisting>
+/**
+ * @backupStaticAttributes enabled
  */
 class MyTest extends PHPUnit_Framework_TestCase
 {
     /**
-     * @backupStaticAttributes enabled
+     * @backupStaticAttributes disabled
      */
     public function testThatInteractsWithStaticAttributes()
     {
         // ...
     }
-}</programlisting>
+}
+</programlisting>
     </para>
+
+    <note>
+      <para>
+        <literal>@backupStaticAttributes</literal> is limited by PHP internals
+        and may cause unintended static values to persist and leak into
+        subsequent tests in some circumstances.
+      </para>
+      <para>
+        See <xref linkend="fixtures.global-state"/> for details.
+      </para>
+    </note>
+
   </section>
 
   <section id="appendixes.annotations.before">
