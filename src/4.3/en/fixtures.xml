@@ -350,15 +350,14 @@ class DatabaseTest extends PHPUnit_Framework_TestCase
 
     <note>
       <para>
-        The implementation of the backup and restore operations for global
-        variables and static attributes of classes uses <literal>serialize()</literal>
-        and <literal>unserialize()</literal>.
+        The backup and restore operations for global variables and static
+        class attributes use <literal>serialize()</literal> and
+        <literal>unserialize()</literal>.
       </para>
       <para>
-        Objects of some classes that are provided by PHP itself, such as
-        <literal>PDO</literal> for example, cannot be serialized and the backup
-        operation will break when such an object is stored in the
-        <literal>$GLOBALS</literal> array, for instance.
+        Objects of some classes (e.g., <literal>PDO</literal>) cannot be
+        serialized and the backup operation will break when such an object is
+        stored e.g. in the <literal>$GLOBALS</literal> array.
       </para>
     </note>
 
@@ -381,9 +380,8 @@ class DatabaseTest extends PHPUnit_Framework_TestCase
 
     <note>
       <para>
-        Please note that setting the <literal>$backupGlobalsBlacklist</literal>
-        attribute inside the <literal>setUp()</literal> method, for instance,
-        has no effect.
+        Setting the <literal>$backupGlobalsBlacklist</literal> property inside
+        e.g. the <literal>setUp()</literal> method has no effect.
       </para>
     </note>
 
@@ -391,26 +389,62 @@ class DatabaseTest extends PHPUnit_Framework_TestCase
       <indexterm><primary><literal>@backupStaticAttributes</literal></primary></indexterm>
       <indexterm><primary><literal>$backupStaticAttributesBlacklist</literal></primary></indexterm>
 
-      The <literal>@backupStaticAttributes</literal> annotation that is
-      discussed in <xref linkend="appendixes.annotations.backupStaticAttributes"/>
-      can be used to control the backup and restore operations for static
-      attributes. Alternatively, you can provide a blacklist of static
-      attributes that are to be excluded from the backup and restore operations
-      like this <programlisting>class MyTest extends PHPUnit_Framework_TestCase
+      The <literal>@backupStaticAttributes</literal> annotation discussed in
+      <xref linkend="appendixes.annotations.backupStaticAttributes"/>
+      can be used to back up all static property values in all declared classes
+      before each test and restore them afterwards.
+    </para>
+
+    <para>
+      It processes all classes that are declared at the time a test starts, not
+      only the test class itself. It only applies to static class properties,
+      not static variables within functions.
+    </para>
+
+    <note>
+      <para>
+        The <literal>@backupStaticAttributes</literal> operation is executed
+        before a test method, but only if it is enabled. If a static value was
+        changed by a previously executed test that did not have
+        <literal>@backupStaticAttributes</literal> enabled, then that value will
+        be backed up and restored — not the originally declared default value.
+        PHP does not record the originally declared default value of any static
+        variable.
+      </para>
+      <para>
+        The same applies to static properties of classes that were newly
+        loaded/declared within a test. They cannot be reset to their originally
+        declared default value after the test, since that value is unknown.
+        Whichever value is set will leak into subsequent tests.
+      </para>
+      <para>
+        For unit tests, it is recommended to explicitly reset the values of
+        static properties under test in your <literal>setUp()</literal> code
+        instead (and ideally also <literal>tearDown()</literal>, so as to not
+        affect subsequently executed tests).
+      </para>
+    </note>
+
+    <para>
+      You can provide a blacklist of static attributes that are to be excluded
+      from the backup and restore operations:
+
+      <programlisting>
+class MyTest extends PHPUnit_Framework_TestCase
 {
     protected $backupStaticAttributesBlacklist = array(
       'className' => array('attributeName')
     );
 
     // ...
-}</programlisting>
+}
+</programlisting>
     </para>
 
     <note>
       <para>
-        Please note that setting the <literal>$backupStaticAttributesBlacklist</literal>
-        attribute inside the <literal>setUp()</literal> method, for instance,
-        has no effect.
+        Setting the <literal>$backupStaticAttributesBlacklist</literal> property
+        inside e.g. the <literal>setUp()</literal> method has no effect.
       </para>
     </note>
   </section>
