@@ -534,37 +534,27 @@ class MyClass
      }
 }</programlisting>
 
-      テストを実行しやすくし、重複を減らすために、
-      ショートカットを使ってクラス定数を指定することができます。
-      <literal>@expectedExceptionMessage</literal> で
-      "<literal>@expectedExceptionMessage ClassName::CONST</literal>" のようにして使います。
-
-      サンプルコードは <xref linkend="appendixes.annotations.expectedExceptionCode"/> を参照ください。
-    </para>
-
-  </section>
-
-  <section id="appendixes.annotations.expectedExceptionMessageRegExp">
-    <title>@expectedExceptionMessageRegExp</title>
-
-    <para>
-      <indexterm><primary>@expectedExceptionMessageRegExp</primary></indexterm>
-
-      期待するメッセージを、<literal>@expectedExceptionMessageRegExp</literal>
-      アノテーションを使って正規表現で指定することもできます。
+      期待するメッセージを、正規表現で指定することもできます。
       これは、部分文字列だけでは指定したメッセージとのマッチングが不十分なときに便利です。
 
       <programlisting>class MyTest extends PHPUnit_Framework_TestCase
 {
      /**
-      * @expectedException              MyException
-      * @expectedExceptionMessageRegExp /Argument \d+ can not be an? \w+/
+      * @expectedException        MyException
+      * @expectedExceptionMessage /Argument \d+ can not be an? \w+/
       */
      public function testExceptionHasRightMessage()
      {
          throw new MyException('Argument 2 can not be an integer');
      }
 }</programlisting>
+
+      テストを実行しやすくし、重複を減らすために、
+      ショートカットを使ってクラス定数を指定することができます。
+      <literal>@expectedExceptionMessage</literal> で
+      "<literal>@expectedExceptionMessage ClassName::CONST</literal>" のようにして使います。
+
+      サンプルコードは <xref linkend="appendixes.annotations.expectedExceptionCode"/> を参照ください。
     </para>
 
   </section>
