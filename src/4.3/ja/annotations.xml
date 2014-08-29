@@ -143,35 +143,40 @@ class MyTest extends PHPUnit_Framework_TestCase
     <para>
       <indexterm><primary><literal>@backupStaticAttributes</literal></primary></indexterm>
 
-      クラスの静的属性の保存や復元を、テストケースクラスのすべてのテストで完全に無効にすることができます。
-      このように使います。
-      <programlisting>/**
- * @backupStaticAttributes disabled
- */
-class MyTest extends PHPUnit_Framework_TestCase
-{
-    // ...
-}</programlisting>
-    </para>
+      <literal>@backupStaticAttributes</literal> アノテーションを使うと、
+      宣言されたクラス内のすべての static プロパティの値をバックアップしてからテストを始め、
+      テストが終わった後でそれらの値を復元することができます。
+      テストケースクラス単位、あるいはテストメソッド単位で使えます。
 
-    <para>
-      <indexterm><primary><literal>@backupStaticAttributes</literal></primary></indexterm>
-
-      <literal>@backupStaticAttributes</literal> アノテーションは、テストメソッドレベルで使うこともできます。
-      これによって、保存と復元の操作をより細やかに制御できるようになります。<programlisting>/**
- * @backupStaticAttributes disabled
+      <programlisting>
+/**
+ * @backupStaticAttributes enabled
  */
 class MyTest extends PHPUnit_Framework_TestCase
 {
     /**
-     * @backupStaticAttributes enabled
+     * @backupStaticAttributes disabled
      */
     public function testThatInteractsWithStaticAttributes()
     {
         // ...
     }
-}</programlisting>
+}
+</programlisting>
     </para>
+
+    <note>
+      <para>
+        PHP の内部的な制約のため、
+        <literal>@backupStaticAttributes</literal> が、
+        意図していない static 値を保存してしまい、
+        その後のテストに影響してしまうことがあります。
+      </para>
+      <para>
+        詳細は <xref linkend="fixtures.global-state"/> を参照ください。
+      </para>
+    </note>
+
   </section>
 
   <section id="appendixes.annotations.before">

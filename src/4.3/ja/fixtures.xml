@@ -350,7 +350,7 @@ class DatabaseTest extends PHPUnit_Framework_TestCase
 
     <note>
       <para>
-        グローバル変数やクラスの静的属性のバックアップ・リストアの実装には
+        グローバル変数やクラスの静的属性のバックアップ・リストアには
         <literal>serialize()</literal> および
         <literal>unserialize()</literal> を使用しています。
       </para>
@@ -381,8 +381,8 @@ class DatabaseTest extends PHPUnit_Framework_TestCase
     <note>
       <para>
         <literal>$backupGlobalsBlacklist</literal>
-        属性をたとえば <literal>setUp()</literal>
-        メソッド内で設定しても効果が及ばないことに注意しましょう。
+        プロパティをたとえば <literal>setUp()</literal>
+        メソッド内で設定しても効果が及びません。
       </para>
     </note>
 
@@ -391,25 +391,59 @@ class DatabaseTest extends PHPUnit_Framework_TestCase
       <indexterm><primary><literal>$backupStaticAttributesBlacklist</literal></primary></indexterm>
 
       <xref linkend="appendixes.annotations.backupStaticAttributes"/>
-      で説明する <literal>@backupStaticAttributes</literal> アノテーションを使って、
-      静的属性の保存と復元を制御することができます。また、静的属性のブラックリストを渡せば
-      保存と復元の対象からそれらを除外することもできます。
+      で説明する <literal>@backupStaticAttributes</literal> アノテーションを使うと、
+      宣言されたクラス内のすべての static プロパティの値をバックアップしてからテストを始め、
+      テストが終わった後でそれらの値を復元することができます。
+    </para>
+
+    <para>
+      テストが始まる際に、宣言されたすべてのクラスについて処理を行います。テストクラス自身だけではありません。
+      処理するのは、クラスの static プロパティだけです。関数の内部の static 変数は対象外です。
+    </para>
+
+    <note>
+      <para>
+        <literal>@backupStaticAttributes</literal> の操作は、テストメソッドの前に実行されます。
+        ただし、有効になっている場合だけです。
+        先に実行されたテストメソッドの中で static プロパティの値が変更されており、かつそのメソッドでは
+        <literal>@backupStaticAttributes</literal> が有効になっていなかった場合、
+        バックアップ (そしてリストア) されるのは、先に実行されたメソッドで変更後の値になります。
+        もともと宣言されていたデフォルト値ではありません。
+        PHP は、static 変数が宣言された当時のデフォルト値を、どこにも記録していないのです。
+      </para>
+      <para>
+        これは、テストの内部で新しく読み込んだ (宣言した) クラスの static プロパティについても同様です。
+        この場合も、もともと宣言されていたデフォルト値を、テストの後に復元することはできません。デフォルト値が残っていないからです。
+        テスト内で設定された値が、それ以降のテストに持ち越されます。
+      </para>
+      <para>
+        ユニットテストでは、テスト対象の static プロパティの値は、<literal>setUp()</literal>
+        で明示的にリセットしておくことを推奨します
+        (そして、<literal>tearDown()</literal> でもリセットしておけば、それ以降のテストに影響を及ぼすこともなくなります)。
+      </para>
+    </note>
+
+    <para>
+      static 属性のブラックリストを渡せば、保存と復元の対象からそれらを除外することもできます。
       ブラックリストは、このように指定します。
-      <programlisting>class MyTest extends PHPUnit_Framework_TestCase
+
+      <programlisting>
+class MyTest extends PHPUnit_Framework_TestCase
 {
     protected $backupStaticAttributesBlacklist = array(
       'className' => array('attributeName')
     );
 
     // ...
-}</programlisting>
+}
+</programlisting>
     </para>
 
     <note>
       <para>
         <literal>$backupStaticAttributesBlacklist</literal>
-        属性をたとえば <literal>setUp()</literal>
-        メソッド内で設定しても効果が及ばないことに注意しましょう。
+        プロパティをたとえば <literal>setUp()</literal>
+        メソッド内で設定しても効果が及びません。
       </para>
     </note>
   </section>
