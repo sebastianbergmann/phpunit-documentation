@@ -535,38 +535,28 @@ class MyClass
      }
 }</programlisting>
 
-      To ease testing and reduce duplication a shortcut can be used to
-      specify a class constant as an
-      <literal>@expectedExceptionMessage</literal> using the
-      "<literal>@expectedExceptionMessage ClassName::CONST</literal>" syntax.
-
-      A sample can be found in <xref linkend="appendixes.annotations.expectedExceptionCode"/>.
-    </para>
-
-  </section>
-
-  <section id="appendixes.annotations.expectedExceptionMessageRegExp">
-    <title>@expectedExceptionMessageRegExp</title>
-
-    <para>
-      <indexterm><primary>@expectedExceptionMessageRegExp</primary></indexterm>
-
-      The expected message can also be specified as a regular expression using
-      the <literal>@expectedExceptionMessageRegExp</literal> annotation. This
+      The expected message can also be specified as a regular expression. This
       is helpful for situations where a substring is not adequate for matching
       a given message.
 
       <programlisting>class MyTest extends PHPUnit_Framework_TestCase
 {
      /**
-      * @expectedException              MyException
-      * @expectedExceptionMessageRegExp /Argument \d+ can not be an? \w+/
+      * @expectedException        MyException
+      * @expectedExceptionMessage /Argument \d+ can not be an? \w+/
       */
      public function testExceptionHasRightMessage()
      {
          throw new MyException('Argument 2 can not be an integer');
      }
 }</programlisting>
+
+      To ease testing and reduce duplication a shortcut can be used to
+      specify a class constant as an
+      <literal>@expectedExceptionMessage</literal> using the
+      "<literal>@expectedExceptionMessage ClassName::CONST</literal>" syntax.
+
+      A sample can be found in <xref linkend="appendixes.annotations.expectedExceptionCode"/>.
     </para>
 
   </section>

@@ -194,7 +194,7 @@ Tests: 1, Assertions: 1, Failures: 1, Skipped: 1.]]></screen>
       ensure that the dependencies of a test can actually be met before the test
       is run.
     </para>
-
+    
     <para>
       A test that has more than one <literal>@depends</literal> annotation
       will get a fixture from the first producer as the first argument, a fixture
@@ -541,23 +541,17 @@ Tests: 1, Assertions: 1, Failures: 1.</screen>
       <indexterm><primary>Annotation</primary></indexterm>
       <indexterm><primary>@expectedException</primary></indexterm>
       <indexterm><primary>@expectedExceptionMessage</primary></indexterm>
-      <indexterm><primary>@expectedExceptionMessageRegExp</primary></indexterm>
       <indexterm><primary>@expectedExceptionCode</primary></indexterm>
 
-      Additionally, you can use <literal>@expectedExceptionMessage</literal>,
-      <literal>@expectedExceptionMessageRegExp</literal> and
-      <literal>@expectedExceptionCode</literal> in combination with
+      Additionally, you can use <literal>@expectedExceptionMessage</literal>
+      and <literal>@expectedExceptionCode</literal> in combination with
       <literal>@expectedException</literal> to test the exception message and
       exception code as shown in
       <xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest2.php" />.
     </para>
 
     <example id="writing-tests-for-phpunit.exceptions.examples.ExceptionTest2.php">
-      <title>
-        Using the <literal>@expectedExceptionMessage</literal>,
-        <literal>@expectedExceptionMessageRegExp</literal> and
-        <literal>@expectedExceptionCode</literal> annotations
-      </title>
+      <title>Using the @expectedExceptionMessage and @expectedExceptionCode annotations</title>
       <programlisting><![CDATA[<?php
 class ExceptionTest extends PHPUnit_Framework_TestCase
 {
@@ -566,15 +560,6 @@ class ExceptionTest extends PHPUnit_Framework_TestCase
      * @expectedExceptionMessage Right Message
      */
     public function testExceptionHasRightMessage()
-    {
-        throw new InvalidArgumentException('Some Message', 10);
-    }
-
-    /**
-     * @expectedException              InvalidArgumentException
-     * @expectedExceptionMessageRegExp /Right.*/
-     */
-    public function testExceptionMessageMatchesRegExp()
     {
         throw new InvalidArgumentException('Some Message', 10);
     }
@@ -592,40 +577,34 @@ class ExceptionTest extends PHPUnit_Framework_TestCase
       <screen><userinput>phpunit ExceptionTest</userinput><![CDATA[
 PHPUnit 4.2.0 by Sebastian Bergmann.
 
-FFF
+FF
 
 Time: 0 seconds, Memory: 3.00Mb
 
-There were 3 failures:
+There were 2 failures:
 
 1) ExceptionTest::testExceptionHasRightMessage
 Failed asserting that exception message 'Some Message' contains 'Right Message'.
 
-2) ExceptionTest::testExceptionMessageMatchesRegExp
-Failed asserting that exception message 'Some Message' matches '/Right.*/'.
 
-3) ExceptionTest::testExceptionHasRightCode
+2) ExceptionTest::testExceptionHasRightCode
 Failed asserting that expected exception code 20 is equal to 10.
 
 
 FAILURES!
-Tests: 3, Assertions: 6, Failures: 3.]]></screen>
+Tests: 2, Assertions: 4, Failures: 2.]]></screen>
     </example>
 
     <para>
-      More examples of <literal>@expectedExceptionMessage</literal>,
-      <literal>@expectedExceptionMessageRegExp</literal> and
-      <literal>@expectedExceptionCode</literal> are shown in
-      <xref linkend="appendixes.annotations.expectedExceptionMessage"/>,
-      <xref linkend="appendixes.annotations.expectedExceptionMessageRegExp"/> and
+      More examples of <literal>@expectedExceptionMessage</literal> and <literal>@expectedExceptionCode</literal>
+      are shown in <xref linkend="appendixes.annotations.expectedExceptionMessage"/> and
       <xref linkend="appendixes.annotations.expectedExceptionCode"/> respectively.
     </para>
 
 
     <para>
-      Alternatively, you can use <literal>setExpectedException()</literal> or
-      <literal>setExpectedExceptionRegExp()</literal> to set the expected
-      exception as shown in <xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest3.php" />.
+      Alternatively, you can use the <literal>setExpectedException()</literal>
+      method to set the expected exception as shown in <xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest3.php" />.
     </para>
 
     <example id="writing-tests-for-phpunit.exceptions.examples.ExceptionTest3.php">
@@ -646,14 +625,6 @@ class ExceptionTest extends PHPUnit_Framework_TestCase
         throw new InvalidArgumentException('Some Message', 10);
     }
 
-    public function testExceptionMessageMatchesRegExp()
-    {
-        $this->setExpectedException(
-          'InvalidArgumentException', '/Right.*/', 10
-        );
-        throw new InvalidArgumentException('The Wrong Message', 10);
-    }
-
     public function testExceptionHasRightCode()
     {
         $this->setExpectedException(
@@ -661,32 +632,30 @@ class ExceptionTest extends PHPUnit_Framework_TestCase
         );
         throw new InvalidArgumentException('The Right Message', 10);
     }
-}
-?>]]></programlisting>
+}?>]]></programlisting>
       <screen><userinput>phpunit ExceptionTest</userinput><![CDATA[
 PHPUnit 4.2.0 by Sebastian Bergmann.
 
-FFFF
+FFF
 
 Time: 0 seconds, Memory: 3.00Mb
 
-There were 4 failures:
+There were 3 failures:
 
 1) ExceptionTest::testException
 Expected exception InvalidArgumentException
 
+
 2) ExceptionTest::testExceptionHasRightMessage
 Failed asserting that exception message 'Some Message' contains 'Right Message'.
 
-3) ExceptionTest::testExceptionMessageMatchesRegExp
-Failed asserting that exception message 'The Wrong Message' contains '/Right.*/'.
 
-4) ExceptionTest::testExceptionHasRightCode
+3) ExceptionTest::testExceptionHasRightCode
 Failed asserting that expected exception code 20 is equal to 10.
 
 
 FAILURES!
-Tests: 4, Assertions: 8, Failures: 4.]]></screen>
+Tests: 3, Assertions: 6, Failures: 3.]]></screen>
     </example>
 
     <para>
@@ -708,10 +677,6 @@ Tests: 4, Assertions: 8, Failures: 4.]]></screen>
           <row>
             <entry><literal>void setExpectedException(string $exceptionName[, string $exceptionMessage = '', integer $exceptionCode = NULL])</literal></entry>
             <entry>Set the expected <literal>$exceptionName</literal>, <literal>$exceptionMessage</literal>, and <literal>$exceptionCode</literal>.</entry>
-          </row>
-          <row>
-            <entry><literal>void setExpectedExceptionRegExp(string $exceptionName[, string $exceptionMessageRegExp = '', integer $exceptionCode = NULL])</literal></entry>
-            <entry>Set the expected <literal>$exceptionName</literal>, <literal>$exceptionMessageRegExp</literal>, and <literal>$exceptionCode</literal>.</entry>
           </row>
           <row>
             <entry><literal>String getExpectedException()</literal></entry>
@@ -824,10 +789,10 @@ OK (1 test, 1 assertion)</screen>
     </note>
 
     <para>
-        When testing that relies on php functions that trigger errors like
+        When testing that relies on php functions that trigger errors like 
         <literal>fopen</literal> it can sometimes be useful to use error
         suppression while testing. This allows you to check the return values by
-        suppressing notices that would lead to a phpunit
+        suppressing notices that would lead to a phpunit 
         <literal>PHPUnit_Framework_Error_Notice</literal>.
         <example id="writing-tests-for-phpunit.exceptions.examples.TriggerErrorReturnValue.php">
 
