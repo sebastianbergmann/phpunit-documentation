@@ -4,64 +4,67 @@
   <title>Strict モード</title>
 
   <para>
-    PHPUnit can perform additional checks while it executes the tests. In
-    addition to the fine-grained control over the various strict mode checks
-    (see below) you may use the <literal>--strict</literal> commandline option
-    or set <literal>strict="true"</literal> in PHPUnit's XML configuration file
-    to enable all of them.
+    PHPUnit は、テストを実行する際に、追加のチェックをすることができます。
+    以下に示すさまざまなモードによるきめ細やかな制御だけでなく、
+    コマンドラインオプション <literal>--strict</literal> を使ったり、PHPUnit
+    の XML 設定ファイルで <literal>strict="true"</literal> を設定することで、
+    これらを一括で有効にすることもできます。
   </para>
 
   <section id="strict-mode.useless-tests">
-    <title>Useless Tests</title>
+    <title>無意味なテスト</title>
 
     <para>
-      PHPUnit can be strict about tests that do not test anything. This check
-      can be enabled by using the <literal>--report-useless-tests</literal>
-      option on the commandline or by setting
-      <literal>beStrictAboutTestsThatDoNotTestAnything="true"</literal> in
-      PHPUnit's XML configuration file.
+      PHPUnit は、何も確かめていないテストを検出することができます。
+      このチェックを有効にするには、コマンドラインオプション
+      <literal>--report-useless-tests</literal>
+      を使うか、あるいは PHPUnit の XML 設定ファイルで
+      <literal>beStrictAboutTestsThatDoNotTestAnything="true"</literal>
+      を設定します。
     </para>
 
     <para>
-      A test that that does not perform an assertion will be marked as risky
-      when this check is enabled. Expectations on mock objects or annotations
-      such as <code>@expectedException</code> count as an assertion.
+      何もアサーションを実行していないテストは、このチェックを有効にしておくと、
+      危険であるとマークされます。モックオブジェクトでの例外や、
+      <code>@expectedException</code> などのアノテーションは、アサーションとみなします。
     </para>
   </section>
 
   <section id="strict-mode.unintentionally-covered-code">
-    <title>Unintentionally Covered Code</title>
+    <title>意図せぬうちにカバーされているコード</title>
 
     <para>
-      PHPUnit can be strict about unintentionally covered code. This check
-      can be enabled by using the <literal>--strict-coverage</literal> option on
-      the commandline or by setting
-      <literal>checkForUnintentionallyCoveredCode="true"</literal> in PHPUnit's
-      XML configuration file.
+      PHPUnit は、意図せずカバーされているコードを検出することができます。
+      このチェックを有効にするには、コマンドラインオプション
+      <literal>--strict-coverage</literal>
+      を使うか、あるいは PHPUnit の XML 設定ファイルで
+      <literal>checkForUnintentionallyCoveredCode="true"</literal>
+      を設定します。
     </para>
 
     <para>
-      A test that is annotated with <code>@covers</code> and executes code that
-      is not listed using a <code>@covers</code> or <code>@uses</code>
-      annotation will be marked as risky when this check is enabled.
+      <code>@covers</code> アノテーションつきのテストが、
+      <code>@covers</code> や <code>@uses</code> に記されていないコードを実行している場合に、
+      このチェックを有効にしておくと、危険であるとマークされます。
     </para>
   </section>
 
   <section id="strict-mode.output-during-test-execution">
-    <title>Output During Test Execution</title>
+    <title>テストの実行時の出力</title>
 
     <para>
-      PHPUnit can be strict about output during tests. This check can be enabled
-      by using the <literal>--disallow-test-output</literal> option on the
-      commandline or by setting
-      <literal>beStrictAboutOutputDuringTests="true"</literal> in PHPUnit's XML
-      configuration file.
+      PHPUnit は、テストの最中の出力を検出することができます。
+      このチェックを有効にするには、コマンドラインオプション
+      <literal>--disallow-test-output</literal>
+      を使うか、あるいは PHPUnit の XML 設定ファイルで
+      <literal>beStrictAboutOutputDuringTests="true"</literal>
+      を設定します。
     </para>
 
     <para>
-      A test that emits output, for instance by invoking <code>print</code> in
-      either the test code or the tested code, will be marked as risky when this
-      check is enabled.
+      テストコードあるいは被テストコードの中で、<code>print</code>
+      などで何かを出力している場合に、
+      このチェックを有効にしておくと、危険であるとマークされます。
     </para>
   </section>
 
@@ -72,11 +75,11 @@
       <literal>PHP_Invoker</literal> パッケージがインストールされており、
       かつ <literal>pcntl</literal> 拡張モジュールが利用可能な場合は、
       テストの実行時間に制限を設けることができます。
-      The enforcing of this
-      time limit can be enabled by using the
-      <literal>--enforce-time-limit</literal> option on the commandline or by
-      setting <literal>beStrictAboutTestSize="true"</literal> in PHPUnit's XML
-      configuration file.
+      この時間制限を有効にするには、コマンドラインオプション
+      <literal>--enforce-time-limit</literal>
+      を使うか、あるいは PHPUnit の XML 設定ファイルで
+      <literal>beStrictAboutTestSize="true"</literal>
+      を設定します。
     </para>
 
     <para>
