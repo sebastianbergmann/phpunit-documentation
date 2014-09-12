@@ -278,10 +278,10 @@ class DatabaseTest extends PHPUnit_Framework_TestCase
 
     <note>
       <para>
-        对全局变量和类的静态属性的备份与还原操作其实现方案使用了 <literal>serialize()</literal> 与 <literal>unserialize()</literal>。
+        对全局变量和类的静态属性的备份与还原操作使用了 <literal>serialize()</literal> 与 <literal>unserialize()</literal>。
       </para>
       <para>
-        某些 PHP 自身提供的类，比如 <literal>PDO</literal> ，其实例对象无法序列化，因此如果把这样一个对象存放在比如说 <literal>$GLOBALS</literal> 数组内时，备份操作就会出问题。
+        某些类的实例对象（比如 <literal>PDO</literal>）无法序列化，因此如果把这样一个对象存放在比如说 <literal>$GLOBALS</literal> 数组内时，备份操作就会出问题。
       </para>
     </note>
 
@@ -300,7 +300,7 @@ class DatabaseTest extends PHPUnit_Framework_TestCase
 
     <note>
       <para>
-        请注意，在方法内（例如在 <literal>setUp()</literal> 内）对 <literal>$backupGlobalsBlacklist</literal> 属性进行设置是无效的。
+        在方法（例如 <literal>setUp()</literal> 方法）内对 <literal>$backupGlobalsBlacklist</literal> 属性进行设置是无效的。
       </para>
     </note>
 
@@ -308,7 +308,28 @@ class DatabaseTest extends PHPUnit_Framework_TestCase
       <indexterm><primary><literal>@backupStaticAttributes</literal></primary></indexterm>
       <indexterm><primary><literal>$backupStaticAttributesBlacklist</literal></primary></indexterm>
 
-      在<xref linkend="appendixes.annotations.backupStaticAttributes"/>中所讨论的 <literal>@backupStaticAttributes</literal> 标注可以用来控制对静态属性的备份与还原操作。另外，还可以提供一个静态属性的黑名单，黑名单中的静态属性将被排除于备份与还原操作之外，就像这样：
+      在 <xref linkend="appendixes.annotations.backupStaticAttributes"/> 中提到的 <literal>@backupStaticAttributes</literal> 标注可以用于在每个测试之前备份所有已声明类的静态属性值并在事后恢复。
+    </para>
+
+    <para>
+      它所处理的不只是测试类自身，而是在测试开始时已声明的所有类。它只作用于静态类属性，不作用于函数内声明的静态变量。
+    </para>
+
+    <note>
+      <para>
+        只有 <literal>@backupStaticAttributes</literal> 启用的测试方法才会在方法之前执行此操作。如果在此之前运行的某个没有启用 <literal>@backupStaticAttributes</literal> 的测试方法改变了静态属性的值，那么将会是这个改变后的值—————而非初始声明时提供的默认值————被备份及还原。PHP 并不额外记录任何静态变量的声明时提供的初始默认值。
+      </para>
+      <para>
+        同样的情况也发生于测试内部新加载/声明的类中。它们也无法在测试结束之后复原为声明时提供的原始默认值，因为无从得知这些默认值。这些被修改过的值会泄漏到后继测试中。
+      </para>
+      <para>
+        对单元测试而言，推荐在 <literal>setUp()</literal> 中显式的重置测试中使用到的静态属性（最好同时在 <literal>tearDown()</literal> 中执行重置，这样就保证不会影响到后继的测试）。
+      </para>
+    </note>
+
+    <para>
+      可以提供黑名单来将静态属性从备份与还原操作中排除出去：
+
       <programlisting>class MyTest extends PHPUnit_Framework_TestCase
 {
     protected $backupStaticAttributesBlacklist = array(
@@ -316,12 +337,13 @@ class DatabaseTest extends PHPUnit_Framework_TestCase
     );
 
     // ...
-}</programlisting>
+}
+</programlisting>
     </para>
 
     <note>
       <para>
-         请注意，在方法内（例如在 <literal>setUp()</literal> 内）对 <literal>$backupStaticAttributesBlacklist</literal>  属性进行设置是无效的。
+        在方法（例如 <literal>setUp()</literal>）内对 <literal>$backupStaticAttributesBlacklist</literal>  属性进行设置是无效的。
 
       </para>
     </note>

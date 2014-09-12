@@ -126,34 +126,34 @@ class MyTest extends PHPUnit_Framework_TestCase
     <para>
       <indexterm><primary><literal>@backupStaticAttributes</literal></primary></indexterm>
 
-      类的静态属性的备份与还原操作可以对测试用例类的所有测试彻底禁用，像这样：
-      <programlisting>/**
- * @backupStaticAttributes disabled
- */
-class MyTest extends PHPUnit_Framework_TestCase
-{
-    // ...
-}</programlisting>
-    </para>
+      如果指定了 <literal>@backupStaticAttributes</literal> 标注，那么将在每个测试之前备份所有已声明的类的静态属性的值，并在测试完成之后全部恢复。它可以用在测试用例类或测试方法级别：
 
-    <para>
-      <indexterm><primary><literal>@backupStaticAttributes</literal></primary></indexterm>
-
-      <literal>@backupStaticAttributes</literal> 标注也可以用在测试方法这一级别。这样可以对备份与还原操作进行更细粒度的配置：
-    <programlisting>/**
- * @backupStaticAttributes disabled
+    <programlisting>
+/**
+ * @backupStaticAttributes enabled
  */
 class MyTest extends PHPUnit_Framework_TestCase
 {
     /**
-     * @backupStaticAttributes enabled
+     * @backupStaticAttributes disabled
      */
     public function testThatInteractsWithStaticAttributes()
     {
         // ...
     }
-}</programlisting>
+}
+</programlisting>
     </para>
+
+    <note>
+      <para>
+        受限于 PHP 的内部实现，在某些情况下 <literal>@backupStaticAttributes</literal> 可能会导致意料外的静态值持续，并污染后继测试。
+    </para>
+      <para>
+        详细信息参见 <xref linkend="fixtures.global-state"/>。
+      </para>
+    </note>
+
   </section>
 
   <section id="appendixes.annotations.before">
