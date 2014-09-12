@@ -474,34 +474,23 @@ class MyClass
      }
 }</programlisting>
 
-      为了方便测试同时减少冗余，可以用"<literal>@expectedExceptionMessage ClassName::CONST</literal>"语法将指定类常量作为 <literal>@expectedExceptionMessage</literal>。
-
-      在 <xref linkend="appendixes.annotations.expectedExceptionCode"/> 中可以看到范例。
-    </para>
-
-  </section>
-
-  <section id="appendixes.annotations.expectedExceptionMessageRegExp">
-    <title>@expectedExceptionMessageRegExp</title>
-
-    <para>
-      <indexterm><primary>@expectedExceptionMessageRegExp</primary></indexterm>
-
-      The expected message can also be specified as a regular expression using
-      the <literal>@expectedExceptionMessageRegExp</literal> annotation. 
-      预期讯息也可以通过 <literal>@expectedExceptionMessageRegExp</literal> 标注以正则表达式来指定。当无法用子串来完成对给定讯息的匹配时，这种方式就非常有用了。
+      预期讯息也可以用正则表达式来指定。当无法用子串来完成对给定讯息的匹配时，这种方式就非常有用了。
 
       <programlisting>class MyTest extends PHPUnit_Framework_TestCase
 {
      /**
-      * @expectedException              MyException
-      * @expectedExceptionMessageRegExp /Argument \d+ can not be an? \w+/
+      * @expectedException        MyException
+      * @expectedExceptionMessage /Argument \d+ can not be an? \w+/
       */
      public function testExceptionHasRightMessage()
      {
          throw new MyException('Argument 2 can not be an integer');
      }
 }</programlisting>
+
+      为了方便测试同时减少冗余，可以用"<literal>@expectedExceptionMessage ClassName::CONST</literal>"语法将指定类常量作为 <literal>@expectedExceptionMessage</literal>。
+
+      在 <xref linkend="appendixes.annotations.expectedExceptionCode"/> 中可以看到范例。
     </para>
 
   </section>
