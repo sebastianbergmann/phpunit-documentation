@@ -1,0 +1,371 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="installation">
+  <title>PHPUnit のインストール</title>
+
+  <note>
+    <para>
+      以前のバージョンの PHPUnit からのアップグレードをする場合は、
+      <xref linkend="appendixes.upgrading.phpunit-4-2"/> を参照ください。
+    </para>
+  </note>
+
+  <section id="installation.requirements">
+    <title>要件</title>
+
+    <para>
+      PHPUnit 4.5 は PHP 5.3.3 以降のバージョンで動作しますが、最新版の PHP
+      を使うことを強く推奨します。
+    </para>
+
+    <para>
+      PHPUnit を使うには、拡張モジュール <ulink
+      url="http://php.net/manual/ja/dom.setup.php">dom</ulink>、<ulink
+      url="http://php.net/manual/ja/json.installation.php">json</ulink>、
+      が必要です。これらは通常、デフォルトで有効になっています。
+    </para>
+
+    <para>
+      PHPUnit また、拡張モジュール
+      <ulink
+      url="http://php.net/manual/ja/pcre.installation.php">pcre</ulink>、
+      <ulink
+      url="http://php.net/manual/ja/reflection.installation.php">reflection</ulink>、
+      そして <ulink url="http://php.net/manual/ja/spl.installation.php">spl</ulink>
+      も必要です。これらは、PHP 5.3.0 以降は PHP コアが必ず使うものであり、
+      通常は無効にすることすらできません。
+    </para>
+
+    <para>
+      コードカバレッジをサポートするには <ulink url="http://xdebug.org/">Xdebug</ulink>
+      2.1.3 以降と <ulink
+      url="http://php.net/manual/ja/tokenizer.installation.php">tokenizer</ulink>
+      拡張モジュールが必要です。
+      XML 形式で情報を出力するには、<ulink
+      url="http://php.net/manual/ja/xmlwriter.installation.php">xmlwriter</ulink>
+      拡張モジュールも必要です。
+    </para>
+  </section>
+
+  <section id="installation.phar">
+    <title>PHP Archive (PHAR)</title>
+
+    <para>
+      PHPUnit を入手する一番簡単な方法は、<ulink
+      url="http://php.net/phar">PHP Archive (PHAR)</ulink> をダウンロードすることです。
+      必要な依存コンポーネントがすべて (オプションのコンポーネントの一部も含めて)
+      ひとつのファイルにまとめられています。
+    </para>
+
+    <para>
+      PHP Archives (PHAR) を利用するには、
+      <ulink url="http://php.net/manual/en/phar.installation.php">phar</ulink>
+      拡張モジュールが必要です。
+    </para>
+
+    <para>
+      PHAR の <literal>--self-update</literal> 機能を使うには、
+      <ulink url="http://php.net/manual/en/openssl.installation.php">openssl</ulink>
+      拡張モジュールが必要です。
+    </para>
+
+    <para>
+      <ulink url="http://suhosin.org/">Suhosin</ulink> 拡張モジュールが有効になっている場合は、
+      <literal>php.ini</literal> で PHAR の実行を許可する必要があります。
+
+      <screen>
+suhosin.executor.include.whitelist = phar
+</screen>
+    </para>
+
+    <note>
+      <para>
+        <literal>https://phar.phpunit.de/</literal> からダウンロードするには、
+        <ulink
+        url="http://en.wikipedia.org/wiki/Server_Name_Indication">TLS/SNI
+        をサポートしたクライアント</ulink>、たとえば wget 1.14 以降などが必要です。
+      </para>
+    </note>
+
+    <para>
+      PHAR をグローバルにインストールするには、次のようにします。
+    </para>
+
+    <screen>
+<prompt>$</prompt> <userinput>wget https://phar.phpunit.de/phpunit.phar</userinput>
+<prompt>$</prompt> <userinput>chmod +x phpunit.phar</userinput>
+<prompt>$</prompt> <userinput>sudo mv phpunit.phar /usr/local/bin/phpunit</userinput>
+<prompt>$</prompt> <userinput>phpunit --version</userinput>
+<computeroutput>PHPUnit x.y.z by Sebastian Bergmann.</computeroutput>
+</screen>
+
+    <para>
+      ダウンロードした PHAR ファイルを直接使ってもかまいません。
+    </para>
+
+    <screen>
+<prompt>$</prompt> <userinput>wget https://phar.phpunit.de/phpunit.phar</userinput>
+<prompt>$</prompt> <userinput>php phpunit.phar --version</userinput>
+<computeroutput>PHPUnit x.y.z by Sebastian Bergmann.</computeroutput>
+</screen>
+
+    <screen><userinput>wget https://phar.phpunit.de/phpunit.phar</userinput>
+<userinput>php phpunit.phar</userinput></screen>
+
+    <section id="installation.phar.windows">
+      <title>Windows</title>
+
+      <para>
+        PHAR をグローバルにインストールする方法は、
+        <ulink url="https://getcomposer.org/doc/00-intro.md#installation-windows">
+        Composer を Windows に手動でインストールする</ulink>
+        のと同じ手順です。
+      </para>
+
+      <orderedlist>
+        <listitem>
+          <para>
+            PHP バイナリ用のディレクトリを作ります（例：<filename>C:\bin</filename>）
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            <userinput>;C:\bin</userinput> を、環境変数 <varname>PATH</varname>
+            に追記します
+            (<ulink url="http://stackoverflow.com/questions/6318156/adding-python-path-on-windows-7">参考資料</ulink>)。
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            <ulink url="https://phar.phpunit.de/phpunit.phar"/> をダウンロードして、
+            <filename>C:\bin\phpunit.phar</filename> に保存します。
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            コマンドプロンプトを開きます (
+            <keycombo><keycap>Windows</keycap><keycap>R</keycap></keycombo>
+            » <userinput>cmd</userinput>
+            » <keycap>ENTER</keycap>)。
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            以下のようにして、バッチスクリプト
+            (<filename>C:\bin\phpunit.cmd</filename>)
+            を作ります。
+          </para>
+          <screen>
+<prompt>C:\Users\username&gt;</prompt> <userinput>cd C:\bin</userinput>
+<prompt>C:\bin&gt;</prompt> <userinput>echo @php "%~dp0phpunit.phar" %* &gt; phpunit.cmd</userinput>
+<prompt>C:\bin&gt;</prompt> <userinput>exit</userinput>
+</screen>
+        </listitem>
+        <listitem>
+          <para>
+            コマンドプロンプトをもう一枚開き、どこからでも PHPUnit を実行できることを確認します。
+          </para>
+          <screen>
+<prompt>C:\Users\username&gt;</prompt> <userinput>phpunit --version</userinput>
+<computeroutput>PHPUnit x.y.z by Sebastian Bergmann.</computeroutput>
+</screen>
+        </listitem>
+      </orderedlist>
+
+      <para>
+        Cygwin や MingW32 (TortoiseGit など) のシェル環境で使う場合は、
+        五番目のステップは飛ばしてもかまいません。単にファイルを
+        <filename>phpunit</filename>
+        という名前 (拡張子 <filename>.phar</filename> は不要) で保存して、あとは
+        <userinput>chmod 775 phpunit</userinput>
+        で実行可能にしておきましょう。
+      </para>
+
+    </section>
+
+    <section id="installation.phar.verification">
+      <title>PHPUnit の PHAR リリースの検証</title>
+
+      <para>
+        PHPUnit プロジェクトが配布する公式リリースにはすべて、
+        リリースマネージャーによる署名がついています。
+        検証用の PGP 署名と SHA1 ハッシュは、<ulink
+        url="https://phar.phpunit.de/">phar.phpunit.de</ulink>
+        から取得できます。
+      </para>
+
+      <para>
+        リリースの検証をどのように行うのかについて、説明しましょう。まず、
+        <filename>phpunit.phar</filename> をダウンロードし、さらにその
+        PGP 署名 <filename>phpunit.phar.asc</filename> もダウンロードします。
+      </para>
+
+      <screen><userinput>wget https://phar.phpunit.de/phpunit.phar</userinput>
+<userinput>wget https://phar.phpunit.de/phpunit.phar.asc</userinput></screen>
+
+      <para>
+        ダウンロードした PHPUnit の PHP Archive (<filename>phpunit.phar</filename>)
+        を、署名 (<filename>phpunit.phar.asc</filename>) で検証します。
+      </para>
+
+      <screen><userinput>gpg phpunit.phar.asc</userinput>
+gpg: Signature made Sat 19 Jul 2014 01:28:02 PM CEST using RSA key ID 6372C20A
+gpg: Can't check signature: public key not found</screen>
+
+      <para>
+        リリースマネージャーの公開鍵 (<literal>6372C20A</literal>)
+        が、ローカルシステム上に存在しないようです。
+        検証を進めるには、リリースマネージャーの公開鍵を、鍵サーバーから取得する必要があります。
+        鍵サーバーには、たとえば <filename>pgp.uni-mainz.de</filename> などがあります。
+        公開鍵サーバーはお互いリンクしあっているので、どの鍵サーバーを使ってもかまいません。
+      </para>
+
+      <screen><userinput>gpg --keyserver pgp.uni-mainz.de --recv-keys 0x4AA394086372C20A</userinput><![CDATA[
+gpg: requesting key 6372C20A from hkp server pgp.uni-mainz.de
+gpg: key 6372C20A: public key "Sebastian Bergmann <sb@sebastian-bergmann.de>" imported
+gpg: Total number processed: 1
+gpg:               imported: 1  (RSA: 1)]]></screen>
+
+      <para>
+        これで、"Sebastian
+        Bergmann &lt;sb@sebastian-bergmann.de&gt;" さんの公開鍵を取得できました。
+        ただ、この鍵を作ったのが本当に Sebastian Bergmann という人なのかは、確かめようがありません。
+        ともあれ、もう一度リリースの署名を検証してみましょう。
+      </para>
+
+      <screen><userinput>gpg phpunit.phar.asc</userinput><![CDATA[
+gpg: Signature made Sat 19 Jul 2014 01:28:02 PM CEST using RSA key ID 6372C20A
+gpg: Good signature from "Sebastian Bergmann <sb@sebastian-bergmann.de>"
+gpg:                 aka "Sebastian Bergmann <sebastian@php.net>"
+gpg:                 aka "Sebastian Bergmann <sebastian@thephp.cc>"
+gpg:                 aka "Sebastian Bergmann <sebastian@phpunit.de>"
+gpg:                 aka "Sebastian Bergmann <sebastian.bergmann@thephp.cc>"
+gpg:                 aka "[jpeg image of size 40635]"
+gpg: WARNING: This key is not certified with a trusted signature!
+gpg:          There is no indication that the signature belongs to the owner.
+Primary key fingerprint: D840 6D0D 8294 7747 2937  7831 4AA3 9408 6372 C20A]]></screen>
+
+      <para>
+        とりあえず、署名が正しいことはわかりました。
+        ただ、この署名が信頼できるものであるかどうかは、まだわかりません。
+        ここで言う「署名が正しい」とは、リリースのファイルが改ざんされていないということです。
+        しかし、公開鍵暗号方式の性質上、これだけでは不十分です。
+        <literal>6372C20A</literal> を作ったのが
+        Sebastian Bergmann 本人であることを、確かめる必要があります。
+      </para>
+
+      <para>
+        公開鍵を作って公開鍵サーバーにアップロードするのは、誰にだってできることです。
+        当然、悪意のある攻撃者にも可能なことです。
+        攻撃者は、このニセの鍵を使って署名した、悪意のあるリリースを作ることもできます。
+        このリリース (そして署名) をダウンロードして検証すると、成功するでしょう。
+        なぜならその公開鍵は、悪意のある攻撃者が作ったニセの鍵だからです。
+        こういったことを防ぐために、鍵の作者も検証しなければいけないのです。
+        公開鍵の作者を検証する方法については、このマニュアルの範囲を超えるので、割愛します。
+      </para>
+    </section>
+  </section>
+
+  <section id="installation.composer">
+    <title>Composer</title>
+
+    <para>
+      <ulink url="https://getcomposer.org/">Composer</ulink>
+      を使ってプロジェクトの依存関係を管理するには、
+      <literal>phpunit/phpunit</literal> への依存情報をプロジェクトの
+      <filename>composer.json</filename> ファイルに追加します。
+      次に示すのは最小限の
+      <filename>composer.json</filename> ファイルの例で、
+      開発時の PHPUnit 4.5 への依存を定義しています。
+    </para>
+
+    <programlisting><![CDATA[{
+    "require-dev": {
+        "phpunit/phpunit": "4.5.*"
+    }
+}]]></programlisting>
+
+    <para>
+      システム全体で使えるように Composer でインストールするには、次のようにします。
+    </para>
+
+    <screen><userinput>composer global require "phpunit/phpunit=4.5.*"</userinput></screen>
+
+    <para>
+      <literal>~/.composer/vendor/bin/</literal> にパスを通すことを忘れないようにしましょう。
+    </para>
+  </section>
+
+  <section id="installation.optional-packages">
+    <title>オプションのパッケージ</title>
+
+    <para>
+      オプションのパッケージとして、これらが使えます。
+    </para>
+
+    <variablelist>
+      <varlistentry>
+        <term>
+          <literal>PHP_Invoker</literal>
+        </term>
+
+        <listitem>
+          <para>
+            callable をタイムアウトつきで実行するユーティリティクラス。
+            テストのタイムアウトを厳格に指定するために必要なパッケージ。
+          </para>
+
+          <para>
+            このパッケージは、PHPUnit の PHAR 版の中に含まれています。
+            Composer でインストールするには、
+            <literal>"require-dev"</literal>
+            に次の行を追加します。
+          </para>
+
+          <screen><userinput>"phpunit/php-invoker": "*"</userinput></screen>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <literal>DbUnit</literal>
+        </term>
+        <listitem>
+          <para>
+            DbUnit の PHP/PHPUnit 向けの移植。データベースとのやりとりをテスト可能にする。
+          </para>
+
+          <para>
+            このパッケージは、PHPUnit の PHAR 版の中に含まれています。
+            Composer でインストールするには、
+            <literal>"require-dev"</literal>
+            に次の行を追加します。
+          </para>
+
+          <screen><userinput>"phpunit/dbunit": ">=1.2"</userinput></screen>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <literal>PHPUnit_Selenium</literal>
+        </term>
+
+        <listitem>
+          <para>
+            PHPUnit 用の Selenium RC インテグレーション。
+          </para>
+
+          <para>
+            このパッケージは、PHPUnit の PHAR 版の中に含まれています。
+            Composer でインストールするには、
+            <literal>"require-dev"</literal>
+            に次の行を追加します。
+          </para>
+
+          <screen><userinput>"phpunit/phpunit-selenium": ">=1.2"</userinput></screen>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+  </section>
+</chapter>
