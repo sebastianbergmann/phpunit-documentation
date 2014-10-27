@@ -39,25 +39,25 @@
   </note>
 
   <para>
-    PHPUnit can generate an HTML-based code coverage report as well as
-    XML-based logfiles with code coverage information in various formats
-    (Clover, Crap4J, PHPUnit). Code coverage information can also be reported
-    as text (and printed to STDOUT) and exported as PHP code for further
-    processing.
+    PHPUnit は、HTML ベースのコードカバレッジレポートを生成するだけでなく、
+    XML ベースのログファイルにコードカバレッジ情報を出力することもできます。
+    Clover、Crap4J、PHPUnit など、さまざまな形式に対応しています。
+    また、コードカバレッジ情報をテキスト形式で出力 (そして、標準出力に表示)
+    したり、PHP のコードとして出力して後処理をしたりすることもできます。
   </para>
 
   <para>
-    Please refer to <xref linkend="textui"/> for a list of commandline switches
-    that control code coverage functionality as well as <xref
-    linkend="appendixes.configuration.logging"/> for the relevant
-    configuration settings.
+    コードカバレッジ機能を制御するための
+    コマンドラインスイッチの一覧は、<xref linkend="textui"/> を参照ください。
+    また、設定項目については <xref
+    linkend="appendixes.configuration.logging"/> を参照ください。
   </para>
 
   <section id="code-coverage-analysis.metrics">
-    <title>Software Metrics for Code Coverage</title>
+    <title>コードカバレッジの指標</title>
 
     <para>
-      Various software metrics exist to measure code coverage:
+      コードカバレッジを計測するための指標には、さまざまなものがあります。
     </para>
 
     <variablelist>
@@ -66,8 +66,8 @@
         <term><emphasis>Line Coverage</emphasis></term>
         <listitem>
           <para>
-            The <emphasis>Line Coverage</emphasis> software metric measures
-            whether each executable line was executed.
+            <emphasis>ラインカバレッジ</emphasis> は、
+            実行可能な行が実行されたかどうかを計測します。
           </para>
         </listitem>
       </varlistentry>
@@ -77,23 +77,23 @@
         <term><emphasis>Function and Method Coverage</emphasis></term>
         <listitem>
           <para>
-            The <emphasis>Function and Method Coverage</emphasis> software
-            metric measures whether each function or method has been invoked.
-            PHP_CodeCoverage only considers a function or method as covered when
-            all of its executable lines are covered.
+            <emphasis>関数・メソッドカバレッジ</emphasis> は、
+            関数やメソッドが実行されたかどうかを計測します。
+            PHP_CodeCoverage は、その関数やメソッド内の実行可能な行がすべて実行された場合にのみ、
+            その関数やメソッドが実行されたとみなします。
           </para>
         </listitem>
       </varlistentry>
 
       <varlistentry>
         <indexterm><primary>Code Coverage</primary><secondary>Class and Trait Coverage</secondary></indexterm>
-        <term><emphasis>Class and Trait Coverage</emphasis></term>
+        <term><emphasis>クラス・トレイトカバレッジ</emphasis></term>
         <listitem>
           <para>
-            The <emphasis>Class and Trait Coverage</emphasis> software metric
-            measures whether each method of a class or trait is covered.
-            PHP_CodeCoverage only considers a class or trait as covered when all
-            of its methods are covered.
+            <emphasis>クラス・トレイトカバレッジ</emphasis> は、
+            クラスやトレイトがカバーされたかどうかを計測します。
+            PHP_CodeCoverage は、クラスやトレイト内のすべてのメソッドがカバーされている場合にのみ、
+            そのクラスやトレイトがカバーされたとみなします。
           </para>
         </listitem>
       </varlistentry>
@@ -103,11 +103,11 @@
         <term><emphasis>Opcode Coverage</emphasis></term>
         <listitem>
           <para>
-            The <emphasis>Opcode Coverage</emphasis> software metric measures
-            whether each opcode of a function or method has been executed while
-            running the test suite. A line of code usually compiles into more
-            than one opcode. Line Coverage regards a line of code as covered as
-            soon as one of its opcodes is executed.
+            <emphasis>オペコードカバレッジ</emphasis> は、関数やメソッドのオペコードが、
+            テストスイートの実行中に実行されたかどうかを計測します。
+            通常は、1 行のコードをコンパイルすると、複数のオペコードになります。
+            ラインカバレッジは、複数のオペコードのうち少なくともひとつが実行された時点で、
+            その行が実行されたとみなします。
           </para>
         </listitem>
       </varlistentry>
@@ -117,10 +117,9 @@
         <term><emphasis>Branch Coverage</emphasis></term>
         <listitem>
           <para>
-            The <emphasis>Branch Coverage</emphasis> software metric measures
-            whether the boolean expression of each control structure evaluated
-            to both <literal>true</literal> and <literal>false</literal> while
-            running the test suite.
+            <emphasis>ブランチカバレッジ</emphasis> は、テストスイートの実行中に、
+            制御構造内の boolean 式が <literal>true</literal> あるいは <literal>false</literal>
+            のどちらかとして評価されたかどうかを計測します。
           </para>
         </listitem>
       </varlistentry>
@@ -130,11 +129,9 @@
         <term><emphasis>Path Coverage</emphasis></term>
         <listitem>
           <para>
-            The <emphasis>Path Coverage</emphasis> software metric measures
-            whether each of the possible execution paths in a function or method
-            has been followed while running the test suite. An execution path is
-            a unique sequence of branches from the entry of the function or
-            method to its exit.
+            <emphasis>パスカバレッジ</emphasis> は、テストスイートの実行中に、
+            関数やメソッド内で取りうる実行パスが網羅されたかどうかを計測します。
+            実行パスとは、関数やメソッドに入ってから出るまでの間のルート内での分岐のことです。
           </para>
         </listitem>
       </varlistentry>
@@ -144,12 +141,11 @@
         <term><emphasis>Change Risk Anti-Patterns (CRAP) Index</emphasis></term>
         <listitem>
           <para>
-            The <emphasis>Change Risk Anti-Patterns (CRAP) Index</emphasis> is
-            calculated based on the cyclomatic complexity and code coverage of a
-            unit of code. Code that is not too complex and has an adequate test
-            coverage will have a low CRAP index. The CRAP index can be lowered
-            by writing tests and by refactoring the code to lower its
-            complexity.
+            <emphasis>Change Risk Anti-Patterns (CRAP) インデックス</emphasis>
+            とは、循環的複雑度と、あるコード単位のコードカバレッジに基づいて算出される指標です。
+            複雑度が低く、適切なテストカバレッジが達成されているコードは、CRAPインデックスの値が低くなります。
+            CRAPインデックスを下げるには、テストを書くか、
+            あるいはリファクタリングでコードの複雑性を下げます。
           </para>
         </listitem>
       </varlistentry>
@@ -157,10 +153,10 @@
 
     <note>
       <para>
-        The <emphasis>Opcode Coverage</emphasis>,
-        <emphasis>Branch Coverage</emphasis>, and
-        <emphasis>Path Coverage</emphasis> software metrics are not yet
-        supported by PHP_CodeCoverage.
+        <emphasis>オペコードカバレッジ</emphasis>、
+        <emphasis>ブランチカバレッジ</emphasis>、
+        <emphasis>パスカバレッジ</emphasis> については、
+        PHP_CodeCoverage ではまだサポートしていません。
       </para>
     </note>
   </section>
@@ -188,16 +184,13 @@
     </para>
 
     <para>
-      Optionally, all whitelisted files can be added to the code coverage
-      report by setting <literal>addUncoveredFilesFromWhitelist="true"</literal>
-      in your PHPUnit configuration (see <xref
-      linkend="appendixes.configuration.blacklist-whitelist"/>). This allows the
-      inclusion of files that are not tested yet at all. If you want to get
-      information about which lines of such an uncovered file are executable,
-      for instance, you also need to set
-      <literal>processUncoveredFilesFromWhitelist="true"</literal> in your
-      PHPUnit configuration (see <xref
-      linkend="appendixes.configuration.blacklist-whitelist"/>).
+      オプションで、ホワイトリストに追加したファイルをすべて、コードカバレッジレポートに追加することもできます。
+      そのためには、PHPUnit の設定で <literal>addUncoveredFilesFromWhitelist="true"</literal>
+      とします (<xref linkend="appendixes.configuration.blacklist-whitelist"/> を参照ください)。
+      こうすれば、まだテストされていないファイルもすべて、レポートに含めることができます。
+      カバーされていないファイルにおける、実行可能な行についての情報を知りたい場合は、同じく PHPUnit の設定で
+      <literal>processUncoveredFilesFromWhitelist="true"</literal> とします
+      (<xref linkend="appendixes.configuration.blacklist-whitelist"/> を参照ください)。
     </para>
 
     <note>
