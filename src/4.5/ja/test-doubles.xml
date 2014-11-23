@@ -848,6 +848,60 @@ class FooTest extends PHPUnit_Framework_TestCase
     </note>
   </section>
 
+  <section id="test-doubles.prophecy">
+    <title>Prophecy</title>
+
+    <para>
+      <ulink url="https://github.com/phpspec/prophecy">Prophecy</ulink> は
+      「クセは強いけれども、強力で柔軟な、PHP のオブジェクトモッキングフレームワークです。
+      最初は phpspec2 のニーズを満たすために作られましたが、今やそれ以外のテスティングフレームワークでも、
+      最小限の努力で使えるようになりました」
+      とのことです。
+    </para>
+
+    <para>
+      PHPUnit バージョン 4.5 以降では、Prophecy を使ったテストダブルの作成に標準で対応しています。
+      <xref linkend="test-doubles.prophecy.examples.SubjectTest.php"/>
+      は、<xref linkend="test-doubles.mock-objects.examples.SubjectTest.php"/>
+      と同じテストを、Prophecy の理念に沿って表すとどうなるかを示す例です。
+    </para>
+
+    <example id="test-doubles.prophecy.examples.SubjectTest.php">
+      <title>あるメソッドが、指定した引数で一度だけコールされることを確かめるテスト</title>
+      <programlisting><![CDATA[<?php
+class SubjectTest extends PHPUnit_Framework_TestCase
+{
+    public function testObserversAreUpdated()
+    {
+        $subject = new Subject('My subject');
+
+        // Observer クラスの prophecy を作成します。
+        $observer = $this->prophesize('Observer');
+
+        // update() メソッドが一度だけコールされ、その際の
+        // パラメータは文字列 'something' となる、
+        // ということを期待しています。
+        $observer->update('something')->shouldBeCalled();
+
+        // prophecy を公開し、モックオブジェクトを
+        // Subject にアタッチします。
+        $subject->attach($observer->reveal());
+
+        // $subject オブジェクトの doSomething() メソッドをコールします。
+        // これは、Observer オブジェクトのモックの update() メソッドを、
+        // 文字列 'something' を引数としてコールすることを期待されています。
+        $subject->doSomething();
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      Prophecy を使ってスタブやスパイそしてモックを作ったり設定したり使ったりする方法の詳細については、
+      その <ulink url="https://github.com/phpspec/prophecy#how-to-use-it">ドキュメント</ulink> を参照ください。
+    </para>
+  </section>
+
   <section id="test-doubles.mocking-traits-and-abstract-classes">
     <title>トレイトと抽象クラスのモック</title>
 
