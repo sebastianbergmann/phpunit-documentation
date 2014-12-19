@@ -106,7 +106,7 @@ OK (2 tests, 2 assertions)</screen>
 
   <section id="textui.clioptions">
     <title>Command-Line Options</title>
-  
+
     <para>
       Let's take a look at the command-line test runner's options in
       the following code:
@@ -158,7 +158,7 @@ Test Execution Options:
   --no-globals-backup       Do not backup and restore $GLOBALS for each test.
   --static-backup           Backup and restore static attributes for each test.
 
-  --colors                  Use colors in output.
+  --colors=<flag>           Use colors in output ("never", "auto" or "always").
   --stderr                  Write to STDERR instead of STDOUT.
   --stop-on-error           Stop execution upon first error.
   --stop-on-failure         Stop execution upon first error or failure.
@@ -270,7 +270,7 @@ Miscellaneous Options:
         <term><literal>--coverage-php</literal></term>
         <listitem>
           <para>
-            Generates a serialized PHP_CodeCoverage object with the 
+            Generates a serialized PHP_CodeCoverage object with the
             code coverage information.
           </para>
           <para>
@@ -624,6 +624,29 @@ class TestCaseClass extends \PHPUnit_Framework_TestCase
           <para>
             Use colors in output.
             On Windows, use <ulink url="https://github.com/adoxa/ansicon">ANSICON</ulink> or <ulink url="https://github.com/Maximus5/ConEmu">ConEmu</ulink>.
+          </para>
+          <para>
+            There are three possible values for this option:
+            <itemizedlist>
+              <listitem>
+                <para>
+                  <literal>never</literal>: never displays colors in the output. This is the default value when <literal>--colors</literal> option is not used.
+                </para>
+              </listitem>
+              <listitem>
+                <para>
+                  <literal>auto</literal>: displays colors in the output unless the current terminal doesn't supports colors,
+                  or if the output is piped to a command or redirected to a file.
+                </para>
+              </listitem>
+              <listitem>
+                <para>
+                  <literal>always</literal>: always displays colors in the output even when the current terminal doesn't supports colors,
+                  or when the output is piped to a command or redirected to a file.
+                </para>
+              </listitem>
+            </itemizedlist>
+            When <literal>--colors</literal> is used without any value, <literal>auto</literal> is the chosen value.
           </para>
         </listitem>
       </varlistentry>
