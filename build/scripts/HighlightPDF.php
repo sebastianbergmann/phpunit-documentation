@@ -28,13 +28,20 @@ class HighlightPDF
         $xpath = new DOMXPath(self::$_dom);
         $elements = $xpath->query("//fo:block[@codehl]");
         foreach ($elements as $block) {
+            $block->removeAttribute('codehl');
             $code = self::_highlight($block->nodeValue);
+            if (substr($code, 0, 5) !== '<span') {
+                if ($block->childNodes->length > 0) {
+                    $block->firstChild->nodeValue = ltrim($block->firstChild->nodeValue);
+                    $block->lastChild->nodeValue = rtrim($block->lastChild->nodeValue);
+                }
+                continue;
+            }
             $code_block = self::_createBlockCode($code);
-            foreach ($block->childNodes as $node) {
-                $block->removeChild($node);
+            while ($block->childNodes->length > 0) {
+                $block->removeChild($block->childNodes->item(0));
             }
             $block->appendChild($code_block);
-            $block->removeAttribute('codehl');
         }
         self::$_dom->save(self::$_filename);
     }
@@ -62,34 +69,31 @@ class HighlightPDF
 
     private static function _createBlockCode($code)
     {
-        if (substr($code, 0, 5) == '<span') {
-            $dom = new DomDocument();
-            $dom->loadXML($code);
-            $xpath = new DomXPath($dom);
-            $parentSpan = $xpath->query('/span')->item(0);
-            $block_code = self::$_dom->createElement('fo:inline');
-            $block_code->setAttribute('color', substr($parentSpan->getAttributeNode('style')->value, 7, 7));
-            $nodes = $xpath->query('/span/node()');
-            foreach ($nodes as $node) {
-                if ($node->nodeType == XML_ELEMENT_NODE) {
-                    $child = self::$_dom->createElement('fo:inline', $node->nodeValue);
-                    $child->setAttribute('color',
-                            substr(
-                                    $node->getAttributeNode(
-                                            'style')->value,
-                                    7,
-                                    7));
-                } else {
-                    $child = self::$_dom->importNode($node, true);
-                }
-                $block_code->appendChild($child);
+        $dom = new DomDocument();
+        $dom->loadXML($code);
+        $xpath = new DomXPath($dom);
+        $parentSpan = $xpath->query('/span')->item(0);
+        $block_code = self::$_dom->createElement('fo:inline');
+        $block_code->setAttribute('color', substr($parentSpan->getAttributeNode('style')->value, 7, 7));
+        $nodes = $xpath->query('/span/node()');
+        foreach ($nodes as $node) {
+            if ($node->nodeType == XML_ELEMENT_NODE) {
+                $child = self::$_dom->createElement('fo:inline', $node->nodeValue);
+                $child->setAttribute('color',
+                        substr(
+                                $node->getAttributeNode(
+                                        'style')->value,
+                                7,
+                                7));
+            } else {
+                $child = self::$_dom->importNode($node, true);
             }
-            if (preg_match("/^\s+$/", $block_code->firstChild->textContent)) {
-                $block_code->removeChild($block_code->firstChild);
-            }
-        } else {
-            $block_code = self::$_dom->createElement('fo:inline', $code);
+            $block_code->appendChild($child);
         }
+        if (preg_match("/^\s+$/", $block_code->firstChild->textContent)) {
+            $block_code->removeChild($block_code->firstChild);
+        }
+
         return $block_code;
     }
 }
