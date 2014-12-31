@@ -29,7 +29,7 @@
 
     <para>
       Lets take a look at the test suite of the
-      <ulink url="https://github.com/sebastianbergmann/money/">sebastianbergmann/money</ulink>
+      <ulink url="http://github.com/sebastianbergmann/money/">sebastianbergmann/money</ulink>
       library. Looking at this project's directory structure, we see that the
       test case classes in the <filename>tests</filename> directory mirror the
       package and class structure of the System Under Test (SUT) in the
@@ -47,8 +47,8 @@
       command-line test runner to the test directory:
     </para>
 
-    <screen><userinput>phpunit tests</userinput>
-PHPUnit 4.5.0 by Sebastian Bergmann and contributors.
+    <screen><userinput>phpunit --bootstrap src/autoload.php tests</userinput>
+PHPUnit 4.5.0 by Sebastian Bergmann.
 
 .................................
 
@@ -69,8 +69,8 @@ OK (33 tests, 52 assertions)</screen>
       the following command:
     </para>
 
-    <screen><userinput>phpunit tests/CurrencyTest</userinput>
-PHPUnit 4.5.0 by Sebastian Bergmann and contributors.
+    <screen><userinput>phpunit --bootstrap src/autoload.php tests/CurrencyTest</userinput>
+PHPUnit 4.5.0 by Sebastian Bergmann.
 
 ........
 
@@ -83,8 +83,8 @@ OK (8 tests, 8 assertions)</screen>
       <literal>--filter</literal> option:
     </para>
 
-    <screen><userinput>phpunit --filter testObjectCanBeConstructedForValidConstructorArgument tests</userinput>
-PHPUnit 4.5.0 by Sebastian Bergmann and contributors.
+    <screen><userinput>phpunit --bootstrap src/autoload.php --filter testObjectCanBeConstructedForValidConstructorArgument tests</userinput>
+PHPUnit 4.5.0 by Sebastian Bergmann.
 
 ..
 
@@ -119,7 +119,7 @@ OK (2 test, 2 assertions)</screen>
 
     <example id="organizing-tests.xml-configuration.examples.phpunit.xml">
       <title>Composing a Test Suite Using XML Configuration</title>
-      <programlisting><![CDATA[<phpunit>
+      <programlisting><![CDATA[<phpunit bootstrap="src/autoload.php">
   <testsuites>
     <testsuite name="money">
       <directory>tests</directory>
@@ -142,7 +142,7 @@ OK (2 test, 2 assertions)</screen>
 
     <example id="organizing-tests.xml-configuration.examples.phpunit.xml2">
       <title>Composing a Test Suite Using XML Configuration</title>
-      <programlisting><![CDATA[<phpunit>
+      <programlisting><![CDATA[<phpunit bootstrap="src/autoload.php">
   <testsuites>
     <testsuite name="money">
       <file>tests/IntlFormatterTest.php</file>
