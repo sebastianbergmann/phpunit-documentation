@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="testing-practices">
+  <title>Testing Practices</title>
+
+  <blockquote>
+    <attribution>Erich Gamma</attribution>
+    <para>
+      You can always write more tests. However, you will quickly find that
+      only a fraction of the tests you can imagine are actually useful. What
+      you want is to write tests that fail even though you think they should
+      work, or tests that succeed even though you think they should fail.
+      Another way to think of it is in cost/benefit terms. You want to write
+      tests that will pay you back with information.
+    </para>
+  </blockquote>
+
+  <section id="testing-practices.during-development">
+    <title>During Development</title>
+
+    <para>
+      <indexterm><primary>Refactoring</primary></indexterm>
+
+      When you need to make a change to the internal structure of the software
+      you are working on to make it easier to understand and cheaper to modify
+      without changing its observable behavior, a test suite is invaluable in
+      applying these so called <ulink url="http://martinfowler.com/bliki/DefinitionOfRefactoring.html">refactorings</ulink>
+      safely. Otherwise, you might not notice the system breaking while you
+      are carrying out the restructuring.
+    </para>
+
+    <para>
+      The following conditions will help you to improve the code and design
+      of your project, while using unit tests to verify that the refactoring's
+      transformation steps are, indeed, behavior-preserving and do not
+      introduce errors:
+    </para>
+
+    <orderedlist>
+      <listitem>
+        <para>All unit tests run correctly.</para>
+      </listitem>
+
+      <listitem>
+        <para>The code communicates its design principles.</para>
+      </listitem>
+
+      <listitem>
+        <para>The code contains no redundancies.</para>
+      </listitem>
+
+      <listitem>
+        <para>The code contains the minimal number of classes and methods.</para>
+      </listitem>
+    </orderedlist>
+
+    <para>
+      When you need to add new functionality to the system, write the tests
+      first. Then, you will be done developing when the test runs. This
+      practice will be discussed in detail in the next chapter.
+    </para>
+  </section>
+
+  <section id="testing-practices.during-debugging">
+    <title>During Debugging</title>
+
+    <para>
+      When you get a defect report, your impulse might be to fix the defect as
+      quickly as possible. Experience shows that this impulse will not serve
+      you well; it is likely that the fix for the defect causes another
+      defect.
+    </para>
+
+    <para>
+      You can hold your impulse in check by doing the following:
+    </para>
+
+    <orderedlist>
+      <listitem>
+        <para>
+          Verify that you can reproduce the defect.
+        </para>
+      </listitem>
+
+      <listitem>
+        <para>
+          Find the smallest-scale demonstration of the defect in the code.
+          For example, if a number appears incorrectly in an output, find the
+          object that is computing that number.
+        </para>
+      </listitem>
+
+      <listitem>
+        <para>
+          Write an automated test that fails now but will succeed when the
+          defect is fixed.
+        </para>
+      </listitem>
+
+      <listitem>
+        <para>
+          Fix the defect.
+        </para>
+      </listitem>
+    </orderedlist>
+
+    <para>
+      Finding the smallest reliable reproduction of the defect gives you the
+      opportunity to really examine the cause of the defect. The test you
+      write will improve the chances that when you fix the defect, you really
+      fix it, because the new test reduces the likelihood of undoing the fix
+      with future code changes. All the tests you wrote before reduce the
+      likelihood of inadvertently causing a different problem.
+    </para>
+
+    <blockquote>
+      <attribution>Benjamin Smedberg</attribution>
+      <para>
+        Unit testing offers many advantages:
+        <itemizedlist>
+          <listitem><para>Testing gives code authors and reviewers confidence that patches produce the correct results.</para></listitem>
+          <listitem><para>Authoring testcases is a good impetus for developers to discover edge cases.</para></listitem>
+          <listitem><para>Testing provides a good way to catch regressions quickly, and to make sure that no regression will be repeated twice.</para></listitem>
+          <listitem><para>Unit tests provide working examples for how to use an API and can significantly aid documentation efforts.</para></listitem>
+        </itemizedlist>
+        Overall, integrated unit testing makes the cost and risk of any
+        individual change smaller. It will allow the project to make [...]
+        major architectural improvements [...] quickly and confidently.
+      </para>
+    </blockquote>
+  </section>
+</chapter>

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="testing-practices">
+  <title>测试实践</title>
+
+  <blockquote>
+    <attribution>Erich Gamma</attribution>
+    <para>
+      你总能编写更多测试。但是很快就会发现，在所有想得出来的测试中只有很小一部分是真正有用的。你想要的是编写你觉得能运作但却失败的测试，或者你觉得必将失败但却成功了的测试。另外一种思考方式是从成本/收益的关系上去考量。你想要编写能够给你反馈信息的测试。
+    </para>
+  </blockquote>
+
+  <section id="testing-practices.during-development">
+    <title>在开发过程中</title>
+
+    <para>
+      <indexterm><primary>Refactoring （重构）</primary></indexterm>
+
+      当需要对软件的内部结构进行更改时，你实际上是要在不影响其可见行为的情况下让它更加容易理解、更加易于修改，测试套件对于安全地进行这些所谓的<ulink url="http://martinfowler.com/bliki/DefinitionOfRefactoring.html">重构</ulink>而言是非常宝贵的。否则，你可能在重组过程中将系统搞坏而不自知。
+    </para>
+
+    <para>
+      在使用单元测试来确认重构的转换步骤中确实保持原有行为并且没有引入错误时，以下情况有助于改进项目的编码与设计：
+    </para>
+
+    <orderedlist>
+      <listitem>
+        <para>所有单元测试均正确运行。</para>
+      </listitem>
+
+      <listitem>
+        <para>代码传达其设计原则。</para>
+      </listitem>
+
+      <listitem>
+        <para>代码没有冗余。</para>
+      </listitem>
+
+      <listitem>
+        <para>代码所包含的类和方法的数量降至最低。</para>
+      </listitem>
+    </orderedlist>
+
+    <para>
+      当需要向系统内添加新的功能时，首先为其编写测试。然后，当测试能够正常运行就标志着开发完成了。下一章将详细讨论这种做法。
+    </para>
+  </section>
+
+  <section id="testing-practices.during-debugging">
+    <title>在调试过程中</title>
+
+    <para>
+      当看到缺陷报告时，你可能会有尽快修复错误的冲动。经验表明，这种冲动不是好事，因为修复一个缺陷时很可能导致另外一个缺陷。
+    </para>
+
+    <para>
+      下列操作可以帮你压住冲动：
+    </para>
+
+    <orderedlist>
+      <listitem>
+        <para>
+          确认能够重现此缺陷。
+        </para>
+      </listitem>
+
+      <listitem>
+        <para>
+          在代码中寻找此缺陷的最小规模表达。例如，如果在输出中有一个数字看起来不对，那么就寻找算出此数字的那个对象。
+        </para>
+      </listitem>
+
+      <listitem>
+        <para>
+          编写一个目前会失败而缺陷修复后将会成功的自动测试。
+        </para>
+      </listitem>
+
+      <listitem>
+        <para>
+          修复缺陷。
+        </para>
+      </listitem>
+    </orderedlist>
+
+    <para>
+      寻找缺陷的最小可靠重现使你有机会去真正检查缺陷的原因。当修复了缺陷之后，所编写的测试则有助于提高缺陷真正被修复的几率，因为新加入的测试降低了未来修改代码时又破坏此修复的可能性。而之前所编写的所有测试则降低了在不经意间导致其他问题的可能性。
+    </para>
+
+    <blockquote>
+      <attribution>Benjamin Smedberg</attribution>
+      <para>
+        进行单元测试带来了很多好处：
+        <itemizedlist>
+          <listitem><para>进行测试让代码的作者和评审者对补丁能够产生正确的结果有信心。</para></listitem>
+          <listitem><para>编写测试用例对开发者而言是一种很好的发现边缘情况的原动力。</para></listitem>
+          <listitem><para>进行测试提供了一种良好的方法来快速捕捉退步(Regression)，并且能用来保证退步不会重复出现。</para></listitem>
+          <listitem><para>单元测试就如何使用 API 提供了可正常工作的范例，能够大大帮助文档编制工作。</para></listitem>
+        </itemizedlist>
+        总之，进行集成单元测试降低了任何修改的成本与风险。这使得项目能够更快并且更有信心地进行[...]重大架构改良[...]。
+      </para>
+    </blockquote>
+  </section>
+</chapter>

@@ -1,0 +1,797 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="textui">
+  <title>命令行测试执行器</title>
+
+  <para>
+    PHPUnit 命令行测试执行器可通过 <filename>phpunit</filename> 命令调用。下面的代码展示了如何用 PHPUnit 命令行测试执行器来运行测试：
+  </para>
+
+  <screen><userinput>phpunit ArrayTest</userinput>
+PHPUnit 4.7.0 by Sebastian Bergmann and contributors.
+
+..
+
+Time: 0 seconds
+
+
+OK (2 tests, 2 assertions)</screen>
+
+  <para>
+    上面这个调用例子中，PHPUnit 命令行测试执行器将在当前工作目录中寻找 <filename>ArrayTest.php</filename> 源文件并加载之。而在此源文件中应当能找到 <literal>ArrayTest</literal> 测试用例类，此类中的测试将被执行。
+  </para>
+
+  <para>
+    对于每个测试的运行，PHPUnit 命令行工具输出一个字符来指示进展：
+  </para>
+
+  <variablelist>
+    <varlistentry>
+      <term><literal>.</literal></term>
+      <listitem>
+        <para>
+          当测试成功时输出。
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><literal>F</literal></term>
+      <listitem>
+        <para>
+          当测试方法运行过程中一个断言失败时输出。
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><literal>E</literal></term>
+      <listitem>
+        <para>
+          当测试方法运行过程中产生一个错误时输出。
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><literal>R</literal></term>
+      <listitem>
+        <para>
+          当测试被标记为有风险时输出（参见<xref linkend="strict-mode" />）。
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><literal>S</literal></term>
+      <listitem>
+        <para>
+          当测试被跳过时输出（参见<xref linkend="incomplete-and-skipped-tests" />）。
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><literal>I</literal></term>
+      <listitem>
+        <para>
+          当测试被标记为不完整或未实现时输出（参见<xref linkend="incomplete-and-skipped-tests" />）。
+        </para>
+      </listitem>
+    </varlistentry>
+  </variablelist>
+
+  <para>
+    <indexterm><primary>Error （错误）</primary></indexterm>
+    <indexterm><primary>Failure （失败）</primary></indexterm>
+
+    PHPUnit 区分 <emphasis>失败(failure)</emphasis> 与
+    <emphasis>错误(error)</emphasis>。失败指的是被违背了的 PHPUnit 断言，例如一个失败的 <literal>assertEquals()</literal> 调用。错误指的是意料之外的异常(exception)或 PHP 错误。有时候这种差别被证明是非常有用的，因为错误往往比失败更容易修复。如果得到了一个非常长的问题列表，那么最好先对付错误，当错误全部修复了之后再试一次瞧瞧还有没有失败。
+  </para>
+
+  <section id="textui.clioptions">
+    <title>命令行选项</title>
+
+    <para>
+      让我们来瞧瞧以下代码中命令行测试运行器的各种选项：
+    </para>
+
+    <screen><userinput>phpunit --help</userinput>
+<![CDATA[PHPUnit 4.7.0 by Sebastian Bergmann and contributors.
+
+Usage: phpunit [options] UnitTest [UnitTest.php]
+       phpunit [options] <directory>
+
+Code Coverage Options:
+
+  --coverage-clover <file>  Generate code coverage report in Clover XML format.
+  --coverage-crap4j <file>  Generate code coverage report in Crap4J XML format.
+  --coverage-html <dir>     Generate code coverage report in HTML format.
+  --coverage-php <file>     Export PHP_CodeCoverage object to file.
+  --coverage-text=<file>    Generate code coverage report in text format.
+                            Default: Standard output.
+  --coverage-xml <dir>      Generate code coverage report in PHPUnit XML format.
+
+Logging Options:
+
+  --log-junit <file>        Log test execution in JUnit XML format to file.
+  --log-tap <file>          Log test execution in TAP format to file.
+  --log-json <file>         Log test execution in JSON format.
+  --testdox-html <file>     Write agile documentation in HTML format to file.
+  --testdox-text <file>     Write agile documentation in Text format to file.
+
+Test Selection Options:
+
+  --filter <pattern>        Filter which tests to run.
+  --testsuite <pattern>     Filter which testsuite to run.
+  --group ...               Only runs tests from the specified group(s).
+  --exclude-group ...       Exclude tests from the specified group(s).
+  --list-groups             List available test groups.
+  --test-suffix ...         Only search for test in files with specified
+                            suffix(es). Default: Test.php,.phpt
+
+Test Execution Options:
+
+  --report-useless-tests    Be strict about tests that do not test anything.
+  --strict-coverage         Be strict about unintentionally covered code.
+  --disallow-test-output    Be strict about output during tests.
+  --enforce-time-limit      Enforce time limit based on test size.
+  --disallow-todo-tests     Disallow @todo-annotated tests.
+  --strict                  Run tests in strict mode (enables all of the above).
+
+  --process-isolation       Run each test in a separate PHP process.
+  --no-globals-backup       Do not backup and restore $GLOBALS for each test.
+  --static-backup           Backup and restore static attributes for each test.
+
+  --colors=<flag>           Use colors in output ("never", "auto" or "always").
+  --columns <n>             Number of columns to use for progress output.
+  --columns max             Use maximum number of columns for progress output.
+  --stderr                  Write to STDERR instead of STDOUT.
+  --stop-on-error           Stop execution upon first error.
+  --stop-on-failure         Stop execution upon first error or failure.
+  --stop-on-risky           Stop execution upon first risky test.
+  --stop-on-skipped         Stop execution upon first skipped test.
+  --stop-on-incomplete      Stop execution upon first incomplete test.
+  -v|--verbose              Output more verbose information.
+  --debug                   Display debugging information during test execution.
+
+  --loader <loader>         TestSuiteLoader implementation to use.
+  --repeat <times>          Runs the test(s) repeatedly.
+  --tap                     Report test execution progress in TAP format.
+  --testdox                 Report test execution progress in TestDox format.
+  --printer <printer>       TestListener implementation to use.
+
+Configuration Options:
+
+  --bootstrap <file>        A "bootstrap" PHP file that is run before the tests.
+  -c|--configuration <file> Read configuration from XML file.
+  --no-configuration        Ignore default configuration file (phpunit.xml).
+  --include-path <path(s)>  Prepend PHP's include_path with given path(s).
+  -d key[=value]            Sets a php.ini value.
+
+Miscellaneous Options:
+
+  -h|--help                 Prints this usage information.
+  --version                 Prints the version and exits.]]></screen>
+
+    <variablelist>
+      <varlistentry>
+        <term><literal>phpunit UnitTest</literal></term>
+        <listitem>
+          <para>
+            运行由 <literal>UnitTest</literal> 类提供的测试。这个类应当在 <filename>UnitTest.php</filename> 源文件中声明。
+          </para>
+
+          <para>
+            <literal>UnitTest</literal> 这个类必须满足以下二个条件之一：要么它继承自 <literal>PHPUnit_Framework_TestCase</literal>；要么它提供 <literal>public static suite()</literal> 方法，这个方法返回一个 <literal>PHPUnit_Framework_Test</literal> 对象，比如，一个 <literal>PHPUnit_Framework_TestSuite</literal> 类的实例。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>phpunit UnitTest UnitTest.php</literal></term>
+        <listitem>
+          <para>
+            运行由 <literal>UnitTest</literal> 类提供的测试。这个类应当在指定的源文件中声明。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <indexterm><primary>Code Coverage （代码覆盖率）</primary></indexterm>
+        <term><literal>--coverage-clover</literal></term>
+        <listitem>
+          <para>
+             为运行的测试生成带有代码覆盖率信息的 XML 格式的日志文件。更多细节请参见<xref linkend="logging" />。
+          </para>
+          <para>
+            请注意，此功能仅当安装了 tokenizer 和 Xdebug 这两个 PHP 扩展后才可用。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <indexterm><primary>Code Coverage （代码覆盖率）</primary></indexterm>
+        <term><literal>--coverage-crap4j</literal></term>
+        <listitem>
+          <para>
+            生成 Crap4j 格式的代码覆盖率报告。更多细节请参见<xref linkend="code-coverage-analysis" />。
+          </para>
+          <para>
+            请注意，此功能仅当安装了 tokenizer 和 Xdebug 这两个 PHP 扩展后才可用。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <indexterm><primary>Code Coverage （代码覆盖率）</primary></indexterm>
+        <indexterm><primary>Report</primary></indexterm>
+        <term><literal>--coverage-html</literal></term>
+        <listitem>
+          <para>
+            生成 HTML 格式的代码覆盖率报告。更多细节请参见<xref linkend="code-coverage-analysis" />。
+          </para>
+          <para>
+            请注意，此功能仅当安装了 tokenizer 和 Xdebug 这两个 PHP 扩展后才可用。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <indexterm><primary>Code Coverage （代码覆盖率）</primary></indexterm>
+        <term><literal>--coverage-php</literal></term>
+        <listitem>
+          <para>
+            生成一个序列化后的 PHP_CodeCoverage 对象，此对象含有代码覆盖率信息。
+          </para>
+          <para>
+            请注意，此功能仅当安装了 tokenizer 和 Xdebug 这两个 PHP 扩展后才可用。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <indexterm><primary>Code Coverage （代码覆盖率）</primary></indexterm>
+        <term><literal>--coverage-text</literal></term>
+        <listitem>
+          <para>
+            为运行的测试以人们可读的格式生成带有代码覆盖率信息的日志文件或命令行输出。更多细节请参见<xref linkend="logging" />。
+          </para>
+          <para>
+            请注意，此功能仅当安装了 tokenizer 和 Xdebug 这两个 PHP 扩展后才可用。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <indexterm><primary>Logfile （日志文件）</primary></indexterm>
+        <term><literal>--log-junit</literal></term>
+        <listitem>
+          <para>
+            为运行的测试生成 JUnit XML 格式的日志文件。更多细节请参见<xref linkend="logging" />。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <indexterm><primary>Logfile （日志文件）</primary></indexterm>
+        <term><literal>--log-tap</literal></term>
+        <listitem>
+          <para>
+            为运行的测试生成 <ulink url="http://testanything.org/">Test Anything Protocol (TAP)</ulink> 格式的日志文件。更多细节请参见<xref linkend="logging" />。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <indexterm><primary>JSON</primary></indexterm>
+        <term><literal>--log-json</literal></term>
+        <listitem>
+          <para>
+            生成 <ulink url="http://www.json.org/">JSON</ulink> 格式的日志文件。更多细节请参见<xref linkend="logging" />。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <indexterm><primary>Agile Documentation （敏捷文档）</primary></indexterm>
+        <term><literal>--testdox-html</literal> and <literal>--testdox-text</literal></term>
+        <listitem>
+          <para>
+            为运行的测试以 HTML 或纯文本格式生成敏捷文档。更多细节请参见<xref linkend="other-uses-for-tests" />。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>--filter</literal></term>
+        <listitem>
+          <para>
+            只运行名称与给定模式匹配的测试。如果模式未闭合包裹于分隔符，PHPUnit 将用 <literal>/</literal> 分隔符对其进行闭合包裹。
+          </para>
+
+          <para>
+            测试名称将以以下格式之一进行匹配：
+          </para>
+
+          <variablelist>
+            <varlistentry>
+              <term><literal>TestNamespace\TestCaseClass::testMethod</literal></term>
+              <listitem>
+                <para>
+                  默认的测试名称格式等价于在测试方法内使用 <literal>__METHOD__</literal> 魔术常量。
+                </para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term><literal>TestNamespace\TestCaseClass::testMethod with data set #0</literal></term>
+              <listitem>
+                <para>
+                  当测试拥有数据供给器时，数据的每轮迭代都会将其当前索引附加在默认测试名称结尾处。
+                </para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term><literal>TestNamespace\TestCaseClass::testMethod with data set "my named data"</literal></term>
+              <listitem>
+                <para>
+                  当测试拥有使用命名数据集的数据供给器时，数据的每轮迭代都会将当前名称附加在默认测试名称结尾处。命名数据集的例子参见<xref linkend="textui.examples.TestCaseClass.php" />。
+                </para>
+
+                <example id="textui.examples.TestCaseClass.php">
+                  <title>命名数据集</title>
+                  <programlisting><![CDATA[<?php
+namespace TestNamespace;
+
+class TestCaseClass extends \PHPUnit_Framework_TestCase
+{
+    /**
+     * @dataProvider provider
+     */
+    public function testMethod($data)
+    {
+        $this->assertTrue($data);
+    }
+
+    public function provider()
+    {
+        return array(
+           'my named data' => array(true),
+           'my data'       => array(true)
+        );
+    }
+}
+?>]]></programlisting>
+                </example>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term><literal>/path/to/my/test.phpt</literal></term>
+              <listitem>
+                <para>
+                  对于 PHPT 测试，其测试名称是文件系统路径。
+                </para>
+              </listitem>
+            </varlistentry>
+          </variablelist>
+
+          <para>
+            有效的过滤器模式例子参见<xref linkend="textui.examples.filter-patterns" />。
+          </para>
+
+          <example id="textui.examples.filter-patterns">
+            <title>过滤器模式例子</title>
+
+            <itemizedlist>
+              <listitem><para><literal>--filter 'TestNamespace\\TestCaseClass::testMethod'</literal></para></listitem>
+              <listitem><para><literal>--filter 'TestNamespace\\TestCaseClass'</literal></para></listitem>
+              <listitem><para><literal>--filter TestNamespace</literal></para></listitem>
+              <listitem><para><literal>--filter TestCaseClass</literal></para></listitem>
+              <listitem><para><literal>--filter testMethod</literal></para></listitem>
+              <listitem><para><literal>--filter '/::testMethod .*"my named data"/'</literal></para></listitem>
+              <listitem><para><literal>--filter '/::testMethod .*#5$/'</literal></para></listitem>
+              <listitem><para><literal>--filter '/::testMethod .*#(5|6|7)$/'</literal></para></listitem>
+            </itemizedlist>
+          </example>
+
+          <para>
+            在匹配数据供给器时有一些额外的快捷方式，参见<xref linkend="textui.examples.filter-shortcuts" />。
+          </para>
+
+          <example id="textui.examples.filter-shortcuts">
+            <title>过滤器的快捷方式</title>
+
+            <itemizedlist>
+              <listitem><para><literal>--filter 'testMethod#2'</literal></para></listitem>
+              <listitem><para><literal>--filter 'testMethod#2-4'</literal></para></listitem>
+              <listitem><para><literal>--filter '#2'</literal></para></listitem>
+              <listitem><para><literal>--filter '#2-4'</literal></para></listitem>
+              <listitem><para><literal>--filter 'testMethod@my named data'</literal></para></listitem>
+              <listitem><para><literal>--filter 'testMethod@my.*data'</literal></para></listitem>
+              <listitem><para><literal>--filter '@my named data'</literal></para></listitem>
+              <listitem><para><literal>--filter '@my.*data'</literal></para></listitem>
+            </itemizedlist>
+          </example>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>--testsuite</literal></term>
+        <listitem>
+          <para>
+            只运行名称与给定模式匹配的测试套件。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <indexterm><primary>Test Groups （测试分组）</primary></indexterm>
+        <indexterm><primary>Annotation （标注）</primary></indexterm>
+        <indexterm><primary>@author</primary></indexterm>
+        <indexterm><primary>@group</primary></indexterm>
+        <term><literal>--group</literal></term>
+        <listitem>
+          <para>
+            只运行来自指定分组（可以多个）的测试。可以用 <literal>@group</literal> 标注为测试标记其所属的分组。
+          </para>
+          <para>
+            <literal>@author</literal> 标注是 <literal>@group</literal> 的一个别名，允许按作者来筛选测试。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <indexterm><primary>Test Groups （测试分组）</primary></indexterm>
+        <indexterm><primary>Annotation （标注）</primary></indexterm>
+        <indexterm><primary>@group</primary></indexterm>
+        <term><literal>--exclude-group</literal></term>
+        <listitem>
+          <para>
+            排除来自指定分组（可以多个）的测试。可以用 <literal>@group</literal> 标注为测试标记其所属的分组。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <indexterm><primary>Test Groups （测试分组）</primary></indexterm>
+        <indexterm><primary>Annotation （标注）</primary></indexterm>
+        <indexterm><primary>@group</primary></indexterm>
+        <term><literal>--list-groups</literal></term>
+        <listitem>
+          <para>
+            列出所有有效的测试分组。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>--test-suffix</literal></term>
+        <listitem>
+          <para>
+            只查找文件名以指定后缀（可以多个）结尾的测试文件。
+          </para>
+        </listitem>
+      </varlistentry>
+
+        <varlistentry>
+        <term><literal>--report-useless-tests</literal></term>
+        <listitem>
+          <para>
+            对事实上不测试任何内容的测试更加严格。详情参见<xref
+            linkend="strict-mode" />。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>--strict-coverage</literal></term>
+        <listitem>
+          <para>
+            对意外的代码覆盖更加严格。详情参见<xref
+            linkend="strict-mode" />。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>--disallow-test-output</literal></term>
+        <listitem>
+          <para>
+            对测试执行期间产生的输出更加严格。详情参见<xref
+            linkend="strict-mode" />。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>--disallow-todo-tests</literal></term>
+        <listitem>
+          <para>
+              不执行文档注释块中含有 <literal>@todo</literal> 标注的测试。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>--enforce-time-limit</literal></term>
+        <listitem>
+          <para>
+            根据测试规模对其加上执行时长限制。详情参见<xref
+            linkend="strict-mode" />。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>--strict</literal></term>
+        <listitem>
+          <para>
+            以严格模式运行测试（效果的功能等同于使用 <literal>--report-useless-tests</literal>、
+            <literal>--strict-coverage</literal>、 <literal>--disallow-test-output</literal>、
+            和 <literal>--enforce-time-limit</literal>）。详情参见<xref
+            linkend="strict-mode" />。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <indexterm><primary>Process Isolation （进程隔离）</primary></indexterm>
+        <indexterm><primary>Test Isolation （测试隔离）</primary></indexterm>
+        <term><literal>--process-isolation</literal></term>
+        <listitem>
+          <para>
+            每个测试都在独立的PHP进程中运行。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <indexterm><primary>Test Isolation （测试隔离）</primary></indexterm>
+        <term><literal>--no-globals-backup</literal></term>
+        <listitem>
+          <para>
+            不要备份并还原 $GLOBALS。更多细节请参见<xref linkend="fixtures.global-state" />。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <indexterm><primary>Test Isolation （测试隔离）</primary></indexterm>
+        <term><literal>--static-backup</literal></term>
+        <listitem>
+          <para>
+            备份并还原用户定义的类中的静态属性。更多细节请参见<xref linkend="fixtures.global-state" />。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>--colors</literal></term>
+        <listitem>
+          <para>
+            使用彩色输出。
+            Windows下，用 <ulink url="https://github.com/adoxa/ansicon">ANSICON</ulink> 或 <ulink url="https://github.com/Maximus5/ConEmu">ConEmu</ulink>。
+          </para>
+          <para>
+            这个选项有三个可能的值：
+            <itemizedlist>
+              <listitem>
+                <para>
+                  <literal>never</literal>: 从不在输出中显示颜色。当未使用 <literal>--colors</literal> 选项时，这是默认值。
+                </para>
+              </listitem>
+              <listitem>
+                <para>
+                  <literal>auto</literal>: 除非当前的终端不支持彩色显示或输出被管道导向其他命令或重定向到文件，否则在输出中显示颜色。
+                </para>
+              </listitem>
+              <listitem>
+                <para>
+                  <literal>always</literal>: 总是在输出中显示颜色，即使终端不支持彩色显示或输出被管道导向其他命令或重定向到文件。
+                </para>
+              </listitem>
+            </itemizedlist>
+            如果使用了 <literal>--colors</literal> 选项但未指定任何值，将使用 <literal>auto</literal>。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>--columns</literal></term>
+        <listitem>
+          <para>
+            定义进度输出所使用的列数。
+            如果指定 <literal>max</literal> 为其值，那么将使用当前终端所允许的最大值。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>--stderr</literal></term>
+        <listitem>
+          <para>
+            选择输出到 <literal>STDERR</literal> 而非 <literal>STDOUT</literal>。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>--stop-on-error</literal></term>
+        <listitem>
+          <para>
+            首次错误出现后停止执行。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>--stop-on-failure</literal></term>
+        <listitem>
+          <para>
+            首次错误或失败出现后停止执行。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>--stop-on-risky</literal></term>
+        <listitem>
+          <para>
+            首次碰到有风险的测试时停止执行。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>--stop-on-skipped</literal></term>
+        <listitem>
+          <para>
+            首次碰到跳过的测试时停止执行。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>--stop-on-incomplete</literal></term>
+        <listitem>
+          <para>
+            首次碰到不完整的测试时停止执行。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>--verbose</literal></term>
+        <listitem>
+          <para>
+            输出更详尽的信息，例如不完整或者跳过的测试的名称。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>--debug</literal></term>
+        <listitem>
+          <para>
+            输出调试信息，例如当一个测试开始执行时输出其名称。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <indexterm><primary>PHPUnit_Runner_TestSuiteLoader</primary></indexterm>
+        <term><literal>--loader</literal></term>
+        <listitem>
+          <para>
+            指定要使用的 <literal>PHPUnit_Runner_TestSuiteLoader</literal> 实现。
+          </para>
+
+          <para>
+            标准的测试套件加载器将在当前工作目录和 PHP 的 <literal>include_path</literal> 配置指令中指定的每个目录内查找源文件。诸如 <literal>Project_Package_Class</literal> 这样的类名对应的源文件名为 <filename>Project/Package/Class.php</filename>。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>--repeat</literal></term>
+        <listitem>
+          <para>
+            将测试重复运行指定次数。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>--tap</literal></term>
+        <listitem>
+          <para>
+            使用 <ulink url="http://testanything.org/">Test Anything Protocol (TAP)</ulink> 报告测试进度。
+            更多细节请参见<xref linkend="logging" />。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <indexterm><primary>Agile Documentation （敏捷文档）</primary></indexterm>
+        <term><literal>--testdox</literal></term>
+        <listitem>
+          <para>
+            将测试进度作为敏捷文档来报告。更多细节请参见<xref linkend="other-uses-for-tests" />。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <indexterm><primary>PHPUnit_Framework_TestListener</primary></indexterm>
+        <indexterm><primary>PHPUnit_Util_Printer</primary></indexterm>
+        <term><literal>--printer</literal></term>
+        <listitem>
+          <para>
+            指定要使用的结果输出器(printer)。输出器类必须扩展 <literal>PHPUnit_Util_Printer</literal> 并且实现 <literal>PHPUnit_Framework_TestListener</literal> 接口。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>--bootstrap</literal></term>
+        <listitem>
+          <para>
+            在测试前先运行一个 "bootstrap" PHP 文件。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <indexterm><primary>Configuration （配置）</primary></indexterm>
+        <term><literal>--configuration</literal></term>
+        <term><literal>-c</literal></term>
+        <listitem>
+          <para>
+            从 XML 文件中读取配置信息。更多细节请参见<xref linkend="appendixes.configuration" />。
+          </para>
+          <para>
+            如果当前工作目录下存在 <filename>phpunit.xml</filename> 或者 <filename>phpunit.xml.dist</filename> （按此顺序查找），同时又<emphasis>未</emphasis>使用 <literal>--configuration</literal> 选项，那么将自动从此文件中读取配置信息。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <indexterm><primary>Configuration （配置）</primary></indexterm>
+        <term><literal>--no-configuration</literal></term>
+        <listitem>
+          <para>
+            忽略当前工作目录下的 <filename>phpunit.xml</filename> 与 <filename>phpunit.xml.dist</filename>。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <indexterm><primary><literal>include_path</literal></primary></indexterm>
+        <term><literal>--include-path</literal></term>
+        <listitem>
+          <para>
+            向 PHP 的 <literal>include_path</literal> 开头添加指定路径（可以多个）。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>-d</literal></term>
+        <listitem>
+          <para>
+            设置指定的 PHP 配置选项的值。
+          </para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+
+    <note>
+      <para>
+        请注意，选项不能放在参数之后。
+      </para>
+    </note>
+  </section>
+</chapter>
