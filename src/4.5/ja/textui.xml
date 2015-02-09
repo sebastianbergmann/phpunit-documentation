@@ -65,7 +65,7 @@ OK (2 tests, 2 assertions)</screen>
       <listitem>
         <para>
           テストが危険だとマークされている場合に表示されます
-          (<xref linkend="strict-mode" /> を参照ください)。
+          (<xref linkend="risky-tests" /> を参照ください)。
         </para>
       </listitem>
     </varlistentry>
@@ -153,13 +153,15 @@ Test Execution Options:
   --strict-coverage         Be strict about unintentionally covered code.
   --disallow-test-output    Be strict about output during tests.
   --enforce-time-limit      Enforce time limit based on test size.
-  --strict                  Run tests in strict mode (enables all of the above).
+  --disallow-todo-tests     Disallow @todo-annotated tests.
 
   --process-isolation       Run each test in a separate PHP process.
   --no-globals-backup       Do not backup and restore $GLOBALS for each test.
   --static-backup           Backup and restore static attributes for each test.
 
   --colors                  Use colors in output.
+  --columns <n>             Number of columns to use for progress outout.
+  --columns max             Use maximum number of columns for progress outout.
   --stderr                  Write to STDERR instead of STDOUT.
   --stop-on-error           Stop execution upon first error.
   --stop-on-failure         Stop execution upon first error or failure.
@@ -534,7 +536,7 @@ class TestCaseClass extends \PHPUnit_Framework_TestCase
         <listitem>
           <para>
             何もテストをしないテストについて厳格にチェックします。
-            詳細は <xref linkend="strict-mode" /> を参照ください。
+            詳細は <xref linkend="risky-tests" /> を参照ください。
           </para>
         </listitem>
       </varlistentry>
@@ -544,7 +546,7 @@ class TestCaseClass extends \PHPUnit_Framework_TestCase
         <listitem>
           <para>
             意図せずカバーしているコードについて厳格にチェックします。
-            詳細は <xref linkend="strict-mode" /> を参照ください。
+            詳細は <xref linkend="risky-tests" /> を参照ください。
           </para>
         </listitem>
       </varlistentry>
@@ -554,7 +556,16 @@ class TestCaseClass extends \PHPUnit_Framework_TestCase
         <listitem>
           <para>
             実行中に何かを出力するテストについて厳格にチェックします。
-            詳細は <xref linkend="strict-mode" /> を参照ください。
+            詳細は <xref linkend="risky-tests" /> を参照ください。
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>--disallow-todo-tests</literal></term>
+        <listitem>
+          <para>
+            docblock に <literal>@todo</literal> アノテーションが指定されているテストを実行しません。
           </para>
         </listitem>
       </varlistentry>
@@ -564,7 +575,7 @@ class TestCaseClass extends \PHPUnit_Framework_TestCase
         <listitem>
           <para>
             テストのサイズに応じて、制限時間を設定します。
-            詳細は <xref linkend="strict-mode" /> を参照ください。
+            詳細は <xref linkend="risky-tests" /> を参照ください。
           </para>
         </listitem>
       </varlistentry>
@@ -576,7 +587,7 @@ class TestCaseClass extends \PHPUnit_Framework_TestCase
             テストを strict モードで実行します (<literal>--report-useless-tests</literal>、
             <literal>--strict-coverage</literal>、<literal>--disallow-test-output</literal>、
             そして <literal>--enforce-time-limit</literal> を指定するのと同じ動きです)。詳細は <xref
-            linkend="strict-mode" /> を参照ください。
+            linkend="risky-tests" /> を参照ください。
           </para>
         </listitem>
       </varlistentry>
