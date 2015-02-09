@@ -64,7 +64,7 @@ OK (2 tests, 2 assertions)</screen>
       <listitem>
         <para>
           Printed when the test has been marked as risky (see
-          <xref linkend="strict-mode" />).
+          <xref linkend="risky-tests" />).
         </para>
       </listitem>
     </varlistentry>
@@ -106,7 +106,7 @@ OK (2 tests, 2 assertions)</screen>
 
   <section id="textui.clioptions">
     <title>Command-Line Options</title>
-  
+
     <para>
       Let's take a look at the command-line test runner's options in
       the following code:
@@ -152,13 +152,15 @@ Test Execution Options:
   --strict-coverage         Be strict about unintentionally covered code.
   --disallow-test-output    Be strict about output during tests.
   --enforce-time-limit      Enforce time limit based on test size.
-  --strict                  Run tests in strict mode (enables all of the above).
+  --disallow-todo-tests     Disallow @todo-annotated tests.
 
   --process-isolation       Run each test in a separate PHP process.
   --no-globals-backup       Do not backup and restore $GLOBALS for each test.
   --static-backup           Backup and restore static attributes for each test.
 
   --colors                  Use colors in output.
+  --columns <n>             Number of columns to use for progress outout.
+  --columns max             Use maximum number of columns for progress outout.
   --stderr                  Write to STDERR instead of STDOUT.
   --stop-on-error           Stop execution upon first error.
   --stop-on-failure         Stop execution upon first error or failure.
@@ -538,7 +540,7 @@ class TestCaseClass extends \PHPUnit_Framework_TestCase
         <listitem>
           <para>
             Be strict about tests that do not test anything. See <xref
-            linkend="strict-mode" /> for details.
+            linkend="risky-tests" /> for details.
           </para>
         </listitem>
       </varlistentry>
@@ -548,7 +550,7 @@ class TestCaseClass extends \PHPUnit_Framework_TestCase
         <listitem>
           <para>
             Be strict about unintentionally covered code. See <xref
-            linkend="strict-mode" /> for details.
+            linkend="risky-tests" /> for details.
           </para>
         </listitem>
       </varlistentry>
@@ -558,7 +560,16 @@ class TestCaseClass extends \PHPUnit_Framework_TestCase
         <listitem>
           <para>
             Be strict about output during tests. See <xref
-            linkend="strict-mode" /> for details.
+            linkend="risky-tests" /> for details.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>--disallow-todo-tests</literal></term>
+        <listitem>
+          <para>
+            Does not execute tests which have the <literal>@todo</literal> annotation in its docblock.
           </para>
         </listitem>
       </varlistentry>
@@ -568,7 +579,7 @@ class TestCaseClass extends \PHPUnit_Framework_TestCase
         <listitem>
           <para>
             Enforce time limit based on test size. See <xref
-            linkend="strict-mode" /> for details.
+            linkend="risky-tests" /> for details.
           </para>
         </listitem>
       </varlistentry>
@@ -580,7 +591,7 @@ class TestCaseClass extends \PHPUnit_Framework_TestCase
             Run tests in strict mode (same as using <literal>--report-useless-tests</literal>,
             <literal>--strict-coverage</literal>, <literal>--disallow-test-output</literal>,
             and <literal>--enforce-time-limit</literal>). See <xref
-            linkend="strict-mode" /> for details.
+            linkend="risky-tests" /> for details.
           </para>
         </listitem>
       </varlistentry>
