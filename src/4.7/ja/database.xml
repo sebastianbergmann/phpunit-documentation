@@ -777,8 +777,8 @@ class CsvGuestbookTest extends PHPUnit_Extensions_Database_TestCase
       <section id="database.array-dataset">
         <title>Array データセット</title>
         <para>
-          PHPUnit の Database Extension には、(今のところ)
-          配列ベースのデータセットが存在しません。しかし、自分で簡単に実装できます。
+          PHPUnit の Database Extension のバージョン 1.3.2 以降では、
+          配列ベースのデータセットが使えます。
           guestbook の例だと、このようになります。
         </para>
         <programlisting><![CDATA[<?php
@@ -786,7 +786,7 @@ class ArrayGuestbookTest extends PHPUnit_Extensions_Database_TestCase
 {
     protected function getDataSet()
     {
-        return new MyApp_DbUnit_ArrayDataSet(array(
+        return $this->createArrayDataSet(array(
             'guestbook' => array(
                 array('id' => 1, 'content' => 'Hello buddy!', 'user' => 'joe', 'created' => '2010-04-24 17:15:23'),
                 array('id' => 2, 'content' => 'I like it!',   'user' => null,  'created' => '2010-04-26 12:14:20'),
@@ -818,53 +818,6 @@ class ArrayGuestbookTest extends PHPUnit_Extensions_Database_TestCase
           <quote>content</quote>、<quote>user</quote> そして
           <quote>created</quote> です。
         </para>
-        <para>
-          この Array データセットの実装は、シンプルで直感的なものです。
-        </para>
-        <programlisting><![CDATA[<?php
-class MyApp_DbUnit_ArrayDataSet extends PHPUnit_Extensions_Database_DataSet_AbstractDataSet
-{
-    /**
-     * @var array
-     */
-    protected $tables = array();
-
-    /**
-     * @param array $data
-     */
-    public function __construct(array $data)
-    {
-        foreach ($data AS $tableName => $rows) {
-            $columns = array();
-            if (isset($rows[0])) {
-                $columns = array_keys($rows[0]);
-            }
-
-            $metaData = new PHPUnit_Extensions_Database_DataSet_DefaultTableMetaData($tableName, $columns);
-            $table = new PHPUnit_Extensions_Database_DataSet_DefaultTable($metaData);
-
-            foreach ($rows AS $row) {
-                $table->addRow($row);
-            }
-            $this->tables[$tableName] = $table;
-        }
-    }
-
-    protected function createIterator($reverse = FALSE)
-    {
-        return new PHPUnit_Extensions_Database_DataSet_DefaultTableIterator($this->tables, $reverse);
-    }
-
-    public function getTable($tableName)
-    {
-        if (!isset($this->tables[$tableName])) {
-            throw new InvalidArgumentException("$tableName is not a table in the current database.");
-        }
-
-        return $this->tables[$tableName];
-    }
-}
-?>]]></programlisting>
       </section>
       <section id="database.query-sql-dataset">
         <title>Query (SQL) データセット</title>
