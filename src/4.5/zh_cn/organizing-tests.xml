@@ -1,28 +1,19 @@
-<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8"?>
 
 <chapter id="organizing-tests">
   <title>组织测试</title>
 
   <para>
-    <indexterm><primary>Test Suite （测试套件）</primary></indexterm>
+    <indexterm><primary>Test Suite （测试套件）</primary></indexterm>PHPUnit 的目标之一是测试应当可组合：我们希望能将任意数量的测试以任意组合方式运行，例如，整个项目的所有测试，或者项目中的某个组件内的所有类的测试，又或者仅仅某单个类的测试。</para>
 
-    PHPUnit 的目标之一是测试应当可组合：我们希望能将任意数量的测试以任意组合方式运行，例如，整个项目的所有测试，或者项目中的某个组件内的所有类的测试，又或者仅仅某单个类的测试。
-  </para>
-
-  <para>
-    PHPUnit 支持好几种不同的方式来组织测试以及将它们编排组合成测试套件。本章介绍了最常用的方法。
-  </para>
+  <para>PHPUnit 支持好几种不同的方式来组织测试以及将它们编排组合成测试套件。本章介绍了最常用的方法。</para>
 
   <section id="organizing-tests.filesystem">
     <title>用文件系统来编排测试套件</title>
 
-    <para>
-      编排测试套件的各种方式中，最简单的大概就是把所有测试用例源文件放在一个测试目录中。通过对测试目录进行递归遍历，PHPUnit 能自动发现并运行测试。
-    </para>
+    <para>编排测试套件的各种方式中，最简单的大概就是把所有测试用例源文件放在一个测试目录中。通过对测试目录进行递归遍历，PHPUnit 能自动发现并运行测试。</para>
 
-    <para>
-      让我们一起来看看 <ulink url="https://github.com/sebastianbergmann/money/">sebastianbergmann/money</ulink> 这个库的测试套件。在这个项目的目录结构中，可以看到 <filename>tests</filename> 目录下的测试用例类镜像了 <filename>src</filename> 目录下被测系统(SUT, System Under Test)的包(package)与类(class)的结构：
-    </para>
+    <para>现在来看看 <ulink url="http://github.com/sebastianbergmann/money/">sebastianbergmann/money</ulink> 这个库的测试套件。在这个项目的目录结构中，可以看到 <filename>tests</filename> 目录下的测试用例类镜像了 <filename>src</filename> 目录下被测系统(SUT, System Under Test)的包(package)与类(class)的结构：</para>
 
     <screen>src                                 tests
 `-- Currency.php                    `-- CurrencyTest.php
@@ -30,12 +21,10 @@
 `-- Money.php                       `-- MoneyTest.php
 `-- autoload.php</screen>
 
-    <para>
-      要运行这个库的全部测试，只要将 PHPUnit 命令行测试执行器指向测试目录即可：
-    </para>
+    <para>要运行这个库的全部测试，只要将 PHPUnit 命令行测试执行器指向测试目录即可：</para>
 
-    <screen><userinput>phpunit tests</userinput>
-PHPUnit 4.5.0 by Sebastian Bergmann and contributors.
+    <screen><userinput>phpunit --bootstrap src/autoload.php tests</userinput>
+PHPUnit 4.5.0 by Sebastian Bergmann.
 
 .................................
 
@@ -44,17 +33,13 @@ Time: 636 ms, Memory: 3.50Mb
 OK (33 tests, 52 assertions)</screen>
 
     <note>
-      <para>
-        当 PHPUnit 命令行测试执行器指向一个目录时，它会在目录下查找 <filename>*Test.php</filename> 文件。
-      </para>
+      <para>当 PHPUnit 命令行测试执行器指向一个目录时，它会在目录下查找 <filename>*Test.php</filename> 文件。</para>
     </note>
 
-    <para>
-      如果只想运行在 <filename>tests/CurrencyTest.php</filename> 文件中的 <literal>CurrencyTest</literal> 测试用例类中声明的测试，可以使用如下命令：
-    </para>
+    <para>如果只想运行在 <literal>CurrencyTest</literal> 文件中的 <filename>tests/CurrencyTest.php</filename> 测试用例类中声明的测试，可以使用如下命令：</para>
 
-    <screen><userinput>phpunit tests/CurrencyTest</userinput>
-PHPUnit 4.5.0 by Sebastian Bergmann and contributors.
+    <screen><userinput>phpunit --bootstrap src/autoload.php tests/CurrencyTest</userinput>
+PHPUnit 4.5.0 by Sebastian Bergmann.
 
 ........
 
@@ -62,12 +47,10 @@ Time: 280 ms, Memory: 2.75Mb
 
 OK (8 tests, 8 assertions)</screen>
 
-    <para>
-      如果想要对运行哪些测试有更细粒度的控制，可以使用 <literal>--filter</literal> 选项：
-    </para>
+    <para>如果想要对运行哪些测试有更细粒度的控制，可以使用 <literal>--filter</literal> 选项：</para>
 
-    <screen><userinput>phpunit --filter testObjectCanBeConstructedForValidConstructorArgument tests</userinput>
-PHPUnit 4.5.0 by Sebastian Bergmann and contributors.
+    <screen><userinput>phpunit --bootstrap src/autoload.php --filter testObjectCanBeConstructedForValidConstructorArgument tests</userinput>
+PHPUnit 4.5.0 by Sebastian Bergmann.
 
 ..
 
@@ -76,9 +59,7 @@ Time: 167 ms, Memory: 3.00Mb
 OK (2 test, 2 assertions)</screen>
 
     <note>
-      <para>
-        这种方法的缺点是无法控制测试的运行顺序。这可能导致测试的依赖关系方面的问题，参见<xref linkend="writing-tests-for-phpunit.test-dependencies"/>。在下一节中，可以看到如何用 XML 配置文件来明确指定测试的执行顺序。
-      </para>
+      <para>这种方法的缺点是无法控制测试的运行顺序。这可能导致测试的依赖关系方面的问题，参见 <xref linkend="writing-tests-for-phpunit.test-dependencies"/>。在下一节中，可以看到如何用 XML 配置文件来明确指定测试的执行顺序。</para>
     </note>
   </section>
 
@@ -86,13 +67,11 @@ OK (2 test, 2 assertions)</screen>
     <title>用 XML 配置来编排测试套件</title>
     <indexterm><primary>XML Configuration （XML 配置）</primary></indexterm>
 
-    <para>
-      PHPUnit的 XML 配置文件（<xref linkend="appendixes.configuration"/>）也可以用于编排测试套件。<xref linkend="organizing-tests.xml-configuration.examples.phpunit.xml"/>展示了一个最小化的例子，它将在循环遍历 <filename>tests</filename> 时添加所有在 <filename>*Test.php</filename> 文件中找到的 <literal>*Test</literal> 类。
-    </para>
+    <para>PHPUnit的 XML 配置文件（<xref linkend="appendixes.configuration"/>）也可以用于编排测试套件。<xref linkend="organizing-tests.xml-configuration.examples.phpunit.xml"/>展示了一个最小化的 <filename>phpunit.xml</filename> 例子，它将在递归遍历 <filename>tests</filename>  时添加所有在 <filename>*Test.php</filename> 文件中找到的 <literal>*Test</literal> 类。</para>
 
     <example id="organizing-tests.xml-configuration.examples.phpunit.xml">
       <title>用 XML 配置来编排测试套件</title>
-      <programlisting><![CDATA[<phpunit>
+      <programlisting><![CDATA[<phpunit bootstrap="src/autoload.php">
   <testsuites>
     <testsuite name="money">
       <directory>tests</directory>
@@ -101,13 +80,13 @@ OK (2 test, 2 assertions)</screen>
 </phpunit>]]></programlisting>
     </example>
 
-    <para>
-      可以明确指定测试的执行顺序：
-    </para>
+    <para>如果 <filename>phpunit.xml</filename> 或 <filename>phpunit.xml.dist</filename> （按此顺序）存在于当前工作目录并且<emphasis>未</emphasis>使用 <literal>--configuration</literal>，将自动从此文件中读取配置。</para>
+
+    <para>可以明确指定测试的执行顺序：</para>
 
     <example id="organizing-tests.xml-configuration.examples.phpunit.xml2">
       <title>用 XML 配置来编排测试套件</title>
-      <programlisting><![CDATA[<phpunit>
+      <programlisting><![CDATA[<phpunit bootstrap="src/autoload.php">
   <testsuites>
     <testsuite name="money">
       <file>tests/IntlFormatterTest.php</file>
