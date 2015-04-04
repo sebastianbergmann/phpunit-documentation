@@ -1,0 +1,469 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<appendix id="appendixes.annotations">
+  <title>Anotações</title>
+
+  <para>
+    <indexterm><primary>Anotações</primary></indexterm>
+
+    Uma anotação é uma forma especial de metadados sintáticos que podem ser adicionados ao código-fonte de algumas linguagens de programação. Enquanto o PHP não tem um recurso de linguagem dedicado a anotação de código-fonte, o uso de tags como <literal>@annotation arguments</literal> em bloco de documentação tem sido estabelecido na comunidade do PHP para anotar o código-fonte. Os blocos de documentação PHP são reflexivos: eles podem ser acessados através do método da API de Reflexão <literal>getDocComment()</literal> a nível de função, classe, método e atributo. Aplicações como o PHPUnit usam essa informação em tempo de execução para configurar seu comportamento.
+  </para>
+
+  <para>
+    Este apêndice mostra todas as variedades de anotações suportadas pelo PHPUnit.
+  </para>
+
+  <section id="appendixes.annotations.author">
+    <title>@author</title>
+
+    <para>
+      <indexterm><primary>@author</primary></indexterm>
+
+      A anotação <literal>@author</literal> é um apelido para a anotação
+      <literal>@group</literal> (veja a seção chamada <xref
+      linkend="appendixes.annotations.group"/>) e permite filtrar os testes baseado em seus autores.
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.backupGlobals">
+    <title>@backupGlobals</title>
+
+    <para>
+      <indexterm><primary><literal>@backupGlobals</literal></primary></indexterm>
+
+      As operações de backup e restauração para variáveis globais podem ser completamente desabilitadas para todos os testes de uma classe de caso de teste como esta:
+
+<programlisting>
+/**
+ * @backupGlobals disabled
+ */
+class MeuTest extends PHPUnit_Framework_TestCase
+{
+    // ...
+}</programlisting>
+    </para>
+
+    <para>
+      <indexterm><primary><literal>@backupGlobals</literal></primary></indexterm>
+
+      A anotação <literal>@backupGlobals</literal> também pode ser usada a nível de método de teste. Isso permite uma configuração refinada das operações de backup e restauração: 
+<programlisting>
+/**
+ * @backupGlobals disabled
+ */
+class MeuTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @backupGlobals enabled
+     */
+    public function testQueInterageComVariaveisGlobais()
+    {
+        // ...
+    }
+}</programlisting>
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.backupStaticAttributes">
+    <title>@backupStaticAttributes</title>
+
+    <para>
+      <indexterm><primary><literal>@backupStaticAttributes</literal></primary></indexterm>
+
+      As operações de backup e restauração para atributos estáticos de classes podem ser completamente desabilitadas para todos os testes de uma classe de caso de teste como esta:
+      <programlisting>
+/**
+ * @backupStaticAttributes disabled
+ */
+class MeuTest extends PHPUnit_Framework_TestCase
+{
+    // ...
+}</programlisting>
+    </para>
+
+    <para>
+      <indexterm><primary><literal>@backupStaticAttributes</literal></primary></indexterm>
+
+      A anotação <literal>@backupStaticAttributes</literal> também pode ser usada a nível de método de teste. Isso permite uma configuração refinada das operações de backup e restauração:
+<programlisting>
+/**
+ * @backupStaticAttributes disabled
+ */
+class MeuTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @backupStaticAttributes enabled
+     */
+    public function testQueInterageComAtributosEstaticos()
+    {
+        // ...
+    }
+}</programlisting>
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.codeCoverageIgnore">
+    <title>@codeCoverageIgnore*</title>
+
+    <para>
+      <indexterm><primary>@codeCoverageIgnore</primary></indexterm>
+      <indexterm><primary>@codeCoverageIgnoreStart</primary></indexterm>
+      <indexterm><primary>@codeCoverageIgnoreEnd</primary></indexterm>
+
+      As anotações <literal>@codeCoverageIgnore</literal>,
+      <literal>@codeCoverageIgnoreStart</literal> e
+      <literal>@codeCoverageIgnoreEnd</literal> podem ser usadas para excluir linhas de código da análise de cobertura.
+    </para>
+
+    <para>
+      Para uso, veja a seção chamada <xref
+      linkend="code-coverage-analysis.ignoring-code-blocks"/>.
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.covers">
+    <title>@covers</title>
+
+    <para>
+      <indexterm><primary>Code Coverage</primary></indexterm>
+      <indexterm><primary>@covers</primary></indexterm>
+
+      A anotação <literal>@covers</literal> pode ser usada no código de teste para especificar quais métodos um método de teste quer testar: <programlisting>/**
+ * @covers ContaBancaria::getSaldo
+ */
+public function testSaldoEhInicialmenteZero()
+{
+    $this->assertEquals(0, $this->cb->getSaldo());
+}</programlisting>
+    </para>
+
+    <para>
+      Se fornecida, apenas a informação de cobertura de código para o(s) método(s) especificado(s) será considerada.
+    </para>
+
+    <para>
+      <xref linkend="appendixes.annotations.covers.tables.annotations"/> mostra a sintaxe da anotação <literal>@covers</literal>.
+    </para>
+
+    <table id="appendixes.annotations.covers.tables.annotations">
+      <title>Anotações para especificar quais métodos são cobertos por um teste</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>Anotação</entry>
+            <entry>Descrição</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal><![CDATA[@covers ClassName::methodName]]></literal></entry>
+            <entry><literal>Especifica que o método de teste anotado cobre o método especificado.</literal></entry>
+          </row>
+          <row>
+            <entry><literal><![CDATA[@covers ClassName]]></literal></entry>
+            <entry><literal>Especifica que o método de teste anotado cobre todos os métodos de uma dada classe.</literal></entry>
+          </row>
+          <row>
+            <entry><literal><![CDATA[@covers ClassName<extended>]]></literal></entry>
+            <entry><literal>Especifica que o método de teste anotado cobre todos os métodos de uma dada classe e sua(s) classe(s) pai(s) e interface(s).</literal></entry>
+          </row>
+          <row>
+            <entry><literal><![CDATA[@covers ClassName::<public>]]></literal></entry>
+            <entry><literal>Especifica que o método de teste anotado cobre todos os métodos públicos de uma dada classe.</literal></entry>
+          </row>
+          <row>
+            <entry><literal><![CDATA[@covers ClassName::<protected>]]></literal></entry>
+            <entry><literal>Especifica que o método de teste anotado cobre todos os métodos protegidos de uma dada classe.</literal></entry>
+          </row>
+          <row>
+            <entry><literal><![CDATA[@covers ClassName::<private>]]></literal></entry>
+            <entry><literal>Especifica que o método de teste anotado cobre todos os métodos privados de uma dada classe.</literal></entry>
+          </row>
+          <row>
+            <entry><literal><![CDATA[@covers ClassName::<!public>]]></literal></entry>
+            <entry><literal>Especifica que o método de teste anotado cobre todos os métodos que não sejam públicos de uma dada classe.</literal></entry>
+          </row>
+          <row>
+            <entry><literal><![CDATA[@covers ClassName::<!protected>]]></literal></entry>
+            <entry><literal>Especifica que o método de teste anotado cobre todos os métodos que não sejam protegidos de uma dada classe.</literal></entry>
+          </row>
+          <row>
+            <entry><literal><![CDATA[@covers ClassName::<!private>]]></literal></entry>
+            <entry><literal>Especifica que o método de teste anotado cobre todos os métodos que não sejam privados de uma dada classe.</literal></entry>
+          </row>
+          <row>
+            <entry><literal><![CDATA[@covers ::functionName]]></literal></entry>
+            <entry><literal>Especifica que o método de teste anotado cobre todos os métodos que não sejam privados de uma dada classe.</literal></entry>
+          </row>
+         </tbody>
+      </tgroup>
+    </table>
+  </section>
+
+  <section id="appendixes.annotations.coversNothing">
+    <title>@coversNothing</title>
+
+    <para>
+      <indexterm><primary>@coversNothing</primary></indexterm>
+
+      A anotação <literal>@coversNothing</literal> pode ser usada no código de teste para especificar que nenhuma informação de cobertura de código será gravada para o caso de teste anotado.
+    </para>
+
+    <para>
+        Isso pode ser usado para testes de integração. Veja
+        <xref linkend="code-coverage-analysis.specifying-covered-methods.examples.GuestbookIntegrationTest.php"/>
+        para um exemplo.
+    </para>
+
+    <para>
+        A anotação pode ser usada nos níveis de classe e de método e vão sobrepujar quaisquer tags <literal>@covers</literal>.
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.dataProvider">
+    <title>@dataProvider</title>
+
+    <para>
+      <indexterm><primary>@dataProvider</primary></indexterm>
+
+      Um método de teste pode aceitar argumentos arbitrários. Esses argumentos devem ser fornecidos por um método provedor  (<literal>provider()</literal> em
+      <xref linkend="writing-tests-for-phpunit.data-providers.examples.DataTest.php" />).
+      O método provedor de dados a ser usado é especificado usando a anotação
+      <literal>@dataProvider</literal>.
+    </para>
+
+    <para>
+      Veja a seção chamada <xref linkend="writing-tests-for-phpunit.data-providers"/> para mais detalhes.
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.depends">
+    <title>@depends</title>
+
+    <para>
+      <indexterm><primary>@depends</primary></indexterm>
+
+      O PHPUnit suporta a declaração de dependências explícitas entre métodos de teste. Tais dependências não definem a ordem em que os métodos de teste devem ser executados, mas permitem o retorno de uma instância do componente de teste por um produtor e passá-la aos consumidores dependentes.
+      <xref linkend="writing-tests-for-phpunit.examples.StackTest2.php"/> mostra como usar a anotação <literal>@depends</literal> para expressar dependências entre métodos de teste.
+    </para>
+
+    <para>
+      Veja a seção chamada <xref linkend="writing-tests-for-phpunit.test-dependencies"/> para mais detalhes.
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.expectedException">
+    <title>@expectedException</title>
+
+    <para>
+      <indexterm><primary>@expectedException</primary></indexterm>
+
+      <xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest.php" />
+      mostra como usar a anotação <literal>@expectedException</literal> para testar se uma exceção é lançada dentro do código testado.
+    </para>
+
+    <para>
+      Veja a seção chamada <xref linkend="writing-tests-for-phpunit.exceptions"/> para mais detalhes.
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.expectedExceptionCode">
+    <title>@expectedExceptionCode</title>
+
+    <para>
+      <indexterm><primary>@expectedExceptionCode</primary></indexterm>
+
+      A anotação <literal>@expectedExceptionCode</literal> em conjunção com a <literal>@expectedException</literal> permite fazer asserções no código de erro de uma exceção lançada, permitindo diminuir uma exceção específica.
+
+      <programlisting>class MeuTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @expectedException MinhaExcecao
+     * @expectedExceptionCode 20
+     */
+    public function testExcecaoTemCodigoErro20()
+    {
+        throw new MinhaExcecao('Alguma Mensagem', 20);
+    }
+}</programlisting>
+
+      Para facilitar o teste e reduzir a duplicação, um atalho pode ser usado para especificar uma constante de classe como uma
+      <literal>@expectedExceptionCode</literal> usando a sintaxe
+      "<literal>@expectedExceptionCode ClassName::CONST</literal>".
+
+      <programlisting>class MeuTest extends PHPUnit_Framework_TestCase
+{
+    /**
+      * @expectedException MinhaExcecao
+      * @expectedExceptionCode MyClass::ERRORCODE
+      */
+    public function testExcecaoTemCodigoErro20()
+    {
+      throw new MyException('Alguma Mensagem', 20);
+    }
+}
+class MinhaClasse
+{
+    const ERRORCODE = 20;
+}</programlisting>
+
+    </para>
+
+  </section>
+
+  <section id="appendixes.annotations.expectedExceptionMessage">
+    <title>@expectedExceptionMessage</title>
+
+    <para>
+      <indexterm><primary>@expectedExceptionMessage</primary></indexterm>
+
+      A anotação <literal>@expectedExceptionMessage</literal> trabalha de modo similar a <literal>@expectedExceptionCode</literal> já que lhe permite fazer uma asserção na mensagem de erro de uma exceção.
+
+      <programlisting>class MeuTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @expectedException MinhaExcecao
+     * @expectedExceptionMessage Alguma Mensagem
+     */
+    public function testExcecaoTemMensagemCerta()
+    {
+        throw new MinhaExcecao('Alguma Mensagem', 20);
+    }
+}</programlisting>
+
+      A mensagem esperada pode ser uma substring de uma Mensagem de exceção. Isso pode ser útil para assertar apenas que um certo nome ou parâmetro que foi passado é mostrado na exceção e não fixar toda a mensagem de exceção no teste.
+
+      <programlisting>class MeuTest extends PHPUnit_Framework_TestCase
+{
+     /**
+      * @expectedException MinhaExcecao
+      * @expectedExceptionMessage quebrado
+      */
+     public function testExcecaoTemMensagemCerta()
+     {
+         $param = "quebrado";
+         throw new MinhaExcecao('Parâmetro Inválido "'.$param.'".', 20);
+     }
+}</programlisting>
+
+      Para facilitar o teste e reduzir duplicação um atalho pode ser usado para especificar uma constante de classe como uma
+      <literal>@expectedExceptionMessage</literal> usando a sintaxe
+      "<literal>@expectedExceptionMessage ClassName::CONST</literal>".
+
+      Um exemplo pode ser encontrado na seção chamada <xref linkend="appendixes.annotations.expectedExceptionCode"/>.
+    </para>
+
+  </section>
+
+  <section id="appendixes.annotations.group">
+    <title>@group</title>
+
+    <para>
+      <indexterm><primary>@group</primary></indexterm>
+
+      Um teste pode ser marcado como pertencente a um ou mais grupos usando a anotação
+      <literal>@group</literal> desta forma: 
+<programlisting>
+class MeuTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @group especificacao
+     */
+    public function testAlgumaCoisa()
+    {
+    }
+
+    /**
+     * @group regressao
+     * @group bug2204
+     */
+    public function testOutraCoisa()
+    {
+    }
+}</programlisting>
+    </para>
+
+    <para>
+      Testes podem ser selecionados para execução baseada em grupos usando os comutadores
+      <literal>--group</literal> e <literal>--exclude-group</literal> do executor de teste em linha-de-comando ou usando as respectivas diretivas do arquivo de configuração XML.
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.requires">
+    <title>@requires</title>
+
+    <para>
+      <indexterm><primary><literal>@requires</literal></primary></indexterm>
+
+      A anotação <literal>@requires</literal> pode ser usada para pular testes quando pré-condição, como a Versão do PHP ou extensões instaladas, não batem.
+    </para>
+
+    <para>
+      <indexterm><primary><literal>@requires</literal></primary></indexterm>
+      Uma lista completa de possibilidades e exemplos pode ser encontrada em
+      <xref linkend="incomplete-and-skipped-tests.requires.tables.api" />
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.runTestsInSeparateProcesses">
+    <title>@runTestsInSeparateProcesses</title>
+
+    <para>
+      <indexterm><primary>@runTestsInSeparateProcesses</primary></indexterm>
+    </para>
+
+    <programlisting></programlisting>
+  </section>
+
+  <section id="appendixes.annotations.runInSeparateProcess">
+    <title>@runInSeparateProcess</title>
+
+    <para>
+      <indexterm><primary>@runInSeparateProcess</primary></indexterm>
+    </para>
+
+    <programlisting></programlisting>
+  </section>
+
+  <section id="appendixes.annotations.test">
+    <title>@test</title>
+
+    <para>
+      <indexterm><primary>@test</primary></indexterm>
+
+      Como uma alternativa para prefixar seus nomes de métodos de teste com
+      <literal>test</literal>, você pode usar a anotação <literal>@test</literal>
+      no Bloco de Documentação de um método para marcá-lo como um método de teste.
+      <programlisting>
+/**
+ * @test
+ */
+public function saldoInicialDeveSer0()
+{
+    $this->assertEquals(0, $this->cb->getSaldo());
+}</programlisting>
+    </para>
+  </section>
+
+  <section id="appendixes.annotations.testdox">
+    <title>@testdox</title>
+
+    <para>
+      <indexterm><primary>TestDox</primary></indexterm>
+      <indexterm><primary>@testdox</primary></indexterm>
+    </para>
+
+    <programlisting></programlisting>
+  </section>
+
+  <section id="appendixes.annotations.ticket">
+    <title>@ticket</title>
+
+    <para>
+      <indexterm><primary>@ticket</primary></indexterm>
+    </para>
+
+    <programlisting></programlisting>
+  </section>
+</appendix>
