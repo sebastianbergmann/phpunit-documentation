@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="testing-practices">
+  <title>Práticas de Teste</title>
+
+  <blockquote>
+    <attribution>Erich Gamma</attribution>
+    <para>
+      Você sempre pode escrever mais testes. Porém, você vai descobrir rapidamente que apenas uma fração dos testes que você pode imaginar são realmente úteis. O que você quer é escrever testes que falham mesmo quando você acha que eles deveriam funcionar, ou testes que passam mesmo quando você acha que eles deveria falhar. Outra forma de pensar sobre isso é com relação ao custo/benefício. Você pode querer escrever testes que te darão retorno com informação.
+    </para>
+  </blockquote>
+
+  <section id="testing-practices.during-development">
+    <title>Durante o Desenvolvimento</title>
+
+    <para>
+      <indexterm><primary>Refatorando</primary></indexterm>
+
+      Quando você precisa fazer uma mudança na estrutura interna do programa em que está trabalhando para torná-lo mais fácil de entender e mais barato de modificar sem alterar seu comportamento visível, uma suíte de testes é inestimável na aplicação das assim chamadas <ulink url="http://martinfowler.com/bliki/DefinitionOfRefactoring.html">refatorações</ulink>com segurança. De outra forma, você poderia não notar o sistema quebrando enquanto você está cuidando da reestruturação.
+    </para>
+
+    <para>
+      As seguintes condições vão ajudá-lo a melhorar o código e design do seu projeto, enquanto usa testes unitários para verificar que os passos de transformação da refatoração são, de fato, preservadores de comportamento e não introduzem erros:
+    </para>
+
+    <orderedlist>
+      <listitem>
+        <para>Todos os testes unitários são executados corretamente.</para>
+      </listitem>
+
+      <listitem>
+        <para>O código comunica seus princípios de design.</para>
+      </listitem>
+
+      <listitem>
+        <para>O código não contém redundâncias.</para>
+      </listitem>
+
+      <listitem>
+        <para>O código contém o mínimo número de classes e métodos.</para>
+      </listitem>
+    </orderedlist>
+
+    <para>
+      Quando você precisar adicionar novas funcionalidades ao sistema, escreva os testes primeiro. Então, você terá terminado de desenvolver quando os testes executarem. Esta prática é discutida no próximo capítulo.
+    </para>
+  </section>
+
+  <section id="testing-practices.during-debugging">
+    <title>Durante a Depuração</title>
+
+    <para>
+      Quando você recebe um relatório de defeito, seu impulso pode ser consertar o defeito o mais rápido possível. A experiência mostra que esse impulso não vai lhe servir bem; parece que o conserto de um defeito acaba causando outro defeito.
+    </para>
+
+    <para>
+      Você pode conter esses seus impulsos fazendo o seguinte:
+    </para>
+
+    <orderedlist>
+      <listitem>
+        <para>
+          Verifique que você pode reproduzir o defeito.
+        </para>
+      </listitem>
+
+      <listitem>
+        <para>
+          Encontre a demonstração em menor escala do defeito no código. Por exemplo, se um número aparece incorretamente em uma saída, encontre o objeto que está computando esse número.
+        </para>
+      </listitem>
+
+      <listitem>
+        <para>
+          Escreva um teste automatizado que falha agora, mas vai passar quando o defeito for consertado.
+        </para>
+      </listitem>
+
+      <listitem>
+        <para>
+          Conserte o defeito.
+        </para>
+      </listitem>
+    </orderedlist>
+
+    <para>
+      Encontrar a menor reprodução confiável do defeito vai te dar a oportunidade de examinar realmente a causa do defeito. O teste que você escreve vai melhorar as chances de que, quando você consertar o defeito, você realmente tê-lo consertado, porque o novo teste reduz a probabilidade de desfazer o conserto com futuras modificações no código. Todos os testes que você escreveu antes reduzem a probabilidade de causar diferentes problemas inadvertidamente.
+    </para>
+
+    <blockquote>
+      <attribution>Benjamin Smedberg</attribution>
+      <para>
+        Testes unitários oferecem muitas vantagens:
+        <itemizedlist>
+          <listitem><para>Testar dá aos autores e revisores dos códigos confiança de que remendos produzem os resultados corretos.</para></listitem>
+          <listitem><para>Criar casos de testes é um bom ímpeto para desenvolvedores descobrirem casos extremos.</para></listitem>
+          <listitem><para>Testar fornece uma boa maneira de capturar regressões rapidamente, e ter certeza de que nenhuma regressão será repetida duas vezes.</para></listitem>
+          <listitem><para>Testes unitários fornecem exemplos funcionais de como usar uma API e podem auxiliar significativamente os trabalhos de documentação.</para></listitem>
+        </itemizedlist>
+        No geral, testes unitários integrados reduzem o custo e o risco de qualquer mudança individual. Isso vai permitir ao projeto realizar [...] maiores mudanças arquitetônicas [...] rápida e confiavelmente.
+      </para>
+    </blockquote>
+  </section>
+</chapter>
