@@ -9,12 +9,22 @@
     <para>
       <indexterm><primary>Servidor Selenium</primary></indexterm>
 
-      <ulink url="http://seleniumhq.org/">Servidor Selenium</ulink> é uma ferramenta de testes que permite a você escrever testes automatizados de interface de usuário para aplicações web em qualquer linguagem de programação contra qualquer website HTTP usando um dos principais navegadores. Ele realiza tarefas automatizadas no navegador guiando seu processo através do sistema operacional. O Selenium executa os testes diretamente em um navegador, exatamente como os usuários reais fazem. Esses testes podem ser usados para ambos <emphasis>testes de aceitação</emphasis>
-      (realizando testes de alto-nível no sistema integrado em vez de apenas testar cada unidade do sistema independentemente) e <emphasis>testes de compatibilidade de navegador</emphasis> (testando a aplicação web em diferentes sistemas operacionais e navegadores).
+      <ulink url="http://seleniumhq.org/">Servidor Selenium</ulink> é uma 
+      ferramenta de testes que permite a você escrever testes automatizados de interface de usuário para 
+      aplicações web em qualquer linguagem de programação contra qualquer website HTTP 
+      usando um dos principais navegadores. Ele realiza tarefas automatizadas no navegador 
+      guiando seu processo através do sistema operacional. 
+      O Selenium executa os testes diretamente em um navegador, exatamente como os usuários reais fazem. Esses 
+      testes podem ser usados para ambos <emphasis>testes de aceitação</emphasis>
+      (realizando testes de alto-nível no sistema integrado em vez de 
+      apenas testar cada unidade do sistema independentemente) e 
+      <emphasis>testes de compatibilidade de navegador</emphasis> (testando a aplicação web em 
+      diferentes sistemas operacionais e navegadores).
     </para>
     
     <para>
-      O único cenário suportado do PHPUnit_Selenium é o do servidor Selenium 2.x. O servidor pode ser acessado através da Api clássica Selenium RC, já presente no 1.x, ou com a API WebDriver (parcialmente implementada) do PHPUnit_Selenium 1.2.
+      O único cenário suportado do PHPUnit_Selenium é o do servidor Selenium 2.x. 
+      O servidor pode ser acessado através da Api clássica Selenium RC, já presente no 1.x, ou com a API WebDriver (parcialmente implementada) do PHPUnit_Selenium 1.2.
     </para>
     <para>
       A razão por trás dessa decisão é que o Selenium 2 é compatível e o Selenium RC não é mais mantido.
@@ -34,14 +44,18 @@
       <listitem>Descompacte o arquivo de distribuição e copie o <filename>selenium-server-standalone-2.9.0.jar</filename> (verifique o sufixo da versão) para <filename>/usr/local/bin</filename>, por exemplo.</listitem>
       <listitem>Inicie o Servidor Selenium executando <userinput>java -jar /usr/local/bin/selenium-server-standalone-2.9.0.jar</userinput>.</listitem>
     </orderedlist>
-
-<para>
-      Segundo, instale o pacote PHPUnit_Selenium, necessário para acessar nativamente o Servidor Selenium do PHPUnit:
-      <screen><userinput>pear install phpunit/PHPUnit_Selenium</userinput></screen>
+    
+    <para>
+      O pacote PHPUnit_Selenium está incluso na distribuição PHAR 
+      do PHPUnit. Ele pode ser instalado através do Composer, adicionando a seguinte
+      dependência <literal>"require-dev"</literal>:
     </para>
+    
+    <screen><userinput>"phpunit/phpunit-selenium": ">=1.2"</userinput></screen>
 
     <para>
-      Agora podemos enviar comandos para o Servidor Selenium usando seu protocolo cliente/servidor.
+      Agora podemos enviar comandos para o Servidor Selenium usando seu protocolo 
+      cliente/servidor.
     </para>
   </section>
 
@@ -55,25 +69,27 @@
     </para>
 
     <para>
-      <xref linkend="selenium.selenium2testcase.examples.WebTest.php" /> mostra como testar os conteúdos do elemento <literal><![CDATA[<title>]]></literal>
-      do site <systemitem role="URL">http://www.example.com/</systemitem>.
+      <xref linkend="selenium.selenium2testcase.examples.WebTest.php" /> mostra 
+      como testar os conteúdos do elemento <literal><![CDATA[<title>]]></literal>
+      do site 
+      <systemitem role="URL">http://www.example.com/</systemitem>.
     </para>
     <example id="selenium.selenium2testcase.examples.WebTest.php">
       <title>Exemplo de uso para PHPUnit_Extensions_Selenium2TestCase</title>
       <programlisting><![CDATA[<?php
 class WebTest extends PHPUnit_Extensions_Selenium2TestCase
 {
-protected function setUp()
-{
-$this->setBrowser('firefox');
-$this->setBrowserUrl('http://www.exemplo.com/');
-}
+    protected function setUp()
+    {
+        $this->setBrowser('firefox');
+        $this->setBrowserUrl('http://www.example.com/');
+    }
 
-public function testTitle()
-{
-$this->url('http://www.exemplo.com/');
-$this->assertEquals('Página WWW de Exemplo', $this->title());
-}
+    public function testTitle()
+    {
+        $this->url('http://www.example.com/');
+        $this->assertEquals('Example WWW Page', $this->title());
+    }
 
 }
 ?>]]></programlisting>
@@ -91,17 +107,17 @@ Failed asserting that two strings are equal.
 --- Expected
 +++ Actual
 @@ @@
--'Página WWW de Exemplo'
-+'IANA — Domínio de Exemplo'
+-'Example WWW Page'
++'IANA — Example domains'
 
 /home/giorgio/WebTest.php:13
 
 FAILURES!
 Tests: 1, Assertions: 1, Failures: 1.]]></screen></example>
 
-  <para>
-    Os comandos do Selenium2TestCase são implementados via __call(). Por favor, recorra ao <ulink url="https://github.com/sebastianbergmann/phpunit-selenium/blob/master/Tests/Selenium2TestCaseTest.php">teste de ponta a ponta para o PHPUnit_Extensions_Selenium2TestCase</ulink> para uma lista de cada característica suportada.
-  </para>
+    <para>
+      Os comandos do Selenium2TestCase são implementados via __call(). Por favor, recorra ao <ulink url="https://github.com/sebastianbergmann/phpunit-selenium/blob/master/Tests/Selenium2TestCaseTest.php">teste de ponta a ponta para o PHPUnit_Extensions_Selenium2TestCase</ulink> para uma lista de cada característica suportada.
+    </para>
   </section>
 
   <section id="selenium.seleniumtestcase">
@@ -110,12 +126,16 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen></example>
     <para>
       <indexterm><primary><literal>PHPUnit_Extensions_SeleniumTestCase</literal></primary></indexterm>
 
-      A extensão de caso de teste <literal>PHPUnit_Extensions_SeleniumTestCase</literal> implementa o protocolo cliente/servidor para conversar com o Servidor Selenium assim como métodos de asserção especializados para testes web.
+      A extensão de caso de teste <literal>PHPUnit_Extensions_SeleniumTestCase</literal> 
+      implementa o protocolo cliente/servidor para conversar com o Servidor Selenium assim como 
+      métodos de asserção especializados para testes web.
     </para>
 
     <para>
-      <xref linkend="selenium.seleniumtestcase.examples.WebTest.php" /> mostra como testar os conteúdos do elemento <literal><![CDATA[<title>]]></literal>
-      para o site <systemitem role="URL">http://www.exemplo.com/</systemitem>.
+      O <xref linkend="selenium.seleniumtestcase.examples.WebTest.php" /> mostra 
+      como testar os conteúdos do elemento <literal><![CDATA[<title>]]></literal>
+      para o site 
+      <systemitem role="URL">http://www.exemplo.com/</systemitem>.
     </para>
 
     <example id="selenium.seleniumtestcase.examples.WebTest.php">
@@ -125,17 +145,17 @@ require_once 'PHPUnit/Extensions/SeleniumTestCase.php';
 
 class WebTest extends PHPUnit_Extensions_SeleniumTestCase
 {
-protected function setUp()
-{
-$this->setBrowser('*firefox');
-$this->setBrowserUrl('http://www.exemplo.com/');
-}
+    protected function setUp()
+    {
+        $this->setBrowser('*firefox');
+        $this->setBrowserUrl('http://www.example.com/');
+    }
 
-public function testTitle()
-{
-$this->open('http://www.exemplo.com/');
-$this->assertTitle('Página WWW de Exemplo');
-}
+    public function testTitle()
+    {
+        $this->open('http://www.example.com/');
+        $this->assertTitle('Example WWW Page');
+    }
 }
 ?>]]></programlisting>
       <screen><userinput>phpunit WebTest</userinput><![CDATA[
@@ -148,9 +168,9 @@ Time: 9 seconds, Memory: 6.00Mb
 There was 1 failure:
 
 1) WebTest::testTitle
-Current URL: http://www.iana.org/dominios/exemplo/
+Current URL: http://www.iana.org/domains/example/
 
-Failed asserting that 'IANA — Domínios de Exemplo' matches PCRE pattern "/Página WWW de Exemplo/".
+Failed asserting that 'IANA — Example domains' matches PCRE pattern "/Example WWW Page/".
 
 
 FAILURES!
@@ -159,7 +179,10 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
 
 
     <para>
-      Diferente da classe <literal>PHPUnit_Framework_TestCase</literal> classes de caso de teste que estendem o <literal>PHPUnit_Extensions_SeleniumTestCase</literal> têm que prover um método <literal>setUp()</literal>. Esse método é usado para configurar a sessão do Servidor Selenium. Veja
+      Diferente da classe <literal>PHPUnit_Framework_TestCase</literal>,
+      classes de caso de teste que estendem o <literal>PHPUnit_Extensions_SeleniumTestCase</literal> 
+      têm que fornecer um método <literal>setUp()</literal>. Esse método é usado 
+      para configurar a sessão do Servidor Selenium. Veja
       <xref linkend="selenium.seleniumtestcase.tables.seleniumrc-api.setup" />
       para uma lista de métodos que estão disponíveis para isso.
     </para>
