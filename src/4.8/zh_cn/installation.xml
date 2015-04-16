@@ -133,7 +133,66 @@ Primary key fingerprint: D840 6D0D 8294 7747 2937  7831 4AA3 9408 6372 C20A]]></
       <para>此时，签名已经没问题了，但是这个公钥还不能信任。签名没问题意味着文件未被篡改。可是由于公钥加密系统的性质，还需要再校验密钥 <literal>6372C20A</literal> 确实是由真正的 Sebastian Bergmann 创建的。</para>
 
       <para>任何攻击者都能创建公钥并将其上传到公钥服务器。他们可以建立一个带恶意的发行包，并用这个假密钥进行签名。这样，如果尝试对这个损坏了的发行包进行签名校验，由于密钥是“真”密钥，校验将成功完成。因此，需要对这个密钥的真实性进行校验。如何对公钥的真实性进行校验已经超出了本文档的范畴。</para>
-    </section>
+
+      <para>有个比较谨慎的做法是创建一个脚本来管理 PHPUnit 的安装，在运行测试套件之前校验 GnuPG 签名。例如：</para>
+
+      <screen><![CDATA[
+#!/usr/bin/env bash
+clean=1 # 是否在测试完成之后删除 phpunit.phar ？
+aftercmd="php phpunit.phar --bootstrap bootstrap.php src/tests"
+gpg --fingerprint D8406D0D82947747293778314AA394086372C20A
+if [ $? -ne 0 ]; then
+    echo -e "\033[33mDownloading PGP Public Key...\033[0m"
+    gpg --recv-keys D8406D0D82947747293778314AA394086372C20A
+    # Sebastian Bergmann <sb@sebastian-bergmann.de>
+    gpg --fingerprint D8406D0D82947747293778314AA394086372C20A
+    if [ $? -ne 0 ]; then
+        echo -e "\033[31mCould not download PGP public key for verification\033[0m"
+        exit
+    fi
+fi
+
+if [ "$clean" -eq 1 ]; then
+    # 如果存在就清理掉
+    if [ -f phpunit.phar ]; then
+        rm -f phpunit.phar
+    fi
+    if [ -f phpunit.phar.asc ]; then
+        rm -f phpunit.phar.asc
+    fi
+fi
+
+# 抓取最新的发行版和对应的签名
+if [ ! -f phpunit.phar ]; then
+    wget https://phar.phpunit.de/phpunit.phar
+fi
+if [ ! -f phpunit.phar.asc ]; then
+    wget https://phar.phpunit.de/phpunit.phar.asc
+fi
+
+# 在运行前先校验
+gpg --verify phpunit.phar.asc phpunit.phar
+if [ $? -eq 0 ]; then
+    echo
+    echo -e "\033[33mBegin Unit Testing\033[0m"
+    # 运行测试套件
+    `$after_cmd`
+    # 清理
+    if [ "$clean" -eq 1 ]; then
+        echo -e "\033[32mCleaning Up!\033[0m"
+        rm -f phpunit.phar
+        rm -f phpunit.phar.asc
+    fi
+else
+    echo
+    chmod -x phpunit.phar
+    mv phpunit.phar /tmp/bad-phpunit.phar
+    mv phpunit.phar.asc /tmp/bad-phpunit.phar.asc
+    echo -e "\033[31mSignature did not match! PHPUnit has been moved to /tmp/bad-phpunit.phar\033[0m"
+    exit 1
+fi
+      ]]></screen>
+   </section>
   </section>
 
   <section id="installation.composer">
