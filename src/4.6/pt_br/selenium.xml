@@ -216,7 +216,7 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
           </row>
           <row>
             <entry><literal>void setTimeout(int $timeout)</literal></entry>
-            <entry>Define o timeout para a conexão do Servidor Selenium.</entry>
+            <entry>Define o tempo de espera para a conexão do Servidor Selenium.</entry>
           </row>
           <row>
             <entry><literal>void setSleep(int $seconds)</literal></entry>
@@ -227,7 +227,8 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
     </table>
 
     <para>
-      O PHPUnit pode opcionalmente fazer uma captura de tela quando um teste do Selenium falha. Para habilitar isso, configure <literal>$captureScreenshotOnFailure</literal>,
+      O PHPUnit pode opcionalmente capturar a tela quando um teste do Selenium falha. Para 
+      habilitar isso, configure <literal>$captureScreenshotOnFailure</literal>,
       <literal>$screenshotPath</literal> e <literal>$screenshotUrl</literal>
       em sua classe de caso de teste como mostrado em
       <xref linkend="selenium.seleniumtestcase.examples.WebTest2.php" />.
@@ -240,21 +241,21 @@ require_once 'PHPUnit/Extensions/SeleniumTestCase.php';
 
 class WebTest extends PHPUnit_Extensions_SeleniumTestCase
 {
-protected $captureScreenshotOnFailure = TRUE;
-protected $screenshotPath = '/var/www/localhost/htdocs/screenshots';
-protected $screenshotUrl = 'http://localhost/screenshots';
+    protected $captureScreenshotOnFailure = TRUE;
+    protected $screenshotPath = '/var/www/localhost/htdocs/screenshots';
+    protected $screenshotUrl = 'http://localhost/screenshots';
 
-protected function setUp()
-{
-$this->setBrowser('*firefox');
-$this->setBrowserUrl('http://www.exemplo.com/');
-}
+    protected function setUp()
+    {
+        $this->setBrowser('*firefox');
+        $this->setBrowserUrl('http://www.example.com/');
+    }
 
-public function testTitle()
-{
-$this->open('http://www.exemplo.com/');
-$this->assertTitle('Página WWW de Exemplo');
-}
+    public function testTitle()
+    {
+        $this->open('http://www.example.com/');
+        $this->assertTitle('Example WWW Page');
+    }
 }
 ?>]]></programlisting>
       <screen><userinput>phpunit WebTest</userinput><![CDATA[
@@ -267,10 +268,10 @@ Time: 7 seconds, Memory: 6.00Mb
 There was 1 failure:
 
 1) WebTest::testTitle
-Current URL: http://www.iana.org/dominios/exemplo/
+Current URL: http://www.iana.org/domains/example/
 Screenshot: http://localhost/screenshots/334b080f2364b5f11568ee1c7f6742c9.png
 
-Failed asserting that 'IANA — Domínio de Exemplo' matches PCRE pattern "/Página WWW de Exemplo/".
+Failed asserting that 'IANA — Example domains' matches PCRE pattern "/Example WWW Page/".
 
 
 FAILURES!
@@ -279,10 +280,13 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
 
     <para>
       Você pode executar cada teste usando um conjunto de navegadores: Em vez de usar
-      <literal>setBrowser()</literal> para configurar um navegador, você pode declarar um vetor
-      <literal>public static</literal> chamado <literal>$browsers</literal>
-      em sua classe de caso de testes. Cada item nesse vetor descreve uma configuração de navegador. Cada um desses navegadores pode ser hospedado em diferentes Servidores Selenium.
-      <xref linkend="selenium.seleniumtestcase.examples.WebTest3.php" /> mostra um exemplo.
+      <literal>setBrowser()</literal> para configurar um navegador, você pode declarar um 
+      vetor <literal>public static</literal> chamado <literal>$browsers</literal>
+      em sua classe de caso de testes. Cada item nesse vetor descreve uma configuração 
+      de navegador. Cada um desses navegadores pode ser hospedado em diferentes 
+      Servidores Selenium.
+      O <xref linkend="selenium.seleniumtestcase.examples.WebTest3.php" /> mostra 
+      um exemplo.
     </para>
 
     <example id="selenium.seleniumtestcase.examples.WebTest3.php">
@@ -292,63 +296,65 @@ require_once 'PHPUnit/Extensions/SeleniumTestCase.php';
 
 class WebTest extends PHPUnit_Extensions_SeleniumTestCase
 {
-public static $browsers = array(
-array(
-'name' => 'Firefox no Linux',
-'browser' => '*firefox',
-'host' => 'my.linux.box',
-'port' => 4444,
-'timeout' => 30000,
-),
-array(
-'name' => 'Safari no MacOS X',
-'browser' => '*safari',
-'host' => 'my.macosx.box',
-'port' => 4444,
-'timeout' => 30000,
-),
-array(
-'name' => 'Safari no Windows XP',
-'browser' => '*custom C:\Program Files\Safari\Safari.exe -url',
-'host' => 'my.windowsxp.box',
-'port' => 4444,
-'timeout' => 30000,
-),
-array(
-'name' => 'Internet Explorer no Windows XP',
-'browser' => '*iexplore',
-'host' => 'my.windowsxp.box',
-'port' => 4444,
-'timeout' => 30000,
-)
-);
+    public static $browsers = array(
+      array(
+        'name'    => 'Firefox on Linux',
+        'browser' => '*firefox',
+        'host'    => 'my.linux.box',
+        'port'    => 4444,
+        'timeout' => 30000,
+      ),
+      array(
+        'name'    => 'Safari on MacOS X',
+        'browser' => '*safari',
+        'host'    => 'my.macosx.box',
+        'port'    => 4444,
+        'timeout' => 30000,
+      ),
+      array(
+        'name'    => 'Safari on Windows XP',
+        'browser' => '*custom C:\Program Files\Safari\Safari.exe -url',
+        'host'    => 'my.windowsxp.box',
+        'port'    => 4444,
+        'timeout' => 30000,
+      ),
+      array(
+        'name'    => 'Internet Explorer on Windows XP',
+        'browser' => '*iexplore',
+        'host'    => 'my.windowsxp.box',
+        'port'    => 4444,
+        'timeout' => 30000,
+      )
+    );
 
-protected function setUp()
-{
-$this->setBrowserUrl('http://www.exemplo.com/');
-}
+    protected function setUp()
+    {
+        $this->setBrowserUrl('http://www.example.com/');
+    }
 
-public function testTitle()
-{
-$this->open('http://www.exemplo.com/');
-$this->assertTitle('Página Web de Exemplo');
-}
+    public function testTitle()
+    {
+        $this->open('http://www.example.com/');
+        $this->assertTitle('Example Web Page');
+    }
 }
 ?>]]></programlisting>
     </example>
 
     <para>
-      <literal>PHPUnit_Extensions_SeleniumTestCase</literal> pode coletar a informação de cobertura de código para execução de testes através do Selenium:
+      <literal>PHPUnit_Extensions_SeleniumTestCase</literal> pode coletar a 
+      informação de cobertura de código para execução de testes através do Selenium:
     </para>
 
     <orderedlist>
-      <listitem>Copie <filename>PHPUnit/Extensions/SeleniumTestCase/phpunit_coverage.php</filename> 1. para dentro do diretório raiz de documentos do seu servidor web.</listitem>
-      <listitem>Em seu arquivo de configuração <filename>php.ini</filename> do servidor web, configure <filename>PHPUnit/Extensions/SeleniumTestCase/prepend.php</filename> e <filename>PHPUnit/Extensions/SeleniumTestCase/append.php</filename> como o <literal>auto_prepend_file</literal> e <literal>auto_append_file</literal>, respectivamente.</listitem>
+      <listitem>Copie <filename>PHPUnit/Extensions/SeleniumCommon/phpunit_coverage.php</filename> dentro do seu diretório raiz de documentos do servidor web.</listitem>
+      <listitem>Em seu arquivo de configuração <filename>php.ini</filename> do servidor web, configure <filename>PHPUnit/Extensions/SeleniumCommon/prepend.php</filename> e <filename>PHPUnit/Extensions/SeleniumCommon/append.php</filename> como o <literal>auto_prepend_file</literal> e <literal>auto_append_file</literal>, respectivamente.</listitem>
       <listitem>Na sua classe de caso de teste que estende <literal>PHPUnit_Extensions_SeleniumTestCase</literal>, use <programlisting>protected $coverageScriptUrl = 'http://host/phpunit_coverage.php';</programlisting> para configurar a URL para o script <filename>phpunit_coverage.php</filename>.</listitem>
     </orderedlist>
 
     <para>
-      <xref linkend="selenium.seleniumtestcase.tables.assertions" /> lista os vários métodos de asserção que o <literal>PHPUnit_Extensions_SeleniumTestCase</literal>
+      <xref linkend="selenium.seleniumtestcase.tables.assertions" /> lista os 
+      vários métodos de asserção que o <literal>PHPUnit_Extensions_SeleniumTestCase</literal>
       fornece.
     </para>
 
@@ -416,7 +422,8 @@ $this->assertTitle('Página Web de Exemplo');
     </table>
 
     <para>
-      <xref linkend="selenium.seleniumtestcase.tables.template-methods" /> mostra o método modelo de <literal>PHPUnit_Extensions_SeleniumTestCase</literal>:
+      <xref linkend="selenium.seleniumtestcase.tables.template-methods" /> mostra 
+      o método modelo de <literal>PHPUnit_Extensions_SeleniumTestCase</literal>:
     </para>
 
     <table id="selenium.seleniumtestcase.tables.template-methods">
@@ -432,23 +439,29 @@ $this->assertTitle('Página Web de Exemplo');
         <tbody>
           <row>
             <entry><literal>void defaultAssertions()</literal></entry>
-            <entry>Sobreposição para realizar asserções que são compartilhadas por todos os testes de um caso de teste. Este método é chamado após cada comando ser enviado ao Servidor  Selenium.</entry>
+            <entry>Sobreposição para realizar asserções que são compartilhadas por todos os testes de um caso de teste. Este método é chamado após cada comando ser enviado ao Servidor Selenium.</entry>
           </row>
         </tbody>
       </tgroup>
     </table>
 
     <para>
-      Por favor, verifique a <ulink url="http://release.seleniumhq.org/selenium-core/1.0.1/reference.html">documentação dos comandos do Selenium</ulink> para uma referência de todos os comandos disponíveis e como eles são utilizados.
+      Por favor, verifique a <ulink url="http://release.seleniumhq.org/selenium-core/1.0.1/reference.html">documentação dos comandos do Selenium</ulink> 
+      para uma referência de todos os comandos disponíveis e como eles são utilizados.
     </para>
     <para>
-    Os comandos do Selenium 1 são implementados dinamicamente via __call. Verifique também <ulink url="https://github.com/sebastianbergmann/phpunit-selenium/blob/master/PHPUnit/Extensions/SeleniumTestCase/Driver.php#L410">a documentação API para PHPUnit_Extensions_SeleniumTestCase_Driver::__call()</ulink> para uma lista de todos os métodos suportados do lado do PHP, juntamente com argumentos e tipos de retorno quando disponíveis.
+    Os comandos do Selenium 1 são implementados dinamicamente via __call. Verifique também <ulink url="https://github.com/sebastianbergmann/phpunit-selenium/blob/master/PHPUnit/Extensions/SeleniumTestCase/Driver.php#L410">a documentação da API para PHPUnit_Extensions_SeleniumTestCase_Driver::__call()</ulink> para uma lista de todos os métodos suportados do lado do PHP, juntamente com argumentos e tipos de retorno quando disponíveis.
     </para>
 
     <para>
-      Usando o método <literal>runSelenese($nomearquivo)</literal> você também pode executar um teste Selenium a partir de sua especificação Selenese/HTML. Além disso, usando o atributo estático <literal>$seleneseDirectory</literal>, você pode criar automaticamente objetos de teste a partir de um diretório que contenha arquivos Selenese/HTML. O diretório especificado é pesquisado recursivamente por arquivos
-      <literal>.htm</literal> que possam conter Selenese/HTML.
-      <xref linkend="selenium.seleniumtestcase.examples.WebTest4.php" /> mostra um exemplo.
+      Usando o método <literal>runSelenese($filename)</literal> você também pode 
+      executar um teste Selenium a partir de sua especificação Selenese/HTML. Além disso, 
+      usando o atributo estático <literal>$seleneseDirectory</literal>, você pode 
+      criar automaticamente objetos de teste a partir de um diretório que contenha 
+      arquivos Selenese/HTML. O diretório especificado é pesquisado recursivamente por 
+      arquivos <literal>.htm</literal> que possam conter Selenese/HTML.
+     O <xref linkend="selenium.seleniumtestcase.examples.WebTest4.php" /> mostra um 
+     exemplo.
     </para>
 
     <example id="selenium.seleniumtestcase.examples.WebTest4.php">
@@ -458,13 +471,15 @@ require_once 'PHPUnit/Extensions/SeleniumTestCase.php';
 
 class SeleneseTests extends PHPUnit_Extensions_SeleniumTestCase
 {
-public static $seleneseDirectory = '/caminho/para/arquivos';
+    public static $seleneseDirectory = '/path/to/files';
 }
 ?>]]></programlisting>
     </example>
 
     <para>
-    Desde o Selenium 1.1.1, um recurso experimental foi incluído para permitir ao usuário compartilhar a sessão entre testes. O único caso suportado é compartilhar a sessão entre todos os testes quando um único navegador é usado. Chame <literal>PHPUnit_Extensions_SeleniumTestCase::shareSession(true)</literal> em seu arquivo bootstrap para permitir o compartilhamento de sessão. A sessão será reiniciada no caso de testes mal-sucedidos (falhos ou incompletos); cabe ao usuário evitar interações entre testes seja resetando cookies ou deslogando da aplicação sob teste (com um método tearDown()).
+    Desde o Selenium 1.1.1, um recurso experimental foi incluído para permitir ao usuário compartilhar a sessão entre testes. O único caso suportado é compartilhar a sessão entre todos os testes quando um único navegador é usado. 
+    Chame <literal>PHPUnit_Extensions_SeleniumTestCase::shareSession(true)</literal> em seu arquivo bootstrap para habilitar o compartilhamento de sessão. 
+    A sessão será reiniciada no caso de testes mal-sucedidos (falhos ou incompletos); cabe ao usuário evitar interações entre testes seja resetando cookies ou deslogando da aplicação sob teste (com um método tearDown()).
     </para>
   </section>
 </chapter>
