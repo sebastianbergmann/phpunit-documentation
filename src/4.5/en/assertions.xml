@@ -43,6 +43,48 @@ Tests: 1, Assertions: 1, Failures: 1.</screen>
     </example>
   </section>
 
+  <section id="appendixes.assertions.assertArraySubset">
+    <title>assertArraySubset()</title>
+    <indexterm><primary>assertArraySubset()</primary></indexterm>
+    <indexterm><primary>assertArraySubset()</primary></indexterm>
+    <para><literal>assertArraySubset(array $subset, array $array[, bool $strict = '', string $message = ''])</literal></para>
+    <para>Reports an error identified by <literal>$message</literal> if <literal>$array</literal> does not contains the <literal>$subset</literal>.</para>
+    <para><literal>$strict</literal> is a flag used to compare the identity of objects within arrays.</para>
+    <example id="appendixes.assertions.assertArraySubset.example">
+      <title>Usage of assertArraySubset()</title>
+      <programlisting><![CDATA[<?php
+class ArraySubsetTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertArraySubset(['config' => ['key-a', 'key-b']], ['config' => ['key-a']]);
+    }
+}
+?>]]></programlisting>
+      <screen><userinput>phpunit ArrayHasKeyTest</userinput><![CDATA[
+PHPUnit 4.4.0 by Sebastian Bergmann.
+
+F
+
+Time: 0 seconds, Memory: 5.00Mb
+
+There was 1 failure:
+
+1) Epilog\EpilogTest::testNoFollowOption
+Failed asserting that an array has the subset Array &0 (
+    'config' => Array &1 (
+        0 => 'key-a'
+        1 => 'key-b'
+    )
+).
+
+/home/sb/ArraySubsetTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+    </example>
+  </section>
+
   <section id="appendixes.assertions.assertClassHasAttribute">
     <title>assertClassHasAttribute()</title>
     <indexterm><primary>assertClassHasAttribute()</primary></indexterm>
