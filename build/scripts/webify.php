@@ -23,7 +23,7 @@ function webify_directory($directory, $language, $version)
       'en'    => array('4.8', '4.7', '4.6'),
       //'fr'    => array('4.2', '4.1'),
       'ja'    => array('4.8', '4.7', '4.6'),
-      //'pt_br' => array('4.2', '4.1'),
+      'pt_br' => array('4.8', '4.7', '4.6'),
       'zh_cn' => array('4.8', '4.7', '4.6')
     );
 
