@@ -144,11 +144,13 @@ function webify_file($file, $toc, $languageList, $versionList, $language)
         'zh_cn' => '上一章',
         'ja' => '戻る',
     );
+
     $next_text = array(
         'en' => 'Next',
         'zh_cn' => '下一章',
         'ja' => '次へ',
     );
+
     $suggestions_text = array(
         'en' => 'Please <a href="https://github.com/sebastianbergmann/phpunit-documentation/issues">open a ticket</a> on GitHub to suggest improvements to this page. Thanks!',
         'zh_cn' => '如果对本页有改进建议，请 <a href="https://github.com/sebastianbergmann/phpunit-documentation/issues">在 GitHub 上开启任务单</a>。万分感谢！',
