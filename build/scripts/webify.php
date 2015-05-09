@@ -5,18 +5,18 @@ require dirname(__FILE__) . DIRECTORY_SEPARATOR . 'HTMLFilterIterator.php';
 function webify_directory($directory, $language, $version)
 {
     $toc = get_substring(
-      file_get_contents($directory . DIRECTORY_SEPARATOR . 'index.html'),
-      '<dl class="toc">',
-      '</dl>',
-      TRUE,
-      TRUE,
-      TRUE
+        file_get_contents($directory . DIRECTORY_SEPARATOR . 'index.html'),
+        '<dl class="toc">',
+        '</dl>',
+        true,
+        true,
+        true
     );
 
     $toc = str_replace(
-      'class="toc"',
-      'class="toc nav hidden-print"',
-      $toc
+        'class="toc"',
+        'class="toc nav hidden-print"',
+        $toc
     );
 
     $editions  = array(
@@ -68,10 +68,10 @@ function webify_directory($directory, $language, $version)
         }
 
         $languageList .= sprintf(
-          '<li%s><a href="../%s/index.html">%s</a></li>',
-          $language == $_language ? ' class="active"' : '',
-          $_language,
-          $_languageName
+            '<li%s><a href="../%s/index.html">%s</a></li>',
+            $language == $_language ? ' class="active"' : '',
+            $_language,
+            $_languageName
         );
 
     }
@@ -92,12 +92,12 @@ function webify_directory($directory, $language, $version)
         }
 
         $versionList .= sprintf(
-          '<li%s><a href="../../%s/%s/index.html">%s (%s)</a></li>',
-          $version == $_version ? ' class="active"' : '',
-          $_version,
-          $language,
-          $_version,
-          $type
+            '<li%s><a href="../../%s/%s/index.html">%s (%s)</a></li>',
+            $version == $_version ? ' class="active"' : '',
+            $_version,
+            $language,
+            $_version,
+            $type
         );
     }
 
@@ -115,21 +115,21 @@ function webify_file($file, $toc, $languageList, $versionList, $language)
     }
 
     $toc = str_replace(
-      '<a href="' . $filename . '">',
-      '<a href="' . $filename . '" class="active">',
-      $toc
+        '<a href="' . $filename . '">',
+        '<a href="' . $filename . '" class="active">',
+        $toc
     );
 
     $template = file_get_contents(
-      dirname(__FILE__) . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR . 'page.html'
+        dirname(__FILE__) . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR . 'page.html'
     );
 
 
-	//i18n for title
-	$title_text = array(
+    //i18n for title
+    $title_text = array(
         'en' => 'PHPUnit Manual',
         'zh_cn' => 'PHPUnit 手册',
-		'ja' => 'PHPUnit マニュアル',
+        'ja' => 'PHPUnit マニュアル',
     );
 
     $title       = get_text_in_language($title_text, $language);
@@ -160,21 +160,17 @@ function webify_file($file, $toc, $languageList, $versionList, $language)
     if ($filename !== 'index.html') {
         if (strpos($filename, 'appendixes') === 0) {
             $type = 'appendix';
-        }
-
-        else if (strpos($filename, 'preface') === 0) {
+        }         elseif (strpos($filename, 'preface') === 0) {
             $type = 'preface';
-        }
-
-        else {
+        } else {
             $type = 'chapter';
         }
 
         $buffer      = file_get_contents($file);
-        $_title      = get_substring($buffer, '<title>', '</title>', FALSE, FALSE);
-        $content     = get_substring($buffer, '<div class="' . $type . '"', '<div class="navfooter">', TRUE, FALSE);
-        $prev        = get_substring($buffer, '<link rel="prev" href="', '" title', FALSE, FALSE);
-        $next        = get_substring($buffer, '<link rel="next" href="', '" title', FALSE, FALSE);
+        $_title      = get_substring($buffer, '<title>', '</title>', false, false);
+        $content     = get_substring($buffer, '<div class="' . $type . '"', '<div class="navfooter">', true, false);
+        $prev        = get_substring($buffer, '<link rel="prev" href="', '" title', false, false);
+        $next        = get_substring($buffer, '<link rel="next" href="', '" title', false, false);
         $suggestions = '<div class="row"><div class="col-md-2"></div><div class="col-md-8"><div class="alert alert-info" style="text-align: center;">' . get_text_in_language($suggestions_text, $language) . '</div></div><div class="col-md-2"></div></div>';
 
         if (!empty($prev)) {
@@ -191,9 +187,9 @@ function webify_file($file, $toc, $languageList, $versionList, $language)
     }
 
     $buffer = str_replace(
-      array('{filename}', '{title}', '{content}', '{toc}', '{languages}', '{language}', '{versions}', '{prev}', '{next}', '<div class="caution" style="margin-left: 0.5in; margin-right: 0.5in;">', '<div class="warning" style="margin-left: 0.5in; margin-right: 0.5in;">', '<div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">', '{suggestions}'),
-      array($filename, $title, $content, $toc, $languageList, $language, $versionList, $prev, $next, '<div class="alert alert-warning">', '<div class="alert alert-danger">', '<div class="alert alert-info">', $suggestions),
-      $template
+        array('{filename}', '{title}', '{content}', '{toc}', '{languages}', '{language}', '{versions}', '{prev}', '{next}', '<div class="caution" style="margin-left: 0.5in; margin-right: 0.5in;">', '<div class="warning" style="margin-left: 0.5in; margin-right: 0.5in;">', '<div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">', '{suggestions}'),
+        array($filename, $title, $content, $toc, $languageList, $language, $versionList, $prev, $next, '<div class="alert alert-warning">', '<div class="alert alert-danger">', '<div class="alert alert-info">', $suggestions),
+        $template
     );
 
     file_put_contents($file, $buffer);
@@ -201,15 +197,14 @@ function webify_file($file, $toc, $languageList, $versionList, $language)
 
 function get_text_in_language($text_list, $lang)
 {
-    if(array_key_exists($lang, $text_list)){
+    if (array_key_exists($lang, $text_list)) {
         return $text_list[$lang];
-    }
-    else{
+    } else {
         return $text_list['en'];
     }
 }
 
-function get_substring($buffer, $start, $end, $includeStart = TRUE, $includeEnd = TRUE, $strrpos = FALSE)
+function get_substring($buffer, $start, $end, $includeStart = true, $includeEnd = true, $strrpos = false)
 {
     if ($includeStart) {
         $prefix = 0;
@@ -231,11 +226,11 @@ function get_substring($buffer, $start, $end, $includeStart = TRUE, $includeEnd 
         $_end = strpos($buffer, $end, $start);
     }
 
-    if ($start !== FALSE) {
+    if ($start !== false) {
         return substr(
-          $buffer,
-          $start + $prefix,
-          $_end - ($start + $prefix) + $suffix
+            $buffer,
+            $start + $prefix,
+            $_end - ($start + $prefix) + $suffix
         );
     } else {
         return '';
