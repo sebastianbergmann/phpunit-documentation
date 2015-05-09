@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8" ?>
 
-<!-- <chapter id="textui"> -->
 <chapter id="textui">
   <title>O executor de testes em linha-de-comando</title>
 
   <para>
     O executor de testes em linha-de-comando do PHPUnit pode ser invocado através do comando
-    <filename>phpunit</filename> O código seguinte mostra como executar testes com o executor de testes em linha-de-comando do PHPUnit:
+    <filename>phpunit</filename>. O código seguinte mostra como executar 
+    testes com o executor de testes em linha-de-comando do PHPUnit:
   </para>
 
-  <screen><userinput>phpunit VetorTest</userinput>
+  <screen><userinput>phpunit ArrayTest</userinput>
 PHPUnit 4.7.0 by Sebastian Bergmann and contributors.
 
 ..
@@ -20,7 +20,15 @@ Time: 0 seconds
 OK (2 tests, 2 assertions)</screen>
 
   <para>
-    Para cada teste executado, a ferramenta de linha-de-comando do PHPUnit imprime um caractere para indicar progresso:
+    Quando invocado como mostrado acima, o executor de testes em linha-de-comando do PHPUnit irá procurar
+    por um arquivo-fonte <filename>ArrayTest.php</filename> no diretório de trabalho atual,
+    carregá-lo, e espera encontrar uma classe de caso de teste <literal>ArrayTest</literal>.
+    Irá então executar os testes desta classe.
+  </para>
+
+  <para>
+    Para cada teste executado, a ferramenta de linha-de-comando do PHPUnit imprime um caractere para 
+      indicar o progresso:
   </para>
 
   <variablelist>
@@ -50,6 +58,16 @@ OK (2 tests, 2 assertions)</screen>
         </para>
       </listitem>
     </varlistentry>
+    
+    <varlistentry>
+      <term><literal>R</literal></term>
+      <listitem>
+        <para>
+          Impresso quando o teste foi marcado como arriscado (veja
+          <xref linkend="risky-tests" />).
+        </para>
+      </listitem>
+    </varlistentry>
 
     <varlistentry>
       <term><literal>S</literal></term>
@@ -65,7 +83,8 @@ OK (2 tests, 2 assertions)</screen>
       <term><literal>I</literal></term>
       <listitem>
         <para>
-          Impresso quando o teste é marcado como incompleto ou ainda não implementado (veja <xref linkend="incomplete-and-skipped-tests" />).
+          Impresso quando o teste é marcado como incompleto ou ainda não 
+          implementado (veja <xref linkend="incomplete-and-skipped-tests" />).
         </para>
       </listitem>
     </varlistentry>
@@ -76,15 +95,21 @@ OK (2 tests, 2 assertions)</screen>
     <indexterm><primary>Falha</primary></indexterm>
 
     O PHPUnit distingue entre <emphasis>falhas</emphasis> e
-    <emphasis>erros</emphasis>. Uma falha é uma asserção violada do PHPUnit assim como uma chamada falha ao <literal>assertEquals()</literal>.
-    Um erro é uma exceção inesperada ou um erro do PHP. Às vezes essa distinção se mostra útil já que erros tendem a ser mais fáceis de consertar do que falhas. Se você tiver uma grande lista de problemas, é melhor enfrentar os erros primeiro e ver se quaisquer falhas continuam depois de todos consertados.
+    <emphasis>erros</emphasis>. Uma falha é uma asserção do PHPUnit violada
+    assim como uma chamada falha ao <literal>assertEquals()</literal>.
+    Um erro é uma exceção inesperada ou um erro do PHP. Às vezes 
+    essa distinção se mostra útil já que erros tendem a ser mais fáceis de consertar 
+    do que falhas. Se você tiver uma grande lista de problemas, é melhor 
+    enfrentar os erros primeiro e ver se quaisquer falhas continuam depois de 
+    todos consertados.
   </para>
 
   <section id="textui.clioptions">
-    <title>Comutadores de linha-de-comando</title>
+    <title>Opções de linha-de-comando</title>
 
     <para>
-      Vamos dar uma olhada nas comutadores do executor de testes em linha-de-comando, no código seguinte:
+      Vamos dar uma olhada nas opções do executor de testes em linha-de-comando
+      no código seguinte:
     </para>
 
     <screen><userinput>phpunit --help</userinput>
@@ -125,16 +150,16 @@ Test Execution Options:
 
   --report-useless-tests    Be strict about tests that do not test anything.
   --strict-coverage         Be strict about unintentionally covered code.
+  --strict-global-state     Be strict about changes to global state
   --disallow-test-output    Be strict about output during tests.
   --enforce-time-limit      Enforce time limit based on test size.
   --disallow-todo-tests     Disallow @todo-annotated tests.
-  --strict                  Run tests in strict mode (enables all of the above).
 
   --process-isolation       Run each test in a separate PHP process.
   --no-globals-backup       Do not backup and restore $GLOBALS for each test.
   --static-backup           Backup and restore static attributes for each test.
 
-  --colors=<flag>           Use colors in output ("never", "auto" or "always").
+  --colors                  Use colors in output.
   --columns <n>             Number of columns to use for progress output.
   --columns max             Use maximum number of columns for progress output.
   --stderr                  Write to STDERR instead of STDOUT.
@@ -171,11 +196,16 @@ Miscellaneous Options:
         <listitem>
           <para>
             Executa os testes que são fornecidos pela classe
-            <literal>UnitTest</literal>. Espera-se que essa classe seja declarada no arquivo-fonte <filename>UnitTest.php</filename>.
+            <literal>UnitTest</literal>. Espera-se que essa classe seja declarada 
+            no arquivo-fonte <filename>UnitTest.php</filename>.
           </para>
 
           <para>
-            <literal>UnitTest</literal> deve ser ou uma classe que herda de <literal>PHPUnit_Framework_TestCase</literal> ou uma classe que fornece um método <literal>public static suite()</literal> que retorna um objeto <literal>PHPUnit_Framework_Test</literal>, por exemplo uma instância da classe
+            <literal>UnitTest</literal> deve ser ou uma classe que herda 
+            de <literal>PHPUnit_Framework_TestCase</literal> ou uma classe que 
+            fornece um método <literal>public static suite()</literal> que 
+            retorna um objeto <literal>PHPUnit_Framework_Test</literal>, 
+            por exemplo uma instância da classe
             <literal>PHPUnit_Framework_TestSuite</literal>.
           </para>
         </listitem>
@@ -185,8 +215,82 @@ Miscellaneous Options:
         <term><literal>phpunit UnitTest UnitTest.php</literal></term>
         <listitem>
           <para>
-            Executa os testes fornecidos pela classe
-            <literal>UnitTest</literal>. Espera-se que esta classe seja declarada no arquivo-fonte especificado.
+            Executa os testes que são fornecidos pela classe
+            <literal>UnitTest</literal>. Espera-se que esta classe seja declarada 
+            no arquivo-fonte especificado.
+          </para>
+        </listitem>
+      </varlistentry>
+      
+      <varlistentry>
+        <indexterm><primary>Cobertura de código</primary></indexterm>
+        <term><literal>--coverage-clover</literal></term>
+        <listitem>
+          <para>
+            Gera uma arquivo de registro no formato XML com as informações da cobertura de código 
+            para a execução dos testes. Veja <xref linkend="logging" /> para mais detlahes.
+          </para>
+          <para>
+            Por favor, note que essa funcionalidade está disponível somente quando as
+            extensões tokenizer e Xdebug estão instaladas.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <indexterm><primary>Cobertura de código</primary></indexterm>
+        <term><literal>--coverage-crap4j</literal></term>
+        <listitem>
+          <para>
+            Gera um relatório de cobertura de código no formato Crap4j. Veja
+            <xref linkend="code-coverage-analysis" /> para mais detalhes.
+          </para>
+          <para>
+            Por favor, note que essa funcionalidade está disponível somente quando as
+            extensões tokenizer e Xdebug estão instaladas.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <indexterm><primary>Cobertura de código</primary></indexterm>
+        <indexterm><primary>Relatório</primary></indexterm>
+        <term><literal>--coverage-html</literal></term>
+        <listitem>
+          <para>
+            Gera um relatório no formato HTML. Veja
+            <xref linkend="code-coverage-analysis" /> para mais detalhes.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <indexterm><primary>Cobertura de código</primary></indexterm>
+        <term><literal>--coverage-php</literal></term>
+        <listitem>
+          <para>
+            Gera um objeto PHP_CodeCoverage serializado com as 
+            informações de cobertura de código.
+          </para>
+          <para>
+            Por favor, note que essa funcionalidade está disponível somente quando as
+            extensões tokenizer e Xdebug estão instaladas.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <indexterm><primary>Cobertura de código</primary></indexterm>
+        <term><literal>--coverage-text</literal></term>
+        <listitem>
+          <para>
+            Gera um arquivo de registro ou saída de linha de comando no formato legível por humanos
+            com a informação de cobertura de código para a execução dos testes.
+            Veja <xref linkend="logging" /> para mais detalhes.
+          </para>
+          <para>
+            Por favor, note que essa funcionalidade está disponível somente quando as
+            extensões tokenizer e Xdebug estão instaladas.
           </para>
         </listitem>
       </varlistentry>
@@ -196,7 +300,8 @@ Miscellaneous Options:
         <term><literal>--log-junit</literal></term>
         <listitem>
           <para>
-            Gera um arquivo de registro no formato Junit XML para a execução dos testes. Veja <xref linkend="logging" /> for more details.
+            Gera um arquivo de registro no formato XML Junit para a execução dos testes. 
+            Veja <xref linkend="logging" /> para mais detalhes.
           </para>
         </listitem>
       </varlistentry>
@@ -206,7 +311,9 @@ Miscellaneous Options:
         <term><literal>--log-tap</literal></term>
         <listitem>
           <para>
-            Gera um arquivo de registro usando o formato <ulink url="http://testanything.org/">Test Anything Protocol (TAP)</ulink>para a execução dos testes. Veja <xref linkend="logging" /> para mais detalhes.
+            Gera um arquivo de registro usando o formato <ulink url="http://testanything.org/">Test Anything Protocol (TAP)</ulink> 
+            para a execução dos testes. Veja <xref linkend="logging" /> para mais 
+            detalhes.
           </para>
         </listitem>
       </varlistentry>
@@ -216,62 +323,9 @@ Miscellaneous Options:
         <term><literal>--log-json</literal></term>
         <listitem>
           <para>
-            Gera um arquivo de registro usando o formato
-            <ulink url="http://www.json.org/">JSON</ulink>. Veja <xref linkend="logging" /> para mais detalhes.
-          </para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <indexterm><primary>Cobertura de Código</primary></indexterm>
-        <indexterm><primary>Relatório</primary></indexterm>
-        <term><literal>--coverage-html</literal></term>
-        <listitem>
-          <para>
-            Gera um relatório de cobertura de código no formato HTML. Veja
-            <xref linkend="code-coverage-analysis" /> para mais detalhes.
-          </para>
-          <para>
-            Por favor note que esta funcionalidade só está disponível quando as extensões tokenizer e Xdebug estão instaladas.
-          </para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <indexterm><primary>Cobertura de Código</primary></indexterm>
-        <term><literal>--coverage-clover</literal></term>
-        <listitem>
-          <para>
-            Gera um arquivo de registro no formato XML com a informação sobre a cobertura de código da execução dos testes. Veja <xref linkend="logging" /> para mais detalhes.
-          </para>
-          <para>
-            Por favor note que essa funcionalidade só está disponível quando as extensões tokenizer e Xdebug estão instaladas.
-          </para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <indexterm><primary>Código de Cobertura</primary></indexterm>
-        <term><literal>--coverage-php</literal></term>
-        <listitem>
-          <para>
-            Gera um objeto serializado PHP_CodeCoverage com a informação da cobertura de código.
-          </para>
-          <para>
-            Por favor note que essa funcionalidade só está disponível quando as extensões tokenizer e Xdebug estão instaladas.
-          </para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <indexterm><primary>Cobertura de Código</primary></indexterm>
-        <term><literal>--coverage-text</literal></term>
-        <listitem>
-          <para>
-            Gera um arquivo de registro ou saída em linha-de-comando em um formato humanamente legível com a informação de cobertura de código da execução dos testes. Veja <xref linkend="logging" /> para mais detalhes.
-          </para>
-          <para>
-            Por favor note que essa funcionalidade só está disponível quando as extensões tokenizer e Xdebug estão instaladas.
+            Gera um arquivo de registro usando o 
+            formato <ulink url="http://www.json.org/">JSON</ulink>. 
+            Veja <xref linkend="logging" /> para mais detalhes.
           </para>
         </listitem>
       </varlistentry>
@@ -281,7 +335,9 @@ Miscellaneous Options:
         <term><literal>--testdox-html</literal> e <literal>--testdox-text</literal></term>
         <listitem>
           <para>
-            Gera documentação ágil em formato HTML ou texto plano para os testes que são executados. Veja <xref linkend="other-uses-for-tests" /> para mais detalhes.
+            Gera documentação ágil no formato HTML ou texto plano para os 
+            testes que são executados. Veja <xref linkend="other-uses-for-tests" /> para 
+            mais detalhes.
           </para>
         </listitem>
       </varlistentry>
@@ -290,8 +346,134 @@ Miscellaneous Options:
         <term><literal>--filter</literal></term>
         <listitem>
           <para>
-            Apenas executa os testes cujos nomes combinam com o padrão fornecido. O padrão pode tanto ser o nome de um único teste quanto uma <ulink url="http://www.php.net/pcre">expressão regular</ulink>
-            que combina múltiplos nomes de testes.
+            Apenas executa os testes cujos nomes combinam com o padrão 
+            fornecido. Se o padrão não for colocado entre delimitadores, o PHPUnit
+            irá colocar o padrão no delimitador <literal>/</literal>.
+          </para>
+          
+          <para>
+            Os nomes de teste para combinar estará em um dos seguintes formatos:
+          </para>
+
+          <variablelist>
+            <varlistentry>
+              <term><literal>TestNamespace\TestCaseClass::testMethod</literal></term>
+              <listitem>
+                <para>
+                  O formato do nome de teste padrão é o equivalente ao usar 
+                  a constante mágica <literal>__METHOD__</literal> dentro 
+                  do método de teste.
+                </para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term><literal>TestNamespace\TestCaseClass::testMethod with data set #0</literal></term>
+              <listitem>
+                <para>
+                  Quando um teste tem um provedor de dados, cada iteração dos 
+                  dados obtém o índice atual acrescido ao final do 
+                  nome do teste padrão.
+                </para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term><literal>TestNamespace\TestCaseClass::testMethod with data set "my named data"</literal></term>
+              <listitem>
+                <para>
+                  Quando um teste tem um provedor de dados que usa conjuntos nomeados, cada
+                  iteração dos dados obtém o nome atual acrescido ao 
+                  final do nome do teste padrão. Veja 
+                  <xref linkend="textui.examples.TestCaseClass.php" /> para um 
+                  exemplo de conjunto de dados nomeados.
+                </para>
+
+                <example id="textui.examples.TestCaseClass.php">
+                  <title>Conjunto de dados nomeados</title>
+                  <programlisting><![CDATA[<?php
+namespace TestNamespace;
+
+class TestCaseClass extends \PHPUnit_Framework_TestCase
+{
+    /**
+     * @dataProvider provider
+     */
+    public function testMethod($data)
+    {
+        $this->assertTrue($data);
+    }
+
+    public function provider()
+    {
+        return array(
+           'my named data' => array(true),
+           'my data'       => array(true)
+        );
+    }
+}
+?>]]></programlisting>
+                </example>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term><literal>/path/to/my/test.phpt</literal></term>
+              <listitem>
+                <para>
+                  O nome do teste para um teste PHPT é o caminho do sistema de arquivos.
+                </para>
+              </listitem>
+            </varlistentry>
+          </variablelist>
+
+          <para>
+            Veja <xref linkend="textui.examples.filter-patterns" /> para exemplos 
+            de padrões de filtros válidos.
+          </para>
+
+          <example id="textui.examples.filter-patterns">
+            <title>Exmplos de padrão de filtro</title>
+
+            <itemizedlist>
+              <listitem><para><literal>--filter 'TestNamespace\\TestCaseClass::testMethod'</literal></para></listitem>
+              <listitem><para><literal>--filter 'TestNamespace\\TestCaseClass'</literal></para></listitem>
+              <listitem><para><literal>--filter TestNamespace</literal></para></listitem>
+              <listitem><para><literal>--filter TestCaseClass</literal></para></listitem>
+              <listitem><para><literal>--filter testMethod</literal></para></listitem>
+              <listitem><para><literal>--filter '/::testMethod .*"my named data"/'</literal></para></listitem>
+              <listitem><para><literal>--filter '/::testMethod .*#5$/'</literal></para></listitem>
+              <listitem><para><literal>--filter '/::testMethod .*#(5|6|7)$/'</literal></para></listitem>
+            </itemizedlist>
+          </example>
+
+          <para>
+            Veja <xref linkend="textui.examples.filter-shortcuts" /> para alguns 
+            atalhos adicionais que estão disponíveis para combinar provedores de dados
+          </para>
+
+          <example id="textui.examples.filter-shortcuts">
+            <title>Atalhos de filtro</title>
+
+            <itemizedlist>
+              <listitem><para><literal>--filter 'testMethod#2'</literal></para></listitem>
+              <listitem><para><literal>--filter 'testMethod#2-4'</literal></para></listitem>
+              <listitem><para><literal>--filter '#2'</literal></para></listitem>
+              <listitem><para><literal>--filter '#2-4'</literal></para></listitem>
+              <listitem><para><literal>--filter 'testMethod@my named data'</literal></para></listitem>
+              <listitem><para><literal>--filter 'testMethod@my.*data'</literal></para></listitem>
+              <listitem><para><literal>--filter '@my named data'</literal></para></listitem>
+              <listitem><para><literal>--filter '@my.*data'</literal></para></listitem>
+            </itemizedlist>
+          </example>
+        </listitem>
+      </varlistentry>
+      
+      <varlistentry>
+        <term><literal>--testsuite</literal></term>
+        <listitem>
+          <para>
+            Só roda o conjunto de teste cujo nome combina com o padrão dado.
           </para>
         </listitem>
       </varlistentry>
@@ -304,11 +486,13 @@ Miscellaneous Options:
         <term><literal>--group</literal></term>
         <listitem>
           <para>
-            Apenas executa os testes do(s) grupo(s) especificado(s). Um teste pode ser marcado como pertencente a um grupo usando a anotação <literal>@group</literal>.
+            Apenas executa os testes do(s) grupo(s) especificado(s). Um teste pode ser marcado como 
+            pertencente a um grupo usando a anotação <literal>@group</literal>.
           </para>
           <para>
             A anotação <literal>@author</literal> é um apelido para
-            <literal>@group</literal>, permitindo filtrar os testes com base em seus autores.
+            <literal>@group</literal>, permitindo filtrar os testes com base em seus 
+            autores.
           </para>
         </listitem>
       </varlistentry>
@@ -320,7 +504,8 @@ Miscellaneous Options:
         <term><literal>--exclude-group</literal></term>
         <listitem>
           <para>
-            Exclui testes do(s) grupo(s) especificado(s). Um teste pode ser marcado como pertencente a um grupo usando a anotação <literal>@group</literal>.
+            Exclui testes do(s) grupo(s) especificado(s). Um teste pode ser marcado como 
+            pertencente a um grupo usando a anotação <literal>@group</literal>.
           </para>
         </listitem>
       </varlistentry>
@@ -332,7 +517,205 @@ Miscellaneous Options:
         <term><literal>--list-groups</literal></term>
         <listitem>
           <para>
-            Lista os grupos disponíveis.
+            Lista os grupos de teste disponíveis.
+          </para>
+        </listitem>
+      </varlistentry>
+      
+      <varlistentry>
+        <term><literal>--test-suffix</literal></term>
+        <listitem>
+          <para>
+            Só procurar por arquivos de teste com o sufixo(s) especificado..
+          </para>
+        </listitem>
+      </varlistentry>
+      
+      <varlistentry>
+        <term><literal>--report-useless-tests</literal></term>
+        <listitem>
+          <para>
+            Seja estrito sobre testes que não testam nada. Veja <xref
+            linkend="risky-tests" /> para detalhes.
+          </para>
+        </listitem>
+      </varlistentry>
+      
+      <varlistentry>
+        <term><literal>--strict-coverage</literal></term>
+        <listitem>
+          <para>
+            Seja estrito sobre a cobertura de código involuntariamente. Veja <xref
+            linkend="risky-tests" /> para detalhes.
+          </para>
+        </listitem>
+      </varlistentry>
+      
+      <varlistentry>
+        <term><literal>--strict-global-state</literal></term>
+        <listitem>
+          <para>
+            Seja estrito sobre manipulação de estado global. Veja <xref
+            linkend="risky-tests" /> para detalhes.
+          </para>
+        </listitem>
+      </varlistentry>
+      
+      <varlistentry>
+        <term><literal>--disallow-test-output</literal></term>
+        <listitem>
+          <para>
+            Seja estrito sobre a saída durante os testes. Veja <xref
+            linkend="risky-tests" /> para detalhes.
+          </para>
+        </listitem>
+      </varlistentry>
+      
+      <varlistentry>
+        <term><literal>--disallow-todo-tests</literal></term>
+        <listitem>
+          <para>
+            Não executa teste que tem a anotação <literal>@todo</literal> em seu bloco de documentação.
+          </para>
+        </listitem>
+      </varlistentry>
+      
+      <varlistentry>
+        <term><literal>--enforce-time-limit</literal></term>
+        <listitem>
+          <para>
+            Impõem limite de tempo baseado no tamanho do teste. Veja <xref
+            linkend="risky-tests" /> para detalhes.
+          </para>
+        </listitem>
+      </varlistentry>
+      
+      <varlistentry>
+        <term><literal>--strict</literal></term>
+        <listitem>
+          <para>
+            Executa os testes em modo estrito (mesmo que usar <literal>--report-useless-tests</literal>,
+            <literal>--strict-coverage</literal>, <literal>--disallow-test-output</literal>,
+            e <literal>--enforce-time-limit</literal>). Veja <xref
+            linkend="risky-tests" /> para detalhes.
+          </para>
+        </listitem>
+      </varlistentry>
+      
+      <varlistentry>
+        <indexterm><primary>Isolamento de Processo</primary></indexterm>
+        <indexterm><primary>Isoalmento de Teste</primary></indexterm>
+        <term><literal>--process-isolation</literal></term>
+        <listitem>
+          <para>
+            Executa cada teste em um processo PHP separado.
+          </para>
+        </listitem>
+      </varlistentry>
+      
+      <varlistentry>
+        <indexterm><primary>Test Isolation</primary></indexterm>
+        <term><literal>--no-globals-backup</literal></term>
+        <listitem>
+          <para>
+            Não faz cópia de segurança e restaura $GLOBALS. Veja <xref linkend="fixtures.global-state" />
+            para mais detalhes.
+          </para>
+        </listitem>
+      </varlistentry>
+      
+      <varlistentry>
+        <indexterm><primary>Isolamento de Teste</primary></indexterm>
+        <term><literal>--static-backup</literal></term>
+        <listitem>
+          <para>
+            Faz cópia de segurança e restaura atributos estáticos das classes definidas pelo usuário. 
+            Veja <xref linkend="fixtures.global-state" /> para mais detalhes.
+          </para>
+        </listitem>
+      </varlistentry>
+      
+      <varlistentry>
+        <term><literal>--colors</literal></term>
+        <listitem>
+          <para>
+            Usa cores na saída.
+            No Windows, usar <ulink url="https://github.com/adoxa/ansicon">ANSICON</ulink> ou <ulink url="https://github.com/Maximus5/ConEmu">ConEmu</ulink>.
+          </para>
+        </listitem>
+      </varlistentry>
+      
+      <varlistentry>
+        <term><literal>--stderr</literal></term>
+        <listitem>
+          <para>
+            Opcionalmente imprime para <literal>STDERR</literal> em vez de
+            <literal>STDOUT</literal>.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>--stop-on-error</literal></term>
+        <listitem>
+          <para>
+            Para a execução no primeiro erro.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>--stop-on-failure</literal></term>
+        <listitem>
+          <para>
+            Para a execução no primeiro erro ou falha.
+          </para>
+        </listitem>
+      </varlistentry>
+      
+      <varlistentry>
+        <term><literal>--stop-on-risky</literal></term>
+        <listitem>
+          <para>
+            Para a execução no primeiro teste arriscado.
+          </para>
+        </listitem>
+      </varlistentry>
+      
+      <varlistentry>
+        <term><literal>--stop-on-skipped</literal></term>
+        <listitem>
+          <para>
+            Para a execução no primeiro teste pulado.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>--stop-on-incomplete</literal></term>
+        <listitem>
+          <para>
+            Para a execução no primeiro teste incompleto.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>--verbose</literal></term>
+        <listitem>
+          <para>
+            Saída mais verbosa de informações, por exemplo os nomes dos testes 
+            que ficaram incompletos ou foram pulados.
+          </para>
+        </listitem>
+      </varlistentry>
+      
+      <varlistentry>
+        <term><literal>--debug</literal></term>
+        <listitem>
+          <para>
+            Informação de saída da depuração como o nome de um teste quando a 
+            execução começa.
           </para>
         </listitem>
       </varlistentry>
@@ -347,26 +730,16 @@ Miscellaneous Options:
           </para>
 
           <para>
-            A suíte de carregadores de teste padrão irá procurar pelo arquivo-fonte no diretório de trabalho atual e em cada diretório que está especificado na configuração de diretiva <literal>include_path</literal> do PHP.
-            Seguindo as Convenções de Nomenclatura do PEAR, um nome de classe como
-            <literal>Project_Package_Class</literal> é mapeado para o nome de arquivo-fonte <filename>Project/Package/Class.php</filename>.
+            O carregador de suíte de teste padrão irá procurar pelo arquivo-fonte no 
+            diretório de trabalho atual e em cada diretório que está especificado na 
+            configuração de diretiva <literal>include_path</literal> do PHP.
+            Um nome de classe como <literal>Project_Package_Class</literal> é 
+            mapeado para o nome de arquivo-fonte 
+            <filename>Project/Package/Class.php</filename>.
           </para>
         </listitem>
       </varlistentry>
-
-      <varlistentry>
-        <indexterm><primary>PHPUnit_Framework_TestListener</primary></indexterm>
-        <indexterm><primary>PHPUnit_Util_Printer</primary></indexterm>
-        <term><literal>--printer</literal></term>
-        <listitem>
-          <para>
-            Especifica o impressor de resultados a ser usado. A classe impressora deve estender
-            <literal>PHPUnit_Util_Printer</literal> e implementa a interface
-            <literal>PHPUnit_Framework_TestListener</literal>.
-          </para>
-        </listitem>
-      </varlistentry>
-
+      
       <varlistentry>
         <term><literal>--repeat</literal></term>
         <listitem>
@@ -398,106 +771,14 @@ Miscellaneous Options:
       </varlistentry>
 
       <varlistentry>
-        <term><literal>--colors</literal></term>
+        <indexterm><primary>PHPUnit_Framework_TestListener</primary></indexterm>
+        <indexterm><primary>PHPUnit_Util_Printer</primary></indexterm>
+        <term><literal>--printer</literal></term>
         <listitem>
           <para>
-            Usa cores na saída.
-          </para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term><literal>--stderr</literal></term>
-        <listitem>
-          <para>
-            Opcionalmente imprime para <literal>STDERR</literal> em vez de
-            <literal>STDOUT</literal>.
-          </para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term><literal>--stop-on-error</literal></term>
-        <listitem>
-          <para>
-            Para a execução no primeiro erro.
-          </para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term><literal>--stop-on-failure</literal></term>
-        <listitem>
-          <para>
-            Para a execução no primeiro erro ou falha.
-          </para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term><literal>--stop-on-skipped</literal></term>
-        <listitem>
-          <para>
-            Para a execução no primeiro teste pulado.
-          </para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term><literal>--stop-on-incomplete</literal></term>
-        <listitem>
-          <para>
-            Para a execução no primeiro teste incompleto.
-          </para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term><literal>--strict</literal></term>
-        <listitem>
-          <para>
-            Executa os testes em modo estrito.
-          </para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term><literal>--verbose</literal></term>
-        <listitem>
-          <para>
-            Saída mais verbosa de informações, por exemplo os nomes dos testes que ficaram incompletos ou foram pulados.
-          </para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <indexterm><primary>Isolamento de Processo</primary></indexterm>
-        <indexterm><primary>Isoalmento de Teste</primary></indexterm>
-        <term><literal>--process-isolation</literal></term>
-        <listitem>
-          <para>
-            Executa cada teste em um processo PHP separado.
-          </para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <indexterm><primary>Isolamento de Teste</primary></indexterm>
-        <term><literal>--no-globals-backup</literal></term>
-        <listitem>
-          <para>
-            Não faz backup e restaura $GLOBALS. Veja <xref linkend="fixtures.global-state" />
-            para mais detalhes.
-          </para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <indexterm><primary>Isolamento de Teste</primary></indexterm>
-        <term><literal>--static-backup</literal></term>
-        <listitem>
-          <para>
-            Faz backup e restaura atributos estáticos das classes definidas pelo usuário. Veja <xref linkend="fixtures.global-state" /> para mais detalhes.
+            Especifica o impressor de resultados a ser usado. A classe impressora deve estender
+            <literal>PHPUnit_Util_Printer</literal> e implementar a interface
+            <literal>PHPUnit_Framework_TestListener</literal>.
           </para>
         </listitem>
       </varlistentry>
@@ -517,12 +798,15 @@ Miscellaneous Options:
         <term><literal>-c</literal></term>
         <listitem>
           <para>
-            Lê a configuração de um arquivo XML. Veja
-            <xref linkend="appendixes.configuration" /> para mais detalhes.
+            Lê a configuração de um arquivo XML. 
+            Veja <xref linkend="appendixes.configuration" /> para mais detalhes.
           </para>
           <para>
             Se <filename>phpunit.xml</filename> ou
-            <filename>phpunit.xml.dist</filename> (nessa ordem) existirem no diretório de trabalho atual e <literal>--configuration</literal> <emphasis>não</emphasis> for usado, a configuração será lida automaticamente desse arquivo.
+            <filename>phpunit.xml.dist</filename> (nessa ordem) existirem no 
+            diretório de trabalho atual e <literal>--configuration</literal> 
+            <emphasis>não</emphasis> for usado, a configuração será lida automaticamente 
+            desse arquivo.
           </para>
         </listitem>
       </varlistentry>
@@ -533,7 +817,8 @@ Miscellaneous Options:
         <listitem>
           <para>
             Ignora <filename>phpunit.xml</filename> e
-            <filename>phpunit.xml.dist</filename> do diretório de trabalho atual.
+            <filename>phpunit.xml.dist</filename> do diretório de trabalho 
+            atual.
           </para>
         </listitem>
       </varlistentry>
@@ -556,15 +841,12 @@ Miscellaneous Options:
           </para>
         </listitem>
       </varlistentry>
-
-      <varlistentry>
-        <term><literal>--debug</literal></term>
-        <listitem>
-          <para>
-            Informação da saída de depuração como o nome de um teste quando a execução inicia.
-          </para>
-        </listitem>
-      </varlistentry>
     </variablelist>
+    
+    <note>
+      <para>
+        Por favor, note que as opções não devem ser colocadas depois do(s) argumento(s).
+      </para>
+    </note>
   </section>
 </chapter>
