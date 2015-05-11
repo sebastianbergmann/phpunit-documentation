@@ -98,7 +98,7 @@ class MyTest extends PHPUnit_Framework_TestCase
 {
     public function testCalculate()
     {
-        $this->assertEquals(2, 1 + 1);
+        self::assertEquals(2, 1 + 1);
     }
 }
 ?>]]></programlisting>
@@ -671,7 +671,7 @@ class ConnectionTest extends PHPUnit_Extensions_Database_TestCase
 {
     public function testGetRowCount()
     {
-        $this->assertEquals(2, $this->getConnection()->getRowCount('guestbook'));
+        self::assertEquals(2, $this->getConnection()->getRowCount('guestbook'));
     }
 }
 ?>]]></programlisting>
@@ -689,12 +689,12 @@ class GuestbookTest extends PHPUnit_Extensions_Database_TestCase
 {
     public function testAddEntry()
     {
-        $this->assertEquals(2, $this->getConnection()->getRowCount('guestbook'), "Pre-Condition");
+        self::assertEquals(2, $this->getConnection()->getRowCount('guestbook'), "Pre-Condition");
 
         $guestbook = new Guestbook();
         $guestbook->addEntry("suzy", "Hello world!");
 
-        $this->assertEquals(3, $this->getConnection()->getRowCount('guestbook'), "Inserting failed");
+        self::assertEquals(3, $this->getConnection()->getRowCount('guestbook'), "Inserting failed");
     }
 }
 ?>]]></programlisting>
@@ -716,7 +716,7 @@ class GuestbookTest extends PHPUnit_Extensions_Database_TestCase
         );
         $expectedTable = $this->createFlatXmlDataSet("expectedBook.xml")
                               ->getTable("guestbook");
-        $this->assertTablesEqual($expectedTable, $queryTable);
+        self::assertTablesEqual($expectedTable, $queryTable);
     }
 }
 ?>]]></programlisting>
@@ -759,7 +759,7 @@ class ComplexQueryTest extends PHPUnit_Extensions_Database_TestCase
         );
         $expectedTable = $this->createFlatXmlDataSet("complexQueryAssertion.xml")
                               ->getTable("myComplexQuery");
-        $this->assertTablesEqual($expectedTable, $queryTable);
+        self::assertTablesEqual($expectedTable, $queryTable);
     }
 }
 ?>]]></programlisting>
@@ -777,7 +777,7 @@ class DataSetAssertionsTest extends PHPUnit_Extensions_Database_TestCase
     {
         $dataSet = $this->getConnection()->createDataSet(array('guestbook'));
         $expectedDataSet = $this->createFlatXmlDataSet('guestbook.xml');
-        $this->assertDataSetsEqual($expectedDataSet, $dataSet);
+        self::assertDataSetsEqual($expectedDataSet, $dataSet);
     }
 }
 ?>]]></programlisting>
@@ -793,7 +793,7 @@ class DataSetAssertionsTest extends PHPUnit_Extensions_Database_TestCase
         $dataSet->addTable('guestbook', 'SELECT id, content, user FROM guestbook'); // additional tables
         $expectedDataSet = $this->createFlatXmlDataSet('guestbook.xml');
 
-        $this->assertDataSetsEqual($expectedDataSet, $dataSet);
+        self::assertDataSetsEqual($expectedDataSet, $dataSet);
     }
 }
 ?>]]></programlisting>
