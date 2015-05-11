@@ -130,6 +130,7 @@ function webify_file($file, $toc, $languageList, $versionList, $language)
         'en' => 'PHPUnit Manual',
         'zh_cn' => 'PHPUnit 手册',
         'ja' => 'PHPUnit マニュアル',
+        'pt_br' => 'Manual PHPUnit',
     );
 
     $title       = get_text_in_language($title_text, $language);
@@ -143,18 +144,21 @@ function webify_file($file, $toc, $languageList, $versionList, $language)
         'en' => 'Prev',
         'zh_cn' => '上一章',
         'ja' => '戻る',
+        'pt_br' => 'Anterior',
     );
 
     $next_text = array(
         'en' => 'Next',
         'zh_cn' => '下一章',
         'ja' => '次へ',
+        'pt_br' => 'Próximo',
     );
 
     $suggestions_text = array(
         'en' => 'Please <a href="https://github.com/sebastianbergmann/phpunit-documentation/issues">open a ticket</a> on GitHub to suggest improvements to this page. Thanks!',
         'zh_cn' => '如果对本页有改进建议，请 <a href="https://github.com/sebastianbergmann/phpunit-documentation/issues">在 GitHub 上开启任务单</a>。万分感谢！',
         'ja' => 'このページの改善案を<a href="https://github.com/sebastianbergmann/phpunit-documentation/issues">GitHubで提案</a>してください!',
+        'pt_br' => 'Por favor, <a href="https://github.com/sebastianbergmann/phpunit-documentation/issues">abra um chamado</a> no GitHub para sugerir melhorias para esta página. Obrigado!',
     );
 
     if ($filename !== 'index.html') {
