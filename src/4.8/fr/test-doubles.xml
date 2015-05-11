@@ -130,7 +130,7 @@ class BouchonTest extends PHPUnit_Framework_TestCase
 
         // Appeler $bouchon->faireQuelquechose() va maintenant retourner
         // 'foo'.
-        $this->assertEquals('foo', $bouchon->faireQuelquechose());
+        self::assertEquals('foo', $bouchon->faireQuelquechose());
     }
 }
 ?>]]></programlisting>
@@ -196,7 +196,7 @@ class BouchonTest extends PHPUnit_Framework_TestCase
 
         // Appeler $bouchon->faireQuelquechose() retournera maintenant
         // 'foo'.
-        $this->assertEquals('foo', $bouchon->faireQuelquechose());
+        self::assertEquals('foo', $bouchon->faireQuelquechose());
     }
 }
 ?>]]></programlisting>
@@ -233,10 +233,10 @@ class BouchonTest extends PHPUnit_Framework_TestCase
              ->will($this->returnArgument(0));
 
         // $bouchon->faireQuelquechose('foo') retourne 'foo'
-        $this->assertEquals('foo', $bouchon->faireQuelquechose('foo'));
+        self::assertEquals('foo', $bouchon->faireQuelquechose('foo'));
 
         // $bouchon->faireQuelquechose('bar') retourne 'bar'
-        $this->assertEquals('bar', $bouchon->faireQuelquechose('bar'));
+        self::assertEquals('bar', $bouchon->faireQuelquechose('bar'));
     }
 }
 ?>]]></programlisting>
@@ -273,7 +273,7 @@ class BouchonTest extends PHPUnit_Framework_TestCase
              ->will($this->returnSelf());
 
         // $bouchon->faireQuelquechose() retourne $bouchon
-        $this->assertSame($bouchon, $bouchon->faireQuelquechose());
+        self::assertSame($bouchon, $bouchon->faireQuelquechose());
     }
 }
 ?>]]></programlisting>
@@ -320,8 +320,8 @@ class BouchonTest extends PHPUnit_Framework_TestCase
         // $bouchon->faireQuelquechose() retourne
         // différentes valeurs selon les paramètres
         // fournis.
-        $this->assertEquals('d', $bouchon->faireQuelquechose('a', 'b', 'c'));
-        $this->assertEquals('h', $bouchon->faireQuelquechose('e', 'f', 'g'));
+        self::assertEquals('d', $bouchon->faireQuelquechose('a', 'b', 'c'));
+        self::assertEquals('h', $bouchon->faireQuelquechose('e', 'f', 'g'));
     }
 }
 ?>]]></programlisting>
@@ -359,7 +359,7 @@ class BouchonTest extends PHPUnit_Framework_TestCase
              ->will($this->returnCallback('str_rot13'));
 
         // $bouchon->faireQuelquechose($argument) retourne str_rot13($argument)
-        $this->assertEquals('fbzrguvat', $bouchon->faireQuelquechose('quelqueChose'));
+        self::assertEquals('fbzrguvat', $bouchon->faireQuelquechose('quelqueChose'));
     }
 }
 ?>]]></programlisting>
@@ -396,9 +396,9 @@ class BouchonTest extends PHPUnit_Framework_TestCase
              ->will($this->onConsecutiveCalls(2, 3, 5, 7));
 
         // $bouchon->faireQuelquechose() retourne une valeur différente à chaque fois
-        $this->assertEquals(2, $bouchon->faireQuelquechose());
-        $this->assertEquals(3, $bouchon->faireQuelquechose());
-        $this->assertEquals(5, $bouchon->faireQuelquechose());
+        self::assertEquals(2, $bouchon->faireQuelquechose());
+        self::assertEquals(3, $bouchon->faireQuelquechose());
+        self::assertEquals(5, $bouchon->faireQuelquechose());
     }
 }
 ?>]]></programlisting>
@@ -713,7 +713,7 @@ class ClasseAbstraiteTest extends PHPUnit_Framework_TestCase
              ->method('methodeAbstraite')
              ->will($this->returnValue(TRUE));
 
-        $this->assertTrue($stub->methodeConcrete());
+        self::assertTrue($stub->methodeConcrete());
     }
 }
 ?>]]></programlisting>
@@ -845,7 +845,7 @@ class GoogleTest extends PHPUnit_Framework_TestCase
          * $googleSearch->doGoogleSearch() va maintenant retourner un result bouchon et
          * la méthode doGoogleSearch() du web service ne sera pas invoquée.
          */
-        $this->assertEquals(
+        self::assertEquals(
           $result,
           $googleSearch->doGoogleSearch(
             '00000000000000000000000000000000',
@@ -945,10 +945,10 @@ class ExempleTest extends PHPUnit_Framework_TestCase
     public function testReprtoireEstCree()
     {
         $example = new Exemple('id');
-        $this->assertFalse(file_exists(dirname(__FILE__) . '/id'));
+        self::assertFalse(file_exists(dirname(__FILE__) . '/id'));
 
         $example->setRepertoire(dirname(__FILE__));
-        $this->assertTrue(file_exists(dirname(__FILE__) . '/id'));
+        self::assertTrue(file_exists(dirname(__FILE__) . '/id'));
     }
 
     protected function tearDown()
@@ -994,10 +994,10 @@ class ExempleTest extends PHPUnit_Framework_TestCase
     public function testRepertoireEstCree()
     {
         $exemple = new Exemple('id');
-        $this->assertFalse(vfsStreamWrapper::getRoot()->hasChild('id'));
+        self::assertFalse(vfsStreamWrapper::getRoot()->hasChild('id'));
 
         $exemple->setRepertoire(vfsStream::url('exempleRepertoire'));
-        $this->assertTrue(vfsStreamWrapper::getRoot()->hasChild('id'));
+        self::assertTrue(vfsStreamWrapper::getRoot()->hasChild('id'));
     }
 }
 ?>]]></programlisting>

@@ -294,7 +294,7 @@ class BankAccountTest extends PHPUnit_Framework_TestCase
      */
     public function testBalanceIsInitiallyZero()
     {
-        $this->assertEquals(0, $this->ba->getBalance());
+        self::assertEquals(0, $this->ba->getBalance());
     }
 
     /**
@@ -307,7 +307,7 @@ class BankAccountTest extends PHPUnit_Framework_TestCase
         }
 
         catch (BankAccountException $e) {
-            $this->assertEquals(0, $this->ba->getBalance());
+            self::assertEquals(0, $this->ba->getBalance());
 
             return;
         }
@@ -325,7 +325,7 @@ class BankAccountTest extends PHPUnit_Framework_TestCase
         }
 
         catch (BankAccountException $e) {
-            $this->assertEquals(0, $this->ba->getBalance());
+            self::assertEquals(0, $this->ba->getBalance());
 
             return;
         }
@@ -340,11 +340,11 @@ class BankAccountTest extends PHPUnit_Framework_TestCase
      */
     public function testDepositWithdrawMoney()
     {
-        $this->assertEquals(0, $this->ba->getBalance());
+        self::assertEquals(0, $this->ba->getBalance());
         $this->ba->depositMoney(1);
-        $this->assertEquals(1, $this->ba->getBalance());
+        self::assertEquals(1, $this->ba->getBalance());
         $this->ba->withdrawMoney(1);
-        $this->assertEquals(0, $this->ba->getBalance());
+        self::assertEquals(0, $this->ba->getBalance());
     }
 }
 ?>]]></programlisting>
@@ -381,7 +381,7 @@ class GuestbookIntegrationTest extends PHPUnit_Extensions_Database_TestCase
         $expectedTable = $this->createFlatXmlDataSet("expectedBook.xml")
                               ->getTable("guestbook");
 
-        $this->assertTablesEqual($expectedTable, $queryTable);
+        self::assertTablesEqual($expectedTable, $queryTable);
     }
 }
 ?>]]>
@@ -415,6 +415,6 @@ if (false) {
     this_call_will_never_show_up_as_covered();
 }
 ?>]]></programlisting>
-    </example>      
+    </example>
   </section>
 </chapter>

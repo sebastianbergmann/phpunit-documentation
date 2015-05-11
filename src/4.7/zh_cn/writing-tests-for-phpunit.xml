@@ -23,14 +23,14 @@ class StackTest extends PHPUnit_Framework_TestCase
     public function testPushAndPop()
     {
         $stack = array();
-        $this->assertEquals(0, count($stack));
+        self::assertEquals(0, count($stack));
 
         array_push($stack, 'foo');
-        $this->assertEquals('foo', $stack[count($stack)-1]);
-        $this->assertEquals(1, count($stack));
+        self::assertEquals('foo', $stack[count($stack)-1]);
+        self::assertEquals(1, count($stack));
 
-        $this->assertEquals('foo', array_pop($stack));
-        $this->assertEquals(0, count($stack));
+        self::assertEquals('foo', array_pop($stack));
+        self::assertEquals(0, count($stack));
     }
 }
 ?>]]></programlisting>
@@ -71,7 +71,7 @@ class StackTest extends PHPUnit_Framework_TestCase
     public function testEmpty()
     {
         $stack = array();
-        $this->assertEmpty($stack);
+        self::assertEmpty($stack);
 
         return $stack;
     }
@@ -82,8 +82,8 @@ class StackTest extends PHPUnit_Framework_TestCase
     public function testPush(array $stack)
     {
         array_push($stack, 'foo');
-        $this->assertEquals('foo', $stack[count($stack)-1]);
-        $this->assertNotEmpty($stack);
+        self::assertEquals('foo', $stack[count($stack)-1]);
+        self::assertNotEmpty($stack);
 
         return $stack;
     }
@@ -93,8 +93,8 @@ class StackTest extends PHPUnit_Framework_TestCase
      */
     public function testPop(array $stack)
     {
-        $this->assertEquals('foo', array_pop($stack));
-        $this->assertEmpty($stack);
+        self::assertEquals('foo', array_pop($stack));
+        self::assertEmpty($stack);
     }
 }
 ?>]]></programlisting>
@@ -112,7 +112,7 @@ class DependencyFailureTest extends PHPUnit_Framework_TestCase
 {
     public function testOne()
     {
-        $this->assertTrue(FALSE);
+        self::assertTrue(FALSE);
     }
 
     /**
@@ -160,13 +160,13 @@ class MultipleDependenciesTest extends PHPUnit_Framework_TestCase
 {
     public function testProducerFirst()
     {
-        $this->assertTrue(true);
+        self::assertTrue(true);
         return 'first';
     }
 
     public function testProducerSecond()
     {
-        $this->assertTrue(true);
+        self::assertTrue(true);
         return 'second';
     }
 
@@ -176,7 +176,7 @@ class MultipleDependenciesTest extends PHPUnit_Framework_TestCase
      */
     public function testConsumer()
     {
-        $this->assertEquals(
+        self::assertEquals(
             array('first', 'second'),
             func_get_args()
         );
@@ -214,7 +214,7 @@ class DataTest extends PHPUnit_Framework_TestCase
      */
     public function testAdd($a, $b, $expected)
     {
-        $this->assertEquals($expected, $a + $b);
+        self::assertEquals($expected, $a + $b);
     }
 
     public function additionProvider()
@@ -259,7 +259,7 @@ class DataTest extends PHPUnit_Framework_TestCase
      */
     public function testAdd($a, $b, $expected)
     {
-        $this->assertEquals($expected, $a + $b);
+        self::assertEquals($expected, $a + $b);
     }
 
     public function additionProvider()
@@ -347,13 +347,13 @@ class DependencyAndDataProviderComboTest extends PHPUnit_Framework_TestCase
 
     public function testProducerFirst()
     {
-        $this->assertTrue(true);
+        self::assertTrue(true);
         return 'first';
     }
 
     public function testProducerSecond()
     {
-        $this->assertTrue(true);
+        self::assertTrue(true);
         return 'second';
     }
 
@@ -364,7 +364,7 @@ class DependencyAndDataProviderComboTest extends PHPUnit_Framework_TestCase
      */
     public function testConsumer()
     {
-        $this->assertEquals(
+        self::assertEquals(
             array('provider1', 'first', 'second'),
             func_get_args()
         );
@@ -691,7 +691,7 @@ class ErrorSuppressionTest extends PHPUnit_Framework_TestCase
 {
     public function testFileWriting() {
         $writer = new FileWriter;
-        $this->assertFalse(@$writer->write('/is-not-writeable/file', 'stuff'));
+        self::assertFalse(@$writer->write('/is-not-writeable/file', 'stuff'));
     }
 }
 class FileWriter
@@ -811,7 +811,7 @@ Tests: 2, Assertions: 2, Failures: 1.</screen>
 class ArrayDiffTest extends PHPUnit_Framework_TestCase
 {
     public function testEquality() {
-        $this->assertEquals(
+        self::assertEquals(
             array(1,2,3 ,4,5,6),
             array(1,2,33,4,5,6)
         );
@@ -856,7 +856,7 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
 class LongArrayDiffTest extends PHPUnit_Framework_TestCase
 {
     public function testEquality() {
-        $this->assertEquals(
+        self::assertEquals(
             array(0,0,0,0,0,0,0,0,0,0,0,0,1,2,3 ,4,5,6),
             array(0,0,0,0,0,0,0,0,0,0,0,0,1,2,33,4,5,6)
         );
@@ -904,7 +904,7 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
 class ArrayWeakComparisonTest extends PHPUnit_Framework_TestCase
 {
     public function testEquality() {
-        $this->assertEquals(
+        self::assertEquals(
             array(1  ,2,3 ,4,5,6),
             array('1',2,33,4,5,6)
         );

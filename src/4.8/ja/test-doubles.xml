@@ -156,7 +156,7 @@ class StubTest extends PHPUnit_Framework_TestCase
 
         // $stub->doSomething() をコールすると
         // 'foo' を返すようになります
-        $this->assertEquals('foo', $stub->doSomething());
+        self::assertEquals('foo', $stub->doSomething());
     }
 }
 ?>]]></programlisting>
@@ -195,7 +195,7 @@ class StubTest extends PHPUnit_Framework_TestCase
 
         // $stub->doSomething() をコールすると
         // 'foo' を返すようになります
-        $this->assertEquals('foo', $stub->doSomething());
+        self::assertEquals('foo', $stub->doSomething());
     }
 }
 ?>]]></programlisting>
@@ -252,10 +252,10 @@ class StubTest extends PHPUnit_Framework_TestCase
              ->will($this->returnArgument(0));
 
         // $stub->doSomething('foo') は 'foo' を返します
-        $this->assertEquals('foo', $stub->doSomething('foo'));
+        self::assertEquals('foo', $stub->doSomething('foo'));
 
         // $stub->doSomething('bar') は 'bar' を返します
-        $this->assertEquals('bar', $stub->doSomething('bar'));
+        self::assertEquals('bar', $stub->doSomething('bar'));
     }
 }
 ?>]]></programlisting>
@@ -290,7 +290,7 @@ class StubTest extends PHPUnit_Framework_TestCase
              ->will($this->returnSelf());
 
         // $stub->doSomething() は $stub を返します
-        $this->assertSame($stub, $stub->doSomething());
+        self::assertSame($stub, $stub->doSomething());
     }
 }
 ?>]]></programlisting>
@@ -332,8 +332,8 @@ class StubTest extends PHPUnit_Framework_TestCase
              ->will($this->returnValueMap($map));
 
         // $stub->doSomething() は、渡した引数に応じて異なる値を返します
-        $this->assertEquals('d', $stub->doSomething('a', 'b', 'c'));
-        $this->assertEquals('h', $stub->doSomething('e', 'f', 'g'));
+        self::assertEquals('d', $stub->doSomething('a', 'b', 'c'));
+        self::assertEquals('h', $stub->doSomething('e', 'f', 'g'));
     }
 }
 ?>]]></programlisting>
@@ -372,7 +372,7 @@ class StubTest extends PHPUnit_Framework_TestCase
              ->will($this->returnCallback('str_rot13'));
 
         // $stub->doSomething($argument) は str_rot13($argument) を返します
-        $this->assertEquals('fbzrguvat', $stub->doSomething('something'));
+        self::assertEquals('fbzrguvat', $stub->doSomething('something'));
     }
 }
 ?>]]></programlisting>
@@ -408,9 +408,9 @@ class StubTest extends PHPUnit_Framework_TestCase
              ->will($this->onConsecutiveCalls(2, 3, 5, 7));
 
         // $stub->doSomething() は毎回異なる値を返します
-        $this->assertEquals(2, $stub->doSomething());
-        $this->assertEquals(3, $stub->doSomething());
-        $this->assertEquals(5, $stub->doSomething());
+        self::assertEquals(2, $stub->doSomething());
+        self::assertEquals(3, $stub->doSomething());
+        self::assertEquals(5, $stub->doSomething());
     }
 }
 ?>]]></programlisting>
@@ -520,12 +520,12 @@ class Subject
 {
     protected $observers = array();
     protected $name;
-    
+
     public function __construct($name)
     {
         $this->name = $name;
     }
-    
+
     public function getName()
     {
         return $this->name;
@@ -936,7 +936,7 @@ class TraitClassTest extends PHPUnit_Framework_TestCase
              ->method('abstractMethod')
              ->will($this->returnValue(TRUE));
 
-        $this->assertTrue($mock->concreteMethod());
+        self::assertTrue($mock->concreteMethod());
     }
 }
 ?>]]></programlisting>
@@ -974,7 +974,7 @@ class AbstractClassTest extends PHPUnit_Framework_TestCase
              ->method('abstractMethod')
              ->will($this->returnValue(TRUE));
 
-        $this->assertTrue($stub->concreteMethod());
+        self::assertTrue($stub->concreteMethod());
     }
 }
 ?>]]></programlisting>
@@ -1050,7 +1050,7 @@ class GoogleTest extends PHPUnit_Framework_TestCase
          * $googleSearch->doGoogleSearch() はスタブが用意した結果を返し、
          * ウェブサービスの doGoogleSearch() が呼び出されることはありません
          */
-        $this->assertEquals(
+        self::assertEquals(
           $result,
           $googleSearch->doGoogleSearch(
             '00000000000000000000000000000000',
@@ -1151,10 +1151,10 @@ class ExampleTest extends PHPUnit_Framework_TestCase
     public function testDirectoryIsCreated()
     {
         $example = new Example('id');
-        $this->assertFalse(file_exists(dirname(__FILE__) . '/id'));
+        self::assertFalse(file_exists(dirname(__FILE__) . '/id'));
 
         $example->setDirectory(dirname(__FILE__));
-        $this->assertTrue(file_exists(dirname(__FILE__) . '/id'));
+        self::assertTrue(file_exists(dirname(__FILE__) . '/id'));
     }
 
     protected function tearDown()
@@ -1200,10 +1200,10 @@ class ExampleTest extends PHPUnit_Framework_TestCase
     public function testDirectoryIsCreated()
     {
         $example = new Example('id');
-        $this->assertFalse(vfsStreamWrapper::getRoot()->hasChild('id'));
+        self::assertFalse(vfsStreamWrapper::getRoot()->hasChild('id'));
 
         $example->setDirectory(vfsStream::url('exampleDir'));
-        $this->assertTrue(vfsStreamWrapper::getRoot()->hasChild('id'));
+        self::assertTrue(vfsStreamWrapper::getRoot()->hasChild('id'));
     }
 }
 ?>]]></programlisting>

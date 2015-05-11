@@ -76,7 +76,7 @@ class StubTest extends PHPUnit_Framework_TestCase
              ->willReturn('foo');
 
         // 现在调用 $stub->doSomething() 将返回 'foo'。
-        $this->assertEquals('foo', $stub->doSomething());
+        self::assertEquals('foo', $stub->doSomething());
     }
 }
 ?>]]></programlisting>
@@ -109,7 +109,7 @@ class StubTest extends PHPUnit_Framework_TestCase
              ->willReturn('foo');
 
         // 现在调用 $stub->doSomething() 将返回 'foo'。
-        $this->assertEquals('foo', $stub->doSomething());
+        self::assertEquals('foo', $stub->doSomething());
     }
 }
 ?>]]></programlisting>
@@ -152,10 +152,10 @@ class StubTest extends PHPUnit_Framework_TestCase
              ->will($this->returnArgument(0));
 
         // stub->doSomething('foo') 返回 'foo'
-        $this->assertEquals('foo', $stub->doSomething('foo'));
+        self::assertEquals('foo', $stub->doSomething('foo'));
 
         // $stub->doSomething('bar') 返回 'bar'
-        $this->assertEquals('bar', $stub->doSomething('bar'));
+        self::assertEquals('bar', $stub->doSomething('bar'));
     }
 }
 ?>]]></programlisting>
@@ -185,7 +185,7 @@ class StubTest extends PHPUnit_Framework_TestCase
              ->will($this->returnSelf());
 
         // $stub->doSomething() 返回 $stub
-        $this->assertSame($stub, $stub->doSomething());
+        self::assertSame($stub, $stub->doSomething());
     }
 }
 ?>]]></programlisting>
@@ -221,8 +221,8 @@ class StubTest extends PHPUnit_Framework_TestCase
              ->will($this->returnValueMap($map));
 
         // $stub->doSomething() 根据提供的参数返回不同的值。
-        $this->assertEquals('d', $stub->doSomething('a', 'b', 'c'));
-        $this->assertEquals('h', $stub->doSomething('e', 'f', 'g'));
+        self::assertEquals('d', $stub->doSomething('a', 'b', 'c'));
+        self::assertEquals('h', $stub->doSomething('e', 'f', 'g'));
     }
 }
 ?>]]></programlisting>
@@ -252,7 +252,7 @@ class StubTest extends PHPUnit_Framework_TestCase
              ->will($this->returnCallback('str_rot13'));
 
         // $stub->doSomething($argument) 返回 str_rot13($argument)
-        $this->assertEquals('fbzrguvat', $stub->doSomething('something'));
+        self::assertEquals('fbzrguvat', $stub->doSomething('something'));
     }
 }
 ?>]]></programlisting>
@@ -282,9 +282,9 @@ class StubTest extends PHPUnit_Framework_TestCase
              ->will($this->onConsecutiveCalls(2, 3, 5, 7));
 
         // $stub->doSomething() 每次返回值都不同
-        $this->assertEquals(2, $stub->doSomething());
-        $this->assertEquals(3, $stub->doSomething());
-        $this->assertEquals(5, $stub->doSomething());
+        self::assertEquals(2, $stub->doSomething());
+        self::assertEquals(3, $stub->doSomething());
+        self::assertEquals(5, $stub->doSomething());
     }
 }
 ?>]]></programlisting>
@@ -440,7 +440,7 @@ class SubjectTest extends PHPUnit_Framework_TestCase
         $subject->attach($observer);
 
         // 在 $subject 对象上调用 doSomething() 方法，
-        // 预期将以字符串 'something' 为参数调用 
+        // 预期将以字符串 'something' 为参数调用
         // Observer 仿件对象的 update() 方法。
         $subject->doSomething();
     }
@@ -659,7 +659,7 @@ class SubjectTest extends PHPUnit_Framework_TestCase
         $subject->attach($observer->reveal());
 
         // 在 $subject 对象上调用 doSomething() 方法，
-        // 预期将以字符串 'something' 为参数调用 
+        // 预期将以字符串 'something' 为参数调用
         // Observer 仿件对象的 update() 方法。
         $subject->doSomething();
     }
@@ -699,7 +699,7 @@ class TraitClassTest extends PHPUnit_Framework_TestCase
              ->method('abstractMethod')
              ->will($this->returnValue(TRUE));
 
-        $this->assertTrue($mock->concreteMethod());
+        self::assertTrue($mock->concreteMethod());
     }
 }
 ?>]]></programlisting>
@@ -731,7 +731,7 @@ class AbstractClassTest extends PHPUnit_Framework_TestCase
              ->method('abstractMethod')
              ->will($this->returnValue(TRUE));
 
-        $this->assertTrue($stub->concreteMethod());
+        self::assertTrue($stub->concreteMethod());
     }
 }
 ?>]]></programlisting>
@@ -794,7 +794,7 @@ class GoogleTest extends PHPUnit_Framework_TestCase
          * $googleSearch->doGoogleSearch() 将会返回上桩的结果，
          * web 服务的 doGoogleSearch() 方法不会被调用。
          */
-        $this->assertEquals(
+        self::assertEquals(
           $result,
           $googleSearch->doGoogleSearch(
             '00000000000000000000000000000000',
@@ -876,10 +876,10 @@ class ExampleTest extends PHPUnit_Framework_TestCase
     public function testDirectoryIsCreated()
     {
         $example = new Example('id');
-        $this->assertFalse(file_exists(dirname(__FILE__) . '/id'));
+        self::assertFalse(file_exists(dirname(__FILE__) . '/id'));
 
         $example->setDirectory(dirname(__FILE__));
-        $this->assertTrue(file_exists(dirname(__FILE__) . '/id'));
+        self::assertTrue(file_exists(dirname(__FILE__) . '/id'));
     }
 
     protected function tearDown()
@@ -920,10 +920,10 @@ class ExampleTest extends PHPUnit_Framework_TestCase
     public function testDirectoryIsCreated()
     {
         $example = new Example('id');
-        $this->assertFalse(vfsStreamWrapper::getRoot()->hasChild('id'));
+        self::assertFalse(vfsStreamWrapper::getRoot()->hasChild('id'));
 
         $example->setDirectory(vfsStream::url('exampleDir'));
-        $this->assertTrue(vfsStreamWrapper::getRoot()->hasChild('id'));
+        self::assertTrue(vfsStreamWrapper::getRoot()->hasChild('id'));
     }
 }
 ?>]]></programlisting>

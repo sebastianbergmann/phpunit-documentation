@@ -27,14 +27,14 @@ class PileTest extends PHPUnit_Framework_TestCase
     public function testerPushEtPop()
     {
         $pile = array();
-        $this->assertEquals(0, count($pile));
+        self::assertEquals(0, count($pile));
 
         array_push($pile, 'foo');
-        $this->assertEquals('foo', $pile[count($pile)-1]);
-        $this->assertEquals(1, count($pile));
+        self::assertEquals('foo', $pile[count($pile)-1]);
+        self::assertEquals(1, count($pile));
 
-        $this->assertEquals('foo', array_pop($pile));
-        $this->assertEquals(0, count($pile));
+        self::assertEquals('foo', array_pop($pile));
+        self::assertEquals(0, count($pile));
     }
 }
 ?>]]></programlisting>
@@ -98,7 +98,7 @@ class PileTest extends PHPUnit_Framework_TestCase
     public function testVide()
     {
         $pile = array();
-        $this->assertEmpty($pile);
+        self::assertEmpty($pile);
 
         return $pile;
     }
@@ -109,8 +109,8 @@ class PileTest extends PHPUnit_Framework_TestCase
     public function testPush(array $pile)
     {
         array_push($pile, 'foo');
-        $this->assertEquals('foo', $pile[count($pile)-1]);
-        $this->assertNotEmpty($pile);
+        self::assertEquals('foo', $pile[count($pile)-1]);
+        self::assertNotEmpty($pile);
 
         return $pile;
     }
@@ -120,8 +120,8 @@ class PileTest extends PHPUnit_Framework_TestCase
      */
     public function testPop(array $pile)
     {
-        $this->assertEquals('foo', array_pop($pile));
-        $this->assertEmpty($pile);
+        self::assertEquals('foo', array_pop($pile));
+        self::assertEmpty($pile);
     }
 }
 ?>]]></programlisting>
@@ -154,7 +154,7 @@ class DependencyFailureTest extends PHPUnit_Framework_TestCase
 {
     public function testUn()
     {
-        $this->assertTrue(FALSE);
+        self::assertTrue(FALSE);
     }
 
     /**
@@ -228,7 +228,7 @@ class DataTest extends PHPUnit_Framework_TestCase
      */
     public function testAdditionne($a, $b, $c)
     {
-        $this->assertEquals($c, $a + $b);
+        self::assertEquals($c, $a + $b);
     }
 
     public function fournisseur()
@@ -273,7 +273,7 @@ class DataTest extends PHPUnit_Framework_TestCase
      */
     public function testAdditionne($a, $b, $c)
     {
-        $this->assertEquals($c, $a + $b);
+        self::assertEquals($c, $a + $b);
     }
 
     public function fournisseur()
@@ -673,7 +673,7 @@ class ErrorSuppressionTest extends PHPUnit_Framework_TestCase
 {
     public function testEcritureFichier() {
         $writer = new FileWriter;
-        $this->assertFalse(@$writer->ecrit('/non-accessible-en-ecriture/fichier', 'texte'));
+        self::assertFalse(@$writer->ecrit('/non-accessible-en-ecriture/fichier', 'texte'));
     }
 }
 class FileWriter
@@ -825,7 +825,7 @@ class TableauPossedeUneClefTest extends PHPUnit_Framework_TestCase
 {
     public function testEchec()
     {
-        $this->assertArrayHasKey('foo', array('bar' => 'baz'));
+        self::assertArrayHasKey('foo', array('bar' => 'baz'));
     }
 }
 ?>]]></programlisting>
@@ -862,7 +862,7 @@ class ClassePossedeUnAttributTest extends PHPUnit_Framework_TestCase
 {
     public function testEchec()
     {
-        $this->assertClassHasAttribute('foo', 'stdClass');
+        self::assertClassHasAttribute('foo', 'stdClass');
     }
 }
 ?>]]></programlisting>
@@ -899,7 +899,7 @@ class ClassePossedeUnAttributStatiqueTest extends PHPUnit_Framework_TestCase
 {
     public function testEchec()
     {
-        $this->assertClassHasStaticAttribute('foo', 'stdClass');
+        self::assertClassHasStaticAttribute('foo', 'stdClass');
     }
 }
 ?>]]></programlisting>
@@ -939,7 +939,7 @@ class ContainsTest extends PHPUnit_Framework_TestCase
 {
     public function testEchec()
     {
-        $this->assertContains(4, array(1, 2, 3));
+        self::assertContains(4, array(1, 2, 3));
     }
 }
 ?>]]></programlisting>
@@ -971,7 +971,7 @@ class ContainsTest extends PHPUnit_Framework_TestCase
 {
     public function testEchec()
     {
-        $this->assertContains('baz', 'foobar');
+        self::assertContains('baz', 'foobar');
     }
 }
 ?>]]></programlisting>
@@ -1000,12 +1000,12 @@ class ContainsTest extends PHPUnit_Framework_TestCase
 {
     public function testEchec()
     {
-        $this->assertContains('foo', 'FooBar');
+        self::assertContains('foo', 'FooBar');
     }
 
     public function testOK()
     {
-        $this->assertContains('foo', 'FooBar', '', true);
+        self::assertContains('foo', 'FooBar', '', true);
     }
 }
 ?>]]></programlisting>
@@ -1046,7 +1046,7 @@ class ContainsOnlyTest extends PHPUnit_Framework_TestCase
 {
     public function testEchec()
     {
-        $this->assertContainsOnly('string', array('1', '2', 3));
+        self::assertContainsOnly('string', array('1', '2', 3));
     }
 }
 ?>]]></programlisting>
@@ -1087,7 +1087,7 @@ class CountTest extends PHPUnit_Framework_TestCase
 {
     public function testEchec()
     {
-        $this->assertCount(0, array('foo'));
+        self::assertCount(0, array('foo'));
     }
 }
 ?>]]></programlisting>
@@ -1127,7 +1127,7 @@ class VideTest extends PHPUnit_Framework_TestCase
 {
     public function testEchec()
     {
-        $this->assertEmpty(array('foo'));
+        self::assertEmpty(array('foo'));
     }
 }
 ?>]]></programlisting>
@@ -1165,7 +1165,7 @@ class StructuresXMLSontEgalesTest extends PHPUnit_Framework_TestCase
         $attendu = new DOMElement('foo');
         $constate = new DOMElement('bar');
 
-        $this->assertEqualXMLStructure($attendu, $constate);
+        self::assertEqualXMLStructure($attendu, $constate);
     }
 
     public function testEchecAvecDifferentsAttributsDeNoeud()
@@ -1176,7 +1176,7 @@ class StructuresXMLSontEgalesTest extends PHPUnit_Framework_TestCase
         $constate = new DOMDocument;
         $constate->loadXML('<foo/>');
 
-        $this->assertEqualXMLStructure(
+        self::assertEqualXMLStructure(
           $attendu->firstChild, $constate->firstChild, TRUE
         );
     }
@@ -1189,7 +1189,7 @@ class StructuresXMLSontEgalesTest extends PHPUnit_Framework_TestCase
         $constate = new DOMDocument;
         $constate->loadXML('<foo><bar/></foo>');
 
-        $this->assertEqualXMLStructure(
+        self::assertEqualXMLStructure(
           $attendu->firstChild, $constate->firstChild
         );
     }
@@ -1202,7 +1202,7 @@ class StructuresXMLSontEgalesTest extends PHPUnit_Framework_TestCase
         $constate = new DOMDocument;
         $constate->loadXML('<foo><baz/><baz/><baz/></foo>');
 
-        $this->assertEqualXMLStructure(
+        self::assertEqualXMLStructure(
           $attendu->firstChild, $constate->firstChild
         );
     }
@@ -1271,17 +1271,17 @@ class EqualsTest extends PHPUnit_Framework_TestCase
 {
     public function testEchec()
     {
-        $this->assertEquals(1, 0);
+        self::assertEquals(1, 0);
     }
 
     public function testEchec2()
     {
-        $this->assertEquals('bar', 'baz');
+        self::assertEquals('bar', 'baz');
     }
 
     public function testEchec3()
     {
-        $this->assertEquals("foo\nbar\nbaz\n", "foo\nbah\nbaz\n");
+        self::assertEquals("foo\nbar\nbaz\n", "foo\nbah\nbaz\n");
     }
 }
 ?>]]></programlisting>
@@ -1338,12 +1338,12 @@ class EqualsTest extends PHPUnit_Framework_TestCase
 {
     public function testSucces()
     {
-        $this->assertEquals(1.0, 1.1, '', 0.2);
+        self::assertEquals(1.0, 1.1, '', 0.2);
     }
 
     public function testEchec()
     {
-        $this->assertEquals(1.0, 1.1);
+        self::assertEquals(1.0, 1.1);
     }
 }
 ?>]]></programlisting>
@@ -1380,7 +1380,7 @@ class EqualsTest extends PHPUnit_Framework_TestCase
         $constate = new DOMDocument;
         $constate->loadXML('<bar><foo/></bar>');
 
-        $this->assertEquals($attendu, $constate);
+        self::assertEquals($attendu, $constate);
     }
 }
 ?>]]></programlisting>
@@ -1429,7 +1429,7 @@ class EqualsTest extends PHPUnit_Framework_TestCase
         $constate->foo = 'bar';
         $constate->baz = 'bar';
 
-        $this->assertEquals($attendu, $constate);
+        self::assertEquals($attendu, $constate);
     }
 }
 ?>]]></programlisting>
@@ -1470,7 +1470,7 @@ class EqualsTest extends PHPUnit_Framework_TestCase
 {
     public function testEchec()
     {
-        $this->assertEquals(array('a', 'b', 'c'), array('a', 'c', 'd'));
+        self::assertEquals(array('a', 'b', 'c'), array('a', 'c', 'd'));
     }
 }
 ?>]]></programlisting>
@@ -1516,7 +1516,7 @@ class FalseTest extends PHPUnit_Framework_TestCase
 {
     public function testEchec()
     {
-        $this->assertFalse(TRUE);
+        self::assertFalse(TRUE);
     }
 }
 ?>]]></programlisting>
@@ -1553,7 +1553,7 @@ class FileEqualsTest extends PHPUnit_Framework_TestCase
 {
     public function testEchec()
     {
-        $this->assertFileEquals('/home/sb/attendu', '/home/sb/constate');
+        self::assertFileEquals('/home/sb/attendu', '/home/sb/constate');
     }
 }
 ?>]]></programlisting>
@@ -1596,7 +1596,7 @@ class FileExistsTest extends PHPUnit_Framework_TestCase
 {
     public function testEchec()
     {
-        $this->assertFileExists('/chemin/vers/fichier');
+        self::assertFileExists('/chemin/vers/fichier');
     }
 }
 ?>]]></programlisting>
@@ -1633,7 +1633,7 @@ class GreaterThanTest extends PHPUnit_Framework_TestCase
 {
     public function testEchec()
     {
-        $this->assertGreaterThan(2, 1);
+        self::assertGreaterThan(2, 1);
     }
 }
 ?>]]></programlisting>
@@ -1670,7 +1670,7 @@ class GreatThanOrEqualTest extends PHPUnit_Framework_TestCase
 {
     public function testEchec()
     {
-        $this->assertGreaterThanOrEqual(2, 1);
+        self::assertGreaterThanOrEqual(2, 1);
     }
 }
 ?>]]></programlisting>
@@ -1710,7 +1710,7 @@ class InstanceOfTest extends PHPUnit_Framework_TestCase
 {
     public function testEchec()
     {
-        $this->assertInstanceOf('RuntimeException', new Exception);
+        self::assertInstanceOf('RuntimeException', new Exception);
     }
 }
 ?>]]></programlisting>
@@ -1750,7 +1750,7 @@ class InternalTypeTest extends PHPUnit_Framework_TestCase
 {
     public function testEchec()
     {
-        $this->assertInternalType('string', 42);
+        self::assertInternalType('string', 42);
     }
 }
 ?>]]></programlisting>
@@ -1789,7 +1789,7 @@ class JsonFileEqualsJsonFile extends PHPUnit_Framework_TestCase
 {
     public function testFailure()
     {
-        $this->assertJsonFileEqualsJsonFile(
+        self::assertJsonFileEqualsJsonFile(
           'chemin/vers/fixture/fichier', 'chemin/vers/constate/fichier');
     }
 }
@@ -1827,7 +1827,7 @@ class JsonStringEqualsJsonFile extends PHPUnit_Framework_TestCase
 {
     public function testFailure()
     {
-        $this->assertJsonStringEqualsJsonFile(
+        self::assertJsonStringEqualsJsonFile(
           'chemin/vers/fixture/fichier', json_encode(array("Mascott" => "ux"))
         );
     }
@@ -1868,7 +1868,7 @@ class JsonStringEqualsJsonString extends PHPUnit_Framework_TestCase
 {
     public function testFailure()
     {
-        $this->assertJsonStringEqualsJsonString(
+        self::assertJsonStringEqualsJsonString(
           json_encode(array("Mascott" => "Tux")), json_encode(array("Mascott" => "ux"))
         );
     }
@@ -1914,7 +1914,7 @@ class LessThanTest extends PHPUnit_Framework_TestCase
 {
     public function testEchec()
     {
-        $this->assertLessThan(1, 2);
+        self::assertLessThan(1, 2);
     }
 }
 ?>]]></programlisting>
@@ -1951,7 +1951,7 @@ class LessThanOrEqualTest extends PHPUnit_Framework_TestCase
 {
     public function testEchec()
     {
-        $this->assertLessThanOrEqual(1, 2);
+        self::assertLessThanOrEqual(1, 2);
     }
 }
 ?>]]></programlisting>
@@ -1988,7 +1988,7 @@ class NullTest extends PHPUnit_Framework_TestCase
 {
     public function testEchec()
     {
-        $this->assertNull('foo');
+        self::assertNull('foo');
     }
 }
 ?>]]></programlisting>
@@ -2025,7 +2025,7 @@ class ObjectHasAttributeTest extends PHPUnit_Framework_TestCase
 {
     public function testEchec()
     {
-        $this->assertObjectHasAttribute('foo', new stdClass);
+        self::assertObjectHasAttribute('foo', new stdClass);
     }
 }
 ?>]]></programlisting>
@@ -2062,7 +2062,7 @@ class RegExpTest extends PHPUnit_Framework_TestCase
 {
     public function testEchec()
     {
-        $this->assertRegExp('/foo/', 'bar');
+        self::assertRegExp('/foo/', 'bar');
     }
 }
 ?>]]></programlisting>
@@ -2099,7 +2099,7 @@ class StringMatchesFormatTest extends PHPUnit_Framework_TestCase
 {
     public function testEchec()
     {
-        $this->assertStringMatchesFormat('%i', 'foo');
+        self::assertStringMatchesFormat('%i', 'foo');
     }
 }
 ?>]]></programlisting>
@@ -2150,7 +2150,7 @@ class StringMatchesFormatFileTest extends PHPUnit_Framework_TestCase
 {
     public function testEchec()
     {
-        $this->assertStringMatchesFormatFile('/chemin/vers/attendu.txt', 'foo');
+        self::assertStringMatchesFormatFile('/chemin/vers/attendu.txt', 'foo');
     }
 }
 ?>]]></programlisting>
@@ -2191,7 +2191,7 @@ class SameTest extends PHPUnit_Framework_TestCase
 {
     public function testEchec()
     {
-        $this->assertSame('2204', 2204);
+        self::assertSame('2204', 2204);
     }
 }
 ?>]]></programlisting>
@@ -2223,7 +2223,7 @@ class SameTest extends PHPUnit_Framework_TestCase
 {
     public function testEchec()
     {
-        $this->assertSame(new stdClass, new stdClass);
+        self::assertSame(new stdClass, new stdClass);
     }
 }
 ?>]]></programlisting>
@@ -2270,22 +2270,22 @@ class SelectCountTest extends PHPUnit_Framework_TestCase
 
     public function testAbsenceEchec()
     {
-        $this->assertSelectCount('foo bar', FALSE, $this->xml);
+        self::assertSelectCount('foo bar', FALSE, $this->xml);
     }
 
     public function testPresenceEchec()
     {
-        $this->assertSelectCount('foo baz', TRUE, $this->xml);
+        self::assertSelectCount('foo baz', TRUE, $this->xml);
     }
 
     public function testCompteExactEchec()
     {
-        $this->assertSelectCount('foo bar', 5, $this->xml);
+        self::assertSelectCount('foo bar', 5, $this->xml);
     }
 
     public function testPlageEchec()
     {
-        $this->assertSelectCount('foo bar', array('>'=>6, '<'=>8), $this->xml);
+        self::assertSelectCount('foo bar', array('>'=>6, '<'=>8), $this->xml);
     }
 }
 ?>]]></programlisting>
@@ -2347,22 +2347,22 @@ class SelectEqualsTest extends PHPUnit_Framework_TestCase
 
     public function testAbsenceEchec()
     {
-        $this->assertSelectEquals('foo bar', 'Baz', FALSE, $this->xml);
+        self::assertSelectEquals('foo bar', 'Baz', FALSE, $this->xml);
     }
 
     public function testPresenceEchec()
     {
-        $this->assertSelectEquals('foo bar', 'Bat', TRUE, $this->xml);
+        self::assertSelectEquals('foo bar', 'Bat', TRUE, $this->xml);
     }
 
     public function testCompteExactEchec()
     {
-        $this->assertSelectEquals('foo bar', 'Baz', 5, $this->xml);
+        self::assertSelectEquals('foo bar', 'Baz', 5, $this->xml);
     }
 
     public function testPlageEchec()
     {
-        $this->assertSelectEquals('foo bar', 'Baz', array('>'=>6, '<'=>8), $this->xml);
+        self::assertSelectEquals('foo bar', 'Baz', array('>'=>6, '<'=>8), $this->xml);
     }
 }
 ?>]]></programlisting>
@@ -2424,22 +2424,22 @@ class SelectRegExpTest extends PHPUnit_Framework_TestCase
 
     public function testAbsenceEchec()
     {
-        $this->assertSelectRegExp('foo bar', '/Ba.*/', FALSE, $this->xml);
+        self::assertSelectRegExp('foo bar', '/Ba.*/', FALSE, $this->xml);
     }
 
     public function testPresenceEchec()
     {
-        $this->assertSelectRegExp('foo bar', '/B[oe]z]/', TRUE, $this->xml);
+        self::assertSelectRegExp('foo bar', '/B[oe]z]/', TRUE, $this->xml);
     }
 
     public function testCompteExactEchec()
     {
-        $this->assertSelectRegExp('foo bar', '/Ba.*/', 5, $this->xml);
+        self::assertSelectRegExp('foo bar', '/Ba.*/', 5, $this->xml);
     }
 
     public function testPlageEchec()
     {
-        $this->assertSelectRegExp('foo bar', '/Ba.*/', array('>'=>6, '<'=>8), $this->xml);
+        self::assertSelectRegExp('foo bar', '/Ba.*/', array('>'=>6, '<'=>8), $this->xml);
     }
 }
 ?>]]></programlisting>
@@ -2491,7 +2491,7 @@ class StringEndsWithTest extends PHPUnit_Framework_TestCase
 {
     public function testEchec()
     {
-        $this->assertStringEndsWith('suffixe', 'foo');
+        self::assertStringEndsWith('suffixe', 'foo');
     }
 }
 ?>]]></programlisting>
@@ -2528,7 +2528,7 @@ class StringEqualsFileTest extends PHPUnit_Framework_TestCase
 {
     public function testEchec()
     {
-        $this->assertStringEqualsFile('/home/sb/attendu', 'constate');
+        self::assertStringEqualsFile('/home/sb/attendu', 'constate');
     }
 }
 ?>]]></programlisting>
@@ -2571,7 +2571,7 @@ class StringStartsWithTest extends PHPUnit_Framework_TestCase
 {
     public function testEchec()
     {
-        $this->assertStringStartsWith('prefixe', 'foo');
+        self::assertStringStartsWith('prefixe', 'foo');
     }
 }
 ?>]]></programlisting>
@@ -2699,10 +2699,10 @@ $matcher = array(
 );
 
 // Utilise assertTag() pour appliquer un $matcher à un morceau de $html.
-$this->assertTag($matcher, $html);
+self::assertTag($matcher, $html);
 
 // Utilise assertTag() pour appliquer un matcher à un morceau de $xml.
-$this->assertTag($matcher, $xml, '', FALSE);
+self::assertTag($matcher, $xml, '', FALSE);
 ?>]]></programlisting>
       </example>
     </section>
@@ -2734,7 +2734,7 @@ class BiscuitTest extends PHPUnit_Framework_TestCase
         $leBiscuit = new Biscuit('Ginger');
         $monBiscuit  = new Biscuit('Ginger');
 
-        $this->assertThat(
+        self::assertThat(
           $leBiscuit,
           $this->logicalNot(
             $this->equalTo($monBiscuit)
@@ -2919,7 +2919,7 @@ class TrueTest extends PHPUnit_Framework_TestCase
 {
     public function testEchec()
     {
-        $this->assertTrue(FALSE);
+        self::assertTrue(FALSE);
     }
 }
 ?>]]></programlisting>
@@ -2956,7 +2956,7 @@ class XmlFileEqualsXmlFileTest extends PHPUnit_Framework_TestCase
 {
     public function testEchec()
     {
-        $this->assertXmlFileEqualsXmlFile(
+        self::assertXmlFileEqualsXmlFile(
           '/home/sb/attendu.xml', '/home/sb/constate.xml');
     }
 }
@@ -3002,7 +3002,7 @@ class XmlStringEqualsXmlFileTest extends PHPUnit_Framework_TestCase
 {
     public function testEchec()
     {
-        $this->assertXmlStringEqualsXmlFile(
+        self::assertXmlStringEqualsXmlFile(
           '/home/sb/attendu.xml', '<foo><baz/></foo>');
     }
 }
@@ -3048,7 +3048,7 @@ class XmlStringEqualsXmlStringTest extends PHPUnit_Framework_TestCase
 {
     public function testEchec()
     {
-        $this->assertXmlStringEqualsXmlString(
+        self::assertXmlStringEqualsXmlString(
           '<foo><bar/></foo>', '<foo><baz/></foo>');
     }
 }
