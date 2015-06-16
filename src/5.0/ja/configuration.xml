@@ -382,43 +382,4 @@ $_SERVER['foo'] = 'bar';
 $_FILES['foo'] = 'bar';
 $_REQUEST['foo'] = 'bar';]]></screen>
   </section>
-
-  <section id="appendixes.configuration.selenium-rc">
-    <title>Selenium RC の設定ブラウザ</title>
-
-    <para>
-      <indexterm><primary>Selenium RC</primary></indexterm>
-
-      <literal><![CDATA[<selenium>]]></literal> 要素とその子要素である
-      <literal><![CDATA[<browser>]]></literal> を使って、
-      Selenium RC サーバのリストを設定します。
-    </para>
-
-    <screen><![CDATA[<selenium>
-  <browser name="Firefox on Linux"
-           browser="*firefox /usr/lib/firefox/firefox-bin"
-           host="my.linux.box"
-           port="4444"
-           timeout="30000"/>
-</selenium>]]></screen>
-
-    <para>
-      上の XML 設定は、次の PHP コードに対応します。
-    </para>
-
-    <screen><![CDATA[class WebTest extends PHPUnit_Extensions_SeleniumTestCase
-{
-    public static $browsers = array(
-      array(
-        'name'    => 'Firefox on Linux',
-        'browser' => '*firefox /usr/lib/firefox/firefox-bin',
-        'host'    => 'my.linux.box',
-        'port'    => 4444,
-        'timeout' => 30000
-      )
-    );
-
-    // ...
-}]]></screen>
-  </section>
 </appendix>
