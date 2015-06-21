@@ -963,6 +963,43 @@ Tests: 1, Assertions: 2, Failures: 1.</screen>
     </example>
   </section>
 
+  <section id="appendixes.assertions.assertInfinite">
+    <title>assertInfinite()</title>
+    <indexterm><primary>assertInfinite()</primary></indexterm>
+    <indexterm><primary>assertFinite()</primary></indexterm>
+    <para><literal>assertInfinite(mixed $variable[, string $message = ''])</literal></para>
+    <para>Reports an error identified by <literal>$message</literal> if <literal>$variable</literal> is not <literal>INF</literal>.</para>
+    <para><literal>assertFinite()</literal> is the inverse of this assertion and takes the same arguments.</para>
+    <example id="appendixes.assertions.assertInfinite.example">
+      <title>Usage of assertInfinite()</title>
+      <programlisting><![CDATA[<?php
+class InfiniteTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertInfinite(1);
+    }
+}
+?>]]></programlisting>
+      <screen><userinput>phpunit InfiniteTest</userinput>
+PHPUnit 5.0.0 by Sebastian Bergmann and contributors.
+
+F
+
+Time: 0 seconds, Memory: 5.00Mb
+
+There was 1 failure:
+
+1) InfiniteTest::testFailure
+Failed asserting that 1 is infinite.
+
+/home/sb/InfiniteTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.</screen>
+    </example>
+  </section>
+
   <section id="appendixes.assertions.assertInstanceOf">
     <title>assertInstanceOf()</title>
     <indexterm><primary>assertInstanceOf()</primary></indexterm>
@@ -1243,6 +1280,41 @@ Failed asserting that 2 is equal to 1 or is less than 1.
 
 FAILURES!
 Tests: 1, Assertions: 2, Failures: 1.</screen>
+    </example>
+  </section>
+
+  <section id="appendixes.assertions.assertNan">
+    <title>assertNan()</title>
+    <indexterm><primary>assertNan()</primary></indexterm>
+    <para><literal>assertNan(mixed $variable[, string $message = ''])</literal></para>
+    <para>Reports an error identified by <literal>$message</literal> if <literal>$variable</literal> is not <literal>NAN</literal>.</para>
+    <example id="appendixes.assertions.assertNan.example">
+      <title>Usage of assertNan()</title>
+      <programlisting><![CDATA[<?php
+class NanTest extends PHPUnit_Framework_TestCase
+{
+    public function testFailure()
+    {
+        $this->assertNan(1);
+    }
+}
+?>]]></programlisting>
+      <screen><userinput>phpunit NanTest</userinput>
+PHPUnit 5.0.0 by Sebastian Bergmann and contributors.
+
+F
+
+Time: 0 seconds, Memory: 5.00Mb
+
+There was 1 failure:
+
+1) NanTest::testFailure
+Failed asserting that 1 is nan.
+
+/home/sb/NanTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.</screen>
     </example>
   </section>
 
