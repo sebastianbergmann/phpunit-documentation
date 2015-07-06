@@ -102,6 +102,12 @@ class StackTest extends PHPUnit_Framework_TestCase
 
     <para>在上例中，第一个测试， <literal>testEmpty()</literal>，创建了一个新数组，并断言其为空。随后，此测试将此基境作为结果返回。第二个测试，<literal>testPush()</literal>，依赖于 <literal>testEmpty()</literal> ，并将所依赖的测试之结果作为参数传入。最后，<literal>testPop()</literal> 依赖于 <literal>testPush()</literal>。</para>
 
+    <note>
+      <para>
+        <indexterm><primary>Annotation （标注）</primary></indexterm>
+        <indexterm><primary>@depends</primary></indexterm>默认情况下，生产者所产生的返回值将“原样”传递给相应的消费者。这意味着，如果生产者返回的是一个对象，那么传递给消费者的将是一个指向此对象的引用。如果需要传递对象的副本而非引用，则应当用 <code>@depends clone</code> 替代 <code>@depends</code>。</para>
+    </note>
+
     <para>
       <indexterm><primary>Defect Localization （缺陷定位）</primary></indexterm>为了快速定位缺陷，我们希望把注意力集中于相关的失败测试上。这就是为什么当某个测试所依赖的测试失败时，PHPUnit 会跳过这个测试。通过利用测试之间的依赖关系，缺陷定位得到了改进，如<xref linkend="writing-tests-for-phpunit.examples.DependencyFailureTest.php"/>中所示。</para>
 
