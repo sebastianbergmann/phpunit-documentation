@@ -50,7 +50,7 @@
   </para>
 
   <note>
-    <title>Limitations</title>
+    <title>Limitation: final, private, and static methods</title>
 
     <para>
       Please note that <literal>final</literal>, <literal>private</literal>
@@ -141,6 +141,19 @@ class StubTest extends PHPUnit_Framework_TestCase
 }
 ?>]]></programlisting>
     </example>
+
+    <note>
+      <title>Limitation: Methods named "method"</title>
+
+      <para>
+        The example shown above only works when the original class does not
+        declare a method named "method".
+      </para>
+
+      <para>
+        If the original class does declare a method named "method" then <literal><![CDATA[$stub->expects($this->any())->method('doSomething')->willReturn('foo');]]></literal> has to be used.
+      </para>
+    </note>
 
     <para>
       "Behind the scenes", PHPUnit automatically generates a new PHP class that
@@ -477,12 +490,13 @@ class StubTest extends PHPUnit_Framework_TestCase
     </para>
 
     <note>
-      <title>Limitations</title>
+      <title>Limitation: Automatic verification of expectations</title>
 
       <para>
         Only mock objects generated within the scope of a test will be verified
         automatically by PHPUnit. Mock objects generated in data providers, for
-        instance, will not be verified by PHPUnit.
+        instance, or injected into the test using the <literal>@depends</literal>
+        annotation will not be verified automatically by PHPUnit.
       </para>
     </note>
 
@@ -831,6 +845,62 @@ class FooTest extends PHPUnit_Framework_TestCase
     </note>
   </section>
 
+  <section id="test-doubles.prophecy">
+    <title>Prophecy</title>
+
+    <para>
+      <ulink url="https://github.com/phpspec/prophecy">Prophecy</ulink> is a
+      "highly opinionated yet very powerful and flexible PHP object mocking
+      framework. Though initially it was created to fulfil phpspec2 needs, it is
+      flexible enough to be used inside any testing framework out there with
+      minimal effort".
+    </para>
+
+    <para>
+      PHPUnit has built-in support for using Prophecy to create test doubles
+      since version 4.5. <xref linkend="test-doubles.prophecy.examples.SubjectTest.php"/>
+      shows how the same test shown in <xref linkend="test-doubles.mock-objects.examples.SubjectTest.php"/>
+      can be expressed using Prophecy's philosophy of prophecies and
+      revelations:
+    </para>
+
+    <example id="test-doubles.prophecy.examples.SubjectTest.php">
+      <title>Testing that a method gets called once and with a specified argument</title>
+      <programlisting><![CDATA[<?php
+class SubjectTest extends PHPUnit_Framework_TestCase
+{
+    public function testObserversAreUpdated()
+    {
+        $subject = new Subject('My subject');
+
+        // Create a prophecy for the Observer class.
+        $observer = $this->prophesize('Observer');
+
+        // Set up the expectation for the update() method
+        // to be called only once and with the string 'something'
+        // as its parameter.
+        $observer->update('something')->shouldBeCalled();
+
+        // Reveal the prophecy and attach the mock object
+        // to the Subject.
+        $subject->attach($observer->reveal());
+
+        // Call the doSomething() method on the $subject object
+        // which we expect to call the mocked Observer object's
+        // update() method with the string 'something'.
+        $subject->doSomething();
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      Please refer to the <ulink url="https://github.com/phpspec/prophecy#how-to-use-it">documentation</ulink>
+      for Prophecy for further details on how to create, configure, and use
+      stubs, spies, and mocks using this alternative test double framework.
+    </para>
+  </section>
+
   <section id="test-doubles.mocking-traits-and-abstract-classes">
     <title>Mocking Traits and Abstract Classes</title>
 
@@ -1016,12 +1086,12 @@ class GoogleTest extends PHPUnit_Framework_TestCase
       <ulink url="https://getcomposer.org/">Composer</ulink> to manage the
       dependencies of your project. Here is a minimal example of a
       <literal>composer.json</literal> file that just defines a development-time
-      dependency on PHPUnit 4.3 and vfsStream:
+      dependency on PHPUnit 4.6 and vfsStream:
     </para>
 
     <programlisting><![CDATA[{
     "require-dev": {
-        "phpunit/phpunit": "~4.3",
+        "phpunit/phpunit": "~4.6",
         "mikey179/vfsStream": "~1"
     }
 }]]></programlisting>

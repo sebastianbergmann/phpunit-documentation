@@ -50,7 +50,7 @@
   </para>
 
   <note>
-    <title>Limitations</title>
+    <title>Limitation: final, private, and static methods</title>
 
     <para>
       Please note that <literal>final</literal>, <literal>private</literal>
@@ -141,6 +141,19 @@ class StubTest extends PHPUnit_Framework_TestCase
 }
 ?>]]></programlisting>
     </example>
+
+    <note>
+      <title>Limitation: Methods named "method"</title>
+
+      <para>
+        The example shown above only works when the original class does not
+        declare a method named "method".
+      </para>
+
+      <para>
+        If the original class does declare a method named "method" then <literal><![CDATA[$stub->expects($this->any())->method('doSomething')->willReturn('foo');]]></literal> has to be used.
+      </para>
+    </note>
 
     <para>
       "Behind the scenes", PHPUnit automatically generates a new PHP class that
@@ -477,12 +490,13 @@ class StubTest extends PHPUnit_Framework_TestCase
     </para>
 
     <note>
-      <title>Limitations</title>
+      <title>Limitation: Automatic verification of expectations</title>
 
       <para>
         Only mock objects generated within the scope of a test will be verified
         automatically by PHPUnit. Mock objects generated in data providers, for
-        instance, will not be verified by PHPUnit.
+        instance, or injected into the test using the <literal>@depends</literal>
+        annotation will not be verified automatically by PHPUnit.
       </para>
     </note>
 
