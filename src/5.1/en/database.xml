@@ -119,7 +119,7 @@
       What PHPUnit cannot help you with is the fact that database tests
       are very slow compared to tests not using the database. Depending
       on how large the interactions with your database are your tests
-      could run a considerable amount of time. However if you keep the amount of
+      could run a considerable amount of time. However, if you keep the amount of
       data used for each test small and try to test as much code using
       non-database tests you can easily get away in under a minute even
       for large test suites.
@@ -172,7 +172,7 @@
     <para>
       Testing the database requires you to hook into at least the
       setup and teardown to clean-up and write the required fixture data
-      into your tables. However the database extension has good reason to
+      into your tables. However, the database extension has good reason to
       revert the four stages in a database test to resemble the following
       workflow that is executed for each single test:
     </para>
@@ -203,7 +203,7 @@
       <para>
         In your test use a special assertion called
         <literal>assertDataSetsEqual()</literal> for verification purposes,
-        however this is entirely optional. This feature will be explained
+        however, this is entirely optional. This feature will be explained
         in the section <quote>Database Assertions</quote>.
       </para>
     </section>
@@ -535,7 +535,7 @@ abstract class Generic_Tests_DatabaseTestCase extends PHPUnit_Extensions_Databas
           <quote>created</quote> with their respective values.
         </para>
         <para>
-          However this simplicity comes at a cost.
+          However, this simplicity comes at a cost.
         </para>
         <para>
           From the previous example it isn't obvious how you would specify an
@@ -567,7 +567,7 @@ abstract class Generic_Tests_DatabaseTestCase extends PHPUnit_Extensions_Databas
 </dataset>
 ]]></screen>
         <para>
-          In this case the second entry is posted anonymously. However this
+          In this case the second entry is posted anonymously. However, this
           leads to a serious problem with column recognition. During dataset
           equality assertions each dataset has to specify what columns a
           table holds. If an attribute is NULL for all the rows of a
@@ -786,8 +786,8 @@ class CsvGuestbookTest extends PHPUnit_Extensions_Database_TestCase
       <section id="database.array-dataset">
         <title>Array DataSet</title>
         <para>
-          Since version 1.3.2 of PHPUnit's Database Extension there is an array
-          based DataSet. Our guestbook example
+          There is no Array based DataSet in PHPUnit's Database Extension
+          (yet), but we can implement our own easily. Our guestbook example
           should look like:
         </para>
         <programlisting><![CDATA[<?php
@@ -795,7 +795,7 @@ class ArrayGuestbookTest extends PHPUnit_Extensions_Database_TestCase
 {
     protected function getDataSet()
     {
-        return $this->createArrayDataSet(array(
+        return new MyApp_DbUnit_ArrayDataSet(array(
             'guestbook' => array(
                 array('id' => 1, 'content' => 'Hello buddy!', 'user' => 'joe', 'created' => '2010-04-24 17:15:23'),
                 array('id' => 2, 'content' => 'I like it!',   'user' => null,  'created' => '2010-04-26 12:14:20'),
@@ -828,6 +828,54 @@ class ArrayGuestbookTest extends PHPUnit_Extensions_Database_TestCase
           <quote>content</quote>, <quote>user</quote> and
           <quote>created</quote>.
         </para>
+        <para>
+          The implementation for this Array DataSet is simple and
+          straightforward:
+        </para>
+        <programlisting><![CDATA[<?php
+class MyApp_DbUnit_ArrayDataSet extends PHPUnit_Extensions_Database_DataSet_AbstractDataSet
+{
+    /**
+     * @var array
+     */
+    protected $tables = array();
+
+    /**
+     * @param array $data
+     */
+    public function __construct(array $data)
+    {
+        foreach ($data AS $tableName => $rows) {
+            $columns = array();
+            if (isset($rows[0])) {
+                $columns = array_keys($rows[0]);
+            }
+
+            $metaData = new PHPUnit_Extensions_Database_DataSet_DefaultTableMetaData($tableName, $columns);
+            $table = new PHPUnit_Extensions_Database_DataSet_DefaultTable($metaData);
+
+            foreach ($rows AS $row) {
+                $table->addRow($row);
+            }
+            $this->tables[$tableName] = $table;
+        }
+    }
+
+    protected function createIterator($reverse = FALSE)
+    {
+        return new PHPUnit_Extensions_Database_DataSet_DefaultTableIterator($this->tables, $reverse);
+    }
+
+    public function getTable($tableName)
+    {
+        if (!isset($this->tables[$tableName])) {
+            throw new InvalidArgumentException("$tableName is not a table in the current database.");
+        }
+
+        return $this->tables[$tableName];
+    }
+}
+?>]]></programlisting>
       </section>
       <section id="database.query-sql-dataset">
         <title>Query (SQL) DataSet</title>
@@ -1381,9 +1429,9 @@ class DataSetAssertionsTest extends PHPUnit_Extensions_Database_TestCase
       <para>
         <ulink url="http://www.doctrine-project.org">Doctrine 2</ulink> or
         <ulink url="http://www.ezcomponents.org">eZ Components</ulink> have
-        powerful tools that allows you to create the database schema from
-        pre-defined datastructures, however these have to be hooked into
-        the PHPUnit extension to allow automatic database re-creation
+        powerful tools that allow you to create the database schema from
+        pre-defined datastructures. However, these have to be hooked into
+        the PHPUnit extension to allow an automatic database re-creation
         before the complete test-suite is run.
       </para>
       <para>
@@ -1403,13 +1451,13 @@ class DataSetAssertionsTest extends PHPUnit_Extensions_Database_TestCase
     </section>
     <section id="database.what-can-i-do-when-i-get-a-too-much-connections-error">
       <title>What can I do, when I get a
-             <quote>Too many Connections</quote> Error?</title>
+             <quote>Too much Connections</quote> Error?</title>
       <para>
         If you do not cache the PDO instance that is created from the
         TestCase <literal>getConnection()</literal> method the number of
         connections to the database is increasing by one or more with each
-        database test. With default configuration, MySql only allows 100
-        concurrent connections. Other vendors also have maximum connection
+        database test. With default configuration MySql only allows 100
+        concurrent connections other vendors also have maximum connection
         limits.
       </para>
       <para>
