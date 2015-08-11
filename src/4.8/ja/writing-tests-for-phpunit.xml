@@ -327,6 +327,54 @@ FAILURES!
 Tests: 4, Assertions: 4, Failures: 1.]]></screen>
     </example>
 
+    <para>
+      大量のデータセットを使う場合は、デフォルトの数字を使うのではなく、各データセットに文字列の名前をつけておくと便利です。
+      出力もよりわかりやすくなり、テストを失敗させたデータセットの名前もわかるようになります。
+    </para>
+
+    <example id="writing-tests-for-phpunit.data-providers.examples.DataTest1.php">
+      <title>データプロバイダでの名前つきデータセットの使用</title>
+      <programlisting><![CDATA[<?php
+class DataTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @dataProvider additionProvider
+     */
+    public function testAdd($a, $b, $expected)
+    {
+        $this->assertEquals($expected, $a + $b);
+    }
+
+    public function additionProvider()
+    {
+        return array(
+          'adding zeros' => array(0, 0, 0),
+          'zero plus one' => array(0, 1, 1),
+          'one plus zero' => array(1, 0, 1),
+          'one plus one' => array(1, 1, 3)
+        );
+    }
+}
+?>]]></programlisting>
+
+    <screen><userinput>phpunit DataTest</userinput><![CDATA[
+PHPUnit 4.6.0 by Sebastian Bergmann and contributors.
+
+...F
+
+Time: 0 seconds, Memory: 5.75Mb
+
+There was 1 failure:
+
+1) DataTest::testAdd with data set "one plus one" (1, 1, 3)
+Failed asserting that 2 matches expected 3.
+
+/home/sb/DataTest.php:9
+
+FAILURES!
+Tests: 4, Assertions: 4, Failures: 1.]]></screen>
+    </example>
+
     <example id="writing-tests-for-phpunit.data-providers.examples.DataTest2.php">
       <title>Iterator オブジェクトを返すデータプロバイダの使用</title>
       <programlisting><![CDATA[<?php
