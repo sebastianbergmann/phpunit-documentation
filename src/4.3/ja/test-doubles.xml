@@ -66,7 +66,7 @@
   </para>
 
   <note>
-    <title>制限</title>
+    <title>制限：final、private および static メソッド</title>
 
     <para>
       <literal>final</literal>, <literal>private</literal> および
@@ -161,6 +161,19 @@ class StubTest extends PHPUnit_Framework_TestCase
 }
 ?>]]></programlisting>
     </example>
+
+    <note>
+      <title>制限："method" という名前のメソッド</title>
+
+      <para>
+        この例がきちんと動作するのは、元のクラスで "method" という名前のメソッドが宣言されていない場合だけです。
+      </para>
+
+      <para>
+        元のクラスで "method" という名前のメソッドが宣言されている場合は、
+        <literal><![CDATA[$stub->expects($this->any())->method('doSomething')->willReturn('foo');]]></literal> としなければいけません。
+      </para>
+    </note>
 
     <para>
       舞台裏では、<literal>getMock()</literal> メソッドが使われたときに
@@ -496,11 +509,12 @@ class StubTest extends PHPUnit_Framework_TestCase
     </para>
 
     <note>
-      <title>制限</title>
+      <title>制限：期待値の自動検証</title>
 
       <para>
         そのテストのスコープ内で生成されたモックオブジェクトだけが、PHPUnit による自動検証の対象となります。
-        たとえばデータプロバイダなどで生成されたモックオブジェクトについては、PHPUnit では検証しません。
+        たとえば、データプロバイダなどで生成されたモックオブジェクトや
+        <literal>@depends</literal> アノテーションで注入されたオブジェクトについては、PHPUnit では検証しません。
       </para>
     </note>
 
@@ -848,6 +862,60 @@ class FooTest extends PHPUnit_Framework_TestCase
     </note>
   </section>
 
+  <section id="test-doubles.prophecy">
+    <title>Prophecy</title>
+
+    <para>
+      <ulink url="https://github.com/phpspec/prophecy">Prophecy</ulink> は
+      「クセは強いけれども、強力で柔軟な、PHP のオブジェクトモッキングフレームワークです。
+      最初は phpspec2 のニーズを満たすために作られましたが、今やそれ以外のテスティングフレームワークでも、
+      最小限の努力で使えるようになりました」
+      とのことです。
+    </para>
+
+    <para>
+      PHPUnit バージョン 4.5 以降では、Prophecy を使ったテストダブルの作成に標準で対応しています。
+      <xref linkend="test-doubles.prophecy.examples.SubjectTest.php"/>
+      は、<xref linkend="test-doubles.mock-objects.examples.SubjectTest.php"/>
+      と同じテストを、Prophecy の理念に沿って表すとどうなるかを示す例です。
+    </para>
+
+    <example id="test-doubles.prophecy.examples.SubjectTest.php">
+      <title>あるメソッドが、指定した引数で一度だけコールされることを確かめるテスト</title>
+      <programlisting><![CDATA[<?php
+class SubjectTest extends PHPUnit_Framework_TestCase
+{
+    public function testObserversAreUpdated()
+    {
+        $subject = new Subject('My subject');
+
+        // Observer クラスの prophecy を作成します。
+        $observer = $this->prophesize('Observer');
+
+        // update() メソッドが一度だけコールされ、その際の
+        // パラメータは文字列 'something' となる、
+        // ということを期待しています。
+        $observer->update('something')->shouldBeCalled();
+
+        // prophecy を公開し、モックオブジェクトを
+        // Subject にアタッチします。
+        $subject->attach($observer->reveal());
+
+        // $subject オブジェクトの doSomething() メソッドをコールします。
+        // これは、Observer オブジェクトのモックの update() メソッドを、
+        // 文字列 'something' を引数としてコールすることを期待されています。
+        $subject->doSomething();
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      Prophecy を使ってスタブやスパイそしてモックを作ったり設定したり使ったりする方法の詳細については、
+      その <ulink url="https://github.com/phpspec/prophecy#how-to-use-it">ドキュメント</ulink> を参照ください。
+    </para>
+  </section>
+
   <section id="test-doubles.mocking-traits-and-abstract-classes">
     <title>トレイトと抽象クラスのモック</title>
 
@@ -1034,12 +1102,12 @@ class GoogleTest extends PHPUnit_Framework_TestCase
       <filename>composer.json</filename> ファイルに追加します。
       次に示すのは最小限の
       <filename>composer.json</filename> ファイルの例で、
-      開発時の PHPUnit 4.3 と vfsStream への依存を定義しています。
+      開発時の PHPUnit 4.6 と vfsStream への依存を定義しています。
     </para>
 
     <programlisting><![CDATA[{
     "require-dev": {
-        "phpunit/phpunit": "~4.3",
+        "phpunit/phpunit": "~4.6",
         "mikey179/vfsStream": "~1"
     }
 }]]></programlisting>
