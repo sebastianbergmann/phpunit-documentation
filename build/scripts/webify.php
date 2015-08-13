@@ -102,11 +102,11 @@ function webify_directory($directory, $language, $version)
     }
 
     foreach (new HTMLFilterIterator(new DirectoryIterator($directory)) as $file) {
-        webify_file($file->getPathName(), $toc, $languageList, $versionList, $language);
+        webify_file($file->getPathName(), $toc, $languageList, $versionList, $language, $version);
     }
 }
 
-function webify_file($file, $toc, $languageList, $versionList, $language)
+function webify_file($file, $toc, $languageList, $versionList, $language, $version)
 {
     $filename = basename($file);
 
@@ -191,8 +191,8 @@ function webify_file($file, $toc, $languageList, $versionList, $language)
     }
 
     $buffer = str_replace(
-        array('{filename}', '{title}', '{content}', '{toc}', '{languages}', '{language}', '{versions}', '{prev}', '{next}', '<div class="caution" style="margin-left: 0.5in; margin-right: 0.5in;">', '<div class="warning" style="margin-left: 0.5in; margin-right: 0.5in;">', '<div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">', '{suggestions}'),
-        array($filename, $title, $content, $toc, $languageList, $language, $versionList, $prev, $next, '<div class="alert alert-warning">', '<div class="alert alert-danger">', '<div class="alert alert-info">', $suggestions),
+        array('{id}', '{url}', '{filename}', '{title}', '{content}', '{toc}', '{languages}', '{language}', '{versions}', '{prev}', '{next}', '<div class="caution" style="margin-left: 0.5in; margin-right: 0.5in;">', '<div class="warning" style="margin-left: 0.5in; margin-right: 0.5in;">', '<div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">', '{suggestions}'),
+        array(sprintf('%s-%s-%s', $version, $language, str_replace('.html', '', $filename)), sprintf('https://phpunit.de/manual/%s/%s/%s', $version, $language, $filename), $filename, $title, $content, $toc, $languageList, $language, $versionList, $prev, $next, '<div class="alert alert-warning">', '<div class="alert alert-danger">', '<div class="alert alert-info">', $suggestions),
         $template
     );
 
