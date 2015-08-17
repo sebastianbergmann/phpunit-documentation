@@ -20,7 +20,7 @@
   <para>在默认情况下，原版类的所有方法都会被替换为只会返回 <literal>null</literal> 的伪实现（其中不会调用原版方法）。使用诸如 <literal>will($this-&gt;returnValue())</literal> 之类的方法可以对这些伪实现在被调用时应当返回什么值做出配置。</para>
 
   <note>
-    <title>局限性</title>
+    <title>局限性：final、private、与 static 方法</title>
 
     <para>请注意，<literal>final</literal>、<literal>private</literal> 和 <literal>static</literal> 方法无法对其进行上桩(stub)或模仿(mock)。PHPUnit 的测试替身功能将会忽略它们，并维持它们的原始行为。</para>
   </note>
@@ -81,6 +81,14 @@ class StubTest extends PHPUnit_Framework_TestCase
 }
 ?>]]></programlisting>
     </example>
+
+    <note>
+      <title>局限性：名字为“method”的方法</title>
+
+      <para>仅当原始类中不包含名字为“method”的方法时，以上范例才能正常运行。</para>
+
+      <para>如果原始类包含名为“method”的方法，就必须用 <literal>$stub-&gt;expects($this-&gt;any())-&gt;method('doSomething')-&gt;willReturn('foo');</literal>。</para>
+    </note>
 
     <para>“在幕后”，当使用了 <literal>getMock()</literal> 方法时， PHPUnit 自动生成了一个新的 PHP 类来实现想要的行为。</para>
 
@@ -332,12 +340,12 @@ class StubTest extends PHPUnit_Framework_TestCase
     <para>将对象替换为能验证预期行为（例如断言某个方法必会被调用）的测试替身的实践方法称为<emphasis>模仿(mocking)</emphasis>。</para>
 
     <para>
-      <indexterm><primary>Mock Object （仿件对象）</primary></indexterm>可以用 <emphasis>仿件对象(mock object)</emphasis>“作为观察点来核实被测试系统在测试中的间接输出。通常，仿件对象还需要包括桩件的功能，因为如果测试尚未失败则仿件对象需要向被测系统返回一些值，但是其重点还是在对间接输出的核实上。因此，仿件对象远不止是桩件加断言，它是以一种从根本上完全不同的方式来使用的。”</para>
+      <indexterm><primary>Mock Object （仿件对象）</primary></indexterm>可以用 <emphasis>仿件对象(mock object)</emphasis>“作为观察点来核实被测试系统在测试中的间接输出。通常，仿件对象还需要包括桩件的功能，因为如果测试尚未失败则仿件对象需要向被测系统返回一些值，但是其重点还是在对间接输出的核实上。因此，仿件对象远不止是桩件加断言，它是以一种从根本上完全不同的方式来使用的”(Gerard Meszaros)。</para>
 
     <note>
-      <title>局限性</title>
+      <title>局限性：对预期的自动校验</title>
 
-      <para>PHPUnit只会对在某个测试的作用域内生成的仿件对象进行自动校验，PHPUnit 不会对在诸如数据供给器内生成的仿件对象进行校验。</para>
+      <para>PHPUnit只会对在某个测试的作用域内生成的仿件对象进行自动校验。诸如在数据供给器内生成或用<literal>@depends</literal> 标注注入测试的仿件对象，PHPUnit并不会自动对其进行校验。</para>
     </note>
 
     <para>这有个例子：假设需要测试的当前方法，在例子中是 <literal>update()</literal>，确实在一个观察着另外一个对象的对象中上被调用了。<xref linkend="test-doubles.mock-objects.examples.SUT.php"/>展示了被测系统(SUT)中 <literal>Subject</literal> 和 <literal>Observer</literal>  两个类的代码。</para>

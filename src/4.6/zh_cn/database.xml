@@ -3,6 +3,9 @@
 <chapter id="database">
   <title>数据库测试</title>
   <para>在各种编程语言中，许多入门与中级的单元测试范例都暗示着这样一种信息：很容易用简单的测试来对应用程序的逻辑进行测试。但是对于以数据库为中心的应用程序而言，这与现实相去甚远。一旦开始使用诸如 Wordpress、TYPO3、或 Symfony（配合 Doctrine 或 Propel）之类的东西，就很容易在用 PHPUnit 时碰到超多问题：正是由于这些库和数据库之间实在耦合的太紧密了。</para>
+  <note>
+    <para>请确保已经安装了 PHP 扩展模块 <literal>pdo</literal> 和与数据库对应的特定扩展，比如 <literal>pdo_mysql</literal>。否则以下范例是无法运行的。</para>
+  </note>
   <para>你大概会在日常工作面对的项目中经历这一幕。你打算把你那或生疏或纯熟的 PHPUnit 技能用到工作中去，结果被以下问题之一卡住了：</para>
   <orderedlist numeration="arabic">
     <listitem>
@@ -75,7 +78,7 @@
       </para>
       <para>基境(fixture)是对开始执行某个测试时应用程序和数据库所处初始状态的描述。</para>
     </blockquote>
-    <para>对数据库进行测试至少要处理建立与拆除的步骤，在其中完成清理工作，并将所需的基境数据写入表内。然而对于数据库扩展模块而言，在数据库测试中有很好的理由将这四个步骤还原成类似下面这样的工作流程，这个流程对于每个测试都会完整执行：</para>
+    <para>对数据库进行测试至少要处理建立与拆除的步骤，在其中完成清理工作，并将所需的基境数据写入表内。因而，对于数据库扩展模块而言，在数据库测试中有很好的理由将这四个步骤还原成类似下面这样的工作流程，这个流程对于每个测试都会完整执行：</para>
     <section id="database.clean-up-database">
       <title>1. 清理数据库</title>
       <para>由于总是会有某个测试运行在并不确定表中是否有数据的数据库上，PHPUnit 在所有指定表上执行 TRUNCATE 操作来把它们清空。</para>
@@ -217,7 +220,7 @@ abstract class Generic_Tests_DatabaseTestCase extends PHPUnit_Extensions_Databas
   <section id="database.understanding-datasets-and-datatables">
     <title>理解 DataSet（数据集）和 DataTable（数据表）</title>
     <para>PHPUnit 的数据库扩展模块的核心概念是 DataSet（数据集）和 DataTable（数据表）。为了掌握如何使用 PHPUnit 进行测试，需要试着去了解这些简单的概念。DataSet（数据集）和 DataTable（数据表）是围绕着数据库表、行、列的抽象层。通过一套简单的API，底层数据库内容被隐藏在对象结构之下，同时，这个对象结构也可以用其他非数据库数据源来实现。</para>
-    <para>为了能比较实际内容和预期内容，这个抽象是必须的。预期内容可以用诸如 XML、 YAML、 CSV 文件或者 PHP 数组等方式来表达。DataSet 和 DataTable 接口以语义相似的方式模拟关系数据库存储，从而能够对这些概念上完全不同的数据源进行比较。</para>
+    <para>为了能比较实际内容和预期内容，这种抽象是必须的。预期内容可以用诸如 XML、 YAML、 CSV 文件或者 PHP 数组等方式来表达。DataSet 和 DataTable 接口以语义相似的方式模拟关系数据库存储，从而能够对这些概念上完全不同的数据源进行比较。</para>
     <para>在测试中，数据库断言的工作流由以下三个简单的步骤组成：</para>
     <itemizedlist>
       <listitem>
@@ -265,7 +268,7 @@ abstract class Generic_Tests_DatabaseTestCase extends PHPUnit_Extensions_Databas
 </dataset>
 ]]></screen>
         <para>显然，这非常易于编写。在这里，<literal>&lt;guestbook&gt;</literal> 是表名，这个表内有两行记录，每行有四个列：<quote>id</quote>、<quote>content</quote>、<quote>user</quote> 和 <quote>created</quote>，以及各自的值。</para>
-        <para>不过这种简单性是有代价的。</para>
+        <para>不过，这种简单性是有代价的。</para>
         <para>从上面这个例子里不太容易看出该如何指定一个空表。其实可以插入一个没有属性值的标签，以空表的名字作为标签名。空的 guestbook 表所对应的 Flat XML 文件大致上可能是这样：</para>
         <screen><![CDATA[
 <?xml version="1.0" ?>

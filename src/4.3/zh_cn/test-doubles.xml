@@ -20,7 +20,7 @@
   <para>在默认情况下，原版类的所有方法都会被替换为只会返回 <literal>null</literal> 的伪实现（其中不会调用原版方法）。使用诸如 <literal>will($this-&gt;returnValue())</literal> 之类的方法可以对这些伪实现在被调用时应当返回什么值做出配置。</para>
 
   <note>
-    <title>局限性</title>
+    <title>局限性：final、private、与 static 方法</title>
 
     <para>请注意，<literal>final</literal>、<literal>private</literal> 和 <literal>static</literal> 方法无法对其进行上桩(stub)或模仿(mock)。PHPUnit 的测试替身功能将会忽略它们，并维持它们的原始行为。</para>
   </note>
@@ -81,6 +81,14 @@ class StubTest extends PHPUnit_Framework_TestCase
 }
 ?>]]></programlisting>
     </example>
+
+    <note>
+      <title>局限性：名字为“method”的方法</title>
+
+      <para>仅当原始类中不包含名字为“method”的方法时，以上范例才能正常运行。</para>
+
+      <para>如果原始类包含名为“method”的方法，就必须用 <literal>$stub-&gt;expects($this-&gt;any())-&gt;method('doSomething')-&gt;willReturn('foo');</literal>。</para>
+    </note>
 
     <para>“在幕后”，当使用了 <literal>getMock()</literal> 方法时， PHPUnit 自动生成了一个新的 PHP 类来实现想要的行为。</para>
 
@@ -335,9 +343,9 @@ class StubTest extends PHPUnit_Framework_TestCase
       <indexterm><primary>Mock Object （仿件对象）</primary></indexterm>可以用 <emphasis>仿件对象(mock object)</emphasis>“作为观察点来核实被测试系统在测试中的间接输出。通常，仿件对象还需要包括桩件的功能，因为如果测试尚未失败则仿件对象需要向被测系统返回一些值，但是其重点还是在对间接输出的核实上。因此，仿件对象远不止是桩件加断言，它是以一种从根本上完全不同的方式来使用的。”</para>
 
     <note>
-      <title>局限性</title>
+      <title>局限性：对预期的自动校验</title>
 
-      <para>PHPUnit只会对在某个测试的作用域内生成的仿件对象进行自动校验，PHPUnit 不会对在诸如数据供给器内生成的仿件对象进行校验。</para>
+      <para>PHPUnit只会对在某个测试的作用域内生成的仿件对象进行自动校验。诸如在数据供给器内生成或用<literal>@depends</literal> 标注注入测试的仿件对象，PHPUnit并不会自动对其进行校验。</para>
     </note>
 
     <para>这有个例子：假设需要测试的当前方法，在例子中是 <literal>update()</literal>，确实在一个观察着另外一个对象的对象中上被调用了。<xref linkend="test-doubles.mock-objects.examples.SUT.php"/>展示了被测系统(SUT)中 <literal>Subject</literal> 和 <literal>Observer</literal>  两个类的代码。</para>
@@ -631,6 +639,45 @@ class FooTest extends PHPUnit_Framework_TestCase
     </note>
   </section>
 
+  <section id="test-doubles.prophecy">
+    <title>Prophecy</title>
+
+    <para>
+      <ulink url="https://github.com/phpspec/prophecy">Prophecy</ulink> 是个“极为自我却又非常强大且灵活的 PHP 对象模仿框架。虽然一开始是为了满足 phpspec2 的需要而建立的，但它足够灵活，可以用最小代价用于任何测试框架内。”</para>
+
+    <para>从版本 4.5 开始，PHPUnit 为用 Prophecy 建立测试替身提供了内建支持。<xref linkend="test-doubles.prophecy.examples.SubjectTest.php"/>展示了<xref linkend="test-doubles.mock-objects.examples.SubjectTest.php"/>中展示的测试应该如何用 Prophecy 的的预言式理念方式来达到同样的效果：</para>
+
+    <example id="test-doubles.prophecy.examples.SubjectTest.php">
+      <title>测试某个方法会以特定参数被调用一次</title>
+      <programlisting><![CDATA[<?php
+class SubjectTest extends PHPUnit_Framework_TestCase
+{
+    public function testObserversAreUpdated()
+    {
+        $subject = new Subject('My subject');
+
+        // 为 Observer 类建立预言(prophecy)。
+        $observer = $this->prophesize('Observer');
+
+        // 建立预期状况：update() 方法将会被调用一次，
+        // 并且将以字符串 'something' 为参数。
+        $observer->update('something')->shouldBeCalled();
+
+        // 揭示预言，并将仿件对象链接到主体上。
+        $subject->attach($observer->reveal());
+
+        // 在 $subject 对象上调用 doSomething() 方法，
+        // 预期将以字符串 'something' 为参数调用 
+        // Observer 仿件对象的 update() 方法。
+        $subject->doSomething();
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>更多关于如何用这个测试替身框架来创建、配置及使用桩件、谍件、仿件的细节，请参考 Prophecy 的 <ulink url="https://github.com/phpspec/prophecy#how-to-use-it">文档</ulink>。</para>
+  </section>
+
   <section id="test-doubles.mocking-traits-and-abstract-classes">
     <title>对特质(Trait)与抽象类进行模仿</title>
 
@@ -782,11 +829,11 @@ class GoogleTest extends PHPUnit_Framework_TestCase
     <para>
       <ulink url="https://github.com/mikey179/vfsStream">vfsStream</ulink> 是对<ulink url="http://en.wikipedia.org/wiki/Virtual_file_system">虚拟文件系统</ulink> 的 <ulink url="http://www.php.net/streams">流包袱器(stream wrapper)</ulink>，可以用于模仿真实文件系统，在单元测试中可能会有所助益。</para>
 
-    <para>如果使用 <ulink url="https://getcomposer.org/">Composer</ulink> 来管理项目的依赖关系，那么只需简单的在项目的 <literal>composer.json</literal> 文件中加一条对 <literal>mikey179/vfsStream</literal> 的依赖关系即可。以下是一个最小化的 <literal>composer.json</literal>文件例子，只定义了一条对 PHPUnit 4.3 与 vfsStream 的开发时(development-time)依赖：</para>
+    <para>如果使用 <ulink url="https://getcomposer.org/">Composer</ulink> 来管理项目的依赖关系，那么只需简单的在项目的 <literal>composer.json</literal> 文件中加一条对 <literal>mikey179/vfsStream</literal> 的依赖关系即可。以下是一个最小化的 <literal>composer.json</literal>文件例子，只定义了一条对 PHPUnit 4.6 与 vfsStream 的开发时(development-time)依赖：</para>
 
     <programlisting><![CDATA[{
     "require-dev": {
-        "phpunit/phpunit": "~4.3",
+        "phpunit/phpunit": "~4.6",
         "mikey179/vfsStream": "~1"
     }
 }]]></programlisting>

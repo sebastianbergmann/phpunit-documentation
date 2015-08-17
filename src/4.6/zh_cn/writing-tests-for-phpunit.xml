@@ -247,6 +247,51 @@ FAILURES!
 Tests: 4, Assertions: 4, Failures: 1.]]></screen>
     </example>
 
+    <para>当使用到大量数据集时，最好逐个用字符串键名对其命名，避免用默认的数字键名。这样输出信息会更加详细些，其中将包含打断测试的数据集所对应的名称。</para>
+
+    <example id="writing-tests-for-phpunit.data-providers.examples.DataTest1.php">
+      <title>使用带有命名数据集的数据供给器</title>
+      <programlisting><![CDATA[<?php
+class DataTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @dataProvider additionProvider
+     */
+    public function testAdd($a, $b, $expected)
+    {
+        $this->assertEquals($expected, $a + $b);
+    }
+
+    public function additionProvider()
+    {
+        return array(
+          'adding zeros' => array(0, 0, 0),
+          'zero plus one' => array(0, 1, 1),
+          'one plus zero' => array(1, 0, 1),
+          'one plus one' => array(1, 1, 3)
+        );
+    }
+}
+?>]]></programlisting>
+
+    <screen><userinput>phpunit DataTest</userinput><![CDATA[
+PHPUnit 4.6.0 by Sebastian Bergmann and contributors.
+
+...F
+
+Time: 0 seconds, Memory: 5.75Mb
+
+There was 1 failure:
+
+1) DataTest::testAdd with data set "one plus one" (1, 1, 3)
+Failed asserting that 2 matches expected 3.
+
+/home/sb/DataTest.php:9
+
+FAILURES!
+Tests: 4, Assertions: 4, Failures: 1.]]></screen>
+    </example>
+
     <example id="writing-tests-for-phpunit.data-providers.examples.DataTest2.php">
       <title>使用返回迭代器对象的数据供给器</title>
       <programlisting><![CDATA[<?php
