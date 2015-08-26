@@ -159,7 +159,7 @@ Test Execution Options:
   --no-globals-backup       Do not backup and restore $GLOBALS for each test.
   --static-backup           Backup and restore static attributes for each test.
 
-  --colors                  Use colors in output.
+  --colors=<flag>           Use colors in output ("never", "auto" or "always").
   --columns <n>             Number of columns to use for progress output.
   --columns max             Use maximum number of columns for progress output.
   --stderr                  Write to STDERR instead of STDOUT.
@@ -646,6 +646,39 @@ class TestCaseClass extends \PHPUnit_Framework_TestCase
           <para>
             Use colors in output.
             On Windows, use <ulink url="https://github.com/adoxa/ansicon">ANSICON</ulink> or <ulink url="https://github.com/Maximus5/ConEmu">ConEmu</ulink>.
+          </para>
+          <para>
+            There are three possible values for this option:
+            <itemizedlist>
+              <listitem>
+                <para>
+                  <literal>never</literal>: never displays colors in the output. This is the default value when <literal>--colors</literal> option is not used.
+                </para>
+              </listitem>
+              <listitem>
+                <para>
+                  <literal>auto</literal>: displays colors in the output unless the current terminal doesn't supports colors,
+                  or if the output is piped to a command or redirected to a file.
+                </para>
+              </listitem>
+              <listitem>
+                <para>
+                  <literal>always</literal>: always displays colors in the output even when the current terminal doesn't supports colors,
+                  or when the output is piped to a command or redirected to a file.
+                </para>
+              </listitem>
+            </itemizedlist>
+            When <literal>--colors</literal> is used without any value, <literal>auto</literal> is the chosen value.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>--columns</literal></term>
+        <listitem>
+          <para>
+            Defines the number of columns to use for progress output.
+            If <literal>max</literal> is defined as value, the number of columns will be maximum of the current terminal.
           </para>
         </listitem>
       </varlistentry>
