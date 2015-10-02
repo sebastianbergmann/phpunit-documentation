@@ -20,16 +20,17 @@ function webify_directory($directory, $language, $version)
     );
 
     $editions  = array(
-      'en'    => array('5.1', '5.0', '4.8'),
+      'en'    => array('5.2', '5.1', '5.0', '4.8'),
       //'fr'    => array('4.2', '4.1'),
-      'ja'    => array('5.1', '5.0', '4.8'),
-      'pt_br' => array('5.1', '5.0', '4.8'),
-      'zh_cn' => array('5.1', '5.0', '4.8')
+      'ja'    => array('5.2', '5.1', '5.0', '4.8'),
+      'pt_br' => array('5.2', '5.1', '5.0', '4.8'),
+      'zh_cn' => array('5.2', '5.1', '5.0', '4.8')
     );
 
-    $stable       = '4.8';
-    $beta         = '5.0';
-    $alpha        = '5.1';
+    $old          = '4.8';
+    $stable       = '5.0';
+    $beta         = '5.1';
+    $alpha        = '5.2';
     $languageList = '';
     $versionList  = '';
 
@@ -79,6 +80,10 @@ function webify_directory($directory, $language, $version)
     $versions = $editions[array_key_exists($language, $editions) ? $language : 'en'];
 
     foreach ($versions as $_version) {
+        if ($_version == $old) {
+            $type = 'old';
+        }
+
         if ($_version == $stable) {
             $type = '<strong>stable</strong>';
         }

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="strict-mode">
+  <title>严格模式</title>
+
+  <para>
+    在执行测试时，PHPUnit 可以进行一些额外的检查。除了细粒度地控制各种严格模式下的检查（见下文）外，还可以使用命令行选项 <literal>--strict</literal> 或在 PHPUnit 的 XML 配置文件中设置 <literal>strict="true"</literal> 来将它们全部启用。
+  </para>
+
+  <section id="strict-mode.useless-tests">
+    <title>无用测试</title>
+
+    <para>
+      PHPUnit 可以对事实上不测试任何内容的测试更加严格。此项检查可以用命令行选项 <literal>--report-useless-tests</literal> 或在 PHPUnit 的 XML 配置文件中设置 <literal>beStrictAboutTestsThatDoNotTestAnything="true"</literal> 来启用。
+    </para>
+
+    <para>
+      在启用本项检查后，如果某个测试未进行任何断言，它将被标记为有风险。仿件对象中的预期和诸如 <code>@expectedException</code> 这样的标注同样视为断言。
+    </para>
+  </section>
+
+  <section id="strict-mode.unintentionally-covered-code">
+    <title>意外覆盖的代码</title>
+
+    <para>
+      PHPUnit 可以对意外覆盖的代码更加严格。此项检查可以用命令行选项 <literal>--strict-coverage</literal> 或在 PHPUnit 的 XML 配置文件中设置 <literal>checkForUnintentionallyCoveredCode="true"</literal> 来启用。
+    </para>
+
+    <para>
+      在启用本项检查后，如果某个带有 <code>@covers</code> 标注的测试执行了未在 <code>@covers</code> 或 <code>@uses</code> 标注中列出的代码，它将被标记为有风险。
+    </para>
+  </section>
+
+  <section id="strict-mode.output-during-test-execution">
+    <title>测试执行期间产生的输出</title>
+
+    <para>
+      PHPUnit 可以对测试执行期间产生的输出更加严格。此项检查可以用命令行选项 <literal>--disallow-test-output</literal> 或在 PHPUnit 的 XML 配置文件中设置 <literal>beStrictAboutOutputDuringTests="true"</literal> 来启用。
+    </para>
+
+    <para>
+      在启用本项检查后，如果某个测试产生了输出，例如，在测试代码或被测代码中调用了 <code>print</code>，它将被标记为有风险。
+    </para>
+  </section>
+
+  <section id="strict-mode.test-execution-timeout">
+    <title>测试执行时长的超时限制</title>
+
+    <para>
+      如果安装了 <literal>PHP_Invoker</literal> 包并且 <literal>pcntl</literal> 扩展可用，那么可以对测试的执行时长进行限制。此时间限制可以用命令行选项 <literal>--enforce-time-limit</literal> 或在 PHPUnit 的 XML 配置文件中设置 <literal>beStrictAboutTestSize="true"</literal> 来启用。
+    </para>
+
+    <para>
+      带有 <literal>@large</literal> 标注的测试如果执行时间超过60秒将视为失败。此超时限制可以通过XML配置文件中的 <literal>timeoutForLargeTests</literal> 属性进行配置。
+    </para>
+
+    <para>
+      带有 <literal>@medium</literal> 标注的测试如果执行时间超过10秒将视为失败。此超时限制可以通过XML配置文件中的 <literal>timeoutForMediumTests</literal> 属性进行配置。
+    </para>
+
+    <para>
+      没有 <literal>@large</literal> 或 <literal>@medium</literal> 标注的测试都将视同为带有 <literal>@small</literal> 标注，这类测试如果执行时间超过1秒将视为失败。此超时限制可以通过XML配置文件中的 <literal>timeoutForSmallTests</literal> 属性进行配置。
+    </para>
+  </section>
+</chapter>
