@@ -5,8 +5,37 @@
   <target name="check-old" depends="check-en-4.7,check-ja-4.7,check-zh_cn-4.7,check-pt_br-4.7,check-en-4.6,check-ja-4.6,check-zh_cn-4.6,check-pt_br-4.6,check-en-4.5,check-ja-4.5,check-zh_cn-4.5,check-pt_br-4.5,check-en-4.4,check-ja-4.4,check-zh_cn-4.4,check-en-4.3,check-ja-4.3,check-zh_cn-4.3,check-pt_br-4.3,check-en-4.2,check-ja-4.2,check-zh_cn-4.2,check-pt_br-4.2,check-en-4.1,check-ja-4.1,check-zh_cn-4.1,check-pt_br-4.1,check-en-4.0,check-ja-4.0,check-zh_cn-4.0,check-pt_br-4.0,check-en-3.7,check-ja-3.7,check-zh_cn-3.7,check-pt_br-3.7,check-en-3.6,check-ja-3.6,check-en-3.5,check-ja-3.5,check-en-3.4,check-ja-3.4,check-en-3.3,check-ja-3.3,check-en-3.2,check-ja-3.2,check-en-3.1,check-ja-3.1,check-en-3.0,check-ja-3.0,check-en-2.3,check-ja-2.3,check-de-2.3"/>
 
   <target name="check">
+    <!-- Ensure parameter 'version' is not empty or undefined -->
+    <fail message="&quot;version&quot; property is missing or empty.">
+      <condition>
+        <or>
+          <not><isset property="version"/></not>
+          <length string="${version}" trim="true" length="0" />
+        </or>
+      </condition>
+    </fail>
+
+    <!-- Ensure parameter 'language' is not empty or undefined -->
+    <fail message="&quot;language&quot; property is missing or empty.">
+      <condition>
+        <or>
+          <not><isset property="language"/></not>
+          <length string="${language}" trim="true" length="0" />
+        </or>
+      </condition>
+    </fail>
+
+    <property name="book.xml" value="../src/${version}/${language}/book.xml"/>
+
+    <!-- Ensure 'book.xml' resource is available before trying lint with xmllint. -->
+    <fail message="PHPUnit Documentation source files, for language=&quot;${language}&quot; and version=&quot;${version}&quot;, are not available. Source file not found: &quot;${book.xml}&quot;. Check the &quot;language&quot; and &quot;version&quot; values.">
+      <condition>
+        <not><available file="${basedir}/${book.xml}"/></not>
+      </condition>
+    </fail>
+    
     <exec dir="${basedir}" executable="xmllint" failonerror="true">
-      <arg line="--noout --noent ../src/${version}/${language}/book.xml"/>
+      <arg line="--noout --noent ${book.xml}"/>
     </exec>
   </target>
 
