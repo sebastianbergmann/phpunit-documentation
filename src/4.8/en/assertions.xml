@@ -534,6 +534,7 @@ Tests: 4, Assertions: 8, Failures: 4.]]></screen>
     <para>Reports an error identified by <literal>$message</literal> if the two variables <literal>$expected</literal> and <literal>$actual</literal> are not equal.</para>
     <para><literal>assertNotEquals()</literal> is the inverse of this assertion and takes the same arguments.</para>
     <para><literal>assertAttributeEquals()</literal> and <literal>assertAttributeNotEquals()</literal> are convenience wrappers that use a <literal>public</literal>, <literal>protected</literal>, or <literal>private</literal> attribute of a class or object as the actual value.</para>
+    <para>Of note, when using <literal>assertEquals()</literal> and <literal>assertNotEquals()</literal> where one variable is the number zero (either integer or float) and the other variable is a string, the types of the variables are also compared (i.e. <ulink url="http://php.net/manual/en/language.operators.comparison.php">=== comparison operator</ulink>, not the normal <literal>==</literal> comparison operator). This can be problematic in the one case where it is assumed that <literal>0 == ""</literal> is true (due to <ulink url="http://php.net/manual/en/language.types.type-juggling.php">type-juggling</ulink>), but is in fact false when using <literal>assertEquals()</literal> or <literal>assertNotEquals()</literal>.</para>
     <example id="appendixes.assertions.assertEquals.example">
       <title>Usage of assertEquals()</title>
       <programlisting><![CDATA[<?php
@@ -552,6 +553,11 @@ class EqualsTest extends PHPUnit_Framework_TestCase
     public function testFailure3()
     {
         $this->assertEquals("foo\nbar\nbaz\n", "foo\nbah\nbaz\n");
+    }
+
+    public function testFailure4()
+    {
+        $this->assertEquals("", 0)
     }
 }
 ?>]]></programlisting>
@@ -592,8 +598,13 @@ Failed asserting that two strings are equal.
 
 /home/sb/EqualsTest.php:16
 
+4) EqualsTest::testFailure4
+Failed asserting that 0 matches expected ''.
+
+/home/sb/EqualsTest.php:21
+
 FAILURES!
-Tests: 3, Assertions: 3, Failures: 3.</screen>
+Tests: 4, Assertions: 4, Failures: 4.</screen>
     </example>
 
     <para>More specialized comparisons are used for specific argument types for <literal>$expected</literal> and <literal>$actual</literal>, see below.</para>
