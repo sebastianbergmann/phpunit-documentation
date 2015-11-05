@@ -88,18 +88,13 @@
     </note>
   </section>
 
-  <section id="code-coverage-analysis.including-excluding-files">
-    <title>包含与排除文件</title>
-
-    <para>默认情况下，代码覆盖率报告中包含（且只包括）所有内含至少一行已执行代码的源文件。</para>
+  <section id="code-coverage-analysis.whitelisting-files">
+    <title>将文件列入白名单</title>
 
     <para>
-      <indexterm><primary>Code Coverage （代码覆盖率）</primary><secondary>Blacklist （黑名单）</secondary></indexterm>默认情况下，在生成代码覆盖率报告时会应用一个特定的<emphasis>黑名单</emphasis>来排除某些文件。这个黑名单中包含了 PHPUnit 本身及其所依赖的所有组件的相应源文件。</para>
+      <indexterm><primary>Code Coverage （代码覆盖率）</primary><secondary>Whitelist （白名单）</secondary></indexterm>为了告诉 PHPUnit 哪些源代码文件要包含在代码覆盖率报告中，必须配置<emphasis>白名单</emphasis>。可以用命令行选项 <literal>--whitelist</literal> 或通过配置文件（参见 <xref linkend="appendixes.configuration.whitelisting-files"/>）来完成。</para>
 
-    <para>
-      <indexterm><primary>Code Coverage （代码覆盖率）</primary><secondary>Whitelist （白名单）</secondary></indexterm>用<emphasis>白名单</emphasis>代替上面提到的黑名单是一种良好的习惯。</para>
-
-    <para>可以在 PHPUnit 的配置信息中设置 <literal>addUncoveredFilesFromWhitelist=&quot;true&quot;</literal> 来将白名单中包含的所有文件全部加入到代码覆盖率报告中（参见<xref linkend="appendixes.configuration.blacklist-whitelist"/>）。这样可以把完全没有测试到的文件也一并包含到报告中。如果需要知道这些未被覆盖文件中有哪些行是可执行的，需要同时在 PHPUnit 的配置信息中设置 <literal>processUncoveredFilesFromWhitelist=&quot;true&quot;</literal>（参见<xref linkend="appendixes.configuration.blacklist-whitelist"/>）。</para>
+    <para>可以在 PHPUnit 的配置信息中设置 <literal>addUncoveredFilesFromWhitelist=&quot;true&quot;</literal> 来将白名单中包含的所有文件全部加入到代码覆盖率报告中（参见<xref linkend="appendixes.configuration.whitelisting-files"/>）。这样可以把完全没有测试到的文件也一并包含到报告中。如果需要知道这些未被覆盖文件中有哪些行是可执行的，需要同时在 PHPUnit 的配置信息中设置 <literal>processUncoveredFilesFromWhitelist=&quot;true&quot;</literal>（参见<xref linkend="appendixes.configuration.whitelisting-files"/>）。</para>
 
     <note>
       <para>请注意，当设置了 <literal>processUncoveredFilesFromWhitelist=&quot;true&quot;</literal> 时将对源代码文件进行载入，这在某些情况下可能导致问题，比如，源代码文件包含有处于类或者函数作用域之外的代码。</para>
