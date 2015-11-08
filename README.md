@@ -24,6 +24,11 @@ for example
     cd build
     ant build-en-4.3
 
+For more further info, you can see the project description:
+
+    cd build
+    ant -p
+
 # Output
 
 The generated files will be in `build/output/VERSION/LANG`.
