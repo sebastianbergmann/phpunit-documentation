@@ -28,9 +28,9 @@ function webify_directory($directory, $language, $version)
     );
 
     $old          = '4.8';
-    $stable       = '5.0';
-    $beta         = '5.1';
-    $alpha        = '5.2';
+    $stable       = '5.1';
+    $beta         = '5.2';
+    $alpha        = '5.3';
     $languageList = '';
     $versionList  = '';
 
