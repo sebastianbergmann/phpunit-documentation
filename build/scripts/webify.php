@@ -20,11 +20,11 @@ function webify_directory($directory, $language, $version)
     );
 
     $editions  = array(
-      'en'    => array('5.2', '5.1', '4.8'),
+      'en'    => array('5.3', '5.2', '5.1', '4.8'),
       //'fr'    => array('4.2', '4.1'),
-      'ja'    => array('5.2', '5.1', '4.8'),
-      'pt_br' => array('5.2', '5.1', '4.8'),
-      'zh_cn' => array('5.2', '5.1', '4.8')
+      'ja'    => array('5.3', '5.2', '5.1', '4.8'),
+      'pt_br' => array('5.3', '5.2', '5.1', '4.8'),
+      'zh_cn' => array('5.3', '5.2', '5.1', '4.8')
     );
 
     $old          = '4.8';

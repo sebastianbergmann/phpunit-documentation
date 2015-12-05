@@ -1,0 +1,1001 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<chapter id="writing-tests-for-phpunit">
+  <title>编写 PHPUnit 测试</title>
+
+  <para>
+    <indexterm><primary>PHPUnit_Framework_TestCase</primary></indexterm>
+
+    <xref linkend="writing-tests-for-phpunit.examples.StackTest.php"/>展示了如何用 PHPUnit 编写测试来对 PHP 数组操作进行测试。本例介绍了用 PHPUnit 编写测试的基本惯例与步骤：</para>
+
+  <orderedlist>
+    <listitem><para>针对类 <literal>Class</literal> 的测试写在类 <literal>ClassTest</literal>中。</para></listitem>
+    <listitem><para><literal>ClassTest</literal>（通常）继承自 <literal>PHPUnit_Framework_TestCase</literal>。</para></listitem>
+    <listitem><para>测试都是命名为 <literal>test*</literal> 的公用方法。</para><para><indexterm><primary>Annotation （标注）</primary></indexterm><indexterm><primary>@test</primary></indexterm>也可以在方法的文档注释块(docblock)中使用 <literal>@test</literal> 标注将其标记为测试方法。</para></listitem>
+    <listitem><para>在测试方法内，类似于 <literal>assertEquals()</literal>（参见 <xref linkend="appendixes.assertions"/>）这样的断言方法用来对实际值与预期值的匹配做出断言。</para></listitem>
+  </orderedlist>
+
+  <example id="writing-tests-for-phpunit.examples.StackTest.php">
+    <title>用 PHPUnit 测试数组操作</title>
+    <programlisting><![CDATA[<?php
+class StackTest extends PHPUnit_Framework_TestCase
+{
+    public function testPushAndPop()
+    {
+        $stack = array();
+        $this->assertEquals(0, count($stack));
+
+        array_push($stack, 'foo');
+        $this->assertEquals('foo', $stack[count($stack)-1]);
+        $this->assertEquals(1, count($stack));
+
+        $this->assertEquals('foo', array_pop($stack));
+        $this->assertEquals(0, count($stack));
+    }
+}
+?>]]></programlisting>
+  </example>
+
+  <blockquote>
+    <attribution>Martin Fowler</attribution>
+    <para>当你想把一些东西写到 <literal>print</literal> 语句或者调试表达式中时，别这么做，将其写成一个测试来代替。</para>
+  </blockquote>
+
+  <section id="writing-tests-for-phpunit.test-dependencies">
+    <title>测试的依赖关系</title>
+
+    <blockquote>
+      <attribution>Adrian Kuhn et. al.</attribution>
+      <para>单元测试主要是作为一种良好实践来编写的，它能帮助开发人员识别并修复 bug、重构代码，还可以看作被测软件单元的文档。要实现这些好处，理想的单元测试应当覆盖程序中所有可能的路径。一个单元测试通常覆盖一个函数或方法中的一个特定路径。但是，测试方法并不一定非要是一个封装良好的独立实体。测试方法之间经常有隐含的依赖关系暗藏在测试的实现方案中。</para>
+    </blockquote>
+
+    <para>
+      <indexterm><primary>测试的依赖关系</primary></indexterm>PHPUnit支持对测试方法之间的显式依赖关系进行声明。这种依赖关系并不是定义在测试方法的执行顺序中，而是允许生产者(producer)返回一个测试基境(fixture)的实例，并将此实例传递给依赖于它的消费者(consumer)们。</para>
+
+    <itemizedlist>
+      <listitem><para>生产者(producer)，是能生成被测单元并将其作为返回值的测试方法。</para></listitem>
+      <listitem><para>消费者(consumer)，是依赖于一个或多个生产者及其返回值的测试方法。</para></listitem>
+    </itemizedlist>
+
+    <para>
+      <indexterm><primary>Annotation （标注）</primary></indexterm>
+      <indexterm><primary>@depends</primary></indexterm>
+
+      <xref linkend="writing-tests-for-phpunit.examples.StackTest2.php"/>展示了如何用 <literal>@depends</literal> 标注来表达测试方法之间的依赖关系。</para>
+
+    <example id="writing-tests-for-phpunit.examples.StackTest2.php">
+      <title>用 <literal>@depends</literal> 标注来表达依赖关系</title>
+      <programlisting><![CDATA[<?php
+class StackTest extends PHPUnit_Framework_TestCase
+{
+    public function testEmpty()
+    {
+        $stack = array();
+        $this->assertEmpty($stack);
+
+        return $stack;
+    }
+
+    /**
+     * @depends testEmpty
+     */
+    public function testPush(array $stack)
+    {
+        array_push($stack, 'foo');
+        $this->assertEquals('foo', $stack[count($stack)-1]);
+        $this->assertNotEmpty($stack);
+
+        return $stack;
+    }
+
+    /**
+     * @depends testPush
+     */
+    public function testPop(array $stack)
+    {
+        $this->assertEquals('foo', array_pop($stack));
+        $this->assertEmpty($stack);
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>在上例中，第一个测试， <literal>testEmpty()</literal>，创建了一个新数组，并断言其为空。随后，此测试将此基境作为结果返回。第二个测试，<literal>testPush()</literal>，依赖于 <literal>testEmpty()</literal> ，并将所依赖的测试之结果作为参数传入。最后，<literal>testPop()</literal> 依赖于 <literal>testPush()</literal>。</para>
+
+    <note>
+      <para>
+        <indexterm><primary>Annotation （标注）</primary></indexterm>
+        <indexterm><primary>@depends</primary></indexterm>默认情况下，生产者所产生的返回值将“原样”传递给相应的消费者。这意味着，如果生产者返回的是一个对象，那么传递给消费者的将是一个指向此对象的引用。如果需要传递对象的副本而非引用，则应当用 <code>@depends clone</code> 替代 <code>@depends</code>。</para>
+    </note>
+
+    <para>
+      <indexterm><primary>Defect Localization （缺陷定位）</primary></indexterm>为了快速定位缺陷，我们希望把注意力集中于相关的失败测试上。这就是为什么当某个测试所依赖的测试失败时，PHPUnit 会跳过这个测试。通过利用测试之间的依赖关系，缺陷定位得到了改进，如<xref linkend="writing-tests-for-phpunit.examples.DependencyFailureTest.php"/>中所示。</para>
+
+    <example id="writing-tests-for-phpunit.examples.DependencyFailureTest.php">
+      <title>利用测试之间的依赖关系</title>
+      <programlisting><![CDATA[<?php
+class DependencyFailureTest extends PHPUnit_Framework_TestCase
+{
+    public function testOne()
+    {
+        $this->assertTrue(FALSE);
+    }
+
+    /**
+     * @depends testOne
+     */
+    public function testTwo()
+    {
+    }
+}
+?>]]></programlisting>
+
+      <screen><userinput>phpunit --verbose DependencyFailureTest</userinput><![CDATA[
+PHPUnit 5.3.0 by Sebastian Bergmann and contributors.
+
+FS
+
+Time: 0 seconds, Memory: 5.00Mb
+
+There was 1 failure:
+
+1) DependencyFailureTest::testOne
+Failed asserting that false is true.
+
+/home/sb/DependencyFailureTest.php:6
+
+There was 1 skipped test:
+
+1) DependencyFailureTest::testTwo
+This test depends on "DependencyFailureTest::testOne" to pass.
+
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1, Skipped: 1.]]></screen>
+    </example>
+
+    <para>测试可以使用多个 <literal>@depends</literal> 标注。PHPUnit 不会更改测试的运行顺序，因此你需要自行保证某个测试所依赖的所有测试均出现于这个测试之前。</para>
+
+    <para>拥有多个 <literal>@depends</literal> 标注的测试，其第一个参数是第一个生产者提供的基境，第二个参数是第二个生产者提供的基境，以此类推。参见<xref linkend="writing-tests-for-phpunit.examples.MultipleDependencies.php"/>
+    </para>
+
+    <example id="writing-tests-for-phpunit.examples.MultipleDependencies.php">
+      <title>有多重依赖的测试</title>
+      <programlisting><![CDATA[<?php
+class MultipleDependenciesTest extends PHPUnit_Framework_TestCase
+{
+    public function testProducerFirst()
+    {
+        $this->assertTrue(true);
+        return 'first';
+    }
+
+    public function testProducerSecond()
+    {
+        $this->assertTrue(true);
+        return 'second';
+    }
+
+    /**
+     * @depends testProducerFirst
+     * @depends testProducerSecond
+     */
+    public function testConsumer()
+    {
+        $this->assertEquals(
+            array('first', 'second'),
+            func_get_args()
+        );
+    }
+}
+?>]]></programlisting>
+
+      <screen><userinput>phpunit --verbose MultipleDependenciesTest</userinput><![CDATA[
+PHPUnit 5.3.0 by Sebastian Bergmann and contributors.
+
+...
+
+Time: 0 seconds, Memory: 3.25Mb
+
+OK (3 tests, 3 assertions)]]></screen>
+    </example>
+  </section>
+
+  <section id="writing-tests-for-phpunit.data-providers">
+    <title>数据供给器</title>
+
+    <para>
+      <indexterm><primary>Annotation （标注）</primary></indexterm>
+      <indexterm><primary>@dataProvider</primary></indexterm>测试方法可以接受任意参数。这些参数由数据供给器方法（在 <xref linkend="writing-tests-for-phpunit.data-providers.examples.DataTest.php"/>中，是 <literal>additionProvider()</literal> 方法）提供。用 <literal>@dataProvider</literal> 标注来指定使用哪个数据供给器方法。</para>
+
+    <para>数据供给器方法必须声明为 <literal>public</literal>，其返回值要么是一个数组，其每个元素也是数组；要么是一个实现了 <literal>Iterator</literal> 接口的对象，在对它进行迭代时每步产生一个数组。每个数组都是测试数据集的一部分，将以它的内容作为参数来调用测试方法。</para>
+
+    <example id="writing-tests-for-phpunit.data-providers.examples.DataTest.php">
+      <title>使用返回数组的数组的数据供给器</title>
+      <programlisting><![CDATA[<?php
+class DataTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @dataProvider additionProvider
+     */
+    public function testAdd($a, $b, $expected)
+    {
+        $this->assertEquals($expected, $a + $b);
+    }
+
+    public function additionProvider()
+    {
+        return array(
+          array(0, 0, 0),
+          array(0, 1, 1),
+          array(1, 0, 1),
+          array(1, 1, 3)
+        );
+    }
+}
+?>]]></programlisting>
+
+    <screen><userinput>phpunit DataTest</userinput><![CDATA[
+PHPUnit 5.3.0 by Sebastian Bergmann and contributors.
+
+...F
+
+Time: 0 seconds, Memory: 5.75Mb
+
+There was 1 failure:
+
+1) DataTest::testAdd with data set #3 (1, 1, 3)
+Failed asserting that 2 matches expected 3.
+
+/home/sb/DataTest.php:9
+
+FAILURES!
+Tests: 4, Assertions: 4, Failures: 1.]]></screen>
+    </example>
+
+    <para>当使用到大量数据集时，最好逐个用字符串键名对其命名，避免用默认的数字键名。这样输出信息会更加详细些，其中将包含打断测试的数据集所对应的名称。</para>
+
+    <example id="writing-tests-for-phpunit.data-providers.examples.DataTest1.php">
+      <title>使用带有命名数据集的数据供给器</title>
+      <programlisting><![CDATA[<?php
+class DataTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @dataProvider additionProvider
+     */
+    public function testAdd($a, $b, $expected)
+    {
+        $this->assertEquals($expected, $a + $b);
+    }
+
+    public function additionProvider()
+    {
+        return array(
+          'adding zeros' => array(0, 0, 0),
+          'zero plus one' => array(0, 1, 1),
+          'one plus zero' => array(1, 0, 1),
+          'one plus one' => array(1, 1, 3)
+        );
+    }
+}
+?>]]></programlisting>
+
+    <screen><userinput>phpunit DataTest</userinput><![CDATA[
+PHPUnit 5.3.0 by Sebastian Bergmann and contributors.
+
+...F
+
+Time: 0 seconds, Memory: 5.75Mb
+
+There was 1 failure:
+
+1) DataTest::testAdd with data set "one plus one" (1, 1, 3)
+Failed asserting that 2 matches expected 3.
+
+/home/sb/DataTest.php:9
+
+FAILURES!
+Tests: 4, Assertions: 4, Failures: 1.]]></screen>
+    </example>
+
+    <example id="writing-tests-for-phpunit.data-providers.examples.DataTest2.php">
+      <title>使用返回迭代器对象的数据供给器</title>
+      <programlisting><![CDATA[<?php
+require 'CsvFileIterator.php';
+
+class DataTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @dataProvider additionProvider
+     */
+    public function testAdd($a, $b, $expected)
+    {
+        $this->assertEquals($expected, $a + $b);
+    }
+
+    public function additionProvider()
+    {
+        return new CsvFileIterator('data.csv');
+    }
+}
+?>]]></programlisting>
+
+    <screen><userinput>phpunit DataTest</userinput><![CDATA[
+PHPUnit 5.3.0 by Sebastian Bergmann and contributors.
+
+...F
+
+Time: 0 seconds, Memory: 5.75Mb
+
+There was 1 failure:
+
+1) DataTest::testAdd with data set #3 ('1', '1', '3')
+Failed asserting that 2 matches expected '3'.
+
+/home/sb/DataTest.php:11
+
+FAILURES!
+Tests: 4, Assertions: 4, Failures: 1.]]></screen>
+    </example>
+
+    <example id="writing-tests-for-phpunit.data-providers.examples.CsvFileIterator.php">
+      <title>CsvFileIterator 类</title>
+      <programlisting><![CDATA[<?php
+class CsvFileIterator implements Iterator {
+    protected $file;
+    protected $key = 0;
+    protected $current;
+
+    public function __construct($file) {
+        $this->file = fopen($file, 'r');
+    }
+
+    public function __destruct() {
+        fclose($this->file);
+    }
+
+    public function rewind() {
+        rewind($this->file);
+        $this->current = fgetcsv($this->file);
+        $this->key = 0;
+    }
+
+    public function valid() {
+        return !feof($this->file);
+    }
+
+    public function key() {
+        return $this->key;
+    }
+
+    public function current() {
+        return $this->current;
+    }
+
+    public function next() {
+        $this->current = fgetcsv($this->file);
+        $this->key++;
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      <indexterm><primary>Annotation （标注）</primary></indexterm>
+      <indexterm><primary>@dataProvider</primary></indexterm>
+      <indexterm><primary>@depends</primary></indexterm>如果测试同时从 <literal>@dataProvider</literal> 方法和一个或多个 <literal>@depends</literal> 测试接收数据，那么来自于数据供给器的参数将先于来自所依赖的测试的。来自于所依赖的测试的参数对于每个数据集都是一样的。参见<xref linkend="writing-tests-for-phpunit.data-providers.examples.DependencyAndDataProviderCombo.php"/>
+    </para>
+
+    <example id="writing-tests-for-phpunit.data-providers.examples.DependencyAndDataProviderCombo.php">
+      <title>在同一个测试中组合使用 @depends 和 @dataProvider</title>
+      <programlisting><![CDATA[<?php
+class DependencyAndDataProviderComboTest extends PHPUnit_Framework_TestCase
+{
+    public function provider()
+    {
+        return array(array('provider1'), array('provider2'));
+    }
+
+    public function testProducerFirst()
+    {
+        $this->assertTrue(true);
+        return 'first';
+    }
+
+    public function testProducerSecond()
+    {
+        $this->assertTrue(true);
+        return 'second';
+    }
+
+    /**
+     * @depends testProducerFirst
+     * @depends testProducerSecond
+     * @dataProvider provider
+     */
+    public function testConsumer()
+    {
+        $this->assertEquals(
+            array('provider1', 'first', 'second'),
+            func_get_args()
+        );
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit --verbose DependencyAndDataProviderComboTest</userinput><![CDATA[
+PHPUnit 5.3.0 by Sebastian Bergmann and contributors.
+
+...F
+
+Time: 0 seconds, Memory: 3.50Mb
+
+There was 1 failure:
+
+1) DependencyAndDataProviderComboTest::testConsumer with data set #1 ('provider2')
+Failed asserting that two arrays are equal.
+--- Expected
++++ Actual
+@@ @@
+Array (
+-    0 => 'provider1'
++    0 => 'provider2'
+1 => 'first'
+2 => 'second'
+)
+
+/home/sb/DependencyAndDataProviderComboTest.php:31
+
+FAILURES!
+Tests: 4, Assertions: 4, Failures: 1.
+]]></screen>
+    </example>
+
+    <note>
+      <para>
+        <indexterm><primary>Annotation （标注）</primary></indexterm>
+        <indexterm><primary>@dataProvider</primary></indexterm>
+        <indexterm><primary>@depends</primary></indexterm>如果一个测试依赖于另外一个使用了数据供给器的测试，仅当被依赖的测试至少能在一组数据上成功时，依赖于它的测试才会运行。使用了数据供给器的测试，其运行结果是无法注入到依赖于此测试的其他测试中的。</para>
+    </note>
+
+    <note>
+      <para>
+        <indexterm><primary>Annotation （标注）</primary></indexterm>
+        <indexterm><primary>@dataProvider</primary></indexterm>
+        <indexterm><primary>@depends</primary></indexterm>所有的数据供给器方法的执行都是在对 <literal>setUpBeforeClass</literal> 静态方法的调用和第一次对 <literal>setUp</literal> 方法的调用之前完成的。因此，无法在数据供给器中使用创建于这两个方法内的变量。这是必须的，这样 PHPUnit 才能计算测试的总数量。</para>
+    </note>
+  </section>
+
+  <section id="writing-tests-for-phpunit.exceptions">
+    <title>对异常进行测试</title>
+
+    <para>
+      <indexterm><primary>Annotation （标注）</primary></indexterm>
+      <indexterm><primary>@expectedException</primary></indexterm>
+
+      <xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest.php"/>展示了如何用 <literal>@expectedException</literal>  标注来测试被测代码中是否抛出了异常。</para>
+
+    <example id="writing-tests-for-phpunit.exceptions.examples.ExceptionTest.php">
+      <title>使用 @expectedException 标注</title>
+      <programlisting><![CDATA[<?php
+class ExceptionTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testException()
+    {
+    }
+}
+?>]]></programlisting>
+      <screen><userinput>phpunit ExceptionTest</userinput>
+PHPUnit 5.3.0 by Sebastian Bergmann and contributors.
+
+F
+
+Time: 0 seconds, Memory: 4.75Mb
+
+There was 1 failure:
+
+1) ExceptionTest::testException
+Expected exception InvalidArgumentException
+
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.</screen>
+    </example>
+
+    <para>
+      <indexterm><primary>Annotation （标注）</primary></indexterm>
+      <indexterm><primary>@expectedException</primary></indexterm>
+      <indexterm><primary>@expectedExceptionMessage</primary></indexterm>
+      <indexterm><primary>@expectedExceptionMessageRegExp</primary></indexterm>
+      <indexterm><primary>@expectedExceptionCode</primary></indexterm>另外，你可以将 <literal>@expectedExceptionMessage</literal>、<literal>@expectedExceptionMessageRegExp</literal> 和 <literal>@expectedExceptionCode</literal> 与 <literal>@expectedException</literal> 联合使用，来对异常的讯息与代号进行测试，如<xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest2.php"/>所示。</para>
+
+    <example id="writing-tests-for-phpunit.exceptions.examples.ExceptionTest2.php">
+      <title>使用 <literal>@expectedExceptionMessage</literal>、<literal>@expectedExceptionMessageRegExp</literal> 和 <literal>@expectedExceptionCode</literal> 标注</title>
+      <programlisting><![CDATA[<?php
+class ExceptionTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @expectedException        InvalidArgumentException
+     * @expectedExceptionMessage Right Message
+     */
+    public function testExceptionHasRightMessage()
+    {
+        throw new InvalidArgumentException('Some Message', 10);
+    }
+
+    /**
+     * @expectedException              InvalidArgumentException
+     * @expectedExceptionMessageRegExp #Right.*#
+     */
+    public function testExceptionMessageMatchesRegExp()
+    {
+        throw new InvalidArgumentException('Some Message', 10);
+    }
+
+    /**
+     * @expectedException     InvalidArgumentException
+     * @expectedExceptionCode 20
+     */
+    public function testExceptionHasRightCode()
+    {
+        throw new InvalidArgumentException('Some Message', 10);
+    }
+}
+?>]]></programlisting>
+      <screen><userinput>phpunit ExceptionTest</userinput><![CDATA[
+PHPUnit 5.3.0 by Sebastian Bergmann and contributors.
+
+FFF
+
+Time: 0 seconds, Memory: 3.00Mb
+
+There were 3 failures:
+
+1) ExceptionTest::testExceptionHasRightMessage
+Failed asserting that exception message 'Some Message' contains 'Right Message'.
+
+2) ExceptionTest::testExceptionMessageMatchesRegExp
+Failed asserting that exception message 'Some Message' matches '#Right.*#'.
+
+3) ExceptionTest::testExceptionHasRightCode
+Failed asserting that expected exception code 20 is equal to 10.
+
+
+FAILURES!
+Tests: 3, Assertions: 6, Failures: 3.]]></screen>
+    </example>
+
+    <para>关于 <literal>@expectedExceptionMessage</literal>、<literal>@expectedExceptionMessageRegExp</literal> 和 <literal>@expectedExceptionCode</literal>，分别在<xref linkend="appendixes.annotations.expectedExceptionMessage"/>、<xref linkend="appendixes.annotations.expectedExceptionMessageRegExp"/> 和 <xref linkend="appendixes.annotations.expectedExceptionCode"/>有更多相关范例。</para>
+
+
+    <para>此外，还可以用 <literal>setExpectedException()</literal> 或 <literal>setExpectedExceptionRegExp()</literal> 方法来设定所预期的异常，如<xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest3.php"/>所示。</para>
+
+    <example id="writing-tests-for-phpunit.exceptions.examples.ExceptionTest3.php">
+      <title>预期被测代码将引发异常</title>
+      <programlisting><![CDATA[<?php
+class ExceptionTest extends PHPUnit_Framework_TestCase
+{
+    public function testException()
+    {
+        $this->setExpectedException('InvalidArgumentException');
+    }
+
+    public function testExceptionHasRightMessage()
+    {
+        $this->setExpectedException(
+          'InvalidArgumentException', 'Right Message'
+        );
+        throw new InvalidArgumentException('Some Message', 10);
+    }
+
+    public function testExceptionMessageMatchesRegExp()
+    {
+        $this->setExpectedExceptionRegExp(
+          'InvalidArgumentException', '/Right.*/', 10
+        );
+        throw new InvalidArgumentException('The Wrong Message', 10);
+    }
+
+    public function testExceptionHasRightCode()
+    {
+        $this->setExpectedException(
+          'InvalidArgumentException', 'Right Message', 20
+        );
+        throw new InvalidArgumentException('The Right Message', 10);
+    }
+}
+?>]]></programlisting>
+      <screen><userinput>phpunit ExceptionTest</userinput><![CDATA[
+PHPUnit 5.3.0 by Sebastian Bergmann and contributors.
+
+FFFF
+
+Time: 0 seconds, Memory: 3.00Mb
+
+There were 4 failures:
+
+1) ExceptionTest::testException
+Expected exception InvalidArgumentException
+
+2) ExceptionTest::testExceptionHasRightMessage
+Failed asserting that exception message 'Some Message' contains 'Right Message'.
+
+3) ExceptionTest::testExceptionMessageMatchesRegExp
+Failed asserting that exception message 'The Wrong Message' contains '/Right.*/'.
+
+4) ExceptionTest::testExceptionHasRightCode
+Failed asserting that expected exception code 20 is equal to 10.
+
+
+FAILURES!
+Tests: 4, Assertions: 8, Failures: 4.]]></screen>
+    </example>
+
+    <para>
+      <xref linkend="writing-tests-for-phpunit.exceptions.tables.api"/>中列举了用于对异常进行测试的各种方法。</para>
+
+    <table id="writing-tests-for-phpunit.exceptions.tables.api">
+      <title>用于对异常进行测试的方法 </title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>方法</entry>
+            <entry>含义</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>void setExpectedException(string $exceptionName[, string $exceptionMessage = '', integer $exceptionCode = NULL])</literal></entry>
+            <entry>设定预期的 <literal>$exceptionName</literal>、<literal>$exceptionMessage</literal> 和 <literal>$exceptionCode</literal>。</entry>
+          </row>
+          <row>
+            <entry><literal>void setExpectedExceptionRegExp(string $exceptionName[, string $exceptionMessageRegExp = '', integer $exceptionCode = NULL])</literal></entry>
+            <entry>设定预期的 <literal>$exceptionName</literal>、<literal>$exceptionMessageRegExp</literal> 和 <literal>$exceptionCode</literal>。</entry>
+          </row>
+          <row>
+            <entry><literal>String getExpectedException()</literal></entry>
+            <entry>返回预期异常的名称。</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <para>可以用 <xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest4.php"/> 中所示方法来对异常进行测试。</para>
+
+    <example id="writing-tests-for-phpunit.exceptions.examples.ExceptionTest4.php">
+      <title>另一种对异常进行测试的方法</title>
+      <programlisting><![CDATA[<?php
+class ExceptionTest extends PHPUnit_Framework_TestCase {
+    public function testException() {
+        try {
+            // ... 预期会引发异常的代码 ...
+        }
+
+        catch (InvalidArgumentException $expected) {
+            return;
+        }
+
+        $this->fail('预期的异常未出现。');
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>当<xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest4.php"/> 中预期会引发异常的代码并没有引发异常时，后面对 <literal>fail()</literal> 的调用将会中止测试，并通告测试有问题。如果预期的异常出现了，将执行 <literal>catch</literal> 代码块，测试将会成功结束。</para>
+  </section>
+
+  <section id="writing-tests-for-phpunit.errors">
+    <title>对 PHP 错误进行测试</title>
+    <para>
+      <indexterm><primary>Error Handler （错误处理）</primary></indexterm>
+      <indexterm><primary>PHP Error （PHP 错误）</primary></indexterm>
+      <indexterm><primary>PHP Notice （PHP 通知）</primary></indexterm>
+      <indexterm><primary>PHP Warning （PHP 警告）</primary></indexterm>
+      <indexterm><primary>PHPUnit_Framework_Error</primary></indexterm>默认情况下，PHPUnit 将测试在执行中触发的 PHP 错误、警告、通知都转换为异常。利用这些异常，就可以，比如说，预期测试将触发 PHP 错误，如<xref linkend="writing-tests-for-phpunit.exceptions.examples.ErrorTest.php"/>所示。</para>
+
+    <note>
+      <para>PHP 的 <literal>error_reporting</literal> 运行时配置会对 PHPUnit 将哪些错误转换为异常有所限制。如果在这个特性上碰到问题，请确认 PHP 的配置中没有抑制想要测试的错误类型。</para>
+    </note>
+
+    <example id="writing-tests-for-phpunit.exceptions.examples.ErrorTest.php">
+      <title>用 @expectedException 来预期 PHP 错误</title>
+      <programlisting><![CDATA[<?php
+class ExpectedErrorTest extends PHPUnit_Framework_TestCase
+{
+    /**
+     * @expectedException PHPUnit_Framework_Error
+     */
+    public function testFailingInclude()
+    {
+        include 'not_existing_file.php';
+    }
+}
+?>]]></programlisting>
+      <screen><userinput>phpunit -d error_reporting=2 ExpectedErrorTest</userinput>
+PHPUnit 5.3.0 by Sebastian Bergmann and contributors.
+
+.
+
+Time: 0 seconds, Memory: 5.25Mb
+
+OK (1 test, 1 assertion)</screen>
+    </example>
+
+    <para>
+      <indexterm><primary>PHPUnit_Framework_Error_Notice</primary></indexterm>
+      <indexterm><primary>PHPUnit_Framework_Error_Warning</primary></indexterm>
+
+      <literal>PHPUnit_Framework_Error_Notice</literal> 和 <literal>PHPUnit_Framework_Error_Warning</literal> 分别代表 PHP 通知与 PHP 警告。</para>
+
+    <note>
+      <para>对异常进行测试是越明确越好的。对太笼统的类进行测试有可能导致不良副作用。因此，不再允许用 <literal>@expectedException</literal> 或 <literal>setExpectedException()</literal> 对 <literal>Exception</literal> 类进行测试。</para>
+    </note>
+
+    <para>如果测试依靠会触发错误的 PHP 函数，例如 <literal>fopen</literal> ，有时候在测试中使用错误抑制符会很有用。通过抑制住错误通知，就能对返回值进行检查，否则错误通知将会导致抛出 <literal>PHPUnit_Framework_Error_Notice</literal>。<example id="writing-tests-for-phpunit.exceptions.examples.TriggerErrorReturnValue.php">
+
+            <title>对会引发PHP 错误的代码的返回值进行测试</title>
+            <programlisting><![CDATA[<?php
+class ErrorSuppressionTest extends PHPUnit_Framework_TestCase
+{
+    public function testFileWriting() {
+        $writer = new FileWriter;
+        $this->assertFalse(@$writer->write('/is-not-writeable/file', 'stuff'));
+    }
+}
+class FileWriter
+{
+    public function write($file, $content) {
+        $file = fopen($file, 'w');
+        if($file == false) {
+            return false;
+        }
+        // ...
+    }
+}
+
+?>]]></programlisting>
+      <screen><userinput>phpunit ErrorSuppressionTest</userinput>
+PHPUnit 5.3.0 by Sebastian Bergmann and contributors.
+
+.
+
+Time: 1 seconds, Memory: 5.25Mb
+
+OK (1 test, 1 assertion)</screen>
+        </example>如果不使用错误抑制符，此测试将会失败，并报告 <literal>fopen(/is-not-writeable/file): failed to open stream: No such file or directory</literal>。</para>
+  </section>
+
+  <section id="writing-tests-for-phpunit.output">
+    <title>对输出进行测试</title>
+
+    <para>有时候，想要断言（比如说）某方法的运行过程中生成了预期的输出（例如，通过 <literal>echo</literal> 或 <literal>print</literal>）。<literal>PHPUnit_Framework_TestCase</literal> 类使用 PHP 的 <ulink url="http://www.php.net/manual/en/ref.outcontrol.php">输出缓冲</ulink> 特性来为此提供必要的功能支持。</para>
+
+    <para>
+      <xref linkend="writing-tests-for-phpunit.output.examples.OutputTest.php"/>展示了如何用 <literal>expectOutputString()</literal> 方法来设定所预期的输出。如果没有产生预期的输出，测试将计为失败。</para>
+
+    <example id="writing-tests-for-phpunit.output.examples.OutputTest.php">
+      <title>对函数或方法的输出进行测试</title>
+      <programlisting><![CDATA[<?php
+class OutputTest extends PHPUnit_Framework_TestCase
+{
+    public function testExpectFooActualFoo()
+    {
+        $this->expectOutputString('foo');
+        print 'foo';
+    }
+
+    public function testExpectBarActualBaz()
+    {
+        $this->expectOutputString('bar');
+        print 'baz';
+    }
+}
+?>]]></programlisting>
+      <screen><userinput>phpunit OutputTest</userinput>
+PHPUnit 5.3.0 by Sebastian Bergmann and contributors.
+
+.F
+
+Time: 0 seconds, Memory: 5.75Mb
+
+There was 1 failure:
+
+1) OutputTest::testExpectBarActualBaz
+Failed asserting that two strings are equal.
+--- Expected
++++ Actual
+@@ @@
+-'bar'
++'baz'
+
+
+FAILURES!
+Tests: 2, Assertions: 2, Failures: 1.</screen>
+    </example>
+
+    <para>
+      <xref linkend="writing-tests-for-phpunit.output.tables.api"/>中列举了用于对输出进行测试的各种方法。</para>
+
+    <table id="writing-tests-for-phpunit.output.tables.api">
+      <title>用于对输出进行测试的方法</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>方法</entry>
+            <entry>含义</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>void expectOutputRegex(string $regularExpression)</literal></entry>
+            <entry>设置输出预期为输出应当匹配正则表达式 <literal>$regularExpression</literal>。</entry>
+          </row>
+          <row>
+            <entry><literal>void expectOutputString(string $expectedString)</literal></entry>
+            <entry>设置输出预期为输出应当与 <literal>$expectedString</literal> 字符串相等。</entry>
+          </row>
+          <row>
+            <entry><literal>bool setOutputCallback(callable $callback)</literal></entry>
+            <entry>设置回调函数，用来做诸如将实际输出规范化之类的动作。</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <note>
+      <para>在严格模式下，本身产生输出的测试将会失败。</para>
+    </note>
+  </section>
+
+  <section id="writing-tests-for-phpunit.error-output">
+    <title>错误相关信息的输出</title>
+
+    <para>当有测试失败时，PHPUnit 全力提供尽可能多的有助于找出问题所在的上下文信息。</para>
+
+    <example id="writing-tests-for-phpunit.error-output.examples.ArrayDiffTest.php">
+      <title>数组比较失败时生成的错误相关信息输出</title>
+      <programlisting><![CDATA[<?php
+class ArrayDiffTest extends PHPUnit_Framework_TestCase
+{
+    public function testEquality() {
+        $this->assertEquals(
+            array(1,2,3 ,4,5,6),
+            array(1,2,33,4,5,6)
+        );
+    }
+}
+?>]]></programlisting>
+      <screen><userinput>phpunit ArrayDiffTest</userinput><![CDATA[
+PHPUnit 5.3.0 by Sebastian Bergmann and contributors.
+
+F
+
+Time: 0 seconds, Memory: 5.25Mb
+
+There was 1 failure:
+
+1) ArrayDiffTest::testEquality
+Failed asserting that two arrays are equal.
+--- Expected
++++ Actual
+@@ @@
+ Array (
+     0 => 1
+     1 => 2
+-    2 => 3
++    2 => 33
+     3 => 4
+     4 => 5
+     5 => 6
+ )
+
+/home/sb/ArrayDiffTest.php:7
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+    </example>
+    <para>在这个例子中，数组中只有一个值不同，但其他值也都同时显示出来，以提供关于错误发生的位置的上下文信息。</para>
+
+    <para>当生成的输出很长而难以阅读时，PHPUnit 将对其进行分割，并在每个差异附近提供少数几行上下文信息。</para>
+    <example id="writing-tests-for-phpunit.error-output.examples.LongArrayDiffTest.php">
+      <title>长数组比较失败时生成的错误相关信息输出</title>
+      <programlisting><![CDATA[<?php
+class LongArrayDiffTest extends PHPUnit_Framework_TestCase
+{
+    public function testEquality() {
+        $this->assertEquals(
+            array(0,0,0,0,0,0,0,0,0,0,0,0,1,2,3 ,4,5,6),
+            array(0,0,0,0,0,0,0,0,0,0,0,0,1,2,33,4,5,6)
+        );
+    }
+}
+?>]]></programlisting>
+      <screen><userinput>phpunit LongArrayDiffTest</userinput><![CDATA[
+PHPUnit 5.3.0 by Sebastian Bergmann and contributors.
+
+F
+
+Time: 0 seconds, Memory: 5.25Mb
+
+There was 1 failure:
+
+1) LongArrayDiffTest::testEquality
+Failed asserting that two arrays are equal.
+--- Expected
++++ Actual
+@@ @@
+     13 => 2
+-    14 => 3
++    14 => 33
+     15 => 4
+     16 => 5
+     17 => 6
+ )
+
+
+/home/sb/LongArrayDiffTest.php:7
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+    </example>
+    <section id="writing-tests-for-phpunit.error-output.edge-cases">
+      <title>边缘情况</title>
+
+      <para>当比较失败时，PHPUnit 为输入值建立文本表示，然后以此进行对比。这种实现导致在差异指示中显示出来的问题可能比实际上存在的多。</para>
+
+      <para>这种情况只出现在对数组或者对象使用 assertEquals 或其他“弱”比较函数时。</para>
+
+      <example id="writing-tests-for-phpunit.error-output.edge-cases.examples.ArrayWeakComparisonTest.php">
+        <title>当使用弱比较时在生成的差异结果中出现的边缘情况</title>
+        <programlisting><![CDATA[<?php
+class ArrayWeakComparisonTest extends PHPUnit_Framework_TestCase
+{
+    public function testEquality() {
+        $this->assertEquals(
+            array(1  ,2,3 ,4,5,6),
+            array('1',2,33,4,5,6)
+        );
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit ArrayWeakComparisonTest</userinput><![CDATA[
+PHPUnit 5.3.0 by Sebastian Bergmann and contributors.
+
+F
+
+Time: 0 seconds, Memory: 5.25Mb
+
+There was 1 failure:
+
+1) ArrayWeakComparisonTest::testEquality
+Failed asserting that two arrays are equal.
+--- Expected
++++ Actual
+@@ @@
+ Array (
+-    0 => 1
++    0 => '1'
+     1 => 2
+-    2 => 3
++    2 => 33
+     3 => 4
+     4 => 5
+     5 => 6
+ )
+
+
+/home/sb/ArrayWeakComparisonTest.php:7
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+
+      </example>
+      <para>在这个例子中，第一个索引项中的 <literal>1</literal> and <literal>'1'</literal> 在报告中被视为不同，虽然 assertEquals 认为这两个值是匹配的。</para>
+
+    </section>
+  </section>
+</chapter>
