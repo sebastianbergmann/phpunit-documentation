@@ -533,6 +533,7 @@ Tests: 4, Assertions: 8, Failures: 4.]]></screen>
     <para>当两个变量 <literal>$expected</literal> 和 <literal>$actual</literal> 不相等时报告错误，错误讯息由 <literal>$message</literal> 指定。</para>
     <para><literal>assertNotEquals()</literal> 是与之相反的断言，接受相同的参数。</para>
     <para><literal>assertAttributeEquals()</literal> 和 <literal>assertAttributeNotEquals()</literal> 是便捷包装(convenience wrapper)，以某个类或对象的某个 <literal>public</literal>、<literal>protected</literal> 或 <literal>private</literal> 属性作为实际值来进行比较。</para>
+    <para>值得注意的是，应用 <literal>assertEquals()</literal> 和 <literal>assertNotEquals()</literal> 时，如果其中一个变量是数值零（无论整数还是浮点数），另一个变量是字符串，那么会同时比较变量的类型（换言之，会用 <ulink url="http://php.net/manual/en/language.operators.comparison.php">=== 比较操作符</ulink>，而不是普通的 <literal>==</literal> 比较操作符）。在假定 <literal>0 == &quot;&quot;</literal> 为 true（根据 <ulink url="http://php.net/manual/en/language.types.type-juggling.php">自动类型转换</ulink>）的情况下使用 <literal>assertEquals()</literal> 或 <literal>assertNotEquals()</literal> 这可能会导致问题，因为事实上其判定结果为 false。</para>
     <example id="appendixes.assertions.assertEquals.example">
       <title>assertEquals() 的用法</title>
       <programlisting><![CDATA[<?php
@@ -551,6 +552,11 @@ class EqualsTest extends PHPUnit_Framework_TestCase
     public function testFailure3()
     {
         $this->assertEquals("foo\nbar\nbaz\n", "foo\nbah\nbaz\n");
+    }
+
+    public function testFailure4()
+    {
+        $this->assertEquals("", 0)
     }
 }
 ?>]]></programlisting>
@@ -591,8 +597,13 @@ Failed asserting that two strings are equal.
 
 /home/sb/EqualsTest.php:16
 
+4) EqualsTest::testFailure4
+Failed asserting that 0 matches expected ''.
+
+/home/sb/EqualsTest.php:21
+
 FAILURES!
-Tests: 3, Assertions: 3, Failures: 3.</screen>
+Tests: 4, Assertions: 4, Failures: 4.</screen>
     </example>
 
     <para>如果 <literal>$expected</literal> 和 <literal>$actual</literal> 是某些特定的类型，将使用更加专门的比较方式，参阅下文。</para>
