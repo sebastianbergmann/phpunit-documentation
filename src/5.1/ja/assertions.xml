@@ -534,6 +534,7 @@ Tests: 4, Assertions: 8, Failures: 4.]]></screen>
     <para>2 つの変数 <literal>$expected</literal> と <literal>$actual</literal> が等しくない場合にエラー <literal>$message</literal> を報告します。</para>
     <para><literal>assertNotEquals()</literal> はこのアサーションの逆で、同じ引数をとります。</para>
     <para><literal>assertAttributeEquals()</literal> と <literal>assertAttributeNotEquals()</literal> は便利なラッパーで、クラスやオブジェクトの <literal>public</literal>、<literal>protected</literal>、<literal>private</literal> 属性を実際の値として使用することができます。</para>
+    <para><literal>assertEquals()</literal> や <literal>assertNotEquals()</literal> を使うときに、一方の変数が integer や float など数値でもう一方の変数が文字列の場合は、値だけでなく型も比較されることに注意しましょう (つまり、<literal>==</literal> 演算子ではなく <ulink url="http://php.net/manual/ja/language.operators.comparison.php">=== 演算子</ulink> による比較が行われるということです)。たとえば <literal>0 == ""</literal> は (<ulink url="http://php.net/manual/ja/language.types.type-juggling.php">型の相互変換</ulink>によって) true となりますが、<literal>assertEquals()</literal> や <literal>assertNotEquals()</literal> を使う場合は false になります。</para>
     <example id="appendixes.assertions.assertEquals.example">
       <title>assertEquals() の使用法</title>
       <programlisting><![CDATA[<?php
@@ -552,6 +553,11 @@ class EqualsTest extends PHPUnit_Framework_TestCase
     public function testFailure3()
     {
         $this->assertEquals("foo\nbar\nbaz\n", "foo\nbah\nbaz\n");
+    }
+
+    public function testFailure4()
+    {
+        $this->assertEquals("", 0)
     }
 }
 ?>]]></programlisting>
@@ -592,8 +598,13 @@ Failed asserting that two strings are equal.
 
 /home/sb/EqualsTest.php:16
 
+4) EqualsTest::testFailure4
+Failed asserting that 0 matches expected ''.
+
+/home/sb/EqualsTest.php:21
+
 FAILURES!
-Tests: 3, Assertions: 3, Failures: 3.</screen>
+Tests: 4, Assertions: 4, Failures: 4.</screen>
     </example>
 
     <para>引数 <literal>$expected</literal> と <literal>$actual</literal> の型により特化した比較については、以下を参照ください。</para>
