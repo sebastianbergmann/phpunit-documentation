@@ -793,8 +793,7 @@ class CsvGuestbookTest extends PHPUnit_Extensions_Database_TestCase
       <section id="database.array-dataset">
         <title>Array DataSet</title>
         <para>
-          There is no Array based DataSet in PHPUnit's Database Extension
-          (yet), but we can implement our own easily. Our guestbook example
+          Also you can use Array based DataSet. Our guestbook example
           should look like:
         </para>
         <programlisting><![CDATA[<?php
@@ -802,7 +801,7 @@ class ArrayGuestbookTest extends PHPUnit_Extensions_Database_TestCase
 {
     protected function getDataSet()
     {
-        return new MyApp_DbUnit_ArrayDataSet(array(
+        return $this->createArrayDataSet(array(
             'guestbook' => array(
                 array('id' => 1, 'content' => 'Hello buddy!', 'user' => 'joe', 'created' => '2010-04-24 17:15:23'),
                 array('id' => 2, 'content' => 'I like it!',   'user' => null,  'created' => '2010-04-26 12:14:20'),
@@ -835,54 +834,6 @@ class ArrayGuestbookTest extends PHPUnit_Extensions_Database_TestCase
           <quote>content</quote>, <quote>user</quote> and
           <quote>created</quote>.
         </para>
-        <para>
-          The implementation for this Array DataSet is simple and
-          straightforward:
-        </para>
-        <programlisting><![CDATA[<?php
-class MyApp_DbUnit_ArrayDataSet extends PHPUnit_Extensions_Database_DataSet_AbstractDataSet
-{
-    /**
-     * @var array
-     */
-    protected $tables = array();
-
-    /**
-     * @param array $data
-     */
-    public function __construct(array $data)
-    {
-        foreach ($data AS $tableName => $rows) {
-            $columns = array();
-            if (isset($rows[0])) {
-                $columns = array_keys($rows[0]);
-            }
-
-            $metaData = new PHPUnit_Extensions_Database_DataSet_DefaultTableMetaData($tableName, $columns);
-            $table = new PHPUnit_Extensions_Database_DataSet_DefaultTable($metaData);
-
-            foreach ($rows AS $row) {
-                $table->addRow($row);
-            }
-            $this->tables[$tableName] = $table;
-        }
-    }
-
-    protected function createIterator($reverse = FALSE)
-    {
-        return new PHPUnit_Extensions_Database_DataSet_DefaultTableIterator($this->tables, $reverse);
-    }
-
-    public function getTable($tableName)
-    {
-        if (!isset($this->tables[$tableName])) {
-            throw new InvalidArgumentException("$tableName is not a table in the current database.");
-        }
-
-        return $this->tables[$tableName];
-    }
-}
-?>]]></programlisting>
       </section>
       <section id="database.query-sql-dataset">
         <title>Query (SQL) DataSet</title>
