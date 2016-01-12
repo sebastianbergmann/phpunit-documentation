@@ -560,15 +560,67 @@ Tests: 4, Assertions: 4, Failures: 1.
     <title>Testing Exceptions</title>
 
     <para>
-      <indexterm><primary>Annotation</primary></indexterm>
-      <indexterm><primary>@expectedException</primary></indexterm>
+      <indexterm><primary>Exception</primary></indexterm>
+      <indexterm><primary>expectException()</primary></indexterm>
 
       <xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest.php" />
-      shows how to use the <literal>@expectedException</literal> annotation to
-      test whether an exception is thrown inside the tested code.
+      shows how to use the <literal>expectException()</literal> method to test
+      whether an exception is thrown by the code under test.
     </para>
 
     <example id="writing-tests-for-phpunit.exceptions.examples.ExceptionTest.php">
+      <title>Using the expectException() method</title>
+      <programlisting><![CDATA[<?php
+class ExceptionTest extends PHPUnit_Framework_TestCase
+{
+    public function testException()
+    {
+        $this->expectException(InvalidArgumentException::class);
+    }
+}
+?>]]></programlisting>
+      <screen><userinput>phpunit ExceptionTest</userinput>
+PHPUnit 5.2.0 by Sebastian Bergmann and contributors.
+
+F
+
+Time: 0 seconds, Memory: 4.75Mb
+
+There was 1 failure:
+
+1) ExceptionTest::testException
+Expected exception InvalidArgumentException
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.</screen>
+    </example>
+
+    <para>
+      <indexterm><primary>expectExceptionCode()</primary></indexterm>
+      <indexterm><primary>expectExceptionMessage()</primary></indexterm>
+      <indexterm><primary>expectExceptionMessageRegExp()</primary></indexterm>
+
+      In addition to the <literal>expectException()</literal> method the
+      <literal>expectExceptionCode()</literal>,
+      <literal>expectExceptionMessage()</literal>, and
+      <literal>expectExceptionMessageRegExp()</literal> methods exist to set up
+      expectations for exceptions raised by the code under test.
+    </para>
+
+    <para>
+      <indexterm><primary>Annotation</primary></indexterm>
+      <indexterm><primary>@expectedException</primary></indexterm>
+
+      Alternatively, you can use the <literal>@expectedException</literal>,
+      <literal>@expectedExceptionCode</literal>,
+      <literal>@expectedExceptionMessage</literal>, and
+      <literal>@expectedExceptionMessageRegExp</literal> annotations to set up
+      expectations for exceptions raised by the code under test.
+      <xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest2.php" />
+      shows an example.
+    </para>
+
+    <example id="writing-tests-for-phpunit.exceptions.examples.ExceptionTest2.php">
       <title>Using the @expectedException annotation</title>
       <programlisting><![CDATA[<?php
 class ExceptionTest extends PHPUnit_Framework_TestCase
@@ -593,228 +645,9 @@ There was 1 failure:
 1) ExceptionTest::testException
 Expected exception InvalidArgumentException
 
-
 FAILURES!
 Tests: 1, Assertions: 1, Failures: 1.</screen>
     </example>
-
-    <para>
-      <indexterm><primary>Annotation</primary></indexterm>
-      <indexterm><primary>@expectedException</primary></indexterm>
-      <indexterm><primary>@expectedExceptionMessage</primary></indexterm>
-      <indexterm><primary>@expectedExceptionMessageRegExp</primary></indexterm>
-      <indexterm><primary>@expectedExceptionCode</primary></indexterm>
-
-      Additionally, you can use <literal>@expectedExceptionMessage</literal>,
-      <literal>@expectedExceptionMessageRegExp</literal> and
-      <literal>@expectedExceptionCode</literal> in combination with
-      <literal>@expectedException</literal> to test the exception message and
-      exception code as shown in
-      <xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest2.php" />.
-    </para>
-
-    <example id="writing-tests-for-phpunit.exceptions.examples.ExceptionTest2.php">
-      <title>
-        Using the <literal>@expectedExceptionMessage</literal>,
-        <literal>@expectedExceptionMessageRegExp</literal> and
-        <literal>@expectedExceptionCode</literal> annotations
-      </title>
-      <programlisting><![CDATA[<?php
-class ExceptionTest extends PHPUnit_Framework_TestCase
-{
-    /**
-     * @expectedException        InvalidArgumentException
-     * @expectedExceptionMessage Right Message
-     */
-    public function testExceptionHasRightMessage()
-    {
-        throw new InvalidArgumentException('Some Message', 10);
-    }
-
-    /**
-     * @expectedException              InvalidArgumentException
-     * @expectedExceptionMessageRegExp #Right.*#
-     */
-    public function testExceptionMessageMatchesRegExp()
-    {
-        throw new InvalidArgumentException('Some Message', 10);
-    }
-
-    /**
-     * @expectedException     InvalidArgumentException
-     * @expectedExceptionCode 20
-     */
-    public function testExceptionHasRightCode()
-    {
-        throw new InvalidArgumentException('Some Message', 10);
-    }
-}
-?>]]></programlisting>
-      <screen><userinput>phpunit ExceptionTest</userinput><![CDATA[
-PHPUnit 5.2.0 by Sebastian Bergmann and contributors.
-
-FFF
-
-Time: 0 seconds, Memory: 3.00Mb
-
-There were 3 failures:
-
-1) ExceptionTest::testExceptionHasRightMessage
-Failed asserting that exception message 'Some Message' contains 'Right Message'.
-
-2) ExceptionTest::testExceptionMessageMatchesRegExp
-Failed asserting that exception message 'Some Message' matches '#Right.*#'.
-
-3) ExceptionTest::testExceptionHasRightCode
-Failed asserting that expected exception code 20 is equal to 10.
-
-
-FAILURES!
-Tests: 3, Assertions: 6, Failures: 3.]]></screen>
-    </example>
-
-    <para>
-      More examples of <literal>@expectedExceptionMessage</literal>,
-      <literal>@expectedExceptionMessageRegExp</literal> and
-      <literal>@expectedExceptionCode</literal> are shown in
-      <xref linkend="appendixes.annotations.expectedExceptionMessage"/>,
-      <xref linkend="appendixes.annotations.expectedExceptionMessageRegExp"/> and
-      <xref linkend="appendixes.annotations.expectedExceptionCode"/> respectively.
-    </para>
-
-
-    <para>
-      Alternatively, you can use <literal>setExpectedException()</literal> or
-      <literal>setExpectedExceptionRegExp()</literal> to set the expected
-      exception as shown in <xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest3.php" />.
-    </para>
-
-    <example id="writing-tests-for-phpunit.exceptions.examples.ExceptionTest3.php">
-      <title>Expecting an exception to be raised by the tested code</title>
-      <programlisting><![CDATA[<?php
-class ExceptionTest extends PHPUnit_Framework_TestCase
-{
-    public function testException()
-    {
-        $this->setExpectedException('InvalidArgumentException');
-    }
-
-    public function testExceptionHasRightMessage()
-    {
-        $this->setExpectedException(
-          'InvalidArgumentException', 'Right Message'
-        );
-        throw new InvalidArgumentException('Some Message', 10);
-    }
-
-    public function testExceptionMessageMatchesRegExp()
-    {
-        $this->setExpectedExceptionRegExp(
-          'InvalidArgumentException', '/Right.*/', 10
-        );
-        throw new InvalidArgumentException('The Wrong Message', 10);
-    }
-
-    public function testExceptionHasRightCode()
-    {
-        $this->setExpectedException(
-          'InvalidArgumentException', 'Right Message', 20
-        );
-        throw new InvalidArgumentException('The Right Message', 10);
-    }
-}
-?>]]></programlisting>
-      <screen><userinput>phpunit ExceptionTest</userinput><![CDATA[
-PHPUnit 5.2.0 by Sebastian Bergmann and contributors.
-
-FFFF
-
-Time: 0 seconds, Memory: 3.00Mb
-
-There were 4 failures:
-
-1) ExceptionTest::testException
-Expected exception InvalidArgumentException
-
-2) ExceptionTest::testExceptionHasRightMessage
-Failed asserting that exception message 'Some Message' contains 'Right Message'.
-
-3) ExceptionTest::testExceptionMessageMatchesRegExp
-Failed asserting that exception message 'The Wrong Message' contains '/Right.*/'.
-
-4) ExceptionTest::testExceptionHasRightCode
-Failed asserting that expected exception code 20 is equal to 10.
-
-
-FAILURES!
-Tests: 4, Assertions: 8, Failures: 4.]]></screen>
-    </example>
-
-    <para>
-      <xref linkend="writing-tests-for-phpunit.exceptions.tables.api" />
-      shows the methods provided for testing exceptions.
-    </para>
-
-    <table id="writing-tests-for-phpunit.exceptions.tables.api">
-      <title>Methods for testing exceptions</title>
-
-      <tgroup cols="2" align="left" colsep="1" rowsep="1">
-        <thead>
-          <row>
-            <entry>Method</entry>
-            <entry>Meaning</entry>
-          </row>
-        </thead>
-        <tbody>
-          <row>
-            <entry><literal>void setExpectedException(string $exceptionName[, string $exceptionMessage = '', integer $exceptionCode = NULL])</literal></entry>
-            <entry>Set the expected <literal>$exceptionName</literal>, <literal>$exceptionMessage</literal>, and <literal>$exceptionCode</literal>.</entry>
-          </row>
-          <row>
-            <entry><literal>void setExpectedExceptionRegExp(string $exceptionName[, string $exceptionMessageRegExp = '', integer $exceptionCode = NULL])</literal></entry>
-            <entry>Set the expected <literal>$exceptionName</literal>, <literal>$exceptionMessageRegExp</literal>, and <literal>$exceptionCode</literal>.</entry>
-          </row>
-          <row>
-            <entry><literal>String getExpectedException()</literal></entry>
-            <entry>Return the name of the expected exception.</entry>
-          </row>
-        </tbody>
-      </tgroup>
-    </table>
-
-    <para>
-      You can also use the approach shown in
-      <xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest4.php" />
-      to test exceptions.
-    </para>
-
-    <example id="writing-tests-for-phpunit.exceptions.examples.ExceptionTest4.php">
-      <title>Alternative approach to testing exceptions</title>
-      <programlisting><![CDATA[<?php
-class ExceptionTest extends PHPUnit_Framework_TestCase {
-    public function testException() {
-        try {
-            // ... Code that is expected to raise an exception ...
-        }
-
-        catch (InvalidArgumentException $expected) {
-            return;
-        }
-
-        $this->fail('An expected exception has not been raised.');
-    }
-}
-?>]]></programlisting>
-    </example>
-
-    <para>
-      If the code that is expected to raise an exception in <xref
-      linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest4.php" />
-      does not raise the expected exception, the subsequent call to
-      <literal>fail()</literal> will halt the test and signal a problem with the
-      test. If the expected exception is raised, the <literal>catch</literal>
-      block will be executed, and the test will end successfully.
-    </para>
   </section>
 
   <section id="writing-tests-for-phpunit.errors">
