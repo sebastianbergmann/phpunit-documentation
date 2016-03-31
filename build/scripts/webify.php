@@ -20,17 +20,16 @@ function webify_directory($directory, $language, $version)
     );
 
     $editions  = array(
-      'en'    => array('5.4', '5.3', '5.2', '4.8'),
+      'en'    => array('5.4', '5.3', '4.8'),
       //'fr'    => array('4.2', '4.1'),
-      'ja'    => array('5.4', '5.3', '5.2', '4.8'),
-      'pt_br' => array('5.4', '5.3', '5.2', '4.8'),
-      'zh_cn' => array('5.4', '5.3', '5.2', '4.8')
+      'ja'    => array('5.4', '5.3', '4.8'),
+      'pt_br' => array('5.4', '5.3', '4.8'),
+      'zh_cn' => array('5.4', '5.3', '4.8')
     );
 
     $old          = '4.8';
-    $stable       = '5.2';
-    $beta         = '5.3';
-    $alpha        = '5.4';
+    $stable       = '5.3';
+    $beta         = '5.4';
     $languageList = '';
     $versionList  = '';
 
@@ -90,10 +89,6 @@ function webify_directory($directory, $language, $version)
 
         if ($_version == $beta) {
             $type = 'beta';
-        }
-
-        if ($_version == $alpha) {
-            $type = 'alpha';
         }
 
         $versionList .= sprintf(
