@@ -127,7 +127,7 @@ class StubTest extends PHPUnit_Framework_TestCase
     public function testStub()
     {
         // Create a stub for the SomeClass class.
-        $stub = $this->getMockBuilder('SomeClass')
+        $stub = $this->getMockBuilder(SomeClass::class)
                      ->getMock();
 
         // Configure the stub.
@@ -180,7 +180,7 @@ class StubTest extends PHPUnit_Framework_TestCase
     public function testStub()
     {
         // Create a stub for the SomeClass class.
-        $stub = $this->getMockBuilder('SomeClass')
+        $stub = $this->getMockBuilder(SomeClass::class)
                      ->disableOriginalConstructor()
                      ->getMock();
 
@@ -238,7 +238,7 @@ class StubTest extends PHPUnit_Framework_TestCase
     public function testReturnArgumentStub()
     {
         // Create a stub for the SomeClass class.
-        $stub = $this->getMockBuilder('SomeClass')
+        $stub = $this->getMockBuilder(SomeClass::class)
                      ->getMock();
 
         // Configure the stub.
@@ -276,7 +276,7 @@ class StubTest extends PHPUnit_Framework_TestCase
     public function testReturnSelf()
     {
         // Create a stub for the SomeClass class.
-        $stub = $this->getMockBuilder('SomeClass')
+        $stub = $this->getMockBuilder(SomeClass::class)
                      ->getMock();
 
         // Configure the stub.
@@ -313,7 +313,7 @@ class StubTest extends PHPUnit_Framework_TestCase
     public function testReturnValueMapStub()
     {
         // Create a stub for the SomeClass class.
-        $stub = $this->getMockBuilder('SomeClass')
+        $stub = $this->getMockBuilder(SomeClass::class)
                      ->getMock();
 
         // Create a map of arguments to return values.
@@ -358,7 +358,7 @@ class StubTest extends PHPUnit_Framework_TestCase
     public function testReturnCallbackStub()
     {
         // Create a stub for the SomeClass class.
-        $stub = $this->getMockBuilder('SomeClass')
+        $stub = $this->getMockBuilder(SomeClass::class)
                      ->getMock();
 
         // Configure the stub.
@@ -395,7 +395,7 @@ class StubTest extends PHPUnit_Framework_TestCase
     public function testOnConsecutiveCallsStub()
     {
         // Create a stub for the SomeClass class.
-        $stub = $this->getMockBuilder('SomeClass')
+        $stub = $this->getMockBuilder(SomeClass::class)
                      ->getMock();
 
         // Configure the stub.
@@ -432,7 +432,7 @@ class StubTest extends PHPUnit_Framework_TestCase
     public function testThrowExceptionStub()
     {
         // Create a stub for the SomeClass class.
-        $stub = $this->getMockBuilder('SomeClass')
+        $stub = $this->getMockBuilder(SomeClass::class)
                      ->getMock();
 
         // Configure the stub.
@@ -606,7 +606,7 @@ class SubjectTest extends PHPUnit_Framework_TestCase
     {
         // Create a mock for the Observer class,
         // only mock the update() method.
-        $observer = $this->getMockBuilder('Observer')
+        $observer = $this->getMockBuilder(Observer::class)
                          ->setMethods(array('update'))
                          ->getMock();
 
@@ -648,7 +648,7 @@ class SubjectTest extends PHPUnit_Framework_TestCase
     {
         // Create a mock for the Observer class, mocking the
         // reportError() method
-        $observer = $this->getMockBuilder('Observer')
+        $observer = $this->getMockBuilder(Observer::class)
                          ->setMethods(array('reportError'))
                          ->getMock();
 
@@ -685,7 +685,7 @@ class FooTest extends PHPUnit_Framework_TestCase
 {
     public function testFunctionCalledTwoTimesWithSpecificArguments()
     {
-        $mock = $this->getMockBuilder('stdClass')
+        $mock = $this->getMockBuilder(stdClass::class)
                      ->setMethods(array('set'))
                      ->getMock();
 
@@ -720,7 +720,7 @@ class SubjectTest extends PHPUnit_Framework_TestCase
     {
         // Create a mock for the Observer class, mocking the
         // reportError() method
-        $observer = $this->getMockBuilder('Observer')
+        $observer = $this->getMockBuilder(Observer::class)
                          ->setMethods(array('reportError'))
                          ->getMock();
 
@@ -753,7 +753,7 @@ class FooTest extends PHPUnit_Framework_TestCase
     {
         $expectedObject = new stdClass;
 
-        $mock = $this->getMockBuilder('stdClass')
+        $mock = $this->getMockBuilder(stdClass::class)
                      ->setMethods(array('foo'))
                      ->getMock();
 
@@ -776,7 +776,7 @@ class FooTest extends PHPUnit_Framework_TestCase
     {
         $cloneArguments = true;
 
-        $mock = $this->getMockBuilder('stdClass')
+        $mock = $this->getMockBuilder(stdClass::class)
                      ->enableArgumentCloning()
                      ->getMock();
 
@@ -874,7 +874,7 @@ class SubjectTest extends PHPUnit_Framework_TestCase
         $subject = new Subject('My subject');
 
         // Create a prophecy for the Observer class.
-        $observer = $this->prophesize('Observer');
+        $observer = $this->prophesize(Observer::class);
 
         // Set up the expectation for the update() method
         // to be called only once and with the string 'something'
@@ -929,7 +929,7 @@ class TraitClassTest extends PHPUnit_Framework_TestCase
 {
     public function testConcreteMethod()
     {
-        $mock = $this->getMockForTrait('AbstractTrait');
+        $mock = $this->getMockForTrait(AbstractTrait::class);
 
         $mock->expects($this->any())
              ->method('abstractMethod')
@@ -967,7 +967,7 @@ class AbstractClassTest extends PHPUnit_Framework_TestCase
 {
     public function testConcreteMethod()
     {
-        $stub = $this->getMockForAbstractClass('AbstractClass');
+        $stub = $this->getMockForAbstractClass(AbstractClass::class);
 
         $stub->expects($this->any())
              ->method('abstractMethod')
