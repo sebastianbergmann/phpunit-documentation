@@ -147,7 +147,7 @@ class StubTest extends PHPUnit_Framework_TestCase
     public function testStub()
     {
         // SomeClass クラスのスタブを作成します
-        $stub = $this->getMockBuilder('SomeClass')
+        $stub = $this->getMockBuilder(SomeClass::class)
                      ->getMock();
 
         // スタブの設定を行います
@@ -198,7 +198,7 @@ class StubTest extends PHPUnit_Framework_TestCase
     public function testStub()
     {
         // SomeClass クラスのスタブを作成します
-        $stub = $this->getMockBuilder('SomeClass')
+        $stub = $this->getMockBuilder(SomeClass::class)
                      ->disableOriginalConstructor()
                      ->getMock();
 
@@ -257,7 +257,7 @@ class StubTest extends PHPUnit_Framework_TestCase
     public function testReturnArgumentStub()
     {
         // SomeClass クラスのスタブを作成します
-        $stub = $this->getMockBuilder('SomeClass')
+        $stub = $this->getMockBuilder(SomeClass::class)
                      ->getMock();
 
         // スタブの設定を行います
@@ -295,7 +295,7 @@ class StubTest extends PHPUnit_Framework_TestCase
     public function testReturnSelf()
     {
         // SomeClass クラスのスタブを作成します
-        $stub = $this->getMockBuilder('SomeClass')
+        $stub = $this->getMockBuilder(SomeClass::class)
                      ->getMock();
 
         // スタブの設定を行います
@@ -331,7 +331,7 @@ class StubTest extends PHPUnit_Framework_TestCase
     public function testReturnValueMapStub()
     {
         // SomeClass クラスのスタブを作成します
-        $stub = $this->getMockBuilder('SomeClass')
+        $stub = $this->getMockBuilder(SomeClass::class)
                      ->getMock();
 
         // 値を返すための、引数のマップを作製します
@@ -377,7 +377,7 @@ class StubTest extends PHPUnit_Framework_TestCase
     public function testReturnCallbackStub()
     {
         // SomeClass クラスのスタブを作成します
-        $stub = $this->getMockBuilder('SomeClass')
+        $stub = $this->getMockBuilder(SomeClass::class)
                      ->getMock();
 
         // スタブの設定を行います
@@ -413,7 +413,7 @@ class StubTest extends PHPUnit_Framework_TestCase
     public function testOnConsecutiveCallsStub()
     {
         // SomeClass クラスのスタブを作成します
-        $stub = $this->getMockBuilder('SomeClass')
+        $stub = $this->getMockBuilder(SomeClass::class)
                      ->getMock();
 
         // スタブの設定を行います
@@ -450,7 +450,7 @@ class StubTest extends PHPUnit_Framework_TestCase
     public function testThrowExceptionStub()
     {
         // SomeClass クラスのスタブを作成します
-        $stub = $this->getMockBuilder('SomeClass')
+        $stub = $this->getMockBuilder(SomeClass::class)
                      ->getMock();
 
         // スタブの設定を行います
@@ -627,7 +627,7 @@ class SubjectTest extends PHPUnit_Framework_TestCase
     {
         // Observer クラスのモックを作成します。
         // update() メソッドのみのモックです。
-        $observer = $this->getMockBuilder('Observer')
+        $observer = $this->getMockBuilder(Observer::class)
                          ->setMethods(array('update'))
                          ->getMock();
 
@@ -667,7 +667,7 @@ class SubjectTest extends PHPUnit_Framework_TestCase
     {
         // Observer クラスのモックを作成します。
         // reportError() メソッドをモックします。
-        $observer = $this->getMockBuilder('Observer')
+        $observer = $this->getMockBuilder(Observer::class)
                          ->setMethods(array('reportError'))
                          ->getMock();
 
@@ -704,7 +704,7 @@ class FooTest extends PHPUnit_Framework_TestCase
 {
     public function testFunctionCalledTwoTimesWithSpecificArguments()
     {
-        $mock = $this->getMockBuilder('stdClass')
+        $mock = $this->getMockBuilder(stdClass::class)
                      ->setMethods(array('set'))
                      ->getMock();
 
@@ -738,7 +738,7 @@ class SubjectTest extends PHPUnit_Framework_TestCase
     {
         // Observer クラスのモックを作成します。
         // reportError() メソッドをモックします。
-        $observer = $this->getMockBuilder('Observer')
+        $observer = $this->getMockBuilder(Observer::class)
                          ->setMethods(array('reportError'))
                          ->getMock();
 
@@ -771,7 +771,7 @@ class FooTest extends PHPUnit_Framework_TestCase
     {
         $expectedObject = new stdClass;
 
-        $mock = $this->getMockBuilder('stdClass')
+        $mock = $this->getMockBuilder(stdClass::class)
                      ->setMethods(array('foo'))
                      ->getMock();
 
@@ -794,7 +794,7 @@ class FooTest extends PHPUnit_Framework_TestCase
     {
         $cloneArguments = true;
 
-        $mock = $this->getMockBuilder('stdClass')
+        $mock = $this->getMockBuilder(stdClass::class)
                      ->enableArgumentCloning()
                      ->getMock();
 
@@ -890,7 +890,7 @@ class SubjectTest extends PHPUnit_Framework_TestCase
         $subject = new Subject('My subject');
 
         // Observer クラスの prophecy を作成します。
-        $observer = $this->prophesize('Observer');
+        $observer = $this->prophesize(Observer::class);
 
         // update() メソッドが一度だけコールされ、その際の
         // パラメータは文字列 'something' となる、
@@ -944,7 +944,7 @@ class TraitClassTest extends PHPUnit_Framework_TestCase
 {
     public function testConcreteMethod()
     {
-        $mock = $this->getMockForTrait('AbstractTrait');
+        $mock = $this->getMockForTrait(AbstractTrait::class);
 
         $mock->expects($this->any())
              ->method('abstractMethod')
@@ -982,7 +982,7 @@ class AbstractClassTest extends PHPUnit_Framework_TestCase
 {
     public function testConcreteMethod()
     {
-        $stub = $this->getMockForAbstractClass('AbstractClass');
+        $stub = $this->getMockForAbstractClass(AbstractClass::class);
 
         $stub->expects($this->any())
              ->method('abstractMethod')
