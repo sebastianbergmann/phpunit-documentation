@@ -52,9 +52,19 @@
   </blockquote>
 
   <para>
-    PHPUnit の <literal>getMockBuilder($type)</literal> メソッドを使うと、
+    PHPUnit の <literal>createMock($type)</literal> メソッドや <literal>getMockBuilder($type)</literal> メソッドを使うと、
     指定した元インターフェイス (あるいは元クラス) のテストダブルとして振る舞うオブジェクトを自動的に生成することができます。
     このテストダブルオブジェクトは、元のオブジェクトを要するすべての場面で使うことができます。
+  </para>
+
+  <para>
+    <literal>createMock($type)</literal> メソッドは、指定した型 (インターフェイスやクラス)
+    のテストダブルオブジェクトをその場で返します。
+    テストダブルの作成は、デフォルトではベストプラクティスに沿って行われます
+    (元クラスの <literal>__construct()</literal> や <literal>__clone()</literal>
+    は実行せず、テストダブルのメソッドに渡された引数はクローンされません)。
+    デフォルトと異なる挙動を求める場合は、
+    <literal>getMockBuilder($type)</literal> メソッドを用いてテストダブルの生成処理をカスタマイズする必要があります。
   </para>
 
   <para>
@@ -74,18 +84,6 @@
       PHPUnit のテストダブル機能ではこれらを無視し、元のメソッドの振る舞いをそのまま維持します。
     </para>
   </note>
-
-  <warning>
-    <title>警告</title>
-
-    <para>
-        パラメータの管理方法が変わったことに気をつけましょう。
-        以前の実装ではオブジェクトのすべてのパラメータをクローンしており、
-        あるメソッドに渡されたオブジェクトが同じものであるかどうかを確かめることができませんでした。
-        <xref linkend="test-doubles.mock-objects.examples.clone-object-parameters-usecase.php" /> に、新しい実装の活用例を示します。
-        <xref linkend="test-doubles.mock-objects.examples.enable-clone-object-parameters.php" /> に、以前の挙動に戻す方法を示します。
-    </para>
-  </warning>
 
   <section id="test-doubles.stubs">
     <title>スタブ</title>
@@ -108,7 +106,7 @@
       <xref linkend="test-doubles.stubs.examples.StubTest.php" />
       に、スタブメソッドの作成と返り値の設定の方法を示します。まず、
       <literal>PHPUnit_Framework_TestCase</literal> クラスの
-      <literal>getMockBuilder()</literal> メソッドを用いて
+      <literal>createMock()</literal> メソッドを用いて
       <literal>SomeClass</literal> オブジェクトのスタブを作成します
       (<xref linkend="test-doubles.stubs.examples.SomeClass.php" />)。
       次に、PHPUnit が提供する、いわゆる
@@ -135,7 +133,7 @@ class SomeClass
     </example>
 
     <example id="test-doubles.stubs.examples.StubTest.php">
-      <indexterm><primary>getMockBuilder()</primary></indexterm>
+      <indexterm><primary>createMock()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
       <indexterm><primary>willReturn()</primary></indexterm>
       <title>メソッドに固定値を返させるスタブ</title>
@@ -145,8 +143,7 @@ class StubTest extends PHPUnit_Framework_TestCase
     public function testStub()
     {
         // SomeClass クラスのスタブを作成します
-        $stub = $this->getMockBuilder(SomeClass::class)
-                     ->getMock();
+        $stub = $this->createMock(SomeClass::class);
 
         // スタブの設定を行います
         $stub->method('doSomething')
@@ -174,7 +171,7 @@ class StubTest extends PHPUnit_Framework_TestCase
     </note>
 
     <para>
-      舞台裏では、<literal>getMock()</literal> メソッドが使われたときに
+      舞台裏では、<literal>createMock()</literal> メソッドが使われたときに
       PHPUnit が自動的に、求める振る舞いを実装した新たな PHP のクラスを生成しています。
     </para>
 
@@ -184,7 +181,7 @@ class StubTest extends PHPUnit_Framework_TestCase
     </para>
 
     <example id="test-doubles.stubs.examples.StubTest2.php">
-      <indexterm><primary>getMockBuilder()</primary></indexterm>
+      <indexterm><primary>createMock()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
       <indexterm><primary>willReturn()</primary></indexterm>
       <title>モックビルダー API を使った、生成されるテストダブルクラスの変更</title>
@@ -194,9 +191,7 @@ class StubTest extends PHPUnit_Framework_TestCase
     public function testStub()
     {
         // SomeClass クラスのスタブを作成します
-        $stub = $this->getMockBuilder(SomeClass::class)
-                     ->disableOriginalConstructor()
-                     ->getMock();
+        $stub = $this->createMock(SomeClass::class);
 
         // スタブの設定を行います
         $stub->method('doSomething')
@@ -209,19 +204,6 @@ class StubTest extends PHPUnit_Framework_TestCase
 }
 ?>]]></programlisting>
     </example>
-
-    <para>
-      モックビルダーが提供するメソッドの一覧は、次のとおりです。
-    </para>
-
-    <itemizedlist>
-      <listitem><para><literal>setMethods(array $methods)</literal> をモックビルダーオブジェクト上でコールすると、テストダブルで置き換えるメソッドを指定することができます。その他のメソッドの挙動は変更しません。<literal>setMethods(NULL)</literal> とすると、どのメソッドも置き換えません。</para></listitem>
-      <listitem><para><literal>setConstructorArgs(array $args)</literal> をコールしてパラメータの配列を渡すと、それを元クラスのコンストラクタに渡すことができます (デフォルトのダミー実装では、コンストラクタは置き換えません)。</para></listitem>
-      <listitem><para><literal>setMockClassName($name)</literal> を使うと、生成されるテストダブルクラスのクラス名を指定することができます。</para></listitem>
-      <listitem><para><literal>disableOriginalConstructor()</literal> を使うと、元クラスのコンストラクタを無効にすることができます。</para></listitem>
-      <listitem><para><literal>disableOriginalClone()</literal> を使うと、元クラスのクローンコンストラクタを無効にすることができます。</para></listitem>
-      <listitem><para><literal>disableAutoload()</literal> を使うと、テストダブルクラスを生成するときに <literal>__autoload()</literal> を無効にすることができます。</para></listitem>
-    </itemizedlist>
 
     <para>
       ここまでの例では、
@@ -240,7 +222,7 @@ class StubTest extends PHPUnit_Framework_TestCase
     </para>
 
     <example id="test-doubles.stubs.examples.StubTest3.php">
-      <indexterm><primary>getMock()</primary></indexterm>
+      <indexterm><primary>createMock()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
       <indexterm><primary>will()</primary></indexterm>
       <indexterm><primary>returnArgument()</primary></indexterm>
@@ -251,8 +233,7 @@ class StubTest extends PHPUnit_Framework_TestCase
     public function testReturnArgumentStub()
     {
         // SomeClass クラスのスタブを作成します
-        $stub = $this->getMockBuilder(SomeClass::class)
-                     ->getMock();
+        $stub = $this->createMock(SomeClass::class);
 
         // スタブの設定を行います
         $stub->method('doSomething')
@@ -276,7 +257,7 @@ class StubTest extends PHPUnit_Framework_TestCase
     </para>
 
     <example id="test-doubles.stubs.examples.StubTest4.php">
-      <indexterm><primary>getMock()</primary></indexterm>
+      <indexterm><primary>createMock()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
       <indexterm><primary>will()</primary></indexterm>
       <indexterm><primary>returnSelf()</primary></indexterm>
@@ -287,8 +268,7 @@ class StubTest extends PHPUnit_Framework_TestCase
     public function testReturnSelf()
     {
         // SomeClass クラスのスタブを作成します
-        $stub = $this->getMockBuilder(SomeClass::class)
-                     ->getMock();
+        $stub = $this->createMock(SomeClass::class);
 
         // スタブの設定を行います
         $stub->method('doSomething')
@@ -310,7 +290,7 @@ class StubTest extends PHPUnit_Framework_TestCase
     </para>
 
     <example id="test-doubles.stubs.examples.StubTest5.php">
-      <indexterm><primary>getMock()</primary></indexterm>
+      <indexterm><primary>createMock()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
       <indexterm><primary>will()</primary></indexterm>
       <indexterm><primary>returnValueMap()</primary></indexterm>
@@ -321,8 +301,7 @@ class StubTest extends PHPUnit_Framework_TestCase
     public function testReturnValueMapStub()
     {
         // SomeClass クラスのスタブを作成します
-        $stub = $this->getMockBuilder(SomeClass::class)
-                     ->getMock();
+        $stub = $this->createMock(SomeClass::class);
 
         // 値を返すための、引数のマップを作製します
         $map = array(
@@ -354,7 +333,7 @@ class StubTest extends PHPUnit_Framework_TestCase
     </para>
 
     <example id="test-doubles.stubs.examples.StubTest6.php">
-      <indexterm><primary>getMock()</primary></indexterm>
+      <indexterm><primary>createMock()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
       <indexterm><primary>will()</primary></indexterm>
       <indexterm><primary>returnCallback()</primary></indexterm>
@@ -365,8 +344,7 @@ class StubTest extends PHPUnit_Framework_TestCase
     public function testReturnCallbackStub()
     {
         // SomeClass クラスのスタブを作成します
-        $stub = $this->getMockBuilder(SomeClass::class)
-                     ->getMock();
+        $stub = $this->createMock(SomeClass::class);
 
         // スタブの設定を行います
         $stub->method('doSomething')
@@ -388,7 +366,7 @@ class StubTest extends PHPUnit_Framework_TestCase
     </para>
 
     <example id="test-doubles.stubs.examples.StubTest7.php">
-      <indexterm><primary>getMock()</primary></indexterm>
+      <indexterm><primary>createMock()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
       <indexterm><primary>will()</primary></indexterm>
       <indexterm><primary>onConsecutiveCalls()</primary></indexterm>
@@ -399,8 +377,7 @@ class StubTest extends PHPUnit_Framework_TestCase
     public function testOnConsecutiveCallsStub()
     {
         // SomeClass クラスのスタブを作成します
-        $stub = $this->getMockBuilder(SomeClass::class)
-                     ->getMock();
+        $stub = $this->createMock(SomeClass::class);
 
         // スタブの設定を行います
         $stub->method('doSomething')
@@ -423,7 +400,7 @@ class StubTest extends PHPUnit_Framework_TestCase
     </para>
 
     <example id="test-doubles.stubs.examples.StubTest8.php">
-      <indexterm><primary>getMock()</primary></indexterm>
+      <indexterm><primary>createMock()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
       <indexterm><primary>will()</primary></indexterm>
       <indexterm><primary>throwException()</primary></indexterm>
@@ -434,8 +411,7 @@ class StubTest extends PHPUnit_Framework_TestCase
     public function testThrowExceptionStub()
     {
         // SomeClass クラスのスタブを作成します
-        $stub = $this->getMockBuilder(SomeClass::class)
-                     ->getMock();
+        $stub = $this->createMock(SomeClass::class);
 
         // スタブの設定を行います
         $stub->method('doSomething')
@@ -589,8 +565,7 @@ class Observer
     <para>
       まず
       <literal>PHPUnit_Framework_TestCase</literal> クラスの
-      <literal>getMock()</literal> メソッド
-      を使用して <literal>Observer</literal> のモックオブジェクトを作成します。
+      <literal>getMockBuilder()</literal> メソッドを使用して <literal>Observer</literal> のモックオブジェクトを作成します。
       <literal>getMock()</literal> メソッドの二番目の (オプションの)
       パラメータに配列を指定しているので、<literal>Observer</literal>
       クラスの中の <literal>update()</literal> メソッドについてのみモック実装が作成されます。
@@ -844,6 +819,24 @@ class FooTest extends PHPUnit_Framework_TestCase
         脆いテストになってしまう可能性があるからです。
       </para>
     </note>
+
+    <para>
+      <indexterm><primary>getMockBuilder()</primary></indexterm>
+
+      最初に説明したとおり、<literal>createMock()</literal>
+      メソッドが用いるデフォルトのテストダブル生成方法がニーズを満たさない場合は、
+      <literal>getMockBuilder($type)</literal> メソッドを使えば生成方法をカスタマイズできます。
+      モックビルダーが提供するメソッドの一覧は、次のとおりです。
+    </para>
+
+    <itemizedlist>
+      <listitem><para><literal>setMethods(array $methods)</literal> をモックビルダーオブジェクト上でコールすると、テストダブルで置き換えるメソッドを指定することができます。その他のメソッドの挙動は変更しません。<literal>setMethods(NULL)</literal> とすると、どのメソッドも置き換えません。</para></listitem>
+      <listitem><para><literal>setConstructorArgs(array $args)</literal> をコールしてパラメータの配列を渡すと、それを元クラスのコンストラクタに渡すことができます (デフォルトのダミー実装では、コンストラクタは置き換えません)。</para></listitem>
+      <listitem><para><literal>setMockClassName($name)</literal> を使うと、生成されるテストダブルクラスのクラス名を指定することができます。</para></listitem>
+      <listitem><para><literal>disableOriginalConstructor()</literal> を使うと、元クラスのコンストラクタを無効にすることができます。</para></listitem>
+      <listitem><para><literal>disableOriginalClone()</literal> を使うと、元クラスのクローンコンストラクタを無効にすることができます。</para></listitem>
+      <listitem><para><literal>disableAutoload()</literal> を使うと、テストダブルクラスを生成するときに <literal>__autoload()</literal> を無効にすることができます。</para></listitem>
+    </itemizedlist>
   </section>
 
   <section id="test-doubles.prophecy">
@@ -858,7 +851,7 @@ class FooTest extends PHPUnit_Framework_TestCase
     </para>
 
     <para>
-      PHPUnit バージョン 4.5 以降では、Prophecy を使ったテストダブルの作成に標準で対応しています。
+      PHPUnit は、Prophecy を使ったテストダブルの作成に標準で対応しています。
       <xref linkend="test-doubles.prophecy.examples.SubjectTest.php"/>
       は、<xref linkend="test-doubles.mock-objects.examples.SubjectTest.php"/>
       と同じテストを、Prophecy の理念に沿って表すとどうなるかを示す例です。
