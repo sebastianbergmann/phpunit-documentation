@@ -3,7 +3,7 @@
                 version='1.0'>
 
 <!-- ********************************************************************
-     $Id: admon.xsl 9352 2012-05-12 23:17:11Z bobstayton $
+     $Id: admon.xsl 9728 2013-03-08 00:16:41Z bobstayton $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -63,7 +63,7 @@
   <div>
     <xsl:call-template name="common.html.attributes"/>
     <xsl:call-template name="id.attribute"/>
-    <xsl:if test="$admon.style != ''">
+    <xsl:if test="$admon.style != '' and $make.clean.html = 0">
       <xsl:attribute name="style">
         <xsl:value-of select="$admon.style"/>
       </xsl:attribute>
@@ -113,7 +113,7 @@
       <xsl:with-param name="inherit" select="1"/>
     </xsl:call-template>
     <xsl:call-template name="id.attribute"/>
-    <xsl:if test="$admon.style">
+    <xsl:if test="$admon.style != '' and $make.clean.html = 0">
       <xsl:attribute name="style">
         <xsl:value-of select="$admon.style"/>
       </xsl:attribute>

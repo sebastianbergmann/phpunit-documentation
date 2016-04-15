@@ -6,7 +6,7 @@
                 version='1.0'>
 
 <!-- ********************************************************************
-     $Id: info.xsl 7883 2008-03-08 17:59:39Z xmldoc $
+     $Id: info.xsl 9775 2013-05-25 22:13:23Z dleidert $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -577,7 +577,7 @@
               <xsl:with-param name="source" select="$refname"/>
               <xsl:with-param name="context-desc">AUTHOR sect.</xsl:with-param>
               <xsl:with-param name="message">
-                <xsl:text>see see http://docbook.sf.net/el/contrib</xsl:text>
+                <xsl:text>see http://docbook.sf.net/el/contrib</xsl:text>
               </xsl:with-param>
             </xsl:call-template>
             <xsl:call-template name="log.message">
@@ -585,7 +585,7 @@
               <xsl:with-param name="source" select="$refname"/>
               <xsl:with-param name="context-desc">AUTHOR sect.</xsl:with-param>
               <xsl:with-param name="message">
-                <xsl:text>see see http://docbook.sf.net/el/personblurb</xsl:text>
+                <xsl:text>see http://docbook.sf.net/el/personblurb</xsl:text>
               </xsl:with-param>
             </xsl:call-template>
           </xsl:if>

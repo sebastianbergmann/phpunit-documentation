@@ -4,7 +4,7 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns="http://www.w3.org/1999/xhtml" version="1.0">
 
 <!-- ********************************************************************
-     $Id: autotoc.xsl 9295 2012-04-19 19:05:29Z bobstayton $
+     $Id: autotoc.xsl 9935 2014-08-29 21:29:14Z bobstayton $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -69,6 +69,11 @@
         <div class="toc">
           <xsl:copy-of select="$toc.title"/>
           <xsl:element name="{$toc.list.type}" namespace="http://www.w3.org/1999/xhtml">
+            <xsl:call-template name="toc.list.attributes">
+              <xsl:with-param name="toc-context" select="$toc-context"/>
+              <xsl:with-param name="toc.title.p" select="$toc.title.p"/>
+              <xsl:with-param name="nodes" select="$nodes"/>
+            </xsl:call-template>
             <xsl:call-template name="manual-toc">
               <xsl:with-param name="tocentry" select="$tocentry/*[1]"/>
             </xsl:call-template>
@@ -83,6 +88,11 @@
             <div class="toc">
               <xsl:copy-of select="$toc.title"/>
               <xsl:element name="{$toc.list.type}" namespace="http://www.w3.org/1999/xhtml">
+                <xsl:call-template name="toc.list.attributes">
+                  <xsl:with-param name="toc-context" select="$toc-context"/>
+                  <xsl:with-param name="toc.title.p" select="$toc.title.p"/>
+                  <xsl:with-param name="nodes" select="$nodes"/>
+                </xsl:call-template>
                 <xsl:apply-templates select="$nodes.plus" mode="toc">
                   <xsl:with-param name="toc-context" select="$toc-context"/>
                 </xsl:apply-templates>
@@ -95,6 +105,11 @@
             <div class="toc">
               <xsl:copy-of select="$toc.title"/>
               <xsl:element name="{$toc.list.type}" namespace="http://www.w3.org/1999/xhtml">
+                <xsl:call-template name="toc.list.attributes">
+                  <xsl:with-param name="toc-context" select="$toc-context"/>
+                  <xsl:with-param name="toc.title.p" select="$toc.title.p"/>
+                  <xsl:with-param name="nodes" select="$nodes"/>
+                </xsl:call-template>
                 <xsl:apply-templates select="$nodes" mode="toc">
                   <xsl:with-param name="toc-context" select="$toc-context"/>
                 </xsl:apply-templates>
@@ -106,6 +121,14 @@
 
     </xsl:otherwise>
   </xsl:choose>
+</xsl:template>
+
+<xsl:template name="toc.list.attributes">
+  <xsl:param name="toc-context" select="."/>
+  <xsl:param name="toc.title.p" select="true()"/>
+  <xsl:param name="nodes" select="/NOT-AN-ELEMENT"/>
+
+  <xsl:attribute name="class">toc</xsl:attribute>
 </xsl:template>
 
 <xsl:template name="make.lots">
@@ -161,7 +184,7 @@
   <xsl:call-template name="make.toc">
     <xsl:with-param name="toc-context" select="$toc-context"/>
     <xsl:with-param name="toc.title.p" select="$toc.title.p"/>
-    <xsl:with-param name="nodes" select="book|setindex|set"/>
+    <xsl:with-param name="nodes" select="book|setindex|set|article"/>
   </xsl:call-template>
 </xsl:template>
 
@@ -341,6 +364,15 @@
     <xsl:apply-templates select="." mode="titleabbrev.markup"/>
   </a>
   </span>
+</xsl:template>
+
+<xsl:template match="set" mode="toc">
+  <xsl:param name="toc-context" select="."/>
+
+  <xsl:call-template name="subtoc">
+    <xsl:with-param name="toc-context" select="$toc-context"/>
+    <xsl:with-param name="nodes" select="set|book|setindex|article"/>
+  </xsl:call-template>
 </xsl:template>
 
 <xsl:template match="book" mode="toc">
@@ -540,6 +572,8 @@
 <xsl:template name="manual-toc">
   <xsl:param name="toc-context" select="."/>
   <xsl:param name="tocentry"/>
+  <xsl:param name="toc.title.p" select="true()"/>
+  <xsl:param name="nodes" select="/NOT-AN-ELEMENT"/>
 
   <!-- be careful, we don't want to change the current document to the other tree! -->
 
@@ -567,6 +601,11 @@
 
     <xsl:if test="$tocentry/*">
       <xsl:element name="{$toc.list.type}" namespace="http://www.w3.org/1999/xhtml">
+        <xsl:call-template name="toc.list.attributes">
+          <xsl:with-param name="toc-context" select="$toc-context"/>
+          <xsl:with-param name="toc.title.p" select="$toc.title.p"/>
+          <xsl:with-param name="nodes" select="$nodes"/>
+        </xsl:call-template>
         <xsl:call-template name="manual-toc">
           <xsl:with-param name="tocentry" select="$tocentry/*[1]"/>
         </xsl:call-template>

@@ -6,7 +6,7 @@
                 version='1.0'>
 
 <!-- ********************************************************************
-     $Id: titles.xsl 9669 2012-11-29 18:11:40Z bobstayton $
+     $Id: titles.xsl 9920 2014-07-23 17:55:51Z bobstayton $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -61,6 +61,15 @@ title of the element. This does not include the label.
               <xsl:value-of select="@xml:id"/>
               <xsl:text>")</xsl:text>
             </xsl:when>
+            <xsl:otherwise>
+              <xsl:text> (contained in </xsl:text>
+              <xsl:value-of select="local-name(..)"/>
+              <xsl:if test="../@id or ../@xml:id">
+                <xsl:text> with id </xsl:text>
+                <xsl:value-of select="../@id | ../@xml:id"/>
+              </xsl:if>
+              <xsl:text>)</xsl:text>
+            </xsl:otherwise>
           </xsl:choose>
         </xsl:message>
       </xsl:if>
@@ -274,7 +283,7 @@ title of the element. This does not include the label.
 </xsl:template>
 
 <xsl:template match="bridgehead" mode="title.markup">
-  <xsl:apply-templates/>
+  <xsl:apply-templates/> 
 </xsl:template>
 
 <xsl:template match="refsynopsisdiv" mode="title.markup">
@@ -475,17 +484,21 @@ title of the element. This does not include the label.
 
 <xsl:template match="question" mode="title.markup">
   <!-- questions don't have titles -->
-  <xsl:text>Question</xsl:text>
+  <xsl:call-template name="gentext">
+    <xsl:with-param name="key">question</xsl:with-param>
+  </xsl:call-template>
 </xsl:template>
 
 <xsl:template match="answer" mode="title.markup">
   <!-- answers don't have titles -->
-  <xsl:text>Answer</xsl:text>
+  <xsl:call-template name="gentext">
+    <xsl:with-param name="key">answer</xsl:with-param>
+  </xsl:call-template>
 </xsl:template>
 
 <xsl:template match="qandaentry" mode="title.markup">
   <!-- qandaentrys are represented by the first question in them -->
-  <xsl:text>Question</xsl:text>
+  <xsl:apply-templates select="question" mode="title.markup"/>
 </xsl:template>
 
 <xsl:template match="qandaset" mode="title.markup">
@@ -525,6 +538,9 @@ title of the element. This does not include the label.
 
 <!-- ============================================================ -->
 
+<!-- titleabbrev is always processed in a mode -->
+<xsl:template match="titleabbrev"/>
+
 <xsl:template match="*" mode="titleabbrev.markup">
   <xsl:param name="allow-anchors" select="0"/>
   <xsl:param name="verbose" select="1"/>
@@ -549,7 +565,7 @@ title of the element. This does not include the label.
   </xsl:choose>
 </xsl:template>
 
-<xsl:template match="book|preface|chapter|appendix" mode="titleabbrev.markup">
+<xsl:template match="book|part|set|preface|chapter|appendix" mode="titleabbrev.markup">
   <xsl:param name="allow-anchors" select="0"/>
   <xsl:param name="verbose" select="1"/>
 
@@ -557,6 +573,8 @@ title of the element. This does not include the label.
                                            |bookinfo/titleabbrev
                                            |info/titleabbrev
                                            |prefaceinfo/titleabbrev
+                                           |setinfo/titleabbrev
+                                           |partinfo/titleabbrev
                                            |chapterinfo/titleabbrev
                                            |appendixinfo/titleabbrev
                                            |titleabbrev)[1]"/>
@@ -680,7 +698,15 @@ title of the element. This does not include the label.
 </xsl:template>
 
 <xsl:template match="ulink" mode="no.anchor.mode">
-  <xsl:apply-templates/>
+  <xsl:param name="url" select="@url"/>
+  <xsl:choose>
+    <xsl:when test="count(child::node())=0">
+      <xsl:value-of select="$url"/>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:apply-templates/>
+    </xsl:otherwise>
+  </xsl:choose>
 </xsl:template>
 
 <xsl:template match="link" mode="no.anchor.mode">
@@ -722,9 +748,16 @@ title of the element. This does not include the label.
 </xsl:template>
 
 <xsl:template match="xref" mode="no.anchor.mode">
+  <xsl:variable name="referrer" select="."/>
   <xsl:variable name="targets" select="key('id',@linkend)|key('id',substring-after(@xlink:href,'#'))"/>
   <xsl:variable name="target" select="$targets[1]"/>
   <xsl:variable name="refelem" select="local-name($target)"/>
+  <xsl:variable name="xrefstyle">
+    <xsl:apply-templates select="." mode="xrefstyle">
+      <xsl:with-param name="target" select="$target"/>
+      <xsl:with-param name="referrer" select="$referrer"/>
+    </xsl:apply-templates>
+  </xsl:variable>
   
   <xsl:call-template name="check.id.unique">
     <xsl:with-param name="linkend" select="@linkend"/>
@@ -771,24 +804,20 @@ title of the element. This does not include the label.
 	     a title. See bugs #1811721 and #1838136. -->
 	<xsl:when test="not(ancestor::*[@id = $target/@id] or ancestor::*[@xml:id = $target/@xml:id])">
 
-	  <xsl:apply-templates select="$target" mode="xref-to-prefix"/>
-	  
-	  <xsl:apply-templates select="$target" mode="xref-to">
-	    
+	  <xsl:apply-templates select="$target" mode="xref-to-prefix">
 	    <xsl:with-param name="referrer" select="."/>
-	    <xsl:with-param name="xrefstyle">
-	      <xsl:choose>
-		<xsl:when test="@role and not(@xrefstyle) and $use.role.as.xrefstyle != 0">
-		  <xsl:value-of select="@role"/>
-		</xsl:when>
-		<xsl:otherwise>
-		  <xsl:value-of select="@xrefstyle"/>
-		</xsl:otherwise>
-	      </xsl:choose>
-	    </xsl:with-param>
+	    <xsl:with-param name="xrefstyle" select="$xrefstyle"/>
 	  </xsl:apply-templates>
 	  
-	  <xsl:apply-templates select="$target" mode="xref-to-suffix"/>
+	  <xsl:apply-templates select="$target" mode="xref-to">
+	    <xsl:with-param name="referrer" select="."/>
+	    <xsl:with-param name="xrefstyle" select="$xrefstyle"/>
+	  </xsl:apply-templates>
+	  
+	  <xsl:apply-templates select="$target" mode="xref-to-suffix">
+	    <xsl:with-param name="referrer" select="."/>
+	    <xsl:with-param name="xrefstyle" select="$xrefstyle"/>
+	  </xsl:apply-templates>
 	</xsl:when>
 	
 	<xsl:otherwise>
@@ -802,6 +831,23 @@ title of the element. This does not include the label.
 </xsl:template>
 
 <!-- ============================================================ -->
+
+<xsl:template mode="title.markup" match="toc">
+  <xsl:param name="allow-anchors" select="0"/>
+  <xsl:param name="verbose" select="1"/>
+  <xsl:choose>
+    <xsl:when test="title|info/title">
+      <xsl:apply-templates select="(title|info/title)[1]" mode="title.markup">
+        <xsl:with-param name="allow-anchors" select="$allow-anchors"/>
+      </xsl:apply-templates>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:call-template name="gentext">
+        <xsl:with-param name="key" select="'TableofContents'"/>
+      </xsl:call-template>
+    </xsl:otherwise>
+  </xsl:choose>
+</xsl:template>
 
 </xsl:stylesheet>
 

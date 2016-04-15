@@ -3,7 +3,7 @@
                 version='1.0'>
 
 <!-- ********************************************************************
-     $Id: lists.xsl 9684 2012-12-12 17:05:54Z bobstayton $
+     $Id: lists.xsl 9980 2015-08-24 20:23:37Z bobstayton $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -32,7 +32,8 @@
 
 <xsl:template match="para[ancestor::listitem or ancestor::step or ancestor::glossdef]|
   simpara[ancestor::listitem or ancestor::step or ancestor::glossdef]|
-  remark[ancestor::listitem or ancestor::step or ancestor::glossdef]">
+  remark[ancestor::listitem or ancestor::step or ancestor::glossdef]"
+  priority="1">
   <xsl:call-template name="mixed-block"/>
   <xsl:text>&#10;</xsl:text>
   <xsl:if test="following-sibling::*[1][
@@ -70,7 +71,15 @@
     <xsl:variable name="content">
       <xsl:apply-templates/>
     </xsl:variable>
-    <xsl:value-of select="normalize-space($content)"/>
+    <xsl:choose>
+      <!-- don't normalize verbatim synopsis -->
+      <xsl:when test="child::synopsis">
+        <xsl:value-of select="$content"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="normalize-space($content)"/>
+      </xsl:otherwise>
+    </xsl:choose>
     <xsl:choose>
       <xsl:when test="position() = last()"/> <!-- do nothing -->
       <xsl:otherwise>

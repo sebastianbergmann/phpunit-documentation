@@ -8,7 +8,7 @@
                 version='1.0'>
 
 <!-- ********************************************************************
-     $Id: other.xsl 8865 2010-08-20 18:22:06Z mzjn $
+     $Id: other.xsl 9950 2014-11-20 22:30:41Z bobstayton $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -37,49 +37,6 @@
 <!-- * of keeping things modular. -->
 
 <!-- ==================================================================== -->
-
-<xsl:preserve-space elements="*"/>
-
-<xsl:strip-space elements="
-abstract affiliation anchor answer appendix area areaset areaspec
-artheader article audiodata audioobject author authorblurb authorgroup
-beginpage bibliodiv biblioentry bibliography biblioset blockquote book
-bookbiblio bookinfo callout calloutlist caption caution chapter
-citerefentry cmdsynopsis co collab colophon colspec confgroup
-copyright dedication docinfo editor entrytbl epigraph equation
-example figure footnote footnoteref formalpara funcprototype
-funcsynopsis glossary glossdef glossdiv glossentry glosslist graphicco
-group highlights imagedata imageobject imageobjectco important index
-indexdiv indexentry indexterm informalequation informalexample
-informalfigure informaltable inlineequation inlinemediaobject
-itemizedlist itermset keycombo keywordset legalnotice listitem lot
-mediaobject mediaobjectco menuchoice msg msgentry msgexplan msginfo
-msgmain msgrel msgset msgsub msgtext note objectinfo
-orderedlist othercredit part partintro preface printhistory procedure
-programlistingco publisher qandadiv qandaentry qandaset question
-refentry reference refmeta refnamediv refsection refsect1 refsect1info refsect2
-refsect2info refsect3 refsect3info refsynopsisdiv refsynopsisdivinfo
-revhistory revision row sbr screenco screenshot sect1 sect1info sect2
-sect2info sect3 sect3info sect4 sect4info sect5 sect5info section
-sectioninfo seglistitem segmentedlist seriesinfo set setindex setinfo
-shortcut sidebar simplelist simplesect spanspec step subject
-subjectset substeps synopfragment table tbody textobject tfoot tgroup
-thead tip toc tocchap toclevel1 toclevel2 toclevel3 toclevel4
-toclevel5 tocpart varargs variablelist varlistentry videodata
-videoobject void warning subjectset
-
-classsynopsis
-constructorsynopsis
-destructorsynopsis
-fieldsynopsis
-methodparam
-methodsynopsis
-ooclass
-ooexception
-oointerface
-simplemsgentry
-manvolnum
-"/>
 
 <!-- ==================================================================== -->
 <!-- * Get character map contents -->
@@ -157,6 +114,14 @@ manvolnum
 <!-- ******************************************************************** -->
 
 <xsl:template match="//refentry//text()">
+  <xsl:call-template name="escape.roff.specials">
+    <xsl:with-param name="content">
+      <xsl:value-of select="."/>
+    </xsl:with-param>
+  </xsl:call-template>
+</xsl:template>
+
+<xsl:template match="//refentry//text()" mode="no.anchor.mode">
   <xsl:call-template name="escape.roff.specials">
     <xsl:with-param name="content">
       <xsl:value-of select="."/>
@@ -596,11 +561,22 @@ manvolnum
           <xsl:with-param name="message-epilog"> (soelim stub)</xsl:with-param>
           <xsl:with-param name="content">
             <xsl:value-of select="'.so '"/>
-            <xsl:call-template name="make.adjusted.man.filename">
-              <xsl:with-param name="name" select="$first.refname"/>
-              <xsl:with-param name="section" select="$section"/>
-              <xsl:with-param name="lang" select="$lang"/>
-            </xsl:call-template>
+            <xsl:variable name="full.filename">
+              <xsl:call-template name="make.adjusted.man.filename">
+                <xsl:with-param name="name" select="$first.refname"/>
+                <xsl:with-param name="section" select="$section"/>
+                <xsl:with-param name="lang" select="$lang"/>
+              </xsl:call-template>
+            </xsl:variable>
+            <xsl:choose>
+              <xsl:when test="starts-with($full.filename, $man.output.base.dir)">
+                <xsl:value-of 
+                   select="substring-after($full.filename,$man.output.base.dir)"/>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:value-of select="$full.filename"/>
+              </xsl:otherwise>
+            </xsl:choose>
             <xsl:text>&#10;</xsl:text>
           </xsl:with-param>
         </xsl:call-template>

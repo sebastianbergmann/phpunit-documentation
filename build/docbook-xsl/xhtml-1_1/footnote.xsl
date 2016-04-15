@@ -4,7 +4,7 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:exsl="http://exslt.org/common" xmlns="http://www.w3.org/1999/xhtml" exclude-result-prefixes="exsl" version="1.0">
 
 <!-- ********************************************************************
-     $Id: footnote.xsl 9502 2012-07-17 03:23:51Z bobstayton $
+     $Id: footnote.xsl 9665 2012-11-08 14:26:20Z kosek $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.

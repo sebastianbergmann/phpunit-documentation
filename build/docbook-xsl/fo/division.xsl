@@ -5,7 +5,7 @@
                 version='1.0'>
 
 <!-- ********************************************************************
-     $Id: division.xsl 9647 2012-10-26 17:42:03Z bobstayton $
+     $Id: division.xsl 9841 2014-01-07 22:31:09Z bobstayton $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -31,7 +31,9 @@
 
   <fo:block keep-with-next.within-column="always"
             hyphenate="false">
-    <xsl:if test="$axf.extensions != 0">
+    <xsl:if test="$axf.extensions != 0 and 
+                  $xsl1.1.bookmarks = 0 and 
+                  $show.bookmarks != 0">
       <xsl:attribute name="axf:outline-level">
         <xsl:choose>
           <xsl:when test="count($node/ancestor::*) > 0">
@@ -493,14 +495,14 @@
     </xsl:call-template>
   </xsl:variable>
 
-  <xsl:variable name="nodes" select="reference|
-                                     preface|
-                                     chapter|
-                                     appendix|
-                                     article|
-                                     bibliography|
-                                     glossary|
-                                     index"/>
+  <xsl:variable name="nodes" select="$part/reference|
+                                     $part/preface|
+                                     $part/chapter|
+                                     $part/appendix|
+                                     $part/article|
+                                     $part/bibliography|
+                                     $part/glossary|
+                                     $part/index"/>
 
   <xsl:if test="count($nodes) &gt; 0 and contains($toc.params, 'toc')">
     <fo:page-sequence hyphenate="{$hyphenate}"
@@ -602,5 +604,6 @@
   <xsl:number from="book" count="part" format="I."/>
 </xsl:template>
 
+<!-- ==================================================================== -->
 </xsl:stylesheet>
 

@@ -4,7 +4,7 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/1999/xhtml" exclude-result-prefixes="xlink" version="1.0">
 
 <!-- ********************************************************************
-     $Id: glossary.xsl 9364 2012-05-12 23:43:04Z bobstayton $
+     $Id: glossary.xsl 9922 2014-07-31 17:33:43Z bobstayton $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -253,6 +253,7 @@ GlossEntry ::=
           <xsl:apply-templates select="acronym|abbrev"/>
           <xsl:text>)</xsl:text>
         </xsl:if>
+        <xsl:apply-templates select="indexterm"/>
       </dt>
     </xsl:when>
     <xsl:otherwise>
@@ -275,15 +276,21 @@ GlossEntry ::=
         </xsl:call-template>
 
         <xsl:apply-templates select="glossterm"/>
+        <xsl:apply-templates select="indexterm"/>
       </dt>
     </xsl:otherwise>
   </xsl:choose>
 
-  <xsl:apply-templates select="indexterm|revhistory|glosssee|glossdef"/>
+  <xsl:apply-templates select="glosssee|glossdef"/>
 </xsl:template>
 
 <xsl:template match="glossentry/glossterm">
-  <xsl:apply-templates/>
+  <span>
+    <xsl:apply-templates select="." mode="common.html.attributes"/>
+    <xsl:call-template name="id.attribute"/>
+    <xsl:call-template name="anchor"/>
+    <xsl:apply-templates/>
+  </span>
   <xsl:if test="following-sibling::glossterm">, </xsl:if>
 </xsl:template>
 
@@ -359,6 +366,9 @@ GlossEntry ::=
 
 <xsl:template match="glossentry/glossdef">
   <dd>
+    <xsl:apply-templates select="." mode="common.html.attributes"/>
+    <xsl:call-template name="id.attribute"/>
+    <xsl:call-template name="anchor"/>
     <xsl:apply-templates select="*[local-name(.) != 'glossseealso']"/>
     <xsl:if test="glossseealso">
       <p>

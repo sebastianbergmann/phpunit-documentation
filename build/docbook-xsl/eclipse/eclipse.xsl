@@ -9,7 +9,7 @@
 <xsl:import href="../html/chunk.xsl"/>
 
 <!-- ********************************************************************
-     $Id: eclipse.xsl 9149 2011-11-12 00:12:07Z bobstayton $
+     $Id: eclipse.xsl 9910 2014-02-24 19:49:36Z bobstayton $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -18,6 +18,13 @@
 
      ******************************************************************** -->
 
+<xsl:variable name="no.namespace">
+  <xsl:if test="$exsl.node.set.available != 0 and 
+                namespace-uri(/*) = 'http://docbook.org/ns/docbook'">
+      <xsl:apply-templates select="/*" mode="stripNS"/>
+  </xsl:if>
+</xsl:variable>
+
 <xsl:template match="/">
   <!-- * Get a title for current doc so that we let the user -->
   <!-- * know what document we are processing at this point. -->
@@ -25,12 +32,9 @@
     <xsl:call-template name="get.doc.title"/>
   </xsl:variable>
   <xsl:choose>
-    <!-- Hack! If someone hands us a DocBook V5.x or DocBook NG document,
-         toss the namespace and continue.  Use the docbook5 namespaced
-         stylesheets for DocBook5 if you don't want to use this feature.-->
-    <!-- include extra test for Xalan quirk -->
-    <xsl:when test="$exsl.node.set.available != 0
-                    and (*/self::ng:* or */self::db:*)">
+    <!-- fix namespace if necessary -->
+    <xsl:when test="$exsl.node.set.available != 0 and 
+                  namespace-uri(/*) = 'http://docbook.org/ns/docbook'">
       <xsl:call-template name="log.message">
         <xsl:with-param name="level">Note</xsl:with-param>
         <xsl:with-param name="source" select="$doc.title"/>
@@ -41,65 +45,69 @@
           <xsl:text>stripped namespace before processing</xsl:text>
         </xsl:with-param>
       </xsl:call-template>
-      <xsl:variable name="nons">
-        <xsl:apply-templates mode="stripNS"/>
-      </xsl:variable>
-      <xsl:call-template name="log.message">
-        <xsl:with-param name="level">Note</xsl:with-param>
-        <xsl:with-param name="source" select="$doc.title"/>
-        <xsl:with-param name="context-desc">
-          <xsl:text>namesp. cut</xsl:text>
-        </xsl:with-param>
-        <xsl:with-param name="message">
-          <xsl:text>processing stripped document</xsl:text>
+      <!-- DEBUG: uncomment to save namespace-fixed document.
+      <xsl:message>Saving namespace-fixed document.</xsl:message>
+      <xsl:call-template name="write.chunk">
+        <xsl:with-param name="filename" select="'namespace-fixed.debug.xml'"/>
+        <xsl:with-param name="method" select="'xml'"/>
+        <xsl:with-param name="content">
+          <xsl:copy-of select="exsl:node-set($no.namespace)"/>
         </xsl:with-param>
       </xsl:call-template>
-      <xsl:apply-templates select="exsl:node-set($nons)"/>
+      -->
+      <xsl:apply-templates select="exsl:node-set($no.namespace)"/>
+    </xsl:when>
+    <!-- Can't process unless namespace fixed with exsl node-set()-->
+    <xsl:when test="namespace-uri(/*) = 'http://docbook.org/ns/docbook'">
+      <xsl:message terminate="yes">
+        <xsl:text>Unable to strip the namespace from DB5 document,</xsl:text>
+        <xsl:text> cannot proceed.</xsl:text>
+      </xsl:message>
     </xsl:when>
     <xsl:otherwise>
-  <xsl:choose>
-    <xsl:when test="$rootid != ''">
       <xsl:choose>
-        <xsl:when test="count(key('id',$rootid)) = 0">
-          <xsl:message terminate="yes">
-            <xsl:text>ID '</xsl:text>
-            <xsl:value-of select="$rootid"/>
-            <xsl:text>' not found in document.</xsl:text>
-          </xsl:message>
+        <xsl:when test="$rootid != ''">
+          <xsl:choose>
+            <xsl:when test="count(key('id',$rootid)) = 0">
+              <xsl:message terminate="yes">
+                <xsl:text>ID '</xsl:text>
+                <xsl:value-of select="$rootid"/>
+                <xsl:text>' not found in document.</xsl:text>
+              </xsl:message>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:if test="$collect.xref.targets = 'yes' or
+                            $collect.xref.targets = 'only'">
+                <xsl:apply-templates select="key('id', $rootid)"
+                            mode="collect.targets"/>
+              </xsl:if>
+              <xsl:if test="$collect.xref.targets != 'only'">
+                <xsl:message>Formatting from <xsl:value-of 
+    	                          select="$rootid"/></xsl:message>
+                <xsl:apply-templates select="key('id',$rootid)"
+                            mode="process.root"/>
+                <xsl:call-template name="etoc"/>
+                <xsl:call-template name="plugin.xml"/>
+    				<xsl:call-template name="helpidx"/>
+              </xsl:if>
+            </xsl:otherwise>
+          </xsl:choose>
         </xsl:when>
         <xsl:otherwise>
           <xsl:if test="$collect.xref.targets = 'yes' or
                         $collect.xref.targets = 'only'">
-            <xsl:apply-templates select="key('id', $rootid)"
-                        mode="collect.targets"/>
+            <xsl:apply-templates select="/" mode="collect.targets"/>
           </xsl:if>
           <xsl:if test="$collect.xref.targets != 'only'">
-            <xsl:message>Formatting from <xsl:value-of 
-	                          select="$rootid"/></xsl:message>
-            <xsl:apply-templates select="key('id',$rootid)"
-                        mode="process.root"/>
+            <xsl:apply-templates select="/" mode="process.root"/>
             <xsl:call-template name="etoc"/>
             <xsl:call-template name="plugin.xml"/>
-				<xsl:call-template name="helpidx"/>
+    		  <xsl:call-template name="helpidx"/>
           </xsl:if>
         </xsl:otherwise>
       </xsl:choose>
-    </xsl:when>
-    <xsl:otherwise>
-      <xsl:if test="$collect.xref.targets = 'yes' or
-                    $collect.xref.targets = 'only'">
-        <xsl:apply-templates select="/" mode="collect.targets"/>
-      </xsl:if>
-      <xsl:if test="$collect.xref.targets != 'only'">
-        <xsl:apply-templates select="/" mode="process.root"/>
-        <xsl:call-template name="etoc"/>
-        <xsl:call-template name="plugin.xml"/>
-		  <xsl:call-template name="helpidx"/>
-      </xsl:if>
     </xsl:otherwise>
   </xsl:choose>
-</xsl:otherwise>
-</xsl:choose>
 </xsl:template>
 
 <xsl:template name="etoc">

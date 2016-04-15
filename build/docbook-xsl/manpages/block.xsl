@@ -5,7 +5,7 @@
                 version='1.0'>
 
 <!-- ********************************************************************
-     $Id: block.xsl 8703 2010-07-06 20:57:06Z nwalsh $
+     $Id: block.xsl 9980 2015-08-24 20:23:37Z bobstayton $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -139,6 +139,7 @@
       and not(substring(local-name(..),
       string-length(local-name(..))-7) = 'synopsis')
       and not(ancestor::*[local-name() = 'refsynopsisdiv'])
+      and not(ancestor::*[local-name() = 'term'])
       ">
       <xsl:text>Yes</xsl:text>
     </xsl:if>

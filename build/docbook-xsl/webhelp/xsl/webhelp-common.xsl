@@ -295,7 +295,7 @@ border: none; background: none; font-weight: none; color: none; }
          <script type="text/javascript" src="{$webhelp.common.dir}jquery/layout/jquery.layout.js">
             <xsl:comment> </xsl:comment>
         </script>
-        <xsl:if test="$webhelp.include.search.tab = 'true'">
+        <xsl:if test="$webhelp.include.search.tab != '0'">
             <!--Scripts/css stylesheets for Search-->
             <!-- TODO: Why THREE files? There's absolutely no need for having separate files. 
 		These should have been identified at the optimization phase! -->
@@ -355,7 +355,7 @@ border: none; background: none; font-weight: none; color: none; }
 
         <!--testing toc in the content page>
         <xsl:call-template name="webhelptoctoc"/>
-        <xsl:if test="$webhelp.include.search.tab != 'false'">
+        <xsl:if test="$webhelp.include.search.tab != '0'">
             <xsl:call-template name="search"/>
         </xsl:if-->
     </xsl:template>
@@ -379,7 +379,8 @@ border: none; background: none; font-weight: none; color: none; }
 	  toss the namespace and continue.  Use the docbook5 namespaced
 	  stylesheets for DocBook5 if you don't want to use this feature.-->
 	  <!-- include extra test for Xalan quirk -->
-	  <xsl:when test="$exsl.node.set.available != 0                     and (*/self::ng:* or */self::db:*)">
+          <xsl:when test="$exsl.node.set.available != 0 and 
+                  namespace-uri(/*) = 'http://docbook.org/ns/docbook'">
 		<xsl:call-template name="log.message">
 		  <xsl:with-param name="level">Note</xsl:with-param>
 		  <xsl:with-param name="source" select="$doc.title"/>
@@ -403,25 +404,15 @@ border: none; background: none; font-weight: none; color: none; }
 	  </xsl:with-param>
       </xsl:call-template>
 		-->
-		<xsl:call-template name="log.message">
-		  <xsl:with-param name="level">Note</xsl:with-param>
-		  <xsl:with-param name="source" select="$doc.title"/>
-		  <xsl:with-param name="context-desc">
-			<xsl:text>namesp. cut</xsl:text>
-		  </xsl:with-param>
-		  <xsl:with-param name="message">
-			<xsl:text>processing stripped document</xsl:text>
-		  </xsl:with-param>
-		</xsl:call-template>
 		<xsl:apply-templates select="exsl:node-set($nons)"/>
 	  </xsl:when>
-	  <!-- Can't process unless namespace removed -->
-	  <xsl:when test="*/self::ng:* or */self::db:*">
-		<xsl:message terminate="yes">
-		  <xsl:text>Unable to strip the namespace from DB5 document,</xsl:text>
-		  <xsl:text> cannot proceed.</xsl:text>
-		</xsl:message>
-	  </xsl:when>
+          <!-- Can't process unless namespace fixed with exsl node-set()-->
+          <xsl:when test="namespace-uri(/*) = 'http://docbook.org/ns/docbook'">
+            <xsl:message terminate="yes">
+              <xsl:text>Unable to strip the namespace from DB5 document,</xsl:text>
+              <xsl:text> cannot proceed.</xsl:text>
+            </xsl:message>
+          </xsl:when>
 	  <xsl:otherwise>
 		<xsl:choose>
 		  <xsl:when test="$rootid != ''">
@@ -462,7 +453,9 @@ border: none; background: none; font-weight: none; color: none; }
 	</xsl:choose>
 	
 
-	<xsl:call-template name="l10n.js"/>
+        <xsl:if test="$collect.xref.targets != 'only'">
+          <xsl:call-template name="l10n.js"/>
+        </xsl:if>
     </xsl:template>
 
 
@@ -727,7 +720,7 @@ border: none; background: none; font-weight: none; color: none; }
                                         </span>
                                     </a>
                                 </li>
-                                <xsl:if test="$webhelp.include.search.tab != 'false'">
+                                <xsl:if test="$webhelp.include.search.tab != '0'">
                                     <li>
                                         <a href="#searchDiv" style="outline:0;" tabindex="1" onclick="doSearch()">
                                             <span class="searchTab">
@@ -753,7 +746,7 @@ border: none; background: none; font-weight: none; color: none; }
                                 </div>
 
                             </div>
-                            <xsl:if test="$webhelp.include.search.tab != 'false'">
+                            <xsl:if test="$webhelp.include.search.tab != '0'">
                                 <div id="searchDiv">
                                     <div id="search">
                                         <form onsubmit="Verifie(searchForm);return false"

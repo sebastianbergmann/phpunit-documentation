@@ -69,7 +69,7 @@ copyfiles:
 	cp template/favicon.ico ${OUTPUT_DIR}/
 
 chunk:
-	xsltproc  --output  xincluded-profiled.xml  \
+	xsltproc  --xinclude --output xincluded-profiled.xml  \
                   --stringparam  profile.arch ${PROFILE.ARCH} \
                   --stringparam  profile.audience ${PROFILE.AUDIENCE} \
                   --stringparam  profile.condition ${PROFILE.CONDITION} \
@@ -89,7 +89,7 @@ chunk:
                   ../profiling/profile.xsl  \
                   ${INPUT_XML}
 
-	xsltproc ${OTHER_XSLTPROC_ARGS} --xinclude xsl/webhelp.xsl xincluded-profiled.xml 
+	xsltproc ${OTHER_XSLTPROC_ARGS} xsl/webhelp.xsl xincluded-profiled.xml 
 
 	rm xincluded-profiled.xml
 index:

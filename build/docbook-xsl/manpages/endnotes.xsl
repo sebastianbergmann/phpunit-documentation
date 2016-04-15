@@ -3,12 +3,13 @@
                 xmlns:exsl="http://exslt.org/common"
                 xmlns:ng="http://docbook.org/docbook-ng"
                 xmlns:db="http://docbook.org/ns/docbook"
+                xmlns:ear="http://fake.namespace"
                 xmlns:xlink="http://www.w3.org/1999/xlink"
                 exclude-result-prefixes="db ng exsl xlink"
                 version='1.0'>
 
 <!-- ********************************************************************
-     $Id: endnotes.xsl 8703 2010-07-06 20:57:06Z nwalsh $
+     $Id: endnotes.xsl 9863 2014-01-29 00:41:22Z bobstayton $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -91,7 +92,7 @@
   <xsl:if test="$man.endnotes.are.numbered != 0">
     <!-- * Only create earmark indexes if user wants numbered endnotes -->
     <xsl:for-each select="//refentry">
-      <earmark.index>
+      <ear:earmark.index>
         <xsl:attribute name="idref">
           <xsl:value-of select="generate-id()"/>
         </xsl:attribute>
@@ -147,7 +148,7 @@
                     and not(ancestor::indexterm)
                     and (generate-id(ancestor::refentry)
                     = generate-id(current()))]/@fileref)]">
-          <earmark>
+          <ear:earmark>
             <xsl:attribute name="id">
               <xsl:value-of select="generate-id()"/>
             </xsl:attribute>
@@ -165,9 +166,9 @@
             <xsl:copy>
               <xsl:copy-of select="node()"/>
             </xsl:copy>
-          </earmark>
+          </ear:earmark>
         </xsl:for-each>
-      </earmark.index>
+      </ear:earmark.index>
     </xsl:for-each>
   </xsl:if>
 </xsl:template>
@@ -188,9 +189,9 @@
     <!-- * get the set of all earmarks for the ancestor Refentry of -->
     <!-- * this notesource -->
     <xsl:copy-of
-        select="$all.earmark.indexes.in.current.document/earmark.index
+        select="$all.earmark.indexes.in.current.document/ear:earmark.index
                 [@idref =
-                generate-id(current()/ancestor::refentry)]/earmark"/>
+                generate-id(current()/ancestor::refentry)]/ear:earmark"/>
   </xsl:variable>
   <xsl:variable name="all.earmarks.in.current.refentry"
                 select="exsl:node-set($all.earmarks.in.current.refentry.rtf)"/>
@@ -239,10 +240,10 @@
           self::imagedata or
           self::audiodata or
           self::videodata">
-          <xsl:value-of select="$all.earmarks.in.current.refentry/earmark[@uri = $earmark]/@number"/>
+          <xsl:value-of select="$all.earmarks.in.current.refentry/ear:earmark[@uri = $earmark]/@number"/>
         </xsl:when>
         <xsl:otherwise>
-          <xsl:value-of select="$all.earmarks.in.current.refentry/earmark[@id  = $earmark]/@number"/>
+          <xsl:value-of select="$all.earmarks.in.current.refentry/ear:earmark[@id  = $earmark]/@number"/>
         </xsl:otherwise>
       </xsl:choose>
     </xsl:if>
@@ -427,8 +428,8 @@
     <xsl:variable name="all.earmark.indexes.in.current.document"
                   select="exsl:node-set($all.earmark.indexes.in.current.document.rtf)"/>
       <xsl:copy-of
-          select="$all.earmark.indexes.in.current.document/earmark.index
-                  [@idref = $current.refentry.id]/earmark"/>
+          select="$all.earmark.indexes.in.current.document/ear:earmark.index
+                  [@idref = $current.refentry.id]/ear:earmark"/>
   </xsl:variable>
 
   <xsl:variable name="endnotes" select="exsl:node-set($endnotes.rtf)"/>
@@ -469,7 +470,7 @@
   </xsl:call-template>
 
   <!-- * ================ process each earmark ====================== -->
-  <xsl:for-each select="$endnotes/earmark">
+  <xsl:for-each select="$endnotes/ear:earmark">
     <!-- * make paragraph with hanging indent, and starting with a -->
     <!-- * number in the form " 1." (padded to $man.indent.width - 1) -->
     <xsl:text>.IP</xsl:text>

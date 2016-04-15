@@ -4,7 +4,7 @@
                 version="1.0">
 
 <!-- ********************************************************************
-     $Id: pagesetup.xsl 9676 2012-12-06 18:29:30Z bobstayton $
+     $Id: pagesetup.xsl 9945 2014-09-28 16:18:14Z bobstayton $
      ********************************************************************
 
      This file is part of the DocBook XSL Stylesheet distribution.
@@ -19,14 +19,21 @@
   <xsl:value-of select="$body.font.family"/>
   <xsl:if test="$body.font.family != ''
                 and $symbol.font.family  != ''">,</xsl:if>
-    <xsl:value-of select="$symbol.font.family"/>
+  <xsl:value-of select="$symbol.font.family"/>
 </xsl:param>
 
 <xsl:param name="title.fontset">
   <xsl:value-of select="$title.font.family"/>
   <xsl:if test="$title.font.family != ''
                 and $symbol.font.family  != ''">,</xsl:if>
-    <xsl:value-of select="$symbol.font.family"/>
+  <xsl:value-of select="$symbol.font.family"/>
+</xsl:param>
+
+<xsl:param name="dingbat.fontset">
+  <xsl:value-of select="$dingbat.font.family"/>
+  <xsl:if test="$dingbat.font.family != ''
+                and $symbol.font.family  != ''">,</xsl:if>
+  <xsl:value-of select="$symbol.font.family"/>
 </xsl:param>
 
 <!-- These are internal parameters are for the individual precedence attributes -->
@@ -2393,11 +2400,18 @@
     <xsl:call-template name="user.pagemasters"/>
 
     </fo:layout-master-set>
+  
+    <xsl:call-template name="user.declarations"/>
 </xsl:template>
 
 <!-- ==================================================================== -->
 
 <xsl:template name="user.pagemasters"/> <!-- intentionally empty -->
+
+<!-- ==================================================================== -->
+
+<xsl:template name="user.declarations"/> <!-- intentionally empty; add your fo:declarations -->
+
 
 <!-- ==================================================================== -->
 
@@ -2582,12 +2596,6 @@
 
   <!-- default is a single table style for all headers -->
   <!-- Customize it for different page classes or sequence location -->
-
-  <xsl:choose>
-      <xsl:when test="$pageclass = 'index'">
-          <xsl:attribute name="margin-{$direction.align.start}">0pt</xsl:attribute>
-      </xsl:when>
-  </xsl:choose>
 
   <xsl:variable name="column1">
     <xsl:choose>
@@ -2928,12 +2936,6 @@
 
   <!-- default is a single table style for all footers -->
   <!-- Customize it for different page classes or sequence location -->
-
-  <xsl:choose>
-      <xsl:when test="$pageclass = 'index'">
-          <xsl:attribute name="margin-{$direction.align.start}">0pt</xsl:attribute>
-      </xsl:when>
-  </xsl:choose>
 
   <xsl:variable name="column1">
     <xsl:choose>

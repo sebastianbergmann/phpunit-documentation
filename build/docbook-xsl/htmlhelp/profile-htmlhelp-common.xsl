@@ -4,7 +4,7 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:doc="http://nwalsh.com/xsl/documentation/1.0" xmlns:exsl="http://exslt.org/common" xmlns:set="http://exslt.org/sets" xmlns:h="urn:x-hex" xmlns:ng="http://docbook.org/docbook-ng" xmlns:db="http://docbook.org/ns/docbook" xmlns:exslt="http://exslt.org/common" exslt:dummy="dummy" ng:dummy="dummy" db:dummy="dummy" extension-element-prefixes="exslt" version="1.0" exclude-result-prefixes="doc exsl set h db ng exslt">
 
 <!-- ********************************************************************
-     $Id: htmlhelp-common.xsl 9151 2011-11-12 00:16:19Z bobstayton $
+     $Id: htmlhelp-common.xsl 9908 2014-02-24 19:02:52Z bobstayton $
      ******************************************************************** -->
 
 <!-- ==================================================================== -->
@@ -25,7 +25,17 @@
 
 <!-- ==================================================================== -->
 
-<xslo:include xmlns:xslo="http://www.w3.org/1999/XSL/Transform" href="../profiling/profile-mode.xsl"/><xslo:variable xmlns:xslo="http://www.w3.org/1999/XSL/Transform" name="profiled-content"><xslo:choose><xslo:when test="*/self::ng:* or */self::db:*"><xslo:message>Note: namesp. cut : stripped namespace before processing</xslo:message><xslo:variable name="stripped-content"><xslo:apply-templates select="/" mode="stripNS"/></xslo:variable><xslo:message>Note: namesp. cut : processing stripped document</xslo:message><xslo:apply-templates select="exslt:node-set($stripped-content)" mode="profile"/></xslo:when><xslo:otherwise><xslo:apply-templates select="/" mode="profile"/></xslo:otherwise></xslo:choose></xslo:variable><xslo:variable xmlns:xslo="http://www.w3.org/1999/XSL/Transform" name="profiled-nodes" select="exslt:node-set($profiled-content)"/><xsl:template match="/">
+<!-- To use the same namespace-adjusted nodeset everywhere, it should
+be created as a global variable here.
+Used by docbook.xsl, chunk-common.xsl, chunktoc.xsl, and
+chunk-code.xsl; and in $chunk.hierarchy used in chunkfast.xsl -->
+<xsl:variable name="no.namespace">
+  <xsl:if test="$exsl.node.set.available != 0 and                  namespace-uri(/*) = 'http://docbook.org/ns/docbook'">
+      <xsl:apply-templates select="/*" mode="stripNS"/>
+  </xsl:if>
+</xsl:variable>
+
+<xslo:include xmlns:xslo="http://www.w3.org/1999/XSL/Transform" href="../profiling/profile-mode.xsl"/><xslo:variable xmlns:xslo="http://www.w3.org/1999/XSL/Transform" name="profiled-content"><xslo:choose><xslo:when test="$exsl.node.set.available != 0 and                      namespace-uri(/*) = 'http://docbook.org/ns/docbook'"><xslo:variable name="no.namespace"><xslo:apply-templates select="/*" mode="stripNS"/></xslo:variable><xslo:call-template name="log.message"><xslo:with-param name="level">Note</xslo:with-param><xslo:with-param name="source"><xslo:call-template name="get.doc.title"/></xslo:with-param><xslo:with-param name="context-desc"><xslo:text>namesp. cut</xslo:text></xslo:with-param><xslo:with-param name="message"><xslo:text>stripped namespace before processing</xslo:text></xslo:with-param></xslo:call-template><xslo:apply-templates select="exslt:node-set($no.namespace)" mode="profile"/></xslo:when><xslo:otherwise><xslo:apply-templates select="/" mode="profile"/></xslo:otherwise></xslo:choose></xslo:variable><xslo:variable xmlns:xslo="http://www.w3.org/1999/XSL/Transform" name="profiled-nodes" select="exslt:node-set($profiled-content)"/><xsl:template match="/">
 
   <!-- * Get a title for current doc so that we let the user -->
   <!-- * know what document we are processing at this point. -->
@@ -33,53 +43,54 @@
     <xsl:call-template name="get.doc.title"/>
   </xsl:variable>
   <xsl:choose>
-    <!-- Hack! If someone hands us a DocBook V5.x or DocBook NG document,
-         toss the namespace and continue.  Use the docbook5 namespaced
-         stylesheets for DocBook5 if you don't want to use this feature.-->
+    <!-- fix namespace if necessary -->
     <xsl:when test="false()"/>
+    <!-- Can't process unless namespace fixed with exsl node-set()-->
+    <xsl:when test="false()"/>
+
     <xsl:otherwise>
-  <xsl:if test="$htmlhelp.only != 1">
-    <xsl:choose>
-      <xsl:when test="$rootid != ''">
+      <xsl:if test="$htmlhelp.only != 1">
         <xsl:choose>
-          <xsl:when test="count($profiled-nodes//*[@id=$rootid or @xml:id=$rootid]) = 0">
-            <xsl:message terminate="yes">
-              <xsl:text>ID '</xsl:text>
-              <xsl:value-of select="$rootid"/>
-              <xsl:text>' not found in document.</xsl:text>
-            </xsl:message>
+          <xsl:when test="$rootid != ''">
+            <xsl:choose>
+              <xsl:when test="count($profiled-nodes//*[@id=$rootid or @xml:id=$rootid]) = 0">
+                <xsl:message terminate="yes">
+                  <xsl:text>ID '</xsl:text>
+                  <xsl:value-of select="$rootid"/>
+                  <xsl:text>' not found in document.</xsl:text>
+                </xsl:message>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:message>Formatting from <xsl:value-of select="$rootid"/></xsl:message>
+                <xsl:apply-templates select="$profiled-nodes//*[@id=$rootid or @xml:id=$rootid]" mode="process.root"/>
+              </xsl:otherwise>
+            </xsl:choose>
           </xsl:when>
           <xsl:otherwise>
-            <xsl:message>Formatting from <xsl:value-of select="$rootid"/></xsl:message>
-            <xsl:apply-templates select="$profiled-nodes//*[@id=$rootid or @xml:id=$rootid]" mode="process.root"/>
+            <xsl:if test="$collect.xref.targets = 'yes' or                           $collect.xref.targets = 'only'">
+              <xsl:apply-templates select="$profiled-nodes" mode="collect.targets"/>
+            </xsl:if>
+            <xsl:if test="$collect.xref.targets != 'only'">
+              <xsl:apply-templates select="$profiled-nodes" mode="process.root"/>
+            </xsl:if>
           </xsl:otherwise>
         </xsl:choose>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:if test="$collect.xref.targets = 'yes' or                       $collect.xref.targets = 'only'">
-          <xsl:apply-templates select="$profiled-nodes" mode="collect.targets"/>
+      </xsl:if>
+    
+    
+      <xsl:if test="$collect.xref.targets != 'only'">
+        <xsl:call-template name="hhp"/>
+        <xsl:call-template name="hhc"/>
+        <xsl:if test="($rootid = '' and //processing-instruction('dbhh')) or                       ($rootid != '' and $profiled-nodes//*[@id=$rootid or @xml:id=$rootid]//processing-instruction('dbhh'))">
+          <xsl:call-template name="hh-map"/>
+          <xsl:call-template name="hh-alias"/>
         </xsl:if>
-        <xsl:if test="$collect.xref.targets != 'only'">
-          <xsl:apply-templates select="$profiled-nodes" mode="process.root"/>
+        <xsl:if test="$htmlhelp.generate.index">
+          <xsl:call-template name="hhk"/>
         </xsl:if>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:if>
-
-
-  <xsl:if test="$collect.xref.targets != 'only'">
-    <xsl:call-template name="hhp"/>
-    <xsl:call-template name="hhc"/>
-    <xsl:if test="($rootid = '' and //processing-instruction('dbhh')) or                   ($rootid != '' and $profiled-nodes//*[@id=$rootid or @xml:id=$rootid]//processing-instruction('dbhh'))">
-      <xsl:call-template name="hh-map"/>
-      <xsl:call-template name="hh-alias"/>
-    </xsl:if>
-    <xsl:if test="$htmlhelp.generate.index">
-      <xsl:call-template name="hhk"/>
-    </xsl:if>
-  </xsl:if>
-</xsl:otherwise>
-</xsl:choose>
+      </xsl:if>
+    </xsl:otherwise>
+  </xsl:choose>
 </xsl:template>
 
 <!-- ==================================================================== -->

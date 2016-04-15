@@ -1,13 +1,11 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 xmlns:exsl="http://exslt.org/common"
                 xmlns:cf="http://docbook.sourceforge.net/xmlns/chunkfast/1.0"
-                xmlns:ng="http://docbook.org/docbook-ng"
-                xmlns:db="http://docbook.org/ns/docbook"
                 version="1.0"
-                exclude-result-prefixes="exsl cf ng db">
+                exclude-result-prefixes="exsl cf">
 
 <!-- ********************************************************************
-     $Id: chunk-common.xsl 9665 2012-11-08 14:26:20Z kosek $
+     $Id: chunk-common.xsl 9866 2014-01-29 02:55:52Z bobstayton $
      ********************************************************************
 
      This file is part of the XSL DocBook Stylesheet distribution.
@@ -29,11 +27,11 @@
 <xsl:variable name="chunk.hierarchy">
   <xsl:if test="$chunk.fast != 0">
     <xsl:choose>
-      <!-- Are we handling a docbook5 document? -->
-      <xsl:when test="$exsl.node.set.available != 0
-                      and (*/self::ng:* or */self::db:*)">
+      <!-- Do we need to fix namespace? -->
+      <xsl:when test="$exsl.node.set.available != 0 and 
+                    namespace-uri(/*) = 'http://docbook.org/ns/docbook'">
         <xsl:if test="$chunk.quietly = 0">
-          <xsl:message>Computing stripped namespace chunks...</xsl:message>
+          <xsl:message>Computing chunks...</xsl:message>
         </xsl:if>
         <xsl:apply-templates mode="find.chunks" select="exsl:node-set($no.namespace)"/>
       </xsl:when>
@@ -41,7 +39,6 @@
         <xsl:if test="$chunk.quietly = 0">
           <xsl:message>Computing chunks...</xsl:message>
         </xsl:if>
-
         <xsl:apply-templates select="/*" mode="find.chunks"/>
       </xsl:when>
       <xsl:otherwise>
@@ -1293,7 +1290,7 @@
               <xsl:variable name="currentdoc.key" >
                 <xsl:for-each select="$target.database" >
                   <xsl:value-of select="key('targetdoc-key',
-                                        $current.docid)/@targetdoc" />
+                                        $current.docid)[1]/@targetdoc" />
                 </xsl:for-each>
               </xsl:variable>
               <xsl:choose>
@@ -1301,32 +1298,36 @@
                   <xsl:for-each select="$target.database" >
                     <xsl:call-template name="targetpath" >
                       <xsl:with-param name="dirnode" 
-                          select="key('targetdoc-key', $current.docid)/parent::dir"/>
+                          select="key('targetdoc-key', $current.docid)[1]/parent::dir"/>
                       <xsl:with-param name="targetdoc" select="$targetdoc"/>
                     </xsl:call-template>
-                  </xsl:for-each >
+                  </xsl:for-each>
                 </xsl:when>
                 <xsl:otherwise>
-                  <xsl:message>
-                    <xsl:text>Olink error: cannot compute relative </xsl:text>
-                    <xsl:text>sitemap path because $current.docid '</xsl:text>
-                    <xsl:value-of select="$current.docid"/>
-                    <xsl:text>' not found in target database.</xsl:text>
-                  </xsl:message>
+                  <xsl:call-template name="olink.error">
+                    <xsl:with-param name="message">
+                      <xsl:text>cannot compute relative </xsl:text>
+                      <xsl:text>sitemap path because $current.docid '</xsl:text>
+                      <xsl:value-of select="$current.docid"/>
+                      <xsl:text>' not found in target database.</xsl:text>
+                    </xsl:with-param>
+                  </xsl:call-template>
                 </xsl:otherwise>
               </xsl:choose>
             </xsl:when>
             <xsl:otherwise>
-              <xsl:message>
-                <xsl:text>Olink warning: cannot compute relative </xsl:text>
-                <xsl:text>sitemap path without $current.docid parameter</xsl:text>
-              </xsl:message>
+              <xsl:call-template name="olink.error">
+                <xsl:with-param name="message">
+                  <xsl:text>cannot compute relative </xsl:text>
+                  <xsl:text>sitemap path without $current.docid parameter</xsl:text>
+                </xsl:with-param>
+              </xsl:call-template>
             </xsl:otherwise>
           </xsl:choose> 
           <!-- In either case, add baseuri from its document entry-->
           <xsl:variable name="docbaseuri">
             <xsl:for-each select="$target.database" >
-              <xsl:value-of select="key('targetdoc-key', $targetdoc)/@baseuri" />
+              <xsl:value-of select="key('targetdoc-key', $targetdoc)[1]/@baseuri" />
             </xsl:for-each>
           </xsl:variable>
           <xsl:if test="$docbaseuri != ''" >
@@ -1338,7 +1339,7 @@
           <!-- Just use any baseuri from its document entry -->
           <xsl:variable name="docbaseuri">
             <xsl:for-each select="$target.database" >
-              <xsl:value-of select="key('targetdoc-key', $targetdoc)/@baseuri" />
+              <xsl:value-of select="key('targetdoc-key', $targetdoc)[1]/@baseuri" />
             </xsl:for-each>
           </xsl:variable>
           <xsl:if test="$docbaseuri != ''" >
@@ -1348,24 +1349,41 @@
       </xsl:choose>
     </xsl:variable>
   
-    <!-- Form the href information -->
-    <xsl:if test="not(contains($baseuri, ':'))">
-      <!-- if not an absolute uri, add upward path from olink chunk -->
-      <xsl:value-of select="$upward.from.path"/>
-    </xsl:if>
+    <!-- Is this olink to be active? -->
+    <xsl:variable name="active.olink">
+      <xsl:choose>
+        <xsl:when test="$activate.external.olinks = 0">
+          <xsl:choose>
+            <xsl:when test="$current.docid = ''">1</xsl:when>
+            <xsl:when test="$targetdoc = ''">1</xsl:when>
+            <xsl:when test="$targetdoc = $current.docid">1</xsl:when>
+            <xsl:otherwise>0</xsl:otherwise>
+          </xsl:choose>
+        </xsl:when>
+        <xsl:otherwise>1</xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
 
-    <xsl:if test="$baseuri != ''">
-      <xsl:value-of select="$baseuri"/>
-      <xsl:if test="substring($target.href,1,1) != '#'">
-        <!--xsl:text>/</xsl:text-->
+    <xsl:if test="$active.olink != 0">
+      <!-- Form the href information -->
+      <xsl:if test="not(contains($baseuri, ':'))">
+        <!-- if not an absolute uri, add upward path from olink chunk -->
+        <xsl:value-of select="$upward.from.path"/>
       </xsl:if>
-    </xsl:if>
-    <!-- optionally turn off frag for PDF references -->
-    <xsl:if test="not($insert.olink.pdf.frag = 0 and
-          translate(substring($baseuri, string-length($baseuri) - 3),
-                    'PDF', 'pdf') = '.pdf'
-          and starts-with($target.href, '#') )">
-      <xsl:value-of select="$target.href"/>
+  
+      <xsl:if test="$baseuri != ''">
+        <xsl:value-of select="$baseuri"/>
+        <xsl:if test="substring($target.href,1,1) != '#'">
+          <!--xsl:text>/</xsl:text-->
+        </xsl:if>
+      </xsl:if>
+      <!-- optionally turn off frag for PDF references -->
+      <xsl:if test="not($insert.olink.pdf.frag = 0 and
+            translate(substring($baseuri, string-length($baseuri) - 3),
+                      'PDF', 'pdf') = '.pdf'
+            and starts-with($target.href, '#') )">
+        <xsl:value-of select="$target.href"/>
+      </xsl:if>
     </xsl:if>
   </xsl:if>
 </xsl:template>
