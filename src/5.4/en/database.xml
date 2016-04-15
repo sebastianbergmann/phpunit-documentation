@@ -802,12 +802,24 @@ class ArrayGuestbookTest extends PHPUnit_Extensions_Database_TestCase
 {
     protected function getDataSet()
     {
-        return new MyApp_DbUnit_ArrayDataSet(array(
-            'guestbook' => array(
-                array('id' => 1, 'content' => 'Hello buddy!', 'user' => 'joe', 'created' => '2010-04-24 17:15:23'),
-                array('id' => 2, 'content' => 'I like it!',   'user' => null,  'created' => '2010-04-26 12:14:20'),
-            ),
-        ));
+        return new MyApp_DbUnit_ArrayDataSet(
+            [
+                'guestbook' => [
+                    [
+                        'id' => 1,
+                        'content' => 'Hello buddy!',
+                        'user' => 'joe',
+                        'created' => '2010-04-24 17:15:23'
+                    ],
+                    [
+                        'id' => 2,
+                        'content' => 'I like it!',
+                        'user' => null,
+                        'created' => '2010-04-26 12:14:20'
+                    ],
+                ],
+            ]
+        );
     }
 }
 ?>]]></programlisting>
@@ -845,7 +857,7 @@ class MyApp_DbUnit_ArrayDataSet extends PHPUnit_Extensions_Database_DataSet_Abst
     /**
      * @var array
      */
-    protected $tables = array();
+    protected $tables = [];
 
     /**
      * @param array $data
@@ -853,7 +865,7 @@ class MyApp_DbUnit_ArrayDataSet extends PHPUnit_Extensions_Database_DataSet_Abst
     public function __construct(array $data)
     {
         foreach ($data AS $tableName => $rows) {
-            $columns = array();
+            $columns = [];
             if (isset($rows[0])) {
                 $columns = array_keys($rows[0]);
             }
@@ -954,7 +966,7 @@ class MySqlGuestbookTest extends PHPUnit_Extensions_Database_TestCase
 
     public function testFilteredGuestbook()
     {
-        $tableNames = array('guestbook');
+        $tableNames = ['guestbook'];
         $dataSet = $this->getConnection()->createDataSet($tableNames);
         // ...
     }
@@ -1010,23 +1022,23 @@ class DataSetFilterTest extends PHPUnit_Extensions_Database_TestCase
 {
     public function testIncludeFilteredGuestbook()
     {
-        $tableNames = array('guestbook');
+        $tableNames = ['guestbook'];
         $dataSet = $this->getConnection()->createDataSet();
 
         $filterDataSet = new PHPUnit_Extensions_Database_DataSet_DataSetFilter($dataSet);
-        $filterDataSet->addIncludeTables(array('guestbook'));
-        $filterDataSet->setIncludeColumnsForTable('guestbook', array('id', 'content'));
+        $filterDataSet->addIncludeTables(['guestbook']);
+        $filterDataSet->setIncludeColumnsForTable('guestbook', ['id', 'content']);
         // ..
     }
 
     public function testExcludeFilteredGuestbook()
     {
-        $tableNames = array('guestbook');
+        $tableNames = ['guestbook'];
         $dataSet = $this->getConnection()->createDataSet();
 
         $filterDataSet = new PHPUnit_Extensions_Database_DataSet_DataSetFilter($dataSet);
-        $filterDataSet->addExcludeTables(array('foo', 'bar', 'baz')); // only keep the guestbook table!
-        $filterDataSet->setExcludeColumnsForTable('guestbook', array('user', 'created'));
+        $filterDataSet->addExcludeTables(['foo', 'bar', 'baz']); // only keep the guestbook table!
+        $filterDataSet->setExcludeColumnsForTable('guestbook', ['user', 'created']);
         // ..
     }
 }
@@ -1207,7 +1219,7 @@ class ConnectionTest extends PHPUnit_Extensions_Database_TestCase
 {
     public function testCreateDataSet()
     {
-        $tableNames = array('guestbook');
+        $tableNames = ['guestbook'];
         $dataSet = $this->getConnection()->createDataSet();
     }
 }
@@ -1226,7 +1238,7 @@ class ConnectionTest extends PHPUnit_Extensions_Database_TestCase
 {
     public function testCreateQueryTable()
     {
-        $tableNames = array('guestbook');
+        $tableNames = ['guestbook'];
         $queryTable = $this->getConnection()->createQueryTable('guestbook', 'SELECT * FROM guestbook');
     }
 }
@@ -1395,7 +1407,7 @@ class DataSetAssertionsTest extends PHPUnit_Extensions_Database_TestCase
 {
     public function testCreateDataSetAssertion()
     {
-        $dataSet = $this->getConnection()->createDataSet(array('guestbook'));
+        $dataSet = $this->getConnection()->createDataSet(['guestbook']);
         $expectedDataSet = $this->createFlatXmlDataSet('guestbook.xml');
         $this->assertDataSetsEqual($expectedDataSet, $dataSet);
     }
