@@ -793,12 +793,24 @@ class ArrayGuestbookTest extends PHPUnit_Extensions_Database_TestCase
 {
     protected function getDataSet()
     {
-        return $this->createArrayDataSet(array(
-            'guestbook' => array(
-                array('id' => 1, 'content' => 'Hello buddy!', 'user' => 'joe', 'created' => '2010-04-24 17:15:23'),
-                array('id' => 2, 'content' => 'I like it!',   'user' => null,  'created' => '2010-04-26 12:14:20'),
-            ),
-        ));
+        return new MyApp_DbUnit_ArrayDataSet(
+            [
+                'guestbook' => [
+                    [
+                        'id' => 1,
+                        'content' => 'Hello buddy!',
+                        'user' => 'joe',
+                        'created' => '2010-04-24 17:15:23'
+                    ],
+                    [
+                        'id' => 2,
+                        'content' => 'I like it!',
+                        'user' => null,
+                        'created' => '2010-04-26 12:14:20'
+                    ],
+                ],
+            ]
+        );
     }
 }
 ?>]]></programlisting>
@@ -825,6 +837,53 @@ class ArrayGuestbookTest extends PHPUnit_Extensions_Database_TestCase
           <quote>content</quote>、<quote>user</quote> そして
           <quote>created</quote> です。
         </para>
+        <para>
+          このデータセットの実装は、シンプルでわかりやすいものです。
+        </para>
+        <programlisting><![CDATA[<?php
+class MyApp_DbUnit_ArrayDataSet extends PHPUnit_Extensions_Database_DataSet_AbstractDataSet
+{
+    /**
+     * @var array
+     */
+    protected $tables = [];
+
+    /**
+     * @param array $data
+     */
+    public function __construct(array $data)
+    {
+        foreach ($data AS $tableName => $rows) {
+            $columns = [];
+            if (isset($rows[0])) {
+                $columns = array_keys($rows[0]);
+            }
+
+            $metaData = new PHPUnit_Extensions_Database_DataSet_DefaultTableMetaData($tableName, $columns);
+            $table = new PHPUnit_Extensions_Database_DataSet_DefaultTable($metaData);
+
+            foreach ($rows AS $row) {
+                $table->addRow($row);
+            }
+            $this->tables[$tableName] = $table;
+        }
+    }
+
+    protected function createIterator($reverse = false)
+    {
+        return new PHPUnit_Extensions_Database_DataSet_DefaultTableIterator($this->tables, $reverse);
+    }
+
+    public function getTable($tableName)
+    {
+        if (!isset($this->tables[$tableName])) {
+            throw new InvalidArgumentException("$tableName is not a table in the current database.");
+        }
+
+        return $this->tables[$tableName];
+    }
+}
+?>]]></programlisting>
       </section>
       <section id="database.query-sql-dataset">
         <title>Query (SQL) データセット</title>
@@ -894,7 +953,7 @@ class MySqlGuestbookTest extends PHPUnit_Extensions_Database_TestCase
 
     public function testFilteredGuestbook()
     {
-        $tableNames = array('guestbook');
+        $tableNames = ['guestbook'];
         $dataSet = $this->getConnection()->createDataSet($tableNames);
         // ...
     }
@@ -951,23 +1010,23 @@ class DataSetFilterTest extends PHPUnit_Extensions_Database_TestCase
 {
     public function testIncludeFilteredGuestbook()
     {
-        $tableNames = array('guestbook');
+        $tableNames = ['guestbook'];
         $dataSet = $this->getConnection()->createDataSet();
 
         $filterDataSet = new PHPUnit_Extensions_Database_DataSet_DataSetFilter($dataSet);
-        $filterDataSet->addIncludeTables(array('guestbook'));
-        $filterDataSet->setIncludeColumnsForTable('guestbook', array('id', 'content'));
+        $filterDataSet->addIncludeTables(['guestbook']);
+        $filterDataSet->setIncludeColumnsForTable('guestbook', ['id', 'content']);
         // ..
     }
 
     public function testExcludeFilteredGuestbook()
     {
-        $tableNames = array('guestbook');
+        $tableNames = ['guestbook'];
         $dataSet = $this->getConnection()->createDataSet();
 
         $filterDataSet = new PHPUnit_Extensions_Database_DataSet_DataSetFilter($dataSet);
-        $filterDataSet->addExcludeTables(array('foo', 'bar', 'baz')); // only keep the guestbook table!
-        $filterDataSet->setExcludeColumnsForTable('guestbook', array('user', 'created'));
+        $filterDataSet->addExcludeTables(['foo', 'bar', 'baz']); // only keep the guestbook table!
+        $filterDataSet->setExcludeColumnsForTable('guestbook', ['user', 'created']);
         // ..
     }
 }
@@ -1147,7 +1206,7 @@ class ConnectionTest extends PHPUnit_Extensions_Database_TestCase
 {
     public function testCreateDataSet()
     {
-        $tableNames = array('guestbook');
+        $tableNames = ['guestbook'];
         $dataSet = $this->getConnection()->createDataSet();
     }
 }
@@ -1165,7 +1224,7 @@ class ConnectionTest extends PHPUnit_Extensions_Database_TestCase
 {
     public function testCreateQueryTable()
     {
-        $tableNames = array('guestbook');
+        $tableNames = ['guestbook'];
         $queryTable = $this->getConnection()->createQueryTable('guestbook', 'SELECT * FROM guestbook');
     }
 }
@@ -1329,7 +1388,7 @@ class DataSetAssertionsTest extends PHPUnit_Extensions_Database_TestCase
 {
     public function testCreateDataSetAssertion()
     {
-        $dataSet = $this->getConnection()->createDataSet(array('guestbook'));
+        $dataSet = $this->getConnection()->createDataSet(['guestbook']);
         $expectedDataSet = $this->createFlatXmlDataSet('guestbook.xml');
         $this->assertDataSetsEqual($expectedDataSet, $dataSet);
     }

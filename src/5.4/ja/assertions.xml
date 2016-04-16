@@ -20,7 +20,7 @@ class ArrayHasKeyTest extends PHPUnit_Framework_TestCase
 {
     public function testFailure()
     {
-        $this->assertArrayHasKey('foo', array('bar' => 'baz'));
+        $this->assertArrayHasKey('foo', ['bar' => 'baz']);
     }
 }
 ?>]]></programlisting>
@@ -176,7 +176,7 @@ class ContainsTest extends PHPUnit_Framework_TestCase
 {
     public function testFailure()
     {
-        $this->assertContains(4, array(1, 2, 3));
+        $this->assertContains(4, [1, 2, 3]);
     }
 }
 ?>]]></programlisting>
@@ -283,7 +283,7 @@ class ContainsOnlyTest extends PHPUnit_Framework_TestCase
 {
     public function testFailure()
     {
-        $this->assertContainsOnly('string', array('1', '2', 3));
+        $this->assertContainsOnly('string', ['1', '2', 3]);
     }
 }
 ?>]]></programlisting>
@@ -321,7 +321,10 @@ class ContainsOnlyInstancesOfTest extends PHPUnit_Framework_TestCase
 {
     public function testFailure()
     {
-        $this->assertContainsOnlyInstancesOf(Foo::class, array(new Foo(), new Bar(), new Foo()));
+        $this->assertContainsOnlyInstancesOf(
+            Foo::class,
+            [new Foo, new Bar, new Foo]
+        );
     }
 }
 ?>]]></programlisting>
@@ -357,7 +360,7 @@ class CountTest extends PHPUnit_Framework_TestCase
 {
     public function testFailure()
     {
-        $this->assertCount(0, array('foo'));
+        $this->assertCount(0, ['foo']);
     }
 }
 ?>]]></programlisting>
@@ -397,7 +400,7 @@ class EmptyTest extends PHPUnit_Framework_TestCase
 {
     public function testFailure()
     {
-        $this->assertEmpty(array('foo'));
+        $this->assertEmpty(['foo']);
     }
 }
 ?>]]></programlisting>
@@ -740,7 +743,7 @@ class EqualsTest extends PHPUnit_Framework_TestCase
 {
     public function testFailure()
     {
-        $this->assertEquals(array('a', 'b', 'c'), array('a', 'c', 'd'));
+        $this->assertEquals(['a', 'b', 'c'], ['a', 'c', 'd']);
     }
 }
 ?>]]></programlisting>
@@ -1137,7 +1140,7 @@ class JsonStringEqualsJsonFileTest extends PHPUnit_Framework_TestCase
     public function testFailure()
     {
         $this->assertJsonStringEqualsJsonFile(
-          'path/to/fixture/file', json_encode(array("Mascott" => "ux"))
+            'path/to/fixture/file', json_encode(['Mascott' => 'ux'])
         );
     }
 }
@@ -1178,7 +1181,8 @@ class JsonStringEqualsJsonStringTest extends PHPUnit_Framework_TestCase
     public function testFailure()
     {
         $this->assertJsonStringEqualsJsonString(
-          json_encode(array("Mascott" => "Tux")), json_encode(array("Mascott" => "ux"))
+            json_encode(['Mascott' => 'Tux']),
+            json_encode(['Mascott' => 'ux'])
         );
     }
 }

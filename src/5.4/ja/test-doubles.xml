@@ -304,9 +304,9 @@ class StubTest extends PHPUnit_Framework_TestCase
         $stub = $this->createMock(SomeClass::class);
 
         // 値を返すための、引数のマップを作製します
-        $map = array(
-          array('a', 'b', 'c', 'd'),
-          array('e', 'f', 'g', 'h')
+        $map = [
+            ['a', 'b', 'c', 'd'],
+            ['e', 'f', 'g', 'h']
         );
 
         // スタブの設定を行います
@@ -492,7 +492,7 @@ class StubTest extends PHPUnit_Framework_TestCase
       <programlisting><![CDATA[<?php
 class Subject
 {
-    protected $observers = array();
+    protected $observers = [];
     protected $name;
     
     public function __construct($name)
@@ -587,7 +587,7 @@ class SubjectTest extends PHPUnit_Framework_TestCase
         // Observer クラスのモックを作成します。
         // update() メソッドのみのモックです。
         $observer = $this->getMockBuilder(Observer::class)
-                         ->setMethods(array('update'))
+                         ->setMethods(['update'])
                          ->getMock();
 
         // update() メソッドが一度だけコールされ、その際の
@@ -627,7 +627,7 @@ class SubjectTest extends PHPUnit_Framework_TestCase
         // Observer クラスのモックを作成します。
         // reportError() メソッドをモックします。
         $observer = $this->getMockBuilder(Observer::class)
-                         ->setMethods(array('reportError'))
+                         ->setMethods(['reportError'])
                          ->getMock();
 
         $observer->expects($this->once())
@@ -664,14 +664,14 @@ class FooTest extends PHPUnit_Framework_TestCase
     public function testFunctionCalledTwoTimesWithSpecificArguments()
     {
         $mock = $this->getMockBuilder(stdClass::class)
-                     ->setMethods(array('set'))
+                     ->setMethods(['set'])
                      ->getMock();
 
         $mock->expects($this->exactly(2))
              ->method('set')
              ->withConsecutive(
-                 array($this->equalTo('foo'), $this->greaterThan(0)),
-                 array($this->equalTo('bar'), $this->greaterThan(0))
+                 [$this->equalTo('foo'), $this->greaterThan(0)],
+                 [$this->equalTo('bar'), $this->greaterThan(0)]
              );
 
         $mock->set('foo', 21);
@@ -698,7 +698,7 @@ class SubjectTest extends PHPUnit_Framework_TestCase
         // Observer クラスのモックを作成します。
         // reportError() メソッドをモックします。
         $observer = $this->getMockBuilder(Observer::class)
-                         ->setMethods(array('reportError'))
+                         ->setMethods(['reportError'])
                          ->getMock();
 
         $observer->expects($this->once())
@@ -706,7 +706,7 @@ class SubjectTest extends PHPUnit_Framework_TestCase
                  ->with($this->greaterThan(0),
                         $this->stringContains('Something'),
                         $this->callback(function($subject){
-                          return is_callable(array($subject, 'getName')) &&
+                          return is_callable([$subject, 'getName')] &&
                                  $subject->getName() == 'My subject';
                         }));
 
@@ -731,7 +731,7 @@ class FooTest extends PHPUnit_Framework_TestCase
         $expectedObject = new stdClass;
 
         $mock = $this->getMockBuilder(stdClass::class)
-                     ->setMethods(array('foo'))
+                     ->setMethods(['foo'])
                      ->getMock();
 
         $mock->expects($this->once())
@@ -1025,12 +1025,12 @@ class GoogleTest extends PHPUnit_Framework_TestCase
         $result->searchComments = '';
         $result->estimatedTotalResultsCount = 3.9000;
         $result->estimateIsExact = false;
-        $result->resultElements = array($element);
+        $result->resultElements = [$element];
         $result->searchQuery = 'PHPUnit';
         $result->startIndex = 1;
         $result->endIndex = 1;
         $result->searchTips = '';
-        $result->directoryCategories = array();
+        $result->directoryCategories = [];
         $result->searchTime = 0.248822;
 
         $googleSearch->expects($this->any())
