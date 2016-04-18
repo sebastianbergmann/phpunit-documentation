@@ -19,7 +19,7 @@ class ArrayHasKeyTest extends PHPUnit_Framework_TestCase
 {
     public function testFailure()
     {
-        $this->assertArrayHasKey('foo', array('bar' => 'baz'));
+        $this->assertArrayHasKey('foo', ['bar' => 'baz']);
     }
 }
 ?>]]></programlisting>
@@ -56,7 +56,7 @@ class ClassHasAttributeTest extends PHPUnit_Framework_TestCase
 {
     public function testFailure()
     {
-        $this->assertClassHasAttribute('foo', 'stdClass');
+        $this->assertClassHasAttribute('foo', stdClass::class);
     }
 }
 ?>]]></programlisting>
@@ -135,7 +135,7 @@ class ClassHasStaticAttributeTest extends PHPUnit_Framework_TestCase
 {
     public function testFailure()
     {
-        $this->assertClassHasStaticAttribute('foo', 'stdClass');
+        $this->assertClassHasStaticAttribute('foo', stdClass::class);
     }
 }
 ?>]]></programlisting>
@@ -175,7 +175,7 @@ class ContainsTest extends PHPUnit_Framework_TestCase
 {
     public function testFailure()
     {
-        $this->assertContains(4, array(1, 2, 3));
+        $this->assertContains(4, [1, 2, 3]);
     }
 }
 ?>]]></programlisting>
@@ -197,9 +197,9 @@ FAILURES!
 Tests: 1, Assertions: 1, Failures: 1.</screen>
     </example>
 
-    <para><literal>assertContains(string $needle, string $haystack[, string $message = '', boolean $ignoreCase = FALSE])</literal></para>
+    <para><literal>assertContains(string $needle, string $haystack[, string $message = '', boolean $ignoreCase = false])</literal></para>
     <para>当 <literal>$needle</literal> 不是 <literal>$haystack</literal> 的子字符串时报告错误，错误讯息由 <literal>$message</literal> 指定。</para>
-    <para>如果 <literal>$ignoreCase</literal> 为 <literal>TRUE</literal>，测试将按大小写不敏感的方式进行。</para>
+    <para>如果 <literal>$ignoreCase</literal> 为 <literal>true</literal>，测试将按大小写不敏感的方式进行。</para>
     <example id="appendixes.assertions.assertContains.example2">
       <title>assertContains() 的用法</title>
       <programlisting><![CDATA[<?php
@@ -270,7 +270,7 @@ Tests: 2, Assertions: 2, Failures: 1.]]></screen>
     <indexterm><primary>assertNotContainsOnly()</primary></indexterm>
     <indexterm><primary>assertAttributeContainsOnly()</primary></indexterm>
     <indexterm><primary>assertAttributeNotContainsOnly()</primary></indexterm>
-    <para><literal>assertContainsOnly(string $type, Iterator|array $haystack[, boolean $isNativeType = NULL, string $message = ''])</literal></para>
+    <para><literal>assertContainsOnly(string $type, Iterator|array $haystack[, boolean $isNativeType = null, string $message = ''])</literal></para>
     <para>当 <literal>$haystack</literal> 并非仅包含类型为 <literal>$type</literal> 的变量时报告错误，错误讯息由 <literal>$message</literal> 指定。</para>
     <para><literal>$isNativeType</literal> 是一个标志，用来表明 <literal>$type</literal> 是否是原生 PHP 类型。</para>
     <para><literal>assertNotContainsOnly()</literal> 是与之相反的断言，并接受相同的参数。</para>
@@ -282,7 +282,7 @@ class ContainsOnlyTest extends PHPUnit_Framework_TestCase
 {
     public function testFailure()
     {
-        $this->assertContainsOnly('string', array('1', '2', 3));
+        $this->assertContainsOnly('string', ['1', '2', 3]);
     }
 }
 ?>]]></programlisting>
@@ -320,7 +320,10 @@ class ContainsOnlyInstancesOfTest extends PHPUnit_Framework_TestCase
 {
     public function testFailure()
     {
-        $this->assertContainsOnlyInstancesOf('Foo', array(new Foo(), new Bar(), new Foo()));
+        $this->assertContainsOnlyInstancesOf(
+            Foo::class,
+            [new Foo, new Bar, new Foo]
+        );
     }
 }
 ?>]]></programlisting>
@@ -356,7 +359,7 @@ class CountTest extends PHPUnit_Framework_TestCase
 {
     public function testFailure()
     {
-        $this->assertCount(0, array('foo'));
+        $this->assertCount(0, ['foo']);
     }
 }
 ?>]]></programlisting>
@@ -396,7 +399,7 @@ class EmptyTest extends PHPUnit_Framework_TestCase
 {
     public function testFailure()
     {
-        $this->assertEmpty(array('foo'));
+        $this->assertEmpty(['foo']);
     }
 }
 ?>]]></programlisting>
@@ -422,7 +425,7 @@ Tests: 1, Assertions: 1, Failures: 1.</screen>
   <section id="appendixes.assertions.assertEqualXMLStructure">
     <title>assertEqualXMLStructure()</title>
     <indexterm><primary>assertEqualXMLStructure()</primary></indexterm>
-    <para><literal>assertEqualXMLStructure(DOMElement $expectedElement, DOMElement $actualElement[, boolean $checkAttributes = FALSE, string $message = ''])</literal></para>
+    <para><literal>assertEqualXMLStructure(DOMElement $expectedElement, DOMElement $actualElement[, boolean $checkAttributes = false, string $message = ''])</literal></para>
     <para>当 <literal>$actualElement</literal> 中 DOMElement 的 XML 结构与 <literal>$expectedElement</literal> 中 DOMElement的 XML 结构不相同时报告错误，错误讯息由 <literal>$message</literal> 指定。</para>
     <example id="appendixes.assertions.assertEqualXMLStructure.example">
       <title>assertEqualXMLStructure() 的用法</title>
@@ -446,7 +449,7 @@ class EqualXMLStructureTest extends PHPUnit_Framework_TestCase
         $actual->loadXML('<foo/>');
 
         $this->assertEqualXMLStructure(
-          $expected->firstChild, $actual->firstChild, TRUE
+          $expected->firstChild, $actual->firstChild, true
         );
     }
 
@@ -739,7 +742,7 @@ class EqualsTest extends PHPUnit_Framework_TestCase
 {
     public function testFailure()
     {
-        $this->assertEquals(array('a', 'b', 'c'), array('a', 'c', 'd'));
+        $this->assertEquals(['a', 'b', 'c'], ['a', 'c', 'd']);
     }
 }
 ?>]]></programlisting>
@@ -776,7 +779,7 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
     <title>assertFalse()</title>
     <indexterm><primary>assertFalse()</primary></indexterm>
     <para><literal>assertFalse(bool $condition[, string $message = ''])</literal></para>
-    <para>当 <literal>$condition</literal> 为 <literal>TRUE</literal> 时报告错误，错误讯息由 <literal>$message</literal> 指定。</para>
+    <para>当 <literal>$condition</literal> 为 <literal>true</literal> 时报告错误，错误讯息由 <literal>$message</literal> 指定。</para>
     <para><literal>assertNotFalse()</literal> 是与之相反的断言，接受相同的参数。</para>
     <example id="appendixes.assertions.assertFalse.example">
       <title>assertFalse() 的用法</title>
@@ -785,7 +788,7 @@ class FalseTest extends PHPUnit_Framework_TestCase
 {
     public function testFailure()
     {
-        $this->assertFalse(TRUE);
+        $this->assertFalse(true);
     }
 }
 ?>]]></programlisting>
@@ -1016,7 +1019,7 @@ class InstanceOfTest extends PHPUnit_Framework_TestCase
 {
     public function testFailure()
     {
-        $this->assertInstanceOf('RuntimeException', new Exception);
+        $this->assertInstanceOf(RuntimeException::class, new Exception);
     }
 }
 ?>]]></programlisting>
@@ -1130,7 +1133,7 @@ class JsonStringEqualsJsonFileTest extends PHPUnit_Framework_TestCase
     public function testFailure()
     {
         $this->assertJsonStringEqualsJsonFile(
-          'path/to/fixture/file', json_encode(array("Mascott" => "ux"))
+            'path/to/fixture/file', json_encode(['Mascott' => 'ux'])
         );
     }
 }
@@ -1168,7 +1171,8 @@ class JsonStringEqualsJsonStringTest extends PHPUnit_Framework_TestCase
     public function testFailure()
     {
         $this->assertJsonStringEqualsJsonString(
-          json_encode(array("Mascott" => "Tux")), json_encode(array("Mascott" => "ux"))
+            json_encode(['Mascott' => 'Tux']),
+            json_encode(['Mascott' => 'ux'])
         );
     }
 }
@@ -1313,7 +1317,7 @@ Tests: 1, Assertions: 1, Failures: 1.</screen>
     <indexterm><primary>assertNull()</primary></indexterm>
     <indexterm><primary>assertNotNull()</primary></indexterm>
     <para><literal>assertNull(mixed $variable[, string $message = ''])</literal></para>
-    <para>当 <literal>$actual</literal> 不是  <literal>NULL</literal> 时报告错误，错误讯息由 <literal>$message</literal> 指定。</para>
+    <para>当 <literal>$actual</literal> 不是  <literal>null</literal> 时报告错误，错误讯息由 <literal>$message</literal> 指定。</para>
     <para><literal>assertNotNull()</literal> 是与之相反的断言，接受相同的参数。</para>
     <example id="appendixes.assertions.assertNull.example">
       <title>assertNull() 的使用</title>
@@ -1818,7 +1822,7 @@ class BiscuitTest extends PHPUnit_Framework_TestCase
           <row>
             <indexterm><primary>isFalse()</primary></indexterm>
             <entry><literal>PHPUnit_Framework_Constraint_IsFalse isFalse()</literal></entry>
-            <entry>此约束断言所评定的值为 <literal>FALSE</literal>。</entry>
+            <entry>此约束断言所评定的值为 <literal>false</literal>。</entry>
           </row>
           <row>
             <indexterm><primary>isInstanceOf()</primary></indexterm>
@@ -1828,12 +1832,12 @@ class BiscuitTest extends PHPUnit_Framework_TestCase
           <row>
             <indexterm><primary>isNull()</primary></indexterm>
             <entry><literal>PHPUnit_Framework_Constraint_IsNull isNull()</literal></entry>
-            <entry>此约束断言所评定的值为 <literal>NULL</literal>。</entry>
+            <entry>此约束断言所评定的值为 <literal>null</literal>。</entry>
           </row>
           <row>
             <indexterm><primary>isTrue()</primary></indexterm>
             <entry><literal>PHPUnit_Framework_Constraint_IsTrue isTrue()</literal></entry>
-            <entry>此约束断言所评定的值为 <literal>TRUE</literal>。</entry>
+            <entry>此约束断言所评定的值为 <literal>true</literal>。</entry>
           </row>
           <row>
             <indexterm><primary>isType()</primary></indexterm>
@@ -1899,7 +1903,7 @@ class BiscuitTest extends PHPUnit_Framework_TestCase
     <title>assertTrue()</title>
     <indexterm><primary>assertTrue()</primary></indexterm>
     <para><literal>assertTrue(bool $condition[, string $message = ''])</literal></para>
-    <para>当 <literal>$condition</literal> 为 <literal>FALSE</literal> 时报告错误，错误讯息由 <literal>$message</literal> 指定。</para>
+    <para>当 <literal>$condition</literal> 为 <literal>false</literal> 时报告错误，错误讯息由 <literal>$message</literal> 指定。</para>
     <para><literal>assertNotTrue()</literal> 是与之相反的断言，接受相同的参数。</para>
     <example id="appendixes.assertions.assertTrue.example">
       <title>assertTrue() 的用法</title>
@@ -1908,7 +1912,7 @@ class TrueTest extends PHPUnit_Framework_TestCase
 {
     public function testFailure()
     {
-        $this->assertTrue(FALSE);
+        $this->assertTrue(false);
     }
 }
 ?>]]></programlisting>

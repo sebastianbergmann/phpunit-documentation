@@ -62,19 +62,19 @@ abstract class PHPUnit_Framework_Assert
 class PHPUnit_Framework_Constraint_IsTrue extends PHPUnit_Framework_Constraint
 {
     /**
-     * 对参数 $other 进行约束评定。如果符合约束，
-     * 返回 TRUE，否则返回 FALSE。
+     * Evaluates the constraint for parameter $other. Returns true if the
+     * constraint is met, false otherwise.
      *
      * @param mixed $other Value or object to evaluate.
      * @return bool
      */
     public function matches($other)
     {
-        return $other === TRUE;
+        return $other === true;
     }
 
     /**
-     * 返回代表此约束的字符串。
+     * Returns a string representation of the constraint.
      *
      * @return string
      */
@@ -206,9 +206,9 @@ class PHPUnit_Extensions_RepeatedTest extends PHPUnit_Extensions_TestDecorator
         return $this->timesRepeat * $this->test->count();
     }
 
-    public function run(PHPUnit_Framework_TestResult $result = NULL)
+    public function run(PHPUnit_Framework_TestResult $result = null)
     {
-        if ($result === NULL) {
+        if ($result === null) {
             $result = $this->createResult();
         }
 
@@ -250,16 +250,16 @@ class DataDrivenTest implements PHPUnit_Framework_Test
         return 1;
     }
 
-    public function run(PHPUnit_Framework_TestResult $result = NULL)
+    public function run(PHPUnit_Framework_TestResult $result = null)
     {
-        if ($result === NULL) {
+        if ($result === null) {
             $result = new PHPUnit_Framework_TestResult;
         }
 
         foreach ($this->lines as $line) {
             $result->startTest($this);
             PHP_Timer::start();
-            $stopTime = NULL;
+            $stopTime = null;
 
             list($expected, $actual) = explode(';', $line);
 
@@ -279,7 +279,7 @@ class DataDrivenTest implements PHPUnit_Framework_Test
                 $result->addError($this, $e, $stopTime);
             }
 
-            if ($stopTime === NULL) {
+            if ($stopTime === null) {
                 $stopTime = PHP_Timer::stop();
             }
 

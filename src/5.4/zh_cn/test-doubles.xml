@@ -15,7 +15,9 @@
       <indexterm><primary>Test Double （测试替身）</primary></indexterm>如果在编写测试时无法使用（或选择不使用）实际的依赖组件(DOC)，可以用测试替身来代替。测试替身不需要和真正的依赖组件有完全一样的的行为方式；他只需要提供和真正的组件同样的 API 即可，这样被测系统就会以为它是真正的组件！</para>
   </blockquote>
 
-  <para>PHPUnit 提供的 <literal>getMockBuilder($type)</literal> 方法可以在测试中用来自动生成对象，此对象可以充当任意指定原版类型（接口或类名）的测试替身。在任何预期或要求使用原版类的实例对象的上下文中都可以使用这个测试替身对象来代替。</para>
+  <para>PHPUnit 提供的 <literal>createMock($type)</literal> 和 <literal>getMockBuilder($type)</literal> 方法可以在测试中用来自动生成对象，此对象可以充当任意指定原版类型（接口或类名）的测试替身。在任何预期或要求使用原版类的实例对象的上下文中都可以使用这个测试替身对象来代替。</para>
+
+  <para><literal>createMock($type)</literal> 方法直接返回指定类型（接口或类）的测试替身对象实例。此测试替身的创建使用了最佳实践的默认值（不执行原始类的 <literal>__construct()</literal> 和 <literal>__clone()</literal> 方法，且不对传递给测试替身的方法的参数进行克隆）。如果这些默认值非你所需，可以用 <literal>getMockBuilder($type)</literal> 方法并使用流畅式接口来定制测试替身的生成过程。</para>
 
   <para>在默认情况下，原版类的所有方法都会被替换为只会返回 <literal>null</literal> 的伪实现（其中不会调用原版方法）。使用诸如 <literal>will($this-&gt;returnValue())</literal> 之类的方法可以对这些伪实现在被调用时应当返回什么值做出配置。</para>
 
@@ -24,12 +26,6 @@
 
     <para>请注意，<literal>final</literal>、<literal>private</literal> 和 <literal>static</literal> 方法无法对其进行上桩(stub)或模仿(mock)。PHPUnit 的测试替身功能将会忽略它们，并维持它们的原始行为。</para>
   </note>
-
-  <warning>
-    <title>警告</title>
-
-    <para>请关注一下这个事实：参数管理方式已经修改过了。在之前的实现中，将会克隆对象的所有参数。这样就无法检查传递给方法的是否是同一个对象。<xref linkend="test-doubles.mock-objects.examples.clone-object-parameters-usecase.php"/> 展示了新的实现方式在什么情况下会非常有用。<xref linkend="test-doubles.mock-objects.examples.enable-clone-object-parameters.php"/>展示了如何切换回之前的行为方式。</para>
-  </warning>
 
   <section id="test-doubles.stubs">
     <title>Stubs （桩件）</title>
@@ -40,7 +36,7 @@
     <para>
       <indexterm><primary>Fluent Interface （流畅式接口）</primary></indexterm>
 
-      <xref linkend="test-doubles.stubs.examples.StubTest.php"/>展示了如何对方法的调用上桩以及如何设定返回值。首先用 <literal>PHPUnit_Framework_TestCase</literal> 类提供的 <literal>getMockBuilder()</literal> 方法来建立一个桩件对象，它表面看起来像是 <literal>SomeClass</literal>类（<xref linkend="test-doubles.stubs.examples.SomeClass.php"/>）的实例。随后用 PHPUnit 提供的 <ulink url="http://martinfowler.com/bliki/FluentInterface.html">流畅式接口</ulink>来指定桩件的行为。本质上，这意味着不需要建立多个临时对象然后再把它们捆到一起。取而代之的是范例中所示的链式方法调用。这使得代码更加易读并更加“流畅”。</para>
+      <xref linkend="test-doubles.stubs.examples.StubTest.php"/>展示了如何对方法的调用上桩以及如何设定返回值。首先用 <literal>PHPUnit_Framework_TestCase</literal> 类提供的 <literal>createMock()</literal> 方法来建立一个桩件对象，它表面看起来像是 <literal>SomeClass</literal>类（<xref linkend="test-doubles.stubs.examples.SomeClass.php"/>）的实例。随后用 PHPUnit 提供的 <ulink url="http://martinfowler.com/bliki/FluentInterface.html">流畅式接口</ulink>来指定桩件的行为。本质上，这意味着不需要建立多个临时对象然后再把它们捆到一起。取而代之的是范例中所示的链式方法调用。这使得代码更加易读并更加“流畅”。</para>
 
     <example id="test-doubles.stubs.examples.SomeClass.php">
       <title>需要对其上桩的类</title>
@@ -56,20 +52,17 @@ class SomeClass
     </example>
 
     <example id="test-doubles.stubs.examples.StubTest.php">
-      <indexterm><primary>getMockBuilder()</primary></indexterm>
+      <indexterm><primary>createMock()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
       <indexterm><primary>willReturn()</primary></indexterm>
       <title>对某个方法的调用上桩，返回固定值</title>
       <programlisting><![CDATA[<?php
-require_once 'SomeClass.php';
-
 class StubTest extends PHPUnit_Framework_TestCase
 {
     public function testStub()
     {
         // 为 SomeClass 类创建桩件。
-        $stub = $this->getMockBuilder('SomeClass')
-                     ->getMock();
+        $stub = $this->createMock(SomeClass::class);
 
         // 配置桩件。
         $stub->method('doSomething')
@@ -90,27 +83,23 @@ class StubTest extends PHPUnit_Framework_TestCase
       <para>如果原始类包含名为“method”的方法，就必须用 <literal>$stub-&gt;expects($this-&gt;any())-&gt;method('doSomething')-&gt;willReturn('foo');</literal>。</para>
     </note>
 
-    <para>“在幕后”，当使用了 <literal>getMock()</literal> 方法时， PHPUnit 自动生成了一个新的 PHP 类来实现想要的行为。</para>
+    <para>“在幕后”，当使用了 <literal>createMock()</literal> 方法时， PHPUnit 自动生成了一个新的 PHP 类来实现想要的行为。</para>
 
     <para>
       <xref linkend="test-doubles.stubs.examples.StubTest2.php"/>这个例子展示了如何用仿件生成器的流畅式接口来配置测试替身的生成。</para>
 
     <example id="test-doubles.stubs.examples.StubTest2.php">
-      <indexterm><primary>getMockBuilder()</primary></indexterm>
+      <indexterm><primary>createMock()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
       <indexterm><primary>willReturn()</primary></indexterm>
       <title>使用可用于配置生成的测试替身类的仿件生成器 API</title>
       <programlisting><![CDATA[<?php
-require_once 'SomeClass.php';
-
 class StubTest extends PHPUnit_Framework_TestCase
 {
     public function testStub()
     {
         // 为 SomeClass 类创建桩件。
-        $stub = $this->getMockBuilder('SomeClass')
-                     ->disableOriginalConstructor()
-                     ->getMock();
+        $stub = $this->createMock(SomeClass::class);
 
         // 配置桩件。
         $stub->method('doSomething')
@@ -123,43 +112,29 @@ class StubTest extends PHPUnit_Framework_TestCase
 ?>]]></programlisting>
     </example>
 
-    <para>以下是仿件生成器提供的方法列表：</para>
-
-    <itemizedlist>
-      <listitem><para><literal>setMethods(array $methods)</literal> 可以在仿件生成器对象上调用，来指定哪些方法将被替换为可配置的测试替身。其他方法的行为不会有所改变。如果调用 <literal>setMethods(null)</literal>，那么没有方法会被替换。</para></listitem>
-      <listitem><para><literal>setConstructorArgs(array $args)</literal> 可用于向原版类的构造函数（默认情况下不会被替换为伪实现）提供参数数组。</para></listitem>
-      <listitem><para><literal>setMockClassName($name)</literal> 可用于指定生成的测试替身类的类名。</para></listitem>
-      <listitem><para><literal>disableOriginalConstructor()</literal> 参数可用于禁用对原版类的构造方法的调用。</para></listitem>
-      <listitem><para><literal>disableOriginalClone()</literal> 可用于禁用对原版类的克隆方法的调用。</para></listitem>
-      <listitem><para><literal>disableAutoload()</literal>可用于在测试替身类的生成期间禁用 <literal>__autoload()</literal>。</para></listitem>
-    </itemizedlist>
-
     <para>在之前的例子中，用 <literal>willReturn($value)</literal> 返回简单值。这个简短的语法相当于 <literal>will($this-&gt;returnValue($value))</literal>。而在这个长点的语法中，可以使用变量，从而实现更复杂的上桩行为。</para>
 
     <para>有时想要将（未改变的）方法调用时所使用的参数之一作为桩件的方法的调用结果来返回。 <xref linkend="test-doubles.stubs.examples.StubTest3.php"/>展示了如何用 <literal>returnArgument()</literal> 代替 <literal>returnValue()</literal> 来做到这点。</para>
 
     <example id="test-doubles.stubs.examples.StubTest3.php">
-      <indexterm><primary>getMock()</primary></indexterm>
+      <indexterm><primary>createMock()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
       <indexterm><primary>will()</primary></indexterm>
       <indexterm><primary>returnArgument()</primary></indexterm>
       <title>对某个方法的调用上桩，返回参数之一</title>
       <programlisting><![CDATA[<?php
-require_once 'SomeClass.php';
-
 class StubTest extends PHPUnit_Framework_TestCase
 {
     public function testReturnArgumentStub()
     {
         // 为 SomeClass 类创建桩件。
-        $stub = $this->getMockBuilder('SomeClass')
-                     ->getMock();
+        $stub = $this->createMock(SomeClass::class);
 
         // 配置桩件。
         $stub->method('doSomething')
              ->will($this->returnArgument(0));
 
-        // stub->doSomething('foo') 返回 'foo'
+        // $stub->doSomething('foo') 返回 'foo'
         $this->assertEquals('foo', $stub->doSomething('foo'));
 
         // $stub->doSomething('bar') 返回 'bar'
@@ -172,23 +147,20 @@ class StubTest extends PHPUnit_Framework_TestCase
     <para>在用流畅式接口进行测试时，让某个已上桩的方法返回对桩件对象的引用有时会很有用。<xref linkend="test-doubles.stubs.examples.StubTest4.php"/>展示了如何用 <literal>returnSelf()</literal> 来做到这点。</para>
 
     <example id="test-doubles.stubs.examples.StubTest4.php">
-      <indexterm><primary>getMock()</primary></indexterm>
+      <indexterm><primary>createMock()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
       <indexterm><primary>will()</primary></indexterm>
       <indexterm><primary>returnSelf()</primary></indexterm>
       <title>对方法的调用上桩，返回对桩件对象的引用</title>
       <programlisting><![CDATA[<?php
-require_once 'SomeClass.php';
-
 class StubTest extends PHPUnit_Framework_TestCase
 {
     public function testReturnSelf()
     {
         // 为 SomeClass 类创建桩件。
-        $stub = $this->getMockBuilder('SomeClass')
-                     ->getMock();
+        $stub = $this->createMock(SomeClass::class);
 
-        // 配置桩件。
+        //配置桩件。
         $stub->method('doSomething')
              ->will($this->returnSelf());
 
@@ -202,26 +174,23 @@ class StubTest extends PHPUnit_Framework_TestCase
     <para>有时候，上桩的方法需要根据预定义的参数清单来返回不同的值。可以用 <literal>returnValueMap()</literal> 方法将参数和相应的返回值关联起来建立映射。范例参见<xref linkend="test-doubles.stubs.examples.StubTest5.php"/>。</para>
 
     <example id="test-doubles.stubs.examples.StubTest5.php">
-      <indexterm><primary>getMock()</primary></indexterm>
+      <indexterm><primary>createMock()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
       <indexterm><primary>will()</primary></indexterm>
       <indexterm><primary>returnValueMap()</primary></indexterm>
       <title>对方法的调用上桩，按照映射确定返回值</title>
       <programlisting><![CDATA[<?php
-require_once 'SomeClass.php';
-
 class StubTest extends PHPUnit_Framework_TestCase
 {
     public function testReturnValueMapStub()
     {
         // 为 SomeClass 类创建桩件。
-        $stub = $this->getMockBuilder('SomeClass')
-                     ->getMock();
+        $stub = $this->createMock(SomeClass::class);
 
         // 创建从参数到返回值的映射。
-        $map = array(
-          array('a', 'b', 'c', 'd'),
-          array('e', 'f', 'g', 'h')
+        $map = [
+            ['a', 'b', 'c', 'd'],
+            ['e', 'f', 'g', 'h']
         );
 
         // 配置桩件。
@@ -239,21 +208,18 @@ class StubTest extends PHPUnit_Framework_TestCase
     <para>如果上桩的方法需要返回计算得到的值而不是固定值（参见 <literal>returnValue()</literal>）或某个（未改变的）参数（参见 <literal>returnArgument()</literal>），可以用 <literal>returnCallback()</literal> 来让上桩的方法返回回调函数或方法的结果。范例参见<xref linkend="test-doubles.stubs.examples.StubTest6.php"/>。</para>
 
     <example id="test-doubles.stubs.examples.StubTest6.php">
-      <indexterm><primary>getMock()</primary></indexterm>
+      <indexterm><primary>createMock()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
       <indexterm><primary>will()</primary></indexterm>
       <indexterm><primary>returnCallback()</primary></indexterm>
       <title>对方法的调用上桩，由回调生成返回值</title>
       <programlisting><![CDATA[<?php
-require_once 'SomeClass.php';
-
 class StubTest extends PHPUnit_Framework_TestCase
 {
     public function testReturnCallbackStub()
     {
         // 为 SomeClass 类创建桩件。
-        $stub = $this->getMockBuilder('SomeClass')
-                     ->getMock();
+        $stub = $this->createMock(SomeClass::class);
 
         // 配置桩件。
         $stub->method('doSomething')
@@ -269,21 +235,18 @@ class StubTest extends PHPUnit_Framework_TestCase
     <para>相比于建立回调方法，有一个更简单的选择是直接给出期望返回值的列表。可以用 <literal>onConsecutiveCalls()</literal> 方法来做到这个。范例参见 <xref linkend="test-doubles.stubs.examples.StubTest7.php"/>。</para>
 
     <example id="test-doubles.stubs.examples.StubTest7.php">
-      <indexterm><primary>getMock()</primary></indexterm>
+      <indexterm><primary>createMock()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
       <indexterm><primary>will()</primary></indexterm>
       <indexterm><primary>onConsecutiveCalls()</primary></indexterm>
       <title>对方法的调用上桩，按照指定顺序返回列表中的值</title>
       <programlisting><![CDATA[<?php
-require_once 'SomeClass.php';
-
 class StubTest extends PHPUnit_Framework_TestCase
 {
     public function testOnConsecutiveCallsStub()
     {
-        // 为 SomeClass 类创建桩件。
-        $stub = $this->getMockBuilder('SomeClass')
-                     ->getMock();
+        //为 SomeClass 类创建桩件。
+        $stub = $this->createMock(SomeClass::class);
 
         // 配置桩件。
         $stub->method('doSomething')
@@ -302,21 +265,18 @@ class StubTest extends PHPUnit_Framework_TestCase
     <para>除了返回一个值之外，上桩的方法还能抛出一个异常。<xref linkend="test-doubles.stubs.examples.StubTest8.php"/>展示了如何用 <literal>throwException()</literal> 做到这点。</para>
 
     <example id="test-doubles.stubs.examples.StubTest8.php">
-      <indexterm><primary>getMock()</primary></indexterm>
+      <indexterm><primary>createMock()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
       <indexterm><primary>will()</primary></indexterm>
       <indexterm><primary>throwException()</primary></indexterm>
       <title>对方法的调用上桩，抛出异常</title>
       <programlisting><![CDATA[<?php
-require_once 'SomeClass.php';
-
 class StubTest extends PHPUnit_Framework_TestCase
 {
     public function testThrowExceptionStub()
     {
         // 为 SomeClass 类创建桩件。
-        $stub = $this->getMockBuilder('SomeClass')
-                     ->getMock();
+        $stub = $this->createMock(SomeClass::class);
 
         // 配置桩件。
         $stub->method('doSomething')
@@ -355,7 +315,7 @@ class StubTest extends PHPUnit_Framework_TestCase
       <programlisting><![CDATA[<?php
 class Subject
 {
-    protected $observers = array();
+    protected $observers = [];
     protected $name;
 
     public function __construct($name)
@@ -375,10 +335,10 @@ class Subject
 
     public function doSomething()
     {
-        // 做点什么。
+        // 做点什么
         // ...
 
-        // 通知观察者。
+        // 通知观察者发生了些什么
         $this->notify('something');
     }
 
@@ -421,7 +381,7 @@ class Observer
 
       <xref linkend="test-doubles.mock-objects.examples.SubjectTest.php"/>展示了如何用仿件对象来测试 <literal>Subject</literal> 和 <literal>Observer</literal> 对象之间的互动。</para>
 
-    <para>首先用 <literal>PHPUnit_Framework_TestCase</literal> 类提供的 <literal>getMock()</literal> 方法建立 <literal>Observer</literal> 的仿件对象。由于给出了一个数组做为 <literal>getMock()</literal> 方法的第二（可选）参数，<literal>Observer</literal> 类只有 <literal>update()</literal> 方法会被替换为仿实现。</para>
+    <para>首先用 <literal>PHPUnit_Framework_TestCase</literal> 类提供的 <literal>getMockBuilder()</literal> 方法建立 <literal>Observer</literal> 的仿件对象。由于给出了一个数组做为 <literal>getMock()</literal> 方法的第二（可选）参数，<literal>Observer</literal> 类只有 <literal>update()</literal> 方法会被替换为仿实现。</para>
 
     <para>由于关注的是检验某个方法是否被调用，以及调用时具体所使用的参数，因此引入 <literal>expects()</literal> 与 <literal>with()</literal> 方法来指明此交互应该是什么样的。</para>
 
@@ -433,8 +393,8 @@ class SubjectTest extends PHPUnit_Framework_TestCase
     public function testObserversAreUpdated()
     {
         // 为 Observer 类建立仿件对象，只模仿 update() 方法。
-        $observer = $this->getMockBuilder('Observer')
-                         ->setMethods(array('update'))
+        $observer = $this->getMockBuilder(Observer::class)
+                         ->setMethods(['update'])
                          ->getMock();
 
         // 建立预期状况：update() 方法将会被调用一次，
@@ -443,7 +403,7 @@ class SubjectTest extends PHPUnit_Framework_TestCase
                  ->method('update')
                  ->with($this->equalTo('something'));
 
-        // 创建 Subject 对象，并将模仿的 Observer 对象连接其上。
+       // 创建 Subject 对象，并将模仿的 Observer 对象连接其上。
         $subject = new Subject('My subject');
         $subject->attach($observer);
 
@@ -466,8 +426,8 @@ class SubjectTest extends PHPUnit_Framework_TestCase
     public function testErrorReported()
     {
         // 为 Observer 类建立仿件，对 reportError() 方法进行模仿
-        $observer = $this->getMockBuilder('Observer')
-                         ->setMethods(array('reportError'))
+        $observer = $this->getMockBuilder(Observer::class)
+                         ->setMethods(['reportError'])
                          ->getMock();
 
         $observer->expects($this->once())
@@ -498,15 +458,15 @@ class FooTest extends PHPUnit_Framework_TestCase
 {
     public function testFunctionCalledTwoTimesWithSpecificArguments()
     {
-        $mock = $this->getMockBuilder('stdClass')
-                     ->setMethods(array('set'))
+        $mock = $this->getMockBuilder(stdClass::class)
+                     ->setMethods(['set'])
                      ->getMock();
 
         $mock->expects($this->exactly(2))
              ->method('set')
              ->withConsecutive(
-                 array($this->equalTo('foo'), $this->greaterThan(0)),
-                 array($this->equalTo('bar'), $this->greaterThan(0))
+                 [$this->equalTo('foo'), $this->greaterThan(0)],
+                 [$this->equalTo('bar'), $this->greaterThan(0)]
              );
 
         $mock->set('foo', 21);
@@ -516,7 +476,7 @@ class FooTest extends PHPUnit_Framework_TestCase
 ?>]]></programlisting>
     </example>
 
-    <para><literal>callback()</literal> 约束用来进行更加复杂的参数校验。此约束的唯一参数是一个 PHP 回调项(callback)。此 PHP 回调项接受需要校验的参数作为其唯一参数，并应当在参数通过校验时返回 <literal>TRUE</literal>，否则返回 <literal>FALSE</literal>。</para>
+    <para><literal>callback()</literal> 约束用来进行更加复杂的参数校验。此约束的唯一参数是一个 PHP 回调项(callback)。此 PHP 回调项接受需要校验的参数作为其唯一参数，并应当在参数通过校验时返回 <literal>true</literal>，否则返回 <literal>false</literal>。</para>
 
     <example id="test-doubles.mock-objects.examples.SubjectTest3.php">
       <title>更加复杂的参数校验</title>
@@ -526,8 +486,8 @@ class SubjectTest extends PHPUnit_Framework_TestCase
     public function testErrorReported()
     {
         // 为 Observer 类建立仿件，模仿 reportError() 方法
-        $observer = $this->getMockBuilder('Observer')
-                         ->setMethods(array('reportError'))
+        $observer = $this->getMockBuilder(Observer::class)
+                         ->setMethods(['reportError'])
                          ->getMock();
 
         $observer->expects($this->once())
@@ -535,7 +495,7 @@ class SubjectTest extends PHPUnit_Framework_TestCase
                  ->with($this->greaterThan(0),
                         $this->stringContains('Something'),
                         $this->callback(function($subject){
-                          return is_callable(array($subject, 'getName')) &&
+                          return is_callable([$subject, 'getName')] &&
                                  $subject->getName() == 'My subject';
                         }));
 
@@ -559,8 +519,8 @@ class FooTest extends PHPUnit_Framework_TestCase
     {
         $expectedObject = new stdClass;
 
-        $mock = $this->getMockBuilder('stdClass')
-                     ->setMethods(array('foo'))
+        $mock = $this->getMockBuilder(stdClass::class)
+                     ->setMethods(['foo'])
                      ->getMock();
 
         $mock->expects($this->once())
@@ -582,7 +542,7 @@ class FooTest extends PHPUnit_Framework_TestCase
     {
         $cloneArguments = true;
 
-        $mock = $this->getMockBuilder('stdClass')
+        $mock = $this->getMockBuilder(stdClass::class)
                      ->enableArgumentCloning()
                      ->getMock();
 
@@ -637,6 +597,18 @@ class FooTest extends PHPUnit_Framework_TestCase
     <note>
       <para><literal>at()</literal> 匹配器的 <literal>$index</literal> 参数指的是对给定仿件对象的<emphasis>所有方法的调用</emphasis>的索引，从零开始。使用这个匹配器要谨慎，因为它可能导致测试由于与具体的实现细节过分紧密绑定而变得脆弱。</para>
     </note>
+
+    <para>
+      <indexterm><primary>getMockBuilder()</primary></indexterm>如一开始提到的，如果 <literal>createMock()</literal> 方法在生成测试替身时所使用的默认值不符合你的要求，则可以通过 <literal>getMockBuilder($type)</literal> 方法来用流畅式接口定制测试替身的生成过程。以下是仿件生成器所提供的方法列表：</para>
+
+    <itemizedlist>
+      <listitem><para><literal>setMethods(array $methods)</literal> 可以在仿件生成器对象上调用，来指定哪些方法将被替换为可配置的测试替身。其他方法的行为不会有所改变。如果调用 <literal>setMethods(null)</literal>，那么没有方法会被替换。</para></listitem>
+      <listitem><para><literal>setConstructorArgs(array $args)</literal> 可用于向原版类的构造函数（默认情况下不会被替换为伪实现）提供参数数组。</para></listitem>
+      <listitem><para><literal>setMockClassName($name)</literal> 可用于指定生成的测试替身类的类名。</para></listitem>
+      <listitem><para><literal>disableOriginalConstructor()</literal> 参数可用于禁用对原版类的构造方法的调用。</para></listitem>
+      <listitem><para><literal>disableOriginalClone()</literal> 可用于禁用对原版类的克隆方法的调用。</para></listitem>
+      <listitem><para><literal>disableAutoload()</literal>可用于在测试替身类的生成期间禁用 <literal>__autoload()</literal>。</para></listitem>
+    </itemizedlist>
   </section>
 
   <section id="test-doubles.prophecy">
@@ -645,7 +617,7 @@ class FooTest extends PHPUnit_Framework_TestCase
     <para>
       <ulink url="https://github.com/phpspec/prophecy">Prophecy</ulink> 是个“极为自我却又非常强大且灵活的 PHP 对象模仿框架。虽然一开始是为了满足 phpspec2 的需要而建立的，但它足够灵活，可以用最小代价用于任何测试框架内。”</para>
 
-    <para>从版本 4.5 开始，PHPUnit 为用 Prophecy 建立测试替身提供了内建支持。<xref linkend="test-doubles.prophecy.examples.SubjectTest.php"/>展示了<xref linkend="test-doubles.mock-objects.examples.SubjectTest.php"/>中展示的测试应该如何用 Prophecy 的的预言式理念方式来达到同样的效果：</para>
+    <para>PHPUnit 对用 Prophecy 建立测试替身提供了内建支持。<xref linkend="test-doubles.prophecy.examples.SubjectTest.php"/>展示了<xref linkend="test-doubles.mock-objects.examples.SubjectTest.php"/>中展示的测试应该如何用 Prophecy 的的预言式理念方式来达到同样的效果：</para>
 
     <example id="test-doubles.prophecy.examples.SubjectTest.php">
       <title>测试某个方法会以特定参数被调用一次</title>
@@ -657,7 +629,7 @@ class SubjectTest extends PHPUnit_Framework_TestCase
         $subject = new Subject('My subject');
 
         // 为 Observer 类建立预言(prophecy)。
-        $observer = $this->prophesize('Observer');
+        $observer = $this->prophesize(Observer::class);
 
         // 建立预期状况：update() 方法将会被调用一次，
         // 并且将以字符串 'something' 为参数。
@@ -701,11 +673,11 @@ class TraitClassTest extends PHPUnit_Framework_TestCase
 {
     public function testConcreteMethod()
     {
-        $mock = $this->getMockForTrait('AbstractTrait');
+        $mock = $this->getMockForTrait(AbstractTrait::class);
 
         $mock->expects($this->any())
              ->method('abstractMethod')
-             ->will($this->returnValue(TRUE));
+             ->will($this->returnValue(true));
 
         $this->assertTrue($mock->concreteMethod());
     }
@@ -733,11 +705,11 @@ class AbstractClassTest extends PHPUnit_Framework_TestCase
 {
     public function testConcreteMethod()
     {
-        $stub = $this->getMockForAbstractClass('AbstractClass');
+        $stub = $this->getMockForAbstractClass(AbstractClass::class);
 
         $stub->expects($this->any())
              ->method('abstractMethod')
-             ->will($this->returnValue(TRUE));
+             ->will($this->returnValue(true));
 
         $this->assertTrue($stub->concreteMethod());
     }
@@ -776,22 +748,22 @@ class GoogleTest extends PHPUnit_Framework_TestCase
         $element->snippet = '...';
         $element->title = '<b>PHPUnit</b>';
         $element->cachedSize = '11k';
-        $element->relatedInformationPresent = TRUE;
+        $element->relatedInformationPresent = true;
         $element->hostName = 'phpunit.de';
         $element->directoryCategory = $directoryCategory;
         $element->directoryTitle = '';
 
         $result = new stdClass;
-        $result->documentFiltering = FALSE;
+        $result->documentFiltering = false;
         $result->searchComments = '';
         $result->estimatedTotalResultsCount = 3.9000;
-        $result->estimateIsExact = FALSE;
-        $result->resultElements = array($element);
+        $result->estimateIsExact = false;
+        $result->resultElements = [$element];
         $result->searchQuery = 'PHPUnit';
         $result->startIndex = 1;
         $result->endIndex = 1;
         $result->searchTips = '';
-        $result->directoryCategories = array();
+        $result->directoryCategories = [];
         $result->searchTime = 0.248822;
 
         $googleSearch->expects($this->any())
@@ -809,9 +781,9 @@ class GoogleTest extends PHPUnit_Framework_TestCase
             'PHPUnit',
             0,
             1,
-            FALSE,
+            false,
             '',
-            FALSE,
+            false,
             '',
             '',
             ''
@@ -859,7 +831,7 @@ class Example
         $this->directory = $directory . DIRECTORY_SEPARATOR . $this->id;
 
         if (!file_exists($this->directory)) {
-            mkdir($this->directory, 0700, TRUE);
+            mkdir($this->directory, 0700, true);
         }
     }
 }?>]]></programlisting>
@@ -870,8 +842,6 @@ class Example
     <example id="test-doubles.mocking-the-filesystem.examples.ExampleTest.php">
       <title>对一个与文件系统交互的类进行测试</title>
       <programlisting><![CDATA[<?php
-require_once 'Example.php';
-
 class ExampleTest extends PHPUnit_Framework_TestCase
 {
     protected function setUp()
@@ -914,9 +884,6 @@ class ExampleTest extends PHPUnit_Framework_TestCase
     <example id="test-doubles.mocking-the-filesystem.examples.ExampleTest2.php">
       <title>在对与文件系统交互的类进行的测试中模仿文件系统</title>
       <programlisting><![CDATA[<?php
-require_once 'vfsStream/vfsStream.php';
-require_once 'Example.php';
-
 class ExampleTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()
