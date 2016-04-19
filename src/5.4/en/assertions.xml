@@ -602,7 +602,7 @@ Tests: 3, Assertions: 3, Failures: 3.</screen>
     <para>More specialized comparisons are used for specific argument types for <literal>$expected</literal> and <literal>$actual</literal>, see below.</para>
 
     <para><literal>assertEquals(float $expected, float $actual[, string $message = '', float $delta = 0])</literal></para>
-    <para>Reports an error identified by <literal>$message</literal> if the two floats <literal>$expected</literal> and <literal>$actual</literal> are not within <literal>$delta</literal> of each other.</para>
+    <para>Reports an error identified by <literal>$message</literal> if the absolute difference between two floats <literal>$expected</literal> and <literal>$actual</literal> is greater than <literal>$delta</literal>. If the absolute difference between two floats <literal>$expected</literal> and <literal>$actual</literal> is less than <emphasis>or equal to</emphasis> <literal>$delta</literal>, the assertion will pass.</para>
     <para>Please read "<ulink url="http://docs.oracle.com/cd/E19957-01/806-3568/ncg_goldberg.html">What Every Computer Scientist Should Know About Floating-Point Arithmetic</ulink>" to understand why <literal>$delta</literal> is neccessary.</para>
     <example id="appendixes.assertions.assertEquals.example2">
       <title>Usage of assertEquals() with floats</title>
@@ -611,7 +611,7 @@ class EqualsTest extends PHPUnit_Framework_TestCase
 {
     public function testSuccess()
     {
-        $this->assertEquals(1.0, 1.1, '', 0.2);
+        $this->assertEquals(1.0, 1.1, '', 0.1);
     }
 
     public function testFailure()
