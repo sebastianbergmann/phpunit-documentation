@@ -460,7 +460,59 @@ class StubTest extends PHPUnit_Framework_TestCase
         automatically by PHPUnit. Mock objects generated in data providers, for
         instance, or injected into the test using the <literal>@depends</literal>
         annotation will not be verified automatically by PHPUnit.
+
+        One way for achieve a similar result is to wrap the construction of the
+        mock object inside of a <literal>Closure</literal> and bind the test scope
+        before invoke the Closure.
       </para>
+
+      <example id="test-doubles.mock-objects.examples.wrapMocks.php">
+        <title>Wrapping the mock inside of Closure</title>
+        <programlisting><![CDATA[<?php
+class SubjectTest extends PHPUnit_Framework_TestCase
+{
+    public function mockProvider()
+    {
+      $mockCallable = function() {
+        return $this->getMockBuilder(Observer::class)
+             ->setMethods(['update'])
+             ->getMock();
+      }
+    
+      return [
+        [$mockCallable];
+    }
+
+    /**
+     * @dataProvider mockProvider
+     */
+    public function testObserversAreUpdated(Callable $mockCallable)
+    {
+        // Create a mock for the Observer class,
+        // only mock the update() method.
+        $observer = $mockCallable->bindTo($this);
+
+        // Set up the expectation for the update() method
+        // to be called only once and with the string 'something'
+        // as its parameter.
+        $observer->expects($this->once())
+                 ->method('update')
+                 ->with($this->equalTo('something'));
+
+        // Create a Subject object and attach the mocked
+        // Observer object to it.
+        $subject = new Subject('My subject');
+        $subject->attach($observer);
+
+        // Call the doSomething() method on the $subject object
+        // which we expect to call the mocked Observer object's
+        // update() method with the string 'something'.
+        $subject->doSomething();
+    }
+}
+?>]]></programlisting>
+      </example>
+
     </note>
 
     <para>
