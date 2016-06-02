@@ -10,13 +10,13 @@
   </para>
 
   <section id="extending-phpunit.PHPUnit_Framework_TestCase">
-    <title>Subclass PHPUnit_Framework_TestCase</title>
+    <title>Subclass phpunit\framework\TestCase</title>
 
     <para>
-      <indexterm><primary>PHPUnit_Framework_TestCase</primary></indexterm>
+      <indexterm><primary>phpunit\framework\TestCase</primary></indexterm>
 
       Write custom assertions and utility methods in an abstract subclass of
-      <literal>PHPUnit_Framework_TestCase</literal> and derive your test case
+      <literal>phpunit\framework\TestCase</literal> and derive your test case
       classes from that class. This is one of the easiest ways to extend
       PHPUnit.
     </para>
@@ -38,6 +38,8 @@
     <example id="extending-phpunit.examples.Assert.php">
       <title>The assertTrue() and isTrue() methods of the PHPUnit_Framework_Assert class</title>
       <programlisting><![CDATA[<?php
+use phpunit\framework\TestCase;
+
 abstract class PHPUnit_Framework_Assert
 {
     // ...
@@ -81,6 +83,8 @@ abstract class PHPUnit_Framework_Assert
     <example id="extending-phpunit.examples.IsTrue.php">
       <title>The PHPUnit_Framework_Constraint_IsTrue class</title>
       <programlisting><![CDATA[<?php
+use phpunit\framework\TestCase;
+
 class PHPUnit_Framework_Constraint_IsTrue extends PHPUnit_Framework_Constraint
 {
     /**
@@ -132,6 +136,8 @@ class PHPUnit_Framework_Constraint_IsTrue extends PHPUnit_Framework_Constraint
     <example id="extending-phpunit.examples.SimpleTestListener.php">
       <title>A simple test listener</title>
       <programlisting><![CDATA[<?php
+use phpunit\framework\TestCase;
+
 class SimpleTestListener implements PHPUnit_Framework_TestListener
 {
     public function addError(PHPUnit_Framework_Test $test, Exception $e, $time)
@@ -195,6 +201,8 @@ class SimpleTestListener implements PHPUnit_Framework_TestListener
     <example id="extending-phpunit.examples.BaseTestListener.php">
       <title>Using base test listener</title>
       <programlisting><![CDATA[<?php
+use phpunit\framework\TestCase;
+
 class ShortTestListener extends PHPUnit_Framework_BaseTestListener
 {
     public function endTest(PHPUnit_Framework_Test $test, $time)
@@ -242,6 +250,8 @@ class ShortTestListener extends PHPUnit_Framework_BaseTestListener
     <example id="extending-phpunit.examples.RepeatedTest.php">
       <title>The RepeatedTest Decorator</title>
       <programlisting><![CDATA[<?php
+use phpunit\framework\TestCase;
+
 require_once 'PHPUnit/Extensions/TestDecorator.php';
 
 class PHPUnit_Extensions_RepeatedTest extends PHPUnit_Extensions_TestDecorator
@@ -290,7 +300,7 @@ class PHPUnit_Extensions_RepeatedTest extends PHPUnit_Extensions_TestDecorator
       The <literal>PHPUnit_Framework_Test</literal> interface is narrow and
       easy to implement. You can write an implementation of
       <literal>PHPUnit_Framework_Test</literal> that is simpler than
-      <literal>PHPUnit_Framework_TestCase</literal> and that runs
+      <literal>phpunit\framework\TestCase</literal> and that runs
       <emphasis>data-driven tests</emphasis>, for instance.
     </para>
 
@@ -305,6 +315,8 @@ class PHPUnit_Extensions_RepeatedTest extends PHPUnit_Extensions_TestDecorator
     <example id="extending-phpunit.examples.DataDrivenTest.php">
       <title>A data-driven test</title>
       <programlisting><![CDATA[<?php
+use phpunit\framework\TestCase;
+
 class DataDrivenTest implements PHPUnit_Framework_Test
 {
     private $lines;

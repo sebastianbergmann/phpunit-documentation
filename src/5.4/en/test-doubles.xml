@@ -92,7 +92,7 @@
       <xref linkend="test-doubles.stubs.examples.StubTest.php" /> shows how
       to stub method calls and set up return values. We first use the
       <literal>createMock()</literal> method that is provided by the
-      <literal>PHPUnit_Framework_TestCase</literal> class to set up a stub
+      <literal>phpunit\framework\TestCase</literal> class to set up a stub
       object that looks like an object of <literal>SomeClass</literal>
       (<xref linkend="test-doubles.stubs.examples.SomeClass.php" />). We then
       use the <ulink url="http://martinfowler.com/bliki/FluentInterface.html">Fluent Interface</ulink>
@@ -105,6 +105,8 @@
     <example id="test-doubles.stubs.examples.SomeClass.php">
       <title>The class we want to stub</title>
       <programlisting><![CDATA[<?php
+use phpunit\framework\TestCase;
+
 class SomeClass
 {
     public function doSomething()
@@ -121,7 +123,9 @@ class SomeClass
       <indexterm><primary>willReturn()</primary></indexterm>
       <title>Stubbing a method call to return a fixed value</title>
       <programlisting><![CDATA[<?php
-class StubTest extends PHPUnit_Framework_TestCase
+use phpunit\framework\TestCase;
+
+class StubTest extends TestCase
 {
     public function testStub()
     {
@@ -171,7 +175,9 @@ class StubTest extends PHPUnit_Framework_TestCase
       <indexterm><primary>willReturn()</primary></indexterm>
       <title>Using the Mock Builder API can be used to configure the generated test double class</title>
       <programlisting><![CDATA[<?php
-class StubTest extends PHPUnit_Framework_TestCase
+use phpunit\framework\TestCase;
+
+class StubTest extends TestCase
 {
     public function testStub()
     {
@@ -212,7 +218,9 @@ class StubTest extends PHPUnit_Framework_TestCase
       <indexterm><primary>returnArgument()</primary></indexterm>
       <title>Stubbing a method call to return one of the arguments</title>
       <programlisting><![CDATA[<?php
-class StubTest extends PHPUnit_Framework_TestCase
+use phpunit\framework\TestCase;
+
+class StubTest extends TestCase
 {
     public function testReturnArgumentStub()
     {
@@ -247,7 +255,9 @@ class StubTest extends PHPUnit_Framework_TestCase
       <indexterm><primary>returnSelf()</primary></indexterm>
       <title>Stubbing a method call to return a reference to the stub object</title>
       <programlisting><![CDATA[<?php
-class StubTest extends PHPUnit_Framework_TestCase
+use phpunit\framework\TestCase;
+
+class StubTest extends TestCase
 {
     public function testReturnSelf()
     {
@@ -281,7 +291,9 @@ class StubTest extends PHPUnit_Framework_TestCase
       <indexterm><primary>returnValueMap()</primary></indexterm>
       <title>Stubbing a method call to return the value from a map</title>
       <programlisting><![CDATA[<?php
-class StubTest extends PHPUnit_Framework_TestCase
+use phpunit\framework\TestCase;
+
+class StubTest extends TestCase
 {
     public function testReturnValueMapStub()
     {
@@ -323,7 +335,9 @@ class StubTest extends PHPUnit_Framework_TestCase
       <indexterm><primary>returnCallback()</primary></indexterm>
       <title>Stubbing a method call to return a value from a callback</title>
       <programlisting><![CDATA[<?php
-class StubTest extends PHPUnit_Framework_TestCase
+use phpunit\framework\TestCase;
+
+class StubTest extends TestCase
 {
     public function testReturnCallbackStub()
     {
@@ -357,7 +371,9 @@ class StubTest extends PHPUnit_Framework_TestCase
       <title>Stubbing a method call to return a list of values in the
       specified order</title>
       <programlisting><![CDATA[<?php
-class StubTest extends PHPUnit_Framework_TestCase
+use phpunit\framework\TestCase;
+
+class StubTest extends TestCase
 {
     public function testOnConsecutiveCallsStub()
     {
@@ -391,7 +407,9 @@ class StubTest extends PHPUnit_Framework_TestCase
       <indexterm><primary>throwException()</primary></indexterm>
       <title>Stubbing a method call to throw an exception</title>
       <programlisting><![CDATA[<?php
-class StubTest extends PHPUnit_Framework_TestCase
+use phpunit\framework\TestCase;
+
+class StubTest extends TestCase
 {
     public function testThrowExceptionStub()
     {
@@ -474,6 +492,8 @@ class StubTest extends PHPUnit_Framework_TestCase
     <example id="test-doubles.mock-objects.examples.SUT.php">
       <title>The Subject and Observer classes that are part of the System under Test (SUT)</title>
       <programlisting><![CDATA[<?php
+use phpunit\framework\TestCase;
+
 class Subject
 {
     protected $observers = [];
@@ -547,7 +567,7 @@ class Observer
 
     <para>
       We first use the <literal>getMockBuilder()</literal> method that is provided by
-      the <literal>PHPUnit_Framework_TestCase</literal> class to set up a mock
+      the <literal>phpunit\framework\TestCase</literal> class to set up a mock
       object for the <literal>Observer</literal>. Since we give an array as the
       second (optional) parameter for the <literal>getMock()</literal> method,
       only the <literal>update()</literal> method of the
@@ -563,7 +583,9 @@ class Observer
     <example id="test-doubles.mock-objects.examples.SubjectTest.php">
       <title>Testing that a method gets called once and with a specified argument</title>
       <programlisting><![CDATA[<?php
-class SubjectTest extends PHPUnit_Framework_TestCase
+use phpunit\framework\TestCase;
+
+class SubjectTest extends TestCase
 {
     public function testObserversAreUpdated()
     {
@@ -605,7 +627,9 @@ class SubjectTest extends PHPUnit_Framework_TestCase
       <title>Testing that a method gets called with a number of
       arguments constrained in different ways</title>
       <programlisting><![CDATA[<?php
-class SubjectTest extends PHPUnit_Framework_TestCase
+use phpunit\framework\TestCase;
+
+class SubjectTest extends TestCase
 {
     public function testErrorReported()
     {
@@ -644,7 +668,9 @@ class SubjectTest extends PHPUnit_Framework_TestCase
     <example id="test-doubles.mock-objects.examples.with-consecutive.php">
       <title>Testing that a method gets called two times with specific arguments.</title>
       <programlisting><![CDATA[<?php
-class FooTest extends PHPUnit_Framework_TestCase
+use phpunit\framework\TestCase;
+
+class FooTest extends TestCase
 {
     public function testFunctionCalledTwoTimesWithSpecificArguments()
     {
@@ -677,7 +703,9 @@ class FooTest extends PHPUnit_Framework_TestCase
     <example id="test-doubles.mock-objects.examples.SubjectTest3.php">
       <title>More complex argument verification</title>
       <programlisting><![CDATA[<?php
-class SubjectTest extends PHPUnit_Framework_TestCase
+use phpunit\framework\TestCase;
+
+class SubjectTest extends TestCase
 {
     public function testErrorReported()
     {
@@ -710,7 +738,9 @@ class SubjectTest extends PHPUnit_Framework_TestCase
     <example id="test-doubles.mock-objects.examples.clone-object-parameters-usecase.php">
       <title>Testing that a method gets called once and with the identical object as was passed</title>
       <programlisting><![CDATA[<?php
-class FooTest extends PHPUnit_Framework_TestCase
+use phpunit\framework\TestCase;
+
+class FooTest extends TestCase
 {
     public function testIdenticalObjectPassed()
     {
@@ -733,7 +763,9 @@ class FooTest extends PHPUnit_Framework_TestCase
     <example id="test-doubles.mock-objects.examples.enable-clone-object-parameters.php">
       <title>Create a mock object with cloning parameters enabled</title>
       <programlisting><![CDATA[<?php
-class FooTest extends PHPUnit_Framework_TestCase
+use phpunit\framework\TestCase;
+
+class FooTest extends TestCase
 {
     public function testIdenticalObjectPassed()
     {
@@ -849,7 +881,9 @@ class FooTest extends PHPUnit_Framework_TestCase
     <example id="test-doubles.prophecy.examples.SubjectTest.php">
       <title>Testing that a method gets called once and with a specified argument</title>
       <programlisting><![CDATA[<?php
-class SubjectTest extends PHPUnit_Framework_TestCase
+use phpunit\framework\TestCase;
+
+class SubjectTest extends TestCase
 {
     public function testObserversAreUpdated()
     {
@@ -897,6 +931,8 @@ class SubjectTest extends PHPUnit_Framework_TestCase
     <example id="test-doubles.mock-objects.examples.TraitClassTest.php">
       <title>Testing the concrete methods of a trait</title>
       <programlisting><![CDATA[<?php
+use phpunit\framework\TestCase;
+
 trait AbstractTrait
 {
     public function concreteMethod()
@@ -907,7 +943,7 @@ trait AbstractTrait
     public abstract function abstractMethod();
 }
 
-class TraitClassTest extends PHPUnit_Framework_TestCase
+class TraitClassTest extends TestCase
 {
     public function testConcreteMethod()
     {
@@ -935,6 +971,8 @@ class TraitClassTest extends PHPUnit_Framework_TestCase
     <example id="test-doubles.mock-objects.examples.AbstractClassTest.php">
       <title>Testing the concrete methods of an abstract class</title>
       <programlisting><![CDATA[<?php
+use phpunit\framework\TestCase;
+
 abstract class AbstractClass
 {
     public function concreteMethod()
@@ -945,7 +983,7 @@ abstract class AbstractClass
     public abstract function abstractMethod();
 }
 
-class AbstractClassTest extends PHPUnit_Framework_TestCase
+class AbstractClassTest extends TestCase
 {
     public function testConcreteMethod()
     {
@@ -986,7 +1024,9 @@ class AbstractClassTest extends PHPUnit_Framework_TestCase
     <example id="test-doubles.stubbing-and-mocking-web-services.examples.GoogleTest.php">
       <title>Stubbing a web service</title>
       <programlisting><![CDATA[<?php
-class GoogleTest extends PHPUnit_Framework_TestCase
+use phpunit\framework\TestCase;
+
+class GoogleTest extends TestCase
 {
     public function testSearch()
     {
@@ -1086,6 +1126,8 @@ class GoogleTest extends PHPUnit_Framework_TestCase
     <example id="test-doubles.mocking-the-filesystem.examples.Example.php">
       <title>A class that interacts with the filesystem</title>
       <programlisting><![CDATA[<?php
+use phpunit\framework\TestCase;
+
 class Example
 {
     protected $id;
@@ -1117,7 +1159,9 @@ class Example
     <example id="test-doubles.mocking-the-filesystem.examples.ExampleTest.php">
       <title>Testing a class that interacts with the filesystem</title>
       <programlisting><![CDATA[<?php
-class ExampleTest extends PHPUnit_Framework_TestCase
+use phpunit\framework\TestCase;
+
+class ExampleTest extends TestCase
 {
     protected function setUp()
     {
@@ -1164,7 +1208,9 @@ class ExampleTest extends PHPUnit_Framework_TestCase
     <example id="test-doubles.mocking-the-filesystem.examples.ExampleTest2.php">
       <title>Mocking the filesystem in a test for a class that interacts with the filesystem</title>
       <programlisting><![CDATA[<?php
-class ExampleTest extends PHPUnit_Framework_TestCase
+use phpunit\framework\TestCase;
+
+class ExampleTest extends TestCase
 {
     public function setUp()
     {
