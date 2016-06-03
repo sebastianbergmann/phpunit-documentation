@@ -1,0 +1,424 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="code-coverage-analysis">
+  <title>Code Coverage Analysis</title>
+
+  <blockquote>
+    <attribution>Wikipedia</attribution>
+    <para>
+      In computer science, code coverage is a measure used to describe the
+      degree to which the source code of a program is tested by a particular
+      test suite. A program with high code coverage has been more thoroughly
+      tested and has a lower chance of containing software bugs than a program
+      with low code coverage.
+    </para>
+  </blockquote>
+
+  <para>
+    <indexterm><primary>Code Coverage</primary></indexterm>
+    <indexterm><primary>Xdebug</primary></indexterm>
+
+    In this chapter you will learn all about PHPUnit's code coverage
+    functionality that provides an insight into what parts of the production
+    code are executed when the tests are run. It makes use of the
+    <ulink url="https://github.com/sebastianbergmann/php-code-coverage">PHP_CodeCoverage</ulink>
+    component, which in turn leverages the code coverage functionality provided
+    by the <ulink url="http://xdebug.org/">Xdebug</ulink> extension for PHP.
+  </para>
+
+  <note>
+    <para>
+      Xdebug is not distributed as part of PHPUnit. If you receive a notice
+      while running tests that the Xdebug extension is not loaded, it means
+      that Xdebug is either not installed or not configured properly. Before
+      you can use the code coverage analysis features in PHPUnit, you should
+      read <ulink url="http://xdebug.org/docs/install">the Xdebug installation guide</ulink>.
+    </para>
+  </note>
+
+  <para>
+    PHPUnit can generate an HTML-based code coverage report as well as
+    XML-based logfiles with code coverage information in various formats
+    (Clover, Crap4J, PHPUnit). Code coverage information can also be reported
+    as text (and printed to STDOUT) and exported as PHP code for further
+    processing.
+  </para>
+
+  <para>
+    Please refer to <xref linkend="textui"/> for a list of commandline switches
+    that control code coverage functionality as well as <xref
+    linkend="appendixes.configuration.logging"/> for the relevant
+    configuration settings.
+  </para>
+
+  <section id="code-coverage-analysis.metrics">
+    <title>Software Metrics for Code Coverage</title>
+
+    <para>
+      Various software metrics exist to measure code coverage:
+    </para>
+
+    <variablelist>
+      <varlistentry>
+        <indexterm><primary>Code Coverage</primary><secondary>Line Coverage</secondary></indexterm>
+        <term><emphasis>Line Coverage</emphasis></term>
+        <listitem>
+          <para>
+            The <emphasis>Line Coverage</emphasis> software metric measures
+            whether each executable line was executed.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <indexterm><primary>Code Coverage</primary><secondary>Function and Method Coverage</secondary></indexterm>
+        <term><emphasis>Function and Method Coverage</emphasis></term>
+        <listitem>
+          <para>
+            The <emphasis>Function and Method Coverage</emphasis> software
+            metric measures whether each function or method has been invoked.
+            PHP_CodeCoverage only considers a function or method as covered when
+            all of its executable lines are covered.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <indexterm><primary>Code Coverage</primary><secondary>Class and Trait Coverage</secondary></indexterm>
+        <term><emphasis>Class and Trait Coverage</emphasis></term>
+        <listitem>
+          <para>
+            The <emphasis>Class and Trait Coverage</emphasis> software metric
+            measures whether each method of a class or trait is covered.
+            PHP_CodeCoverage only considers a class or trait as covered when all
+            of its methods are covered.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <indexterm><primary>Code Coverage</primary><secondary>Opcode Coverage</secondary></indexterm>
+        <term><emphasis>Opcode Coverage</emphasis></term>
+        <listitem>
+          <para>
+            The <emphasis>Opcode Coverage</emphasis> software metric measures
+            whether each opcode of a function or method has been executed while
+            running the test suite. A line of code usually compiles into more
+            than one opcode. Line Coverage regards a line of code as covered as
+            soon as one of its opcodes is executed.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <indexterm><primary>Code Coverage</primary><secondary>Branch Coverage</secondary></indexterm>
+        <term><emphasis>Branch Coverage</emphasis></term>
+        <listitem>
+          <para>
+            The <emphasis>Branch Coverage</emphasis> software metric measures
+            whether the boolean expression of each control structure evaluated
+            to both <literal>true</literal> and <literal>false</literal> while
+            running the test suite.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <indexterm><primary>Code Coverage</primary><secondary>Path Coverage</secondary></indexterm>
+        <term><emphasis>Path Coverage</emphasis></term>
+        <listitem>
+          <para>
+            The <emphasis>Path Coverage</emphasis> software metric measures
+            whether each of the possible execution paths in a function or method
+            has been followed while running the test suite. An execution path is
+            a unique sequence of branches from the entry of the function or
+            method to its exit.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <indexterm><primary>Change Risk Anti-Patterns (CRAP) Index</primary></indexterm>
+        <term><emphasis>Change Risk Anti-Patterns (CRAP) Index</emphasis></term>
+        <listitem>
+          <para>
+            The <emphasis>Change Risk Anti-Patterns (CRAP) Index</emphasis> is
+            calculated based on the cyclomatic complexity and code coverage of a
+            unit of code. Code that is not too complex and has an adequate test
+            coverage will have a low CRAP index. The CRAP index can be lowered
+            by writing tests and by refactoring the code to lower its
+            complexity.
+          </para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+
+    <note>
+      <para>
+        The <emphasis>Opcode Coverage</emphasis>,
+        <emphasis>Branch Coverage</emphasis>, and
+        <emphasis>Path Coverage</emphasis> software metrics are not yet
+        supported by PHP_CodeCoverage.
+      </para>
+    </note>
+  </section>
+
+  <section id="code-coverage-analysis.whitelisting-files">
+    <title>Whitelisting Files</title>
+
+    <para>
+      <indexterm><primary>Code Coverage</primary><secondary>Whitelist</secondary></indexterm>
+
+      It is mandatory to configure a <emphasis>whitelist</emphasis> for telling
+      PHPUnit which sourcecode files to include in the code coverage report.
+      This can either be done using the <literal>--whitelist</literal>
+      commandline option or via the configuration file (see <xref
+      linkend="appendixes.configuration.whitelisting-files"/>).
+    </para>
+
+    <para>
+      Optionally, all whitelisted files can be added to the code coverage
+      report by setting <literal>addUncoveredFilesFromWhitelist="true"</literal>
+      in your PHPUnit configuration (see <xref
+      linkend="appendixes.configuration.whitelisting-files"/>). This allows the
+      inclusion of files that are not tested yet at all. If you want to get
+      information about which lines of such an uncovered file are executable,
+      for instance, you also need to set
+      <literal>processUncoveredFilesFromWhitelist="true"</literal> in your
+      PHPUnit configuration (see <xref
+      linkend="appendixes.configuration.whitelisting-files"/>).
+    </para>
+
+    <note>
+      <para>
+        Please note that the loading of sourcecode files that is performed when
+        <literal>processUncoveredFilesFromWhitelist="true"</literal> is set can
+        cause problems when a sourcecode file contains code outside the scope of
+        a class or function, for instance.
+      </para>
+    </note>
+  </section>
+
+  <section id="code-coverage-analysis.ignoring-code-blocks">
+    <title>Ignoring Code Blocks</title>
+
+    <para>
+      <indexterm><primary>Annotation</primary></indexterm>
+      <indexterm><primary>@codeCoverageIgnore</primary></indexterm>
+      <indexterm><primary>@codeCoverageIgnoreStart</primary></indexterm>
+      <indexterm><primary>@codeCoverageIgnoreEnd</primary></indexterm>
+
+      Sometimes you have blocks of code that you cannot test and that you may
+      want to ignore during code coverage analysis. PHPUnit lets you do this
+      using the <literal>@codeCoverageIgnore</literal>,
+      <literal>@codeCoverageIgnoreStart</literal> and
+      <literal>@codeCoverageIgnoreEnd</literal> annotations as shown in
+      <xref linkend="code-coverage-analysis.ignoring-code-blocks.examples.Sample.php"/>.
+    </para>
+
+    <example id="code-coverage-analysis.ignoring-code-blocks.examples.Sample.php">
+      <title>Using the <literal>@codeCoverageIgnore</literal>, <literal>@codeCoverageIgnoreStart</literal> and <literal>@codeCoverageIgnoreEnd</literal> annotations</title>
+        <programlisting><![CDATA[<?php
+use phpunit\framework\TestCase;
+
+/**
+ * @codeCoverageIgnore
+ */
+class Foo
+{
+    public function bar()
+    {
+    }
+}
+
+class Bar
+{
+    /**
+     * @codeCoverageIgnore
+     */
+    public function foo()
+    {
+    }
+}
+
+if (false) {
+    // @codeCoverageIgnoreStart
+    print '*';
+    // @codeCoverageIgnoreEnd
+}
+
+exit; // @codeCoverageIgnore
+?>]]></programlisting>
+    </example>
+
+    <para>
+      The ignored lines of code (marked as ignored using the annotations)
+      are counted as executed (if they are executable) and will not be
+      highlighted.
+    </para>
+  </section>
+
+  <section id="code-coverage-analysis.specifying-covered-methods">
+    <title>Specifying Covered Methods</title>
+
+    <para>
+      <indexterm><primary>Annotation</primary></indexterm>
+      <indexterm><primary>@covers</primary></indexterm>
+
+      The <literal>@covers</literal> annotation (see
+      <xref linkend="appendixes.annotations.covers.tables.annotations"/>) can be
+      used in the test code to specify which method(s) a test method wants to
+      test. If provided, only the code coverage information for the specified
+      method(s) will be considered.
+      <xref linkend="code-coverage-analysis.specifying-covered-methods.examples.BankAccountTest.php"/>
+      shows an example.
+    </para>
+
+    <example id="code-coverage-analysis.specifying-covered-methods.examples.BankAccountTest.php">
+      <title>Tests that specify which method they want to cover</title>
+      <programlisting><![CDATA[<?php
+use phpunit\framework\TestCase;
+
+class BankAccountTest extends TestCase
+{
+    protected $ba;
+
+    protected function setUp()
+    {
+        $this->ba = new BankAccount;
+    }
+
+    /**
+     * @covers BankAccount::getBalance
+     */
+    public function testBalanceIsInitiallyZero()
+    {
+        $this->assertEquals(0, $this->ba->getBalance());
+    }
+
+    /**
+     * @covers BankAccount::withdrawMoney
+     */
+    public function testBalanceCannotBecomeNegative()
+    {
+        try {
+            $this->ba->withdrawMoney(1);
+        }
+
+        catch (BankAccountException $e) {
+            $this->assertEquals(0, $this->ba->getBalance());
+
+            return;
+        }
+
+        $this->fail();
+    }
+
+    /**
+     * @covers BankAccount::depositMoney
+     */
+    public function testBalanceCannotBecomeNegative2()
+    {
+        try {
+            $this->ba->depositMoney(-1);
+        }
+
+        catch (BankAccountException $e) {
+            $this->assertEquals(0, $this->ba->getBalance());
+
+            return;
+        }
+
+        $this->fail();
+    }
+
+    /**
+     * @covers BankAccount::getBalance
+     * @covers BankAccount::depositMoney
+     * @covers BankAccount::withdrawMoney
+     */
+    public function testDepositWithdrawMoney()
+    {
+        $this->assertEquals(0, $this->ba->getBalance());
+        $this->ba->depositMoney(1);
+        $this->assertEquals(1, $this->ba->getBalance());
+        $this->ba->withdrawMoney(1);
+        $this->assertEquals(0, $this->ba->getBalance());
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      <indexterm><primary>Annotation</primary></indexterm>
+      <indexterm><primary>@coversNothing</primary></indexterm>
+
+      It is also possible to specify that a test should not cover 
+      <emphasis>any</emphasis> method by using the 
+      <literal>@coversNothing</literal> annotation (see
+      <xref linkend="appendixes.annotations.coversNothing"/>). This can be
+      helpful when writing integration tests to make sure you only 
+      generate code coverage with unit tests.
+    </para>
+
+    <example id="code-coverage-analysis.specifying-covered-methods.examples.GuestbookIntegrationTest.php">
+      <title>A test that specifies that no method should be covered</title>
+      <programlisting><![CDATA[<?php
+use phpunit\framework\TestCase;
+
+class GuestbookIntegrationTest extends PHPUnit_Extensions_Database_TestCase
+{
+    /**
+     * @coversNothing
+     */
+    public function testAddEntry()
+    {
+        $guestbook = new Guestbook();
+        $guestbook->addEntry("suzy", "Hello world!");
+
+        $queryTable = $this->getConnection()->createQueryTable(
+            'guestbook', 'SELECT * FROM guestbook'
+        );
+
+        $expectedTable = $this->createFlatXmlDataSet("expectedBook.xml")
+                              ->getTable("guestbook");
+
+        $this->assertTablesEqual($expectedTable, $queryTable);
+    }
+}
+?>]]>
+      </programlisting>
+    </example>
+  </section>
+
+  <section id="code-coverage-analysis.edge-cases">
+    <title>Edge Cases</title>
+
+    <para>
+      This section shows noteworthy edge cases that lead to confusing code
+      coverage information.
+    </para>
+
+    <example id="code-coverage-analysis.edge-cases.examples.Sample.php">
+      <programlisting><![CDATA[<?php
+use phpunit\framework\TestCase;
+
+// Because it is "line based" and not statement base coverage
+// one line will always have one coverage status
+if (false) this_function_call_shows_up_as_covered();
+
+// Due to how code coverage works internally these two lines are special.
+// This line will show up as non executable
+if (false)
+    // This line will show up as covered because it is actually the 
+    // coverage of the if statement in the line above that gets shown here!
+    will_also_show_up_as_covered();
+
+// To avoid this it is necessary that braces are used
+if (false) {
+    this_call_will_never_show_up_as_covered();
+}
+?>]]></programlisting>
+    </example>      
+  </section>
+</chapter>
