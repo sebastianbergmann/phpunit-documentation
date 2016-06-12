@@ -105,7 +105,7 @@
 
       <xref linkend="test-doubles.stubs.examples.StubTest.php" />
       に、スタブメソッドの作成と返り値の設定の方法を示します。まず、
-      <literal>PHPUnit_Framework_TestCase</literal> クラスの
+      <literal>phpunit\framework\TestCase</literal> クラスの
       <literal>createMock()</literal> メソッドを用いて
       <literal>SomeClass</literal> オブジェクトのスタブを作成します
       (<xref linkend="test-doubles.stubs.examples.SomeClass.php" />)。
@@ -122,6 +122,8 @@
     <example id="test-doubles.stubs.examples.SomeClass.php">
       <title>スタブを作りたいクラス</title>
       <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
+
 class SomeClass
 {
     public function doSomething()
@@ -138,7 +140,9 @@ class SomeClass
       <indexterm><primary>willReturn()</primary></indexterm>
       <title>メソッドに固定値を返させるスタブ</title>
       <programlisting><![CDATA[<?php
-class StubTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class StubTest extends TestCase
 {
     public function testStub()
     {
@@ -186,7 +190,9 @@ class StubTest extends PHPUnit_Framework_TestCase
       <indexterm><primary>willReturn()</primary></indexterm>
       <title>モックビルダー API を使った、生成されるテストダブルクラスの変更</title>
       <programlisting><![CDATA[<?php
-class StubTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class StubTest extends TestCase
 {
     public function testStub()
     {
@@ -228,7 +234,9 @@ class StubTest extends PHPUnit_Framework_TestCase
       <indexterm><primary>returnArgument()</primary></indexterm>
       <title>メソッドに引数のひとつを返させるスタブ</title>
       <programlisting><![CDATA[<?php
-class StubTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class StubTest extends TestCase
 {
     public function testReturnArgumentStub()
     {
@@ -263,7 +271,9 @@ class StubTest extends PHPUnit_Framework_TestCase
       <indexterm><primary>returnSelf()</primary></indexterm>
       <title>スタブオブジェクトへの参照を返すメソッドのスタブ</title>
       <programlisting><![CDATA[<?php
-class StubTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class StubTest extends TestCase
 {
     public function testReturnSelf()
     {
@@ -296,7 +306,9 @@ class StubTest extends PHPUnit_Framework_TestCase
       <indexterm><primary>returnValueMap()</primary></indexterm>
       <title>メソッドにマップからの値を返させるスタブ</title>
       <programlisting><![CDATA[<?php
-class StubTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class StubTest extends TestCase
 {
     public function testReturnValueMapStub()
     {
@@ -339,7 +351,9 @@ class StubTest extends PHPUnit_Framework_TestCase
       <indexterm><primary>returnCallback()</primary></indexterm>
       <title>メソッドにコールバックからの値を返させるスタブ</title>
       <programlisting><![CDATA[<?php
-class StubTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class StubTest extends TestCase
 {
     public function testReturnCallbackStub()
     {
@@ -372,7 +386,9 @@ class StubTest extends PHPUnit_Framework_TestCase
       <indexterm><primary>onConsecutiveCalls()</primary></indexterm>
       <title>メソッドに、リストで指定した値をその順で返させるスタブ</title>
       <programlisting><![CDATA[<?php
-class StubTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class StubTest extends TestCase
 {
     public function testOnConsecutiveCallsStub()
     {
@@ -406,7 +422,9 @@ class StubTest extends PHPUnit_Framework_TestCase
       <indexterm><primary>throwException()</primary></indexterm>
       <title>メソッドに例外をスローさせるスタブ</title>
       <programlisting><![CDATA[<?php
-class StubTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class StubTest extends TestCase
 {
     public function testThrowExceptionStub()
     {
@@ -490,6 +508,8 @@ class StubTest extends PHPUnit_Framework_TestCase
     <example id="test-doubles.mock-objects.examples.SUT.php">
       <title>テスト対象のシステム (SUT) の一部である Subject クラスと Observer クラス</title>
       <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
+
 class Subject
 {
     protected $observers = [];
@@ -564,7 +584,7 @@ class Observer
 
     <para>
       まず
-      <literal>PHPUnit_Framework_TestCase</literal> クラスの
+      <literal>phpunit\framework\TestCase</literal> クラスの
       <literal>getMockBuilder()</literal> メソッドを使用して <literal>Observer</literal> のモックオブジェクトを作成します。
       <literal>getMock()</literal> メソッドの二番目の (オプションの)
       パラメータに配列を指定しているので、<literal>Observer</literal>
@@ -580,7 +600,9 @@ class Observer
     <example id="test-doubles.mock-objects.examples.SubjectTest.php">
       <title>あるメソッドが、指定した引数で一度だけコールされることを確かめるテスト</title>
       <programlisting><![CDATA[<?php
-class SubjectTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class SubjectTest extends TestCase
 {
     public function testObserversAreUpdated()
     {
@@ -620,7 +642,9 @@ class SubjectTest extends PHPUnit_Framework_TestCase
     <example id="test-doubles.mock-objects.examples.SubjectTest2.php">
       <title>メソッドが引数つきでコールされることを、さまざまな制約の下でテストする例</title>
       <programlisting><![CDATA[<?php
-class SubjectTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class SubjectTest extends TestCase
 {
     public function testErrorReported()
     {
@@ -659,7 +683,9 @@ class SubjectTest extends PHPUnit_Framework_TestCase
     <example id="test-doubles.mock-objects.examples.with-consecutive.php">
       <title>あるメソッドが、指定した引数つきで 2 回呼び出されることを確かめるテスト</title>
       <programlisting><![CDATA[<?php
-class FooTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class FooTest extends TestCase
 {
     public function testFunctionCalledTwoTimesWithSpecificArguments()
     {
@@ -691,7 +717,9 @@ class FooTest extends PHPUnit_Framework_TestCase
     <example id="test-doubles.mock-objects.examples.SubjectTest3.php">
       <title>より複雑な引数の検証</title>
       <programlisting><![CDATA[<?php
-class SubjectTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class SubjectTest extends TestCase
 {
     public function testErrorReported()
     {
@@ -724,7 +752,9 @@ class SubjectTest extends PHPUnit_Framework_TestCase
     <example id="test-doubles.mock-objects.examples.clone-object-parameters-usecase.php">
       <title>メソッドが一度だけ呼ばれ、同じオブジェクトが渡されたことを確かめるテスト</title>
       <programlisting><![CDATA[<?php
-class FooTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class FooTest extends TestCase
 {
     public function testIdenticalObjectPassed()
     {
@@ -747,7 +777,9 @@ class FooTest extends PHPUnit_Framework_TestCase
     <example id="test-doubles.mock-objects.examples.enable-clone-object-parameters.php">
       <title>パラメータのクローンの有効にしたモックオブジェクトの作成</title>
       <programlisting><![CDATA[<?php
-class FooTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class FooTest extends TestCase
 {
     public function testIdenticalObjectPassed()
     {
@@ -860,7 +892,9 @@ class FooTest extends PHPUnit_Framework_TestCase
     <example id="test-doubles.prophecy.examples.SubjectTest.php">
       <title>あるメソッドが、指定した引数で一度だけコールされることを確かめるテスト</title>
       <programlisting><![CDATA[<?php
-class SubjectTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class SubjectTest extends TestCase
 {
     public function testObserversAreUpdated()
     {
@@ -907,6 +941,8 @@ class SubjectTest extends PHPUnit_Framework_TestCase
     <example id="test-doubles.mock-objects.examples.TraitClassTest.php">
       <title>トレイトの具象メソッドのテスト</title>
       <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
+
 trait AbstractTrait
 {
     public function concreteMethod()
@@ -917,7 +953,7 @@ trait AbstractTrait
     public abstract function abstractMethod();
 }
 
-class TraitClassTest extends PHPUnit_Framework_TestCase
+class TraitClassTest extends TestCase
 {
     public function testConcreteMethod()
     {
@@ -945,6 +981,8 @@ class TraitClassTest extends PHPUnit_Framework_TestCase
     <example id="test-doubles.mock-objects.examples.AbstractClassTest.php">
       <title>抽象クラスの具象メソッドのテスト</title>
       <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
+
 abstract class AbstractClass
 {
     public function concreteMethod()
@@ -955,7 +993,7 @@ abstract class AbstractClass
     public abstract function abstractMethod();
 }
 
-class AbstractClassTest extends PHPUnit_Framework_TestCase
+class AbstractClassTest extends TestCase
 {
     public function testConcreteMethod()
     {
@@ -997,7 +1035,9 @@ class AbstractClassTest extends PHPUnit_Framework_TestCase
     <example id="test-doubles.stubbing-and-mocking-web-services.examples.GoogleTest.php">
       <title>ウェブサービスのスタブ</title>
       <programlisting><![CDATA[<?php
-class GoogleTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class GoogleTest extends TestCase
 {
     public function testSearch()
     {
@@ -1097,6 +1137,8 @@ class GoogleTest extends PHPUnit_Framework_TestCase
     <example id="test-doubles.mocking-the-filesystem.examples.Example.php">
       <title>ファイルシステムを操作するクラス</title>
       <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
+
 class Example
 {
     protected $id;
@@ -1128,7 +1170,9 @@ class Example
     <example id="test-doubles.mocking-the-filesystem.examples.ExampleTest.php">
       <title>ファイルシステムを操作するクラスのテスト</title>
       <programlisting><![CDATA[<?php
-class ExampleTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class ExampleTest extends TestCase
 {
     protected function setUp()
     {
@@ -1175,7 +1219,9 @@ class ExampleTest extends PHPUnit_Framework_TestCase
     <example id="test-doubles.mocking-the-filesystem.examples.ExampleTest2.php">
       <title>ファイルシステムを操作するクラスのテストにおけるファイルシステムのモックの作成</title>
       <programlisting><![CDATA[<?php
-class ExampleTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class ExampleTest extends TestCase
 {
     public function setUp()
     {

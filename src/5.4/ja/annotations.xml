@@ -51,7 +51,9 @@
 
       <literal>@after</literal> アノテーションを使うと、
       テストケースクラス内の各テストメソッドを実行した後に呼ぶメソッドを指定できます。
-      <programlisting>class MyTest extends PHPUnit_Framework_TestCase
+      <programlisting>use PHPUnit\Framework\TestCase;
+
+class MyTest extends TestCase
 {
     /**
      * @after
@@ -80,7 +82,9 @@
       <literal>@afterClass</literal> アノテーションを使うと、
       テストケースクラス内の各テストメソッドを実行した後に呼ぶ静的メソッドを指定できます。
       ここで共有フィクスチャの後始末をします。
-      <programlisting>class MyTest extends PHPUnit_Framework_TestCase
+      <programlisting>use PHPUnit\Framework\TestCase;
+
+class MyTest extends TestCase
 {
     /**
      * @afterClass
@@ -108,10 +112,12 @@
       <indexterm><primary><literal>@backupGlobals</literal></primary></indexterm>
 
       グローバル変数の保存や復元を、テストケースクラスのすべてのテストで完全に無効にすることができます。
-      このように使います。<programlisting>/**
+      このように使います。<programlisting>use PHPUnit\Framework\TestCase;
+
+/**
  * @backupGlobals disabled
  */
-class MyTest extends PHPUnit_Framework_TestCase
+class MyTest extends TestCase
 {
     // ...
 }</programlisting>
@@ -121,10 +127,12 @@ class MyTest extends PHPUnit_Framework_TestCase
       <indexterm><primary><literal>@backupGlobals</literal></primary></indexterm>
 
       <literal>@backupGlobals</literal> アノテーションは、テストメソッドレベルで使うこともできます。
-      これによって、保存と復元の操作をより細やかに制御できるようになります。<programlisting>/**
+      これによって、保存と復元の操作をより細やかに制御できるようになります。<programlisting>use PHPUnit\Framework\TestCase;
+
+/**
  * @backupGlobals disabled
  */
-class MyTest extends PHPUnit_Framework_TestCase
+class MyTest extends TestCase
 {
     /**
      * @backupGlobals enabled
@@ -148,11 +156,12 @@ class MyTest extends PHPUnit_Framework_TestCase
       テストが終わった後でそれらの値を復元することができます。
       テストケースクラス単位、あるいはテストメソッド単位で使えます。
 
-      <programlisting>
+      <programlisting>use PHPUnit\Framework\TestCase;
+
 /**
  * @backupStaticAttributes enabled
  */
-class MyTest extends PHPUnit_Framework_TestCase
+class MyTest extends TestCase
 {
     /**
      * @backupStaticAttributes disabled
@@ -186,7 +195,9 @@ class MyTest extends PHPUnit_Framework_TestCase
 
       <literal>@before</literal> アノテーションを使うと、
       テストケースクラス内の各テストメソッドを実行する前に呼ぶメソッドを指定できます。
-      <programlisting>class MyTest extends PHPUnit_Framework_TestCase
+      <programlisting>use PHPUnit\Framework\TestCase;
+
+class MyTest extends TestCase
 {
     /**
      * @before
@@ -215,7 +226,9 @@ class MyTest extends PHPUnit_Framework_TestCase
       <literal>@beforeClass</literal> アノテーションを使うと、
       テストケースクラス内の各テストメソッドを実行する前に呼ぶ静的メソッドを指定できます。
       ここで共有フィクスチャの準備をします。
-      <programlisting>class MyTest extends PHPUnit_Framework_TestCase
+      <programlisting>use PHPUnit\Framework\TestCase;
+
+class MyTest extends TestCase
 {
     /**
      * @beforeClass
@@ -355,10 +368,12 @@ public function testBalanceIsInitiallyZero()
     <example id="appendixes.annotations.examples.CoversDefaultClassTest.php">
       <title>@coversDefaultClass を使ったアノテーションの短縮</title>
       <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
+
 /**
  * @coversDefaultClass \Foo\CoveredClass
  */
-class CoversDefaultClassTest extends PHPUnit_Framework_TestCase
+class CoversDefaultClassTest extends TestCase
 {
     /**
      * @covers ::publicMethod
@@ -463,7 +478,9 @@ class CoversDefaultClassTest extends PHPUnit_Framework_TestCase
       スローされた例外のエラーコードについてのアサーションが可能となり、
       例外をより狭い範囲に特定できるようになります。
 
-      <programlisting>class MyTest extends PHPUnit_Framework_TestCase
+      <programlisting>use PHPUnit\Framework\TestCase;
+
+class MyTest extends TestCase
 {
     /**
      * @expectedException     MyException
@@ -480,7 +497,9 @@ class CoversDefaultClassTest extends PHPUnit_Framework_TestCase
       <literal>@expectedExceptionCode</literal> で
       "<literal>@expectedExceptionCode ClassName::CONST</literal>" のようにして使います。
 
-      <programlisting>class MyTest extends PHPUnit_Framework_TestCase
+      <programlisting>use PHPUnit\Framework\TestCase;
+
+class MyTest extends TestCase
 {
     /**
       * @expectedException     MyException
@@ -510,7 +529,9 @@ class MyClass
       <literal>@expectedExceptionCode</literal> と似ており、
       例外のエラーメッセージに関するアサーションを行います。
 
-      <programlisting>class MyTest extends PHPUnit_Framework_TestCase
+      <programlisting>use PHPUnit\Framework\TestCase;
+
+class MyTest extends TestCase
 {
     /**
      * @expectedException        MyException
@@ -526,7 +547,9 @@ class MyClass
       これは、特定の名前や渡したパラメータが例外に表示されることを確かめたいけれども
       例外メッセージ全体は固定していない場合に便利です。
 
-      <programlisting>class MyTest extends PHPUnit_Framework_TestCase
+      <programlisting>use PHPUnit\Framework\TestCase;
+
+class MyTest extends TestCase
 {
      /**
       * @expectedException        MyException
@@ -559,7 +582,9 @@ class MyClass
       アノテーションを使って正規表現で指定することもできます。
       これは、部分文字列だけでは指定したメッセージとのマッチングが不十分なときに便利です。
 
-      <programlisting>class MyTest extends PHPUnit_Framework_TestCase
+      <programlisting>use PHPUnit\Framework\TestCase;
+
+class MyTest extends TestCase
 {
      /**
       * @expectedException              MyException
@@ -581,7 +606,9 @@ class MyClass
       <indexterm><primary>@group</primary></indexterm>
 
       あるテストを、ひとつあるいは複数のグループに属するものとすることができます。
-      <literal>@group</literal> アノテーションをこのように使用します。<programlisting>class MyTest extends PHPUnit_Framework_TestCase
+      <literal>@group</literal> アノテーションをこのように使用します。<programlisting>use PHPUnit\Framework\TestCase;
+
+class MyTest extends TestCase
 {
     /**
      * @group specification
@@ -665,7 +692,9 @@ class MyClass
       しかし、親プロセスのグローバル状態の中にもしシリアライズできないものがあれば、
       問題が発生します。この問題に対応するために、グローバル状態の保存を無効にすることができます。
       そのために使うのが <literal>@preserveGlobalState</literal> アノテーションです。
-      <programlisting>class MyTest extends PHPUnit_Framework_TestCase
+      <programlisting>use PHPUnit\Framework\TestCase;
+
+class MyTest extends TestCase
 {
     /**
      * @runInSeparateProcess
@@ -705,10 +734,12 @@ class MyClass
       <indexterm><primary>@runTestsInSeparateProcesses</primary></indexterm>
 
       テストクラス内のすべてのテストケースを、個別の PHP プロセスで実行するように指示します。
-      <programlisting>/**
+      <programlisting>use PHPUnit\Framework\TestCase;
+
+/**
  * @runTestsInSeparateProcesses
  */
-class MyTest extends PHPUnit_Framework_TestCase
+class MyTest extends TestCase
 {
     // ...
 }</programlisting>
@@ -732,7 +763,9 @@ class MyTest extends PHPUnit_Framework_TestCase
       <indexterm><primary>@runInSeparateProcess</primary></indexterm>
 
       そのテストを個別の PHP プロセスで実行するように指示します。
-      <programlisting>class MyTest extends PHPUnit_Framework_TestCase
+      <programlisting>use PHPUnit\Framework\TestCase;
+
+class MyTest extends TestCase
 {
     /**
      * @runInSeparateProcess
