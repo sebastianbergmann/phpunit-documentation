@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<chapter id="installation">
+  <title>安装 PHPUnit</title>
+
+  <section id="installation.requirements">
+    <title>需求</title>
+
+    <para>PHPUnit 5.6 需要 PHP 5.6，强烈推荐使用最新版本的 PHP。</para>
+
+    <para>PHPUnit 需要使用 <ulink url="http://php.net/manual/en/dom.setup.php">dom</ulink> 和 <ulink url="http://php.net/manual/en/json.installation.php">json</ulink> 扩展，它们通常是默认启用的。</para>
+
+    <para>PHPUnit 还需要 <ulink url="http://php.net/manual/en/pcre.installation.php">pcre</ulink>、<ulink url="http://php.net/manual/en/reflection.installation.php">reflection</ulink>、<ulink url="http://php.net/manual/en/spl.installation.php">spl</ulink> 扩展。这些标准扩展默认启用，并且除非修改 PHP 的构建系统和 C 源代码，否则无法禁用它们。</para>
+
+    <para>代码覆盖率分析报告功能需要 <ulink url="http://xdebug.org/">Xdebug</ulink> （2.2.1以上）与 <ulink url="http://php.net/manual/en/tokenizer.installation.php">tokenizer</ulink> 扩展。生成 XML 格式的报告需要有 <ulink url="http://php.net/manual/en/xmlwriter.installation.php">xmlwriter</ulink> 扩展。</para>
+  </section>
+
+  <section id="installation.phar">
+    <title>PHP 档案包 (PHAR)</title>
+
+    <para>要获取 PHPUnit，最简单的方法是下载 PHPUnit 的 <ulink url="http://php.net/phar">PHP 档案包 (PHAR)</ulink>，它将 PHPUnit 所需要的所有必要组件（以及某些可选组件）捆绑在单个文件中：</para>
+
+    <para>要使用 PHP档案包(PHAR)需要有 <ulink url="http://php.net/manual/en/phar.installation.php">phar</ulink> 扩展。</para>
+
+    <para>要使用 PHAR 的 <literal>--self-update</literal> 功能需要有 <ulink url="http://php.net/manual/en/openssl.installation.php">openssl</ulink> 扩展。</para>
+
+    <para>如果启用了 <ulink url="http://suhosin.org/">Suhosin</ulink> 扩展，需要在 <literal>php.ini</literal> 中允许执行 PHAR：<screen>
+suhosin.executor.include.whitelist = phar
+</screen>
+    </para>
+
+    <para>如果要全局安装 PHAR：</para>
+
+    <screen>
+<prompt>$</prompt> <userinput>wget https://phar.phpunit.de/phpunit.phar</userinput>
+<prompt>$</prompt> <userinput>chmod +x phpunit.phar</userinput>
+<prompt>$</prompt> <userinput>sudo mv phpunit.phar /usr/local/bin/phpunit</userinput>
+<prompt>$</prompt> <userinput>phpunit --version</userinput>
+<computeroutput>PHPUnit x.y.z by Sebastian Bergmann and contributors.</computeroutput>
+</screen>
+
+    <para>也可以直接使用下载的 PHAR 文件：</para>
+
+    <screen>
+<prompt>$</prompt> <userinput>wget https://phar.phpunit.de/phpunit.phar</userinput>
+<prompt>$</prompt> <userinput>php phpunit.phar --version</userinput>
+<computeroutput>PHPUnit x.y.z by Sebastian Bergmann and contributors.</computeroutput>
+</screen>
+
+    <section id="installation.phar.windows">
+      <title>Windows</title>
+
+      <para>整体上说，在 Windows 下安装 PHAR 和手工<ulink url="https://getcomposer.org/doc/00-intro.md#installation-windows">在 Windows 下安装 Composer</ulink> 是一样的过程：</para>
+
+      <orderedlist>
+        <listitem>
+          <para>为 PHP 的二进制可执行文件建立一个目录，例如 <filename>C:\bin</filename>
+          </para>
+        </listitem>
+        <listitem>
+          <para>将 <userinput>;C:\bin</userinput> 附加到 <varname>PATH</varname> 环境变量中（<ulink url="http://stackoverflow.com/questions/6318156/adding-python-path-on-windows-7">相关帮助</ulink>）</para>
+        </listitem>
+        <listitem>
+          <para>下载 <ulink url="https://phar.phpunit.de/phpunit.phar"/> 并将文件保存到 <filename>C:\bin\phpunit.phar</filename>
+          </para>
+        </listitem>
+        <listitem>
+          <para>打开命令行（例如，按 <keycombo><keycap>Windows</keycap><keycap>R</keycap></keycombo> » 输入 <userinput>cmd</userinput> » <keycap>ENTER</keycap>)</para>
+        </listitem>
+        <listitem>
+          <para>建立外包覆批处理脚本（最后得到 <filename>C:\bin\phpunit.cmd</filename>）：</para>
+          <screen>
+<prompt>C:\Users\username&gt;</prompt> <userinput>cd C:\bin</userinput>
+<prompt>C:\bin&gt;</prompt> <userinput>echo @php &quot;%~dp0phpunit.phar&quot; %* &gt; phpunit.cmd</userinput>
+<prompt>C:\bin&gt;</prompt> <userinput>exit</userinput>
+</screen>
+        </listitem>
+        <listitem>
+          <para>新开一个命令行窗口，确认一下可以在任意路径下执行 PHPUnit：</para>
+          <screen>
+<prompt>C:\Users\username&gt;</prompt> <userinput>phpunit --version</userinput>
+<computeroutput>PHPUnit x.y.z by Sebastian Bergmann and contributors.</computeroutput>
+</screen>
+        </listitem>
+      </orderedlist>
+
+      <para>对于 Cygwin 或 MingW32 (例如 TortoiseGit) shell 环境，可以跳过第五步。 取而代之的是，把文件保存为 <filename>phpunit</filename> （没有 <filename>.phar</filename> 扩展名），然后用 <userinput>chmod 775 phpunit</userinput> 将其设为可执行。</para>
+
+    </section>
+
+    <section id="installation.phar.verification">
+      <title>校验 PHPUnit PHAR 发行包</title>
+
+      <para> 由 PHPUnit 项目分发的所有官方代码发行包都由发行包管理器进行签名。在 <ulink url="https://phar.phpunit.de/">phar.phpunit.de</ulink> 上有 PGP 签名和 SHA1 散列值可用于校验。</para>
+
+      <para>下面的例子详细说明了如何对发行包进行校验。首先下载 <filename>phpunit.phar</filename> 和与之对应的单独 PGP 签名 <filename>phpunit.phar.asc</filename>：</para>
+
+      <screen><userinput>wget https://phar.phpunit.de/phpunit.phar</userinput>
+<userinput>wget https://phar.phpunit.de/phpunit.phar.asc</userinput></screen>
+
+      <para>用单独的签名(<filename>phpunit.phar</filename>)对 PHPUnit 的 PHP 档案包(<filename>phpunit.phar.asc</filename>)进行校验：</para>
+
+      <screen><userinput>gpg phpunit.phar.asc</userinput>
+gpg: Signature made Sat 19 Jul 2014 01:28:02 PM CEST using RSA key ID 6372C20A
+gpg: Can't check signature: public key not found</screen>
+
+      <para>在本地系统中没有发行包管理器的公钥(<literal>6372C20A</literal>)。为了能进行校验，必须从某个密钥服务器上取得发行包管理器的公钥。其中一个服务器是 <filename>pgp.uni-mainz.de</filename>。所有密钥服务器是链接在一起的，因此连接到任一密钥服务器都可以。</para>
+
+      <screen><userinput>gpg --keyserver pgp.uni-mainz.de --recv-keys 0x4AA394086372C20A</userinput><![CDATA[
+gpg: requesting key 6372C20A from hkp server pgp.uni-mainz.de
+gpg: key 6372C20A: public key "Sebastian Bergmann <sb@sebastian-bergmann.de>" imported
+gpg: Total number processed: 1
+gpg:               imported: 1  (RSA: 1)]]></screen>
+
+      <para>现在已经取得了条目名称为&quot;Sebastian Bergmann &lt;sb@sebastian-bergmann.de&gt;&quot;的公钥。不过无法检验这个密钥确实是由名叫 Sebastian Bergmann 的人创建的。但是可以先试着校验发行包的签名：</para>
+
+      <screen><userinput>gpg phpunit.phar.asc</userinput><![CDATA[
+gpg: Signature made Sat 19 Jul 2014 01:28:02 PM CEST using RSA key ID 6372C20A
+gpg: Good signature from "Sebastian Bergmann <sb@sebastian-bergmann.de>"
+gpg:                 aka "Sebastian Bergmann <sebastian@php.net>"
+gpg:                 aka "Sebastian Bergmann <sebastian@thephp.cc>"
+gpg:                 aka "Sebastian Bergmann <sebastian@phpunit.de>"
+gpg:                 aka "Sebastian Bergmann <sebastian.bergmann@thephp.cc>"
+gpg:                 aka "[jpeg image of size 40635]"
+gpg: WARNING: This key is not certified with a trusted signature!
+gpg:          There is no indication that the signature belongs to the owner.
+Primary key fingerprint: D840 6D0D 8294 7747 2937  7831 4AA3 9408 6372 C20A]]></screen>
+
+      <para>此时，签名已经没问题了，但是这个公钥还不能信任。签名没问题意味着文件未被篡改。可是由于公钥加密系统的性质，还需要再校验密钥 <literal>6372C20A</literal> 确实是由真正的 Sebastian Bergmann 创建的。</para>
+
+      <para>任何攻击者都能创建公钥并将其上传到公钥服务器。他们可以建立一个带恶意的发行包，并用这个假密钥进行签名。这样，如果尝试对这个损坏了的发行包进行签名校验，由于密钥是“真”密钥，校验将成功完成。因此，需要对这个密钥的真实性进行校验。如何对公钥的真实性进行校验已经超出了本文档的范畴。</para>
+
+      <para>有个比较谨慎的做法是创建一个脚本来管理 PHPUnit 的安装，在运行测试套件之前校验 GnuPG 签名。例如：</para>
+
+      <screen><![CDATA[
+#!/usr/bin/env bash
+clean=1 # 是否在测试完成之后删除 phpunit.phar ？
+aftercmd="php phpunit.phar --bootstrap bootstrap.php src/tests"
+gpg --fingerprint D8406D0D82947747293778314AA394086372C20A
+if [ $? -ne 0 ]; then
+    echo -e "\033[33mDownloading PGP Public Key...\033[0m"
+    gpg --recv-keys D8406D0D82947747293778314AA394086372C20A
+    # Sebastian Bergmann <sb@sebastian-bergmann.de>
+    gpg --fingerprint D8406D0D82947747293778314AA394086372C20A
+    if [ $? -ne 0 ]; then
+        echo -e "\033[31mCould not download PGP public key for verification\033[0m"
+        exit
+    fi
+fi
+
+if [ "$clean" -eq 1 ]; then
+    # 如果存在就清理掉
+    if [ -f phpunit.phar ]; then
+        rm -f phpunit.phar
+    fi
+    if [ -f phpunit.phar.asc ]; then
+        rm -f phpunit.phar.asc
+    fi
+fi
+
+# 抓取最新的发行版和对应的签名
+if [ ! -f phpunit.phar ]; then
+    wget https://phar.phpunit.de/phpunit.phar
+fi
+if [ ! -f phpunit.phar.asc ]; then
+    wget https://phar.phpunit.de/phpunit.phar.asc
+fi
+
+# 在运行前先校验
+gpg --verify phpunit.phar.asc phpunit.phar
+if [ $? -eq 0 ]; then
+    echo
+    echo -e "\033[33mBegin Unit Testing\033[0m"
+    # 运行测试套件
+    `$after_cmd`
+    # 清理
+    if [ "$clean" -eq 1 ]; then
+        echo -e "\033[32mCleaning Up!\033[0m"
+        rm -f phpunit.phar
+        rm -f phpunit.phar.asc
+    fi
+else
+    echo
+    chmod -x phpunit.phar
+    mv phpunit.phar /tmp/bad-phpunit.phar
+    mv phpunit.phar.asc /tmp/bad-phpunit.phar.asc
+    echo -e "\033[31mSignature did not match! PHPUnit has been moved to /tmp/bad-phpunit.phar\033[0m"
+    exit 1
+fi
+      ]]></screen>
+   </section>
+  </section>
+
+  <section id="installation.composer">
+    <title>Composer</title>
+
+    <para>如果用 <ulink url="https://getcomposer.org/">Composer</ulink> 来管理项目的依赖关系，只要在项目的 <literal>composer.json</literal> 文件中简单地加上对 <literal>phpunit/phpunit</literal> 的依赖关系即可。下面是一个最小化的 <literal>composer.json</literal> 文件的例子，只定义了一个对 PHPUnit 5.6 的开发时(development-time)依赖：</para>
+
+    <programlisting><![CDATA[{
+    "require-dev": {
+        "phpunit/phpunit": "5.5.*"
+    }
+}]]></programlisting>
+
+    <para>要通过 Composer 完成系统级的安装，可以运行：</para>
+
+    <screen><userinput>composer global require &quot;phpunit/phpunit=5.5.*&quot;</userinput></screen>
+
+    <para>请确保 path 变量中包含有 <literal>~/.composer/vendor/bin/</literal>。</para>
+  </section>
+
+  <section id="installation.optional-packages">
+    <title>可选的组件包</title>
+
+    <para>有以下可选组件包可用：</para>
+
+    <variablelist>
+      <varlistentry>
+        <term>
+          <literal>PHP_Invoker</literal>
+        </term>
+
+        <listitem>
+          <para> 一个工具类，可以用带有超时限制的方式调用可调用内容。当需要在严格模式下保证测试的超时限制时，这个组件包是必须的。</para>
+
+          <para>PHPUnit 的 PHAR 分发中已经包含了此组件包。若要通过 Composer 安装此组件包，添加如下 <literal>&quot;require-dev&quot;</literal> 依赖项：</para>
+
+          <screen><userinput>&quot;phpunit/php-invoker&quot;: &quot;*&quot;</userinput></screen>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <literal>DbUnit</literal>
+        </term>
+
+        <listitem>
+          <para>移植到 PHP/PHPUnit 上的 DbUnit 用于提供对数据库交互测试的支持。</para>
+
+          <para>PHPUnit 的 PHAR 分发中已经包含了此组件包。若要通过 Composer 安装此组件包，添加如下 <literal>&quot;require-dev&quot;</literal> 依赖项：</para>
+
+          <screen><userinput>&quot;phpunit/dbunit&quot;: &quot;&gt;=1.2&quot;</userinput></screen>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+  </section>
+</chapter>

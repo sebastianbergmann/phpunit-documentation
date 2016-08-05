@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<chapter id="risky-tests">
+  <title>有风险的测试</title>
+
+  <para>在执行测试时，PHPUnit 可以进行一些额外的检查，见下文。</para>
+
+  <section id="risky-tests.useless-tests">
+    <title>无用测试</title>
+
+    <para>PHPUnit 可以更严格对待事实上不测试任何内容的测试。此项检查可以用命令行选项 <literal>--report-useless-tests</literal> 或在 PHPUnit 的 XML 配置文件中设置  <literal>beStrictAboutTestsThatDoNotTestAnything=&quot;true&quot;</literal> 来启用。</para>
+
+    <para>在启用本项检查后，如果某个测试未进行任何断言，它将被标记为有风险。仿件对象中的预期和诸如 <code>@expectedException</code> 这样的标注同样视为断言。</para>
+  </section>
+
+  <section id="risky-tests.unintentionally-covered-code">
+    <title>意外的代码覆盖</title>
+
+    <para>PHPUnit 可以更严格对待意外的代码覆盖。此项检查可以用命令行选项 <literal>--strict-coverage</literal> 或在 PHPUnit 的 XML 配置文件中设置 <literal>checkForUnintentionallyCoveredCode=&quot;true&quot;</literal> 来启用。</para>
+
+    <para>在启用本项检查后，如果某个带有 <code>@covers</code> 标注的测试执行了未在 <code>@covers</code> 或 <code>@uses</code> 标注中列出的代码，它将被标记为有风险。</para>
+  </section>
+
+  <section id="risky-tests.output-during-test-execution">
+    <title>测试执行期间产生的输出</title>
+
+    <para>PHPUnit 可以更严格对待测试执行期间产生的输出。 此项检查可以用命令行选项 <literal>--disallow-test-output</literal> 或在 PHPUnit 的 XML 配置文件中设置 <literal>beStrictAboutOutputDuringTests=&quot;true&quot;</literal> 来启用。</para>
+
+    <para>在启用本项检查后，如果某个测试产生了输出，例如，在测试代码或被测代码中调用了 <code>print</code>，它将被标记为有风险。</para>
+  </section>
+
+  <section id="risky-tests.test-execution-timeout">
+    <title>测试执行时长的超时限制</title>
+
+    <para>如果安装了 <literal>PHP_Invoker</literal> 包并且 <literal>pcntl</literal> 扩展可用，那么可以对测试的执行时长进行限制。此时间限制可以用命令行选项 <literal>--enforce-time-limit</literal> 或在 PHPUnit 的 XML 配置文件中设置 <literal>beStrictAboutTestSize=&quot;true&quot;</literal> 来启用。</para>
+
+    <para>带有 <literal>@large</literal> 标注的测试如果执行时间超过60秒将视为失败。此超时限制可以通过XML配置文件中的 <literal>timeoutForLargeTests</literal> 属性进行配置。</para>
+
+    <para>带有 <literal>@medium</literal> 标注的测试如果执行时间超过10秒将视为失败。此超时限制可以通过XML配置文件中的 <literal>timeoutForMediumTests</literal> 属性进行配置。</para>
+
+    <para>没有 <literal>@medium</literal> 或 <literal>@large</literal> 标注的测试都将视同为带有 <literal>@small</literal>标注，这类测试如果执行时间超过1秒将视为失败。此超时限制可以通过XML配置文件中的 <literal>timeoutForSmallTests</literal> 属性进行配置。</para>
+  </section>
+
+  <section id="risky-tests.global-state-manipulation">
+    <title>全局状态篡改</title>
+
+    <para>PHPUnit 可以更严格对待篡改全局状态的测试。此项检查可以用命令行选项 <literal>--strict-global-state</literal> 或在 PHPUnit 的 XML 配置文件中设置 <literal>beStrictAboutChangesToGlobalState=&quot;true&quot;</literal> 来启用。</para>
+  </section>
+</chapter>
