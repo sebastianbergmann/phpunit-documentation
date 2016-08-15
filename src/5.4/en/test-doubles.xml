@@ -166,7 +166,8 @@ class StubTest extends TestCase
     <para>
       <xref linkend="test-doubles.stubs.examples.StubTest2.php"/> shows an
       example of how to use the Mock Builder's fluent interface to configure the
-      creation of the test double.
+      creation of the test double. The configuration of this test double uses
+      the same best practice defaults used by <literal>createMock()</literal>.
     </para>
 
     <example id="test-doubles.stubs.examples.StubTest2.php">
@@ -182,7 +183,12 @@ class StubTest extends TestCase
     public function testStub()
     {
         // Create a stub for the SomeClass class.
-        $stub = $this->createMock(SomeClass::class);
+        $stub = $this->getMockBuilder($originalClassName)
+                     ->disableOriginalConstructor()
+                     ->disableOriginalClone()
+                     ->disableArgumentCloning()
+                     ->disallowMockingUnknownTypes()
+                     ->getMock();
 
         // Configure the stub.
         $stub->method('doSomething')
