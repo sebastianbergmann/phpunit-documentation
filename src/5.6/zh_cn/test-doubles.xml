@@ -36,11 +36,13 @@
     <para>
       <indexterm><primary>Fluent Interface （流畅式接口）</primary></indexterm>
 
-      <xref linkend="test-doubles.stubs.examples.StubTest.php"/>展示了如何对方法的调用上桩以及如何设定返回值。首先用 <literal>PHPUnit_Framework_TestCase</literal> 类提供的 <literal>createMock()</literal> 方法来建立一个桩件对象，它表面看起来像是 <literal>SomeClass</literal>类（<xref linkend="test-doubles.stubs.examples.SomeClass.php"/>）的实例。随后用 PHPUnit 提供的 <ulink url="http://martinfowler.com/bliki/FluentInterface.html">流畅式接口</ulink>来指定桩件的行为。本质上，这意味着不需要建立多个临时对象然后再把它们捆到一起。取而代之的是范例中所示的链式方法调用。这使得代码更加易读并更加“流畅”。</para>
+      <xref linkend="test-doubles.stubs.examples.StubTest.php"/>展示了如何对方法的调用上桩以及如何设定返回值。首先用 <literal>PHPUnit\Framework\TestCase</literal> 类提供的 <literal>createMock()</literal> 方法来建立一个桩件对象，它表面看起来像是 <literal>SomeClass</literal>类（<xref linkend="test-doubles.stubs.examples.SomeClass.php"/>）的实例。随后用 PHPUnit 提供的 <ulink url="http://martinfowler.com/bliki/FluentInterface.html">流畅式接口</ulink>来指定桩件的行为。本质上，这意味着不需要建立多个临时对象然后再把它们捆到一起。取而代之的是范例中所示的链式方法调用。这使得代码更加易读并更加“流畅”。</para>
 
     <example id="test-doubles.stubs.examples.SomeClass.php">
       <title>需要对其上桩的类</title>
       <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
+
 class SomeClass
 {
     public function doSomething()
@@ -57,7 +59,9 @@ class SomeClass
       <indexterm><primary>willReturn()</primary></indexterm>
       <title>对某个方法的调用上桩，返回固定值</title>
       <programlisting><![CDATA[<?php
-class StubTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class StubTest extends TestCase
 {
     public function testStub()
     {
@@ -94,7 +98,9 @@ class StubTest extends PHPUnit_Framework_TestCase
       <indexterm><primary>willReturn()</primary></indexterm>
       <title>使用可用于配置生成的测试替身类的仿件生成器 API</title>
       <programlisting><![CDATA[<?php
-class StubTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class StubTest extends TestCase
 {
     public function testStub()
     {
@@ -123,7 +129,9 @@ class StubTest extends PHPUnit_Framework_TestCase
       <indexterm><primary>returnArgument()</primary></indexterm>
       <title>对某个方法的调用上桩，返回参数之一</title>
       <programlisting><![CDATA[<?php
-class StubTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class StubTest extends TestCase
 {
     public function testReturnArgumentStub()
     {
@@ -153,14 +161,16 @@ class StubTest extends PHPUnit_Framework_TestCase
       <indexterm><primary>returnSelf()</primary></indexterm>
       <title>对方法的调用上桩，返回对桩件对象的引用</title>
       <programlisting><![CDATA[<?php
-class StubTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class StubTest extends TestCase
 {
     public function testReturnSelf()
     {
         // 为 SomeClass 类创建桩件。
         $stub = $this->createMock(SomeClass::class);
 
-        //配置桩件。
+        // 配置桩件。
         $stub->method('doSomething')
              ->will($this->returnSelf());
 
@@ -180,7 +190,9 @@ class StubTest extends PHPUnit_Framework_TestCase
       <indexterm><primary>returnValueMap()</primary></indexterm>
       <title>对方法的调用上桩，按照映射确定返回值</title>
       <programlisting><![CDATA[<?php
-class StubTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class StubTest extends TestCase
 {
     public function testReturnValueMapStub()
     {
@@ -214,7 +226,9 @@ class StubTest extends PHPUnit_Framework_TestCase
       <indexterm><primary>returnCallback()</primary></indexterm>
       <title>对方法的调用上桩，由回调生成返回值</title>
       <programlisting><![CDATA[<?php
-class StubTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class StubTest extends TestCase
 {
     public function testReturnCallbackStub()
     {
@@ -241,11 +255,13 @@ class StubTest extends PHPUnit_Framework_TestCase
       <indexterm><primary>onConsecutiveCalls()</primary></indexterm>
       <title>对方法的调用上桩，按照指定顺序返回列表中的值</title>
       <programlisting><![CDATA[<?php
-class StubTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class StubTest extends TestCase
 {
     public function testOnConsecutiveCallsStub()
     {
-        //为 SomeClass 类创建桩件。
+        // 为 SomeClass 类创建桩件。
         $stub = $this->createMock(SomeClass::class);
 
         // 配置桩件。
@@ -271,11 +287,13 @@ class StubTest extends PHPUnit_Framework_TestCase
       <indexterm><primary>throwException()</primary></indexterm>
       <title>对方法的调用上桩，抛出异常</title>
       <programlisting><![CDATA[<?php
-class StubTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class StubTest extends TestCase
 {
     public function testThrowExceptionStub()
     {
-        // 为 SomeClass 类创建桩件。
+        // 为 SomeClass 类创建桩件
         $stub = $this->createMock(SomeClass::class);
 
         // 配置桩件。
@@ -313,6 +331,8 @@ class StubTest extends PHPUnit_Framework_TestCase
     <example id="test-doubles.mock-objects.examples.SUT.php">
       <title>被测系统(SUT)中 Subject 与 Observer 类的代码</title>
       <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
+
 class Subject
 {
     protected $observers = [];
@@ -381,14 +401,16 @@ class Observer
 
       <xref linkend="test-doubles.mock-objects.examples.SubjectTest.php"/>展示了如何用仿件对象来测试 <literal>Subject</literal> 和 <literal>Observer</literal> 对象之间的互动。</para>
 
-    <para>首先用 <literal>PHPUnit_Framework_TestCase</literal> 类提供的 <literal>getMockBuilder()</literal> 方法建立 <literal>Observer</literal> 的仿件对象。由于给出了一个数组做为 <literal>getMock()</literal> 方法的第二（可选）参数，<literal>Observer</literal> 类只有 <literal>update()</literal> 方法会被替换为仿实现。</para>
+    <para>首先用 <literal>PHPUnit\Framework\TestCase</literal> 类提供的 <literal>getMockBuilder()</literal> 方法建立 <literal>Observer</literal> 的仿件对象。由于给出了一个数组做为 <literal>getMock()</literal> 方法的第二（可选）参数，<literal>Observer</literal> 类只有 <literal>update()</literal> 方法会被替换为仿实现。</para>
 
     <para>由于关注的是检验某个方法是否被调用，以及调用时具体所使用的参数，因此引入 <literal>expects()</literal> 与 <literal>with()</literal> 方法来指明此交互应该是什么样的。</para>
 
     <example id="test-doubles.mock-objects.examples.SubjectTest.php">
       <title>测试某个方法会以特定参数被调用一次</title>
       <programlisting><![CDATA[<?php
-class SubjectTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class SubjectTest extends TestCase
 {
     public function testObserversAreUpdated()
     {
@@ -403,7 +425,7 @@ class SubjectTest extends PHPUnit_Framework_TestCase
                  ->method('update')
                  ->with($this->equalTo('something'));
 
-       // 创建 Subject 对象，并将模仿的 Observer 对象连接其上。
+        // 创建 Subject 对象，并将模仿的 Observer 对象连接其上。
         $subject = new Subject('My subject');
         $subject->attach($observer);
 
@@ -421,7 +443,9 @@ class SubjectTest extends PHPUnit_Framework_TestCase
     <example id="test-doubles.mock-objects.examples.SubjectTest2.php">
       <title>测试某个方法将会以特定数量的参数进行调用，并且对各个参数以多种方式进行约束</title>
       <programlisting><![CDATA[<?php
-class SubjectTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class SubjectTest extends TestCase
 {
     public function testErrorReported()
     {
@@ -442,7 +466,7 @@ class SubjectTest extends PHPUnit_Framework_TestCase
         $subject->attach($observer);
 
         // doSomethingBad() 方法应当会通过（observer的）reportError()方法
-        //向 observer 报告错误。
+        // 向 observer 报告错误。
         $subject->doSomethingBad();
     }
 }
@@ -454,7 +478,9 @@ class SubjectTest extends PHPUnit_Framework_TestCase
     <example id="test-doubles.mock-objects.examples.with-consecutive.php">
       <title>测试某个方法将会以特定参数被调用二次</title>
       <programlisting><![CDATA[<?php
-class FooTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class FooTest extends TestCase
 {
     public function testFunctionCalledTwoTimesWithSpecificArguments()
     {
@@ -481,7 +507,9 @@ class FooTest extends PHPUnit_Framework_TestCase
     <example id="test-doubles.mock-objects.examples.SubjectTest3.php">
       <title>更加复杂的参数校验</title>
       <programlisting><![CDATA[<?php
-class SubjectTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class SubjectTest extends TestCase
 {
     public function testErrorReported()
     {
@@ -503,7 +531,7 @@ class SubjectTest extends PHPUnit_Framework_TestCase
         $subject->attach($observer);
 
         // doSomethingBad() 方法应当会通过（observer的）reportError()方法
-        //向 observer 报告错误。
+        // 向 observer 报告错误。
         $subject->doSomethingBad();
     }
 }
@@ -513,7 +541,9 @@ class SubjectTest extends PHPUnit_Framework_TestCase
     <example id="test-doubles.mock-objects.examples.clone-object-parameters-usecase.php">
       <title>测试某个方法将会被调用一次，并且以某个特定对象作为参数。</title>
       <programlisting><![CDATA[<?php
-class FooTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class FooTest extends TestCase
 {
     public function testIdenticalObjectPassed()
     {
@@ -536,7 +566,9 @@ class FooTest extends PHPUnit_Framework_TestCase
     <example id="test-doubles.mock-objects.examples.enable-clone-object-parameters.php">
       <title>创建仿件对象时启用参数克隆</title>
       <programlisting><![CDATA[<?php
-class FooTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class FooTest extends TestCase
 {
     public function testIdenticalObjectPassed()
     {
@@ -622,7 +654,9 @@ class FooTest extends PHPUnit_Framework_TestCase
     <example id="test-doubles.prophecy.examples.SubjectTest.php">
       <title>测试某个方法会以特定参数被调用一次</title>
       <programlisting><![CDATA[<?php
-class SubjectTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class SubjectTest extends TestCase
 {
     public function testObserversAreUpdated()
     {
@@ -659,6 +693,8 @@ class SubjectTest extends PHPUnit_Framework_TestCase
     <example id="test-doubles.mock-objects.examples.TraitClassTest.php">
       <title>对特质的具体方法进行测试</title>
       <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
+
 trait AbstractTrait
 {
     public function concreteMethod()
@@ -669,7 +705,7 @@ trait AbstractTrait
     public abstract function abstractMethod();
 }
 
-class TraitClassTest extends PHPUnit_Framework_TestCase
+class TraitClassTest extends TestCase
 {
     public function testConcreteMethod()
     {
@@ -691,6 +727,8 @@ class TraitClassTest extends PHPUnit_Framework_TestCase
     <example id="test-doubles.mock-objects.examples.AbstractClassTest.php">
       <title>对抽象类的具体方法进行测试</title>
       <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
+
 abstract class AbstractClass
 {
     public function concreteMethod()
@@ -701,7 +739,7 @@ abstract class AbstractClass
     public abstract function abstractMethod();
 }
 
-class AbstractClassTest extends PHPUnit_Framework_TestCase
+class AbstractClassTest extends TestCase
 {
     public function testConcreteMethod()
     {
@@ -730,7 +768,9 @@ class AbstractClassTest extends PHPUnit_Framework_TestCase
     <example id="test-doubles.stubbing-and-mocking-web-services.examples.GoogleTest.php">
       <title>对 web 服务上桩</title>
       <programlisting><![CDATA[<?php
-class GoogleTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class GoogleTest extends TestCase
 {
     public function testSearch()
     {
@@ -816,6 +856,8 @@ class GoogleTest extends PHPUnit_Framework_TestCase
     <example id="test-doubles.mocking-the-filesystem.examples.Example.php">
       <title>一个与文件系统交互的类</title>
       <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
+
 class Example
 {
     protected $id;
@@ -842,7 +884,9 @@ class Example
     <example id="test-doubles.mocking-the-filesystem.examples.ExampleTest.php">
       <title>对一个与文件系统交互的类进行测试</title>
       <programlisting><![CDATA[<?php
-class ExampleTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class ExampleTest extends TestCase
 {
     protected function setUp()
     {
@@ -884,7 +928,9 @@ class ExampleTest extends PHPUnit_Framework_TestCase
     <example id="test-doubles.mocking-the-filesystem.examples.ExampleTest2.php">
       <title>在对与文件系统交互的类进行的测试中模仿文件系统</title>
       <programlisting><![CDATA[<?php
-class ExampleTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class ExampleTest extends TestCase
 {
     public function setUp()
     {

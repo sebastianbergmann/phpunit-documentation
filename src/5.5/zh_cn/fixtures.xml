@@ -18,7 +18,9 @@
   <example id="fixtures.examples.StackTest.php">
     <title>用 setUp() 建立栈的基境</title>
     <programlisting><![CDATA[<?php
-class StackTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class StackTest extends TestCase
 {
     protected $stack;
 
@@ -72,7 +74,9 @@ class StackTest extends PHPUnit_Framework_TestCase
   <example id="fixtures.examples.TemplateMethodsTest.php">
     <title>展示所有可用模板方法的例子</title>
     <programlisting><![CDATA[<?php
-class TemplateMethodsTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class TemplateMethodsTest extends TestCase
 {
     public static function setUpBeforeClass()
     {
@@ -191,7 +195,9 @@ Tests: 2, Assertions: 2, Failures: 1.]]></screen>
     <example id="fixtures.sharing-fixture.examples.DatabaseTest.php">
       <title>在同一个测试套件内的不同测试之间共享基境</title>
       <programlisting><![CDATA[<?php
-class DatabaseTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class DatabaseTest extends TestCase
 {
     protected static $dbh;
 
@@ -239,7 +245,7 @@ class DatabaseTest extends PHPUnit_Framework_TestCase
 
     <para>
       <indexterm><primary><literal>@backupGlobals</literal></primary></indexterm>
-      <indexterm><primary><literal>$backupGlobalsBlacklist</literal></primary></indexterm>在<xref linkend="appendixes.annotations.backupGlobals"/>中所讨论的 <literal>@backupGlobals</literal> 标注可以用来控制对全局变量的备份与还原操作。另外，还可以提供一个全局变量的黑名单，黑名单中的全局变量将被排除于备份与还原操作之外，就像这样：<programlisting>class MyTest extends PHPUnit_Framework_TestCase
+      <indexterm><primary><literal>$backupGlobalsBlacklist</literal></primary></indexterm>在<xref linkend="appendixes.annotations.backupGlobals"/>中所讨论的 <literal>@backupGlobals</literal> 标注可以用来控制对全局变量的备份与还原操作。另外，还可以提供一个全局变量的黑名单，黑名单中的全局变量将被排除于备份与还原操作之外，就像这样：<programlisting>class MyTest extends TestCase
 {
     protected $backupGlobalsBlacklist = ['globalVariable'];
 
@@ -264,7 +270,7 @@ class DatabaseTest extends PHPUnit_Framework_TestCase
     </note>
 
     <para>可以提供黑名单来将静态属性从备份与还原操作中排除出去：<programlisting>
-class MyTest extends PHPUnit_Framework_TestCase
+class MyTest extends TestCase
 {
     protected $backupStaticAttributesBlacklist = [
         'className' =&gt; ['attributeName']

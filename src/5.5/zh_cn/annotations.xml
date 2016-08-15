@@ -22,7 +22,9 @@
   <section id="appendixes.annotations.after">
     <title>@after</title>
 
-    <para><literal>@after</literal> 标注用于指明此方法应当在测试用例类中的每个测试方法运行完成之后调用。<programlisting>class MyTest extends PHPUnit_Framework_TestCase
+    <para><literal>@after</literal> 标注用于指明此方法应当在测试用例类中的每个测试方法运行完成之后调用。<programlisting>use PHPUnit\Framework\TestCase;
+
+class MyTest extends TestCase
 {
     /**
      * @after
@@ -46,7 +48,9 @@
   <section id="appendixes.annotations.afterClass">
     <title>@afterClass</title>
 
-    <para><literal>@afterClass</literal> 标注用于指明此静态方法应该于测试类中的所有测试方法都运行完成之后调用，用于清理共享基境。<programlisting>class MyTest extends PHPUnit_Framework_TestCase
+    <para><literal>@afterClass</literal> 标注用于指明此静态方法应该于测试类中的所有测试方法都运行完成之后调用，用于清理共享基境。<programlisting>use PHPUnit\Framework\TestCase;
+
+class MyTest extends TestCase
 {
     /**
      * @afterClass
@@ -71,20 +75,24 @@
     <title>@backupGlobals</title>
 
     <para>
-      <indexterm><primary><literal>@backupGlobals</literal></primary></indexterm>全局变量的备份与还原操作可以对某个测试用例类中的所有测试彻底禁用，像这样：<programlisting>/**
+      <indexterm><primary><literal>@backupGlobals</literal></primary></indexterm>全局变量的备份与还原操作可以对某个测试用例类中的所有测试彻底禁用，像这样：<programlisting>use PHPUnit\Framework\TestCase;
+
+/**
  * @backupGlobals disabled
  */
-class MyTest extends PHPUnit_Framework_TestCase
+class MyTest extends TestCase
 {
     // ...
 }</programlisting>
     </para>
 
     <para>
-      <indexterm><primary><literal>@backupGlobals</literal></primary></indexterm><literal>@backupGlobals</literal> 标注也可以用在测试方法这一级别。这样可以对备份与还原操作进行更细粒度的配置：<programlisting>/**
+      <indexterm><primary><literal>@backupGlobals</literal></primary></indexterm><literal>@backupGlobals</literal> 标注也可以用在测试方法这一级别。这样可以对备份与还原操作进行更细粒度的配置：<programlisting>use PHPUnit\Framework\TestCase;
+
+/**
  * @backupGlobals disabled
  */
-class MyTest extends PHPUnit_Framework_TestCase
+class MyTest extends TestCase
 {
     /**
      * @backupGlobals enabled
@@ -101,11 +109,12 @@ class MyTest extends PHPUnit_Framework_TestCase
     <title>@backupStaticAttributes</title>
 
     <para>
-      <indexterm><primary><literal>@backupStaticAttributes</literal></primary></indexterm>如果指定了 <literal>@backupStaticAttributes</literal> 标注，那么将在每个测试之前备份所有已声明的类的静态属性的值，并在测试完成之后全部恢复。它可以用在测试用例类或测试方法级别：<programlisting>
+      <indexterm><primary><literal>@backupStaticAttributes</literal></primary></indexterm>如果指定了 <literal>@backupStaticAttributes</literal> 标注，那么将在每个测试之前备份所有已声明的类的静态属性的值，并在测试完成之后全部恢复。它可以用在测试用例类或测试方法级别：<programlisting>use PHPUnit\Framework\TestCase;
+
 /**
  * @backupStaticAttributes enabled
  */
-class MyTest extends PHPUnit_Framework_TestCase
+class MyTest extends TestCase
 {
     /**
      * @backupStaticAttributes disabled
@@ -129,7 +138,9 @@ class MyTest extends PHPUnit_Framework_TestCase
   <section id="appendixes.annotations.before">
     <title>@before</title>
 
-    <para><literal>@before</literal> 标注用于指明此方法应当在测试用例类中的每个测试方法开始运行之前调用。<programlisting>class MyTest extends PHPUnit_Framework_TestCase
+    <para><literal>@before</literal> 标注用于指明此方法应当在测试用例类中的每个测试方法开始运行之前调用。<programlisting>use PHPUnit\Framework\TestCase;
+
+class MyTest extends TestCase
 {
     /**
      * @before
@@ -153,7 +164,9 @@ class MyTest extends PHPUnit_Framework_TestCase
   <section id="appendixes.annotations.beforeClass">
     <title>@beforeClass</title>
 
-    <para><literal>@beforeClass</literal> 标注用于指明此静态方法应该于测试类中的所有测试方法都运行完成之后调用，用于建立共享基境。<programlisting>class MyTest extends PHPUnit_Framework_TestCase
+    <para><literal>@beforeClass</literal> 标注用于指明此静态方法应该于测试类中的所有测试方法都运行完成之后调用，用于建立共享基境。<programlisting>use PHPUnit\Framework\TestCase;
+
+class MyTest extends TestCase
 {
     /**
      * @beforeClass
@@ -269,10 +282,12 @@ public function testBalanceIsInitiallyZero()
     <example id="appendixes.annotations.examples.CoversDefaultClassTest.php">
       <title>用 @coversDefaultClass 缩短标注</title>
       <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
+
 /**
  * @coversDefaultClass \Foo\CoveredClass
  */
-class CoversDefaultClassTest extends PHPUnit_Framework_TestCase
+class CoversDefaultClassTest extends TestCase
 {
     /**
      * @covers ::publicMethod
@@ -331,7 +346,9 @@ class CoversDefaultClassTest extends PHPUnit_Framework_TestCase
     <title>@expectedExceptionCode</title>
 
     <para>
-      <indexterm><primary>@expectedExceptionCode</primary></indexterm>将 <literal>@expectedExceptionCode</literal>  标注与 <literal>@expectedException</literal> 联合使用，可以对抛出异常的代码作出断言，这样可以缩小具体异常的范围。<programlisting>class MyTest extends PHPUnit_Framework_TestCase
+      <indexterm><primary>@expectedExceptionCode</primary></indexterm>将 <literal>@expectedExceptionCode</literal>  标注与 <literal>@expectedException</literal> 联合使用，可以对抛出异常的代码作出断言，这样可以缩小具体异常的范围。<programlisting>use PHPUnit\Framework\TestCase;
+
+class MyTest extends TestCase
 {
     /**
      * @expectedException     MyException
@@ -341,7 +358,9 @@ class CoversDefaultClassTest extends PHPUnit_Framework_TestCase
     {
         throw new MyException('Some Message', 20);
     }
-}</programlisting>为了方便测试并减少冗余，可以用&quot;<literal>@expectedExceptionCode ClassName::CONST</literal>&quot;这样的语法将指定类常量作为 <literal>@expectedExceptionCode</literal><programlisting>class MyTest extends PHPUnit_Framework_TestCase
+}</programlisting>为了方便测试并减少冗余，可以用&quot;<literal>@expectedExceptionCode ClassName::CONST</literal>&quot;这样的语法将指定类常量作为 <literal>@expectedExceptionCode</literal><programlisting>use PHPUnit\Framework\TestCase;
+
+class MyTest extends TestCase
 {
     /**
       * @expectedException     MyException
@@ -365,7 +384,9 @@ class MyClass
     <title>@expectedExceptionMessage</title>
 
     <para>
-      <indexterm><primary>@expectedExceptionMessage</primary></indexterm><literal>@expectedExceptionMessage</literal> 标注的运作方式类似于 <literal>@expectedExceptionCode</literal> ，用它可以对异常的错误讯息作出断言。<programlisting>class MyTest extends PHPUnit_Framework_TestCase
+      <indexterm><primary>@expectedExceptionMessage</primary></indexterm><literal>@expectedExceptionMessage</literal> 标注的运作方式类似于 <literal>@expectedExceptionCode</literal> ，用它可以对异常的错误讯息作出断言。<programlisting>use PHPUnit\Framework\TestCase;
+
+class MyTest extends TestCase
 {
     /**
      * @expectedException        MyException
@@ -375,7 +396,9 @@ class MyClass
     {
         throw new MyException('Some Message', 20);
     }
-}</programlisting>预期讯息可以是异常讯息的子串。在只需要断言传入的特定名称或参数确实出现于异常中时这个特性很有用，这样就无需在测试中关注完整的异常讯息。<programlisting>class MyTest extends PHPUnit_Framework_TestCase
+}</programlisting>预期讯息可以是异常讯息的子串。在只需要断言传入的特定名称或参数确实出现于异常中时这个特性很有用，这样就无需在测试中关注完整的异常讯息。<programlisting>use PHPUnit\Framework\TestCase;
+
+class MyTest extends TestCase
 {
      /**
       * @expectedException        MyException
@@ -394,7 +417,9 @@ class MyClass
     <title>@expectedExceptionMessageRegExp</title>
 
     <para>
-      <indexterm><primary>@expectedExceptionMessageRegExp</primary></indexterm>预期讯息也可以通过 <literal>@expectedExceptionMessageRegExp</literal> 标注以正则表达式来指定。当无法用子串来完成对给定讯息的匹配时，这种方式就非常有用了。<programlisting>class MyTest extends PHPUnit_Framework_TestCase
+      <indexterm><primary>@expectedExceptionMessageRegExp</primary></indexterm>预期讯息也可以通过 <literal>@expectedExceptionMessageRegExp</literal> 标注以正则表达式来指定。当无法用子串来完成对给定讯息的匹配时，这种方式就非常有用了。<programlisting>use PHPUnit\Framework\TestCase;
+
+class MyTest extends TestCase
 {
      /**
       * @expectedException              MyException
@@ -413,7 +438,9 @@ class MyClass
     <title>@group</title>
 
     <para>
-      <indexterm><primary>@group</primary></indexterm>测试可以用 <literal>@group</literal> 标注来标记为属于一个或多个组，就像这样：<programlisting>class MyTest extends PHPUnit_Framework_TestCase
+      <indexterm><primary>@group</primary></indexterm>测试可以用 <literal>@group</literal> 标注来标记为属于一个或多个组，就像这样：<programlisting>use PHPUnit\Framework\TestCase;
+
+class MyTest extends TestCase
 {
     /**
      * @group specification
@@ -461,7 +488,9 @@ class MyClass
     <title>@preserveGlobalState</title>
 
     <para>
-      <indexterm><primary>@preserveGlobalState</primary></indexterm>在单独的进程中运行测试时，PHPUnit 会尝试保持来自父进程的全局状态（通过在父进程序列化全局状态然后在子进程反序列化的方式）。这当父进程包含非可序列化的全局内容时可能会导致问题。为了修正这种问题，可以用 <literal>@preserveGlobalState</literal> 标注来禁止 PHPUnit 保持全局状态。<programlisting>class MyTest extends PHPUnit_Framework_TestCase
+      <indexterm><primary>@preserveGlobalState</primary></indexterm>在单独的进程中运行测试时，PHPUnit 会尝试保持来自父进程的全局状态（通过在父进程序列化全局状态然后在子进程反序列化的方式）。这当父进程包含非可序列化的全局内容时可能会导致问题。为了修正这种问题，可以用 <literal>@preserveGlobalState</literal> 标注来禁止 PHPUnit 保持全局状态。<programlisting>use PHPUnit\Framework\TestCase;
+
+class MyTest extends TestCase
 {
     /**
      * @runInSeparateProcess
@@ -490,10 +519,12 @@ class MyClass
     <title>@runTestsInSeparateProcesses</title>
 
     <para>
-      <indexterm><primary>@runTestsInSeparateProcesses</primary></indexterm>指明单个测试类内的所有测试要各自运行在独立的 PHP 进程中。<programlisting>/**
+      <indexterm><primary>@runTestsInSeparateProcesses</primary></indexterm>指明单个测试类内的所有测试要各自运行在独立的 PHP 进程中。<programlisting>use PHPUnit\Framework\TestCase;
+
+/**
  * @runTestsInSeparateProcesses
  */
-class MyTest extends PHPUnit_Framework_TestCase
+class MyTest extends TestCase
 {
     // ...
 }</programlisting>
@@ -505,7 +536,9 @@ class MyTest extends PHPUnit_Framework_TestCase
     <title>@runInSeparateProcess</title>
 
     <para>
-      <indexterm><primary>@runInSeparateProcess</primary></indexterm>明某个测试要运行在独立的 PHP 进程中。 <programlisting>class MyTest extends PHPUnit_Framework_TestCase
+      <indexterm><primary>@runInSeparateProcess</primary></indexterm>明某个测试要运行在独立的 PHP 进程中。 <programlisting>use PHPUnit\Framework\TestCase;
+
+class MyTest extends TestCase
 {
     /**
      * @runInSeparateProcess

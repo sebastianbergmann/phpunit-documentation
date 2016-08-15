@@ -4,13 +4,13 @@
   <title>编写 PHPUnit 测试</title>
 
   <para>
-    <indexterm><primary>PHPUnit_Framework_TestCase</primary></indexterm>
+    <indexterm><primary>PHPUnit\Framework\TestCase</primary></indexterm>
 
     <xref linkend="writing-tests-for-phpunit.examples.StackTest.php"/>展示了如何用 PHPUnit 编写测试来对 PHP 数组操作进行测试。本例介绍了用 PHPUnit 编写测试的基本惯例与步骤：</para>
 
   <orderedlist>
     <listitem><para>针对类 <literal>Class</literal> 的测试写在类 <literal>ClassTest</literal>中。</para></listitem>
-    <listitem><para><literal>ClassTest</literal>（通常）继承自 <literal>PHPUnit_Framework_TestCase</literal>。</para></listitem>
+    <listitem><para><literal>ClassTest</literal>（通常）继承自 <literal>PHPUnit\Framework\TestCase</literal>。</para></listitem>
     <listitem><para>测试都是命名为 <literal>test*</literal> 的公用方法。</para><para><indexterm><primary>Annotation （标注）</primary></indexterm><indexterm><primary>@test</primary></indexterm>也可以在方法的文档注释块(docblock)中使用 <literal>@test</literal> 标注将其标记为测试方法。</para></listitem>
     <listitem><para>在测试方法内，类似于 <literal>assertEquals()</literal>（参见 <xref linkend="appendixes.assertions"/>）这样的断言方法用来对实际值与预期值的匹配做出断言。</para></listitem>
   </orderedlist>
@@ -18,7 +18,9 @@
   <example id="writing-tests-for-phpunit.examples.StackTest.php">
     <title>用 PHPUnit 测试数组操作</title>
     <programlisting><![CDATA[<?php
-class StackTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class StackTest extends TestCase
 {
     public function testPushAndPop()
     {
@@ -66,7 +68,9 @@ class StackTest extends PHPUnit_Framework_TestCase
     <example id="writing-tests-for-phpunit.examples.StackTest2.php">
       <title>用 <literal>@depends</literal> 标注来表达依赖关系</title>
       <programlisting><![CDATA[<?php
-class StackTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class StackTest extends TestCase
 {
     public function testEmpty()
     {
@@ -114,7 +118,9 @@ class StackTest extends PHPUnit_Framework_TestCase
     <example id="writing-tests-for-phpunit.examples.DependencyFailureTest.php">
       <title>利用测试之间的依赖关系</title>
       <programlisting><![CDATA[<?php
-class DependencyFailureTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class DependencyFailureTest extends TestCase
 {
     public function testOne()
     {
@@ -162,7 +168,9 @@ Tests: 1, Assertions: 1, Failures: 1, Skipped: 1.]]></screen>
     <example id="writing-tests-for-phpunit.examples.MultipleDependencies.php">
       <title>有多重依赖的测试</title>
       <programlisting><![CDATA[<?php
-class MultipleDependenciesTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class MultipleDependenciesTest extends TestCase
 {
     public function testProducerFirst()
     {
@@ -213,7 +221,9 @@ OK (3 tests, 3 assertions)]]></screen>
     <example id="writing-tests-for-phpunit.data-providers.examples.DataTest.php">
       <title>使用返回数组的数组的数据供给器</title>
       <programlisting><![CDATA[<?php
-class DataTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class DataTest extends TestCase
 {
     /**
      * @dataProvider additionProvider
@@ -258,7 +268,9 @@ Tests: 4, Assertions: 4, Failures: 1.]]></screen>
     <example id="writing-tests-for-phpunit.data-providers.examples.DataTest1.php">
       <title>使用带有命名数据集的数据供给器</title>
       <programlisting><![CDATA[<?php
-class DataTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class DataTest extends TestCase
 {
     /**
      * @dataProvider additionProvider
@@ -301,9 +313,11 @@ Tests: 4, Assertions: 4, Failures: 1.]]></screen>
     <example id="writing-tests-for-phpunit.data-providers.examples.DataTest2.php">
       <title>使用返回迭代器对象的数据供给器</title>
       <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
+
 require 'CsvFileIterator.php';
 
-class DataTest extends PHPUnit_Framework_TestCase
+class DataTest extends TestCase
 {
     /**
      * @dataProvider additionProvider
@@ -341,6 +355,8 @@ Tests: 4, Assertions: 4, Failures: 1.]]></screen>
     <example id="writing-tests-for-phpunit.data-providers.examples.CsvFileIterator.php">
       <title>CsvFileIterator 类</title>
       <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
+
 class CsvFileIterator implements Iterator {
     protected $file;
     protected $key = 0;
@@ -389,7 +405,9 @@ class CsvFileIterator implements Iterator {
     <example id="writing-tests-for-phpunit.data-providers.examples.DependencyAndDataProviderCombo.php">
       <title>在同一个测试中组合使用 @depends 和 @dataProvider</title>
       <programlisting><![CDATA[<?php
-class DependencyAndDataProviderComboTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class DependencyAndDataProviderComboTest extends TestCase
 {
     public function provider()
     {
@@ -477,7 +495,9 @@ Tests: 4, Assertions: 4, Failures: 1.
     <example id="writing-tests-for-phpunit.exceptions.examples.ExceptionTest.php">
       <title>使用 expectException() 方法</title>
       <programlisting><![CDATA[<?php
-class ExceptionTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class ExceptionTest extends TestCase
 {
     public function testException()
     {
@@ -513,7 +533,9 @@ Tests: 1, Assertions: 1, Failures: 1.</screen>
     <example id="writing-tests-for-phpunit.exceptions.examples.ExceptionTest2.php">
       <title>使用 @expectedException 标注</title>
       <programlisting><![CDATA[<?php
-class ExceptionTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class ExceptionTest extends TestCase
 {
     /**
      * @expectedException InvalidArgumentException
@@ -556,7 +578,9 @@ Tests: 1, Assertions: 1, Failures: 1.</screen>
     <example id="writing-tests-for-phpunit.exceptions.examples.ErrorTest.php">
       <title>用 @expectedException 来预期 PHP 错误</title>
       <programlisting><![CDATA[<?php
-class ExpectedErrorTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class ExpectedErrorTest extends TestCase
 {
     /**
      * @expectedException PHPUnit_Framework_Error
@@ -591,7 +615,9 @@ OK (1 test, 1 assertion)</screen>
 
             <title>对会引发PHP 错误的代码的返回值进行测试</title>
             <programlisting><![CDATA[<?php
-class ErrorSuppressionTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class ErrorSuppressionTest extends TestCase
 {
     public function testFileWriting() {
         $writer = new FileWriter;
@@ -624,7 +650,7 @@ OK (1 test, 1 assertion)</screen>
   <section id="writing-tests-for-phpunit.output">
     <title>对输出进行测试</title>
 
-    <para>有时候，想要断言（比如说）某方法的运行过程中生成了预期的输出（例如，通过 <literal>echo</literal> 或 <literal>print</literal>）。<literal>PHPUnit_Framework_TestCase</literal> 类使用 PHP 的 <ulink url="http://www.php.net/manual/en/ref.outcontrol.php">输出缓冲</ulink> 特性来为此提供必要的功能支持。</para>
+    <para>有时候，想要断言（比如说）某方法的运行过程中生成了预期的输出（例如，通过 <literal>echo</literal> 或 <literal>print</literal>）。<literal>PHPUnit\Framework\TestCase</literal> 类使用 PHP 的 <ulink url="http://www.php.net/manual/en/ref.outcontrol.php">输出缓冲</ulink> 特性来为此提供必要的功能支持。</para>
 
     <para>
       <xref linkend="writing-tests-for-phpunit.output.examples.OutputTest.php"/>展示了如何用 <literal>expectOutputString()</literal> 方法来设定所预期的输出。如果没有产生预期的输出，测试将计为失败。</para>
@@ -632,7 +658,9 @@ OK (1 test, 1 assertion)</screen>
     <example id="writing-tests-for-phpunit.output.examples.OutputTest.php">
       <title>对函数或方法的输出进行测试</title>
       <programlisting><![CDATA[<?php
-class OutputTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class OutputTest extends TestCase
 {
     public function testExpectFooActualFoo()
     {
@@ -712,7 +740,9 @@ Tests: 2, Assertions: 2, Failures: 1.</screen>
     <example id="writing-tests-for-phpunit.error-output.examples.ArrayDiffTest.php">
       <title>数组比较失败时生成的错误相关信息输出</title>
       <programlisting><![CDATA[<?php
-class ArrayDiffTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class ArrayDiffTest extends TestCase
 {
     public function testEquality() {
         $this->assertEquals(
@@ -757,7 +787,9 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
     <example id="writing-tests-for-phpunit.error-output.examples.LongArrayDiffTest.php">
       <title>长数组比较失败时生成的错误相关信息输出</title>
       <programlisting><![CDATA[<?php
-class LongArrayDiffTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class LongArrayDiffTest extends TestCase
 {
     public function testEquality() {
         $this->assertEquals(
@@ -805,7 +837,9 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
       <example id="writing-tests-for-phpunit.error-output.edge-cases.examples.ArrayWeakComparisonTest.php">
         <title>当使用弱比较时在生成的差异结果中出现的边缘情况</title>
         <programlisting><![CDATA[<?php
-class ArrayWeakComparisonTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class ArrayWeakComparisonTest extends TestCase
 {
     public function testEquality() {
         $this->assertEquals(

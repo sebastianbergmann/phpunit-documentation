@@ -21,16 +21,18 @@
     <example id="incomplete-and-skipped-tests.incomplete-tests.examples.SampleTest.php">
       <title>将测试标记为未完成</title>
       <programlisting><![CDATA[<?php
-class SampleTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class SampleTest extends TestCase
 {
     public function testSomething()
     {
-        // Optional: Test anything here, if you want.
-        $this->assertTrue(true, 'This should already work.');
+        // 可选：如果愿意，在这里随便测试点什么。
+        $this->assertTrue(true, '这应该已经是能正常工作的。');
 
-        // Stop here and mark this test as incomplete.
+        // 在这里停止，并将此测试标记为未完成。
         $this->markTestIncomplete(
-          'This test has not been implemented yet.'
+          '此测试目前尚未实现。'
         );
     }
 }
@@ -93,13 +95,15 @@ Tests: 1, Assertions: 1, Incomplete: 1.</screen>
     <example id="incomplete-and-skipped-tests.skipping-tests.examples.DatabaseTest.php">
       <title>跳过某个测试</title>
       <programlisting><![CDATA[<?php
-class DatabaseTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class DatabaseTest extends TestCase
 {
     protected function setUp()
     {
         if (!extension_loaded('mysqli')) {
             $this->markTestSkipped(
-              'The MySQLi 扩展不可用。'
+              'MySQLi 扩展不可用。'
             );
         }
     }
@@ -211,10 +215,12 @@ Tests: 1, Assertions: 0, Skipped: 1.</screen>
     <example id="incomplete-and-skipped-tests.skipping-tests.examples.DatabaseClassSkippingTest.php">
       <title>用 @requires 来跳过测试</title>
       <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
+
 /**
  * @requires extension mysqli
  */
-class DatabaseTest extends PHPUnit_Framework_TestCase
+class DatabaseTest extends TestCase
 {
     /**
      * @requires PHP 5.3

@@ -6,10 +6,10 @@
   <para>可以用多种方式对 PHPUnit 进行扩展，使编写测试更容易，以及对运行测试所得到的反馈进行定制。扩展 PHPUnit 时，一般从这些点入手：</para>
 
   <section id="extending-phpunit.PHPUnit_Framework_TestCase">
-    <title>从 PHPUnit_Framework_TestCase 派生子类</title>
+    <title>PHPUnit\Framework\TestCase 的子类</title>
 
     <para>
-      <indexterm><primary>PHPUnit_Framework_TestCase</primary></indexterm>将自定义的断言和工具方法写在 <literal>PHPUnit_Framework_TestCase</literal> 的一个抽象子类中，然后从这个抽象子类派生你的测试用例类。这是扩展 PHPUnit 的最容易的方法。</para>
+      <indexterm><primary>PHPUnit\Framework\TestCase</primary></indexterm>将自定义的断言和工具方法写在 <literal>PHPUnit\Framework\TestCase</literal> 的一个抽象子类中，然后从这个抽象子类派生你的测试用例类。这是扩展 PHPUnit 的最容易的方法。</para>
   </section>
 
   <section id="extending-phpunit.custom-assertions">
@@ -20,6 +20,8 @@
     <example id="extending-phpunit.examples.Assert.php">
       <title>PHPUnit_Framework_Assert 类的 assertTrue() 与 isTrue() 方法</title>
       <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
+
 abstract class PHPUnit_Framework_Assert
 {
     // ...
@@ -59,11 +61,13 @@ abstract class PHPUnit_Framework_Assert
     <example id="extending-phpunit.examples.IsTrue.php">
       <title>PHPUnit_Framework_Constraint_IsTrue  类</title>
       <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
+
 class PHPUnit_Framework_Constraint_IsTrue extends PHPUnit_Framework_Constraint
 {
     /**
-     * Evaluates the constraint for parameter $other. Returns true if the
-     * constraint is met, false otherwise.
+     * 对参数 $other 进行约束评定。如果符合约束，
+     * 返回 TRUE，否则返回 FALSE。
      *
      * @param mixed $other Value or object to evaluate.
      * @return bool
@@ -74,7 +78,7 @@ class PHPUnit_Framework_Constraint_IsTrue extends PHPUnit_Framework_Constraint
     }
 
     /**
-     * Returns a string representation of the constraint.
+     * 返回代表此约束的字符串。
      *
      * @return string
      */
@@ -99,6 +103,8 @@ class PHPUnit_Framework_Constraint_IsTrue extends PHPUnit_Framework_Constraint
     <example id="extending-phpunit.examples.SimpleTestListener.php">
       <title>简单的测试监听器</title>
       <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
+
 class SimpleTestListener implements PHPUnit_Framework_TestListener
 {
     public function addError(PHPUnit_Framework_Test $test, Exception $e, $time)
@@ -157,6 +163,8 @@ class SimpleTestListener implements PHPUnit_Framework_TestListener
     <example id="extending-phpunit.examples.BaseTestListener.php">
       <title>使用测试监听器基类</title>
       <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
+
 class ShortTestListener extends PHPUnit_Framework_BaseTestListener
 {
     public function endTest(PHPUnit_Framework_Test $test, $time)
@@ -185,6 +193,8 @@ class ShortTestListener extends PHPUnit_Framework_BaseTestListener
     <example id="extending-phpunit.examples.RepeatedTest.php">
       <title>RepeatedTest 修饰器</title>
       <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
+
 require_once 'PHPUnit/Extensions/TestDecorator.php';
 
 class PHPUnit_Extensions_RepeatedTest extends PHPUnit_Extensions_TestDecorator
@@ -228,7 +238,7 @@ class PHPUnit_Extensions_RepeatedTest extends PHPUnit_Extensions_TestDecorator
 
     <para>
       <indexterm><primary>PHPUnit_Framework_Test</primary></indexterm>
-      <indexterm><primary>Data-Driven Tests （数据驱动测试）</primary></indexterm><literal>PHPUnit_Framework_Test</literal>  接口是比较狭义的，十分容易实现。举例来说，你可以自行为 <literal>PHPUnit_Framework_Test</literal>  编写一个类似于 <literal>PHPUnit_Framework_TestCase</literal> 的实现来运行<emphasis>数据驱动测试</emphasis>。</para>
+      <indexterm><primary>Data-Driven Tests （数据驱动测试）</primary></indexterm><literal>PHPUnit_Framework_Test</literal>  接口是比较狭义的，十分容易实现。举例来说，你可以自行为 <literal>PHPUnit_Framework_Test</literal>  编写一个类似于 <literal>PHPUnit\Framework\TestCase</literal> 的实现来运行<emphasis>数据驱动测试</emphasis>。</para>
 
     <para>
       <xref linkend="extending-phpunit.examples.DataDrivenTest.php"/>展示了一个数据驱动的测试用例类，对来自 CSV 文件内的值进行比较。这个文件内的每个行看起来类似于 <literal>foo;bar</literal>，第一个值是期望值，第二个值则是实际值。</para>
@@ -236,6 +246,8 @@ class PHPUnit_Extensions_RepeatedTest extends PHPUnit_Extensions_TestDecorator
     <example id="extending-phpunit.examples.DataDrivenTest.php">
       <title>一个数据驱动的测试</title>
       <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
+
 class DataDrivenTest implements PHPUnit_Framework_Test
 {
     private $lines;
