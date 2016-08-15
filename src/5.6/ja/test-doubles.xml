@@ -182,6 +182,8 @@ class StubTest extends TestCase
     <para>
       <xref linkend="test-doubles.stubs.examples.StubTest2.php"/> に例を示します。
       これは、モックビルダーの流れるようなインターフェイスを使って、テストダブルの作成方法を設定するものです。
+      このテストダブルで使っている設定は、<literal>createMock()</literal>
+      がデフォルトで使用するベストプラクティスと同じです。
     </para>
 
     <example id="test-doubles.stubs.examples.StubTest2.php">
@@ -197,7 +199,12 @@ class StubTest extends TestCase
     public function testStub()
     {
         // SomeClass クラスのスタブを作成します
-        $stub = $this->createMock(SomeClass::class);
+        $stub = $this->getMockBuilder($originalClassName)
+                     ->disableOriginalConstructor()
+                     ->disableOriginalClone()
+                     ->disableArgumentCloning()
+                     ->disallowMockingUnknownTypes()
+                     ->getMock();
 
         // スタブの設定を行います
         $stub->method('doSomething')
