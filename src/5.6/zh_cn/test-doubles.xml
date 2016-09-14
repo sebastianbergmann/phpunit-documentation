@@ -90,7 +90,7 @@ class StubTest extends TestCase
     <para>“在幕后”，当使用了 <literal>createMock()</literal> 方法时， PHPUnit 自动生成了一个新的 PHP 类来实现想要的行为。</para>
 
     <para>
-      <xref linkend="test-doubles.stubs.examples.StubTest2.php"/>这个例子展示了如何用仿件生成器的流畅式接口来配置测试替身的生成。</para>
+      <xref linkend="test-doubles.stubs.examples.StubTest2.php"/>这个例子展示了如何用仿件生成器的流畅式接口来配置测试替身的生成。这个测试替身的默认配置用的是和 <literal>createMock()</literal> 相同的最佳实践。</para>
 
     <example id="test-doubles.stubs.examples.StubTest2.php">
       <indexterm><primary>createMock()</primary></indexterm>
@@ -104,8 +104,13 @@ class StubTest extends TestCase
 {
     public function testStub()
     {
-        // 为 SomeClass 类创建桩件。
-        $stub = $this->createMock(SomeClass::class);
+        // 为 SomeClass 类建立桩件。
+        $stub = $this->getMockBuilder($originalClassName)
+                     ->disableOriginalConstructor()
+                     ->disableOriginalClone()
+                     ->disableArgumentCloning()
+                     ->disallowMockingUnknownTypes()
+                     ->getMock();
 
         // 配置桩件。
         $stub->method('doSomething')
