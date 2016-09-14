@@ -394,43 +394,4 @@ $_SERVER['foo'] = 'bar';
 $_FILES['foo'] = 'bar';
 $_REQUEST['foo'] = 'bar';]]></screen>
   </section>
-
-  <section id="appendixes.configuration.selenium-rc">
-    <title>Configuring Browsers for Selenium RC</title>
-
-    <para>
-      <indexterm><primary>Selenium RC</primary></indexterm>
-
-      The <literal><![CDATA[<selenium>]]></literal> element and its
-      <literal><![CDATA[<browser>]]></literal> children can be used to
-      configure a list of Selenium RC servers.
-    </para>
-
-    <screen><![CDATA[<selenium>
-  <browser name="Firefox on Linux"
-           browser="*firefox /usr/lib/firefox/firefox-bin"
-           host="my.linux.box"
-           port="4444"
-           timeout="30000"/>
-</selenium>]]></screen>
-
-    <para>
-      The XML configuration above corresponds to the following PHP code:
-    </para>
-
-    <screen><![CDATA[class WebTest extends PHPUnit_Extensions_SeleniumTestCase
-{
-    public static $browsers = [
-        [
-            'name'    => 'Firefox on Linux',
-            'browser' => '*firefox /usr/lib/firefox/firefox-bin',
-            'host'    => 'my.linux.box',
-            'port'    => 4444,
-            'timeout' => 30000
-        ]
-    ];
-
-    // ...
-}]]></screen>
-  </section>
 </appendix>
