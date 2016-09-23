@@ -292,36 +292,4 @@ $_SERVER['foo'] = 'bar';
 $_FILES['foo'] = 'bar';
 $_REQUEST['foo'] = 'bar';]]></screen>
   </section>
-
-  <section id="appendixes.configuration.selenium-rc">
-    <title>为 Selenium RC 配置浏览器</title>
-
-    <para>
-      <indexterm><primary>Selenium RC</primary></indexterm><literal>&lt;selenium&gt;</literal> 元素及其 <literal>&lt;browser&gt;</literal> 子元素用于配置 Selenium RC 服务器列表。</para>
-
-    <screen><![CDATA[<selenium>
-  <browser name="Firefox on Linux"
-           browser="*firefox /usr/lib/firefox/firefox-bin"
-           host="my.linux.box"
-           port="4444"
-           timeout="30000"/>
-</selenium>]]></screen>
-
-    <para>以上 XML 配置对应于如下 PHP 代码：</para>
-
-    <screen><![CDATA[class WebTest extends PHPUnit_Extensions_SeleniumTestCase
-{
-    public static $browsers = [
-        [
-            'name'    => 'Firefox on Linux',
-            'browser' => '*firefox /usr/lib/firefox/firefox-bin',
-            'host'    => 'my.linux.box',
-            'port'    => 4444,
-            'timeout' => 30000
-        ]
-    ];
-
-    // ...
-}]]></screen>
-  </section>
 </appendix>
