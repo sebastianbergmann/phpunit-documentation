@@ -402,6 +402,123 @@ FAILURES!
 Tests: 1, Assertions: 1, Failures: 1.</screen>
     </example>
   </section>
+  
+  <section id="appendixes.assertions.assertDirectoryExists">
+    <title>assertDirectoryExists()</title>
+    <indexterm><primary>assertDirectoryExists()</primary></indexterm>
+    <indexterm><primary>assertDirectoryNotExists()</primary></indexterm>
+    <para><literal>assertDirectoryExists(string $directory[, string $message = ''])</literal></para>
+    <para><literal>$directory</literal> で指定したディレクトリが存在しない場合にエラー <literal>$message</literal> を報告します。</para>
+    <para><literal>assertDirectoryNotExists()</literal> はこのアサーションの逆で、同じ引数をとります。</para>
+    <example id="appendixes.assertions.assertDirectoryExists.example">
+      <title>assertDirectoryExists() の使用法</title>
+      <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
+
+class DirectoryExistsTest extends TestCase
+{
+    public function testFailure()
+    {
+        $this->assertDirectoryExists('/path/to/directory');
+    }
+}
+?>]]></programlisting>
+      <screen><userinput>phpunit DirectoryExistsTest</userinput><![CDATA[
+PHPUnit 5.6.0 by Sebastian Bergmann and contributors.
+
+F
+
+Time: 0 seconds, Memory: 4.75Mb
+
+There was 1 failure:
+
+1) DirectoryExistsTest::testFailure
+Failed asserting that directory "/path/to/directory" exists.
+
+/home/sb/DirectoryExistsTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+    </example>
+  </section>
+  
+  <section id="appendixes.assertions.assertDirectoryIsReadable">
+    <title>assertDirectoryIsReadable()</title>
+    <indexterm><primary>assertDirectoryIsReadable()</primary></indexterm>
+    <indexterm><primary>assertDirectoryNotIsReadable()</primary></indexterm>
+    <para><literal>assertDirectoryIsReadable(string $directory[, string $message = ''])</literal></para>
+    <para><literal>$directory</literal> で指定したディレクトリが読み込み可能でない場合にエラー <literal>$message</literal> を報告します。</para>
+    <para><literal>assertDirectoryNotIsReadable()</literal> はこのアサーションの逆で、同じ引数をとります。</para>
+    <example id="appendixes.assertions.assertDirectoryIsReadable.example">
+      <title>assertDirectoryIsReadable() の使用法</title>
+      <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
+
+class DirectoryIsReadableTest extends TestCase
+{
+    public function testFailure()
+    {
+        $this->assertDirectoryIsReadable('/path/to/directory');
+    }
+}
+?>]]></programlisting>
+      <screen><userinput>phpunit DirectoryIsReadableTest</userinput><![CDATA[
+PHPUnit 5.6.0 by Sebastian Bergmann and contributors.
+
+F
+
+Time: 0 seconds, Memory: 4.75Mb
+
+There was 1 failure:
+
+1) DirectoryIsReadableTest::testFailure
+Failed asserting that "/path/to/directory" is readable.
+
+/home/sb/DirectoryIsReadableTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+    </example>
+  </section>
+
+  <section id="appendixes.assertions.assertDirectoryIsWritable">
+    <title>assertDirectoryIsWritable()</title>
+    <indexterm><primary>assertDirectoryIsWritable()</primary></indexterm>
+    <indexterm><primary>assertDirectoryNotIsWritable()</primary></indexterm>
+    <para><literal>assertDirectoryIsWritable(string $directory[, string $message = ''])</literal></para>
+    <para><literal>$directory</literal> で指定したディレクトリが書き込み可能でない場合にエラー <literal>$message</literal> を報告します。</para>
+    <para><literal>assertDirectoryNotIsWritable()</literal> はこのアサーションの逆で、同じ引数をとります。</para>
+    <example id="appendixes.assertions.assertDirectoryIsWritable.example">
+      <title>assertDirectoryIsWritable() の使用法</title>
+      <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
+
+class DirectoryIsWritableTest extends TestCase
+{
+    public function testFailure()
+    {
+        $this->assertDirectoryIsWritable('/path/to/directory');
+    }
+}
+?>]]></programlisting>
+      <screen><userinput>phpunit DirectoryIsWritableTest</userinput><![CDATA[
+PHPUnit 5.6.0 by Sebastian Bergmann and contributors.
+
+F
+
+Time: 0 seconds, Memory: 4.75Mb
+
+There was 1 failure:
+
+1) DirectoryIsWritableTest::testFailure
+Failed asserting that "/path/to/directory" is writable.
+
+/home/sb/DirectoryIsWritableTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+    </example>
+  </section>
 
   <section id="appendixes.assertions.assertEmpty">
     <title>assertEmpty()</title>
@@ -931,6 +1048,84 @@ FAILURES!
 Tests: 1, Assertions: 1, Failures: 1.]]></screen>
     </example>
   </section>
+  
+  <section id="appendixes.assertions.assertFileIsReadable">
+    <title>assertFileIsReadable()</title>
+    <indexterm><primary>assertFileIsReadable()</primary></indexterm>
+    <indexterm><primary>assertFileNotIsReadable()</primary></indexterm>
+    <para><literal>assertFileIsReadable(string $filename[, string $message = ''])</literal></para>
+    <para><literal>$filename</literal> で指定したファイルが読み込み可能でない場合、あるいはファイルでない場合にエラー <literal>$message</literal> を報告します。</para>
+    <para><literal>assertFileNotIsReadable()</literal> はこのアサーションの逆で、同じ引数をとります。</para>
+    <example id="appendixes.assertions.assertFileIsReadable.example">
+      <title>assertFileIsReadable() の使用法</title>
+      <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
+
+class FileIsReadableTest extends TestCase
+{
+    public function testFailure()
+    {
+        $this->assertFileIsReadable('/path/to/file');
+    }
+}
+?>]]></programlisting>
+      <screen><userinput>phpunit FileIsReadableTest</userinput><![CDATA[
+PHPUnit 5.6.0 by Sebastian Bergmann and contributors.
+
+F
+
+Time: 0 seconds, Memory: 4.75Mb
+
+There was 1 failure:
+
+1) FileIsReadableTest::testFailure
+Failed asserting that "/path/to/file" is readable.
+
+/home/sb/FileIsReadableTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+    </example>
+  </section>
+
+  <section id="appendixes.assertions.assertFileIsWritable">
+    <title>assertFileIsWritable()</title>
+    <indexterm><primary>assertFileIsWritable()</primary></indexterm>
+    <indexterm><primary>assertFileNotIsWritable()</primary></indexterm>
+    <para><literal>assertFileIsWritable(string $filename[, string $message = ''])</literal></para>
+    <para><literal>$filename</literal> で指定したファイルが書き込み可能でない場合、あるいはファイルでない場合にエラー <literal>$message</literal> を報告します。</para>
+    <para><literal>assertFileNotIsWritable()</literal> はこのアサーションの逆で、同じ引数をとります。</para>
+    <example id="appendixes.assertions.assertFileIsWritable.example">
+      <title>assertFileIsWritable() の使用法</title>
+      <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
+
+class FileIsWritableTest extends TestCase
+{
+    public function testFailure()
+    {
+        $this->assertFileIsWritable('/path/to/file');
+    }
+}
+?>]]></programlisting>
+      <screen><userinput>phpunit FileIsWritableTest</userinput><![CDATA[
+PHPUnit 5.6.0 by Sebastian Bergmann and contributors.
+
+F
+
+Time: 0 seconds, Memory: 4.75Mb
+
+There was 1 failure:
+
+1) FileIsWritableTest::testFailure
+Failed asserting that "/path/to/file" is writable.
+
+/home/sb/FileIsWritableTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+    </example>
+  </section>
 
   <section id="appendixes.assertions.assertGreaterThan">
     <title>assertGreaterThan()</title>
@@ -1132,7 +1327,85 @@ FAILURES!
 Tests: 1, Assertions: 1, Failures: 1.]]></screen>
     </example>
   </section>
+  
+  <section id="appendixes.assertions.assertIsReadable">
+    <title>assertIsReadable()</title>
+    <indexterm><primary>assertIsReadable()</primary></indexterm>
+    <indexterm><primary>assertNotIsReadable()</primary></indexterm>
+    <para><literal>assertIsReadable(string $filename[, string $message = ''])</literal></para>
+    <para><literal>$filename</literal> で指定したファイルあるいはディレクトリが読み込み可能でない場合にエラー <literal>$message</literal> を報告します。</para>
+    <para><literal>assertNotIsReadable()</literal> はこのアサーションの逆で、同じ引数をとります。</para>
+    <example id="appendixes.assertions.assertIsReadable.example">
+      <title>assertIsReadable() の使用法</title>
+      <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
 
+class IsReadableTest extends TestCase
+{
+    public function testFailure()
+    {
+        $this->assertIsReadable('/path/to/unreadable');
+    }
+}
+?>]]></programlisting>
+      <screen><userinput>phpunit IsReadableTest</userinput><![CDATA[
+PHPUnit 5.6.0 by Sebastian Bergmann and contributors.
+
+F
+
+Time: 0 seconds, Memory: 4.75Mb
+
+There was 1 failure:
+
+1) IsReadableTest::testFailure
+Failed asserting that "/path/to/unreadable" is readable.
+
+/home/sb/IsReadableTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+    </example>
+  </section>
+  
+  <section id="appendixes.assertions.assertIsWritable">
+    <title>assertIsWritable()</title>
+    <indexterm><primary>assertIsWritable()</primary></indexterm>
+    <indexterm><primary>assertNotIsWritable()</primary></indexterm>
+    <para><literal>assertIsWritable(string $filename[, string $message = ''])</literal></para>
+    <para><literal>$filename</literal> で指定したファイルあるいはディレクトリが書き込み可能でない場合にエラー <literal>$message</literal> を報告します。</para>
+    <para><literal>assertNotIsWritable()</literal> はこのアサーションの逆で、同じ引数をとります。</para>
+    <example id="appendixes.assertions.assertIsWritable.example">
+      <title>assertIsWritable() の使用法</title>
+      <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
+
+class IsWritableTest extends TestCase
+{
+    public function testFailure()
+    {
+        $this->assertIsWritable('/path/to/unwritable');
+    }
+}
+?>]]></programlisting>
+      <screen><userinput>phpunit IsWritableTest</userinput><![CDATA[
+PHPUnit 5.6.0 by Sebastian Bergmann and contributors.
+
+F
+
+Time: 0 seconds, Memory: 4.75Mb
+
+There was 1 failure:
+
+1) IsWritableTest::testFailure
+Failed asserting that "/path/to/unwritable" is writable.
+
+/home/sb/IsWritableTest.php:6
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+    </example>
+  </section>
+  
   <section id="appendixes.assertions.assertJsonFileEqualsJsonFile">
     <title>assertJsonFileEqualsJsonFile()</title>
     <indexterm><primary>assertJsonFileEqualsJsonFile()</primary></indexterm>
@@ -1889,9 +2162,24 @@ class BiscuitTest extends TestCase
             <entry>ある値がクラスあるいはオブジェクトの属性と等しいかどうかを調べる制約。</entry>
           </row>
           <row>
+            <indexterm><primary>directoryExists()</primary></indexterm>
+            <entry><literal>PHPUnit_Framework_Constraint_DirectoryExists directoryExists()</literal></entry>
+            <entry>指定した名前のディレクトリが存在するかどうかを調べる制約。</entry>
+          </row>
+          <row>
             <indexterm><primary>fileExists()</primary></indexterm>
             <entry><literal>PHPUnit_Framework_Constraint_FileExists fileExists()</literal></entry>
             <entry>指定した名前のファイルが存在するかどうかを調べる制約。</entry>
+          </row>
+          <row>
+            <indexterm><primary>isReadable()</primary></indexterm>
+            <entry><literal>PHPUnit_Framework_Constraint_IsReadable isReadable()</literal></entry>
+            <entry>指定した名前のファイルが読み込み可能かどうかを調べる制約。</entry>
+          </row>
+          <row>
+            <indexterm><primary>isWritable()</primary></indexterm>
+            <entry><literal>PHPUnit_Framework_Constraint_IsWritable isWritable()</literal></entry>
+            <entry>指定した名前のファイルが書き込み可能かどうかを調べる制約。</entry>
           </row>
           <row>
             <indexterm><primary>greaterThan()</primary></indexterm>
