@@ -219,6 +219,68 @@ class ShortTestListener extends PHPUnit_Framework_BaseTestListener
       execution.
     </para>
   </section>
+  
+  <section id="extending-phpunit.PHPUnit_Extensions_TicketListener">
+    <title>Implement PHPUnit_Extensions_TicketListener</title>
+
+    <para>
+      <indexterm><primary>PHPUnit_Extensions_TicketListener</primary></indexterm>
+
+      <xref linkend="extending-phpunit.examples.SimpleTicketListener.php" />
+      shows a simple implementation of the <literal>PHPUnit_Extensions_TicketListener</literal>
+      interface.
+    </para>
+
+    <example id="extending-phpunit.examples.SimpleTicketListener.php">
+      <title>A simple ticket listener</title>
+      <programlisting><![CDATA[<?php
+        
+class SimpleTicketListener implements PHPUnit_Extensions_TicketListener
+{
+    private $ticketStates = [
+                              'new',
+                              'assigned',
+                              'reopened',
+                              'closed'
+                            ];
+                            
+    public function getTicketInfo($ticketId = NULL)
+    {
+        printf("Requesting status of Ticket '%s'.\n", $ticketId);
+        
+        if(isset($ticketStates[$ticketId])) {
+            return array('status' => $ticketStates[$ticketId]);
+        } else {
+            return array('status' => 'any_other_invalid_state');
+        }
+    }
+
+    protected function updateTicket($ticketId, $newStatus, $message, $resolution)
+    {
+        printf("Ticket '%s' changed to status '%s':\n", $ticketId, $newStatus);
+        printf("\t%s\n", $message);
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      <literal>getTicketInfo()</literal> should return an array with <literal>status</literal>
+      set to one of the magic strings <literal>assigned</literal>, <literal>new</literal>, or
+      <literal>reopened</literal> for open tickets, or <literal>closed</literal>
+      for closed tickets.
+    </para>
+    <para>
+      <literal>updateTicket()</literal> is called whenever the status of a ticket
+      needs to be changed to <literal>reopened</literal> or <literal>closed</literal>.
+    </para>
+
+    <para>
+      In <xref linkend="appendixes.configuration.test-listeners"/> you can see
+      how to configure PHPUnit to attach your test listener to the test
+      execution.
+    </para>
+  </section>
 
   <section id="extending-phpunit.PHPUnit_Extensions_TestDecorator">
     <title>Subclass PHPUnit_Extensions_TestDecorator</title>
