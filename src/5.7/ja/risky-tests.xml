@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="strict-mode">
+  <title>リスクを伴うテスト</title>
+
+  <para>
+    PHPUnit は、テストを実行する際に、以下のような追加のチェックをすることができます。
+  </para>
+
+  <section id="risky-tests.useless-tests">
+    <title>無意味なテスト</title>
+
+    <para>
+      PHPUnit は、何も確かめていないテストを検出することができます。
+      このチェックを有効にするには、コマンドラインオプション
+      <literal>--report-useless-tests</literal>
+      を使うか、あるいは PHPUnit の XML 設定ファイルで
+      <literal>beStrictAboutTestsThatDoNotTestAnything="true"</literal>
+      を設定します。
+    </para>
+
+    <para>
+      何もアサーションを実行していないテストは、このチェックを有効にしておくと、
+      危険であるとマークされます。モックオブジェクトでの例外や、
+      <code>@expectedException</code> などのアノテーションは、アサーションとみなします。
+    </para>
+  </section>
+
+  <section id="risky-tests.unintentionally-covered-code">
+    <title>意図せぬうちにカバーされているコード</title>
+
+    <para>
+      PHPUnit は、意図せずカバーされているコードを検出することができます。
+      このチェックを有効にするには、コマンドラインオプション
+      <literal>--strict-coverage</literal>
+      を使うか、あるいは PHPUnit の XML 設定ファイルで
+      <literal>checkForUnintentionallyCoveredCode="true"</literal>
+      を設定します。
+    </para>
+
+    <para>
+      <code>@covers</code> アノテーションつきのテストが、
+      <code>@covers</code> や <code>@uses</code> に記されていないコードを実行している場合に、
+      このチェックを有効にしておくと、危険であるとマークされます。
+    </para>
+  </section>
+
+  <section id="risky-tests.output-during-test-execution">
+    <title>テストの実行時の出力</title>
+
+    <para>
+      PHPUnit は、テストの最中の出力を検出することができます。
+      このチェックを有効にするには、コマンドラインオプション
+      <literal>--disallow-test-output</literal>
+      を使うか、あるいは PHPUnit の XML 設定ファイルで
+      <literal>beStrictAboutOutputDuringTests="true"</literal>
+      を設定します。
+    </para>
+
+    <para>
+      テストコードあるいは被テストコードの中で、<code>print</code>
+      などで何かを出力している場合に、
+      このチェックを有効にしておくと、危険であるとマークされます。
+    </para>
+  </section>
+
+  <section id="risky-tests.test-execution-timeout">
+    <title>テストの実行時のタイムアウト</title>
+
+    <para>
+      <literal>PHP_Invoker</literal> パッケージがインストールされており、
+      かつ <literal>pcntl</literal> 拡張モジュールが利用可能な場合は、
+      テストの実行時間に制限を設けることができます。
+      この時間制限を有効にするには、コマンドラインオプション
+      <literal>--enforce-time-limit</literal>
+      を使うか、あるいは PHPUnit の XML 設定ファイルで
+      <literal>beStrictAboutTestSize="true"</literal>
+      を設定します。
+    </para>
+
+    <para>
+      <literal>@large</literal> とマークされたテストは、
+      実行時間が 60 秒を超えたら失敗します。
+      このタイムアウト時間は、XML 設定ファイルの
+      <literal>timeoutForLargeTests</literal> 属性で変更できます。
+    </para>
+
+    <para>
+      <literal>@medium</literal> とマークされたテストは、
+      実行時間が 10 秒を超えたら失敗します。
+      このタイムアウト時間は、XML 設定ファイルの
+      <literal>timeoutForMediumTests</literal> 属性で変更できます。
+    </para>
+
+    <para>
+      <literal>@medium</literal> とも <literal>@large</literal> ともマークされていないテストは、
+      <literal>@small</literal> とマークされたものとみなします。
+      このテストは、実行時間が 1 秒を超えたら失敗します。
+      このタイムアウト時間は、XML 設定ファイルの
+      <literal>timeoutForSmallTests</literal> 属性で変更できます。
+    </para>
+  </section>
+
+  <section id="risky-tests.global-state-manipulation">
+    <title>グローバルな状態の変更</title>
+
+    <para>
+      PHPUnit は、グローバルな状態を変更するテストを厳格にチェックすることができます。
+      このチェックを有効にするには、コマンドラインで <literal>--strict-global-state</literal>
+      オプションを指定するか、PHPUnit の XML 設定ファイルで
+      <literal>beStrictAboutChangesToGlobalState="true"</literal>
+      を指定します。
+    </para>
+  </section>
+</chapter>
+
