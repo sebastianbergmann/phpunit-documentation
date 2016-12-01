@@ -20,16 +20,16 @@ function webify_directory($directory, $language, $version)
     );
 
     $editions  = array(
-      'en'    => array('5.7', '5.6', '4.8'),
+      'en'    => array('6.0', '5.7', '4.8'),
       //'fr'    => array('4.2', '4.1'),
-      'ja'    => array('5.7', '5.6', '4.8'),
-      'pt_br' => array('5.7', '5.6', '4.8'),
-      'zh_cn' => array('5.7', '5.6', '4.8')
+      'ja'    => array('6.0', '5.7', '4.8'),
+      'pt_br' => array('6.0', '5.7', '4.8'),
+      'zh_cn' => array('6.0', '5.7', '4.8')
     );
 
     $old          = '4.8';
-    $stable       = '5.6';
-    $beta         = '5.7';
+    $stable       = '5.7';
+    $beta         = '6.0';
     $languageList = '';
     $versionList  = '';
 
