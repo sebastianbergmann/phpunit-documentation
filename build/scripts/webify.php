@@ -138,7 +138,6 @@ function webify_file($file, $toc, $languageList, $versionList, $language, $versi
     $prev        = '';
     $next        = '';
     $suggestions = '';
-    $disqus      = '';
 
     // i18n for text on page.
     $prev_text = array(
@@ -178,29 +177,6 @@ function webify_file($file, $toc, $languageList, $versionList, $language, $versi
         $next        = get_substring($buffer, '<link rel="next" href="', '" title', false, false);
         $suggestions = '<div class="row"><div class="col-md-2"></div><div class="col-md-8"><div class="alert alert-info" style="text-align: center;">' . get_text_in_language($suggestions_text, $language) . '</div></div><div class="col-md-2"></div></div>';
 
-        $disqus = str_replace(
-            array(
-                '{id}',
-                '{url}'
-            ),
-            array(
-                sprintf(
-                    '%s-%s-%s',
-                    $version,
-                    $language,
-                    str_replace('.html', '', $filename)
-                ),
-                sprintf(
-                    'https://phpunit.de/manual/%s/%s/%s',
-                    $version,
-                    $language,
-                    $filename
-                )
-            ),
-            file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR . 'disqus.html')
-        );
-
-
         if (!empty($prev)) {
             $prev = '<a accesskey="p" href="' . $prev . '">' . get_text_in_language($prev_text, $language) . '</a>';
         }
@@ -215,8 +191,8 @@ function webify_file($file, $toc, $languageList, $versionList, $language, $versi
     }
 
     $buffer = str_replace(
-        array('{filename}', '{title}', '{content}', '{toc}', '{languages}', '{language}', '{versions}', '{prev}', '{next}', '<div class="caution" style="margin-left: 0.5in; margin-right: 0.5in;">', '<div class="warning" style="margin-left: 0.5in; margin-right: 0.5in;">', '<div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">', '{suggestions}', '{disqus}'),
-        array($filename, $title, $content, $toc, $languageList, $language, $versionList, $prev, $next, '<div class="alert alert-warning">', '<div class="alert alert-danger">', '<div class="alert alert-info">', $suggestions, $disqus),
+        array('{filename}', '{title}', '{content}', '{toc}', '{languages}', '{language}', '{versions}', '{prev}', '{next}', '<div class="caution" style="margin-left: 0.5in; margin-right: 0.5in;">', '<div class="warning" style="margin-left: 0.5in; margin-right: 0.5in;">', '<div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">', '{suggestions}'),
+        array($filename, $title, $content, $toc, $languageList, $language, $versionList, $prev, $next, '<div class="alert alert-warning">', '<div class="alert alert-danger">', '<div class="alert alert-info">', $suggestions),
         $template
     );
 
