@@ -241,8 +241,13 @@ class MyTest extends TestCase
       <literal>getDataSet()</literal>:
     </para>
     <programlisting><![CDATA[<?php
-class MyGuestbookTest extends PHPUnit_Extensions_Database_TestCase
+use PHPUnit\Framework\TestCase;
+use PHPUnit\DbUnit\TestCaseTrait;
+
+class MyGuestbookTest extends TestCase
 {
+    use TestCaseTrait;
+
     /**
      * @return PHPUnit_Extensions_Database_DB_IDatabaseConnection
      */
@@ -351,8 +356,13 @@ class MyGuestbookTest extends PHPUnit_Extensions_Database_TestCase
         different data-fixture for each test case:
       </para>
       <programlisting><![CDATA[<?php
-abstract class MyApp_Tests_DatabaseTestCase extends PHPUnit_Extensions_Database_TestCase
+use PHPUnit\Framework\TestCase;
+use PHPUnit\DbUnit\TestCaseTrait;
+
+abstract class MyApp_Tests_DatabaseTestCase extends TestCase
 {
+    use TestCaseTrait;
+
     // only instantiate pdo once for test clean-up/fixture load
     static private $pdo = null;
 
@@ -396,8 +406,13 @@ abstract class MyApp_Tests_DatabaseTestCase extends PHPUnit_Extensions_Database_
         We can now modify our test-case to look like:
       </para>
       <programlisting><![CDATA[<?php
-abstract class Generic_Tests_DatabaseTestCase extends PHPUnit_Extensions_Database_TestCase
+use PHPUnit\Framework\TestCase;
+use PHPUnit\DbUnit\TestCaseTrait;
+
+abstract class Generic_Tests_DatabaseTestCase extends TestCase
 {
+    use TestCaseTrait;
+
     // only instantiate pdo once for test clean-up/fixture load
     static private $pdo = null;
 
@@ -621,8 +636,13 @@ abstract class Generic_Tests_DatabaseTestCase extends PHPUnit_Extensions_Databas
           <literal>createFlatXmlDataSet($filename)</literal> method:
         </para>
         <programlisting><![CDATA[<?php
-class MyTestCase extends PHPUnit_Extensions_Database_TestCase
+use PHPUnit\Framework\TestCase;
+use PHPUnit\DbUnit\TestCaseTrait;
+
+class MyTestCase extends TestCase
 {
+    use TestCaseTrait;
+
     public function getDataSet()
     {
         return $this->createFlatXmlDataSet('myFlatXmlFixture.xml');
@@ -682,8 +702,13 @@ class MyTestCase extends PHPUnit_Extensions_Database_TestCase
           <literal>createXmlDataSet($filename)</literal> method:
         </para>
         <programlisting><![CDATA[<?php
-class MyTestCase extends PHPUnit_Extensions_Database_TestCase
+use PHPUnit\Framework\TestCase;
+use PHPUnit\DbUnit\TestCaseTrait;
+
+class MyTestCase extends TestCase
 {
+    use TestCaseTrait;
+
     public function getDataSet()
     {
         return $this->createXMLDataSet('myXmlFixture.xml');
@@ -710,8 +735,13 @@ class MyTestCase extends PHPUnit_Extensions_Database_TestCase
           <literal>createMySQLXMLDataSet($filename)</literal> method:
         </para>
         <programlisting><![CDATA[<?php
-class MyTestCase extends PHPUnit_Extensions_Database_TestCase
+use PHPUnit\Framework\TestCase;
+use PHPUnit\DbUnit\TestCaseTrait;
+
+class MyTestCase extends TestCase
 {
+    use TestCaseTrait;
+
     public function getDataSet()
     {
         return $this->createMySQLXMLDataSet('/path/to/file.xml');
@@ -748,8 +778,13 @@ guestbook:
           currently, so you have to instantiate it manually:
         </para>
         <programlisting><![CDATA[<?php
-class YamlGuestbookTest extends PHPUnit_Extensions_Database_TestCase
+use PHPUnit\Framework\TestCase;
+use PHPUnit\DbUnit\TestCaseTrait;
+
+class YamlGuestbookTest extends TestCase
 {
+    use TestCaseTrait;
+
     protected function getDataSet()
     {
         return new PHPUnit_Extensions_Database_DataSet_YamlDataSet(
@@ -781,8 +816,13 @@ id,content,user,created
           You can create a CSV DataSet by calling:
         </para>
         <programlisting><![CDATA[<?php
-class CsvGuestbookTest extends PHPUnit_Extensions_Database_TestCase
+use PHPUnit\Framework\TestCase;
+use PHPUnit\DbUnit\TestCaseTrait;
+
+class CsvGuestbookTest extends TestCase
 {
+    use TestCaseTrait;
+
     protected function getDataSet()
     {
         $dataSet = new PHPUnit_Extensions_Database_DataSet_CsvDataSet();
@@ -800,8 +840,13 @@ class CsvGuestbookTest extends PHPUnit_Extensions_Database_TestCase
           should look like:
         </para>
         <programlisting><![CDATA[<?php
-class ArrayGuestbookTest extends PHPUnit_Extensions_Database_TestCase
+use PHPUnit\Framework\TestCase;
+use PHPUnit\DbUnit\TestCaseTrait;
+
+class ArrayGuestbookTest extends TestCase
 {
+    use TestCaseTrait;
+
     protected function getDataSet()
     {
         return new MyApp_DbUnit_ArrayDataSet(
@@ -946,8 +991,13 @@ $ds->addTable('guestbook', 'SELECT id, content FROM guestbook ORDER BY created D
           <literal>testFilteredGuestbook()</literal> method.
         </para>
         <programlisting><![CDATA[<?php
-class MySqlGuestbookTest extends PHPUnit_Extensions_Database_TestCase
+use PHPUnit\Framework\TestCase;
+use PHPUnit\DbUnit\TestCaseTrait;
+
+class MySqlGuestbookTest extends TestCase
 {
+    use TestCaseTrait;
+
     /**
      * @return PHPUnit_Extensions_Database_DB_IDatabaseConnection
      */
@@ -999,8 +1049,13 @@ class MySqlGuestbookTest extends PHPUnit_Extensions_Database_TestCase
           We then wrap the Flat XML DataSet into a Replacement DataSet:
         </para>
         <programlisting><![CDATA[<?php
-class ReplacementTest extends PHPUnit_Extensions_Database_TestCase
+use PHPUnit\Framework\TestCase;
+use PHPUnit\DbUnit\TestCaseTrait;
+
+class ReplacementTest extends TestCase
 {
+    use TestCaseTrait;
+
     public function getDataSet()
     {
         $ds = $this->createFlatXmlDataSet('myFlatXmlFixture.xml');
@@ -1020,8 +1075,13 @@ class ReplacementTest extends PHPUnit_Extensions_Database_TestCase
           with the DB DataSet to filter the columns of the datasets.
         </para>
         <programlisting><![CDATA[<?php
-class DataSetFilterTest extends PHPUnit_Extensions_Database_TestCase
+use PHPUnit\Framework\TestCase;
+use PHPUnit\DbUnit\TestCaseTrait;
+
+class DataSetFilterTest extends TestCase
 {
+    use TestCaseTrait;
+
     public function testIncludeFilteredGuestbook()
     {
         $tableNames = ['guestbook'];
@@ -1082,8 +1142,13 @@ class DataSetFilterTest extends PHPUnit_Extensions_Database_TestCase
           Using the Composite DataSet we can aggregate both fixture files:
         </para>
         <programlisting><![CDATA[<?php
-class CompositeTest extends PHPUnit_Extensions_Database_TestCase
+use PHPUnit\Framework\TestCase;
+use PHPUnit\DbUnit\TestCaseTrait;
+
+class CompositeTest extends TestCase
 {
+    use TestCaseTrait;
+
     public function getDataSet()
     {
         $ds1 = $this->createFlatXmlDataSet('fixture1.xml');
@@ -1217,8 +1282,13 @@ interface PHPUnit_Extensions_Database_DB_IDatabaseConnection
           (DB) DataSet as described in the DataSet implementations section.
         </para>
         <programlisting><![CDATA[<?php
-class ConnectionTest extends PHPUnit_Extensions_Database_TestCase
+use PHPUnit\Framework\TestCase;
+use PHPUnit\DbUnit\TestCaseTrait;
+
+class ConnectionTest extends TestCase
 {
+    use TestCaseTrait;
+
     public function testCreateDataSet()
     {
         $tableNames = ['guestbook'];
@@ -1236,8 +1306,13 @@ class ConnectionTest extends PHPUnit_Extensions_Database_TestCase
           Assertions API.
         </para>
         <programlisting><![CDATA[<?php
-class ConnectionTest extends PHPUnit_Extensions_Database_TestCase
+use PHPUnit\Framework\TestCase;
+use PHPUnit\DbUnit\TestCaseTrait;
+
+class ConnectionTest extends TestCase
 {
+    use TestCaseTrait;
+
     public function testCreateQueryTable()
     {
         $tableNames = ['guestbook'];
@@ -1254,8 +1329,13 @@ class ConnectionTest extends PHPUnit_Extensions_Database_TestCase
           assertion:
         </para>
         <programlisting><![CDATA[<?php
-class ConnectionTest extends PHPUnit_Extensions_Database_TestCase
+use PHPUnit\Framework\TestCase;
+use PHPUnit\DbUnit\TestCaseTrait;
+
+class ConnectionTest extends TestCase
 {
+    use TestCaseTrait;
+
     public function testGetRowCount()
     {
         $this->assertEquals(2, $this->getConnection()->getRowCount('guestbook'));
@@ -1284,8 +1364,13 @@ class ConnectionTest extends PHPUnit_Extensions_Database_TestCase
         examples, but a third one:
       </para>
       <programlisting><![CDATA[<?php
-class GuestbookTest extends PHPUnit_Extensions_Database_TestCase
+use PHPUnit\Framework\TestCase;
+use PHPUnit\DbUnit\TestCaseTrait;
+
+class GuestbookTest extends TestCase
 {
+    use TestCaseTrait;
+
     public function testAddEntry()
     {
         $this->assertEquals(2, $this->getConnection()->getRowCount('guestbook'), "Pre-Condition");
@@ -1312,8 +1397,13 @@ class GuestbookTest extends PHPUnit_Extensions_Database_TestCase
         File/Array Based Data Set:
       </para>
       <programlisting><![CDATA[<?php
-class GuestbookTest extends PHPUnit_Extensions_Database_TestCase
+use PHPUnit\Framework\TestCase;
+use PHPUnit\DbUnit\TestCaseTrait;
+
+class GuestbookTest extends TestCase
 {
+    use TestCaseTrait;
+
     public function testAddEntry()
     {
         $guestbook = new Guestbook();
@@ -1377,8 +1467,13 @@ $queryTable = $this->getConnection()->createQueryTable(
         compare it to a dataset:
       </para>
       <programlisting><![CDATA[<?php
-class ComplexQueryTest extends PHPUnit_Extensions_Database_TestCase
+use PHPUnit\Framework\TestCase;
+use PHPUnit\DbUnit\TestCaseTrait;
+
+class ComplexQueryTest extends TestCase
 {
+    use TestCaseTrait;
+
     public function testComplexQuery()
     {
         $queryTable = $this->getConnection()->createQueryTable(
@@ -1405,8 +1500,13 @@ class ComplexQueryTest extends PHPUnit_Extensions_Database_TestCase
             compare it to a File-Based DataSet.
           </para>
           <programlisting><![CDATA[<?php
-class DataSetAssertionsTest extends PHPUnit_Extensions_Database_TestCase
+use PHPUnit\Framework\TestCase;
+use PHPUnit\DbUnit\TestCaseTrait;
+
+class DataSetAssertionsTest extends TestCase
 {
+    use TestCaseTrait;
+
     public function testCreateDataSetAssertion()
     {
         $dataSet = $this->getConnection()->createDataSet(['guestbook']);
@@ -1421,8 +1521,13 @@ class DataSetAssertionsTest extends PHPUnit_Extensions_Database_TestCase
             You can construct the DataSet on your own:
           </para>
           <programlisting><![CDATA[<?php
-class DataSetAssertionsTest extends PHPUnit_Extensions_Database_TestCase
+use PHPUnit\Framework\TestCase;
+use PHPUnit\DbUnit\TestCaseTrait;
+
+class DataSetAssertionsTest extends TestCase
 {
+    use TestCaseTrait;
+
     public function testManualDataSetAssertion()
     {
         $dataSet = new PHPUnit_Extensions_Database_DataSet_QueryDataSet();
