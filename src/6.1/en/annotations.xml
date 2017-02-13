@@ -838,6 +838,27 @@ public function initialBalanceShouldBe0()
     <para>
       <indexterm><primary>TestDox</primary></indexterm>
       <indexterm><primary>@testdox</primary></indexterm>
+      
+      Specifies an alternative description used when generating the agile
+      documentation sentences (see <xref linkend="other-uses-for-tests.agile-documentation"/>).
+      The <literal>@testdox</literal> annotation can be applied to both test classes and test methods.
+      <programlisting>/**
+ * @testdox A bank account
+ */
+class BankAccountTest extends TestCase
+{
+    /**
+     * @testdox has an initial balance of zero
+     */
+    public function balanceIsInitiallyZero()
+    {
+        $this->assertEquals(0, $this->ba->getBalance());
+    }
+}</programlisting>
+      
+      <emphasis role="strong">Note:</emphasis> Using the <literal>@testdox</literal> leads to
+      the <literal>@test</literal> annotation to be infered. As a concequence, the annotated
+      method name does not need to be prefixed with <literal>test</literal>.
     </para>
 
     <programlisting></programlisting>
