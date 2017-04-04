@@ -780,6 +780,7 @@ guestbook:
         <programlisting><![CDATA[<?php
 use PHPUnit\Framework\TestCase;
 use PHPUnit\DbUnit\TestCaseTrait;
+use PHPUnit\DbUnit\DataSet\YamlDataSet;
 
 class YamlGuestbookTest extends TestCase
 {
@@ -787,9 +788,7 @@ class YamlGuestbookTest extends TestCase
 
     protected function getDataSet()
     {
-        return new PHPUnit_Extensions_Database_DataSet_YamlDataSet(
-            dirname(__FILE__)."/_files/guestbook.yml"
-        );
+        return new YamlDataSet(dirname(__FILE__)."/_files/guestbook.yml");
     }
 }
 ?>]]></programlisting>
@@ -818,6 +817,7 @@ id,content,user,created
         <programlisting><![CDATA[<?php
 use PHPUnit\Framework\TestCase;
 use PHPUnit\DbUnit\TestCaseTrait;
+use PHPUnit\DbUnit\DataSet\CsvDataSet;
 
 class CsvGuestbookTest extends TestCase
 {
@@ -825,7 +825,7 @@ class CsvGuestbookTest extends TestCase
 
     protected function getDataSet()
     {
-        $dataSet = new PHPUnit_Extensions_Database_DataSet_CsvDataSet();
+        $dataSet = new CsvDataSet();
         $dataSet->addTable('guestbook', dirname(__FILE__)."/_files/guestbook.csv");
         return $dataSet;
     }
@@ -1198,8 +1198,8 @@ interface PHPUnit_Extensions_Database_DataSet_IDataSet extends IteratorAggregate
         TestCase to check for dataset quality. From the
         <literal>IteratorAggregate</literal> interface the IDataSet
         inherits the <literal>getIterator()</literal> method to iterate
-        over all tables of the dataset. The reverse iterator allows PHPUnit to 
-        truncate tables opposite the order they were created to satisfy foreign 
+        over all tables of the dataset. The reverse iterator allows PHPUnit to
+        truncate tables opposite the order they were created to satisfy foreign
         key constraints.
       </para>
       <para>
