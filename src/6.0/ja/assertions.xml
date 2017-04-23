@@ -7,42 +7,43 @@
   </para>
 
   <section id="appendixes.assertions.static-vs-non-static-usage-of-assertion-methods">
-    <title>Static vs. Non-Static Usage of Assertion Methods</title>
+    <title>アサーションメソッドはstaticで使うべきか、それとも非staticで使うべきか</title>
 
     <para>
-      PHPUnit's assertions are implemented in <code>PHPUnit\Framework\Assert</code>.
-      <code>PHPUnit\Framework\TestCase</code> inherits from <code>PHPUnit\Framework\Assert</code>.
+      PHPUnit のアサーションの実装は、<code>PHPUnit\Framework\Assert</code>
+      およびそれを継承した <code>PHPUnit\Framework\TestCase</code> にあります。
     </para>
 
     <para>
-      The assertion methods are declared <code>static</code> and can be invoked
-      from any context using <code>PHPUnit\Framework\Assert::assertTrue()</code>,
-      for instance, or using <code>$this->assertTrue()</code> or <code>self::assertTrue()</code>,
-      for instance, in a class that extends <code>PHPUnit\Framework\TestCase</code>.
+      アサーションメソッドは <code>static</code> 宣言されていて、あらゆるコンテキストから
+      <code>PHPUnit\Framework\Assert::assertTrue()</code> などのように使えます。
+      また、<code>PHPUnit\Framework\TestCase</code> を継承したクラスの中では
+      <code>$this->assertTrue()</code> や <code>self::assertTrue()</code> などとしても使えます。
     </para>
 
     <para>
-      In fact, you can even use global function wrappers such as <code>assertTrue()</code> in
-      any context (including classes that extend <code>PHPUnit\Framework\TestCase</code>)
-      when you (manually) include the <filename>src/Framework/Assert/Functions.php</filename>
-      sourcecode file that comes with PHPUnit.
+      さらに、PHPUnit に含まれるファイル <filename>src/Framework/Assert/Functions.php</filename>
+      を (手動で) インクルードしてしまえば、グローバルなラッパー関数 <code>assertTrue()</code>
+      などを使うことさえできてしまいます。これは、<code>PHPUnit\Framework\TestCase</code>
+      を継承したクラスを含めてあらゆるコンテキストで使えます。
     </para>
 
     <para>
-      A common question, especially from developers new to PHPUnit, is whether
-      using <code>$this->assertTrue()</code> or <code>self::assertTrue()</code>,
-      for instance, is "the right way" to invoke an assertion. The short answer
-      is: there is no right way. And there is no wrong way, either. It is a
-      matter personal preference.
+      PHPUnit を使い始めたばかりの開発者の多くは、たとえばアサーションを実行するときに
+      <code>$this->assertTrue()</code> と <code>self::assertTrue()</code>
+      のどちらを使うのが「正しい方法」なのだろうかと思うことでしょう。
+      端的に言って、どちらがよいなどということはありません。同様に、どちらが悪いというものでもありません。
+      どちらを使うかは、個人的な好みの問題です。
     </para>
 
     <para>
-      For most people it just "feels right" to use <code>$this->assertTrue()</code>
-      because the test method is invoked on a test object. The fact that the
-      assertion methods are declared <code>static</code> allows for (re)using
-      them outside the scope of a test object. Lastly, the global function
-      wrappers allow developers to type less characters (<code>assertTrue()</code> instead
-      of <code>$this->assertTrue()</code> or <code>self::assertTrue()</code>).
+      どちらかといえば <code>$this->assertTrue()</code>
+      を使うほうが自然に感じるという人が多いようです。テストメソッドは、テストオブジェクト上で実行されるからです。
+      アサーションメソッドが <code>static</code> 宣言されていることによって、
+      テストオブジェクトのスコープを超えた再利用が可能になります。
+      また、グローバル関数のラッパーを使えば、
+      (<code>$this->assertTrue()</code> や <code>self::assertTrue()</code> ではなく
+      <code>assertTrue()</code> と書くことによって) タイプ量を抑えることができます。
     </para>
   </section>
 
