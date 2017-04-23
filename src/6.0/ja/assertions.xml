@@ -6,6 +6,46 @@
     この節では、利用可能なアサーションメソッドの一覧を示します。
   </para>
 
+  <section id="appendixes.assertions.static-vs-non-static-usage-of-assertion-methods">
+    <title>Static vs. Non-Static Usage of Assertion Methods</title>
+
+    <para>
+      PHPUnit's assertions are implemented in <code>PHPUnit\Framework\Assert</code>.
+      <code>PHPUnit\Framework\TestCase</code> inherits from <code>PHPUnit\Framework\Assert</code>.
+    </para>
+
+    <para>
+      The assertion methods are declared <code>static</code> and can be invoked
+      from any context using <code>PHPUnit\Framework\Assert::assertTrue()</code>,
+      for instance, or using <code>$this->assertTrue()</code> or <code>self::assertTrue()</code>,
+      for instance, in a class that extends <code>PHPUnit\Framework\TestCase</code>.
+    </para>
+
+    <para>
+      In fact, you can even use global function wrappers such as <code>assertTrue()</code> in
+      any context (including classes that extend <code>PHPUnit\Framework\TestCase</code>)
+      when you (manually) include the <filename>src/Framework/Assert/Functions.php</filename>
+      sourcecode file that comes with PHPUnit.
+    </para>
+
+    <para>
+      A common question, especially from developers new to PHPUnit, is whether
+      using <code>$this->assertTrue()</code> or <code>self::assertTrue()</code>,
+      for instance, is "the right way" to invoke an assertion. The short answer
+      is: there is no right way. And there is no wrong way, either. It is a
+      matter personal preference.
+    </para>
+
+    <para>
+      For most people it just "feels right" to use <code>$this->assertTrue()</code>
+      because the test method is invoked on a test object. The fact that the
+      assertion methods are declared <code>static</code> allows for (re)using
+      them outside the scope of a test object. Lastly, the global function
+      wrappers allow developers to type less characters (<code>assertTrue()</code> instead
+      of <code>$this->assertTrue()</code> or <code>self::assertTrue()</code>).
+    </para>
+  </section>
+
   <section id="appendixes.assertions.assertArrayHasKey">
     <title>assertArrayHasKey()</title>
     <indexterm><primary>assertArrayHasKey()</primary></indexterm>
