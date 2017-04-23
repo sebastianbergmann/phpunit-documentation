@@ -235,8 +235,13 @@ class MyTest extends TestCase
       <literal>getDataSet()</literal> を実装します。
     </para>
     <programlisting><![CDATA[<?php
-class MyGuestbookTest extends PHPUnit_Extensions_Database_TestCase
+use PHPUnit\Framework\TestCase;
+use PHPUnit\DbUnit\TestCaseTrait;
+
+class MyGuestbookTest extends TestCase
 {
+    use TestCaseTrait;
+
     /**
      * @return PHPUnit_Extensions_Database_DB_IDatabaseConnection
      */
@@ -340,8 +345,13 @@ class MyGuestbookTest extends PHPUnit_Extensions_Database_TestCase
         このようにしても、テストケースごとに異なるデータフィクスチャを指定することができます。
       </para>
       <programlisting><![CDATA[<?php
-abstract class MyApp_Tests_DatabaseTestCase extends PHPUnit_Extensions_Database_TestCase
+use PHPUnit\Framework\TestCase;
+use PHPUnit\DbUnit\TestCaseTrait;
+
+abstract class MyApp_Tests_DatabaseTestCase extends TestCase
 {
+    use TestCaseTrait;
+
     // PDO のインスタンス生成は、クリーンアップおよびフィクスチャ読み込みのときに一度だけ
     static private $pdo = null;
 
@@ -385,8 +395,13 @@ abstract class MyApp_Tests_DatabaseTestCase extends PHPUnit_Extensions_Database_
         テストケースはこのように書き直せます。
       </para>
       <programlisting><![CDATA[<?php
-abstract class Generic_Tests_DatabaseTestCase extends PHPUnit_Extensions_Database_TestCase
+use PHPUnit\Framework\TestCase;
+use PHPUnit\DbUnit\TestCaseTrait;
+
+abstract class Generic_Tests_DatabaseTestCase extends TestCase
 {
+    use TestCaseTrait;
+
     // PDO のインスタンス生成は、クリーンアップおよびフィクスチャ読み込みのときに一度だけ
     static private $pdo = null;
 
@@ -610,8 +625,13 @@ abstract class Generic_Tests_DatabaseTestCase extends PHPUnit_Extensions_Databas
           <literal>createFlatXmlDataSet($filename)</literal> メソッドを使います。
         </para>
         <programlisting><![CDATA[<?php
-class MyTestCase extends PHPUnit_Extensions_Database_TestCase
+use PHPUnit\Framework\TestCase;
+use PHPUnit\DbUnit\TestCaseTrait;
+
+class MyTestCase extends TestCase
 {
+    use TestCaseTrait;
+
     public function getDataSet()
     {
         return $this->createFlatXmlDataSet('myFlatXmlFixture.xml');
@@ -672,8 +692,13 @@ class MyTestCase extends PHPUnit_Extensions_Database_TestCase
           <literal>createXmlDataSet($filename)</literal> メソッドを使います。
         </para>
         <programlisting><![CDATA[<?php
-class MyTestCase extends PHPUnit_Extensions_Database_TestCase
+use PHPUnit\Framework\TestCase;
+use PHPUnit\DbUnit\TestCaseTrait;
+
+class MyTestCase extends TestCase
 {
+    use TestCaseTrait;
+
     public function getDataSet()
     {
         return $this->createXMLDataSet('myXmlFixture.xml');
@@ -699,8 +724,13 @@ class MyTestCase extends PHPUnit_Extensions_Database_TestCase
           <literal>createMySQLXMLDataSet($filename)</literal> メソッドをコールします。
         </para>
         <programlisting><![CDATA[<?php
-class MyTestCase extends PHPUnit_Extensions_Database_TestCase
+use PHPUnit\Framework\TestCase;
+use PHPUnit\DbUnit\TestCaseTrait;
+
+class MyTestCase extends TestCase
 {
+    use TestCaseTrait;
+
     public function getDataSet()
     {
         return $this->createMySQLXMLDataSet('/path/to/file.xml');
@@ -739,8 +769,14 @@ guestbook:
           に存在しないので、手動でインスタンスを生成しなければなりません。
         </para>
         <programlisting><![CDATA[<?php
-class YamlGuestbookTest extends PHPUnit_Extensions_Database_TestCase
+use PHPUnit\Framework\TestCase;
+use PHPUnit\DbUnit\TestCaseTrait;
+use PHPUnit\DbUnit\DataSet\YamlDataSet;
+
+class YamlGuestbookTest extends TestCase
 {
+    use TestCaseTrait;
+
     protected function getDataSet()
     {
         return new PHPUnit_Extensions_Database_DataSet_YamlDataSet(
@@ -773,8 +809,14 @@ id,content,user,created
           CSV データセットを作るには、このようにします。
         </para>
         <programlisting><![CDATA[<?php
-class CsvGuestbookTest extends PHPUnit_Extensions_Database_TestCase
+use PHPUnit\Framework\TestCase;
+use PHPUnit\DbUnit\TestCaseTrait;
+use PHPUnit\DbUnit\DataSet\CsvDataSet;
+
+class CsvGuestbookTest extends TestCase
 {
+    use TestCaseTrait;
+
     protected function getDataSet()
     {
         $dataSet = new PHPUnit_Extensions_Database_DataSet_CsvDataSet();
@@ -792,8 +834,13 @@ class CsvGuestbookTest extends PHPUnit_Extensions_Database_TestCase
           guestbook の例だと、このようになります。
         </para>
         <programlisting><![CDATA[<?php
-class ArrayGuestbookTest extends PHPUnit_Extensions_Database_TestCase
+use PHPUnit\Framework\TestCase;
+use PHPUnit\DbUnit\TestCaseTrait;
+
+class ArrayGuestbookTest extends TestCase
 {
+    use TestCaseTrait;
+
     protected function getDataSet()
     {
         return new MyApp_DbUnit_ArrayDataSet(
@@ -934,8 +981,13 @@ $ds->addTable('guestbook', 'SELECT id, content FROM guestbook ORDER BY created D
           <literal>testFilteredGuestbook()</literal> メソッドのようにします。
         </para>
         <programlisting><![CDATA[<?php
-class MySqlGuestbookTest extends PHPUnit_Extensions_Database_TestCase
+use PHPUnit\Framework\TestCase;
+use PHPUnit\DbUnit\TestCaseTrait;
+
+class MySqlGuestbookTest extends TestCase
 {
+    use TestCaseTrait;
+
     /**
      * @return PHPUnit_Extensions_Database_DB_IDatabaseConnection
      */
@@ -987,8 +1039,13 @@ class MySqlGuestbookTest extends PHPUnit_Extensions_Database_TestCase
           そして、フラット XML データセットを Replacement データセットでラップします。
         </para>
         <programlisting><![CDATA[<?php
-class ReplacementTest extends PHPUnit_Extensions_Database_TestCase
+use PHPUnit\Framework\TestCase;
+use PHPUnit\DbUnit\TestCaseTrait;
+
+class ReplacementTest extends TestCase
 {
+    use TestCaseTrait;
+
     public function getDataSet()
     {
         $ds = $this->createFlatXmlDataSet('myFlatXmlFixture.xml');
@@ -1009,8 +1066,13 @@ class ReplacementTest extends PHPUnit_Extensions_Database_TestCase
           データセットのカラムを絞り込むときに使うと非常に便利です。
         </para>
         <programlisting><![CDATA[<?php
-class DataSetFilterTest extends PHPUnit_Extensions_Database_TestCase
+use PHPUnit\Framework\TestCase;
+use PHPUnit\DbUnit\TestCaseTrait;
+
+class DataSetFilterTest extends TestCase
 {
+    use TestCaseTrait;
+
     public function testIncludeFilteredGuestbook()
     {
         $tableNames = ['guestbook'];
@@ -1071,8 +1133,13 @@ class DataSetFilterTest extends PHPUnit_Extensions_Database_TestCase
           Composite データセットを使えば、両方のフィクスチャファイルをまとめることができます。
         </para>
         <programlisting><![CDATA[<?php
-class CompositeTest extends PHPUnit_Extensions_Database_TestCase
+use PHPUnit\Framework\TestCase;
+use PHPUnit\DbUnit\TestCaseTrait;
+
+class CompositeTest extends TestCase
 {
+    use TestCaseTrait;
+
     public function getDataSet()
     {
         $ds1 = $this->createFlatXmlDataSet('fixture1.xml');
@@ -1205,8 +1272,13 @@ interface PHPUnit_Extensions_Database_DB_IDatabaseConnection
           (DB) データセットを作ります。これは、データセットの実装の節で説明したものです。
         </para>
         <programlisting><![CDATA[<?php
-class ConnectionTest extends PHPUnit_Extensions_Database_TestCase
+use PHPUnit\Framework\TestCase;
+use PHPUnit\DbUnit\TestCaseTrait;
+
+class ConnectionTest extends TestCase
 {
+    use TestCaseTrait;
+
     public function testCreateDataSet()
     {
         $tableNames = ['guestbook'];
@@ -1223,8 +1295,13 @@ class ConnectionTest extends PHPUnit_Extensions_Database_TestCase
           で説明する結果やテーブルのアサーションで有用なメソッドです。
         </para>
         <programlisting><![CDATA[<?php
-class ConnectionTest extends PHPUnit_Extensions_Database_TestCase
+use PHPUnit\Framework\TestCase;
+use PHPUnit\DbUnit\TestCaseTrait;
+
+class ConnectionTest extends TestCase
 {
+    use TestCaseTrait;
+
     public function testCreateQueryTable()
     {
         $tableNames = ['guestbook'];
@@ -1241,8 +1318,13 @@ class ConnectionTest extends PHPUnit_Extensions_Database_TestCase
           これを使えば、シンプルな同一性のアサーションが可能です。
         </para>
         <programlisting><![CDATA[<?php
-class ConnectionTest extends PHPUnit_Extensions_Database_TestCase
+use PHPUnit\Framework\TestCase;
+use PHPUnit\DbUnit\TestCaseTrait;
+
+class ConnectionTest extends TestCase
 {
+    use TestCaseTrait;
+
     public function testGetRowCount()
     {
         $this->assertEquals(2, $this->getConnection()->getRowCount('guestbook'));
@@ -1269,8 +1351,13 @@ class ConnectionTest extends PHPUnit_Extensions_Database_TestCase
         3 行になっていることを調べるには、このようにします。
       </para>
       <programlisting><![CDATA[<?php
-class GuestbookTest extends PHPUnit_Extensions_Database_TestCase
+use PHPUnit\Framework\TestCase;
+use PHPUnit\DbUnit\TestCaseTrait;
+
+class GuestbookTest extends TestCase
 {
+    use TestCaseTrait;
+
     public function testAddEntry()
     {
         $this->assertEquals(2, $this->getConnection()->getRowCount('guestbook'), "Pre-Condition");
@@ -1296,8 +1383,13 @@ class GuestbookTest extends PHPUnit_Extensions_Database_TestCase
         それをファイルベースあるいは配列ベースのデータセットと比較します。
       </para>
       <programlisting><![CDATA[<?php
-class GuestbookTest extends PHPUnit_Extensions_Database_TestCase
+use PHPUnit\Framework\TestCase;
+use PHPUnit\DbUnit\TestCaseTrait;
+
+class GuestbookTest extends TestCase
 {
+    use TestCaseTrait;
+
     public function testAddEntry()
     {
         $guestbook = new Guestbook();
@@ -1359,8 +1451,13 @@ $queryTable = $this->getConnection()->createQueryTable(
         それをデータセットと比較すればよいのです。
       </para>
       <programlisting><![CDATA[<?php
-class ComplexQueryTest extends PHPUnit_Extensions_Database_TestCase
+use PHPUnit\Framework\TestCase;
+use PHPUnit\DbUnit\TestCaseTrait;
+
+class ComplexQueryTest extends TestCase
 {
+    use TestCaseTrait;
+
     public function testComplexQuery()
     {
         $queryTable = $this->getConnection()->createQueryTable(
@@ -1387,8 +1484,13 @@ class ComplexQueryTest extends PHPUnit_Extensions_Database_TestCase
             それをファイルベースのデータセットと比較する。
           </para>
           <programlisting><![CDATA[<?php
-class DataSetAssertionsTest extends PHPUnit_Extensions_Database_TestCase
+use PHPUnit\Framework\TestCase;
+use PHPUnit\DbUnit\TestCaseTrait;
+
+class DataSetAssertionsTest extends TestCase
 {
+    use TestCaseTrait;
+
     public function testCreateDataSetAssertion()
     {
         $dataSet = $this->getConnection()->createDataSet(['guestbook']);
@@ -1403,8 +1505,13 @@ class DataSetAssertionsTest extends PHPUnit_Extensions_Database_TestCase
             データセットを自分で作ることもできます。
           </para>
           <programlisting><![CDATA[<?php
-class DataSetAssertionsTest extends PHPUnit_Extensions_Database_TestCase
+use PHPUnit\Framework\TestCase;
+use PHPUnit\DbUnit\TestCaseTrait;
+
+class DataSetAssertionsTest extends TestCase
 {
+    use TestCaseTrait;
+
     public function testManualDataSetAssertion()
     {
         $dataSet = new PHPUnit_Extensions_Database_DataSet_QueryDataSet();
