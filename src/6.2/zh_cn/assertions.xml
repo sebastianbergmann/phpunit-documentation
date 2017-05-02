@@ -5,6 +5,20 @@
 
   <para>本附录列举可用的各种断言方法。</para>
 
+  <section id="appendixes.assertions.static-vs-non-static-usage-of-assertion-methods">
+    <title>断言方法的用法：静态 vs. 非静态</title>
+
+    <para>PHPUnit 的各个断言是在 <code>PHPUnit\Framework\Assert</code> 中实现的。<code>PHPUnit\Framework\TestCase</code> 则继承于 <code>PHPUnit\Framework\Assert</code>。</para>
+
+    <para>各个断言方法均声明为 <code>static</code>，可以从任何上下文以类似于 <code>PHPUnit\Framework\Assert::assertTrue()</code> 的方式调用，或者也可以用类似于 <code>$this-&gt;assertTrue()</code> 或 <code>self::assertTrue()</code> 的方式在扩展自 <code>PHPUnit\Framework\TestCase</code> 的类内调用。</para>
+
+    <para>实际上，只要（手工）包含了 PHPUnit 中的 <filename>src/Framework/Assert/Functions.php</filename> 源码文件，甚至可以在任何上下文中（甚至包括扩展自 <code>PHPUnit\Framework\TestCase</code> 的类中）以诸如 <code>assertTrue()</code> 这样的方式来调用全局函数封装。</para>
+
+    <para>有个常见的疑问——对于那些 PHPUnit 的新手尤甚——是究竟应该用诸如 <code>$this-&gt;assertTrue()</code> 还是诸如 <code>self::assertTrue()</code> 这样的形式来调用断言才是“正确的方式”？简而言之：没有正确方式。同时，也没有错误方式。这基本上是个人喜好问题。</para>
+
+    <para>对于大多数人而言，由于测试方法是在测试对象上调用，因此用 <code>$this-&gt;assertTrue()</code> 会“觉的更正确”。然而请记住断言方法是声明为 <code>static</code> 的，这使其可以（重）用于测试对象的作用域之外。最后，全局函数封装让开发者能再少打一些字（用 <code>assertTrue()</code> 代替 <code>$this-&gt;assertTrue()</code> 或者 <code>self::assertTrue()</code>）。</para>
+  </section>
+
   <section id="appendixes.assertions.assertArrayHasKey">
     <title>assertArrayHasKey()</title>
     <indexterm><primary>assertArrayHasKey()</primary></indexterm>

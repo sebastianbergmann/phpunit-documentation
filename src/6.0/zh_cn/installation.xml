@@ -6,13 +6,13 @@
   <section id="installation.requirements">
     <title>需求</title>
 
-    <para>PHPUnit 6.0 需要 PHP 5.6，强烈推荐使用最新版本的 PHP。</para>
+    <para>PHPUnit 6.0 需要 PHP 7，强烈推荐使用最新版本的 PHP。</para>
 
     <para>PHPUnit 需要使用 <ulink url="http://php.net/manual/en/dom.setup.php">dom</ulink> 和 <ulink url="http://php.net/manual/en/json.installation.php">json</ulink> 扩展，它们通常是默认启用的。</para>
 
     <para>PHPUnit 还需要 <ulink url="http://php.net/manual/en/pcre.installation.php">pcre</ulink>、<ulink url="http://php.net/manual/en/reflection.installation.php">reflection</ulink>、<ulink url="http://php.net/manual/en/spl.installation.php">spl</ulink> 扩展。这些标准扩展默认启用，并且除非修改 PHP 的构建系统和 C 源代码，否则无法禁用它们。</para>
 
-    <para>代码覆盖率分析报告功能需要 <ulink url="http://xdebug.org/">Xdebug</ulink> （2.2.1以上）与 <ulink url="http://php.net/manual/en/tokenizer.installation.php">tokenizer</ulink> 扩展。生成 XML 格式的报告需要有 <ulink url="http://php.net/manual/en/xmlwriter.installation.php">xmlwriter</ulink> 扩展。</para>
+    <para>代码覆盖率分析报告功能需要 <ulink url="http://xdebug.org/">Xdebug</ulink>（2.5.0以上）与 <ulink url="http://php.net/manual/en/tokenizer.installation.php">tokenizer</ulink> 扩展。生成 XML 格式的报告需要有 <ulink url="http://php.net/manual/en/xmlwriter.installation.php">xmlwriter</ulink> 扩展。</para>
   </section>
 
   <section id="installation.phar">
@@ -22,8 +22,6 @@
 
     <para>要使用 PHP档案包(PHAR)需要有 <ulink url="http://php.net/manual/en/phar.installation.php">phar</ulink> 扩展。</para>
 
-    <para>要使用 PHAR 的 <literal>--self-update</literal> 功能需要有 <ulink url="http://php.net/manual/en/openssl.installation.php">openssl</ulink> 扩展。</para>
-
     <para>如果启用了 <ulink url="http://suhosin.org/">Suhosin</ulink> 扩展，需要在 <literal>php.ini</literal> 中允许执行 PHAR：<screen>
 suhosin.executor.include.whitelist = phar
 </screen>
@@ -32,9 +30,9 @@ suhosin.executor.include.whitelist = phar
     <para>如果要全局安装 PHAR：</para>
 
     <screen>
-<prompt>$</prompt> <userinput>wget https://phar.phpunit.de/phpunit.phar</userinput>
-<prompt>$</prompt> <userinput>chmod +x phpunit.phar</userinput>
-<prompt>$</prompt> <userinput>sudo mv phpunit.phar /usr/local/bin/phpunit</userinput>
+<prompt>$</prompt> <userinput>wget https://phar.phpunit.de/phpunit-6.0.phar</userinput>
+<prompt>$</prompt> <userinput>chmod +x phpunit-6.0.phar</userinput>
+<prompt>$</prompt> <userinput>sudo mv phpunit-6.0.phar /usr/local/bin/phpunit</userinput>
 <prompt>$</prompt> <userinput>phpunit --version</userinput>
 <computeroutput>PHPUnit x.y.z by Sebastian Bergmann and contributors.</computeroutput>
 </screen>
@@ -42,8 +40,8 @@ suhosin.executor.include.whitelist = phar
     <para>也可以直接使用下载的 PHAR 文件：</para>
 
     <screen>
-<prompt>$</prompt> <userinput>wget https://phar.phpunit.de/phpunit.phar</userinput>
-<prompt>$</prompt> <userinput>php phpunit.phar --version</userinput>
+<prompt>$</prompt> <userinput>wget https://phar.phpunit.de/phpunit-6.0.phar</userinput>
+<prompt>$</prompt> <userinput>php phpunit-6.0.phar --version</userinput>
 <computeroutput>PHPUnit x.y.z by Sebastian Bergmann and contributors.</computeroutput>
 </screen>
 
@@ -61,7 +59,7 @@ suhosin.executor.include.whitelist = phar
           <para>将 <userinput>;C:\bin</userinput> 附加到 <varname>PATH</varname> 环境变量中（<ulink url="http://stackoverflow.com/questions/6318156/adding-python-path-on-windows-7">相关帮助</ulink>）</para>
         </listitem>
         <listitem>
-          <para>下载 <ulink url="https://phar.phpunit.de/phpunit.phar"/> 并将文件保存到 <filename>C:\bin\phpunit.phar</filename>
+          <para>下载 <ulink url="https://phar.phpunit.de/phpunit-6.0.phar"/> 并将文件保存到 <filename>C:\bin\phpunit.phar</filename>
           </para>
         </listitem>
         <listitem>
@@ -194,19 +192,9 @@ fi
   <section id="installation.composer">
     <title>Composer</title>
 
-    <para>如果用 <ulink url="https://getcomposer.org/">Composer</ulink> 来管理项目的依赖关系，只要在项目的 <literal>composer.json</literal> 文件中简单地加上对 <literal>phpunit/phpunit</literal> 的依赖关系即可。下面是一个最小化的 <literal>composer.json</literal> 文件的例子，只定义了一个对 PHPUnit 6.0 的开发时(development-time)依赖：</para>
+    <para>如果用 <ulink url="https://getcomposer.org/">Composer</ulink> 来管理项目的依赖关系，只要在项目的 <literal>composer.json</literal> 文件中简单地加上对 <literal>phpunit/phpunit</literal> 的依赖关系即可：</para>
 
-    <programlisting><![CDATA[{
-    "require-dev": {
-        "phpunit/phpunit": "5.5.*"
-    }
-}]]></programlisting>
-
-    <para>要通过 Composer 完成系统级的安装，可以运行：</para>
-
-    <screen><userinput>composer global require &quot;phpunit/phpunit=5.5.*&quot;</userinput></screen>
-
-    <para>请确保 path 变量中包含有 <literal>~/.composer/vendor/bin/</literal>。</para>
+    <screen><userinput>composer require --dev phpunit/phpunit ^6.0</userinput></screen>
   </section>
 
   <section id="installation.optional-packages">
@@ -223,9 +211,9 @@ fi
         <listitem>
           <para> 一个工具类，可以用带有超时限制的方式调用可调用内容。当需要在严格模式下保证测试的超时限制时，这个组件包是必须的。</para>
 
-          <para>PHPUnit 的 PHAR 分发中已经包含了此组件包。若要通过 Composer 安装此组件包，添加如下 <literal>&quot;require-dev&quot;</literal> 依赖项：</para>
+          <para>PHPUnit 的 PHAR 分发中已经包含了此组件包。可以用以下命令来经由 Composer 安装此组件包：</para>
 
-          <screen><userinput>&quot;phpunit/php-invoker&quot;: &quot;*&quot;</userinput></screen>
+          <screen><userinput>composer require --dev phpunit/php-invoker</userinput></screen>
         </listitem>
       </varlistentry>
 
@@ -237,9 +225,9 @@ fi
         <listitem>
           <para>移植到 PHP/PHPUnit 上的 DbUnit 用于提供对数据库交互测试的支持。</para>
 
-          <para>PHPUnit 的 PHAR 分发中已经包含了此组件包。若要通过 Composer 安装此组件包，添加如下 <literal>&quot;require-dev&quot;</literal> 依赖项：</para>
+          <para>PHPUnit 的 PHAR 分发中已经包含了此组件包。可以用以下命令来经由 Composer 安装此组件包：</para>
 
-          <screen><userinput>&quot;phpunit/dbunit&quot;: &quot;&gt;=1.2&quot;</userinput></screen>
+          <screen><userinput>composer require --dev phpunit/dbunit</userinput></screen>
         </listitem>
       </varlistentry>
     </variablelist>
