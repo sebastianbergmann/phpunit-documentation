@@ -569,7 +569,7 @@ Tests: 1, Assertions: 1, Failures: 1.</screen>
       <indexterm><primary>PHP Error （PHP 错误）</primary></indexterm>
       <indexterm><primary>PHP Notice （PHP 通知）</primary></indexterm>
       <indexterm><primary>PHP Warning （PHP 警告）</primary></indexterm>
-      <indexterm><primary>PHPUnit_Framework_Error</primary></indexterm>默认情况下，PHPUnit 将测试在执行中触发的 PHP 错误、警告、通知都转换为异常。利用这些异常，就可以，比如说，预期测试将触发 PHP 错误，如<xref linkend="writing-tests-for-phpunit.exceptions.examples.ErrorTest.php"/>所示。</para>
+      <indexterm><primary>PHPUnit\Framework\Error</primary></indexterm>默认情况下，PHPUnit 将测试在执行中触发的 PHP 错误、警告、通知都转换为异常。利用这些异常，就可以，比如说，预期测试将触发 PHP 错误，如<xref linkend="writing-tests-for-phpunit.exceptions.examples.ErrorTest.php"/>所示。</para>
 
     <note>
       <para>PHP 的 <literal>error_reporting</literal> 运行时配置会对 PHPUnit 将哪些错误转换为异常有所限制。如果在这个特性上碰到问题，请确认 PHP 的配置中没有抑制想要测试的错误类型。</para>
@@ -583,7 +583,7 @@ use PHPUnit\Framework\TestCase;
 class ExpectedErrorTest extends TestCase
 {
     /**
-     * @expectedException PHPUnit_Framework_Error
+     * @expectedException PHPUnit\Framework\Error
      */
     public function testFailingInclude()
     {
@@ -602,16 +602,16 @@ OK (1 test, 1 assertion)</screen>
     </example>
 
     <para>
-      <indexterm><primary>PHPUnit_Framework_Error_Notice</primary></indexterm>
-      <indexterm><primary>PHPUnit_Framework_Error_Warning</primary></indexterm>
+      <indexterm><primary>PHPUnit\Framework\Error\Notice</primary></indexterm>
+      <indexterm><primary>PHPUnit\Framework\Error\Warning</primary></indexterm>
 
-      <literal>PHPUnit_Framework_Error_Notice</literal> 和 <literal>PHPUnit_Framework_Error_Warning</literal> 分别代表 PHP 通知与 PHP 警告。</para>
+      <literal>PHPUnit\Framework\Error\Notice</literal> 和 <literal>PHPUnit\Framework\Error\Warning</literal> 分别代表 PHP 通知与 PHP 警告。</para>
 
     <note>
       <para>对异常进行测试是越明确越好的。对太笼统的类进行测试有可能导致不良副作用。因此，不再允许用 <literal>@expectedException</literal> 或 <literal>setExpectedException()</literal> 对 <literal>Exception</literal> 类进行测试。</para>
     </note>
 
-    <para>如果测试依靠会触发错误的 PHP 函数，例如 <literal>fopen</literal> ，有时候在测试中使用错误抑制符会很有用。通过抑制住错误通知，就能对返回值进行检查，否则错误通知将会导致抛出 <literal>PHPUnit_Framework_Error_Notice</literal>。<example id="writing-tests-for-phpunit.exceptions.examples.TriggerErrorReturnValue.php">
+    <para>如果测试依靠会触发错误的 PHP 函数，例如 <literal>fopen</literal> ，有时候在测试中使用错误抑制符会很有用。通过抑制住错误通知，就能对返回值进行检查，否则错误通知将会导致抛出 <literal>PHPUnit\Framework\Error\Notice</literal>。<example id="writing-tests-for-phpunit.exceptions.examples.TriggerErrorReturnValue.php">
 
             <title>对会引发PHP 错误的代码的返回值进行测试</title>
             <programlisting><![CDATA[<?php
