@@ -1,0 +1,860 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="textui">
+  <title>The Command-Line Test Runner</title>
+
+  <para>
+    The PHPUnit command-line test runner can be invoked through the
+    <filename>phpunit</filename> command. The following code shows how to run
+    tests with the PHPUnit command-line test runner:
+  </para>
+
+  <screen><userinput>phpunit ArrayTest</userinput>
+PHPUnit 6.3.0 by Sebastian Bergmann and contributors.
+
+..
+
+Time: 0 seconds
+
+
+OK (2 tests, 2 assertions)</screen>
+
+  <para>
+    When invoked as shown above, the PHPUnit command-line test runner will look
+    for a <filename>ArrayTest.php</filename> sourcefile in the current working
+    directory, load it, and expect to find a <literal>ArrayTest</literal> test
+    case class. It will then execute the tests of that class.
+  </para>
+
+  <para>
+    For each test run, the PHPUnit command-line tool prints one character to
+    indicate progress:
+  </para>
+
+  <variablelist>
+    <varlistentry>
+      <term><literal>.</literal></term>
+      <listitem>
+        <para>
+          Printed when the test succeeds.
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><literal>F</literal></term>
+      <listitem>
+        <para>
+          Printed when an assertion fails while running the test method.
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><literal>E</literal></term>
+      <listitem>
+        <para>
+          Printed when an error occurs while running the test method.
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><literal>R</literal></term>
+      <listitem>
+        <para>
+          Printed when the test has been marked as risky (see
+          <xref linkend="risky-tests" />).
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><literal>S</literal></term>
+      <listitem>
+        <para>
+          Printed when the test has been skipped (see
+          <xref linkend="incomplete-and-skipped-tests" />).
+        </para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><literal>I</literal></term>
+      <listitem>
+        <para>
+          Printed when the test is marked as being incomplete or not yet
+          implemented (see <xref linkend="incomplete-and-skipped-tests" />).
+        </para>
+      </listitem>
+    </varlistentry>
+  </variablelist>
+
+  <para>
+    <indexterm><primary>Error</primary></indexterm>
+    <indexterm><primary>Failure</primary></indexterm>
+
+    PHPUnit distinguishes between <emphasis>failures</emphasis> and
+    <emphasis>errors</emphasis>. A failure is a violated PHPUnit
+    assertion such as a failing <literal>assertEquals()</literal> call.
+    An error is an unexpected exception or a PHP error. Sometimes
+    this distinction proves useful since errors tend to be easier to fix
+    than failures. If you have a big list of problems, it is best to
+    tackle the errors first and see if you have any failures left when
+    they are all fixed.
+  </para>
+
+  <section id="textui.clioptions">
+    <title>Command-Line Options</title>
+
+    <para>
+      Let's take a look at the command-line test runner's options in
+      the following code:
+    </para>
+
+    <screen><userinput>phpunit --help</userinput>
+<![CDATA[PHPUnit 6.3.0 by Sebastian Bergmann and contributors.
+
+Usage: phpunit [options] UnitTest [UnitTest.php]
+       phpunit [options] <directory>
+
+Code Coverage Options:
+
+  --coverage-clover <file>    Generate code coverage report in Clover XML format.
+  --coverage-crap4j <file>    Generate code coverage report in Crap4J XML format.
+  --coverage-html <dir>       Generate code coverage report in HTML format.
+  --coverage-php <file>       Export PHP_CodeCoverage object to file.
+  --coverage-text=<file>      Generate code coverage report in text format.
+                              Default: Standard output.
+  --coverage-xml <dir>        Generate code coverage report in PHPUnit XML format.
+  --whitelist <dir>           Whitelist <dir> for code coverage analysis.
+  --disable-coverage-ignore   Disable annotations for ignoring code coverage.
+
+Logging Options:
+
+  --log-junit <file>          Log test execution in JUnit XML format to file.
+  --log-teamcity <file>       Log test execution in TeamCity format to file.
+  --testdox-html <file>       Write agile documentation in HTML format to file.
+  --testdox-text <file>       Write agile documentation in Text format to file.
+  --testdox-xml <file>        Write agile documentation in XML format to file.
+  --reverse-list              Print defects in reverse order
+
+Test Selection Options:
+
+  --filter <pattern>          Filter which tests to run.
+  --testsuite <name,...>      Filter which testsuite to run.
+  --group ...                 Only runs tests from the specified group(s).
+  --exclude-group ...         Exclude tests from the specified group(s).
+  --list-groups               List available test groups.
+  --list-suites               List available test suites.
+  --test-suffix ...           Only search for test in files with specified
+                              suffix(es). Default: Test.php,.phpt
+
+Test Execution Options:
+
+  --dont-report-useless-tests Do not report tests that do not test anything.
+  --strict-coverage           Be strict about @covers annotation usage.
+  --strict-global-state       Be strict about changes to global state
+  --disallow-test-output      Be strict about output during tests.
+  --disallow-resource-usage   Be strict about resource usage during small tests.
+  --enforce-time-limit        Enforce time limit based on test size.
+  --disallow-todo-tests       Disallow @todo-annotated tests.
+
+  --process-isolation         Run each test in a separate PHP process.
+  --globals-backup            Backup and restore $GLOBALS for each test.
+  --static-backup             Backup and restore static attributes for each test.
+
+  --colors=<flag>             Use colors in output ("never", "auto" or "always").
+  --columns <n>               Number of columns to use for progress output.
+  --columns max               Use maximum number of columns for progress output.
+  --stderr                    Write to STDERR instead of STDOUT.
+  --stop-on-error             Stop execution upon first error.
+  --stop-on-failure           Stop execution upon first error or failure.
+  --stop-on-warning           Stop execution upon first warning.
+  --stop-on-risky             Stop execution upon first risky test.
+  --stop-on-skipped           Stop execution upon first skipped test.
+  --stop-on-incomplete        Stop execution upon first incomplete test.
+  --fail-on-warning           Treat tests with warnings as failures.
+  --fail-on-risky             Treat risky tests as failures.
+  -v|--verbose                Output more verbose information.
+  --debug                     Display debugging information.
+
+  --loader <loader>           TestSuiteLoader implementation to use.
+  --repeat <times>            Runs the test(s) repeatedly.
+  --teamcity                  Report test execution progress in TeamCity format.
+  --testdox                   Report test execution progress in TestDox format.
+  --testdox-group             Only include tests from the specified group(s).
+  --testdox-exclude-group     Exclude tests from the specified group(s).
+  --printer <printer>         TestListener implementation to use.
+
+Configuration Options:
+
+  --bootstrap <file>          A "bootstrap" PHP file that is run before the tests.
+  -c|--configuration <file>   Read configuration from XML file.
+  --no-configuration          Ignore default configuration file (phpunit.xml).
+  --no-coverage               Ignore code coverage configuration.
+  --no-extensions             Do not load PHPUnit extensions.
+  --include-path <path(s)>    Prepend PHP's include_path with given path(s).
+  -d key[=value]              Sets a php.ini value.
+  --generate-configuration    Generate configuration file with suggested settings.
+
+Miscellaneous Options:
+
+  -h|--help                   Prints this usage information.
+  --version                   Prints the version and exits.
+  --atleast-version <min>     Checks that version is greater than min and exits.]]></screen>
+
+    <variablelist>
+      <varlistentry>
+        <term><literal>phpunit UnitTest</literal></term>
+        <listitem>
+          <para>
+            Runs the tests that are provided by the class
+            <literal>UnitTest</literal>. This class is expected to be declared
+            in the <filename>UnitTest.php</filename> sourcefile.
+          </para>
+
+          <para>
+            <literal>UnitTest</literal> must be either a class that inherits
+            from <literal>PHPUnit\Framework\TestCase</literal> or a class that
+            provides a <literal>public static suite()</literal> method which
+            returns a <literal>PHPUnit_Framework_Test</literal> object, for
+            example an instance of the
+            <literal>PHPUnit_Framework_TestSuite</literal> class.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>phpunit UnitTest UnitTest.php</literal></term>
+        <listitem>
+          <para>
+            Runs the tests that are provided by the class
+            <literal>UnitTest</literal>. This class is expected to be declared
+            in the specified sourcefile.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <indexterm><primary>Code Coverage</primary></indexterm>
+        <term><literal>--coverage-clover</literal></term>
+        <listitem>
+          <para>
+            Generates a logfile in XML format with the code coverage information
+            for the tests run. See <xref linkend="logging" /> for more details.
+          </para>
+          <para>
+            Please note that this functionality is only available when the
+            tokenizer and Xdebug extensions are installed.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <indexterm><primary>Code Coverage</primary></indexterm>
+        <term><literal>--coverage-crap4j</literal></term>
+        <listitem>
+          <para>
+            Generates a code coverage report in Crap4j format. See
+            <xref linkend="code-coverage-analysis" /> for more details.
+          </para>
+          <para>
+            Please note that this functionality is only available when the
+            tokenizer and Xdebug extensions are installed.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <indexterm><primary>Code Coverage</primary></indexterm>
+        <indexterm><primary>Report</primary></indexterm>
+        <term><literal>--coverage-html</literal></term>
+        <listitem>
+          <para>
+            Generates a code coverage report in HTML format. See
+            <xref linkend="code-coverage-analysis" /> for more details.
+          </para>
+          <para>
+            Please note that this functionality is only available when the
+            tokenizer and Xdebug extensions are installed.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <indexterm><primary>Code Coverage</primary></indexterm>
+        <term><literal>--coverage-php</literal></term>
+        <listitem>
+          <para>
+            Generates a serialized PHP_CodeCoverage object with the 
+            code coverage information.
+          </para>
+          <para>
+            Please note that this functionality is only available when the
+            tokenizer and Xdebug extensions are installed.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <indexterm><primary>Code Coverage</primary></indexterm>
+        <term><literal>--coverage-text</literal></term>
+        <listitem>
+          <para>
+            Generates a logfile or command-line output in human readable format
+            with the code coverage information for the tests run.
+            See <xref linkend="logging" /> for more details.
+          </para>
+          <para>
+            Please note that this functionality is only available when the
+            tokenizer and Xdebug extensions are installed.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <indexterm><primary>Logfile</primary></indexterm>
+        <term><literal>--log-junit</literal></term>
+        <listitem>
+          <para>
+            Generates a logfile in JUnit XML format for the tests run.
+            See <xref linkend="logging" /> for more details.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <indexterm><primary>Agile Documentation</primary></indexterm>
+        <term><literal>--testdox-html</literal> and <literal>--testdox-text</literal></term>
+        <listitem>
+          <para>
+            Generates agile documentation in HTML or plain text format for the
+            tests that are run. See <xref linkend="other-uses-for-tests" /> for
+            more details.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>--filter</literal></term>
+        <listitem>
+          <para>
+            Only runs tests whose name matches the given regular expression
+            pattern. If the pattern is not enclosed in delimiters, PHPUnit
+            will enclose the pattern in <literal>/</literal> delimiters.
+          </para>
+
+          <para>
+            The test names to match will be in one of the following formats:
+          </para>
+
+          <variablelist>
+            <varlistentry>
+              <term><literal>TestNamespace\TestCaseClass::testMethod</literal></term>
+              <listitem>
+                <para>
+                  The default test name format is the equivalent of using
+                  the <literal>__METHOD__</literal> magic constant inside
+                  the test method.
+                </para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term><literal>TestNamespace\TestCaseClass::testMethod with data set #0</literal></term>
+              <listitem>
+                <para>
+                  When a test has a data provider, each iteration of the
+                  data gets the current index appended to the end of the
+                  default test name.
+                </para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term><literal>TestNamespace\TestCaseClass::testMethod with data set "my named data"</literal></term>
+              <listitem>
+                <para>
+                  When a test has a data provider that uses named sets, each
+                  iteration of the data gets the current name appended to the
+                  end of the default test name. See
+                  <xref linkend="textui.examples.TestCaseClass.php" /> for an
+                  example of named data sets.
+                </para>
+
+                <example id="textui.examples.TestCaseClass.php">
+                  <title>Named data sets</title>
+                  <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
+
+namespace TestNamespace;
+
+class TestCaseClass extends TestCase
+{
+    /**
+     * @dataProvider provider
+     */
+    public function testMethod($data)
+    {
+        $this->assertTrue($data);
+    }
+
+    public function provider()
+    {
+        return [
+            'my named data' => [true],
+            'my data'       => [true]
+        ];
+    }
+}
+?>]]></programlisting>
+                </example>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term><literal>/path/to/my/test.phpt</literal></term>
+              <listitem>
+                <para>
+                  The test name for a PHPT test is the filesystem path.
+                </para>
+              </listitem>
+            </varlistentry>
+          </variablelist>
+
+          <para>
+            See <xref linkend="textui.examples.filter-patterns" /> for examples
+            of valid filter patterns.
+          </para>
+
+          <example id="textui.examples.filter-patterns">
+            <title>Filter pattern examples</title>
+
+            <itemizedlist>
+              <listitem><para><literal>--filter 'TestNamespace\\TestCaseClass::testMethod'</literal></para></listitem>
+              <listitem><para><literal>--filter 'TestNamespace\\TestCaseClass'</literal></para></listitem>
+              <listitem><para><literal>--filter TestNamespace</literal></para></listitem>
+              <listitem><para><literal>--filter TestCaseClass</literal></para></listitem>
+              <listitem><para><literal>--filter testMethod</literal></para></listitem>
+              <listitem><para><literal>--filter '/::testMethod .*"my named data"/'</literal></para></listitem>
+              <listitem><para><literal>--filter '/::testMethod .*#5$/'</literal></para></listitem>
+              <listitem><para><literal>--filter '/::testMethod .*#(5|6|7)$/'</literal></para></listitem>
+            </itemizedlist>
+          </example>
+
+          <para>
+            See <xref linkend="textui.examples.filter-shortcuts" /> for some
+            additional shortcuts that are available for matching data
+            providers.
+          </para>
+
+          <example id="textui.examples.filter-shortcuts">
+            <title>Filter shortcuts</title>
+
+            <itemizedlist>
+              <listitem><para><literal>--filter 'testMethod#2'</literal></para></listitem>
+              <listitem><para><literal>--filter 'testMethod#2-4'</literal></para></listitem>
+              <listitem><para><literal>--filter '#2'</literal></para></listitem>
+              <listitem><para><literal>--filter '#2-4'</literal></para></listitem>
+              <listitem><para><literal>--filter 'testMethod@my named data'</literal></para></listitem>
+              <listitem><para><literal>--filter 'testMethod@my.*data'</literal></para></listitem>
+              <listitem><para><literal>--filter '@my named data'</literal></para></listitem>
+              <listitem><para><literal>--filter '@my.*data'</literal></para></listitem>
+            </itemizedlist>
+          </example>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>--testsuite</literal></term>
+        <listitem>
+          <para>
+            Only runs the test suite whose name matches the given pattern.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <indexterm><primary>Test Groups</primary></indexterm>
+        <indexterm><primary>Annotation</primary></indexterm>
+        <indexterm><primary>@author</primary></indexterm>
+        <indexterm><primary>@group</primary></indexterm>
+        <term><literal>--group</literal></term>
+        <listitem>
+          <para>
+            Only runs tests from the specified group(s). A test can be tagged as
+            belonging to a group using the <literal>@group</literal> annotation.
+          </para>
+          <para>
+            The <literal>@author</literal> annotation is an alias for
+            <literal>@group</literal> allowing to filter tests based on their
+            authors.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <indexterm><primary>Test Groups</primary></indexterm>
+        <indexterm><primary>Annotation</primary></indexterm>
+        <indexterm><primary>@group</primary></indexterm>
+        <term><literal>--exclude-group</literal></term>
+        <listitem>
+          <para>
+            Exclude tests from the specified group(s). A test can be tagged as
+            belonging to a group using the <literal>@group</literal> annotation.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <indexterm><primary>Test Groups</primary></indexterm>
+        <indexterm><primary>Annotation</primary></indexterm>
+        <indexterm><primary>@group</primary></indexterm>
+        <term><literal>--list-groups</literal></term>
+        <listitem>
+          <para>
+            List available test groups.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>--test-suffix</literal></term>
+        <listitem>
+          <para>
+            Only search for test files with specified suffix(es).
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>--report-useless-tests</literal></term>
+        <listitem>
+          <para>
+            Be strict about tests that do not test anything. See <xref
+            linkend="risky-tests" /> for details.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>--strict-coverage</literal></term>
+        <listitem>
+          <para>
+            Be strict about unintentionally covered code. See <xref
+            linkend="risky-tests" /> for details.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>--strict-global-state</literal></term>
+        <listitem>
+          <para>
+            Be strict about global state manipulation. See <xref
+            linkend="risky-tests" /> for details.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>--disallow-test-output</literal></term>
+        <listitem>
+          <para>
+            Be strict about output during tests. See <xref
+            linkend="risky-tests" /> for details.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>--disallow-todo-tests</literal></term>
+        <listitem>
+          <para>
+            Does not execute tests which have the <literal>@todo</literal> annotation in its docblock.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>--enforce-time-limit</literal></term>
+        <listitem>
+          <para>
+            Enforce time limit based on test size. See <xref
+            linkend="risky-tests" /> for details.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <indexterm><primary>Process Isolation</primary></indexterm>
+        <indexterm><primary>Test Isolation</primary></indexterm>
+        <term><literal>--process-isolation</literal></term>
+        <listitem>
+          <para>
+            Run each test in a separate PHP process.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <indexterm><primary>Test Isolation</primary></indexterm>
+        <term><literal>--no-globals-backup</literal></term>
+        <listitem>
+          <para>
+            Do not backup and restore $GLOBALS. See <xref linkend="fixtures.global-state" />
+            for more details.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <indexterm><primary>Test Isolation</primary></indexterm>
+        <term><literal>--static-backup</literal></term>
+        <listitem>
+          <para>
+            Backup and restore static attributes of user-defined classes.
+            See <xref linkend="fixtures.global-state" /> for more details.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>--colors</literal></term>
+        <listitem>
+          <para>
+            Use colors in output.
+            On Windows, use <ulink url="https://github.com/adoxa/ansicon">ANSICON</ulink> or <ulink url="https://github.com/Maximus5/ConEmu">ConEmu</ulink>.
+          </para>
+          <para>
+            There are three possible values for this option:
+            <itemizedlist>
+              <listitem>
+                <para>
+                  <literal>never</literal>: never displays colors in the output. This is the default value when <literal>--colors</literal> option is not used.
+                </para>
+              </listitem>
+              <listitem>
+                <para>
+                  <literal>auto</literal>: displays colors in the output unless the current terminal doesn't supports colors,
+                  or if the output is piped to a command or redirected to a file.
+                </para>
+              </listitem>
+              <listitem>
+                <para>
+                  <literal>always</literal>: always displays colors in the output even when the current terminal doesn't supports colors,
+                  or when the output is piped to a command or redirected to a file.
+                </para>
+              </listitem>
+            </itemizedlist>
+            When <literal>--colors</literal> is used without any value, <literal>auto</literal> is the chosen value.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>--columns</literal></term>
+        <listitem>
+          <para>
+            Defines the number of columns to use for progress output.
+            If <literal>max</literal> is defined as value, the number of columns will be maximum of the current terminal.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>--stderr</literal></term>
+        <listitem>
+          <para>
+            Optionally print to <literal>STDERR</literal> instead of
+            <literal>STDOUT</literal>.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>--stop-on-error</literal></term>
+        <listitem>
+          <para>
+            Stop execution upon first error.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>--stop-on-failure</literal></term>
+        <listitem>
+          <para>
+            Stop execution upon first error or failure.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>--stop-on-risky</literal></term>
+        <listitem>
+          <para>
+            Stop execution upon first risky test.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>--stop-on-skipped</literal></term>
+        <listitem>
+          <para>
+            Stop execution upon first skipped test.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>--stop-on-incomplete</literal></term>
+        <listitem>
+          <para>
+            Stop execution upon first incomplete test.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>--verbose</literal></term>
+        <listitem>
+          <para>
+            Output more verbose information, for instance the names of tests
+            that were incomplete or have been skipped.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>--debug</literal></term>
+        <listitem>
+          <para>
+            Output debug information such as the name of a test when its
+            execution starts.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <indexterm><primary>PHPUnit_Runner_TestSuiteLoader</primary></indexterm>
+        <term><literal>--loader</literal></term>
+        <listitem>
+          <para>
+            Specifies the <literal>PHPUnit_Runner_TestSuiteLoader</literal>
+            implementation to use.
+          </para>
+
+          <para>
+            The standard test suite loader will look for the sourcefile in the
+            current working directory and in each directory that is specified in
+            PHP's <literal>include_path</literal> configuration directive.
+            A class name such as <literal>Project_Package_Class</literal> is
+            mapped to the source filename
+            <filename>Project/Package/Class.php</filename>.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>--repeat</literal></term>
+        <listitem>
+          <para>
+            Repeatedly runs the test(s) the specified number of times.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <indexterm><primary>Agile Documentation</primary></indexterm>
+        <term><literal>--testdox</literal></term>
+        <listitem>
+          <para>
+            Reports the test progress as agile documentation. See
+            <xref linkend="other-uses-for-tests" /> for more details.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <indexterm><primary>PHPUnit_Framework_TestListener</primary></indexterm>
+        <indexterm><primary>PHPUnit_Util_Printer</primary></indexterm>
+        <term><literal>--printer</literal></term>
+        <listitem>
+          <para>
+            Specifies the result printer to use. The printer class must extend
+            <literal>PHPUnit_Util_Printer</literal> and implement the
+            <literal>PHPUnit_Framework_TestListener</literal> interface.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>--bootstrap</literal></term>
+        <listitem>
+          <para>
+            A "bootstrap" PHP file that is run before the tests.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <indexterm><primary>Configuration</primary></indexterm>
+        <term><literal>--configuration</literal></term>
+        <term><literal>-c</literal></term>
+        <listitem>
+          <para>
+            Read configuration from XML file.
+            See <xref linkend="appendixes.configuration" /> for more details.
+          </para>
+          <para>
+            If <filename>phpunit.xml</filename> or
+            <filename>phpunit.xml.dist</filename> (in that order) exist in the
+            current working directory and <literal>--configuration</literal> is
+            <emphasis>not</emphasis> used, the configuration will be automatically
+            read from that file.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <indexterm><primary>Configuration</primary></indexterm>
+        <term><literal>--no-configuration</literal></term>
+        <listitem>
+          <para>
+            Ignore <filename>phpunit.xml</filename> and
+            <filename>phpunit.xml.dist</filename> from the current working
+            directory.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <indexterm><primary><literal>include_path</literal></primary></indexterm>
+        <term><literal>--include-path</literal></term>
+        <listitem>
+          <para>
+            Prepend PHP's <literal>include_path</literal> with given path(s).
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>-d</literal></term>
+        <listitem>
+          <para>
+            Sets the value of the given PHP configuration option.
+          </para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+
+    <note>
+      <para>
+        Please note that as of 4.8, options can be put after the argument(s).
+      </para>
+    </note>
+  </section>
+</chapter>
