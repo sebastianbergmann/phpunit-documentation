@@ -345,13 +345,27 @@ class DatabaseTest extends TestCase
       <indexterm><primary>Global Variable</primary></indexterm>
       <indexterm><primary>Test Isolation</primary></indexterm>
 
-      By default, PHPUnit runs your tests in a way where changes to global
-      and super-global variables (<literal>$GLOBALS</literal>,
+      Prior to version 6, by default, PHPUnit ran your tests in a way where
+      changes to global and super-global variables (<literal>$GLOBALS</literal>,
       <literal>$_ENV</literal>, <literal>$_POST</literal>,
       <literal>$_GET</literal>, <literal>$_COOKIE</literal>,
       <literal>$_SERVER</literal>, <literal>$_FILES</literal>,
-      <literal>$_REQUEST</literal>) do not affect other tests. Optionally, this
-      isolation can be extended to static attributes of classes.
+      <literal>$_REQUEST</literal>) do not affect other tests.
+    </para>
+
+    <para>
+      As of version 6, PHPUnit does not perform this backup and restore
+      operation for global and super-global variables by default anymore.
+      It can be activated by using the <literal>--globals-backup</literal>
+      option or setting <literal>backupGlobals="true"</literal> in the
+      XML configuration file.
+    </para>
+
+    <para>
+      By using the <literal>--static-backup</literal> option or setting
+      <literal>backupStaticAttributes="true"</literal> in the
+      XML configuration file, this isolation can be extended to static
+      attributes of classes.
     </para>
 
     <note>
