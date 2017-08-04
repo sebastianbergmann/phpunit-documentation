@@ -98,7 +98,7 @@
     <itemizedlist>
       <listitem>
         <para>
-          You do not want to modify considerable amount of test code for little
+          You do not want to modify a considerable amount of test code for little
           changes in your production code.
         </para>
       </listitem>
@@ -126,7 +126,7 @@
       What PHPUnit cannot help you with is the fact that database tests
       are very slow compared to tests not using the database. Depending
       on how large the interactions with your database are your tests
-      could run a considerable amount of time. However, if you keep the amount of
+      could run for a considerable amount of time. However, if you keep the amount of
       data used for each test small and try to test as much code using
       non-database tests you can easily get away in under a minute even
       for large test suites.
@@ -134,7 +134,7 @@
     <para>
       The <ulink url="http://www.doctrine-project.org">Doctrine 2
       project</ulink>'s test suite, for example, currently has a test suite of
-      about 1000 tests where nearly half of them accesses the database
+      about 1000 tests where nearly half of them access the database
       and still runs in 15 seconds against a MySQL database on a standard
       desktop computer.
     </para>
@@ -180,7 +180,7 @@
       Testing the database requires you to hook into at least the
       setup and teardown to clean-up and write the required fixture data
       into your tables. However, the database extension has good reason to
-      revert the four stages in a database test to resemble the following
+      modify the four stages in a database test to resemble the following
       workflow that is executed for each single test:
     </para>
     <section id="database.clean-up-database">
@@ -277,8 +277,8 @@ class MyGuestbookTest extends TestCase
         merely used for the clean-up and fixture setup.
       </para>
       <para>
-        In the previous example we create an in-memory Sqlite connection
-        and pass it to the <literal>createDefaultDBConnection</literal>
+        In the previous example we created an in-memory Sqlite connection
+        and passed it to the <literal>createDefaultDBConnection</literal>
         method which wraps the PDO instance and the second parameter (the
         database-name) in a very simple abstraction layer for database
         connections of the type
@@ -347,7 +347,7 @@ class MyGuestbookTest extends TestCase
     <section id="database.tip-use-your-own-abstract-database-testcase">
       <title>Tip: Use your own Abstract Database TestCase</title>
       <para>
-        From the previous implementation example you can easily see that
+        From the previous implementation example you can easily see that the
         <literal>getConnection()</literal> method is pretty static and
         could be re-used in different database test-cases. Additionally to
         keep performance of your tests good and database overhead low you
@@ -752,7 +752,7 @@ class MyTestCase extends TestCase
       <section id="database.yaml-dataset">
         <title>YAML DataSet</title>
         <para>
-          Alternatively, you can use YAML dataset for the guestbook example:
+          Alternatively, you can use a YAML dataset for the guestbook example:
         </para>
         <screen><![CDATA[
 guestbook:
@@ -768,9 +768,9 @@ guestbook:
     created: 2010-04-26 12:14:20
 ]]></screen>
         <para>
-          This is simple, convient AND it solves the NULL issue that the
+          This is simple, convenient AND it solves the NULL issue that the
           similar Flat XML dataset has. A NULL in YAML is just the column
-          name without no value specified. An empty string is specified as
+          name with no value specified. An empty string is specified as
           <literal><![CDATA[column1: ""]]></literal>.
         </para>
         <para>
@@ -964,7 +964,7 @@ $ds->addTable('guestbook', 'SELECT * FROM guestbook');
 ?>]]></programlisting>
         <para>
           You can make use of this by specifying arbitrary queries for your
-          tables, for example restricting rows, column or adding
+          tables, for example restricting rows, columns or adding
           <literal>ORDER BY</literal> clauses:
         </para>
         <programlisting><![CDATA[<?php
@@ -981,7 +981,7 @@ $ds->addTable('guestbook', 'SELECT id, content FROM guestbook ORDER BY created D
         <para>
           Accessing the Test Connection you can automatically create a
           DataSet that consists of all the tables with their content in the
-          database specified as second parameter to the Connections Factory
+          database specified as the second parameter to the Connections Factory
           method.
         </para>
         <para>
@@ -1199,7 +1199,7 @@ interface PHPUnit_Extensions_Database_DataSet_IDataSet extends IteratorAggregate
         <literal>IteratorAggregate</literal> interface the IDataSet
         inherits the <literal>getIterator()</literal> method to iterate
         over all tables of the dataset. The reverse iterator allows PHPUnit to
-        truncate tables opposite the order they were created to satisfy foreign
+        truncate tables in the opposite order they were created to satisfy foreign
         key constraints.
       </para>
       <para>
@@ -1223,7 +1223,7 @@ interface PHPUnit_Extensions_Database_DataSet_ITable
 }
 ?>]]></programlisting>
       <para>
-        Except the <literal>getTableMetaData()</literal> method it is
+        Except for the <literal>getTableMetaData()</literal> method it is
         pretty self-explainatory. The used methods are all required for
         the different assertions of the Database Extension that are
         explained in the next chapter. The
@@ -1348,7 +1348,7 @@ class ConnectionTest extends TestCase
   <section id="database.database-assertions-api">
     <title>Database Assertions API</title>
     <para>
-      For a testing tool the Database Extension surely provides some
+      For a testing tool the Database Extension provides some
       assertions that you can use to verify the current state of the
       database, tables and the row-count of tables. This section
       describes this functionality in detail:
@@ -1489,9 +1489,9 @@ class ComplexQueryTest extends TestCase
     <section id="database.asserting-the-state-of-multiple-tables">
       <title>Asserting the State of Multiple Tables</title>
       <para>
-        For sure you can assert the state of multiple tables at once and
+        You can assert the state of multiple tables at once and
         compare a query dataset against a file based dataset. There are two
-        different ways for DataSet assertions.
+        different ways to make DataSet assertions.
       </para>
       <orderedlist numeration="arabic">
         <listitem>
@@ -1577,17 +1577,17 @@ class DataSetAssertionsTest extends TestCase
     </section>
     <section id="database.what-can-i-do-when-i-get-a-too-much-connections-error">
       <title>What can I do, when I get a
-             <quote>Too much Connections</quote> Error?</title>
+             <quote>Too many Connections</quote> Error?</title>
       <para>
         If you do not cache the PDO instance that is created from the
         TestCase <literal>getConnection()</literal> method the number of
         connections to the database is increasing by one or more with each
-        database test. With default configuration MySql only allows 100
-        concurrent connections other vendors also have maximum connection
+        database test. With a default configuration MySql only allows 100
+        concurrent connections. Other vendors also have maximum connection
         limits.
       </para>
       <para>
-        The SubSection
+        The sub-section
         <quote>Use your own Abstract Database TestCase</quote> shows how
         you can prevent this error from happening by using a single cached
         PDO instance in all your tests.
