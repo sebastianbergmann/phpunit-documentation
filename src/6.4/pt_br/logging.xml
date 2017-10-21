@@ -13,9 +13,9 @@
     <title>Resultados de Teste (XML)</title>
 
     <para>
-      O arquivo de registro XML para resultados de testes produzidos pelo PHPUnit é baseado naquele 
-      usado pela <ulink url="http://ant.apache.org/manual/Tasks/junit.html">tarefa do 
-      JUnit para Apache Ant</ulink>. O seguinte exemplo mostra o arquivo de 
+      O arquivo de registro XML para resultados de testes produzidos pelo PHPUnit é baseado naquele
+      usado pela <ulink url="http://ant.apache.org/manual/Tasks/junit.html">tarefa do
+      JUnit para Apache Ant</ulink>. O seguinte exemplo mostra o arquivo de
       registro XML gerado para os testes em <literal>ArrayTest</literal>:
     </para>
 
@@ -88,82 +88,13 @@ Exception:
 </testsuites>]]></screen>
   </section>
 
-  <section id="logging.tap">
-    <title>Resultados de Teste (TAP)</title>
-
-    <para>
-      O <ulink url="http://testanything.org/">Protocolo de Qualquer Teste (TAP - Test Anything Protocol)</ulink>
-      é uma interface simples baseada em texto do Perl entre módulos de teste. O 
-      seguinte exemplo mostra o arquivo de registro TAP gerado para os testes em
-      <literal>ArrayTest</literal>:
-    </para>
-
-    <screen>TAP version 13
-ok 1 - testNewArrayIsEmpty(ArrayTest)
-ok 2 - testArrayContainsAnElement(ArrayTest)
-1..2</screen>
-
-    <para>
-      O seguinte arquivo de registro TAP foi gerado para dois testes,
-      <literal>testFailure</literal> e <literal>testError</literal>,
-      de uma classe de caso de teste chamada <literal>FailureErrorTest</literal> e
-      mostra como falhas e erros são denotados.
-    </para>
-
-    <screen><![CDATA[TAP version 13
-not ok 1 - Failure: testFailure(FailureErrorTest)
-  ---
-  message: 'Failed asserting that <integer:2> matches expected value <integer:1>.'
-  severity: fail
-  data:
-    got: 2
-    expected: 1
-  ...
-not ok 2 - Error: testError(FailureErrorTest)
-1..2]]></screen>
-  </section>
-
-  <section id="logging.json">
-    <title>Resultados de Teste (JSON)</title>
-
-    <para>
-      A <ulink url="http://www.json.org/">Notação de Objeto JavaScript (JSON - JavaScript Object Notation)</ulink>
-      é um formato de intercâmbio de dados leve. O seguinte exemplo mostra 
-      as mensagens JSON geradas para os testes em <literal>ArrayTest</literal>:
-    </para>
-
-    <screen>{"event":"suiteStart","suite":"ArrayTest","tests":2}
-{"event":"test","suite":"ArrayTest",
- "test":"testNewArrayIsEmpty(ArrayTest)","status":"pass",
- "time":0.000460147858,"trace":[],"message":""}
-{"event":"test","suite":"ArrayTest",
- "test":"testArrayContainsAnElement(ArrayTest)","status":"pass",
- "time":0.000422954559,"trace":[],"message":""}</screen>
-
-    <para>
-      As mensagens JSON seguintes foram geradas para dois testes,
-      <literal>testFailure</literal> e <literal>testError</literal>,
-      de uma classe de caso de teste chamada <literal>FailureErrorTest</literal> e
-      mostra como falhas e erros são denotados.
-    </para>
-
-    <screen><![CDATA[{"event":"suiteStart","suite":"FailureErrorTest","tests":2}
-{"event":"test","suite":"FailureErrorTest",
- "test":"testFailure(FailureErrorTest)","status":"fail",
- "time":0.0082459449768066,"trace":[],
- "message":"Failed asserting that <integer:2> is equal to <integer:1>."}
-{"event":"test","suite":"FailureErrorTest",
- "test":"testError(FailureErrorTest)","status":"error",
- "time":0.0083680152893066,"trace":[],"message":""}]]></screen>
-  </section>
-
   <section id="logging.codecoverage.xml">
     <title>Cobertura de Código (XML)</title>
 
     <para>
-      O formato XML para registro de informação de cobertura de código produzido pelo PHPUnit 
+      O formato XML para registro de informação de cobertura de código produzido pelo PHPUnit
       é amplamente baseado naquele usado pelo <ulink url="http://www.atlassian.com/software/clover/">
-      Clover</ulink>. O seguinte exemplo mostra o arquivo de registro 
+      Clover</ulink>. O seguinte exemplo mostra o arquivo de registro
       XML gerado para os testes em <literal>BankAccountTest</literal>:
     </para>
 
@@ -208,24 +139,24 @@ not ok 2 - Error: testError(FailureErrorTest)
     <title>Cobertura de Código (TEXT)</title>
 
     <para>
-      Saída de cobertura de código legível para linha-de-comando ou arquivo de texto. 
-        
-      O objetivo deste formato de saída é fornecer uma rápida visão geral de cobertura 
-      enquanto se trabalha em um pequeno grupo de classes. Para projetos maiores esta saída 
-      pode ser útil para conseguir uma rápida visão geral da cobertura do projeto ou quando usado com 
+      Saída de cobertura de código legível para linha-de-comando ou arquivo de texto.
+
+      O objetivo deste formato de saída é fornecer uma rápida visão geral de cobertura
+      enquanto se trabalha em um pequeno grupo de classes. Para projetos maiores esta saída
+      pode ser útil para conseguir uma rápida visão geral da cobertura do projeto ou quando usado com
       a funcionalidade <literal>--filter</literal>.
-      
-      Quando usada da linha-de-comando escrevendo <literal>php://stdout</literal>
+
+      Quando usada da linha-de-comando escrevendo para <literal>php://stdout</literal>
       isso vai honrar a configuração <literal>--colors</literal>.
 
-      Escrever na saída padrão é a opção padrão quando usado a partir da linha-de-comando. 
-      
-      Por padrão isso só vai mostrar arquivos que tenham pelo menos uma linha coberta. 
-      Isso só pode ser alterado através da opção de configuração 
-      xml <literal>showUncoveredFiles</literal>. Veja <xref linkend="appendixes.configuration.logging"/>.      
-      
+      Escrever na saída padrão é a opção padrão quando usado a partir da linha-de-comando.
+
+      Por padrão isso só vai mostrar arquivos que tenham pelo menos uma linha coberta.
+      Isso só pode ser alterado através da opção de configuração
+      xml <literal>showUncoveredFiles</literal>. Veja <xref linkend="appendixes.configuration.logging"/>.
+
       Por padrão todos arquivos e seus status de cobertura são mostrados no relatório detalhado.
-      Isso pode ser alterado via através da opção de configuração 
+      Isso pode ser alterado através da opção de configuração
       xml <literal>showOnlySummary</literal>.
     </para>
 
