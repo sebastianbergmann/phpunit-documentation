@@ -13,11 +13,11 @@
     <para>
       <indexterm><primary>Sistema Sob Teste</primary></indexterm>
 
-      Às vezes é muito difícil testar o sistema sob teste (SST - em inglês: system under test - SUT) 
-      porque isso depende de outros ambientes que não podem ser usados no ambiente 
-      de testes. Isso pode ser porque não estão disponíveis, não retornarão 
-      os resultados necessários para o teste, ou porque executá-los 
-      causaria efeitos colaterais indesejáveis. Em outros casos, nossa estratégia de testes requer 
+      Às vezes é muito difícil testar o sistema sob teste (SST - em inglês: system under test - SUT)
+      porque isso depende de outros ambientes que não podem ser usados no ambiente
+      de testes. Isso pode ser porque não estão disponíveis, não retornarão
+      os resultados necessários para o teste, ou porque executá-los
+      causaria efeitos colaterais indesejáveis. Em outros casos, nossa estratégia de testes requer
       que tenhamos mais controle ou visibilidade do comportamento interno do SST.
     </para>
 
@@ -25,49 +25,50 @@
       <indexterm><primary>Componente Dependente</primary></indexterm>
       <indexterm><primary>Dublê de Teste</primary></indexterm>
 
-      Quando estamos escrevendo um teste no qual não podemos (ou decidimos não) usar um componente 
-      dependente (depended-on component - DOC) real, podemos substitui-lo por um Dublê de Teste. O 
-      Dublê de Teste não precisa se comportar exatamente como o DOC real; apenas precisa 
-      fornecer a mesma API como o real, de forma que o SST pense que é 
+      Quando estamos escrevendo um teste no qual não podemos (ou decidimos não) usar um componente
+      dependente (depended-on component - DOC) real, podemos substituí-lo por um Dublê de Teste. O
+      Dublê de Teste não precisa se comportar exatamente como o DOC real; apenas precisa
+      fornecer a mesma API como o real, de forma que o SST pense que é
       o real!
     </para>
   </blockquote>
 
   <para>
-    O método <literal>getMockBuilder($type)</literal> fornecido pelo PHPUnit pode 
-    ser usado em um teste para gerar automaticamente um objeto que possa atuar como um dublê 
-    de teste para a classe original especificada. Esse objeto de 
-    dublê de teste pode ser usado em cada contexto onde um objeto da classe original 
+    Os métodos <literal>createMock($type)</literal> e
+    <literal>getMockBuilder($type)</literal> fornecidos pelo PHPUnit podem
+    ser usados em um teste para gerar automaticamente um objeto que possa atuar como um dublê
+    de teste para a classe original especificada. Esse objeto de
+    dublê de teste pode ser usado em cada contexto onde um objeto da classe original
     é esperado ou requerido.
   </para>
 
   <para>
-    Por padrão, todos os métodos da classe original são substituídos com uma implementação 
-    simulada que apenas retorna <literal>null</literal> (sem chamar 
-    o método original). Usando o método <literal>will($this->returnValue())</literal>, 
-    por exemplo, você pode configurar essas implementações simuladas para 
+    O método <literal>createMock($type)</literal> imediatamente retorna um objeto de
+    dublê de teste para o tipo especificado (interface ou classe). A criação desse
+    dublê de teste é realizada usando os padrões de boas práticas (os métodos
+    <literal>__construct()</literal> e <literal>__clone()</literal> da
+    classe original não são executados) e os argumentos passados para um método do
+    dublê de teste não serão clonados. Se esses padrões não são o que você precisa
+    então você pode usar o método <literal>getMockBuilder($type)</literal> para
+    customizar a geração do dublê de teste usando uma interface fluente.
+  </para>
+
+  <para>
+    Por padrão, todos os métodos da classe original são substituídos com uma implementação
+    simulada que apenas retorna <literal>null</literal> (sem chamar
+    o método original). Usando o método <literal>will($this->returnValue())</literal>,
+    por exemplo, você pode configurar essas implementações simuladas para
     retornar um valor quando chamadas.
   </para>
 
   <note>
-    <title>Limitações</title>
+    <title>Limitações: métodos final, private e static</title>
 
     <para>
       Por favor, note que os métodos <literal>final</literal>, <literal>private</literal>
-      e <literal>static</literal> não podem ser esboçados (stubbed) ou falsificados (mocked). Eles 
-      são ignorados pela funcionalidade de dublê de teste do PHPUnit e mantêm seus 
+      e <literal>static</literal> não podem ser esboçados (stubbed) ou falsificados (mocked). Eles
+      são ignorados pela funcionalidade de dublê de teste do PHPUnit e mantêm seus
       comportamentos originais.
-    </para>
-  </note>
-
-  <note>
-    <title>Aviso</title>
-
-    <para>
-        Por favor atente para o fato de que a gestão de parâmetros foi mudada. 
-        A implementação anterior clona todos os parâmetros de objetos. Isso não permite verificar se o mesmo objeto foi passado para um método ou não.
-        <xref linkend="test-doubles.mock-objects.examples.clone-object-parameters-usecase.php" /> mostra onde a nova implementação pode ser útil.
-        <xref linkend="test-doubles.mock-objects.examples.enable-clone-object-parameters.php" /> mostra como voltar para o comportamento anterior.
     </para>
   </note>
 
@@ -77,105 +78,123 @@
     <para>
       <indexterm><primary>Esboço</primary></indexterm>
 
-      A prática de substituir um objeto por um dublê de teste que (opcionalmente) 
+      A prática de substituir um objeto por um dublê de teste que (opcionalmente)
       retorna valores de retorno configurados é chamada de
-      <emphasis>delineamento</emphasis>. Você pode usar um <emphasis>esboço</emphasis> para 
-      "substituir um componente real do qual o SST depende de modo que o teste tenha um 
-      ponto de controle para as entradas indiretas do SST. Isso permite ao teste 
+      <emphasis>stubbing</emphasis>. Você pode usar um <emphasis>esboço</emphasis> para
+      "substituir um componente real do qual o SST depende de modo que o teste tenha um
+      ponto de controle para as entradas indiretas do SST. Isso permite ao teste
       forçar o SST através de caminhos que não seriam executáveis de outra forma".
     </para>
 
     <para>
       <indexterm><primary>Interface Fluente</primary></indexterm>
 
-      <xref linkend="test-doubles.stubs.examples.StubTest.php" /> mostra como 
-      esboçar chamadas de método e configurar valores de retorno. Primeiro usamos o 
-      método <literal>getMockBuilder()</literal> que é fornecido pela 
-      classe <literal>PHPUnit_Framework_TestCase</literal> para configurar um esboço 
+      <xref linkend="test-doubles.stubs.examples.StubTest.php" /> mostra como
+      esboçar chamadas de método e configurar valores de retorno. Primeiro usamos o
+      método <literal>createMock()</literal> que é fornecido pela
+      classe <literal>PHPUnit\Framework\TestCase</literal> para configurar um esboço
       de objeto que parece com um objeto de <literal>SomeClass</literal>
-      (<xref linkend="test-doubles.stubs.examples.SomeClass.php" />). Então 
+      (<xref linkend="test-doubles.stubs.examples.SomeClass.php" />). Então
       usamos a <ulink url="http://martinfowler.com/bliki/FluentInterface.html">Interface Fluente</ulink>
-      que o PHPUnit fornece para especificar o comportamento para o esboço. Essencialmente, 
-      isso significa que você não precisa criar vários objetos temporários e 
-      uni-los depois. Em vez disso, você encadeia chamadas de método como mostrado no 
+      que o PHPUnit fornece para especificar o comportamento para o esboço. Essencialmente,
+      isso significa que você não precisa criar vários objetos temporários e
+      uni-los depois. Em vez disso, você encadeia chamadas de método como mostrado no
       exemplo. Isso leva a códigos mais legíveis e "fluentes".
     </para>
 
     <example id="test-doubles.stubs.examples.SomeClass.php">
       <title>A classe que queremos esboçar</title>
       <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
+
 class SomeClass
 {
     public function doSomething()
     {
-        // Faça algo.
+        // Faz algo.
     }
 }
 ?>]]></programlisting>
     </example>
 
     <example id="test-doubles.stubs.examples.StubTest.php">
-      <indexterm><primary>getMockBuilder()</primary></indexterm>
+      <indexterm><primary>createMock()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
       <indexterm><primary>willReturn()</primary></indexterm>
       <title>Esboçando uma chamada de método para retornar um valor fixo</title>
       <programlisting><![CDATA[<?php
-require_once 'SomeClass.php';
+use PHPUnit\Framework\TestCase;
 
-class StubTest extends PHPUnit_Framework_TestCase
-{
-    public function testStub()
-    {
-        // Cria um esboço para a classe AlgumaClasse.
-        $stub = $this->getMockBuilder('SomeClass')
-                     ->getMock();
-
-        // Configura o esboço.
-        $stub->method('doSomething')
-             ->willReturn('foo');
-
-        // Chamando $esboco->fazAlgumaCoisa() agora vai retornar 
-        // 'foo'.
-        $this->assertEquals('foo', $stub->doSomething());
-    }
-}
-?>]]></programlisting>
-    </example>
-
-    <para>
-      "Atrás dos bastidores" o PHPUnit automaticamente gera uma nova classe PHP que 
-      implementa o comportamento desejado quando o método <literal>getMock()</literal>
-      é usado.
-    </para>
-
-    <para>
-      <xref linkend="test-doubles.stubs.examples.StubTest2.php"/> mostra um 
-      exemplo de como usar a interface fluente do Mock Builder para configurar a
-      criação do dublê de teste.
-    </para>
-
-    <example id="test-doubles.stubs.examples.StubTest2.php">
-      <indexterm><primary>getMockBuilder()</primary></indexterm>
-      <indexterm><primary>method()</primary></indexterm>
-      <indexterm><primary>willReturn()</primary></indexterm>
-      <title>Usando a API Mock Builder pode ser usada para configurar a classe de dublê de teste gerada</title>
-      <programlisting><![CDATA[<?php
-require_once 'SomeClass.php';
-
-class StubTest extends PHPUnit_Framework_TestCase
+class StubTest extends TestCase
 {
     public function testStub()
     {
         // Cria um esboço para a classe SomeClass.
-        $stub = $this->getMockBuilder('SomeClass')
+        $stub = $this->createMock(SomeClass::class);
+
+        // Configura o esboço.
+        $stub->method('doSomething')
+             ->willReturn('foo');
+
+        // Chamando $stub->doSomething() agora vai retornar
+        // 'foo'.
+        $this->assertEquals('foo', $stub->doSomething());
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <note>
+      <title>Limitações: Métodos nomeados como "method"</title>
+
+      <para>
+        O exemplo mostado acima só funciona quando a classe original não
+        declara um método nomeado "method".
+      </para>
+
+      <para>
+        Se a classe original declara um método nomeado "method" então <literal><![CDATA[$stub->expects($this->any())->method('doSomething')->willReturn('foo');]]></literal> deve ser usado.
+      </para>
+    </note>
+
+    <para>
+      "Atrás dos bastidores" o PHPUnit automaticamente gera uma nova classe PHP que
+      implementa o comportamento desejado quando o método <literal>createMock()</literal>
+      é usado.
+    </para>
+
+    <para>
+      <xref linkend="test-doubles.stubs.examples.StubTest2.php"/> mostra um
+      exemplo de como usar a interface fluente do Mock Builder para configurar a
+      criação do dublê de teste. A configuração desse dublê de teste usa
+      os mesmos padrões de boas práticas usados por <literal>createMock()</literal>.
+    </para>
+
+    <example id="test-doubles.stubs.examples.StubTest2.php">
+      <indexterm><primary>createMock()</primary></indexterm>
+      <indexterm><primary>method()</primary></indexterm>
+      <indexterm><primary>willReturn()</primary></indexterm>
+      <title>A API Mock Builder pode ser usada para configurar a classe de dublê de teste gerada</title>
+      <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
+
+class StubTest extends TestCase
+{
+    public function testStub()
+    {
+        // Cria um esboço para a classe SomeClass.
+        $stub = $this->getMockBuilder($originalClassName)
                      ->disableOriginalConstructor()
+                     ->disableOriginalClone()
+                     ->disableArgumentCloning()
+                     ->disallowMockingUnknownTypes()
                      ->getMock();
 
         // Configura o esboço.
         $stub->method('doSomething')
              ->willReturn('foo');
 
-        // Chamar $stub->doSomething() agora vai retornar
+        // Chamar $stub->doSomething() agora irá retornar
         // 'foo'.
         $this->assertEquals('foo', $stub->doSomething());
     }
@@ -184,49 +203,35 @@ class StubTest extends PHPUnit_Framework_TestCase
     </example>
 
     <para>
-      Aqui está uma lista de métodos fornecidos pelo Mock Builder:
-    </para>
-
-    <itemizedlist>
-      <listitem><para><literal>setMethods(array $methods)</literal> pode ser chamado no objeto Mock Builder para especificar os métodos que devem ser substituídos com um dublê de teste configurável. O comportamento dos outros métodos não muda. Se você chamar <literal>setMethods(null)</literal>, então nenhum dos métodos serão substituídos.</para></listitem>
-      <listitem><para><literal>setConstructorArgs(array $args)</literal> pode ser chamado para fornecer um vetor de parâmetros que é passado ao construtor da classe original (que por padrão não é substituído com uma implementação falsa).</para></listitem>
-      <listitem><para><literal>setMockClassName($name)</literal> pode ser usado para especificar um nome de classe para a classe de dublê de teste gerada.</para></listitem>
-      <listitem><para><literal>disableOriginalConstructor()</literal> pode ser usado para desabilitar a chamada ao construtor da classe original.</para></listitem>
-      <listitem><para><literal>disableOriginalClone()</literal> pode ser usado para desabilitar a chamada ao construtor do clone da classe original.</para></listitem>
-      <listitem><para><literal>disableAutoload()</literal> pode ser usado para desabilitar o <literal>__autoload()</literal> durante a geração da classe de dublê de teste.</para></listitem>
-    </itemizedlist>
-    
-    <para>
       Nos exemplos até agora temos retornado valores simples usando
-      <literal>willReturn($value)</literal>. Essa sintaxe curta é o mesmo que 
-      <literal>will($this->returnValue($value))</literal>. Podemos usar variações 
-      desta sintaxe longa para alcançar mais comportamento de esboço complexo.
+      <literal>willReturn($value)</literal>. Essa sintaxe curta é o mesmo que
+      <literal>will($this->returnValue($value))</literal>. Podemos usar variações
+      desta sintaxe longa para alcançar comportamento mais complexo de esboço.
     </para>
 
     <para>
-      Às vezes você quer retornar um dos argumentos de uma chamada de método 
+      Às vezes você quer retornar um dos argumentos de uma chamada de método
       (inalterada) como o resultado de uma chamada ao método esboçado.
-      <xref linkend="test-doubles.stubs.examples.StubTest3.php"/> mostra como você 
+      <xref linkend="test-doubles.stubs.examples.StubTest3.php"/> mostra como você
       pode conseguir isso usando <literal>returnArgument()</literal> em vez de
       <literal>returnValue()</literal>.
     </para>
 
     <example id="test-doubles.stubs.examples.StubTest3.php">
-      <indexterm><primary>getMock()</primary></indexterm>
+      <indexterm><primary>createMock()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
       <indexterm><primary>will()</primary></indexterm>
       <indexterm><primary>returnArgument()</primary></indexterm>
       <title>Esboçando uma chamada de método para retornar um dos argumentos</title>
       <programlisting><![CDATA[<?php
-require_once 'SomeClass.php';
+use PHPUnit\Framework\TestCase;
 
-class StubTest extends PHPUnit_Framework_TestCase
+class StubTest extends TestCase
 {
     public function testReturnArgumentStub()
     {
         // Cria um esboço para a classe SomeClass.
-        $stub = $this->getMockBuilder('SomeClass')
-                     ->getMock();
+        $stub = $this->createMock(SomeClass::class);
 
         // Configura o esboço.
         $stub->method('doSomething')
@@ -243,28 +248,27 @@ class StubTest extends PHPUnit_Framework_TestCase
     </example>
 
     <para>
-      Ao testar uma interface fluente, às vezes é útil fazer um método 
+      Ao testar uma interface fluente, às vezes é útil fazer um método
       esboçado retornar uma referência ao objeto esboçado.
-      <xref linkend="test-doubles.stubs.examples.StubTest4.php"/> mostra como você 
+      <xref linkend="test-doubles.stubs.examples.StubTest4.php"/> mostra como você
       pode usar <literal>returnSelf()</literal> para conseguir isso.
     </para>
 
     <example id="test-doubles.stubs.examples.StubTest4.php">
-      <indexterm><primary>getMock()</primary></indexterm>
+      <indexterm><primary>createMock()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
       <indexterm><primary>will()</primary></indexterm>
       <indexterm><primary>returnSelf()</primary></indexterm>
       <title>Esboçando uma chamada de método para retornar uma referência ao objeto esboçado</title>
       <programlisting><![CDATA[<?php
-require_once 'SomeClass.php';
+use PHPUnit\Framework\TestCase;
 
-class StubTest extends PHPUnit_Framework_TestCase
+class StubTest extends TestCase
 {
     public function testReturnSelf()
     {
         // Cria um esboço para a classe SomeClass.
-        $stub = $this->getMockBuilder('SomeClass')
-                     ->getMock();
+        $stub = $this->createMock(SomeClass::class);
 
         // Configura o esboço.
         $stub->method('doSomething')
@@ -278,42 +282,41 @@ class StubTest extends PHPUnit_Framework_TestCase
     </example>
 
     <para>
-      Algumas vezes um método esboçado deveria retornar valores diferentes dependendo de 
+      Algumas vezes um método esboçado deveria retornar valores diferentes dependendo de
       uma lista predefinida de argumentos. Você pode usar
-      <literal>returnValueMap()</literal> para criar um mapa que associa 
+      <literal>returnValueMap()</literal> para criar um mapa que associa
       argumentos com valores de retorno correspondentes. Veja
-      <xref linkend="test-doubles.stubs.examples.StubTest5.php"/> para 
+      <xref linkend="test-doubles.stubs.examples.StubTest5.php"/> para
       ter um exemplo.
     </para>
 
     <example id="test-doubles.stubs.examples.StubTest5.php">
-      <indexterm><primary>getMock()</primary></indexterm>
+      <indexterm><primary>createMock()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
       <indexterm><primary>will()</primary></indexterm>
       <indexterm><primary>returnValueMap()</primary></indexterm>
       <title>Esboçando uma chamada de método para retornar o valor de um mapa</title>
       <programlisting><![CDATA[<?php
-require_once 'SomeClass.php';
+use PHPUnit\Framework\TestCase;
 
-class StubTest extends PHPUnit_Framework_TestCase
+class StubTest extends TestCase
 {
     public function testReturnValueMapStub()
     {
         // Cria um esboço para a classe SomeClass.
-        $stub = $this->getMockBuilder('SomeClass')
-                     ->getMock();
+        $stub = $this->createMock(SomeClass::class);
 
         // Cria um mapa de argumentos para valores retornados.
-        $map = array(
-          array('a', 'b', 'c', 'd'),
-          array('e', 'f', 'g', 'h')
-        );
+        $map = [
+            ['a', 'b', 'c', 'd'],
+            ['e', 'f', 'g', 'h']
+        ];
 
         // Configura o esboço.
         $stub->method('doSomething')
              ->will($this->returnValueMap($map));
 
-        // $stub->doSomething() retorna diferentes valores dependendo do 
+        // $stub->doSomething() retorna diferentes valores dependendo do
         // argumento fornecido.
         $this->assertEquals('d', $stub->doSomething('a', 'b', 'c'));
         $this->assertEquals('h', $stub->doSomething('e', 'f', 'g'));
@@ -323,30 +326,29 @@ class StubTest extends PHPUnit_Framework_TestCase
     </example>
 
     <para>
-      Quando a chamada ao método esboçado deve retornar um valor calculado em vez de 
-      um fixo (veja <literal>returnValue()</literal>) ou um argumento (inalterado) 
+      Quando a chamada ao método esboçado deve retornar um valor calculado em vez de
+      um fixo (veja <literal>returnValue()</literal>) ou um argumento (inalterado)
       (veja <literal>returnArgument()</literal>), você pode usar
-      <literal>returnCallback()</literal> para que o método esboçado retorne o 
+      <literal>returnCallback()</literal> para que o método esboçado retorne o
       resultado da função ou método callback. Veja
       <xref linkend="test-doubles.stubs.examples.StubTest6.php"/> para ter um exemplo.
     </para>
 
     <example id="test-doubles.stubs.examples.StubTest6.php">
-      <indexterm><primary>getMock()</primary></indexterm>
+      <indexterm><primary>createMock()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
       <indexterm><primary>will()</primary></indexterm>
       <indexterm><primary>returnCallback()</primary></indexterm>
       <title>Esboçando uma chamada de método para retornar um valor de um callback</title>
       <programlisting><![CDATA[<?php
-require_once 'SomeClass.php';
+use PHPUnit\Framework\TestCase;
 
-class StubTest extends PHPUnit_Framework_TestCase
+class StubTest extends TestCase
 {
     public function testReturnCallbackStub()
     {
-        // Cria um esboço para a classe AlgumaClasse.
-        $stub = $this->getMockBuilder('SomeClass')
-                     ->getMock();
+        // Cria um esboço para a classe SomeClass.
+        $stub = $this->createMock(SomeClass::class);
 
         // Configura o esboço.
         $stub->method('doSomething')
@@ -360,36 +362,35 @@ class StubTest extends PHPUnit_Framework_TestCase
     </example>
 
     <para>
-      Uma alternativa mais simples para configurar um método callback pode ser 
-      especificar uma lista de valores de retorno desejados. Você pode fazer isso com 
+      Uma alternativa mais simples para configurar um método callback pode ser
+      especificar uma lista de valores de retorno desejados. Você pode fazer isso com
       o método <literal>onConsecutiveCalls()</literal>. Veja
-      <xref linkend="test-doubles.stubs.examples.StubTest7.php"/> para 
+      <xref linkend="test-doubles.stubs.examples.StubTest7.php"/> para
       ter um exemplo.
     </para>
 
     <example id="test-doubles.stubs.examples.StubTest7.php">
-      <indexterm><primary>getMock()</primary></indexterm>
+      <indexterm><primary>createMock()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
       <indexterm><primary>will()</primary></indexterm>
       <indexterm><primary>onConsecutiveCalls()</primary></indexterm>
-      <title>Esboçando uma chamada de método para retornar uma lista de valores na 
+      <title>Esboçando uma chamada de método para retornar uma lista de valores na
       ordem especificada</title>
       <programlisting><![CDATA[<?php
-require_once 'SomeClass.php';
+use PHPUnit\Framework\TestCase;
 
-class StubTest extends PHPUnit_Framework_TestCase
+class StubTest extends TestCase
 {
     public function testOnConsecutiveCallsStub()
     {
         // Cria um esboço para a classe SomeClass.
-        $stub = $this->getMockBuilder('SomeClass')
-                     ->getMock();
+        $stub = $this->createMock(SomeClass::class);
 
         // Configura o esboço.
         $stub->method('doSomething')
              ->will($this->onConsecutiveCalls(2, 3, 5, 7));
 
-        // $stub->doSomething() retorna um valor diferente em cada vez
+        // $stub->doSomething() retorna um valor diferente a cada vez
         $this->assertEquals(2, $stub->doSomething());
         $this->assertEquals(3, $stub->doSomething());
         $this->assertEquals(5, $stub->doSomething());
@@ -400,27 +401,26 @@ class StubTest extends PHPUnit_Framework_TestCase
 
 
     <para>
-      Em vez de retornar um valor, um método esboçado também pode causar uma 
+      Em vez de retornar um valor, um método esboçado também pode causar uma
       exceção. <xref linkend="test-doubles.stubs.examples.StubTest8.php"/>
       mostra como usar <literal>throwException()</literal> para fazer isso.
     </para>
 
     <example id="test-doubles.stubs.examples.StubTest8.php">
-      <indexterm><primary>getMock()</primary></indexterm>
+      <indexterm><primary>createMock()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
       <indexterm><primary>will()</primary></indexterm>
       <indexterm><primary>throwException()</primary></indexterm>
       <title>Esboçando uma chamada de método para lançar uma exceção</title>
       <programlisting><![CDATA[<?php
-require_once 'SomeClass.php';
+use PHPUnit\Framework\TestCase;
 
-class StubTest extends PHPUnit_Framework_TestCase
+class StubTest extends TestCase
 {
     public function testThrowExceptionStub()
     {
         // Cria um esboço para a classe SomeClass.
-        $stub = $this->getMockBuilder('SomeClass')
-                     ->getMock();
+        $stub = $this->createMock(SomeClass::class);
 
         // Configura o esboço.
         $stub->method('doSomething')
@@ -434,62 +434,63 @@ class StubTest extends PHPUnit_Framework_TestCase
     </example>
 
     <para>
-      Alternativamente, você mesmo pode escrever um esboço enquanto melhora 
-      o design. Recursos amplamente utilizados são acessados através de uma única fachada, 
-      então você pode substituir facilmente o recurso pelo esboço. Por exemplo, 
-      em vez de ter chamadas diretas ao banco de dados espalhadas pelo código, 
-      você tem um único objeto <literal>Database</literal> que implementa a interface 
-      <literal>IDatabase</literal>. Então, você pode criar um esboço 
-      de implementação da <literal>IDatabase</literal> e usá-la em seus 
-      testes. Você pode até criar uma opção para executar os testes com o 
-      esboço do banco de dados ou com o banco de dados real, então você pode usar seus testes tanto 
-      para testes locais durante o desenvolvimento quanto para integração dos testes com o 
+      Alternativamente, você mesmo pode escrever um esboço enquanto melhora
+      o design. Recursos amplamente utilizados são acessados através de uma única fachada,
+      então você pode substituir facilmente o recurso pelo esboço. Por exemplo,
+      em vez de ter chamadas diretas ao banco de dados espalhadas pelo código,
+      você tem um único objeto <literal>Database</literal> que implementa a interface
+      <literal>IDatabase</literal>. Então, você pode criar um esboço
+      de implementação da <literal>IDatabase</literal> e usá-la em seus
+      testes. Você pode até criar uma opção para executar os testes com o
+      esboço do banco de dados ou com o banco de dados real, então você pode usar seus testes tanto
+      para testes locais durante o desenvolvimento quanto para integração dos testes com o
       banco de dados real.
     </para>
 
     <para>
-      Funcionalidades que precisam ser esboçadas tendem a se agrupar no mesmo 
-      objeto, aumentando a coesão. Por apresentar a funcionalidade com uma 
-      interface única e coerente, você reduz o acoplamento com o resto do 
+      Funcionalidades que precisam ser esboçadas tendem a se agrupar no mesmo
+      objeto, aumentando a coesão. Por apresentar a funcionalidade com uma
+      interface única e coerente, você reduz o acoplamento com o resto do
       sistema.
     </para>
   </section>
 
   <section id="test-doubles.mock-objects">
-    <title>Objetos Falsos</title>
+    <title>Objetos Falsos (Mock Objects)</title>
 
     <para>
-      A prática de substituir um objeto por um dublê de teste que verifica 
-      expectativas, por exemplo asseverando que um método foi chamado, é 
+      A prática de substituir um objeto por um dublê de teste que verifica
+      expectativas, por exemplo asseverando que um método foi chamado, é
       conhecido como <emphasis>falsificação (mocking)</emphasis>.
     </para>
 
     <para>
       <indexterm><primary>Objeto Falso</primary></indexterm>
 
-      Você pode usar um <emphasis>objeto falso</emphasis> "como um ponto de observação 
-      que é usado para verificar as saídas indiretas do SST durante seu exercício. 
-      Tipicamente, o objeto falso também inclui a funcionalidade de um esboço de teste 
-      que deve retornar valores para o SST se ainda não tiver falhado 
-      nos testes, mas a ênfase está na verificação das saídas indiretas. 
-      Portanto, um objeto falso é muito mais que apenas um esboço de testes mais 
+      Você pode usar um <emphasis>objeto falso</emphasis> "como um ponto de observação
+      que é usado para verificar as saídas indiretas do SST durante seu exercício.
+      Tipicamente, o objeto falso também inclui a funcionalidade de um esboço de teste
+      que deve retornar valores para o SST se ainda não tiver falhado
+      nos testes, mas a ênfase está na verificação das saídas indiretas.
+      Portanto, um objeto falso é muito mais que apenas um esboço de testes mais
       asserções; é utilizado de uma forma fundamentalmente diferente".
     </para>
 
     <note>
-      <title>Limitações</title>
+      <title>Limitações: Verificação automática de expectativas</title>
 
       <para>
         Somente objetos falsos gerados no escopo de um teste irá ser verificado
-        automaticamente pelo PHPUnit. Objetos falsos gerados em provedores de dados, por 
-        exemplo, não serão verificados pelo PHPUnit.
+        automaticamente pelo PHPUnit. Objetos falsos gerados em provedores de dados, por
+        exemplo, ou injetados dentro do teste usando a anotação
+        <literal>@depends</literal> não serão verificados pelo PHPUnit.
       </para>
     </note>
-    
+
     <para>
       Aqui está um exemplo: suponha que queiramos testar se o método correto,
-      <literal>update()</literal> em nosso exemplo, é chamado em um objeto que 
-      observa outro objeto. <xref linkend="test-doubles.mock-objects.examples.SUT.php"/> 
+      <literal>update()</literal> em nosso exemplo, é chamado em um objeto que
+      observa outro objeto. <xref linkend="test-doubles.mock-objects.examples.SUT.php"/>
       mostra o código para as classes <literal>Subject</literal> e <literal>Observer</literal>
       que são parte do Sistema Sob Teste (SST).
     </para>
@@ -497,9 +498,11 @@ class StubTest extends PHPUnit_Framework_TestCase
     <example id="test-doubles.mock-objects.examples.SUT.php">
       <title>As classes Subject e Observer que são parte do Sistema Sob Teste (SST)</title>
       <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
+
 class Subject
 {
-    protected $observers = array();
+    protected $observers = [];
     protected $name;
 
     public function __construct($name)
@@ -519,8 +522,7 @@ class Subject
 
     public function doSomething()
     {
-        // Faça algo.
-
+        // Faz algo.
         // ...
 
         // Notifica aos observadores que fizemos algo.
@@ -548,12 +550,12 @@ class Observer
 {
     public function update($argument)
     {
-        // Faça algo.
+        // Faz algo.
     }
 
     public function reportError($errorCode, $errorMessage, Subject $subject)
     {
-        // Faça algo.
+        // Faz algo.
     }
 
     // Outros métodos.
@@ -565,36 +567,39 @@ class Observer
       <indexterm><primary>Objeto Falso</primary></indexterm>
 
       <xref linkend="test-doubles.mock-objects.examples.SubjectTest.php" />
-      mostra como usar um objeto falso para testar a interação entre 
+      mostra como usar um objeto falso para testar a interação entre
       os objetos <literal>Subject</literal> e <literal>Observer</literal>.
     </para>
 
     <para>
-      Primeiro usamos o método <literal>getMock()</literal> que é fornecido pela 
-      classe <literal>PHPUnit_Framework_TestCase</literal> para configurar um objeto 
-      falso para ser o <literal>Observer</literal>. Já que fornecemos um vetor como 
-      segundo parâmetro (opcional) para o método <literal>getMock()</literal>, 
-      apenas o método <literal>update()</literal> da classe 
+      Primeiro usamos o método <literal>getMockBuilder()</literal> que é fornecido pela
+      classe <literal>PHPUnit\Framework\TestCase</literal> para configurar um objeto
+      falso para ser o <literal>Observer</literal>. Já que fornecemos um vetor como
+      segundo parâmetro (opcional) para o método <literal>getMock()</literal>,
+      apenas o método <literal>update()</literal> da classe
       <literal>Observer</literal> é substituído por uma implementação falsificada.
     </para>
 
     <para>
-      Porque estamos interessados em verificar se um método foi chamado, e com quais 
+      Porque estamos interessados em verificar se um método foi chamado, e com quais
       argumentos ele foi chamado, introduzimos os métodos <literal>expects()</literal> e
-      <literal>with()</literal> para especificar como essa interação deve considerar.
+      <literal>with()</literal> para especificar como essa interação deve se parecer.
     </para>
 
     <example id="test-doubles.mock-objects.examples.SubjectTest.php">
       <title>Testando se um método é chamado uma vez e com o argumento especificado</title>
       <programlisting><![CDATA[<?php
-class SubjectTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class SubjectTest extends TestCase
 {
     public function testObserversAreUpdated()
     {
         // Cria uma falsificação para a classe Observer,
         // apenas falsificando o método update().
-        $observer = $this->getMockBuilder('Observer')
-                         ->setMethods(array('update'))
+
+        $observer = $this->getMockBuilder(Observer::class)
+                         ->setMethods(['update'])
                          ->getMock();
 
         // Configura a expectativa para o método update()
@@ -619,24 +624,26 @@ class SubjectTest extends PHPUnit_Framework_TestCase
     </example>
 
     <para>
-      O método <literal>with()</literal> pode receber qualquer número de 
-      argumentos, correspondendo ao número de argumentos 
-      sendo falsos. Você pode especificar restrições mais avançadas 
+      O método <literal>with()</literal> pode receber qualquer número de
+      argumentos, correspondendo ao número de argumentos
+      sendo falsos. Você pode especificar restrições mais avançadas
       do que uma simples igualdade no argumento do método.
     </para>
 
     <example id="test-doubles.mock-objects.examples.MultiParameterTest.php">
-      <title>Testando se um método é chamado com um número de 
+      <title>Testando se um método é chamado com um número de
       argumentos restringidos de formas diferentes</title>
       <programlisting><![CDATA[<?php
-class SubjectTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class SubjectTest extends TestCase
 {
     public function testErrorReported()
     {
-        // Create a mock for the Observer class, mocking the
-        // reportError() method
-        $observer = $this->getMockBuilder('Observer')
-                         ->setMethods(array('reportError'))
+        // Cria um mock para a classe Observer, falsificando o
+        // método reportError()
+        $observer = $this->getMockBuilder(Observer::class)
+                         ->setMethods(['reportError'])
                          ->getMock();
 
         $observer->expects($this->once())
@@ -650,37 +657,39 @@ class SubjectTest extends PHPUnit_Framework_TestCase
         $subject = new Subject('My subject');
         $subject->attach($observer);
 
-        // The doSomethingBad() method should report an error to the observer
-        // via the reportError() method
+        // O método doSomethingBad() deve reportar um erro ao observer
+        // através do método reportError()
         $subject->doSomethingBad();
     }
 }
 ?>]]></programlisting>
     </example>
-    
+
     <para>
-      O método <literal>withConsecutive()</literal> pode receber qualquer número de 
-      vetores de argumentos, dependendo das chamados que você quer testar contra.
-      Cada vetor é uma lista de restrições correspondentes para os argumentos do 
+      O método <literal>withConsecutive()</literal> pode receber qualquer número de
+      vetores de argumentos, dependendo das chamadas que você desejar testar.
+      Cada vetor é uma lista de restrições correspondentes para os argumentos do
       método falsificado, como em <literal>with()</literal>.
     </para>
 
     <example id="test-doubles.mock-objects.examples.with-consecutive.php">
       <title>Testar que um método foi chamado duas vezes com argumentos especificados</title>
       <programlisting><![CDATA[<?php
-class FooTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class FooTest extends TestCase
 {
     public function testFunctionCalledTwoTimesWithSpecificArguments()
     {
-        $mock = $this->getMockBuilder('stdClass')
-                     ->setMethods(array('set'))
+        $mock = $this->getMockBuilder(stdClass::class)
+                     ->setMethods(['set'])
                      ->getMock();
 
         $mock->expects($this->exactly(2))
              ->method('set')
              ->withConsecutive(
-                 array($this->equalTo('foo'), $this->greaterThan(0)),
-                 array($this->equalTo('bar'), $this->greaterThan(0))
+                 [$this->equalTo('foo'), $this->greaterThan(0)],
+                 [$this->equalTo('bar'), $this->greaterThan(0)]
              );
 
         $mock->set('foo', 21);
@@ -692,23 +701,25 @@ class FooTest extends PHPUnit_Framework_TestCase
 
     <para>
       A restrição <literal>callback()</literal> pode ser usada para verificação de argumento
-      mais complexa. Essa restrição recebe um callback PHP como seu único 
-      argumento. O callback PHP receberá o argumento a ser verificado como 
-      seu único argumento e deverá retornar <literal>TRUE</literal> se o 
-      argumento passou a verificação e <literal>FALSE</literal> caso contrário.
+      mais complexa. Essa restrição recebe um callback PHP como seu único
+      argumento. O callback PHP receberá o argumento a ser verificado como
+      seu único argumento e deverá retornar <literal>true</literal> se o
+      argumento passou a verificação e <literal>false</literal> caso contrário.
     </para>
 
     <example id="test-doubles.mock-objects.examples.SubjectTest3.php">
       <title>Verificação de argumento mais complexa</title>
       <programlisting><![CDATA[<?php
-class SubjectTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class SubjectTest extends TestCase
 {
     public function testErrorReported()
     {
-        // Create a mock for the Observer class, mocking the
-        // reportError() method
-        $observer = $this->getMockBuilder('Observer')
-                         ->setMethods(array('reportError'))
+        // Cria um mock para a classe Observer, falsificando o
+        // método reportError()
+        $observer = $this->getMockBuilder(Observer::class)
+                         ->setMethods(['reportError'])
                          ->getMock();
 
         $observer->expects($this->once())
@@ -716,15 +727,15 @@ class SubjectTest extends PHPUnit_Framework_TestCase
                  ->with($this->greaterThan(0),
                         $this->stringContains('Something'),
                         $this->callback(function($subject){
-                          return is_callable(array($subject, 'getName')) &&
+                          return is_callable([$subject, 'getName']) &&
                                  $subject->getName() == 'My subject';
                         }));
 
         $subject = new Subject('My subject');
         $subject->attach($observer);
 
-        // The doSomethingBad() method should report an error to the observer
-        // via the reportError() method
+        // O método doSomethingBad() deve reportar um erro ao observer
+        // através do método reportError()
         $subject->doSomethingBad();
     }
 }
@@ -732,16 +743,18 @@ class SubjectTest extends PHPUnit_Framework_TestCase
     </example>
 
     <example id="test-doubles.mock-objects.examples.clone-object-parameters-usecase.php">
-      <title>Testar se um método foi chamado uma vez e com o objeto idêntico ao que foi passado</title>
+      <title>Testando se um método foi chamado uma vez e com o objeto idêntico ao que foi passado</title>
       <programlisting><![CDATA[<?php
-class FooTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class FooTest extends TestCase
 {
     public function testIdenticalObjectPassed()
     {
         $expectedObject = new stdClass;
 
-        $mock = $this->getMockBuilder('stdClass')
-                     ->setMethods(array('foo'))
+        $mock = $this->getMockBuilder(stdClass::class)
+                     ->setMethods(['foo'])
                      ->getMock();
 
         $mock->expects($this->once())
@@ -757,18 +770,20 @@ class FooTest extends PHPUnit_Framework_TestCase
     <example id="test-doubles.mock-objects.examples.enable-clone-object-parameters.php">
       <title>Cria um objeto falsificado com clonagem de parâmetros habilitada</title>
       <programlisting><![CDATA[<?php
-class FooTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class FooTest extends TestCase
 {
     public function testIdenticalObjectPassed()
     {
         $cloneArguments = true;
 
-        $mock = $this->getMockBuilder('stdClass')
+        $mock = $this->getMockBuilder(stdClass::class)
                      ->enableArgumentCloning()
                      ->getMock();
 
-        // now your mock clones parameters so the identicalTo constraint
-        // will fail.
+        // Agora seu mock clona parâmetros tal que a restrição identicalTo
+        // irá falhar.
     }
 }
 ?>]]></programlisting>
@@ -778,7 +793,7 @@ class FooTest extends PHPUnit_Framework_TestCase
       <xref linkend="appendixes.assertions.assertThat.tables.constraints"/>
       mostra as restrições que podem ser aplicadas aos argumentos do método e
       <xref linkend="test-doubles.mock-objects.tables.matchers"/>
-      mostra os comparados que estão disponíveis para especificar o número de 
+      mostra os comparados que estão disponíveis para especificar o número de
       invocações.
     </para>
 
@@ -824,57 +839,78 @@ class FooTest extends PHPUnit_Framework_TestCase
     <note>
       <para>
         O parâmetro <literal>$index</literal> para o comparador <literal>at()</literal>
-        se refere ao índice, iniciando em zero, em <emphasis>todas invocações 
-        de métodos</emphasis> para um objeto falsificado fornecido. Tenha cuidado ao 
-        usar este comparador, pois pode levar a testes frágeis que são muito 
+        se refere ao índice, iniciando em zero, em <emphasis>todas invocações
+        de métodos</emphasis> para um dado objeto falsificado. Tenha cuidado ao
+        usar este comparador, pois pode levar a testes frágeis que são muito
         intimamente ligados a detalhes de implementação específicos.
       </para>
     </note>
+
+    <para>
+      <indexterm><primary>getMockBuilder()</primary></indexterm>
+
+      As mentioned in the beginning, when the defaults used by the
+      <literal>createMock()</literal> method to generate the test double do not
+      match your needs then you can use the <literal>getMockBuilder($type)</literal>
+      method to customize the test double generation using a fluent interface.
+      Here is a list of methods provided by the Mock Builder:
+    </para>
+
+    <itemizedlist>
+      <listitem><para><literal>setMethods(array $methods)</literal> pode ser chamado no objeto Mock Builder para especificar os métodos que devem ser substituídos com um dublê de teste configurável. O comportamento dos outros métodos não muda. Se você chamar <literal>setMethods(null)</literal>, então nenhum dos métodos serão substituídos.</para></listitem>
+      <listitem><para><literal>setConstructorArgs(array $args)</literal> pode ser chamado para fornecer um vetor de parâmetros que é passado ao construtor da classe original (que por padrão não é substituído com uma implementação falsa).</para></listitem>
+      <listitem><para><literal>setMockClassName($name)</literal> pode ser usado para especificar um nome de classe para a classe de dublê de teste gerada.</para></listitem>
+      <listitem><para><literal>disableOriginalConstructor()</literal> pode ser usado para desabilitar a chamada ao construtor da classe original.</para></listitem>
+      <listitem><para><literal>disableOriginalClone()</literal> pode ser usado para desabilitar a chamada ao construtor clone da classe original.</para></listitem>
+      <listitem><para><literal>disableAutoload()</literal> pode ser usado para desabilitar o <literal>__autoload()</literal> durante a geração da classe de dublê de teste.</para></listitem>
+    </itemizedlist>
   </section>
-  
+
   <section id="test-doubles.prophecy">
     <title>Profecia</title>
 
     <para>
       <ulink url="https://github.com/phpspec/prophecy">Prophecy</ulink> é um
-      "framework PHP de falsificação de objetos muito poderoso e flexível, porém 
-      altamente opcional. Embora inicialmente criado para atender as necessidades do phpspec2, ele é 
-      flexível o suficiente para ser usado dentro de qualquer framework de teste por aí, com 
+      "framework PHP de falsificação de objetos muito poderoso e flexível, porém
+      altamente opcional. Embora inicialmente criado para atender as necessidades do phpspec2, ele é
+      flexível o suficiente para ser usado dentro de qualquer framework de teste por aí, com
       o mínimo de esforço".
     </para>
 
     <para>
-      O PHPUnit tem suporte nativo para uso do Prophecy para criar dublês de testes
-      desde a versão 4.5. <xref linkend="test-doubles.prophecy.examples.SubjectTest.php"/>
+      O PHPUnit tem suporte nativo para uso do Prophecy para criar dublês de testes.
+      <xref linkend="test-doubles.prophecy.examples.SubjectTest.php"/>
       mostra como o mesmo teste mostrado no <xref linkend="test-doubles.mock-objects.examples.SubjectTest.php"/>
-      pode ser expressado usando a filosofia do Prophecy de profecias e 
+      pode ser expressado usando a filosofia do Prophecy de profecias e
       revelações:
     </para>
 
     <example id="test-doubles.prophecy.examples.SubjectTest.php">
-      <title>Testar que um método foi chamado uma vez e com um argumento específico</title>
+      <title>Testando que um método foi chamado uma vez e com um argumento específico</title>
       <programlisting><![CDATA[<?php
-class SubjectTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class SubjectTest extends TestCase
 {
     public function testObserversAreUpdated()
     {
         $subject = new Subject('My subject');
 
-        // Create a prophecy for the Observer class.
-        $observer = $this->prophesize('Observer');
+        // Cria uma profecia para a classe Observer.
+        $observer = $this->prophesize(Observer::class);
 
-        // Set up the expectation for the update() method
-        // to be called only once and with the string 'something'
-        // as its parameter.
+        // Configura a expectativa para o método update()
+        // para que seja chamado somente uma vez e com a string 'something'
+        // como parâmetro.
         $observer->update('something')->shouldBeCalled();
 
-        // Reveal the prophecy and attach the mock object
-        // to the Subject.
+        // Revela a profecia e anexa o objeto falsificado
+        // ao Subject.
         $subject->attach($observer->reveal());
 
-        // Call the doSomething() method on the $subject object
-        // which we expect to call the mocked Observer object's
-        // update() method with the string 'something'.
+        // Chama o método doSomething() no objeto $subject
+        // que esperamos que chame o método update() do objeto
+        // Observer falsificado com a string 'something'.
         $subject->doSomething();
     }
 }
@@ -895,13 +931,15 @@ class SubjectTest extends PHPUnit_Framework_TestCase
       <indexterm><primary>getMockForTrait()</primary></indexterm>
 
       O método <literal>getMockForTrait()</literal> retorna um objeto falsificado
-      que usa uma trait especificada. Todos métodos abstratos de uma dada trait 
+      que usa uma trait especificada. Todos métodos abstratos de uma dada trait
       são falsificados. Isto permite testar os métodos concretos de uma trait.
     </para>
 
     <example id="test-doubles.mock-objects.examples.TraitClassTest.php">
       <title>Testando os métodos concretos de uma trait</title>
       <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
+
 trait AbstractTrait
 {
     public function concreteMethod()
@@ -912,34 +950,36 @@ trait AbstractTrait
     public abstract function abstractMethod();
 }
 
-class TraitClassTest extends PHPUnit_Framework_TestCase
+class TraitClassTest extends TestCase
 {
     public function testConcreteMethod()
     {
-        $mock = $this->getMockForTrait('AbstractTrait');
+        $mock = $this->getMockForTrait(AbstractTrait::class);
 
         $mock->expects($this->any())
              ->method('abstractMethod')
-             ->will($this->returnValue(TRUE));
+             ->will($this->returnValue(true));
 
         $this->assertTrue($mock->concreteMethod());
     }
 }
 ?>]]></programlisting>
     </example>
-    
+
     <para>
       <indexterm><primary>getMockForAbstractClass()</primary></indexterm>
 
-      O método <literal>getMockForAbstractClass()</literal> retorna um objeto 
-      falso para uma classe abstrata. Todos os métodos abstratos da classe abstrata fornecida 
-      são falsificados. Isto permite testar os métodos concretos de uma 
+      O método <literal>getMockForAbstractClass()</literal> retorna um objeto
+      falso para uma classe abstrata. Todos os métodos abstratos da classe abstrata fornecida
+      são falsificados. Isto permite testar os métodos concretos de uma
       classe abstrata.
     </para>
 
     <example id="test-doubles.mock-objects.examples.AbstractClassTest.php">
       <title>Testando os métodos concretos de uma classe abstrata</title>
       <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
+
 abstract class AbstractClass
 {
     public function concreteMethod()
@@ -950,15 +990,15 @@ abstract class AbstractClass
     public abstract function abstractMethod();
 }
 
-class AbstractClassTest extends PHPUnit_Framework_TestCase
+class AbstractClassTest extends TestCase
 {
     public function testConcreteMethod()
     {
-        $stub = $this->getMockForAbstractClass('AbstractClass');
+        $stub = $this->getMockForAbstractClass(AbstractClass::class);
 
         $stub->expects($this->any())
              ->method('abstractMethod')
-             ->will($this->returnValue(TRUE));
+             ->will($this->returnValue(true));
 
         $this->assertTrue($stub->concreteMethod());
     }
@@ -973,25 +1013,27 @@ class AbstractClassTest extends PHPUnit_Framework_TestCase
     <para>
       <indexterm><primary>getMockFromWsdl()</primary></indexterm>
 
-      Quando sua aplicação interage com um serviço web você quer testá-lo 
-      sem realmente interagir com o serviço web. Para tornar mais fáceis o esboço 
+      Quando sua aplicação interage com um serviço web você quer testá-lo
+      sem realmente interagir com o serviço web. Para tornar mais fácil o esboço
       e falsificação dos serviços web, o <literal>getMockFromWsdl()</literal>
-      pode ser usado da mesma forma que o <literal>getMock()</literal> (veja acima). A única 
-      diferença é que <literal>getMockFromWsdl()</literal> retorna um esboço ou 
+      pode ser usado da mesma forma que o <literal>getMock()</literal> (veja acima). A única
+      diferença é que <literal>getMockFromWsdl()</literal> retorna um esboço ou
       falsificação baseado em uma descrição de um serviço web em WSDL e <literal>getMock()</literal>
       retorna um esboço ou falsificação baseado em uma classe ou interface PHP.
     </para>
 
     <para>
       <xref linkend="test-doubles.stubbing-and-mocking-web-services.examples.GoogleTest.php"/>
-      mostra como <literal>getMockFromWsdl()</literal> pode ser usado para esboçar, por 
+      mostra como <literal>getMockFromWsdl()</literal> pode ser usado para esboçar, por
       exemplo, o serviço web descrito em <filename>GoogleSearch.wsdl</filename>.
     </para>
 
     <example id="test-doubles.stubbing-and-mocking-web-services.examples.GoogleTest.php">
       <title>Esboçando um serviço web</title>
       <programlisting><![CDATA[<?php
-class GoogleTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class GoogleTest extends TestCase
 {
     public function testSearch()
     {
@@ -1009,22 +1051,22 @@ class GoogleTest extends PHPUnit_Framework_TestCase
         $element->snippet = '...';
         $element->title = '<b>PHPUnit</b>';
         $element->cachedSize = '11k';
-        $element->relatedInformationPresent = TRUE;
+        $element->relatedInformationPresent = true;
         $element->hostName = 'phpunit.de';
         $element->directoryCategory = $directoryCategory;
         $element->directoryTitle = '';
 
         $result = new stdClass;
-        $result->documentFiltering = FALSE;
+        $result->documentFiltering = false;
         $result->searchComments = '';
         $result->estimatedTotalResultsCount = 3.9000;
-        $result->estimateIsExact = FALSE;
-        $result->resultElements = array($element);
+        $result->estimateIsExact = false;
+        $result->resultElements = [$element];
         $result->searchQuery = 'PHPUnit';
         $result->startIndex = 1;
         $result->endIndex = 1;
         $result->searchTips = '';
-        $result->directoryCategories = array();
+        $result->directoryCategories = [];
         $result->searchTime = 0.248822;
 
         $googleSearch->expects($this->any())
@@ -1032,8 +1074,8 @@ class GoogleTest extends PHPUnit_Framework_TestCase
                      ->will($this->returnValue($result));
 
         /**
-         * $googleSearch->doGoogleSearch() will now return a stubbed result and
-         * the web service's doGoogleSearch() method will not be invoked.
+         * $googleSearch->doGoogleSearch() agora irá retornar um resultado esboçado e
+         * o método doGoogleSearch() do serviço web não será invocado.
          */
         $this->assertEquals(
           $result,
@@ -1042,9 +1084,9 @@ class GoogleTest extends PHPUnit_Framework_TestCase
             'PHPUnit',
             0,
             1,
-            FALSE,
+            false,
             '',
-            FALSE,
+            false,
             '',
             '',
             ''
@@ -1063,17 +1105,17 @@ class GoogleTest extends PHPUnit_Framework_TestCase
       <ulink url="https://github.com/mikey179/vfsStream">vfsStream</ulink>
       é um <ulink url="http://www.php.net/streams">stream wrapper</ulink> para um
       <ulink url="http://en.wikipedia.org/wiki/Virtual_file_system">sistema de arquivos virtual
-      </ulink> que pode ser útil em testes unitários para falsificar um sistema 
+      </ulink> que pode ser útil em testes unitários para falsificar um sistema
       de arquivos real.
     </para>
 
     <para>
-      Simplesmente adicione a dependência <literal>mikey179/vfsStream</literal> ao seu 
+      Simplesmente adicione a dependência <literal>mikey179/vfsStream</literal> ao seu
       arquivo <literal>composer.json</literal> do projeto se você usa o
-      <ulink url="https://getcomposer.org/">Composer</ulink> para gerenciar as 
-      dependências do seu projeto. Aqui é um exemplo simplório de um arquivo 
+      <ulink url="https://getcomposer.org/">Composer</ulink> para gerenciar as
+      dependências do seu projeto. Aqui é um exemplo simplório de um arquivo
       <literal>composer.json</literal> que apenas define uma dependência em ambiente de
-      desenvolvimento para o PHPUnit 5.0 e vfsStream:
+      desenvolvimento para o PHPUnit 4.6 e vfsStream:
     </para>
 
     <programlisting><![CDATA[{
@@ -1091,6 +1133,8 @@ class GoogleTest extends PHPUnit_Framework_TestCase
     <example id="test-doubles.mocking-the-filesystem.examples.Example.php">
       <title>Uma classe que interage com um sistema de arquivos</title>
       <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
+
 class Example
 {
     protected $id;
@@ -1106,15 +1150,15 @@ class Example
         $this->directory = $directory . DIRECTORY_SEPARATOR . $this->id;
 
         if (!file_exists($this->directory)) {
-            mkdir($this->directory, 0700, TRUE);
+            mkdir($this->directory, 0700, true);
         }
     }
 }?>]]></programlisting>
     </example>
 
     <para>
-      Sem um sistema de arquivos virtual tal como o vfsStream não poderíamos testar o 
-      método <literal>setDirectory()</literal> isolado de influências 
+      Sem um sistema de arquivos virtual tal como o vfsStream não poderíamos testar o
+      método <literal>setDirectory()</literal> isolado de influências
       externas (veja <xref
       linkend="test-doubles.mocking-the-filesystem.examples.ExampleTest.php"/>).
     </para>
@@ -1122,9 +1166,9 @@ class Example
     <example id="test-doubles.mocking-the-filesystem.examples.ExampleTest.php">
       <title>Testando uma classe que interage com o sistema de arquivos</title>
       <programlisting><![CDATA[<?php
-require_once 'Example.php';
+use PHPUnit\Framework\TestCase;
 
-class ExampleTest extends PHPUnit_Framework_TestCase
+class ExampleTest extends TestCase
 {
     protected function setUp()
     {
@@ -1164,17 +1208,16 @@ class ExampleTest extends PHPUnit_Framework_TestCase
 
     <para>
       <xref linkend="test-doubles.mocking-the-filesystem.examples.ExampleTest2.php"/>
-      mostra como o vfsStream pode ser usado para falsificar o sistema de arquivos em um teste para uma 
+      mostra como o vfsStream pode ser usado para falsificar o sistema de arquivos em um teste para uma
       classe que interage com o sistema de arquivos.
     </para>
 
     <example id="test-doubles.mocking-the-filesystem.examples.ExampleTest2.php">
-      <title>Falsificando o sistema de arquivos em um teste para a classe que interage com o sistema de arquivos</title>
+      <title>Falsificando o sistema de arquivos em um teste para uma classe que interage com o sistema de arquivos</title>
       <programlisting><![CDATA[<?php
-require_once 'vfsStream/vfsStream.php';
-require_once 'Example.php';
+use PHPUnit\Framework\TestCase;
 
-class ExampleTest extends PHPUnit_Framework_TestCase
+class ExampleTest extends TestCase
 {
     public function setUp()
     {
