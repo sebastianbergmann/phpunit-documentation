@@ -4,29 +4,31 @@
   <title>Escrevendo Testes para o PHPUnit</title>
 
   <para>
-    <indexterm><primary>PHPUnit_Framework_TestCase</primary></indexterm>
+    <indexterm><primary>PHPUnit\Framework\TestCase</primary></indexterm>
 
-    <xref linkend="writing-tests-for-phpunit.examples.StackTest.php" /> mostra 
-    como podemos escrever testes usando o PHPUnit que exercita operações de vetor do PHP. 
-    O exemplo introduz as convenções básicas e passos para escrever testes 
+    <xref linkend="writing-tests-for-phpunit.examples.StackTest.php" /> mostra
+    como podemos escrever testes usando o PHPUnit que exercita operações de vetor do PHP.
+    O exemplo introduz as convenções básicas e passos para escrever testes
     com o PHPUnit:
   </para>
 
   <orderedlist>
-    <listitem><para>Os testes para uma classe <literal>Classe</literal> vão dentro de uma classe <literal>ClasseTest</literal>.</para></listitem>
-    <listitem><para><literal>ClasseTest</literal> herda (na maioria das vezes) de <literal>PHPUnit_Framework_TestCase</literal>.</para></listitem>
+    <listitem><para>Os testes para uma classe <literal>Class</literal> vão dentro de uma classe <literal>ClassTest</literal>.</para></listitem>
+    <listitem><para><literal>ClassTest</literal> herda (na maioria das vezes) de <literal>PHPUnit\Framework\TestCase</literal>.</para></listitem>
     <listitem><para>Os testes são métodos públicos que são nomeados <literal>test*</literal>.</para><para><indexterm><primary>Anotação</primary></indexterm><indexterm><primary>@test</primary></indexterm>Alternativamente, você pode usar a anotação <literal>@test</literal> em um bloco de documentação de um método para marcá-lo como um método de teste.</para></listitem>
-    <listitem><para>Dentro dos métodos de teste, métodos de confirmação como <literal>assertEquals()</literal> (veja <xref linkend="appendixes.assertions" />) são usados para confirmar que um valor real equivale a um valor esperado.</para></listitem>
+    <listitem><para>Dentro dos métodos de teste, métodos de asserção tal como <literal>assertEquals()</literal> (veja <xref linkend="appendixes.assertions" />) são usados para asseverar que um valor real equivale a um valor esperado.</para></listitem>
   </orderedlist>
 
   <example id="writing-tests-for-phpunit.examples.StackTest.php">
     <title>Testando operações de vetores com o PHPUnit</title>
     <programlisting><![CDATA[<?php
-class StackTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class StackTest extends TestCase
 {
     public function testPushAndPop()
     {
-        $stack = array();
+        $stack = [];
         $this->assertEquals(0, count($stack));
 
         array_push($stack, 'foo');
@@ -43,8 +45,8 @@ class StackTest extends PHPUnit_Framework_TestCase
   <blockquote>
     <attribution>Martin Fowler</attribution>
     <para>
-      Sempre que você estiver tentado a escrever algo em uma 
-      declaração <literal>print</literal> ou uma expressão depuradora, escreva 
+      Sempre que você estiver tentado a escrever algo em uma
+      declaração <literal>print</literal> ou uma expressão depuradora, escreva-a
       como um teste em vez disso.
     </para>
   </blockquote>
@@ -55,13 +57,13 @@ class StackTest extends PHPUnit_Framework_TestCase
     <blockquote>
       <attribution>Adrian Kuhn et. al.</attribution>
       <para>
-        Testes Unitários são primeiramente escritos como uma boa prática para ajudar desenvolvedores 
-        a identificar e corrigir defeitos, refatorar o código e servir como documentação 
-        para uma unidade de programa sob teste. Para conseguir esses benefícios, testes unitários 
-        idealmente deveriam cobrir todos os caminhos possíveis em um programa. Um teste unitário 
-        geralmente cobre um caminho específico em uma função ou método. Porém um 
-        método de teste não é necessariamente uma entidade encapsulada e independente. Às vezes 
-        existem dependências implícitas entre métodos de teste, escondidas no 
+        Testes Unitários são primeiramente escritos como uma boa prática para ajudar desenvolvedores
+        a identificar e corrigir defeitos, refatorar o código e servir como documentação
+        para uma unidade de programa sob teste. Para conseguir esses benefícios, testes unitários
+        idealmente deveriam cobrir todos os caminhos possíveis em um programa. Um teste unitário
+        geralmente cobre um caminho específico em uma função ou método. Porém um
+        método de teste não é necessariamente uma entidade encapsulada e independente. Frequentemente
+        existem dependências implícitas entre métodos de teste, escondidas no
         cenário de implementação de um teste.
       </para>
     </blockquote>
@@ -69,9 +71,9 @@ class StackTest extends PHPUnit_Framework_TestCase
     <para>
       <indexterm><primary>Dependências de Testes</primary></indexterm>
 
-      O PHPUnit suporta a declaração explícita de dependências entre métodos de teste. 
-      Tais dependências não definem a ordem em que os métodos de teste 
-      devem ser executados, mas permitem o retorno de uma instância do 
+      O PHPUnit suporta a declaração de dependências explícitas entre métodos de
+      teste. Tais dependências não definem a ordem em que os métodos de teste
+      devem ser executados, mas permitem o retorno de uma instância do
       ambiente do teste por um produtor e a passagem dele para os consumidores dependentes.
     </para>
 
@@ -84,19 +86,21 @@ class StackTest extends PHPUnit_Framework_TestCase
       <indexterm><primary>Anotação</primary></indexterm>
       <indexterm><primary>@depends</primary></indexterm>
 
-      <xref linkend="writing-tests-for-phpunit.examples.StackTest2.php" /> mostra 
-      como usar a anotação <literal>@depends</literal> para expressar 
+      <xref linkend="writing-tests-for-phpunit.examples.StackTest2.php" /> mostra
+      como usar a anotação <literal>@depends</literal> para expressar
       dependências entre métodos de teste.
     </para>
 
     <example id="writing-tests-for-phpunit.examples.StackTest2.php">
       <title>Usando a anotação <literal>@depends</literal> para expressar dependências</title>
       <programlisting><![CDATA[<?php
-class StackTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class StackTest extends TestCase
 {
     public function testEmpty()
     {
-        $stack = array();
+        $stack = [];
         $this->assertEmpty($stack);
 
         return $stack;
@@ -127,20 +131,33 @@ class StackTest extends PHPUnit_Framework_TestCase
     </example>
 
     <para>
-      No exemplo acima, o primeiro teste, <literal>testEmpty()</literal>, 
-      cria um novo vetor e assegura que o mesmo é vazio. O teste então retorna 
+      No exemplo acima, o primeiro teste, <literal>testEmpty()</literal>,
+      cria um novo vetor e assegura que o mesmo é vazio. O teste então retorna
       o ambiente como resultado. O segundo teste, <literal>testPush()</literal>,
       depende de <literal>testEmpty()</literal> e lhe é passado o resultado do qual
       ele depende como um argumento. Finalmente, <literal>testPop()</literal>
       depende de <literal>testPush()</literal>.
     </para>
 
+    <note>
+      <para>
+        <indexterm><primary>Anotação</primary></indexterm>
+        <indexterm><primary>@depends</primary></indexterm>
+
+        O valor de retorno produzido por um produtor é passado "como está" para seus
+        consumidores por padrão. Isso significa que quando um produtor retorna um objeto,
+        uma referência para esse objeto é passada para os consumidores. Quando uma cópia
+        deve ser usada ao invés de uma referência, então <code>@depends clone</code>
+        deve ser usado ao invés de <code>@depends</code>.
+      </para>
+    </note>
+
     <para>
       <indexterm><primary>Localização de Defeitos</primary></indexterm>
 
-      Para localizar defeitos rapidamente, queremos nossa atenção focada nas 
-      falhas relevantes dos testes. É por isso que o PHPUnit pula a execução de um teste 
-      quando um teste do qual ele depende falha. Isso melhora a localização de defeitos por 
+      Para localizar defeitos rapidamente, queremos nossa atenção focada nas
+      falhas relevantes dos testes. É por isso que o PHPUnit pula a execução de um teste
+      quando um teste do qual ele depende falha. Isso melhora a localização de defeitos por
       explorar as dependências entre os testes como mostrado em
       <xref linkend="writing-tests-for-phpunit.examples.DependencyFailureTest.php" />.
     </para>
@@ -148,11 +165,13 @@ class StackTest extends PHPUnit_Framework_TestCase
     <example id="writing-tests-for-phpunit.examples.DependencyFailureTest.php">
       <title>Explorando as dependências entre os testes</title>
       <programlisting><![CDATA[<?php
-class DependencyFailureTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class DependencyFailureTest extends TestCase
 {
     public function testOne()
     {
-        $this->assertTrue(FALSE);
+        $this->assertTrue(false);
     }
 
     /**
@@ -163,7 +182,7 @@ class DependencyFailureTest extends PHPUnit_Framework_TestCase
     }
 }
 ?>]]></programlisting>
-    
+
       <screen><userinput>phpunit --verbose DependencyFailureTest</userinput><![CDATA[
 PHPUnit 6.5.0 by Sebastian Bergmann and contributors.
 
@@ -189,23 +208,25 @@ Tests: 1, Assertions: 1, Failures: 1, Skipped: 1.]]></screen>
     </example>
 
     <para>
-      Um teste pode ter mais de uma anotação <literal>@depends</literal>. 
-      O PHPUnit não muda a ordem em que os testes são executados, portanto você deve 
-      se certificar de que as dependências de um teste podem realmente ser encontradas antes de 
+      Um teste pode ter mais de uma anotação <literal>@depends</literal>.
+      O PHPUnit não muda a ordem em que os testes são executados, portanto você deve
+      se certificar de que as dependências de um teste podem realmente ser encontradas antes de
       executar o teste.
     </para>
-    
+
     <para>
       Um teste que tem mais de uma anotação <literal>@depends</literal>
-      vai obter um ambiente a partir do primeiro produtor como o primeiro argumento, um ambiente 
+      vai obter um ambiente a partir do primeiro produtor como o primeiro argumento, um ambiente
       a partir do segundo produtor como o segundo argumento, e assim por diante.
       Veja <xref linkend="writing-tests-for-phpunit.examples.MultipleDependencies.php" />
     </para>
-    
+
     <example id="writing-tests-for-phpunit.examples.MultipleDependencies.php">
       <title>Teste com múltiplas dependências</title>
       <programlisting><![CDATA[<?php
-class MultipleDependenciesTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class MultipleDependenciesTest extends TestCase
 {
     public function testProducerFirst()
     {
@@ -226,7 +247,7 @@ class MultipleDependenciesTest extends PHPUnit_Framework_TestCase
     public function testConsumer()
     {
         $this->assertEquals(
-            array('first', 'second'),
+            ['first', 'second'],
             func_get_args()
         );
     }
@@ -250,25 +271,27 @@ OK (3 tests, 3 assertions)]]></screen>
     <para>
       <indexterm><primary>Anotação</primary></indexterm>
       <indexterm><primary>@dataProvider</primary></indexterm>
-      Um método de teste pode aceitar argumentos arbitrários. Esses argumentos devem ser 
+      Um método de teste pode aceitar argumentos arbitrários. Esses argumentos devem ser
       fornecidos por um método provedor de dados (<literal>additionProvider()</literal> em
       <xref linkend="writing-tests-for-phpunit.data-providers.examples.DataTest.php" />).
-      O método provedor de dados a ser usado é especificado usando a 
+      O método provedor de dados a ser usado é especificado usando a
       anotação <literal>@dataProvider</literal>.
     </para>
 
     <para>
-      Um método provedor de dados deve ser <literal>public</literal> e ou retornar 
-      um vetor de vetores ou um objeto que implementa a interface <literal>Iterator</literal> 
-      e produz um vetor para cada passo da iteração. Para cada vetor que 
-      é parte da coleção o método de teste será chamado com os conteúdos 
+      Um método provedor de dados deve ser <literal>public</literal> e retornar
+      um vetor de vetores ou um objeto que implemente a interface <literal>Iterator</literal>
+      e produza um vetor para cada passo da iteração. Para cada vetor que
+      é parte da coleção o método de teste será chamado com os conteúdos
       do vetor como seus argumentos.
     </para>
 
     <example id="writing-tests-for-phpunit.data-providers.examples.DataTest.php">
       <title>Usando um provedor de dados que retorna um vetor de vetores</title>
       <programlisting><![CDATA[<?php
-class DataTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class DataTest extends TestCase
 {
     /**
      * @dataProvider additionProvider
@@ -280,12 +303,12 @@ class DataTest extends PHPUnit_Framework_TestCase
 
     public function additionProvider()
     {
-        return array(
-          array(0, 0, 0),
-          array(0, 1, 1),
-          array(1, 0, 1),
-          array(1, 1, 3)
-        );
+        return [
+            [0, 0, 0],
+            [0, 1, 1],
+            [1, 0, 1],
+            [1, 1, 3]
+        ];
     }
 }
 ?>]]></programlisting>
@@ -308,12 +331,64 @@ FAILURES!
 Tests: 4, Assertions: 4, Failures: 1.]]></screen>
     </example>
 
+    <para>
+      Quando usar um número grande de conjuntos de dados é útil nomear cada um com uma chave string ao invés do padrão numérico.
+      Output will be more verbose as it'll contain that name of a dataset that breaks a test.
+    </para>
+
+    <example id="writing-tests-for-phpunit.data-providers.examples.DataTest1.php">
+      <title>Usando um provedor de dados com conjuntos de dados nomeados</title>
+      <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
+
+class DataTest extends TestCase
+{
+    /**
+     * @dataProvider additionProvider
+     */
+    public function testAdd($a, $b, $expected)
+    {
+        $this->assertEquals($expected, $a + $b);
+    }
+
+    public function additionProvider()
+    {
+        return [
+            'adding zeros'  => [0, 0, 0],
+            'zero plus one' => [0, 1, 1],
+            'one plus zero' => [1, 0, 1],
+            'one plus one'  => [1, 1, 3]
+        ];
+    }
+}
+?>]]></programlisting>
+
+    <screen><userinput>phpunit DataTest</userinput><![CDATA[
+PHPUnit 6.5.0 by Sebastian Bergmann and contributors.
+
+...F
+
+Time: 0 seconds, Memory: 5.75Mb
+
+There was 1 failure:
+
+1) DataTest::testAdd with data set "one plus one" (1, 1, 3)
+Failed asserting that 2 matches expected 3.
+
+/home/sb/DataTest.php:9
+
+FAILURES!
+Tests: 4, Assertions: 4, Failures: 1.]]></screen>
+    </example>
+
     <example id="writing-tests-for-phpunit.data-providers.examples.DataTest2.php">
       <title>Usando um provedor de dados que retorna um objeto Iterador</title>
       <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
+
 require 'CsvFileIterator.php';
 
-class DataTest extends PHPUnit_Framework_TestCase
+class DataTest extends TestCase
 {
     /**
      * @dataProvider additionProvider
@@ -351,6 +426,8 @@ Tests: 4, Assertions: 4, Failures: 1.]]></screen>
     <example id="writing-tests-for-phpunit.data-providers.examples.CsvFileIterator.php">
       <title>A classe CsvFileIterator</title>
       <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
+
 class CsvFileIterator implements Iterator {
     protected $file;
     protected $key = 0;
@@ -396,21 +473,23 @@ class CsvFileIterator implements Iterator {
       <indexterm><primary>@depends</primary></indexterm>
 
       Quando um teste recebe uma entrada tanto de um método <literal>@dataProvider</literal>
-      quanto de um ou mais testes dos quais ele <literal>@depends</literal>, os 
-      argumentos do provedor de dados virão antes daqueles dos quais ele 
-      é dependente. Os argumentos dos quais o teste depende serão os 
+      quanto de um ou mais testes dos quais ele <literal>@depends</literal>, os
+      argumentos do provedor de dados virão antes daqueles dos quais ele
+      é dependente. Os argumentos dos quais o teste depende serão os
       mesmos para cada conjunto de dados.
       Veja <xref linkend="writing-tests-for-phpunit.data-providers.examples.DependencyAndDataProviderCombo.php"/>
     </para>
-    
+
     <example id="writing-tests-for-phpunit.data-providers.examples.DependencyAndDataProviderCombo.php">
       <title>Combinação de @depends e @dataProvider no mesmo teste</title>
       <programlisting><![CDATA[<?php
-class DependencyAndDataProviderComboTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class DependencyAndDataProviderComboTest extends TestCase
 {
     public function provider()
     {
-        return array(array('provider1'), array('provider2'));
+        return [['provider1'], ['provider2']];
     }
 
     public function testProducerFirst()
@@ -433,7 +512,7 @@ class DependencyAndDataProviderComboTest extends PHPUnit_Framework_TestCase
     public function testConsumer()
     {
         $this->assertEquals(
-            array('provider1', 'first', 'second'),
+            ['provider1', 'first', 'second'],
             func_get_args()
         );
     }
@@ -473,9 +552,9 @@ Tests: 4, Assertions: 4, Failures: 1.
         <indexterm><primary>@dataProvider</primary></indexterm>
         <indexterm><primary>@depends</primary></indexterm>
 
-        Quando um teste depende de um teste que usa provedores de dados, o teste dependente 
-        será executado quando o teste do qual ele depende for bem sucedido em pelo 
-        menos um conjunto de dados. O resultado de um teste que usa provedores de dados não pode 
+        Quando um teste depende de um teste que usa provedores de dados, o teste dependente
+        será executado quando o teste do qual ele depende for bem sucedido em pelo
+        menos um conjunto de dados. O resultado de um teste que usa provedores de dados não pode
         ser injetado dentro de um teste dependente.
       </para>
     </note>
@@ -488,8 +567,8 @@ Tests: 4, Assertions: 4, Failures: 1.
 
         Todos provedores de dados são executados antes da chamada ao método estático <literal>setUpBeforeClass</literal>
         e a primeira chamada ao método <literal>setUp</literal>.
-        Por isso você não pode acessar quaisquer variáveis que criar 
-        ali de dentro de um provedor de dados. Isto é necessário para que o PHPUnit seja capaz 
+        Por isso você não pode acessar quaisquer variáveis que criar
+        ali de dentro de um provedor de dados. Isto é necessário para que o PHPUnit seja capaz
         de calcular o número total de testes.
       </para>
     </note>
@@ -499,18 +578,74 @@ Tests: 4, Assertions: 4, Failures: 1.
     <title>Testando Exceções</title>
 
     <para>
-      <indexterm><primary>Anotação</primary></indexterm>
-      <indexterm><primary>@expectedException</primary></indexterm>
+      <indexterm><primary>expectException()</primary></indexterm>
+      <indexterm><primary>Exceção</primary></indexterm>
 
       <xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest.php" />
-      mostra como usar a anotação <literal>@expectedException</literal> para 
+      mostra como usar a anotação <literal>expectException()</literal> para
       testar se uma exceção é lançada dentro do código de teste.
     </para>
 
     <example id="writing-tests-for-phpunit.exceptions.examples.ExceptionTest.php">
+      <title>Usando o método expectException()</title>
+      <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
+
+class ExceptionTest extends TestCase
+{
+    public function testException()
+    {
+        $this->expectException(InvalidArgumentException::class);
+    }
+}
+?>]]></programlisting>
+      <screen><userinput>phpunit ExceptionTest</userinput>
+PHPUnit 6.5.0 by Sebastian Bergmann and contributors.
+
+F
+
+Time: 0 seconds, Memory: 4.75Mb
+
+There was 1 failure:
+
+1) ExceptionTest::testException
+Expected exception InvalidArgumentException
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.</screen>
+    </example>
+
+    <para>
+      <indexterm><primary>expectExceptionCode()</primary></indexterm>
+      <indexterm><primary>expectExceptionMessage()</primary></indexterm>
+      <indexterm><primary>expectExceptionMessageRegExp()</primary></indexterm>
+
+      Além do método <literal>expectException()</literal> os métodos
+      <literal>expectExceptionCode()</literal>,
+      <literal>expectExceptionMessage()</literal>, e
+      <literal>expectExceptionMessageRegExp()</literal> existem para configurar
+      expectativas de exceções lançadas pelo código sob teste.
+    </para>
+
+    <para>
+      <indexterm><primary>Annotation</primary></indexterm>
+      <indexterm><primary>@expectedException</primary></indexterm>
+
+      Alternativamente, você pode usar as anotações <literal>@expectedException</literal>,
+      <literal>@expectedExceptionCode</literal>,
+      <literal>@expectedExceptionMessage</literal>, e
+      <literal>@expectedExceptionMessageRegExp</literal> para configurar
+      expectativas de exceções lançadas pelo código sob teste.
+      <xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest2.php" />
+      mostra um exemplo.
+    </para>
+
+    <example id="writing-tests-for-phpunit.exceptions.examples.ExceptionTest2.php">
       <title>Usando a anotação @expectedException</title>
       <programlisting><![CDATA[<?php
-class ExceptionTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class ExceptionTest extends TestCase
 {
     /**
      * @expectedException InvalidArgumentException
@@ -532,228 +667,9 @@ There was 1 failure:
 1) ExceptionTest::testException
 Expected exception InvalidArgumentException
 
-
 FAILURES!
 Tests: 1, Assertions: 1, Failures: 1.</screen>
     </example>
-
-    <para>
-      <indexterm><primary>Anotação</primary></indexterm>
-      <indexterm><primary>@expectedException</primary></indexterm>
-      <indexterm><primary>@expectedExceptionMessage</primary></indexterm>
-      <indexterm><primary>@expectedExceptionMessageRegExp</primary></indexterm>
-      <indexterm><primary>@expectedExceptionCode</primary></indexterm>
-
-      Adicionalmente, você pode usar <literal>@expectedExceptionMessage</literal>,
-      <literal>@expectedExceptionMessageRegExp</literal> e
-      <literal>@expectedExceptionCode</literal> em combinação com
-      <literal>@expectedException</literal> para testar a mensagem de exceção e 
-      o código de exceção como mostrado em
-      <xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest2.php" />.
-    </para>
-
-    <example id="writing-tests-for-phpunit.exceptions.examples.ExceptionTest2.php">
-      <title>
-        Usando as anotações <literal>@expectedExceptionMessage</literal>,
-        <literal>@expectedExceptionMessageRegExp</literal> e
-        <literal>@expectedExceptionCode</literal>
-      </title>
-      <programlisting><![CDATA[<?php
-class ExceptionTest extends PHPUnit_Framework_TestCase
-{
-    /**
-     * @expectedException        InvalidArgumentException
-     * @expectedExceptionMessage Right Message
-     */
-    public function testExceptionHasRightMessage()
-    {
-        throw new InvalidArgumentException('Some Message', 10);
-    }
-
-    /**
-     * @expectedException              InvalidArgumentException
-     * @expectedExceptionMessageRegExp #Right.*#
-     */
-    public function testExceptionMessageMatchesRegExp()
-    {
-        throw new InvalidArgumentException('Some Message', 10);
-    }
-
-    /**
-     * @expectedException     InvalidArgumentException
-     * @expectedExceptionCode 20
-     */
-    public function testExceptionHasRightCode()
-    {
-        throw new InvalidArgumentException('Some Message', 10);
-    }
-}
-?>]]></programlisting>
-      <screen><userinput>phpunit ExceptionTest</userinput><![CDATA[
-PHPUnit 6.5.0 by Sebastian Bergmann and contributors.
-
-FFF
-
-Time: 0 seconds, Memory: 3.00Mb
-
-There were 3 failures:
-
-1) ExceptionTest::testExceptionHasRightMessage
-Failed asserting that exception message 'Some Message' contains 'Right Message'.
-
-2) ExceptionTest::testExceptionMessageMatchesRegExp
-Failed asserting that exception message 'Some Message' matches '#Right.*#'.
-
-3) ExceptionTest::testExceptionHasRightCode
-Failed asserting that expected exception code 20 is equal to 10.
-
-
-FAILURES!
-Tests: 3, Assertions: 6, Failures: 3.]]></screen>
-    </example>
-
-    <para>
-      Mais exemplos de <literal>@expectedExceptionMessage</literal>,
-      <literal>@expectedExceptionMessageRegExp</literal> e
-      <literal>@expectedExceptionCode</literal> são mostrados em 
-      <xref linkend="appendixes.annotations.expectedExceptionMessage"/>,
-      <xref linkend="appendixes.annotations.expectedExceptionMessageRegExp"/> e
-      <xref linkend="appendixes.annotations.expectedExceptionCode"/> respectivamente.
-    </para>
-    
-
-    <para>
-      Alternativamente, você pode usar o método <literal>setExpectedException()</literal> ou
-      <literal>setExpectedExceptionRegExp()</literal> para definir a exceção esperada 
-      como mostrado em <xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest3.php" />.
-    </para>
-
-    <example id="writing-tests-for-phpunit.exceptions.examples.ExceptionTest3.php">
-      <title>Esperando uma exceção surgir do código de teste</title>
-      <programlisting><![CDATA[<?php
-class ExceptionTest extends PHPUnit_Framework_TestCase
-{
-    public function testException()
-    {
-        $this->setExpectedException('InvalidArgumentException');
-    }
-
-    public function testExceptionHasRightMessage()
-    {
-        $this->setExpectedException(
-          'InvalidArgumentException', 'Right Message'
-        );
-        throw new InvalidArgumentException('Some Message', 10);
-    }
-
-    public function testExceptionMessageMatchesRegExp()
-    {
-        $this->setExpectedExceptionRegExp(
-          'InvalidArgumentException', '/Right.*/', 10
-        );
-        throw new InvalidArgumentException('The Wrong Message', 10);
-    }
-
-    public function testExceptionHasRightCode()
-    {
-        $this->setExpectedException(
-          'InvalidArgumentException', 'Right Message', 20
-        );
-        throw new InvalidArgumentException('The Right Message', 10);
-    }
-}
-?>]]></programlisting>
-      <screen><userinput>phpunit ExceptionTest</userinput><![CDATA[
-PHPUnit 6.5.0 by Sebastian Bergmann and contributors.
-
-FFFF
-
-Time: 0 seconds, Memory: 3.00Mb
-
-There were 4 failures:
-
-1) ExceptionTest::testException
-Expected exception InvalidArgumentException
-
-2) ExceptionTest::testExceptionHasRightMessage
-Failed asserting that exception message 'Some Message' contains 'Right Message'.
-
-3) ExceptionTest::testExceptionMessageMatchesRegExp
-Failed asserting that exception message 'The Wrong Message' contains '/Right.*/'.
-
-4) ExceptionTest::testExceptionHasRightCode
-Failed asserting that expected exception code 20 is equal to 10.
-
-
-FAILURES!
-Tests: 4, Assertions: 8, Failures: 4.]]></screen>
-    </example>
-
-    <para>
-      <xref linkend="writing-tests-for-phpunit.exceptions.tables.api" />
-      mostra os métodos fornecidos para testar exceções.
-    </para>
-
-    <table id="writing-tests-for-phpunit.exceptions.tables.api">
-      <title>Métodos para testar exceções</title>
-
-      <tgroup cols="2" align="left" colsep="1" rowsep="1">
-        <thead>
-          <row>
-            <entry>Método</entry>
-            <entry>Significado</entry>
-          </row>
-        </thead>
-        <tbody>
-          <row>
-            <entry><literal>void setExpectedException(string $nomeExcecao[, string $mensagemExcecao = '', inteiro $codigoExcecao = NULL])</literal></entry>
-            <entry>Define o <literal>$exceptionName</literal>, <literal>$exceptionMessage</literal> e <literal>$exceptionCode</literal> esperados.</entry>
-          </row>
-          <row>
-            <entry><literal>void setExpectedExceptionRegExp(string $exceptionName[, string $exceptionMessageRegExp = '', integer $exceptionCode = NULL])</literal></entry>
-            <entry>Define o <literal>$exceptionName</literal>, <literal>$exceptionMessageRegExp</literal> e <literal>$exceptionCode</literal> esperados.</entry>
-          </row>
-          <row>
-            <entry><literal>String getExpectedException()</literal></entry>
-            <entry>Retorna o nome da exceção esperada.</entry>
-          </row>
-        </tbody>
-      </tgroup>
-    </table>
-
-    <para>
-      Você também pode usar a abordagem mostrada em
-      <xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest4.php" />
-      para testar exceções
-    </para>
-
-    <example id="writing-tests-for-phpunit.exceptions.examples.ExceptionTest4.php">
-      <title>Abordagem alternativa para testar exceções</title>
-      <programlisting><![CDATA[<?php
-class ExceptionTest extends PHPUnit_Framework_TestCase {
-    public function testException() {
-        try {
-            // ... Código que se espera que lance uma exceção ...
-        }
-
-        catch (InvalidArgumentException $expected) {
-            return;
-        }
-
-        $this->fail('Uma exceção esperada não foi criada.');
-    }
-}
-?>]]></programlisting>
-    </example>
-
-    <para>
-      Se o código que deve lançar uma exceção no <xref
-      linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest4.php" />
-      não lançá-la, a chamada subsequente ao
-      <literal>fail()</literal> vai parar o teste e sinalizar um problema com o 
-      teste. Se a exceção esperada é lançada, o bloco <literal>catch</literal> 
-      será executado, e o teste terminará com sucesso.
-    </para>
   </section>
 
   <section id="writing-tests-for-phpunit.errors">
@@ -765,25 +681,27 @@ class ExceptionTest extends PHPUnit_Framework_TestCase {
       <indexterm><primary>PHP Warning</primary></indexterm>
       <indexterm><primary>PHPUnit\Framework\Error</primary></indexterm>
 
-      Por padrão, o PHPUnit converte os erros, avisos e notificações do PHP que são 
-      disparados durante a execução de um teste para uma exceção. Usando essas 
-      exceções, você pode, por exemplo, esperar que um teste dispare um erro PHP como 
+      Por padrão, o PHPUnit converte os erros, avisos e notificações do PHP que são
+      disparados durante a execução de um teste para uma exceção. Usando essas
+      exceções, você pode, por exemplo, esperar que um teste dispare um erro PHP como
       mostrado no <xref linkend="writing-tests-for-phpunit.exceptions.examples.ErrorTest.php" />.
     </para>
 
     <note>
       <para>
         A configuração em tempo de execução <literal>error_reporting</literal> do PHP pode
-        limitar quais erros o PHPUnit irá converter para exceções. Se você 
+        limitar quais erros o PHPUnit irá converter para exceções. Se você
         está tendo problemas com essa funcionalidade, certifique-se que o PHP não está configurado para
         suprimir os tipos de erros que você esta testando.
       </para>
     </note>
-    
+
     <example id="writing-tests-for-phpunit.exceptions.examples.ErrorTest.php">
       <title>Esperando um erro PHP usando @expectedException</title>
       <programlisting><![CDATA[<?php
-class ExpectedErrorTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class ExpectedErrorTest extends TestCase
 {
     /**
      * @expectedException PHPUnit\Framework\Error
@@ -809,14 +727,14 @@ OK (1 test, 1 assertion)</screen>
       <indexterm><primary>PHPUnit\Framework\Error\Warning</primary></indexterm>
 
       <literal>PHPUnit\Framework\Error\Notice</literal> e
-      <literal>PHPUnit\Framework\Error\Warning</literal> representam notificações 
+      <literal>PHPUnit\Framework\Error\Warning</literal> representam notificações
       e avisos do PHP, respectivamente.
     </para>
 
     <note>
       <para>
-        Você deve ser o mais específico possível quando testar exceções. Testar 
-        por classes que são muito genéricas pode causar efeitos colaterais 
+        Você deve ser o mais específico possível quando testar exceções. Testar
+        por classes que são muito genéricas pode causar efeitos colaterais
         indesejáveis. Da mesma forma, testar para a classe <literal>Exception</literal>
         com <literal>@expectedException</literal> ou
         <literal>setExpectedException()</literal> não é mais permitido.
@@ -824,16 +742,18 @@ OK (1 test, 1 assertion)</screen>
     </note>
 
     <para>
-        Ao testar com funções que dependem de funções php que disparam erros como
-        <literal>fopen</literal> pode ser útil algumas vezes usar a supressão de 
-        erros enquanto testa. Isso permite a você verificar os valores retornados por 
+        Ao testar algo que dependa de funções php que disparam erros como
+        <literal>fopen</literal> pode ser útil algumas vezes usar a supressão de
+        erros enquanto testa. Isso permite a você verificar os valores retornados por
         suprimir notificações que levariam a uma
         <literal>PHPUnit\Framework\Error\Notice</literal> phpunit.
         <example id="writing-tests-for-phpunit.exceptions.examples.TriggerErrorReturnValue.php">
 
             <title>Testando valores de retorno de código que utiliza PHP Errors</title>
             <programlisting><![CDATA[<?php
-class ErrorSuppressionTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class ErrorSuppressionTest extends TestCase
 {
     public function testFileWriting() {
         $writer = new FileWriter;
@@ -872,26 +792,28 @@ OK (1 test, 1 assertion)</screen>
     <title>Testando Saídas</title>
 
     <para>
-      Às vezes você quer assegurar que a execução de um método, por 
-      exemplo, gere uma saída esperada (via <literal>echo</literal> ou 
-      <literal>print</literal>, por exemplo). A 
-      classe <literal>PHPUnit_Framework_TestCase</literal> usa a funcionalidade
+      Às vezes você quer assegurar que a execução de um método, por
+      exemplo, gere uma saída esperada (via <literal>echo</literal> ou
+      <literal>print</literal>, por exemplo). A
+      classe <literal>PHPUnit\Framework\TestCase</literal> usa a funcionalidade
       <ulink url="http://www.php.net/manual/en/ref.outcontrol.php">Output
-      Buffering</ulink> do PHP para fornecer a funcionalidade que é 
+      Buffering</ulink> do PHP para fornecer a funcionalidade que é
       necessária para isso.
     </para>
 
     <para>
       <xref linkend="writing-tests-for-phpunit.output.examples.OutputTest.php" />
-      mostra como usar o método <literal>expectOutputString()</literal> para 
-      definir a saída esperada. Se essa saída esperada não for gerada, o 
+      mostra como usar o método <literal>expectOutputString()</literal> para
+      definir a saída esperada. Se essa saída esperada não for gerada, o
       teste será contado como uma falha.
     </para>
 
     <example id="writing-tests-for-phpunit.output.examples.OutputTest.php">
       <title>Testando a saída de uma função ou método</title>
       <programlisting><![CDATA[<?php
-class OutputTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class OutputTest extends TestCase
 {
     public function testExpectFooActualFoo()
     {
@@ -946,15 +868,19 @@ Tests: 2, Assertions: 2, Failures: 1.</screen>
         <tbody>
           <row>
             <entry><literal>void expectOutputRegex(string $regularExpression)</literal></entry>
-            <entry>Define a saída que se espera combinar com a <literal>$regularExpression</literal>.</entry>
+            <entry>Configura a expectativa de que a saída combine com uma <literal>$regularExpression</literal>.</entry>
           </row>
           <row>
             <entry><literal>void expectOutputString(string $expectedString)</literal></entry>
-            <entry>Define a saída que se espera ser igual a uma <literal>$expectedString</literal>.</entry>
+            <entry>Configura a expectativa de que a saída é igual a uma <literal>$expectedString</literal>.</entry>
           </row>
           <row>
-            <entry><literal>booleano setOutputCallback(callable $callback)</literal></entry>
+            <entry><literal>bool setOutputCallback(callable $callback)</literal></entry>
             <entry>Define um callback que é usado, por exemplo, para normalizar a saída real.</entry>
+          </row>
+          <row>
+            <entry><literal>string getActualOutput()</literal></entry>
+            <entry>Recupera a saída real.</entry>
           </row>
         </tbody>
       </tgroup>
@@ -971,19 +897,21 @@ Tests: 2, Assertions: 2, Failures: 1.</screen>
     <title>Saída de Erro</title>
 
     <para>
-      Sempre que um teste falha o PHPUnit faz o melhor para fornecer a você o 
+      Sempre que um teste falha o PHPUnit faz o melhor para fornecer a você o
       máximo possível de conteúdo que possa ajudar a identificar o problema.
     </para>
 
     <example id="writing-tests-for-phpunit.error-output.examples.ArrayDiffTest.php">
       <title>Saída de erro gerada quando uma comparação de vetores falha</title>
       <programlisting><![CDATA[<?php
-class ArrayDiffTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class ArrayDiffTest extends TestCase
 {
     public function testEquality() {
         $this->assertEquals(
-            array(1,2,3 ,4,5,6),
-            array(1,2,33,4,5,6)
+            [1, 2,  3, 4, 5, 6],
+            [1, 2, 33, 4, 5, 6]
         );
     }
 }
@@ -1018,23 +946,25 @@ FAILURES!
 Tests: 1, Assertions: 1, Failures: 1.]]></screen>
     </example>
     <para>
-      Neste exemplo apenas um dos valores dos vetores diferem e os outros valores 
+      Neste exemplo apenas um dos valores dos vetores diferem e os outros valores
       são exibidos para fornecer o contexto onde o erro ocorreu.
     </para>
 
     <para>
-      Quando a saída gerada for longa demais para ler o PHPUnit vai quebrá-la 
+      Quando a saída gerada for longa demais para ler o PHPUnit vai quebrá-la
       e fornecer algumas linhas de contexto ao redor de cada diferença.
     </para>
     <example id="writing-tests-for-phpunit.error-output.examples.LongArrayDiffTest.php">
       <title>Saída de erro quando uma comparação de um vetor longo falha</title>
       <programlisting><![CDATA[<?php
-class LongArrayDiffTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class LongArrayDiffTest extends TestCase
 {
     public function testEquality() {
         $this->assertEquals(
-            array(0,0,0,0,0,0,0,0,0,0,0,0,1,2,3 ,4,5,6),
-            array(0,0,0,0,0,0,0,0,0,0,0,0,1,2,33,4,5,6)
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2,  3, 4, 5, 6],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 33, 4, 5, 6]
         );
     }
 }
@@ -1071,8 +1001,8 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
       <title>Casos Extremos</title>
 
       <para>
-        Quando uma comparação falha o PHPUnit cria uma representação textual da 
-        entrada de valores e as compara. Devido a essa implementação uma diferenciação 
+        Quando uma comparação falha o PHPUnit cria uma representação textual da
+        entrada de valores e as compara. Devido a essa implementação uma diferenciação
         pode mostrar mais problemas do que realmente existem.
       </para>
 
@@ -1084,12 +1014,14 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
       <example id="writing-tests-for-phpunit.error-output.edge-cases.examples.ArrayWeakComparisonTest.php">
         <title>Caso extremo na geração de diferenciação quando se usa uma comparação fraca</title>
         <programlisting><![CDATA[<?php
-class ArrayWeakComparisonTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class ArrayWeakComparisonTest extends TestCase
 {
     public function testEquality() {
         $this->assertEquals(
-            array(1  ,2,3 ,4,5,6),
-            array('1',2,33,4,5,6)
+            [1, 2, 3, 4, 5, 6],
+            ['1', 2, 33, 4, 5, 6]
         );
     }
 }
@@ -1128,7 +1060,7 @@ Tests: 1, Assertions: 1, Failures: 1.]]></screen>
       </example>
       <para>
         Neste exemplo a diferença no primeiro índice entre
-        <literal>1</literal> e <literal>'1'</literal> é 
+        <literal>1</literal> e <literal>'1'</literal> é
         relatada ainda que o assertEquals considere os valores como uma combinação.
       </para>
 

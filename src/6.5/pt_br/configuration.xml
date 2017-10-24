@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 
 <appendix id="appendixes.configuration">
-  <title>O arquivo de configuração XML</title>
+  <title>O Arquivo de Configuração XML</title>
 
   <section id="appendixes.configuration.phpunit">
     <title>PHPUnit</title>
@@ -31,6 +31,7 @@
          stopOnFailure="false"
          stopOnIncomplete="false"
          stopOnSkipped="false"
+         stopOnRisky="false"
          testSuiteLoaderClass="PHPUnit_Runner_StandardTestSuiteLoader"
          <!--testSuiteLoaderFile="/path/to/StandardTestSuiteLoader.php"-->
          timeoutForSmallTests="1"
@@ -58,7 +59,7 @@
             Por padrão, PHPUnit irá instalar um manipulador de erro que converte 
             os seguintes erros para exceções:
           </para>
-         
+
           <itemizedlist>
             <listitem><literal>E_WARNING</literal></listitem>
             <listitem><literal>E_NOTICE</literal></listitem>
@@ -70,14 +71,14 @@
             <listitem><literal>E_DEPRECATED</literal></listitem>
             <listitem><literal>E_USER_DEPRECATED</literal></listitem>
           </itemizedlist>
-          
+
           <para>
             Definir <literal>convertErrorsToExceptions</literal> para
             <literal>false</literal> desabilita esta funcionalidade.
           </para>
         </listitem>
       </varlistentry>
-      
+
       <varlistentry>
         <term><literal>convertNoticesToExceptions</literal></term>
         <listitem>
@@ -89,7 +90,7 @@
           </para>
         </listitem>
       </varlistentry>
-      
+
       <varlistentry>
         <term><literal>convertWarningsToExceptions</literal></term>
         <listitem>
@@ -106,13 +107,13 @@
         <term><literal>forceCoversAnnotation</literal></term>
         <listitem>
           <para>
-            A Cobertura de Código só será gravada para testes que usem a anotação
+            A Cobertura de Código só será registrada para testes que usem a anotação
             <literal>@covers</literal> documentada na 
             <xref linkend="appendixes.annotations.covers" />.
           </para>
         </listitem>
       </varlistentry>
-      
+
       <varlistentry>
         <term><literal>timeoutForLargeTests</literal></term>
         <listitem>
@@ -124,7 +125,7 @@
           </para>
         </listitem>
       </varlistentry>
-      
+
       <varlistentry>
         <term><literal>timeoutForMediumTests</literal></term>
         <listitem>
@@ -157,8 +158,8 @@
     <para>
       <indexterm><primary>Suítes de Teste</primary></indexterm>
 
-      O elemento <literal><![CDATA[<testsuites>]]></literal> e seu(s) 
-      um ou mais filhos <literal><![CDATA[<testsuite>]]></literal> podem ser 
+      O elemento <literal><![CDATA[<testsuites>]]></literal> e seu(s)
+      um ou mais filhos <literal><![CDATA[<testsuite>]]></literal> podem ser
       usados para compor uma suíte de teste fora das suítes e casos de teste.
     </para>
 
@@ -173,9 +174,9 @@
     <para>
       Usando os atributos <literal>phpVersion</literal> e
       <literal>phpVersionOperator</literal>, uma versão exigida do PHP 
-      pode ser especificada. O exemplo abaixo só vai adicionar os 
-      arquivos <filename>/caminho/para/*Test.php</filename> e
-      <filename>/caminho/para/MeuTest.php</filename> se a versão do PHP 
+      pode ser especificada. O exemplo abaixo só vai adicionar os
+      arquivos <filename>/path/to/*Test.php</filename> e
+      <filename>/path/to/MyTest.php</filename> se a versão do PHP
       for no mínimo 5.3.0.
     </para>
 
@@ -222,33 +223,23 @@
     </para>
 
     <itemizedlist>
-      <listitem><para><literal>--group nome</literal></para></listitem>
-      <listitem><para><literal>--exclude-group nome</literal></para></listitem>
+      <listitem><para><literal>--group name</literal></para></listitem>
+      <listitem><para><literal>--exclude-group name</literal></para></listitem>
     </itemizedlist>
   </section>
 
-  <section id="appendixes.configuration.blacklist-whitelist">
-    <title>Incluindo e Excluindo Arquivos para Cobertura de Código</title>
+  <section id="appendixes.configuration.whitelisting-files">
+    <title>Lista-branca de Arquivos para Cobertura de Código</title>
 
     <para>
       <indexterm><primary>Cobertura de Código</primary></indexterm>
-      <indexterm><primary>Lista-negra</primary></indexterm>
       <indexterm><primary>Lista-branca</primary></indexterm>
 
-      O elemento <literal><![CDATA[<filter>]]></literal> e seus filhos podem 
-      ser usados para configurar a lista-negra e lista-branca para o relatório de cobertura 
-      de código.
+      O elemento <literal><![CDATA[<filter>]]></literal> e seus filhos podem
+      ser usados para configurar a lista-branca para o relatório de cobertura de código.
     </para>
 
     <screen><![CDATA[<filter>
-  <blacklist>
-    <directory suffix=".php">/path/to/files</directory>
-    <file>/path/to/file</file>
-    <exclude>
-      <directory suffix=".php">/path/to/files</directory>
-      <file>/path/to/file</file>
-    </exclude>
-  </blacklist>
   <whitelist processUncoveredFilesFromWhitelist="true">
     <directory suffix=".php">/path/to/files</directory>
     <file>/path/to/file</file>
@@ -277,8 +268,6 @@
   <log type="coverage-clover" target="/tmp/coverage.xml"/>
   <log type="coverage-php" target="/tmp/coverage.serialized"/>
   <log type="coverage-text" target="php://stdout" showUncoveredFiles="false"/>
-  <log type="json" target="/tmp/logfile.json"/>
-  <log type="tap" target="/tmp/logfile.tap"/>
   <log type="junit" target="/tmp/logfile.xml" logIncompleteSkipped="false"/>
   <log type="testdox-html" target="/tmp/testdox.html"/>
   <log type="testdox-text" target="/tmp/testdox.txt"/>
@@ -294,9 +283,7 @@
       <listitem><para><literal>--coverage-clover /tmp/coverage.xml</literal></para></listitem>
       <listitem><para><literal>--coverage-php /tmp/coverage.serialized</literal></para></listitem>
       <listitem><para><literal>--coverage-text</literal></para></listitem>
-      <listitem><para><literal>--log-json /tmp/logfile.json</literal></para></listitem>
       <listitem><para><literal><![CDATA[>]]> /tmp/logfile.txt</literal></para></listitem>
-      <listitem><para><literal>--log-tap /tmp/logfile.tap</literal></para></listitem>
       <listitem><para><literal>--log-junit /tmp/logfile.xml</literal></para></listitem>
       <listitem><para><literal>--testdox-html /tmp/testdox.html</literal></para></listitem>
       <listitem><para><literal>--testdox-text /tmp/testdox.txt</literal></para></listitem>
@@ -352,12 +339,12 @@
     </para>
 
     <screen><![CDATA[$listener = new MyListener(
-  array('Sebastian'),
-  22,
-  'April',
-  19.78,
-  NULL,
-  new stdClass
+    ['Sebastian'],
+    22,
+    'April',
+    19.78,
+    null,
+    new stdClass
 );]]></screen>
   </section>
 
@@ -402,44 +389,5 @@ $_COOKIE['foo'] = 'bar';
 $_SERVER['foo'] = 'bar';
 $_FILES['foo'] = 'bar';
 $_REQUEST['foo'] = 'bar';]]></screen>
-  </section>
-
-  <section id="appendixes.configuration.selenium-rc">
-    <title>Configurando Navegadores para Selenium RC</title>
-
-    <para>
-      <indexterm><primary>Selenium RC</primary></indexterm>
-
-      O elemento <literal><![CDATA[<selenium>]]></literal> e seus filhos
-      <literal><![CDATA[<browser>]]></literal> podem ser usados para 
-      configurar uma lista de servidores Selenium RC.
-    </para>
-
-    <screen><![CDATA[<selenium>
-  <browser name="Firefox on Linux"
-           browser="*firefox /usr/lib/firefox/firefox-bin"
-           host="my.linux.box"
-           port="4444"
-           timeout="30000"/>
-</selenium>]]></screen>
-
-    <para>
-      O arquivo de configuração XML acima corresponde ao seguinte código PHP:
-    </para>
-
-    <screen><![CDATA[class WebTest extends PHPUnit_Extensions_SeleniumTestCase
-{
-    public static $browsers = array(
-      array(
-        'name'    => 'Firefox on Linux',
-        'browser' => '*firefox /usr/lib/firefox/firefox-bin',
-        'host'    => 'my.linux.box',
-        'port'    => 4444,
-        'timeout' => 30000
-      )
-    );
-
-    // ...
-}]]></screen>
   </section>
 </appendix>

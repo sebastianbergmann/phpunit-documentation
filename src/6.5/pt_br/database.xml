@@ -3,65 +3,72 @@
 <chapter id="database">
   <title>Testando Bancos de Dados</title>
   <para>
-    Muitos exemplos de testes unitários iniciantes e intermediários em qualquer linguagem de 
-    programação sugerem que é perfeitamente fácil testar a lógica de sua aplicação 
-    com testes simples. Para aplicações centradas em bancos de dados isso está longe 
-    da realidade. Comece a usar WordPress, TYPO3 ou Symfony com Doctrine ou Propel, 
-    por exemplo, e você vai experimentar facilmente problemas consideráveis com o 
+    Muitos exemplos de testes unitários iniciantes e intermediários em qualquer linguagem de
+    programação sugerem que é perfeitamente fácil testar a lógica de sua aplicação
+    com testes simples. Para aplicações centradas em bancos de dados isso está longe
+    da realidade. Comece a usar WordPress, TYPO3 ou Symfony com Doctrine ou Propel,
+    por exemplo, e você vai experimentar facilmente problemas consideráveis com o
     PHPUnit: apenas porque o banco de dados é fortemente acoplado com essas bibliotecas.
   </para>
+  <note>
+    <para>
+      Tenha certeza que você possui a extensão PHP <literal>pdo</literal> e as
+      extensões de banco de dados específicas tal como <literal>pdo_mysql</literal> instalada.
+      Caso contrário os exemplos abaixo não irão funcionar.
+    </para>
+  </note>
   <para>
-    Você provavelmente conhece esse cenário dos seus trabalhos e projetos diários, 
-    onde você quer colocar em prática suas habilidades (novas ou não) com PHPUnit 
+    Você provavelmente conhece esse cenário dos seus trabalhos e projetos diários,
+    onde você quer colocar em prática suas habilidades (novas ou não) com PHPUnit
     e acaba ficando preso por um dos seguintes problemas:
   </para>
   <orderedlist numeration="arabic">
     <listitem>
       <para>
-        O método que você quer testar executa uma operação JOIN muito grande e 
+        O método que você quer testar executa uma operação JOIN muito grande e
         usa os dados para calcular alguns resultados importantes.
       </para>
     </listitem>
     <listitem>
       <para>
-        Sua lógica de negócios faz uma mistura de declarações SELECT, INSERT, UPDATE 
+        Sua lógica de negócios faz uma mistura de declarações SELECT, INSERT, UPDATE
         e DELETE.
       </para>
     </listitem>
     <listitem>
       <para>
-        Você precisa definir os dados de teste em (provavelmente muito) mais de duas tabelas 
+        Você precisa definir os dados de teste em (muito provavelmente) mais de duas tabelas
         para conseguir dados iniciais razoáveis para os métodos que deseja testar.
       </para>
     </listitem>
   </orderedlist>
   <para>
-    A extensão DbUnit simplifica consideravelmente a configuração de um banco de dados 
-    para fins de teste e permite a você verificar os conteúdos de um banco de dados após 
+    A extensão DbUnit simplifica consideravelmente a configuração de um banco de dados
+    para fins de teste e permite a você verificar os conteúdos de um banco de dados após
     fazer uma série de operações.
   </para>
   <section id="database.supported-vendors-for-database-testing">
     <title>Fornecedores Suportados para Testes de Banco de Dados</title>
     <para>
-      DbUnit atualmente suporta MySQL, PostgreSQL, Oracle e SQLite. Através 
+      DbUnit atualmente suporta MySQL, PostgreSQL, Oracle e SQLite. Através
       das integrações <ulink url="http://framework.zend.com">Zend Framework</ulink> ou
       <ulink url="http://www.doctrine-project.org">Doctrine 2</ulink>
-      ele tem acesso a outros sistemas como IBM DB2 ou 
+      ele tem acesso a outros sistemas como IBM DB2 ou
       Microsoft SQL Server.
     </para>
   </section>
   <section id="database.difficulties-in-database-testing">
     <title>Dificuldades em Testes de Bancos de Dados</title>
     <para>
-      Existe uma boa razão pela qual todos os exemplos de testes unitários não incluírem 
-      interações com bancos de dados: esses tipos de testes são complexos tanto em 
-      configuração quanto em manutenção. Enquanto testar contra seu banco de dados você 
+      Existe uma boa razão pela qual todos os exemplos de testes unitários não incluírem
+      interações com bancos de dados: esses tipos de testes são complexos tanto em
+      configuração quanto em manutenção. Enquanto testar contra seu banco de dados você
       precisará ter cuidado com as seguintes variáveis:
     </para>
     <itemizedlist>
       <listitem>
         <para>
-          Esquema e tabelas do banco de dados
+          O Esquema e tabelas do banco de dados
         </para>
       </listitem>
       <listitem>
@@ -81,8 +88,8 @@
       </listitem>
     </itemizedlist>
     <para>
-      Por causa de muitas APIs de bancos de dados como PDO, MySQLi ou OCI8 serem incômodos 
-      de usar e verbosas para escrever, fazer esses passos manualmente é um completo 
+      Por causa de muitas APIs de bancos de dados como PDO, MySQLi ou OCI8 serem incômodos
+      de usar e verbosas para escrever, fazer esses passos manualmente é um completo
       pesadelo.
     </para>
     <para>
@@ -91,24 +98,24 @@
     <itemizedlist>
       <listitem>
         <para>
-          Você não quer modificar uma considerável quantidade de código de teste por 
+          Você não quer modificar uma considerável quantidade de código de teste por
           pequenas mudanças em seu código de produção.
         </para>
       </listitem>
       <listitem>
         <para>
-          Você quer ser capaz de ler e entender o código de teste facilmente, 
+          Você quer ser capaz de ler e entender o código de teste facilmente,
           mesmo meses depois de tê-lo escrito.
         </para>
       </listitem>
     </itemizedlist>
     <para>
-      Adicionalmente você tem que perceber que o banco de dados é essencialmente 
-      uma variável global de entrada para seu código. Dois testes em sua suíte de testes 
-      podem executar contra o mesmo banco de dados, possivelmente reutilizando dados 
-      múltiplas vezes. Falhas em um teste podem facilmente afetar o resultado dos 
-      testes seguintes, fazendo sua experiência com os testes muito difícil. O 
-      passo de limpeza mencionado anteriormente é de maior importância 
+      Adicionalmente você tem que perceber que o banco de dados é essencialmente
+      uma variável global de entrada para seu código. Dois testes em sua suíte de testes
+      podem executar contra o mesmo banco de dados, possivelmente reutilizando dados
+      múltiplas vezes. Falhas em um teste podem facilmente afetar o resultado dos
+      testes seguintes, fazendo sua experiência com os testes muito difícil. O
+      passo de limpeza mencionado anteriormente é de maior importância
       para resolver o problema do <quote>banco de dados ser uma entrada global</quote>.
     </para>
     <para>
@@ -116,26 +123,26 @@
       forma elegante.
     </para>
     <para>
-      O PHPUnit só não pode ajudá-lo no fato de que testes de banco de dados 
-      são muito lentos comparados aos testes que não usam bancos de dados. Dependendo 
-      do tamanho das interações com seu banco de dados, seus testes 
-      podem levar um tempo considerável para executar. Porém se você mantiver pequena 
-      a quantidade de dados usados para cada teste e tentar testar o máximo possível 
-      sem usar testes com bancos de dados, você facilmente conseguirá tempos abaixo de um minuto, 
+      O PHPUnit só não pode ajudá-lo no fato de que testes de banco de dados
+      são muito lentos comparados aos testes que não usam bancos de dados. Dependendo
+      do tamanho das interações com seu banco de dados, seus testes
+      podem levar um tempo considerável para executar. Porém se você mantiver pequena
+      a quantidade de dados usados para cada teste e tentar testar o máximo possível
+      sem usar testes com bancos de dados, você facilmente conseguirá tempos abaixo de um minuto,
       mesmo para grandes suítes de teste.
     </para>
     <para>
-      A suíte de testes do <ulink url="http://www.doctrine-project.org">projeto 
-      Doctrine 2</ulink> por exemplo, atualmente tem uma suíte com 
-      cerca de 1000 testes onde aproximadamente a metade deles tem acesso ao banco 
-      de dados e ainda executa em 15 segundos contra um banco de dados MySQL em 
+      A suíte de testes do <ulink url="http://www.doctrine-project.org">projeto
+      Doctrine 2</ulink> por exemplo, atualmente tem uma suíte com
+      cerca de 1000 testes onde aproximadamente a metade deles tem acesso ao banco
+      de dados e ainda executa em 15 segundos contra um banco de dados MySQL em
       um computador desktop comum.
     </para>
   </section>
   <section id="database.the-four-stages-of-a-database-test">
     <title>Os quatro estágios dos testes com banco de dados</title>
     <para>
-      Em seu livro sobre Padrões de Teste xUnit, Gerard Meszaros lista os quatro 
+      Em seu livro sobre Padrões de Teste xUnit, Gerard Meszaros lista os quatro
       estágios de um teste unitário:
     </para>
     <orderedlist numeration="arabic">
@@ -165,45 +172,45 @@
         <emphasis role="strong">O que é um ambiente (fixture)?</emphasis>
       </para>
       <para>
-        Um ambiente (fixture) descreve o estado inicial em que sua aplicação e seu banco de dados 
+        Um ambiente (fixture) descreve o estado inicial em que sua aplicação e seu banco de dados
         estão ao executar um teste.
       </para>
     </blockquote>
     <para>
-      Testar o banco de dados exige que você utilize pelo menos o 
-      setup (configuração) e teardown (desmontagem) para limpar e escrever em suas tabelas 
-      os dados de ambiente exigidos. Porém a extensão do banco de dados tem uma boa razão para 
-      reverter esses quatro estágios em um teste de banco de dados para assemelhar o seguinte 
+      Testar o banco de dados exige que você utilize pelo menos a
+      configuração (setup) e desmontagem (teardown) para limpar e escrever em suas tabelas
+      os dados de ambiente exigidos. Porém a extensão do banco de dados tem uma boa razão para
+      reverter esses quatro estágios em um teste de banco de dados para assemelhar o seguinte
       fluxo de trabalho que é executado para cada teste:
     </para>
     <section id="database.clean-up-database">
       <title>1. Limpar o Banco de Dados</title>
       <para>
-        Já que sempre existe um primeiro teste que é executado contra o banco de dados, 
-        você não sabe exatamente se já existem dados nas tabelas. 
-        O PHPUnit vai executar um TRUNCATE contra todas as tabelas que 
+        Já que sempre existe um primeiro teste que é executado contra o banco de dados,
+        você não sabe exatamente se já existem dados nas tabelas.
+        O PHPUnit vai executar um TRUNCATE contra todas as tabelas que
         você especificou para redefinir seus estados para vazio.
       </para>
     </section>
     <section id="database.set-up-fixture">
       <title>2. Configurar o ambiente</title>
       <para>
-        O PHPUnit então vai iterar sobre todas as linhas do ambiente especificado e 
+        O PHPUnit então vai iterar sobre todas as linhas do ambiente especificado e
         inseri-las em suas respectivas tabelas.
       </para>
     </section>
     <section id="database.run-test-verify-outcome-and-teardown">
       <title>3–5. Executar Teste, Verificar resultado e Desmontar (Teardown)</title>
       <para>
-        Depois de redefinir o banco de dados e carregá-lo com seu estado inicial, 
-        o verdadeiro teste é executado pelo PHPUnit. Esta parte do código de teste 
-        não exige conhecimento sobre a Extensão do Banco de Dados, então você pode 
+        Depois de redefinir o banco de dados e carregá-lo com seu estado inicial,
+        o verdadeiro teste é executado pelo PHPUnit. Esta parte do código de teste
+        não exige conhecimento sobre a Extensão do Banco de Dados, então você pode
         prosseguir e testar o que quiser com seu código.
       </para>
       <para>
         Em seu teste use uma asserção especial chamada
-        <literal>assertDataSetsEqual()</literal> para fins de verificação, 
-        porém isso é totalmente opcional. Esta função será explicada 
+        <literal>assertDataSetsEqual()</literal> para fins de verificação,
+        porém isso é totalmente opcional. Esta função será explicada
         na seção <quote>Asserções em Bancos de Dados</quote>.
       </para>
     </section>
@@ -211,12 +218,14 @@
   <section id="database.configuration-of-a-phpunit-database-testcase">
     <title>Configuração de um Caso de Teste de Banco de Dados do PHPUnit</title>
     <para>
-      Ao usar o PHPUnit seus casos de teste vão estender a 
-      classe <literal>PHPUnit_Framework_TestCase</literal> da 
+      Ao usar o PHPUnit seus casos de teste vão estender a
+      classe <literal>PHPUnit\Framework\TestCase</literal> da
       seguinte forma:
     </para>
     <programlisting><![CDATA[<?php
-class MyTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class MyTest extends TestCase
 {
     public function testCalculate()
     {
@@ -225,15 +234,20 @@ class MyTest extends PHPUnit_Framework_TestCase
 }
 ?>]]></programlisting>
     <para>
-      Se você quer um código de teste que trabalha com a Extensão para Banco de Dados a 
-      configuração é um pouco mais complexa e você terá que estender um TestCase abstrato 
+      Se você quer um código de teste que trabalha com a Extensão para Banco de Dados a
+      configuração é um pouco mais complexa e você terá que estender um TestCase abstrato
       diferente, exigindo que você implemente dois métodos abstratos
       <literal>getConnection()</literal> e
       <literal>getDataSet()</literal>:
     </para>
     <programlisting><![CDATA[<?php
-class MyGuestbookTest extends PHPUnit_Extensions_Database_TestCase
+use PHPUnit\Framework\TestCase;
+use PHPUnit\DbUnit\TestCaseTrait;
+
+class MyGuestbookTest extends TestCase
 {
+    use TestCaseTrait;
+
     /**
      * @return PHPUnit_Extensions_Database_DB_IDatabaseConnection
      */
@@ -255,65 +269,65 @@ class MyGuestbookTest extends PHPUnit_Extensions_Database_TestCase
     <section id="database.implementing-getconnection">
       <title>Implementando getConnection()</title>
       <para>
-        Para permitir que a limpeza e o carregamento de funcionalidades do ambiente funcionem, 
-        a Extensão do Banco de Dados do PHPUnit exige acesso a uma conexão 
-        abstrata do banco de dados através dos fornecedores da biblioteca PDO. É 
-        importante notar que sua aplicação não precisa ser 
-        baseada em PDO para usar a Extensão para Banco de Dados do PHPUnit, pois a conexão é 
+        Para permitir que as funcionalidades limpeza e carregamento de ambiente funcionem,
+        a extensão de banco de dados PHPUnit requer acesso a uma conexão de banco de dados
+        abstraída entre fornecedores através da biblioteca PDO. É
+        importante notar que sua aplicação não precisa ser
+        baseada em PDO para usar a Extensão para Banco de Dados do PHPUnit, pois a conexão é
         meramente usada para limpeza e configuração de ambiente.
       </para>
       <para>
-        No exemplo anterior criamos uma conexão Sqlite na memória e 
+        No exemplo anterior criamos uma conexão Sqlite na memória e
         a passamos ao método <literal>createDefaultDBConnection</literal>
-        que embrulha a instância do PDO e o segundo parâmetro (o 
-        nome do banco de dados) em uma camada simples de abstração para conexões 
+        que embrulha a instância do PDO e o segundo parâmetro (o
+        nome do banco de dados) em uma camada simples de abstração para conexões
         do banco de dados do tipo
         <literal>PHPUnit_Extensions_Database_DB_IDatabaseConnection</literal>.
       </para>
       <para>
-        A seção <quote>Usando a Conexão de Banco de Dados</quote> explica 
+        A seção <quote>Usando a Conexão de Banco de Dados</quote> explica
         a API desta interface e como você pode usá-la da melhor forma possível.
       </para>
     </section>
     <section id="database.implementing-getdataset">
       <title>Implementando getDataSet()</title>
       <para>
-        O método <literal>getDataSet()</literal> define como deve ser o estado 
-        inicial do banco de dados antes de cada teste ser 
-        executado. O estado do banco de dados é abstraído através de 
-        conceitos DataSet (Conjunto de Dados) e DataTable (Tabela de Dados), ambos sendo representados 
+        O método <literal>getDataSet()</literal> define como deve ser o estado
+        inicial do banco de dados antes de cada teste ser
+        executado. O estado do banco de dados é abstraído através de
+        conceitos DataSet (Conjunto de Dados) e DataTable (Tabela de Dados), ambos sendo representados
         pelas interfaces
         <literal>PHPUnit_Extensions_Database_DataSet_IDataSet</literal> e
         <literal>PHPUnit_Extensions_Database_DataSet_IDataTable</literal>.
-        A próxima seção vai descrever em detalhes como esses conceitos trabalham 
+        A próxima seção vai descrever em detalhes como esses conceitos trabalham
         e quais os benefícios de usá-los nos testes com bancos de dados.
       </para>
       <para>
-        Para a implementação precisaremos apenas saber que o 
+        Para a implementação precisaremos apenas saber que o
         método <literal>getDataSet()</literal> é chamado uma vez durante o
-        <literal>setUp()</literal> para recuperar o conjunto de dados do ambiente e 
-        inseri-lo no banco de dados. No exemplo estamos usando um método de fábrica 
-        <literal>createFlatXMLDataSet($filename)</literal> que 
+        <literal>setUp()</literal> para recuperar o conjunto de dados do ambiente e
+        inseri-lo no banco de dados. No exemplo estamos usando um método de fábrica
+        <literal>createFlatXMLDataSet($filename)</literal> que
         representa um conjunto de dados através de uma representação XML.
       </para>
     </section>
     <section id="database.what-about-the-database-schema-ddl">
       <title>E quanto ao Esquema do Banco de Dados (DDL)?</title>
       <para>
-        O PHPUnit assume que o esquema do banco de dados com todas as suas tabelas, 
-        gatilhos, sequências e visualizações é criado antes que um teste seja executado. Isso 
-        quer dizer que você como desenvolvedor deve se certificar que o banco de dados está 
+        O PHPUnit assume que o esquema do banco de dados com todas as suas tabelas,
+        gatilhos, sequências e visualizações é criado antes que um teste seja executado. Isso
+        quer dizer que você como desenvolvedor deve se certificar que o banco de dados está
         corretamente configurado antes de executar a suíte.
       </para>
       <para>
-        Existem vários meios para realizar esta pré-condição para 
+        Existem vários meios para realizar esta pré-condição para
         testar bancos de dados.
       </para>
       <orderedlist numeration="arabic">
         <listitem>
           <para>
-            Se você está usando um banco de dados persistente (não Sqlite Memory) você pode 
-            facilmente configurar o banco de dados uma vez com ferramentas como phpMyAdmin para 
+            Se você está usando um banco de dados persistente (não Sqlite Memory) você pode
+            facilmente configurar o banco de dados uma vez com ferramentas como phpMyAdmin para
             MySQL e reutilizar o banco de dados para cada execução de teste.
           </para>
         </listitem>
@@ -322,8 +336,8 @@ class MyGuestbookTest extends PHPUnit_Extensions_Database_TestCase
             Se você estiver usando bibliotecas como
             <ulink url="http://www.doctrine-project.org">Doctrine 2</ulink> ou
             <ulink url="http://www.propelorm.org/">Propel</ulink>
-            você pode usar suas APIs para criar o esquema de banco de dados que 
-            precisa antes de rodar os testes. Você pode utilizar as capacidades de 
+            você pode usar suas APIs para criar o esquema de banco de dados que
+            precisa antes de rodar os testes. Você pode utilizar as capacidades de
             <ulink url="textui.html">Configuração e Bootstrap do PHPUnit</ulink>
             para executar esse código sempre que seus testes forem executados.
           </para>
@@ -333,21 +347,26 @@ class MyGuestbookTest extends PHPUnit_Extensions_Database_TestCase
     <section id="database.tip-use-your-own-abstract-database-testcase">
       <title>Dica: Use seu próprio Caso Abstrato de Teste de Banco de Dados</title>
       <para>
-        Do exemplo prévio de implementação você pode facilmente perceber que 
-        o método <literal>getConnection()</literal> é bastante estático e 
-        pode ser reutilizado em diferentes casos de teste de banco de dados. Adicionalmente para 
-        manter uma boa performance dos seus testes e pouca carga sobre seu banco de dados, você 
-        pode refatorar o código um pouco para obter um caso de teste abstrato genérico 
-        para sua aplicação, o que ainda permite a você especificar um 
+        Do exemplo prévio de implementação você pode facilmente perceber que
+        o método <literal>getConnection()</literal> é bastante estático e
+        pode ser reutilizado em diferentes casos de teste de banco de dados. Adicionalmente para
+        manter uma boa performance dos seus testes e pouca carga sobre seu banco de dados, você
+        pode refatorar o código um pouco para obter um caso de teste abstrato genérico
+        para sua aplicação, o que ainda permite você especificar um
         ambiente de dados diferente para cada caso de teste:
       </para>
       <programlisting><![CDATA[<?php
-abstract class MyApp_Tests_DatabaseTestCase extends PHPUnit_Extensions_Database_TestCase
+use PHPUnit\Framework\TestCase;
+use PHPUnit\DbUnit\TestCaseTrait;
+
+abstract class MyApp_Tests_DatabaseTestCase extends TestCase
 {
-    // only instantiate pdo once for test clean-up/fixture load
+    use TestCaseTrait;
+
+    // só instancia o pdo uma vez para limpeza de teste e carregamento de ambiente
     static private $pdo = null;
 
-    // only instantiate PHPUnit_Extensions_Database_DB_IDatabaseConnection once per test
+    // só instancia PHPUnit_Extensions_Database_DB_IDatabaseConnection uma vez por teste
     private $conn = null;
 
     final public function getConnection()
@@ -364,12 +383,12 @@ abstract class MyApp_Tests_DatabaseTestCase extends PHPUnit_Extensions_Database_
 }
 ?>]]></programlisting>
       <para>
-        Entretanto, isso tem a conexão ao banco de dados codificada na conexão do PDO. 
-        O PHPUnit tem outra incrível característica que pode fazer este 
+        Contudo, isso tem a conexão ao banco de dados codificada na conexão do PDO.
+        O PHPUnit tem outra incrível característica que pode fazer este
         caso de teste ainda mais genérico. Se você usar a
         <ulink url="appendixes.configuration.html#appendixes.configuration.php-ini-constants-variables">Configuração XML</ulink>
-        você pode tornar a conexão com o banco de dados configurável por execução de teste. 
-        Primeiro vamos criar um arquivo <quote>phpunit.xml</quote> em nosso diretório/de/teste 
+        você pode tornar a conexão com o banco de dados configurável por execução de teste.
+        Primeiro vamos criar um arquivo <quote>phpunit.xml</quote> em nosso diretório/de/teste
         da aplicação, de forma semelhante a isto:
       </para>
       <screen><![CDATA[
@@ -387,12 +406,17 @@ abstract class MyApp_Tests_DatabaseTestCase extends PHPUnit_Extensions_Database_
         Agora podemos modificar seu caso de teste para parecer com isso:
       </para>
       <programlisting><![CDATA[<?php
-abstract class Generic_Tests_DatabaseTestCase extends PHPUnit_Extensions_Database_TestCase
+use PHPUnit\Framework\TestCase;
+use PHPUnit\DbUnit\TestCaseTrait;
+
+abstract class Generic_Tests_DatabaseTestCase extends TestCase
 {
-    // only instantiate pdo once for test clean-up/fixture load
+    use TestCaseTrait;
+
+    // só instancia o pdo uma vez para limpeza de teste e carregamento de ambiente
     static private $pdo = null;
 
-    // only instantiate PHPUnit_Extensions_Database_DB_IDatabaseConnection once per test
+    // só instancia PHPUnit_Extensions_Database_DB_IDatabaseConnection uma vez por teste
     private $conn = null;
 
     final public function getConnection()
@@ -409,16 +433,16 @@ abstract class Generic_Tests_DatabaseTestCase extends PHPUnit_Extensions_Databas
 }
 ?>]]></programlisting>
       <para>
-        Agora podemos executar a suíte de testes de banco de dados usando diferentes 
+        Agora podemos executar a suíte de testes de banco de dados usando diferentes
         configurações através da interface de linha-de-comando:
       </para>
       <screen><userinput>user@desktop> phpunit --configuration developer-a.xml MyTests/</userinput>
 <userinput>user@desktop> phpunit --configuration developer-b.xml MyTests/</userinput></screen>
       <para>
-        A possibilidade de executar facilmente os testes de banco de dados contra diferentes 
-        alvos é muito importante se você está desenvolvendo na 
-        máquina de desenvolvimento. Se vários desenvolvedores executarem os testes de banco 
-        de dados contra a mesma conexão de banco de dados você experimentará facilmente 
+        A possibilidade de executar facilmente os testes de banco de dados contra diferentes
+        alvos é muito importante se você está desenvolvendo na
+        máquina de desenvolvimento. Se vários desenvolvedores executarem os testes de banco
+        de dados contra a mesma conexão de banco de dados você experimentará facilmente
         falhas de testes devido à condição de execução.
       </para>
     </section>
@@ -426,36 +450,36 @@ abstract class Generic_Tests_DatabaseTestCase extends PHPUnit_Extensions_Databas
   <section id="database.understanding-datasets-and-datatables">
     <title>Entendendo Conjunto de Dados e Tabelas de Dados</title>
     <para>
-      Um conceito central da Extensão para Banco de Dados do PHPUnit são 
-      os Conjuntos de Dados e as Tabelas de Dados. Você deveria tentar entender este conceito simples para 
-      dominar os testes de banco de dados com PHPUnit. Conjunto de Dados e Tabela de Dados formam 
-      uma camada abstrata em torno das tabelas, linhas e 
-      colunas do seu banco de dados. Uma simples API esconde os conteúdos subjacentes do banco de dados em uma 
-      estrutura de objetos, que também podem ser implementada por outra 
+      Um conceito central da Extensão para Banco de Dados do PHPUnit são
+      os Conjuntos de Dados e as Tabelas de Dados. Você deveria tentar entender este conceito simples para
+      dominar os testes de banco de dados com PHPUnit. Conjunto de Dados e Tabela de Dados formam
+      uma camada abstrata em torno das tabelas, linhas e
+      colunas do seu banco de dados. Uma simples API esconde os conteúdos subjacentes do banco de dados em uma
+      estrutura de objetos, que também podem ser implementada por outra
       fonte que não seja um banco de dados.
     </para>
     <para>
-      Essa abstração é necessária para comparar os conteúdos reais de um 
-      banco de dados contra os conteúdos esperados. Expectativas podem ser 
-      representadas como arquivos XML, YAML, CSV ou vetores PHP, por exemplo. As 
-      interfaces DataSet (Conjunto de Dados) e DataTable (Tabela de Dados)  permitem a comparação dessas 
-      fontes conceitualmente diferentes, emulando o armazenamento de banco de dados 
+      Essa abstração é necessária para comparar os conteúdos reais de um
+      banco de dados contra os conteúdos esperados. Expectativas podem ser
+      representadas como arquivos XML, YAML, CSV ou vetores PHP, por exemplo. As
+      interfaces DataSet (Conjunto de Dados) e DataTable (Tabela de Dados)  permitem a comparação dessas
+      fontes conceitualmente diferentes, emulando o armazenamento de banco de dados
       relacional em uma abordagem semanticamente similar.
     </para>
     <para>
-      Um fluxo de trabalho para asserções em banco de dados em seus testes então consiste de 
-      três passos simples:
+      Um fluxo de trabalho para asserções em banco de dados em seus testes consiste em
+      três etapas simples:
     </para>
     <itemizedlist>
       <listitem>
         <para>
-          Especificar uma ou mais tabelas em seu banco de dados por nome de tabela (conjunto de dados 
+          Especificar uma ou mais tabelas em seu banco de dados por nome de tabela (conjunto de dados
           real)
         </para>
       </listitem>
       <listitem>
         <para>
-          Especificar o Conjunto de Dados esperado no seu formato preferido (YAML, XML, 
+          Especificar o Conjunto de Dados esperado no seu formato preferido (YAML, XML,
           ...)
         </para>
       </listitem>
@@ -466,10 +490,10 @@ abstract class Generic_Tests_DatabaseTestCase extends PHPUnit_Extensions_Databas
       </listitem>
     </itemizedlist>
     <para>
-      Asserções não são o único caso de uso para o Conjunto de Dados e a Tabela de Dados 
-      na Extensão para Banco de Dados do PHPUnit. Como mostrado na seção anterior, 
-      eles também descrevem os conteúdos iniciais de um banco de dados. Você é 
-      forçado a definir um conjunto de dados de ambiente pelo Caso de Teste de Banco de Dados, que 
+      Asserções não são o único caso de uso para o Conjunto de Dados e a Tabela de Dados
+      na Extensão para Banco de Dados do PHPUnit. Como mostrado na seção anterior,
+      eles também descrevem os conteúdos iniciais de um banco de dados. Você é
+      forçado a definir um conjunto de dados de ambiente pelo Caso de Teste de Banco de Dados, que
       então é usado para:
     </para>
     <itemizedlist>
@@ -507,17 +531,17 @@ abstract class Generic_Tests_DatabaseTestCase extends PHPUnit_Extensions_Databas
         </listitem>
       </itemizedlist>
       <para>
-        Os Conjuntos de Dados e Tabelas de Dados baseadas em arquivo são geralmente usados para o 
+        Os Conjuntos de Dados e Tabelas de Dados baseadas em arquivo são geralmente usados para o
         ambiente inicial e para descrever os estados esperados do banco de dados.
       </para>
       <section id="database.flat-xml-dataset">
         <title>Conjunto de Dados de XML Plano</title>
         <para>
-          O Conjunto de Dados mais comum é chamado XML Plano. É um formato xml simples 
+          O Conjunto de Dados mais comum é chamado XML Plano. É um formato de xml muito simples
           onde uma tag dentro do nó-raiz
-          <literal><![CDATA[<dataset>]]></literal> representa exatamente uma linha no 
-          banco de dados. Os nomes das tags equivalem à tabela onde inserir a linha e 
-          um atributo representa a coluna. Um exemplo para uma simples aplicação de 
+          <literal><![CDATA[<dataset>]]></literal> representa exatamente uma linha no
+          banco de dados. Os nomes das tags equivalem à tabela onde inserir a linha e
+          um atributo representa a coluna. Um exemplo para uma simples aplicação de
           livro de visitas poderia se parecer com isto:
         </para>
         <screen><![CDATA[
@@ -529,8 +553,8 @@ abstract class Generic_Tests_DatabaseTestCase extends PHPUnit_Extensions_Databas
 ]]></screen>
         <para>
           Isso é, obviamente, fácil de escrever. Aqui
-          <literal><![CDATA[<guestbook>]]></literal> é o nome da tabela onde duas linhas 
-          são inseridas dentro de cada com quatro colunas <quote>id</quote>,
+          <literal><![CDATA[<guestbook>]]></literal> é o nome da tabela onde duas linhas
+          são inseridas onde cada qual com quatro colunas <quote>id</quote>,
           <quote>content</quote>, <quote>user</quote> e
           <quote>created</quote> com seus respectivos valores.
         </para>
@@ -538,9 +562,9 @@ abstract class Generic_Tests_DatabaseTestCase extends PHPUnit_Extensions_Databas
           Porém essa simplicidade tem um preço.
         </para>
         <para>
-          O exemplo anterior não deixa tão óbvio como você pode fazer para especificar uma 
-          tabela vazia. Você pode inserir uma tag sem atributos com o nome da 
-          tabela vazia. Um arquivo xml plano para uma tabela vazia do livro de visitas 
+          O exemplo anterior não deixa tão óbvio como você pode fazer para especificar uma
+          tabela vazia. Você pode inserir uma tag sem atributos com o nome da
+          tabela vazia. Um arquivo xml plano para uma tabela vazia do livro de visitas
           ficaria parecido com isso:
         </para>
         <screen><![CDATA[
@@ -550,13 +574,13 @@ abstract class Generic_Tests_DatabaseTestCase extends PHPUnit_Extensions_Databas
 </dataset>
 ]]></screen>
         <para>
-          A manipulação de valores NULL com o xml plano é tedioso. Um 
-          valor NULL é diferente de uma string com valor vazio em quase todos 
-          os bancos de dados (Oracle é uma exceção), algo difícil 
-          de descrever no formato xml plano. Você pode representar um valor NULL 
-          omitindo o atributo da especificação da linha. Se nosso 
-          livro de visitas vai permitir entradas anônimas representadas por um valor NULL 
-          na coluna user, um estado hipotético para a tabela do livro de visitas 
+          A manipulação de valores NULL com o xml plano é tedioso. Um
+          valor NULL é diferente de uma string com valor vazio em quase todos
+          os bancos de dados (Oracle é uma exceção), algo difícil
+          de descrever no formato xml plano. Você pode representar um valor NULL
+          omitindo o atributo da especificação da linha. Se nosso
+          livro de visitas vai permitir entradas anônimas representadas por um valor NULL
+          na coluna user, um estado hipotético para a tabela do livro de visitas
           seria parecido com:
         </para>
         <screen><![CDATA[
@@ -567,53 +591,58 @@ abstract class Generic_Tests_DatabaseTestCase extends PHPUnit_Extensions_Databas
 </dataset>
 ]]></screen>
         <para>
-          Nesse caso a segunda entrada é postada anonimamente. Porém isso 
-          acarreta um problema sério no reconhecimento de colunas. Durante as asserções de igualdade 
-          do conjunto de dados, cada conjunto de dados tem que especificar quais colunas uma 
-          tabela possui. Se um atributo for NULL para todas as linhas de uma 
-          tabela de dados, como a Extensão para Banco de Dados vai saber que a coluna 
+          Nesse caso a segunda entrada é postada anonimamente. Porém isso
+          acarreta um problema sério no reconhecimento de colunas. Durante as asserções de igualdade
+          do conjunto de dados, cada conjunto de dados tem que especificar quais colunas uma
+          tabela possui. Se um atributo for NULL para todas as linhas de uma
+          tabela de dados, como a Extensão para Banco de Dados vai saber que a coluna
           deve ser parte da tabela?
         </para>
         <para>
-          O conjunto de dados em xml plano faz uma presunção crucial agora, definindo que 
-          os atributos na primeira linha definida de uma tabela define as 
+          O conjunto de dados em xml plano faz uma presunção crucial agora, definindo que
+          os atributos na primeira linha definida de uma tabela define as
           colunas dessa tabela. No exemplo anterior isso significaria que
           <quote>id</quote>, <quote>content</quote>, <quote>user</quote> e
-          <quote>created</quote> são colunas da tabela guestbook. Para a 
-          segunda linha, onde <quote>user</quote> não está definido, um NULL seria 
+          <quote>created</quote> são colunas da tabela guestbook. Para a
+          segunda linha, onde <quote>user</quote> não está definido, um NULL seria
           inserido no banco de dados.
         </para>
         <para>
           Quando a primeira entrada do guestbook for apagada do conjunto de dados, apenas
           <quote>id</quote>, <quote>content</quote> e
-          <quote>created</quote> seriam colunas da tabela guestbook, 
+          <quote>created</quote> seriam colunas da tabela guestbook,
           já que <quote>user</quote> não é especificado.
         </para>
         <para>
-          Para usar o Conjunto de Dados em XML Plano efetivamente, quando valores NULL forem 
-          relevantes, a primeira linha de cada tabela não deve conter qualquer valor NULL 
-          e apenas as linhas seguintes poderão omitir atributos. Isso 
-          pode parecer estranho, já que a ordem das linhas é um fator relevante 
+          Para usar o Conjunto de Dados em XML Plano efetivamente, quando valores NULL forem
+          relevantes, a primeira linha de cada tabela não deve conter qualquer valor NULL
+          e apenas as linhas seguintes poderão omitir atributos. Isso
+          pode parecer estranho, já que a ordem das linhas é um fator relevante
           para as asserções com bancos de dados.
         </para>
         <para>
-          Em troca, se você especificar apenas um subconjunto das colunas da tabela no 
-          Conjunto de Dados do XML Plano, todos os valores omitidos serão definidos para seus valores 
-          padrão. Isso vai induzir a erros se uma das colunas omitidas estiver 
+          Em troca, se você especificar apenas um subconjunto das colunas da tabela no
+          Conjunto de Dados do XML Plano, todos os valores omitidos serão definidos para seus valores
+          padrão. Isso vai induzir a erros se uma das colunas omitidas estiver
           definida como <quote>NOT NULL DEFAULT NULL</quote>.
         </para>
         <para>
-          Para concluir eu posso dizer que os conjuntos de dados XML Plano só devem ser usadas se você 
+          Para concluir eu posso dizer que os conjuntos de dados XML Plano só devem ser usadas se você
           não precisar de valores NULL.
         </para>
         <para>
-          Você pode criar uma instância de conjunto de dados xml plano de dentro de seu 
+          Você pode criar uma instância de conjunto de dados xml plano de dentro de seu
           Caso de Teste de Banco de Dados chamando o método
           <literal>createFlatXmlDataSet($filename)</literal>:
         </para>
         <programlisting><![CDATA[<?php
-class MyTestCase extends PHPUnit_Extensions_Database_TestCase
+use PHPUnit\Framework\TestCase;
+use PHPUnit\DbUnit\TestCaseTrait;
+
+class MyTestCase extends TestCase
 {
+    use TestCaseTrait;
+
     public function getDataSet()
     {
         return $this->createFlatXmlDataSet('myFlatXmlFixture.xml');
@@ -624,13 +653,13 @@ class MyTestCase extends PHPUnit_Extensions_Database_TestCase
       <section id="database.xml-dataset">
         <title>Conjunto de Dados XML</title>
         <para>
-          Existe um outro Conjunto de Dados em XML mais estruturado, que é um pouco mais 
-          verboso para escrever mas evita os problemas do NULL nos conjuntos de dados em 
-          XML Plano. Dentro do nó-raiz <literal><![CDATA[<dataset>]]></literal> você 
+          Existe um outro Conjunto de Dados em XML mais estruturado, que é um pouco mais
+          verboso para escrever mas evita os problemas do NULL nos conjuntos de dados em
+          XML Plano. Dentro do nó-raiz <literal><![CDATA[<dataset>]]></literal> você
           pode especificar as tags <literal><![CDATA[<table>]]></literal>,
           <literal><![CDATA[<column>]]></literal>, <literal><![CDATA[<row>]]></literal>,
           <literal><![CDATA[<value>]]></literal> e
-          <literal><![CDATA[<null />]]></literal>. Um Conjunto de Dados equivalente ao 
+          <literal><![CDATA[<null />]]></literal>. Um Conjunto de Dados equivalente ao
           definido anteriormente no Guestbook em XML Plano seria como:
         </para>
         <screen><![CDATA[
@@ -657,24 +686,29 @@ class MyTestCase extends PHPUnit_Extensions_Database_TestCase
 </dataset>
 ]]></screen>
         <para>
-          Qualquer <literal><![CDATA[<table>]]></literal> definida tem um nome e requer 
-          uma definição de todas as colunas com seus nomes. Pode conter zero 
-          ou qualquer número positivo de elementos <literal><![CDATA[<row>]]></literal> 
-          aninhados. Não definir nenhum elemento <literal><![CDATA[<row>]]></literal> significa 
+          Qualquer <literal><![CDATA[<table>]]></literal> definida tem um nome e requer
+          uma definição de todas as colunas com seus nomes. Pode conter zero
+          ou qualquer número positivo de elementos <literal><![CDATA[<row>]]></literal>
+          aninhados. Não definir nenhum elemento <literal><![CDATA[<row>]]></literal> significa
           que a tabela está vazia. As tags <literal><![CDATA[<value>]]></literal> e
-          <literal><![CDATA[<null />]]></literal> têm que ser especificadas na 
-          ordem dos elementos fornecidos previamente em 
-          <literal><![CDATA[<column>]]></literal>. A tag <literal><![CDATA[<null />]]></literal> obviamente significa 
+          <literal><![CDATA[<null />]]></literal> têm que ser especificadas na
+          ordem dos elementos fornecidos previamente em
+          <literal><![CDATA[<column>]]></literal>. A tag <literal><![CDATA[<null />]]></literal> obviamente significa
           que o valor é NULL.
         </para>
         <para>
-          Você pode criar uma instância de conjunto de dados xml de dentro de seu 
-          Caso de Teste de Banco de Dados chamando o método 
+          Você pode criar uma instância de conjunto de dados xml de dentro de seu
+          Caso de Teste de Banco de Dados chamando o método
           <literal>createXmlDataSet($filename)</literal>:
         </para>
         <programlisting><![CDATA[<?php
-class MyTestCase extends PHPUnit_Extensions_Database_TestCase
+use PHPUnit\Framework\TestCase;
+use PHPUnit\DbUnit\TestCaseTrait;
+
+class MyTestCase extends TestCase
 {
+    use TestCaseTrait;
+
     public function getDataSet()
     {
         return $this->createXMLDataSet('myXmlFixture.xml');
@@ -687,12 +721,12 @@ class MyTestCase extends PHPUnit_Extensions_Database_TestCase
         <para>
           Este novo formato XML é específico para o
           <ulink url="http://www.mysql.com">servidor de banco de dados MySQL</ulink>.
-          O suporte para ele foi adicionado no PHPUnit 3.5. Arquivos nesse formato podem 
-          ser gerados usando o utilitário 
-          <ulink url="http://dev.mysql.com/doc/refman/5.0/en/mysqldump.html"><literal>mysqldump</literal></ulink>. 
+          O suporte para ele foi adicionado no PHPUnit 3.5. Arquivos nesse formato podem
+          ser gerados usando o utilitário
+          <ulink url="http://dev.mysql.com/doc/refman/5.0/en/mysqldump.html"><literal>mysqldump</literal></ulink>.
           Diferente dos conjuntos de dados CSV, que o <literal>mysqldump</literal>
-          também suporta, um único arquivo neste formato XML pode conter dados 
-          para múltiplas tabelas. Você pode criar um arquivo nesse formato 
+          também suporta, um único arquivo neste formato XML pode conter dados
+          para múltiplas tabelas. Você pode criar um arquivo nesse formato
           invocando o <literal>mysqldump</literal> desta forma:
         </para>
         <screen><userinput>mysqldump --xml -t -u [username] --password=[password] [database] > /path/to/file.xml</userinput></screen>
@@ -701,8 +735,13 @@ class MyTestCase extends PHPUnit_Extensions_Database_TestCase
           <literal>createMySQLXMLDataSet($filename)</literal>:
         </para>
         <programlisting><![CDATA[<?php
-class MyTestCase extends PHPUnit_Extensions_Database_TestCase
+use PHPUnit\Framework\TestCase;
+use PHPUnit\DbUnit\TestCaseTrait;
+
+class MyTestCase extends TestCase
 {
+    use TestCaseTrait;
+
     public function getDataSet()
     {
         return $this->createMySQLXMLDataSet('/path/to/file.xml');
@@ -729,23 +768,27 @@ guestbook:
     created: 2010-04-26 12:14:20
 ]]></screen>
         <para>
-          Isso é simples, conveniente E resolve o problema do NULL que o 
-          Conjunto de Dados similar do XML Plano tem. Um NULL em um YAML é apenas o nome 
+          Isso é simples, conveniente E resolve o problema do NULL que o
+          Conjunto de Dados similar do XML Plano tem. Um NULL em um YAML é apenas o nome
           da coluna sem nenhum valor especificado. Uma string vazia é especificada como
           <literal><![CDATA[column1: ""]]></literal>.
         </para>
         <para>
-          O Conjunto de Dados YAML atualmente não possui método fábrica no Caso de Teste 
+          O Conjunto de Dados YAML atualmente não possui método fábrica no Caso de Teste
           de Banco de Dados, então você tem que instanciar manualmente:
         </para>
         <programlisting><![CDATA[<?php
-class YamlGuestbookTest extends PHPUnit_Extensions_Database_TestCase
+use PHPUnit\Framework\TestCase;
+use PHPUnit\DbUnit\TestCaseTrait;
+use PHPUnit\DbUnit\DataSet\YamlDataSet;
+
+class YamlGuestbookTest extends TestCase
 {
+    use TestCaseTrait;
+
     protected function getDataSet()
     {
-        return new PHPUnit_Extensions_Database_DataSet_YamlDataSet(
-            dirname(__FILE__)."/_files/guestbook.yml"
-        );
+        return new YamlDataSet(dirname(__FILE__)."/_files/guestbook.yml");
     }
 }
 ?>]]></programlisting>
@@ -753,8 +796,8 @@ class YamlGuestbookTest extends PHPUnit_Extensions_Database_TestCase
       <section id="database.csv-dataset">
         <title>Conjunto de Dados CSV</title>
         <para>
-          Outro Conjunto de Dados baseado em arquivo, com arquivos CSV. Cada tabela do 
-          conjunto de dados é representada como um único arquivo CSV. Para nosso exemplo 
+          Outro Conjunto de Dados baseado em arquivo é baseado em arquivos CSV. Cada tabela do
+          conjunto de dados é representada como um único arquivo CSV. Para nosso exemplo
           do guestbook, vamos definir um arquivo guestbook-table.csv:
         </para>
         <screen><![CDATA[
@@ -763,20 +806,26 @@ id,content,user,created
 2,"I like it!","nancy","2010-04-26 12:14:20"
 ]]></screen>
         <para>
-          Apesar disso ser muito conveniente para edição no Excel ou OpenOffice, 
-          você não pode especificar valores NULL em um Conjunto de Dados CSV. Uma coluna 
-          vazia levaria a um valor vazio padrão de banco de dados a ser inserido 
+          Apesar disso ser muito conveniente para edição no Excel ou OpenOffice,
+          você não pode especificar valores NULL em um Conjunto de Dados CSV. Uma coluna
+          vazia levaria a um valor vazio padrão de banco de dados a ser inserido
           na coluna.
         </para>
         <para>
           Você pode criar um Conjunto de Dados CSV chamando:
         </para>
         <programlisting><![CDATA[<?php
-class CsvGuestbookTest extends PHPUnit_Extensions_Database_TestCase
+use PHPUnit\Framework\TestCase;
+use PHPUnit\DbUnit\TestCaseTrait;
+use PHPUnit\DbUnit\DataSet\CsvDataSet;
+
+class CsvGuestbookTest extends TestCase
 {
+    use TestCaseTrait;
+
     protected function getDataSet()
     {
-        $dataSet = new PHPUnit_Extensions_Database_DataSet_CsvDataSet();
+        $dataSet = new CsvDataSet();
         $dataSet->addTable('guestbook', dirname(__FILE__)."/_files/guestbook.csv");
         return $dataSet;
     }
@@ -786,26 +835,43 @@ class CsvGuestbookTest extends PHPUnit_Extensions_Database_TestCase
       <section id="database.array-dataset">
         <title>Conjunto de Dados em Vetor</title>
         <para>
-          Desde a versão 1.3.2 da Extensão de Banco de dados do PHPUnit há um array 
-          baseado em Conjunto de dados. Nosso exemplo do guestbook 
+          Não existe Conjunto de Dados baseado em vetor na Extensão de Banco de Dados do PHPUnit
+          (ainda), mas podemos implementar a nossa própria facilmente. Nosso exemplo do guestbook
           deveria ficar parecido com:
         </para>
         <programlisting><![CDATA[<?php
-class ArrayGuestbookTest extends PHPUnit_Extensions_Database_TestCase
+use PHPUnit\Framework\TestCase;
+use PHPUnit\DbUnit\TestCaseTrait;
+
+class ArrayGuestbookTest extends TestCase
 {
+    use TestCaseTrait;
+
     protected function getDataSet()
     {
-        return $this->createArrayDataSet(array(
-            'guestbook' => array(
-                array('id' => 1, 'content' => 'Hello buddy!', 'user' => 'joe', 'created' => '2010-04-24 17:15:23'),
-                array('id' => 2, 'content' => 'I like it!',   'user' => null,  'created' => '2010-04-26 12:14:20'),
-            ),
-        ));
+        return new MyApp_DbUnit_ArrayDataSet(
+            [
+                'guestbook' => [
+                    [
+                        'id' => 1,
+                        'content' => 'Hello buddy!',
+                        'user' => 'joe',
+                        'created' => '2010-04-24 17:15:23'
+                    ],
+                    [
+                        'id' => 2,
+                        'content' => 'I like it!',
+                        'user' => null,
+                        'created' => '2010-04-26 12:14:20'
+                    ],
+                ],
+            ]
+        );
     }
 }
 ?>]]></programlisting>
         <para>
-          Um Conjunto de Dados do PHP tem algumas vantagens óbvias sobre todas os outros 
+          Um Conjunto de Dados do PHP tem algumas vantagens óbvias sobre todos os outros
           conjuntos de dados baseados em arquivos:
         </para>
         <itemizedlist>
@@ -816,24 +882,72 @@ class ArrayGuestbookTest extends PHPUnit_Extensions_Database_TestCase
           </listitem>
           <listitem>
             <para>
-              Você não precisa de arquivos adicionais para asserções e pode especificá-las diretamente 
-              no Caso de Teste.
+              Você não precisa de arquivos adicionais para asserções e pode especificá-las diretamente
+              no TestCase (na classe de Caso de Teste).
             </para>
           </listitem>
         </itemizedlist>
         <para>
-          Para este Conjunto de Dados, como nos Conjuntos de Dados em XML Plano, CSV e YAML, as chaves 
-          da primeira linha especificada definem os nomes das colunas das tabelas, que no 
+          Para este Conjunto de Dados, como nos Conjuntos de Dados em XML Plano, CSV e YAML, as chaves
+          da primeira linha especificada definem os nomes das colunas das tabelas, que no
           caso anterior seriam <quote>id</quote>,
           <quote>content</quote>, <quote>user</quote> e
           <quote>created</quote>.
         </para>
+        <para>
+          A implementação para esse Conjunto de Dados é simples e
+          direta:
+        </para>
+        <programlisting><![CDATA[<?php
+class MyApp_DbUnit_ArrayDataSet extends PHPUnit_Extensions_Database_DataSet_AbstractDataSet
+{
+    /**
+     * @var array
+     */
+    protected $tables = [];
+
+    /**
+     * @param array $data
+     */
+    public function __construct(array $data)
+    {
+        foreach ($data AS $tableName => $rows) {
+            $columns = [];
+            if (isset($rows[0])) {
+                $columns = array_keys($rows[0]);
+            }
+
+            $metaData = new PHPUnit_Extensions_Database_DataSet_DefaultTableMetaData($tableName, $columns);
+            $table = new PHPUnit_Extensions_Database_DataSet_DefaultTable($metaData);
+
+            foreach ($rows AS $row) {
+                $table->addRow($row);
+            }
+            $this->tables[$tableName] = $table;
+        }
+    }
+
+    protected function createIterator($reverse = false)
+    {
+        return new PHPUnit_Extensions_Database_DataSet_DefaultTableIterator($this->tables, $reverse);
+    }
+
+    public function getTable($tableName)
+    {
+        if (!isset($this->tables[$tableName])) {
+            throw new InvalidArgumentException("$tableName is not a table in the current database.");
+        }
+
+        return $this->tables[$tableName];
+    }
+}
+?>]]></programlisting>
       </section>
       <section id="database.query-sql-dataset">
         <title>Conjunto de Dados Query (SQL)</title>
         <para>
-          Para asserções de banco de dados você não precisa somente de conjuntos de dados baseados em arquivos, 
-          mas também de conjuntos de dados baseados em Query/SQL que contenha os conteúdos 
+          Para asserções de banco de dados você não precisa somente de conjuntos de dados baseados em arquivos,
+          mas também de conjuntos de dados baseados em Query/SQL que contenha os conteúdos
           reais do banco de dados. É aí que entra o Query DataSet:
         </para>
         <programlisting><![CDATA[<?php
@@ -841,7 +955,7 @@ $ds = new PHPUnit_Extensions_Database_DataSet_QueryDataSet($this->getConnection(
 $ds->addTable('guestbook');
 ?>]]></programlisting>
         <para>
-          Adicionar uma tabela apenas por nome é um modo implícito de definir a 
+          Adicionar uma tabela apenas por nome é um modo implícito de definir a
           tabela de dados com a seguinte query:
         </para>
         <programlisting><![CDATA[<?php
@@ -849,8 +963,8 @@ $ds = new PHPUnit_Extensions_Database_DataSet_QueryDataSet($this->getConnection(
 $ds->addTable('guestbook', 'SELECT * FROM guestbook');
 ?>]]></programlisting>
         <para>
-          Você pode fazer uso disso especificando queries arbitrárias para suas 
-          tabelas, por exemplo restringindo linhas, colunas, ou adicionando 
+          Você pode fazer uso disso especificando queries arbitrárias para suas
+          tabelas, por exemplo restringindo linhas, colunas, ou adicionando
           cláusulas <literal>ORDER BY</literal>:
         </para>
         <programlisting><![CDATA[<?php
@@ -858,27 +972,32 @@ $ds = new PHPUnit_Extensions_Database_DataSet_QueryDataSet($this->getConnection(
 $ds->addTable('guestbook', 'SELECT id, content FROM guestbook ORDER BY created DESC');
 ?>]]></programlisting>
         <para>
-          A seção nas Asserções de Banco de Dados mostrará mais alguns detalhes sobre 
+          A seção nas Asserções de Banco de Dados mostrará mais alguns detalhes sobre
           como fazer uso do Conjunto de Dados Query.
         </para>
       </section>
       <section id="database.database-db-dataset">
         <title>Conjunto de Dados de Banco de Dados (BD)</title>
         <para>
-          Acessando a Conexão de Teste você pode criar automaticamente um 
-          Conjunto de Dados que consiste de todas as tabelas com seus conteúdos no 
-          banco de dados especificado como segundo parâmetro ao método 
+          Acessando a Conexão de Teste você pode criar automaticamente um
+          Conjunto de Dados que consiste de todas as tabelas com seus conteúdos no
+          banco de dados especificado como segundo parâmetro ao método
           Fábrica de Conexões.
         </para>
         <para>
-          Você pode tanto criar um Conjunto de Dados para todo o banco de dados como mostrado 
-          em  <literal>testGuestbook()</literal>, ou restringi-lo a um conjunto de 
-          nomes específicos de tabelas com uma lista branca, como mostrado no 
+          Você pode tanto criar um Conjunto de Dados para todo o banco de dados como mostrado
+          em  <literal>testGuestbook()</literal>, ou restringi-lo a um conjunto de
+          nomes específicos de tabelas com uma lista branca, como mostrado no
           método <literal>testFilteredGuestbook()</literal>.
         </para>
         <programlisting><![CDATA[<?php
-class MySqlGuestbookTest extends PHPUnit_Extensions_Database_TestCase
+use PHPUnit\Framework\TestCase;
+use PHPUnit\DbUnit\TestCaseTrait;
+
+class MySqlGuestbookTest extends TestCase
 {
+    use TestCaseTrait;
+
     /**
      * @return PHPUnit_Extensions_Database_DB_IDatabaseConnection
      */
@@ -899,7 +1018,7 @@ class MySqlGuestbookTest extends PHPUnit_Extensions_Database_TestCase
 
     public function testFilteredGuestbook()
     {
-        $tableNames = array('guestbook');
+        $tableNames = ['guestbook'];
         $dataSet = $this->getConnection()->createDataSet($tableNames);
         // ...
     }
@@ -907,16 +1026,16 @@ class MySqlGuestbookTest extends PHPUnit_Extensions_Database_TestCase
 ?>]]></programlisting>
       </section>
       <section id="database.replacement-dataset">
-        <title>Conjunto de Dados de Reposição</title>
+        <title>Conjunto de Dados de Substituição</title>
         <para>
-          Eu tenho falado sobre problemas com NULL nos Conjunto de Dados XML Plano e 
-          CSV, mas existe uma alternativa um pouco complicada para fazer ambos 
+          Eu tenho falado sobre problemas com NULL nos Conjunto de Dados XML Plano e
+          CSV, mas existe uma alternativa um pouco complicada para fazer ambos
           funcionarem com NULLs.
         </para>
         <para>
-          O Conjunto de Dados de Reposição é um decorador para um Conjunto de Dados existente e 
-          permite que você substitua valores em qualquer coluna do conjunto de dados por outro 
-          valor de reposição. Para fazer nosso exemplo do guestbook funcionar com valores NULL 
+          O Conjunto de Dados de Substituição é um decorador para um Conjunto de Dados existente e
+          permite que você substitua valores em qualquer coluna do conjunto de dados por outro
+          valor de substituição. Para fazer nosso exemplo do guestbook funcionar com valores NULL
           devemos especificar o arquivo como:
         </para>
         <screen><![CDATA[
@@ -927,11 +1046,16 @@ class MySqlGuestbookTest extends PHPUnit_Extensions_Database_TestCase
 </dataset>
 ]]></screen>
         <para>
-          Então envolvemos o Conjunto de Dados em XML Plano dentro de um Conjunto de Dados de Reposição:
+          Então envolvemos o Conjunto de Dados em XML Plano dentro de um Conjunto de Dados de Substituição:
         </para>
         <programlisting><![CDATA[<?php
-class ReplacementTest extends PHPUnit_Extensions_Database_TestCase
+use PHPUnit\Framework\TestCase;
+use PHPUnit\DbUnit\TestCaseTrait;
+
+class ReplacementTest extends TestCase
 {
+    use TestCaseTrait;
+
     public function getDataSet()
     {
         $ds = $this->createFlatXmlDataSet('myFlatXmlFixture.xml');
@@ -945,42 +1069,47 @@ class ReplacementTest extends PHPUnit_Extensions_Database_TestCase
       <section id="database.dataset-filter">
         <title>Filtro de Conjunto de Dados</title>
         <para>
-          Se você tiver um arquivo grande de ambiente você pode usar o Filtro de Conjunto de Dados para 
-          as listas branca e negra das tabelas e colunas que deveriam estar 
-          contidas em um sub-conjunto de dados. Isso ajuda especialmente em combinação 
-          com o DB DataSet para filtrar as colunas dos conjuntos de dados.
+          Se você tiver um arquivo grande de ambiente você pode usar o Filtro de Conjunto de Dados para
+          as listas branca e negra das tabelas e colunas que deveriam estar
+          contidas em um sub-conjunto de dados. Isso ajuda especialmente em combinação
+          com o Conjunto de dados DB para filtrar as colunas dos conjuntos de dados.
         </para>
         <programlisting><![CDATA[<?php
-class DataSetFilterTest extends PHPUnit_Extensions_Database_TestCase
+use PHPUnit\Framework\TestCase;
+use PHPUnit\DbUnit\TestCaseTrait;
+
+class DataSetFilterTest extends TestCase
 {
+    use TestCaseTrait;
+
     public function testIncludeFilteredGuestbook()
     {
-        $tableNames = array('guestbook');
+        $tableNames = ['guestbook'];
         $dataSet = $this->getConnection()->createDataSet();
 
         $filterDataSet = new PHPUnit_Extensions_Database_DataSet_DataSetFilter($dataSet);
-        $filterDataSet->addIncludeTables(array('guestbook'));
-        $filterDataSet->setIncludeColumnsForTable('guestbook', array('id', 'content'));
+        $filterDataSet->addIncludeTables(['guestbook']);
+        $filterDataSet->setIncludeColumnsForTable('guestbook', ['id', 'content']);
         // ..
     }
 
     public function testExcludeFilteredGuestbook()
     {
-        $tableNames = array('guestbook');
+        $tableNames = ['guestbook'];
         $dataSet = $this->getConnection()->createDataSet();
 
         $filterDataSet = new PHPUnit_Extensions_Database_DataSet_DataSetFilter($dataSet);
-        $filterDataSet->addExcludeTables(array('foo', 'bar', 'baz')); // only keep the guestbook table!
-        $filterDataSet->setExcludeColumnsForTable('guestbook', array('user', 'created'));
+        $filterDataSet->addExcludeTables(['foo', 'bar', 'baz']); // only keep the guestbook table!
+        $filterDataSet->setExcludeColumnsForTable('guestbook', ['user', 'created']);
         // ..
     }
 }
 ?>]]></programlisting>
         <blockquote>
           <para>
-            <emphasis role="strong">NOTA</emphasis> Você não pode usar ambos os 
-            filtros de coluna excluir e incluir na mesma tabela, apenas em tabelas 
-            diferentes. E mais: só é possível para a lista branca ou negra, 
+            <emphasis role="strong">NOTA</emphasis> Você não pode usar ambos os
+            filtros de incluir e excluir coluna na mesma tabela, apenas em tabelas
+            diferentes. E mais: só é possível para a lista branca ou negra,
             mas não para ambas.
           </para>
         </blockquote>
@@ -988,9 +1117,9 @@ class DataSetFilterTest extends PHPUnit_Extensions_Database_TestCase
       <section id="database.composite-dataset">
         <title>Conjunto de Dados Composto</title>
         <para>
-          O Conjunto de Dados composto é muito útil para agregar vários 
-          conjuntos de dados já existentes em um único Conjunto de Dados. Quando vários 
-          conjuntos de dados contém as mesmas tabelas, as linhas são anexadas na 
+          O Conjunto de Dados composto é muito útil para agregar vários
+          conjuntos de dados já existentes em um único Conjunto de Dados. Quando vários
+          conjuntos de dados contém as mesmas tabelas, as linhas são anexadas na
           ordem especificada. Por exemplo se tivermos dois conjuntos de dados
           <emphasis>fixture1.xml</emphasis>:
         </para>
@@ -1013,8 +1142,13 @@ class DataSetFilterTest extends PHPUnit_Extensions_Database_TestCase
           Usando o Conjunto de Dados Composto podemos agregar os dois arquivos de ambiente:
         </para>
         <programlisting><![CDATA[<?php
-class CompositeTest extends PHPUnit_Extensions_Database_TestCase
+use PHPUnit\Framework\TestCase;
+use PHPUnit\DbUnit\TestCaseTrait;
+
+class CompositeTest extends TestCase
 {
+    use TestCaseTrait;
+
     public function getDataSet()
     {
         $ds1 = $this->createFlatXmlDataSet('fixture1.xml');
@@ -1033,18 +1167,18 @@ class CompositeTest extends PHPUnit_Extensions_Database_TestCase
     <section id="database.beware-of-foreign-keys">
       <title>Cuidado com Chaves Estrangeiras</title>
       <para>
-        Durante a Configuração do Ambiente a Extensão para Banco de Dados do PHPUnit insere as linhas 
-        no banco de dados na ordem que são especificadas em seu ambiente. 
-        Se seu esquema de banco de dados usa chaves estrangeiras isso significa que você tem que 
-        especificar as tabelas em uma ordem que não faça as restrições das chaves estrangeiras 
+        Durante a Configuração do Ambiente a Extensão para Banco de Dados do PHPUnit insere as linhas
+        no banco de dados na ordem que são especificadas em seu ambiente.
+        Se seu esquema de banco de dados usa chaves estrangeiras isso significa que você tem que
+        especificar as tabelas em uma ordem que não faça as restrições das chaves estrangeiras
         falharem.
       </para>
     </section>
     <section id="database.implementing-your-own-datasetsdatatables">
       <title>Implementando seus próprios Conjuntos de Dados/ Tabelas de Dados</title>
       <para>
-        Para entender os interiores dos Conjuntos de Dados e Tabelas de Dados, vamos dar uma 
-        olhada na interface de um Conjunto de Dados. Você pode pular esta parte se você 
+        Para entender os interiores dos Conjuntos de Dados e Tabelas de Dados, vamos dar uma
+        olhada na interface de um Conjunto de Dados. Você pode pular esta parte se você
         não planeja implementar seu próprio Conjunto de Dados ou Tabela de Dados.
       </para>
       <programlisting><![CDATA[<?php
@@ -1060,18 +1194,18 @@ interface PHPUnit_Extensions_Database_DataSet_IDataSet extends IteratorAggregate
 ?>]]></programlisting>
       <para>
         A interface pública é usada internamente pela asserção
-        <literal>assertDataSetsEqual()</literal> no Caso de Teste de 
+        <literal>assertDataSetsEqual()</literal> no Caso de Teste de
         Banco de Dados para verificar a qualidade do conjunto de dados. Da interface
-        <literal>IteratorAggregate</literal> o IDataSet 
-        herda o método <literal>getIterator()</literal> para iterar 
-        sobre todas as tabelas do conjunto de dados. O iterador reverso permite o PHPUnit 
-        truncar corretamente as tabelas em ordem reversa à que foi criada para satisfazer 
+        <literal>IteratorAggregate</literal> o IDataSet
+        herda o método <literal>getIterator()</literal> para iterar
+        sobre todas as tabelas do conjunto de dados. O iterador reverso permite o PHPUnit
+        truncar corretamente as tabelas em ordem reversa à que foi criada para satisfazer
         as restrições de chaves estrangeiras.
       </para>
       <para>
-        Dependendo da implementação, diferentes abordagens são usadas para 
-        adicionar instâncias de tabela a um Conjunto de Dados. Por exemplo, tabelas são adicionadas 
-        internamente durante a construção a partir de um arquivo fonte em todos 
+        Dependendo da implementação, diferentes abordagens são usadas para
+        adicionar instâncias de tabela a um Conjunto de Dados. Por exemplo, tabelas são adicionadas
+        internamente durante a construção a partir de um arquivo fonte em todos
         os conjuntos de dados baseados em arquivo como <literal>YamlDataSet</literal>,
         <literal>XmlDataSet</literal> ou <literal>FlatXmlDataSet</literal>.
       </para>
@@ -1089,14 +1223,14 @@ interface PHPUnit_Extensions_Database_DataSet_ITable
 }
 ?>]]></programlisting>
       <para>
-        Com exceção do método <literal>getTableMetaData()</literal> isso é 
-        bastante auto-explicativo. Os métodos usados são todos requeridos para 
-        as diferentes asserções da Extensão para Banco de Dados que são 
+        Com exceção do método <literal>getTableMetaData()</literal> isso é
+        bastante auto-explicativo. Os métodos usados são todos requeridos para
+        as diferentes asserções da Extensão para Banco de Dados que são
         explicados no próximo capítulo. O método
-        <literal>getTableMetaData()</literal> deve retornar uma 
+        <literal>getTableMetaData()</literal> deve retornar uma
         implementação da interface
         <literal>PHPUnit_Extensions_Database_DataSet_ITableMetaData</literal>
-        que descreve a estrutura da tabela. Possui informações 
+        que descreve a estrutura da tabela. Possui informações
         sobre:
       </para>
       <itemizedlist>
@@ -1107,7 +1241,7 @@ interface PHPUnit_Extensions_Database_DataSet_ITable
         </listitem>
         <listitem>
           <para>
-            Um vetor de nomes de coluna da tabela, ordenado por suas aparições 
+            Um vetor de nomes de colunas da tabela, ordenado por suas aparições
             nos conjuntos de resultados.
           </para>
         </listitem>
@@ -1118,8 +1252,8 @@ interface PHPUnit_Extensions_Database_DataSet_ITable
         </listitem>
       </itemizedlist>
       <para>
-        Essa interface também tem uma asserção que verifica se duas instâncias 
-        de Metadados de Tabela se equivalem, o que é usado pela asserção de igualdade 
+        Essa interface também tem uma asserção que verifica se duas instâncias
+        de Metadados de Tabela se equivalem, o que é usado pela asserção de igualdade
         do conjunto de dados.
       </para>
     </section>
@@ -1127,7 +1261,7 @@ interface PHPUnit_Extensions_Database_DataSet_ITable
   <section id="database.the-connection-api">
     <title>A API de Conexão</title>
     <para>
-      Existem três métodos interessantes na interface Connection 
+      Existem três métodos interessantes na interface Connection
       que devem ser retornados do método
       <literal>getConnection()</literal> no Caso de Teste de Banco de Dados:
     </para>
@@ -1144,15 +1278,20 @@ interface PHPUnit_Extensions_Database_DB_IDatabaseConnection
     <orderedlist numeration="arabic">
       <listitem>
         <para>
-          O método <literal>createDataSet()</literal> cria um Conjunto de Dados 
+          O método <literal>createDataSet()</literal> cria um Conjunto de Dados
           de Banco de Dados (BD) como descrito na seção de implementações de Conjunto de Dados.
         </para>
         <programlisting><![CDATA[<?php
-class ConnectionTest extends PHPUnit_Extensions_Database_TestCase
+use PHPUnit\Framework\TestCase;
+use PHPUnit\DbUnit\TestCaseTrait;
+
+class ConnectionTest extends TestCase
 {
+    use TestCaseTrait;
+
     public function testCreateDataSet()
     {
-        $tableNames = array('guestbook');
+        $tableNames = ['guestbook'];
         $dataSet = $this->getConnection()->createDataSet();
     }
 }
@@ -1160,18 +1299,23 @@ class ConnectionTest extends PHPUnit_Extensions_Database_TestCase
       </listitem>
       <listitem>
         <para>
-          O método <literal>createQueryTable()</literal> pode ser usado para 
-          criar instâncias de uma QueryTable, dado um nome de resultado e uma query 
+          O método <literal>createQueryTable()</literal> pode ser usado para
+          criar instâncias de uma QueryTable, dado um nome de resultado e uma query
           SQL. Este é um método conveniente quando se fala sobre asserções de resultado/tabela
-          como será mostrado na próxima seção de API de Asserções 
+          como será mostrado na próxima seção de API de Asserções
           de Banco de Dados.
         </para>
         <programlisting><![CDATA[<?php
-class ConnectionTest extends PHPUnit_Extensions_Database_TestCase
+use PHPUnit\Framework\TestCase;
+use PHPUnit\DbUnit\TestCaseTrait;
+
+class ConnectionTest extends TestCase
 {
+    use TestCaseTrait;
+
     public function testCreateQueryTable()
     {
-        $tableNames = array('guestbook');
+        $tableNames = ['guestbook'];
         $queryTable = $this->getConnection()->createQueryTable('guestbook', 'SELECT * FROM guestbook');
     }
 }
@@ -1179,14 +1323,19 @@ class ConnectionTest extends PHPUnit_Extensions_Database_TestCase
       </listitem>
       <listitem>
         <para>
-          O método <literal>getRowCount()</literal> é uma forma conveniente de 
-          acessar o número de linhas em uma tabela, opcionalmente filtradas por uma 
-          cláusula where adicional. Isso pode ser usado com uma simples asserção 
+          O método <literal>getRowCount()</literal> é uma forma conveniente de
+          acessar o número de linhas em uma tabela, opcionalmente filtradas por uma
+          cláusula where adicional. Isso pode ser usado com uma simples asserção
           de igualdade:
         </para>
         <programlisting><![CDATA[<?php
-class ConnectionTest extends PHPUnit_Extensions_Database_TestCase
+use PHPUnit\Framework\TestCase;
+use PHPUnit\DbUnit\TestCaseTrait;
+
+class ConnectionTest extends TestCase
 {
+    use TestCaseTrait;
+
     public function testGetRowCount()
     {
         $this->assertEquals(2, $this->getConnection()->getRowCount('guestbook'));
@@ -1199,24 +1348,29 @@ class ConnectionTest extends PHPUnit_Extensions_Database_TestCase
   <section id="database.database-assertions-api">
     <title>API de Asserções de Banco de Dados</title>
     <para>
-      Para uma ferramenta de testes, a Extensão para Banco de Dados certamente fornece algumas 
-      asserções que você pode usar para verificar o estado atual do banco de dados, 
-      tabelas e a contagem de linhas de tabelas. Esta seção 
+      Para uma ferramenta de testes, a Extensão para Banco de Dados certamente fornece algumas
+      asserções que você pode usar para verificar o estado atual do banco de dados,
+      tabelas e a contagem de linhas de tabelas. Esta seção
       descreve essa funcionalidade em detalhes:
     </para>
     <section id="database.asserting-the-row-count-of-a-table">
-      <title>Asseverado a contagem de linhas de uma Tabela</title>
+      <title>Asseverando a contagem de linhas de uma Tabela</title>
       <para>
-        Às vezes ajuda verificar se uma tabela contém uma quantidade específica 
-        de linhas. Você pode conseguir isso facilmente sem colar códigos adicionais 
-        usando a API de Conexão. Suponha que queiramos verificar se após a 
-        inserção de uma linha em nosso guestbook não apenas temos as duas entradas 
-        iniciais que nos acompanharam em todos os exemplos 
+        Às vezes ajuda verificar se uma tabela contém uma quantidade específica
+        de linhas. Você pode conseguir isso facilmente sem colar códigos adicionais
+        usando a API de Conexão. Suponha que queiramos verificar se após a
+        inserção de uma linha em nosso guestbook não temos somente as duas entradas
+        iniciais que nos acompanharam em todos os exemplos
         anteriores, mas uma terceira:
       </para>
       <programlisting><![CDATA[<?php
-class GuestbookTest extends PHPUnit_Extensions_Database_TestCase
+use PHPUnit\Framework\TestCase;
+use PHPUnit\DbUnit\TestCaseTrait;
+
+class GuestbookTest extends TestCase
 {
+    use TestCaseTrait;
+
     public function testAddEntry()
     {
         $this->assertEquals(2, $this->getConnection()->getRowCount('guestbook'), "Pre-Condition");
@@ -1232,19 +1386,24 @@ class GuestbookTest extends PHPUnit_Extensions_Database_TestCase
     <section id="database.asserting-the-state-of-a-table">
       <title>Asseverando o Estado de uma Tabela</title>
       <para>
-       A asserção anterior ajuda, mas certamente queremos verificar os 
-        conteúdos reais da tabela para verificar se todos os valores foram 
-        escritos nas colunas corretas. Isso pode ser conseguido com uma 
+        A asserção anterior ajuda, mas certamente queremos verificar os
+        conteúdos reais da tabela para verificar se todos os valores foram
+        escritos nas colunas corretas. Isso pode ser conseguido com uma
         asserção de tabela.
       </para>
       <para>
-        Para isso vamos definir uma instância de Tabela Query que deriva seu 
-        conteúdo de um nome de tabela e de uma query SQL e compara isso a um 
+        Para isso vamos definir uma instância de Tabela Query que deriva seu
+        conteúdo de um nome de tabela e de uma query SQL e compara isso a um
         Conjunto de Dados baseado em Arquivo/Vetor:
       </para>
       <programlisting><![CDATA[<?php
-class GuestbookTest extends PHPUnit_Extensions_Database_TestCase
+use PHPUnit\Framework\TestCase;
+use PHPUnit\DbUnit\TestCaseTrait;
+
+class GuestbookTest extends TestCase
 {
+    use TestCaseTrait;
+
     public function testAddEntry()
     {
         $guestbook = new Guestbook();
@@ -1260,7 +1419,7 @@ class GuestbookTest extends PHPUnit_Extensions_Database_TestCase
 }
 ?>]]></programlisting>
       <para>
-        Agora temos que escrever o arquivo XML Plano <emphasis>expectedBook.xml</emphasis> 
+        Agora temos que escrever o arquivo XML Plano <emphasis>expectedBook.xml</emphasis>
         para esta asserção:
       </para>
       <screen><![CDATA[
@@ -1272,15 +1431,15 @@ class GuestbookTest extends PHPUnit_Extensions_Database_TestCase
 </dataset>
 ]]></screen>
       <para>
-        Apesar disso, esta asserção só vai passar em exatamente um segundo 
-        do universo, em <emphasis>2010–05–01 21:47:08</emphasis>. Datas 
-        possuem um problema especial nos testes de bancos de dados e podemos circundar 
-        a falha omitindo a coluna <quote>created</quote> 
+        Apesar disso, esta asserção só vai passar em exatamente um segundo
+        do universo, em <emphasis>2010–05–01 21:47:08</emphasis>. Datas
+        possuem um problema especial nos testes de bancos de dados e podemos circundar
+        a falha omitindo a coluna <quote>created</quote>
         da asserção.
       </para>
       <para>
-        O arquivo ajustado <emphasis>expectedBook.xml</emphasis> em XML Plano 
-        provavelmente vai ficar parecido com o seguinte para fazer a 
+        O arquivo ajustado <emphasis>expectedBook.xml</emphasis> em XML Plano
+        provavelmente vai ficar parecido com o seguinte para fazer a
         asserção passar:
       </para>
       <screen><![CDATA[
@@ -1303,13 +1462,18 @@ $queryTable = $this->getConnection()->createQueryTable(
     <section id="database.asserting-the-result-of-a-query">
       <title>Asseverando o Resultado de uma Query</title>
       <para>
-        Você também pode asseverar o resultado de querys complexas com a abordagem 
-        da Tabela Query, apenas especificando um nome de resultado com uma query e 
+        Você também pode asseverar o resultado de queries complexas com a abordagem
+        da Tabela Query, apenas especificando um nome de resultado com uma query e
         comparando isso a um conjunto de dados:
       </para>
       <programlisting><![CDATA[<?php
-class ComplexQueryTest extends PHPUnit_Extensions_Database_TestCase
+use PHPUnit\Framework\TestCase;
+use PHPUnit\DbUnit\TestCaseTrait;
+
+class ComplexQueryTest extends TestCase
 {
+    use TestCaseTrait;
+
     public function testComplexQuery()
     {
         $queryTable = $this->getConnection()->createQueryTable(
@@ -1325,22 +1489,27 @@ class ComplexQueryTest extends PHPUnit_Extensions_Database_TestCase
     <section id="database.asserting-the-state-of-multiple-tables">
       <title>Asseverando o Estado de Múltiplas Tabelas</title>
       <para>
-        Certamente você pode asseverar o estado de múltiplas tabelas de uma vez e 
-        comparar um conjunto de dados de query contra um conjunto de dados baseado em arquivo. Existem duas 
-        formas diferentes de asserções de Conjuntos de Dados.
+        Certamente você pode asseverar o estado de múltiplas tabelas de uma vez e
+        comparar um conjunto de dados de query contra um conjunto de dados baseado em arquivo. Existem duas
+        formas diferentes para asserções de Conjuntos de Dados.
       </para>
       <orderedlist numeration="arabic">
         <listitem>
           <para>
-            Você pode usar o Database (Banco de Dados - DB) e o DataSet (Conjunto de Dados) da Connection (Conexão) e 
+            Você pode usar o Database (Banco de Dados - DB) e o DataSet (Conjunto de Dados) da Connection (Conexão) e
             compará-lo com um Conjunto de Dados Baseado em Arquivo.
           </para>
           <programlisting><![CDATA[<?php
-class DataSetAssertionsTest extends PHPUnit_Extensions_Database_TestCase
+use PHPUnit\Framework\TestCase;
+use PHPUnit\DbUnit\TestCaseTrait;
+
+class DataSetAssertionsTest extends TestCase
 {
+    use TestCaseTrait;
+
     public function testCreateDataSetAssertion()
     {
-        $dataSet = $this->getConnection()->createDataSet(array('guestbook'));
+        $dataSet = $this->getConnection()->createDataSet(['guestbook']);
         $expectedDataSet = $this->createFlatXmlDataSet('guestbook.xml');
         $this->assertDataSetsEqual($expectedDataSet, $dataSet);
     }
@@ -1352,12 +1521,17 @@ class DataSetAssertionsTest extends PHPUnit_Extensions_Database_TestCase
             Você pode construir o Conjunto de Dados por si próprio:
           </para>
           <programlisting><![CDATA[<?php
-class DataSetAssertionsTest extends PHPUnit_Extensions_Database_TestCase
+use PHPUnit\Framework\TestCase;
+use PHPUnit\DbUnit\TestCaseTrait;
+
+class DataSetAssertionsTest extends TestCase
 {
+    use TestCaseTrait;
+
     public function testManualDataSetAssertion()
     {
         $dataSet = new PHPUnit_Extensions_Database_DataSet_QueryDataSet();
-        $dataSet->addTable('guestbook', 'SELECT id, content, user FROM guestbook'); // additional tables
+        $dataSet->addTable('guestbook', 'SELECT id, content, user FROM guestbook'); // tabelas adicionais
         $expectedDataSet = $this->createFlatXmlDataSet('guestbook.xml');
 
         $this->assertDataSetsEqual($expectedDataSet, $dataSet);
@@ -1371,33 +1545,33 @@ class DataSetAssertionsTest extends PHPUnit_Extensions_Database_TestCase
   <section id="database.frequently-asked-questions">
     <title>Perguntas Mais Frequentes</title>
     <section id="database.will-phpunit-re-create-the-database-schema-for-each-test">
-      <title>O PHPUnit vai (re)criar o esquema do banco de dados para cada 
+      <title>O PHPUnit vai (re)criar o esquema do banco de dados para cada
              teste?</title>
       <para>
-        Não, o PHPUnit exige que todos os objetos do banco de dados estejam disponíveis quando a 
-        suíte começar os testes. O Banco de Dados, tabelas, sequências, gatilhos e 
+        Não, o PHPUnit exige que todos os objetos do banco de dados estejam disponíveis quando a
+        suíte começar os testes. O Banco de Dados, tabelas, sequências, gatilhos e
         visualizações devem ser criadas antes que você execute a suíte de testes.
       </para>
       <para>
         <ulink url="http://www.doctrine-project.org">Doctrine 2</ulink> ou
-        <ulink url="http://www.ezcomponents.org">eZ Components</ulink> possuem 
-        ferramentas poderosas que permitem a você criar o esquema de banco de dados através 
-        de estruturas de dados pré-definidas, porém devem ser ligados à 
-        extensão do PHPUnit para permitir a recriação automática de banco de dados 
+        <ulink url="http://www.ezcomponents.org">eZ Components</ulink> possuem
+        ferramentas poderosas que permitem você criar o esquema de banco de dados através
+        de estruturas de dados pré-definidas. Entretanto, devem ser ligados à
+        extensão do PHPUnit para permitir a recriação automática de banco de dados
         antes que a suíte de testes completa seja executada.
       </para>
       <para>
-        Já que cada teste limpa completamente o banco de dados, você nem sequer é 
-        forçado a recriar o banco de dados para cada execução de teste. Um banco de dados 
+        Já que cada teste limpa completamente o banco de dados, você nem sequer é
+        forçado a recriar o banco de dados para cada execução de teste. Um banco de dados
         permanentemente disponível funciona perfeitamente.
       </para>
     </section>
     <section id="database.am-i-required-to-use-pdo-in-my-application-for-the-database-extension-to-work">
-      <title>Sou forçado a usar PDO em minha aplicação para que a Extensão para 
+      <title>Sou forçado a usar PDO em minha aplicação para que a Extensão para
              Banco de Dados funcione?</title>
       <para>
-        Não, PDO só é exigido para limpeza e configuração do ambiente e para 
-        asserções. Você pode usar qualquer abstração de banco de dados que quiser 
+        Não, PDO só é exigido para limpeza e configuração do ambiente e para
+        asserções. Você pode usar qualquer abstração de banco de dados que quiser
         dentro de seu próprio código.
       </para>
     </section>
@@ -1405,25 +1579,25 @@ class DataSetAssertionsTest extends PHPUnit_Extensions_Database_TestCase
       <title>O que posso fazer quando recebo um Erro
              <quote>Too much Connections</quote>?</title>
       <para>
-        Se você não armazena em cache a instância de PDO que é criada a partir do 
-        método do Caso de Teste <literal>getConnection()</literal> o número de 
-        conexões ao banco de dados é aumentado em um ou mais com cada 
-        teste do banco de dados. Com a configuração padrão o MySQL só permite 100 
-        conexões concorrentes e outros fornecedores também têm um limite máximo 
+        Se você não armazena em cache a instância de PDO que é criada a partir do
+        método do Caso de Teste <literal>getConnection()</literal> o número de
+        conexões ao banco de dados é aumentado em um ou mais com cada
+        teste do banco de dados. Com a configuração padrão o MySQL só permite 100
+        conexões concorrentes e outros fornecedores também têm um limite máximo
         de conexões.
       </para>
       <para>
         A Sub-seção
-        <quote>Use seu próprio Caso Abstrato de Teste de Banco de Dados</quote> mostra como 
-        você pode prevenir o acontecimento desse erro usando uma instância única armazenada 
+        <quote>Use seu próprio Caso Abstrato de Teste de Banco de Dados</quote> mostra como
+        você pode prevenir o acontecimento desse erro usando uma instância única armazenada
         em cache do PDO em todos os seus testes.
       </para>
     </section>
     <section id="database.how-to-handle-null-with-flat-xml-csv-datasets">
       <title>Como lidar com NULL usando Conjuntos de Dados XML Plano / CSV?</title>
       <para>
-        Não faça isso. Em vez disso, você deveria usar Conjuntos de Dados ou 
-        XML ou YAML.
+        Não faça isso. Em vez disso, você deveria usar Conjuntos de Dados XML
+        ou YAML.
       </para>
     </section>
   </section>

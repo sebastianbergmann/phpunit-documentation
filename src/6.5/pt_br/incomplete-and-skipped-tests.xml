@@ -7,17 +7,17 @@
     <title>Testes Incompletos</title>
 
     <para>
-      Quando você está trabalhando em uma nova classe de caso de teste, você pode querer começar 
+      Quando você está trabalhando em uma nova classe de caso de teste, você pode querer começar
       a escrever métodos de teste vazios, como: <programlisting>public function testSomething()
 {
-}</programlisting> para manter o controle sobre os testes que você já escreveu. O 
-      problema com os métodos de teste vazios é que eles são interpretados como 
-      bem-sucedidos pelo framework do PHPUnit. Esse erro de interpretação leva à 
-      inutilização dos relatórios de testes -- você não pode ver se um teste foi 
-      realmente bem-sucedido ou simplesmente ainda não foi implementado. Chamar 
-      <literal>$this->fail()</literal> no teste não implementado 
-      não ajuda em nada, já que o teste será interpretado como uma 
-      falha. Isso seria tão errado quanto interpretar um teste não implementado 
+}</programlisting> para manter o controle sobre os testes que você já escreveu. O
+      problema com os métodos de teste vazios é que eles são interpretados como
+      bem-sucedidos pelo framework do PHPUnit. Esse erro de interpretação leva à
+      inutilização dos relatórios de testes -- você não pode ver se um teste foi
+      realmente bem-sucedido ou simplesmente ainda não foi implementado. Chamar
+      <literal>$this->fail()</literal> no método de teste não implementado
+      não ajuda em nada, já que o teste será interpretado como uma
+      falha. Isso seria tão errado quanto interpretar um teste não implementado
       como bem-sucedido.
     </para>
 
@@ -26,34 +26,36 @@
       <indexterm><primary>PHPUnit_Framework_IncompleteTest</primary></indexterm>
       <indexterm><primary>PHPUnit_Framework_IncompleteTestError</primary></indexterm>
 
-      Se imaginarmos que um teste bem-sucedido é uma luz verde e um teste mal-sucedido (falho) 
-      é uma luz vermelha, precisaremos de uma luz amarela adicional para marcar um teste 
-      como incompleto ou ainda não implementado. 
-      O <literal>PHPUnit_Framework_IncompleteTest</literal> é uma interface 
-      marcadora para marcar uma exceção que surge de um método de teste como 
-      resultado do teste ser incompleto ou atualmente não implementado. 
-      O <literal>PHPUnit_Framework_IncompleteTestError</literal> é a 
+      Se imaginarmos que um teste bem-sucedido é uma luz verde e um teste mal-sucedido (falho)
+      é uma luz vermelha, precisaremos de uma luz amarela adicional para marcar um teste
+      como incompleto ou ainda não implementado.
+      O <literal>PHPUnit_Framework_IncompleteTest</literal> é uma interface
+      marcadora para marcar uma exceção que surge de um método de teste como
+      resultado do teste ser incompleto ou atualmente não implementado.
+      O <literal>PHPUnit_Framework_IncompleteTestError</literal> é a
       implementação padrão dessa interface.
     </para>
 
     <para>
       O <xref linkend="incomplete-and-skipped-tests.incomplete-tests.examples.SampleTest.php" />
-      mostra uma classe de caso de teste, <literal>SampleTest</literal>, que contém um método 
-      de teste, <literal>testSomething()</literal>. Chamando o método de conveniência 
-      <literal>markTestIncomplete()</literal> (que automaticamente 
-      traz uma exceção <literal>PHPUnit_Framework_IncompleteTestError</literal>) 
+      mostra uma classe de caso de teste, <literal>SampleTest</literal>, que contém um método
+      de teste, <literal>testSomething()</literal>. Chamando o conveniente método
+      <literal>markTestIncomplete()</literal> (que automaticamente
+      lançará uma exceção <literal>PHPUnit_Framework_IncompleteTestError</literal>)
       no método de teste, marcamos o teste como sendo incompleto.
     </para>
 
     <example id="incomplete-and-skipped-tests.incomplete-tests.examples.SampleTest.php">
       <title>Marcando um teste como incompleto</title>
       <programlisting><![CDATA[<?php
-class SampleTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class SampleTest extends TestCase
 {
     public function testSomething()
     {
-        // Opcional: Teste alguma coisa aqui, se quiser
-        $this->assertTrue(TRUE, 'This should already work.');
+        // Opcional: Teste alguma coisa aqui, se quiser.
+        $this->assertTrue(true, 'This should already work.');
 
         // Pare aqui e marque este teste como incompleto.
         $this->markTestIncomplete(
@@ -65,8 +67,8 @@ class SampleTest extends PHPUnit_Framework_TestCase
     </example>
 
     <para>
-      Um teste incompleto é denotado por um <literal>I</literal> na saída 
-      do executor de testes em linha-de-comando do PHPUnit, como mostrado no exemplo 
+      Um teste incompleto é denotado por um <literal>I</literal> na saída
+      do executor de testes em linha-de-comando do PHPUnit, como mostrado no exemplo
       abaixo:
     </para>
 
@@ -119,25 +121,27 @@ Tests: 1, Assertions: 1, Incomplete: 1.</screen>
     <title>Pulando Testes</title>
 
     <para>
-      Nem todos os testes podem ser executados em qualquer ambiente. Considere, por exemplo, 
+      Nem todos os testes podem ser executados em qualquer ambiente. Considere, por exemplo,
       uma camada de abstração de banco de dados contendo vários drivers para os diversos
-      sistemas de banco de dados que suporta. Os testes para o driver MySQL podem ser 
+      sistemas de banco de dados que suporta. Os testes para o driver MySQL podem ser
       executados apenas, é claro, se um servidor MySQL estiver disponível.
     </para>
 
     <para>
       O <xref linkend="incomplete-and-skipped-tests.skipping-tests.examples.DatabaseTest.php" />
-      mostra uma classe de caso de teste, <literal>DatabaseTest</literal>, que contém um método 
-      de teste, <literal>testConnection()</literal>. No método-modelo <literal>setUp()</literal> 
-      da classe de caso de teste, verificamos se a extensão MySQLi 
-      está disponível e usamos o método <literal>markTestSkipped()</literal> 
+      mostra uma classe de caso de teste, <literal>DatabaseTest</literal>, que contém um método
+      de teste, <literal>testConnection()</literal>. No método-modelo <literal>setUp()</literal>
+      da classe de caso de teste, verificamos se a extensão MySQLi
+      está disponível e usamos o método <literal>markTestSkipped()</literal>
       para pular o teste caso contrário.
     </para>
 
     <example id="incomplete-and-skipped-tests.skipping-tests.examples.DatabaseTest.php">
       <title>Pulando um teste</title>
       <programlisting><![CDATA[<?php
-class DatabaseTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class DatabaseTest extends TestCase
 {
     protected function setUp()
     {
@@ -157,8 +161,8 @@ class DatabaseTest extends PHPUnit_Framework_TestCase
     </example>
 
     <para>
-      Um teste que tenha sido pulado é denotado por um <literal>S</literal> na 
-      saída do executor de testes em linha-de-comando do PHPUnit, como mostrado 
+      Um teste que tenha sido pulado é denotado por um <literal>S</literal> na
+      saída do executor de testes em linha-de-comando do PHPUnit, como mostrado
       no seguinte exemplo:
     </para>
 
@@ -211,7 +215,7 @@ Tests: 1, Assertions: 0, Skipped: 1.</screen>
     <title>Pulando Testes usando @requires</title>
 
     <para>
-      Além do método acima também é possível usar a 
+      Além do método acima também é possível usar a
       anotação <literal>@requires</literal> para expressar pré-condições comuns para um caso de teste.
     </para>
 
@@ -237,7 +241,7 @@ Tests: 1, Assertions: 0, Skipped: 1.</screen>
             <entry><literal>PHPUnit</literal></entry>
             <entry>Qualquer identificador de versão do PHPUnit</entry>
             <entry>@requires PHPUnit 3.6.3</entry>
-            <entry>@requires PHPUnit 5.0</entry>
+            <entry>@requires PHPUnit 4.6</entry>
           </row>
           <row>
             <entry><literal>OS</literal></entry>
@@ -253,9 +257,9 @@ Tests: 1, Assertions: 0, Skipped: 1.</screen>
           </row>
           <row>
             <entry><literal>extensão</literal></entry>
-            <entry>Qualquer nome de extensão</entry>
+            <entry>Qualquer nome de extensão junto com um opcional identificador de versão</entry>
             <entry>@requires extension mysqli</entry>
-            <entry>@requires extension curl</entry>
+            <entry>@requires extension redis 2.2.0</entry>
           </row>
         </tbody>
       </tgroup>
@@ -264,10 +268,12 @@ Tests: 1, Assertions: 0, Skipped: 1.</screen>
     <example id="incomplete-and-skipped-tests.skipping-tests.examples.DatabaseClassSkippingTest.php">
       <title>Pulando casos de teste usando @requires</title>
       <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
+
 /**
  * @requires extension mysqli
  */
-class DatabaseTest extends PHPUnit_Framework_TestCase
+class DatabaseTest extends TestCase
 {
     /**
      * @requires PHP 5.3
@@ -283,8 +289,8 @@ class DatabaseTest extends PHPUnit_Framework_TestCase
     </example>
 
     <para>
-      Se você está usando uma sintaxe que não compila com uma certa versão do PHP, procure dentro da configuração 
-      xml por includes dependentes de versão na <xref linkend="appendixes.configuration.testsuites" />.
+      Se você está usando uma sintaxe que não compila com uma certa versão do PHP, procure dentro da configuração
+      xml por inclusões dependentes de versão na <xref linkend="appendixes.configuration.testsuites" />.
     </para>
   </section>
 
