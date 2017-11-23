@@ -8,17 +8,17 @@
 
     <para>
       Quand vous travaillez sur une nouvelle classe de cas de test, vous pourriez vouloir
-      commencer en écrivant des méthodes de test vides comme 
-      <programlisting>public function testQuelquechose()
+      commencer en écrivant des méthodes de test vides comme : <programlisting>public function testQuelquechose()
 {
-}</programlisting> pour garder la trace des tests que vous avez à écrire. Le problème avec 
+}</programlisting> pour garder la trace des tests que vous avez à écrire. Le problème avec
       les méthodes de test vides est qu'elles sont interprétées comme étant réussies par le
       framework PHPUnit. Cette mauvaise interprétation fait que le rapport de tests devient
       inutile -- vous ne pouvez pas voir si un test est effectivement réussi ou s'il n'a tout
-      simplement pas été implémenté. Appeler 
+      simplement pas été implémenté. Appeler
       <literal>$this->fail()</literal> dans une méthode de test non implémentée
       n'aide pas davantage, puisqu'alors le test sera interprété comme étant un échec.
-      Ce serait tout aussi faux que d'interpréter un test non implémenté comme étant réussi.
+      Ce serait tout aussi faux que d'interpréter un test non implémenté
+      comme étant réussi.
     </para>
 
     <para>
@@ -30,16 +30,16 @@
       comme à un feu rouge, nous avons besoin d'un feu orange additionnel pour signaler
       un test comme étant incomplet ou pas encore implémenté.
       <literal>PHPUnit_Framework_IncompleteTest</literal> est une interface de marquage
-      pour signaler une exception qui est levée par une méthode de test comme résultat 
-      d'un test incomplet ou actuellement pas implémenté.
-      <literal>PHPUnit_Framework_IncompleteTestError</literal> est l'implémentation 
+      pour signaler une exception qui est levée par une méthode de test comme résultat
+      d'un test incomplet ou pas encore implémenté.
+      <literal>PHPUnit_Framework_IncompleteTestError</literal> est l'implémentation
       standard de cette interface.
     </para>
 
     <para>
       <xref linkend="incomplete-and-skipped-tests.incomplete-tests.examples.SampleTest.php" />
-      montre une classe de cas de tests, <literal>ExempleDeTest</literal>, qui contient une unique méthode de test,
-      method, <literal>testSomething()</literal>. En appelant la méthode pratique 
+      montre une classe de cas de tests, <literal>SampleTest</literal>, qui contient une unique méthode de
+      test, <literal>testSomething()</literal>. En appelant la méthode pratique
       <literal>markTestIncomplete()</literal> (qui lève automatiquement
       une exception <literal>PHPUnit_Framework_IncompleteTestError</literal>)
       dans la méthode de test, nous marquons le test comme étant incomplet.
@@ -48,16 +48,18 @@
     <example id="incomplete-and-skipped-tests.incomplete-tests.examples.SampleTest.php">
       <title>Signaler un test comme incomplet</title>
       <programlisting><![CDATA[<?php
-class ExempleDeTest extends PHPUnit_Framework_TestCase
-{
-    public function testeQuelquechose()
-    {
-        // Facultatif: testez tout ce que vous voulez ici.
-        $this->assertTrue(TRUE, 'Ceci devrait toujours fonctionner.');
+use PHPUnit\Framework\TestCase;
 
-        // Cesser ici et marquer ce test comme incomplet.
+class SampleTest extends TestCase
+{
+    public function testSomething()
+    {
+        // Optional: Test anything here, if you want.
+        $this->assertTrue(true, 'This should already work.');
+
+        // Stop here and mark this test as incomplete.
         $this->markTestIncomplete(
-          'Ce test n\'a pas encore été implémenté.'
+          'This test has not been implemented yet.'
         );
     }
 }
@@ -67,10 +69,10 @@ class ExempleDeTest extends PHPUnit_Framework_TestCase
     <para>
       Un test incomplet est signalé par un <literal>I</literal> sur la sortie écran
       du lanceur de test en ligne de commandes PHPUnit, comme montré dans l'exemple
-      suivant.
+      suivant :
     </para>
 
-    <screen><userinput>phpunit --verbose ExempleDeTest</userinput>
+    <screen><userinput>phpunit --verbose SampleTest</userinput>
 PHPUnit 6.1.0 by Sebastian Bergmann and contributors.
 
 I
@@ -79,10 +81,10 @@ Time: 0 seconds, Memory: 3.95Mb
 
 There was 1 incomplete test:
 
-1) ExempleDeTest::testQuelquechose
+1) SampleTest::testSomething
 This test has not been implemented yet.
 
-/home/sb/ExempleDeTest.php:12
+/home/sb/SampleTest.php:12
 OK, but incomplete or skipped tests!
 Tests: 1, Assertions: 1, Incomplete: 1.</screen>
 
@@ -128,7 +130,7 @@ Tests: 1, Assertions: 1, Incomplete: 1.</screen>
     <para>
       <xref linkend="incomplete-and-skipped-tests.skipping-tests.examples.DatabaseTest.php" />
       montre une classe de cas de tests, <literal>DatabaseTest</literal>, qui contient une méthode de tests
-      <literal>testConnection()</literal>. Dans la méthode canevas <literal>setUp()</literal> 
+      <literal>testConnection()</literal>. Dans le patron de méthode <literal>setUp()</literal>
       de la classe du cas de test, nous pouvons contrôler si l'extension
       MySQLi est disponible et utiliser la méthode <literal>markTestSkipped()</literal>
       pour sauter le test si ce n'est pas le cas.
@@ -137,13 +139,15 @@ Tests: 1, Assertions: 1, Incomplete: 1.</screen>
     <example id="incomplete-and-skipped-tests.skipping-tests.examples.DatabaseTest.php">
       <title>Sauter un test</title>
       <programlisting><![CDATA[<?php
-class DatabaseTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class DatabaseTest extends TestCase
 {
     protected function setUp()
     {
         if (!extension_loaded('mysqli')) {
             $this->markTestSkipped(
-              'L\'extension MySQLi n\'est pas disponible.'
+              'The MySQLi extension is not available.'
             );
         }
     }
@@ -240,6 +244,12 @@ Tests: 1, Assertions: 0, Skipped: 1.</screen>
             <entry>@requires PHPUnit 4.6</entry>
           </row>
           <row>
+            <entry><literal>OS</literal></entry>
+            <entry>Une expression regulière qui match <ulink url="http://php.net/manual/en/reserved.constants.php#constant.php-os">PHP_OS</ulink></entry>
+            <entry>@requires OS Linux</entry>
+            <entry>@requires OS WIN32|WINNT</entry>
+          </row>
+          <row>
             <entry><literal>function</literal></entry>
             <entry>Tout paramètre valide pour <ulink url="http://php.net/function_exists">function_exists</ulink></entry>
             <entry>@requires function imap_open</entry>
@@ -249,7 +259,7 @@ Tests: 1, Assertions: 0, Skipped: 1.</screen>
             <entry><literal>extension</literal></entry>
             <entry>Tout nom d'extension</entry>
             <entry>@requires extension mysqli</entry>
-            <entry>@requires extension curl</entry>
+            <entry>@requires extension redis 2.2.0</entry>
           </row>
         </tbody>
       </tgroup>
@@ -258,27 +268,29 @@ Tests: 1, Assertions: 0, Skipped: 1.</screen>
     <example id="incomplete-and-skipped-tests.skipping-tests.examples.DatabaseClassSkippingTest.php">
       <title>Sauter des cas de tests en utilisant @requires</title>
       <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
+
 /**
  * @requires extension mysqli
  */
-class DatabaseTest extends PHPUnit_Framework_TestCase
+class DatabaseTest extends TestCase
 {
     /**
      * @requires PHP 5.3
      */
     public function testConnection()
     {
-        // Test qui nécessite l'extension mysqli et PHP >= 5.3
+        // Test requires the mysqli extension and PHP >= 5.3
     }
 
-    // ... Tous les autres tests nécessitent l'extension mysqli
+    // ... All other tests require the mysqli extension
 }
 ?>]]></programlisting>
     </example>
- 	<para>
-		Si vous utilisez une syntaxe qui ne compile pas avec une version données de PHP, regardez
-        dans la configuration xml pour les inclusions dépendant de la version dans 
-        <xref linkend="appendixes.configuration.testsuites" />
+
+ 	  <para>
+		  Si vous utilisez une syntaxe qui ne compile pas avec une version données de PHP, regardez
+      dans la configuration xml pour les inclusions dépendant de la version dans <xref linkend="appendixes.configuration.testsuites" />
     </para>
   </section>
 
