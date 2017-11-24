@@ -11,16 +11,14 @@
   <blockquote>
     <attribution>Gerard Meszaros</attribution>
     <para>
-      <indexterm><primary>Système à tester</primary></indexterm>
+      <indexterm><primary>Système en cours de test</primary></indexterm>
 
-      Parfois il est juste parfaitement difficile de tester un système en cours de test
-      (SCT) parce qu'il dépend d'autres composants qui ne peuvent pas
-      être utilisés dans l'environnement de test. Ceci peut provenir du fait
-      qu'ils ne sont pas disponibles, qu'ils ne retournent pas les résultats
-      nécessaires pour les tests ou parce que les exécuter pourrait avoir
-      des effets de bord indésirables. Dans d'autres cas, notre stratégie de test
-      nécessite que nous ayons plus de contrôle ou de visibilité sur le comportement
-      interne du SCT.
+      Parfois il est parfaitement difficile de juste tester un système en cours de test (System Under Test : SUT)
+      parce qu'il dépend d'autres composants qui ne peuvent pas être utilisés dans l'environnement de test.
+      Ceci peut provenir du fait qu'ils ne sont pas disponibles, qu'ils ne retournent pas les résultats
+      nécessaires pour les tests ou parce que les exécuter pourrait avoir des effets de bord indésirables.
+      Dans d'autres cas, notre stratégie de test nécessite que nous ayons plus de contrôle ou de visibilité
+      sur le comportement interne du SUT.
     </para>
 
     <para>
@@ -36,29 +34,41 @@
   </blockquote>
 
   <para>
-    La méthode <literal>getMock($nomClasse)</literal> fournit par PHPUnit peut être
-    utilisée dans un test pour générer automatiquement un objet qui peut agir comme une
-    doublure de test pour une classe originelle indiquée. Cette doublure de test peut être
-    utilisée dans tous les contextes où la classe originelle est attendue.
+    Les méthodes <literal>createMock($type)</literal> et
+    <literal>getMockBuilder($type)</literal> fourni par PHPUnit peuvent être
+    utilisées dans un test pour générer automatiquement un objet qui peut agir comme une
+    doublure de test pour une classe originelle indiquée (interface ou non de classe).
+    Cette doublure de test peut être utilisée dans tous les contextes où la classe
+    originelle est attendue ou requise.
   </para>
 
   <para>
-    Par défaut, toutes les méthodes de la classe originelle sont remplacées
-    par une implémentation fictive qui se contente de retourner
-    <literal>NULL</literal> (sans appeler la méthode originelle).
-    En utilisant la méthode <literal>will($this->returnValue())</literal>
+    La méthode <literal>createMock($type)</literal> retourne immédiatement une doublure de
+    test pour le type spécifié (interface ou classe). La création de cette doublure est
+    effectuée en suivant par défaut les bonne pratiques (les méthodes <literal>__construct()
+    </literal> et <literal>__clone()</literal> de la classe originale ne sont pas executées
+    et les arguments passés à une méthode de la doublure de tests ne sont pas clonés. Si ce
+    comportement par défaut ne correspondent pas à ce don vous avez besoin vous pouvez
+    alors utiliser la méthode <literal>getMockBuilder($type)</literal> pour personnaliser la
+    génération de doublure de test en utilisant un interface souple (fluent interface).
+  </para>
+
+  <para>
+    Par défaut, toutes les méthodes de la classe originelle sont remplacées par une
+    implémentation fictive qui se contente de retourner <literal>null</literal> (sans
+    appeler la méthode originelle). En utilisant la méthode <literal>will($this->returnValue())</literal>
     par exemple, vous pouvez configurer ces implémentations fictives pour
     retourner une valeur donnée quand elles sont appelées.
   </para>
 
   <note>
-    <title>Limitations</title>
+    <title>Limitations: méthodes final, private et static</title>
 
     <para>
       Merci de noter que les méthodes <literal>final</literal>, <literal>private</literal>
-      et <literal>static</literal> ne peuvent pas être remplacées par un bouchon (stub) ou un simulacre (mock). Elles seront
-      ignorées par la fonction de doublure de test de PHPUnit et conserveront leur comportement
-      initial.
+      et <literal>static</literal> ne peuvent pas être remplacées par un bouchon (stub) ou un simulacre (mock).
+      Elles seront ignorées par la fonction de doublure de test de PHPUnit et conserveront
+      leur comportement initial.
     </para>
   </note>
 
@@ -72,9 +82,8 @@
       retourne (de façon facultative) des valeurs de retour configurées est
       appelée <emphasis>bouchonnage</emphasis>. Vous pouvez utiliser un <emphasis>bouchon</emphasis> pour
       "remplacer un composant réel dont dépend le système testé de telle façon que
-      le test possède un point de contrôle sur les entrées indirectes dans le SCT. Ceci
-      permet au test de forcer le SCT à utiliser des chemins qu'il n'aurait pas
-      emprunté autrement".
+      le test possède un point de contrôle sur les entrées indirectes dans le SUT. Ceci
+      permet au test de forcer le SUT à utiliser des chemins qu'il n'aurait pas emprunté autrement".
     </para>
 
     <para>
@@ -82,12 +91,12 @@
 
       <xref linkend="test-doubles.stubs.examples.StubTest.php" /> montre comment
       la méthode de bouchonnage appelle et configure des valeurs de retour. Nous utilisons
-      d'abord la méthode <literal>getMock()</literal> qui est fournie par la classe
-      <literal>PHPUnit_Framework_TestCase</literal> pour configurer un objet bouchon
-      qui ressemble à un objet de <literal>UneClasse</literal>
+      d'abord la méthode <literal>createMock()</literal> qui est fournie par la classe
+      <literal>PHPUnit\Framework\TestCase</literal> pour configurer un objet bouchon
+      qui ressemble à un objet de <literal>SomeClass</literal>
       (<xref linkend="test-doubles.stubs.examples.SomeClass.php" />). Ensuite nous
       utilisons <ulink url="http://martinfowler.com/bliki/FluentInterface.html">l'interface souple</ulink>
-      que PHPUnit fournit pour indiquer le comportement de ce bouchon. En essence,
+      que PHPUnit fournit pour indiquer le comportement de ce bouchon. En substance,
       cela signifie que vous n'avez pas besoin de créer plusieurs objets temporaires
       et les relier ensemble ensuite. Au lieu de cela, vous chaînez les appels de méthode
       comme montré dans l'exemple. Ceci amène à un code plus lisible et "souple".
@@ -96,111 +105,109 @@
     <example id="test-doubles.stubs.examples.SomeClass.php">
       <title>La classe que nous voulons bouchonner</title>
       <programlisting><![CDATA[<?php
-class UneClasse
+use PHPUnit\Framework\TestCase;
+
+class SomeClass
 {
-    public function faireQuelquechose()
+    public function doSomething()
     {
-        // Faire quelque chose.
+        // Do something.
     }
 }
 ?>]]></programlisting>
     </example>
 
     <example id="test-doubles.stubs.examples.StubTest.php">
-      <indexterm><primary>getMock()</primary></indexterm>
-      <indexterm><primary>expects()</primary></indexterm>
+      <indexterm><primary>createMock()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
-      <indexterm><primary>will()</primary></indexterm>
-      <indexterm><primary>returnValue()</primary></indexterm>
+      <indexterm><primary>willReturn()</primary></indexterm>
       <title>Bouchonner un appel de méthode pour retourner une valeur fixée</title>
       <programlisting><![CDATA[<?php
-require_once 'UneClasse.php';
+use PHPUnit\Framework\TestCase;
 
-class BouchonTest extends PHPUnit_Framework_TestCase
+class StubTest extends TestCase
 {
-    public function testBouchon()
+    public function testStub()
     {
-        // Créer un bouchon pour la classe UneClasse.
-        $bouchon = $this->getMock('UneClasse');
+        // Créer un bouchon pour la classe SomeClass.
+        $stub = $this->createMock(SomeClass::class);
 
         // Configurer le bouchon.
-        $bouchon->expects($this->any())
-             ->method('faireQuelquechose')
-             ->will($this->returnValue('foo'));
+        $stub->method('doSomething')
+             ->willReturn('foo');
 
-        // Appeler $bouchon->faireQuelquechose() va maintenant retourner
+        // Appeler $stub->doSomething() va maintenant retourner
         // 'foo'.
-        $this->assertEquals('foo', $bouchon->faireQuelquechose());
+        $this->assertEquals('foo', $stub->doSomething());
     }
 }
 ?>]]></programlisting>
     </example>
 
-    <para>
-      "Derrière la scène", PHPUnit génère automatiquement une nouvelle classe qui
-      implémente le comportement souhaité quand la méthode <literal>getMock()</literal>
-      est utilisée. La classe doublure de test peut être configurée via des
-      paramètres optionnels de la méthode <literal>getMock()</literal>.
-    </para>
+    <note>
+      <title>Limitation: Méthodes nommées "method"</title>
 
-    <itemizedlist>
-      <listitem><para>Par défaut, toutes les méthodes d'une classe données sont remplacées par une doublure de test qui retourne simplement <literal>NULL</literal> à moins qu'une valeur de retour ne soit configurée en utilisant <literal>will($this->returnValue())</literal>, par exemple.</para></listitem>
-      <listitem><para>Quand le deuxième paramètre (facultatif) est fourni, seules les méthodes dont les noms sont dans le tableau sont remplacées par une doublure de test configurable. Le comportement des autres méthodes n'est pas modifié.</para></listitem>
-      <listitem><para>Le troisième paramètre (facultatif) peut contenir un tableau de paramètre qui est passé dans le constructeur de la classe originelle (qui n'est pas remplacé par une implémentation fictive par défaut).</para></listitem>
-      <listitem><para>Le quatrième paramètre (facultatif) peut être utilisé pour indiquer un nom de classe pour la classe de doublure de test générée.</para></listitem>
-      <listitem><para>Le cinquième paramètre (facultatif) peut être utilisée pour désactiver l'appel du constructeur de la classe originelle.</para></listitem>
-      <listitem><para>Le sixième paramètre (facultatif) peut être utilisé pour désactiver l'appel au constructeur du clone de la classe originelle.</para></listitem>
-      <listitem><para>Le septième paramètre (facultatif) peut être utilisé pour désactiver <literal>__autoload()</literal> lors de la génération de la classe de doublure de test.</para></listitem>
-    </itemizedlist>
+      <para>
+        L'exemple ci dessus ne fonctionne que si la classe originale ne déclare
+        pas de méthode appelé "method".
+      </para>
+
+      <para>
+        Si la classe originale déclare une methode appelée "method" alors vous devez utiliser <literal><![CDATA[$stub->expects($this->any())->method('doSomething')->willReturn('foo');]]></literal>.
+      </para>
+    </note>
 
     <para>
-      Alternativement, l'API Mock Builder peut être utilisé pour configurer la classe
-      de doublure de test générée.
-      <xref linkend="test-doubles.stubs.examples.StubTest2.php"/>
-      montre un exemple. Ici, il y a une liste de méthodes qui peuvent être utilisées
-      avec l'interface de Mock Builder:
+      "Dans les coulisses", PHPUnit génère automatiquement une nouvelle classe qui
+      implémente le comportement souhaité quand la méthode <literal>createMock()</literal>
+      est utilisée.
     </para>
 
-    <itemizedlist>
-      <listitem><para><literal>setMethods(array $methodes)</literal> peut être appelée sur l'objet Mock Builder pour indiquer les méthodes qui doivent être remplacées par une doublure de test configurable. Le comportement des autres méthodes n'est pas modifié.</para></listitem>
-      <listitem><para><literal>setConstructorArgs(array $parametres)</literal> peut être appelé pour fournir un paramètre tableau qui est passé au constructeur de la classe originelle (qui n'est pas remplacé par une implémentation fictive par défaut).</para></listitem>
-      <listitem><para><literal>setMockClassName($nom)</literal> peut être utilisée pour indiquer un nom de classe pour la classe de doublure de test générée.</para></listitem>
-      <listitem><para><literal>disableOriginalConstructor()</literal> peut être utilisé pour désactiver l'appel au constructeur de la classe originelle.</para></listitem>
-      <listitem><para><literal>disableOriginalClone()</literal> peut être utilisé pour désactiver l'appel au constructeur clone de la classe originelle.</para></listitem>
-      <listitem><para><literal>disableAutoload()</literal> peut être utilisée pour désactiver <literal>__autoload()</literal> lors de la génération de la classe de doublure de test.</para></listitem>
-    </itemizedlist>
+    <para>
+      <xref linkend="test-doubles.stubs.examples.StubTest2.php"/> montre un exemple
+      de comment utiliser l'interface souple du créateur de mock pour configurer
+      la création d'une doublure de test. La configuration de cette doublure de test
+      utilise les même bonnes pratiques utilisées par défaut par <literal>createMock()</literal>.
+    </para>
 
     <example id="test-doubles.stubs.examples.StubTest2.php">
-      <indexterm><primary>getMockBuilder()</primary></indexterm>
-      <indexterm><primary>expects()</primary></indexterm>
+      <indexterm><primary>createMock()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
-      <indexterm><primary>will()</primary></indexterm>
-      <indexterm><primary>returnValue()</primary></indexterm>
-      <title>Utiliser l'API Mock Builder pour configurer la classe de doublure de test générée.</title>
+      <indexterm><primary>willReturn()</primary></indexterm>
+      <title>L'API de construction des mocks peut-être utilisée pour configurer la doublure de test générée.</title>
       <programlisting><![CDATA[<?php
-require_once 'UneClasse.php';
+use PHPUnit\Framework\TestCase;
 
-class BouchonTest extends PHPUnit_Framework_TestCase
+class StubTest extends TestCase
 {
-    public function testBouchon()
+    public function testStub()
     {
-        // Créer un bouchon pour la classe UneClasse.
-        $bouchon = $this->getMockBuilder('UneClasse')
+        // Créer un bouchon pour la classe SomeClass.
+        $stub = $this->getMockBuilder($originalClassName)
                      ->disableOriginalConstructor()
+                     ->disableOriginalClone()
+                     ->disableArgumentCloning()
+                     ->disallowMockingUnknownTypes()
                      ->getMock();
 
-        // Configure le bouchon.
-        $bouchon->expects($this->any())
-             ->method('faireQuelquechose')
-             ->will($this->returnValue('foo'));
+        // Configurer le bouchon.
+        $stub->method('doSomething')
+             ->willReturn('foo');
 
-        // Appeler $bouchon->faireQuelquechose() retournera maintenant
+        // Appeler $stub->doSomething() retournera désormais
         // 'foo'.
-        $this->assertEquals('foo', $bouchon->faireQuelquechose());
+        $this->assertEquals('foo', $stub->doSomething());
     }
 }
 ?>]]></programlisting>
     </example>
+
+    <para>
+      Dans les exemples précédents, nous avons retourné des valeurs simple en utilisant
+      <literal>willReturn($value)</literal>. Cette syntaxe courte est identique à
+      <literal>will($this->returnValue($value))</literal>. Nous pouvons utiliser des variantes
+      de cette syntaxte plus longue pour obtenir un comportement de bouchonnement plus complexe.
+    </para>
 
     <para>
       Parfois vous voulez renvoyer l'un des paramètres d'un appel de méthode
@@ -211,69 +218,64 @@ class BouchonTest extends PHPUnit_Framework_TestCase
     </para>
 
     <example id="test-doubles.stubs.examples.StubTest3.php">
-      <indexterm><primary>getMock()</primary></indexterm>
-      <indexterm><primary>expects()</primary></indexterm>
+      <indexterm><primary>createMock()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
       <indexterm><primary>will()</primary></indexterm>
       <indexterm><primary>returnArgument()</primary></indexterm>
       <title>Bouchonner un appel de méthode pour renvoyer un des paramètres</title>
       <programlisting><![CDATA[<?php
-require_once 'UneClasse.php';
+use PHPUnit\Framework\TestCase;
 
-class BouchonTest extends PHPUnit_Framework_TestCase
+class StubTest extends TestCase
 {
-    public function testReturnArgumentBouchon()
+    public function testReturnArgumentStub()
     {
-        // Créer un bouchon pour la classe UneClasse.
-        $bouchon = $this->getMock('UneClasse');
+        // Créer un bouchon pour la classe SomeClass.
+        $stub = $this->createMock(SomeClass::class);
 
         // Configurer le bouchon.
-        $bouchon->expects($this->any())
-             ->method('faireQuelquechose')
+        $stub->method('doSomething')
              ->will($this->returnArgument(0));
 
-        // $bouchon->faireQuelquechose('foo') retourne 'foo'
-        $this->assertEquals('foo', $bouchon->faireQuelquechose('foo'));
+        // $stub->doSomething('foo') retourn 'foo'
+        $this->assertEquals('foo', $stub->doSomething('foo'));
 
-        // $bouchon->faireQuelquechose('bar') retourne 'bar'
-        $this->assertEquals('bar', $bouchon->faireQuelquechose('bar'));
+        // $stub->doSomething('bar') returns 'bar'
+        $this->assertEquals('bar', $stub->doSomething('bar'));
     }
 }
 ?>]]></programlisting>
     </example>
 
     <para>
-
       Quand on teste interface souple, il est parfois utile que la méthode bouchon
       retourne une référence à l'objet bouchon.
-      <xref linkend="test-doubles.stubs.examples.StubTest4.php"/> illustre comment vous
-      pouvez utiliser <literal>returnSelf()</literal> pour accomplir cela.
+      <xref linkend="test-doubles.stubs.examples.StubTest4.php"/> présente comment
+      utiliser <literal>returnSelf()</literal> pour accomplir cela.
     </para>
 
     <example id="test-doubles.stubs.examples.StubTest4.php">
-      <indexterm><primary>getMock()</primary></indexterm>
-      <indexterm><primary>expects()</primary></indexterm>
+      <indexterm><primary>createMock()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
       <indexterm><primary>will()</primary></indexterm>
       <indexterm><primary>returnSelf()</primary></indexterm>
       <title>Bouchonner un appel de méthode pour renvoyer une référence de l'objet bouchon.</title>
       <programlisting><![CDATA[<?php
-require_once 'UneClasse.php';
+use PHPUnit\Framework\TestCase;
 
-class BouchonTest extends PHPUnit_Framework_TestCase
+class StubTest extends TestCase
 {
     public function testReturnSelf()
     {
-        // Créer un bouchon pour la classe UneClasse.
-        $bouchon = $this->getMock('UneClasse');
+        // Créer un bouchon pour la classe SomeClass.
+        $stub = $this->createMock(SomeClass::class);
 
         // Configurer le bouchon.
-        $bouchon->expects($this->any())
-             ->method('faireQuelquechose')
+        $stub->method('doSomething')
              ->will($this->returnSelf());
 
-        // $bouchon->faireQuelquechose() retourne $bouchon
-        $this->assertSame($bouchon, $bouchon->faireQuelquechose());
+        // $stub->doSomething() retourne $stub
+        $this->assertSame($stub, $stub->doSomething());
     }
 }
 ?>]]></programlisting>
@@ -282,53 +284,49 @@ class BouchonTest extends PHPUnit_Framework_TestCase
     <para>
       Parfois, une méthode bouchon doit retourner différentes valeurs selon
       une liste prédéfinie d'arguments. Vous pouvez utiliser
-      <literal>returnValueMap()</literal> pour créer un mappage qui associe des
-      paramètres aux valeurs de retour correspondantes. Voir
+      <literal>returnValueMap()</literal> pour créer une association entre les
+      paramètres et les valeurs de retour correspondantes. Voir
       <xref linkend="test-doubles.stubs.examples.StubTest5.php"/> pour
       un exemple.
     </para>
 
     <example id="test-doubles.stubs.examples.StubTest5.php">
-      <indexterm><primary>getMock()</primary></indexterm>
-      <indexterm><primary>expects()</primary></indexterm>
+      <indexterm><primary>createMock()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
       <indexterm><primary>will()</primary></indexterm>
       <indexterm><primary>returnValueMap()</primary></indexterm>
-      <title>Bouchonner un appel de méthode pour retourner la valeur à partir d'un mappage</title>
+      <title>Bouchonner un appel de méthode pour retourner la valeur à partir d'une association</title>
       <programlisting><![CDATA[<?php
-require_once 'UneClasse.php';
+use PHPUnit\Framework\TestCase;
 
-class BouchonTest extends PHPUnit_Framework_TestCase
+class StubTest extends TestCase
 {
-    public function testReturnValueMapBouchon()
+    public function testReturnValueMapStub()
     {
-        // Créer un bouchon pour la classe UneClasse.
-        $bouchon = $this->getMock('UneClasse');
+        // Créer un bouchon pour la classe SomeClass.
+        $stub = $this->createMock(SomeClass::class);
 
-        // Créer un mappage des arguments
-        // et des valeurs de retour.
-        $map = array(
-          array('a', 'b', 'c', 'd'),
-          array('e', 'f', 'g', 'h')
-        );
+        // Créer une association entre arguments et valeurs de retour
+        $map = [
+            ['a', 'b', 'c', 'd'],
+            ['e', 'f', 'g', 'h']
+        ];
 
         // Configurer le bouchon.
-        $bouchon->expects($this->any())
-             ->method('faireQuelquechose')
+        $stub->method('doSomething')
              ->will($this->returnValueMap($map));
 
-        // $bouchon->faireQuelquechose() retourne
-        // différentes valeurs selon les paramètres
-        // fournis.
-        $this->assertEquals('d', $bouchon->faireQuelquechose('a', 'b', 'c'));
-        $this->assertEquals('h', $bouchon->faireQuelquechose('e', 'f', 'g'));
+        // $stub->doSomething() retourne différentes valeurs selon
+        // les paramètres fournis.
+        $this->assertEquals('d', $stub->doSomething('a', 'b', 'c'));
+        $this->assertEquals('h', $stub->doSomething('e', 'f', 'g'));
     }
 }
 ?>]]></programlisting>
     </example>
 
     <para>
-      Quand l'appel méthode bouchonné doit retourner une valeur calculée au lieu
+      Quand l'appel d'une méthode bouchonné doit retourner une valeur calculée au lieu
       d'une valeur fixée (voir <literal>returnValue()</literal>) ou un paramètre
       (non modifié) (voir <literal>returnArgument()</literal>), vous pouvez utiliser
       <literal>returnCallback()</literal> pour que la méthode retourne le résultat
@@ -337,29 +335,27 @@ class BouchonTest extends PHPUnit_Framework_TestCase
     </para>
 
     <example id="test-doubles.stubs.examples.StubTest6.php">
-      <indexterm><primary>getMock()</primary></indexterm>
-      <indexterm><primary>expects()</primary></indexterm>
+      <indexterm><primary>createMock()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
       <indexterm><primary>will()</primary></indexterm>
       <indexterm><primary>returnCallback()</primary></indexterm>
-      <title>Bouchonner un appel de méthode pour retourner une valeur à partir d'un rappel</title>
+      <title>Bouchonner un appel de méthode pour retourner une valeur à partir d'une fonction de rappel</title>
       <programlisting><![CDATA[<?php
-require_once 'UneClasse.php';
+use PHPUnit\Framework\TestCase;
 
-class BouchonTest extends PHPUnit_Framework_TestCase
+class StubTest extends TestCase
 {
-    public function testReturnCallbackBouchon()
+    public function testReturnCallbackStub()
     {
-        // Créer un bouchon pour la classe UneClasse.
-        $bouchon = $this->getMock('UneClasse');
+        // Créer un bouchon pour la classe SomeClass.
+        $stub = $this->createMock(SomeClass::class);
 
         // Configurer le bouchon.
-        $bouchon->expects($this->any())
-             ->method('faireQuelquechose')
+        $stub->method('doSomething')
              ->will($this->returnCallback('str_rot13'));
 
-        // $bouchon->faireQuelquechose($argument) retourne str_rot13($argument)
-        $this->assertEquals('fbzrguvat', $bouchon->faireQuelquechose('quelqueChose'));
+        // $stub->doSomething($argument) retourne str_rot13($argument)
+        $this->assertEquals('fbzrguvat', $stub->doSomething('something'));
     }
 }
 ?>]]></programlisting>
@@ -374,31 +370,30 @@ class BouchonTest extends PHPUnit_Framework_TestCase
     </para>
 
     <example id="test-doubles.stubs.examples.StubTest7.php">
-      <indexterm><primary>getMock()</primary></indexterm>
-      <indexterm><primary>expects()</primary></indexterm>
+      <indexterm><primary>createMock()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
       <indexterm><primary>will()</primary></indexterm>
       <indexterm><primary>onConsecutiveCalls()</primary></indexterm>
-      <title>Bouchonner un appel de méthode pour retourner une liste de valeurs dans l'ordre indiqué</title>
+      <title>Bouchonner un appel de méthode pour retourner une liste de valeurs dans
+      l'ordre indiqué</title>
       <programlisting><![CDATA[<?php
-require_once 'UneClasse.php';
+use PHPUnit\Framework\TestCase;
 
-class BouchonTest extends PHPUnit_Framework_TestCase
+class StubTest extends TestCase
 {
-    public function testOnConsecutiveCallsBouchon()
+    public function testOnConsecutiveCallsStub()
     {
-        // Créer un bouchon pour la classe UneClasse.
-        $bouchon = $this->getMock('UneClasse');
+        // Créer un bouchon pour la classe SomeClass.
+        $stub = $this->createMock(SomeClass::class);
 
         // Configurer le bouchon.
-        $bouchon->expects($this->any())
-             ->method('faireQuelquechose')
+        $stub->method('doSomething')
              ->will($this->onConsecutiveCalls(2, 3, 5, 7));
 
-        // $bouchon->faireQuelquechose() retourne une valeur différente à chaque fois
-        $this->assertEquals(2, $bouchon->faireQuelquechose());
-        $this->assertEquals(3, $bouchon->faireQuelquechose());
-        $this->assertEquals(5, $bouchon->faireQuelquechose());
+        // $stub->doSomething() retourne une valeur différente à chaque fois
+        $this->assertEquals(2, $stub->doSomething());
+        $this->assertEquals(3, $stub->doSomething());
+        $this->assertEquals(5, $stub->doSomething());
     }
 }
 ?>]]></programlisting>
@@ -412,40 +407,37 @@ class BouchonTest extends PHPUnit_Framework_TestCase
     </para>
 
     <example id="test-doubles.stubs.examples.StubTest8.php">
-      <indexterm><primary>getMock()</primary></indexterm>
-      <indexterm><primary>expects()</primary></indexterm>
+      <indexterm><primary>createMock()</primary></indexterm>
       <indexterm><primary>method()</primary></indexterm>
       <indexterm><primary>will()</primary></indexterm>
       <indexterm><primary>throwException()</primary></indexterm>
       <title>Bouchonner un appel de méthode pour lever une exception</title>
       <programlisting><![CDATA[<?php
-require_once 'UneClasse.php';
+use PHPUnit\Framework\TestCase;
 
-class BouchonTest extends PHPUnit_Framework_TestCase
+class StubTest extends TestCase
 {
-    public function testThrowExceptionBouchon()
+    public function testThrowExceptionStub()
     {
-        // Créer un bouchon pour la classe UneClasse.
-        $bouchon = $this->getMock('UneClasse');
+        // Créer un bouchon pour la classe SomeClass.
+        $stub = $this->createMock(SomeClass::class);
 
         // Configurer le bouchon.
-        $bouchon->expects($this->any())
-             ->method('faireQuelquechose')
+        $stub->method('doSomething')
              ->will($this->throwException(new Exception));
 
-        // $bouchon->faireQuelquechose() lance l'Exception
-        $bouchon->faireQuelquechose();
+        // $stub->doSomething() throws Exception
+        $stub->doSomething();
     }
 }
 ?>]]></programlisting>
     </example>
 
     <para>
-      Alternativement, vous pouvez écrire le bouchon vous-même et améliorer
-      votre conception ce-faisant. Des ressources largement utilisées sont
-      accédées via une unique façade, de telle sorte que vous pouvez facilement
-      remplacer la ressource avec le bouchon. Par exemple, au lieu d'avoir
-      des appels directs à la base de données éparpillés dans tout le code,
+      Alternativement, vous pouvez écrire le bouchon vous-même et améliorer votre conception
+      en cours de route. Des ressources largement utilisées sont accédées via une unique façade,
+      de telle sorte que vous pouvez facilement remplacer la ressource avec le bouchon. Par exemple,
+      au lieu d'avoir des appels directs à la base de données éparpillés dans tout le code,
       vous avez un unique objet <literal>Database</literal>, une implémentation de
       l'interface <literal>IDatabase</literal>. Ensuite, vous pouvez créer
       une implémentation bouchon de <literal>IDatabase</literal> et l'utiliser pour
@@ -464,137 +456,167 @@ class BouchonTest extends PHPUnit_Framework_TestCase
   </section>
 
   <section id="test-doubles.mock-objects">
-    <title>Objets simulacres (Mock Objects)</title>
+    <title>Objets Mock</title>
 
     <para>
       La pratique consistant à remplacer un objet avec une doublure de test
       qui vérifie des attentes, par exemple en faisant l'assertion qu'une méthode
-      a été appelée, est appelée <emphasis>simulacre</emphasis>.
+      a été appelée, est appelée <emphasis>mock</emphasis>.
     </para>
 
     <para>
-      <indexterm><primary>Objet simulacre</primary></indexterm>
+      <indexterm><primary>Objet mock</primary></indexterm>
 
-      Vous pouvez utiliser un <emphasis>objet simulacre</emphasis> "comme un point d'observation
-      qui est utilisé pour vérifier les sorties indirectes du système quand il est
-      testé. Typiquement, le simulacre inclut également la fonctionnalité
-      d'un bouchon de test, en ce sens qu'il doit retourner les valeurs du système
-      testé s'il n'a pas déjà fait échouer les tests mais l'accent est mis sur la
-      vérification des sorties indirectes. Ainsi, un simulacre est un beaucoup plus
-      qu'un simple bouchon avec des assertions; il est utilisé d'une manière
-      fondamentalement différente".
+      Vous pouvez utiliser un <emphasis>objet mock</emphasis> "comme un point d'observation
+      qui est utilisé pour vérifier les sorties indirectes du système quand il est testé".
+      Typiquement, le mock inclut également la fonctionnalité d'un bouchon de test,
+      en ce sens qu'il doit retourner les valeurs du système testé s'il n'a pas déjà fait échouer
+      les tests mais l'accent est mis sur la vérification des sorties indirectes.
+      Ainsi, un mock est un beaucoup plus qu'un simple bouchon avec des assertions;
+      il est utilisé d'une manière fondamentalement différente" (Gerard Meszaros).
     </para>
+
+    <note>
+      <title>Limitation: Vérification automatique des attentes</title>
+
+      <para>
+        Seuls les objets mock générés dans le scope d'un test seront vérifiés
+        automatiquement par PHPUnit. Les mocks générés dans les fournisseurs de données,
+        par exemple, ou injectés dans les tests en utilisant l'annotation <literal>@depends</literal>
+        ne seront pas vérifiés automatiquement par PHPUnit.
+      </para>
+    </note>
 
     <para>
       Voici un exemple: supposons que vous voulez tester que la méthode correcte,
       <literal>update()</literal> dans notre exemple, est appelée d'un objet qui observe un autre objet.
       <xref linkend="test-doubles.mock-objects.examples.SUT.php"/>
-      illustre le code pour les classes <literal>Sujet</literal> et <literal>Observateur</literal>
+      illustre le code pour les classes <literal>Subject</literal> et <literal>Observer</literal>
       qui sont une partie du système testé (SUT).
     </para>
 
     <example id="test-doubles.mock-objects.examples.SUT.php">
-      <title>Les classes Sujet et Observateur qui sont une partie du système testé</title>
+      <title>Les classes Subject et Observer qui sont une partie du système testé</title>
       <programlisting><![CDATA[<?php
-class Sujet
-{
-    protected $observateurs = array();
+use PHPUnit\Framework\TestCase;
 
-    public function attache(Observateur $observateur)
+class Subject
+{
+    protected $observers = [];
+    protected $name;
+
+    public function __construct($name)
     {
-        $this->observateurs[] = $observateur;
+        $this->name = $name;
     }
 
-    public function faireQuelquechose()
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    public function attach(Observer $observer)
+    {
+        $this->observers[] = $observer;
+    }
+
+    public function doSomething()
     {
         // Faire quelque chose.
         // ...
 
-        // Avertir les observateurs que nous faisons quelque chose.
-        $this->notify('quelque chose');
+        // Notify les observateurs que nous faisons quelque chose
+        $this->notify('something');
     }
 
-    public function faireQuelquechoseMal()
+    public function doSomethingBad()
     {
-        foreach ($this->observateurs as $observateur) {
-            $observateur->reportError(42, 'Quelque chose de mal est arrivé', $this);
+        foreach ($this->observers as $observer) {
+            $observer->reportError(42, 'Something bad happened', $this);
         }
     }
 
-    protected function notify($paramètre)
+    protected function notify($argument)
     {
-        foreach ($this->observateurs as $observateur) {
-            $observateur->update($paramètre);
+        foreach ($this->observers as $observer) {
+            $observer->update($argument);
         }
     }
 
     // Autres méthodes.
 }
 
-class Observateur
+class Observer
 {
-    public function update($paramètre)
+    public function update($argument)
     {
-        // Faire quelque chose.
+        // Faire quelquechose
     }
 
-    public function reportError($codeErreur, $messageErreur, Sujet $sujet)
+    public function reportError($errorCode, $errorMessage, Subject $subject)
     {
-        // Faire quelque chose
+        // Faire quelquechose
     }
 
-    // Autres méthodes.
+    // Autre méthodes
 }
 ?>]]></programlisting>
     </example>
 
     <para>
-      <indexterm><primary>Objet simulacre</primary></indexterm>
+      <indexterm><primary>Objet mock</primary></indexterm>
 
       <xref linkend="test-doubles.mock-objects.examples.SubjectTest.php" />
       illustre comment utiliser un simulacre pour tester l'interaction entre
-      les objets <literal>Sujet</literal> et <literal>Observateur</literal>.
+      les objets <literal>Subject</literal> et <literal>Observer</literal>.
     </para>
 
     <para>
-      Nous utilisons d'abord la méthode <literal>getMock()</literal> qui est fournie par
-      la classe <literal>PHPUnit_Framework_TestCase</literal> pour configurer un simulacre
-      pour l'<literal>Observateur</literal>. Puisque nous donnons un tableau comme second
+      Nous utilisons d'abord la méthode <literal>getMockBuilder()</literal> qui est fournie par
+      la classe <literal>PHPUnit\Framework\TestCase</literal> pour configurer un simulacre
+      pour <literal>Observer</literal>. Puisque nous donnons un tableau comme second
       paramètre (facultatif) pour la méthode <literal>getMock()</literal>,
-      seule la méthode <literal>update()</literal> de la classe <literal>Observateur</literal> est
+      seule la méthode <literal>update()</literal> de la classe <literal>Observer</literal> est
       remplacée par une implémentation d'un simulacre.
+    </para>
+
+    <para>
+      Comme ce qui nous intéresse est de vérifier qu'une méthode soit appelée,
+      et avec quels arguments, nous introduisons les méthodes <literal>expects()</literal>
+      et <literal>with()</literal> pour spécifier comment cette interaction doit se présenter.
     </para>
 
     <example id="test-doubles.mock-objects.examples.SubjectTest.php">
       <title>Tester qu'une méthode est appelée une fois et avec un paramètre indiqué</title>
       <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
 
-require_once 'Sujet.php';
-
-class SujetTest extends PHPUnit_Framework_TestCase
+class SubjectTest extends TestCase
 {
-    public function testLesObservateursSontMisAJour()
+    public function testObserversAreUpdated()
     {
-        // Créer un simulacre pour la classe Observateur,
+        // Créer un simulacre pour la classe Observer,
         // ne touchant que la méthode update().
-        $observateur = $this->getMock('Observateur', array('update'));
+        $observer = $this->getMockBuilder(Observer::class)
+                         ->setMethods(['update'])
+                         ->getMock();
 
         // Configurer l'attente de la méthode update()
-        // d'être appelée une seule fois et avec la chaîne 'quelquechose'
+        // d'être appelée une seule fois et avec la chaîne 'something'
         // comme paramètre.
-        $observateur->expects($this->once())
+        $observer->expects($this->once())
                  ->method('update')
-                 ->with($this->equalTo('quelque chose'));
+                 ->with($this->equalTo('something'));
 
-        // Créer un objet Sujet et y attacher l'objet Observateur
-        // simulé
-        $sujet = new Sujet;
-        $sujet->attache($observateur);
+        // Créer un objet Subject et y attacher l'objet
+        // Observer simulé
+        $subject = new Subject('My subject');
+        $subject->attach($observer);
 
-        // Appeler la méthode faireQuelquechose() sur l'objet $sujet
+        // Appeler la méthode doSomething() sur l'objet $subject
         // que nous attendons voir appeler la méthode update() de l'objet
-        // simulé Observateur avec la chaîne 'quelqueChose'.
-        $sujet->faireQuelquechose();
+        // simulé Observer avec la chaîne 'something'.
+        $subject->doSomething();
     }
 }
 ?>]]></programlisting>
@@ -603,44 +625,175 @@ class SujetTest extends PHPUnit_Framework_TestCase
     <para>
       La méthode <literal>with()</literal> peut prendre n'importe quel
       nombre de paramètres, correspondant au nombre de paramètres des méthodes
-      étant simulées. Vous pouvez indiquer des contraintes plus avancées
-      sur les paramètres de méthode qu'une simple correspondance.
+      simulées. Vous pouvez indiquer des contraintes plus avancées qu'une simple
+      correspondance, sur les paramètres de méthode.
     </para>
 
     <example id="test-doubles.mock-objects.examples.MultiParameterTest.php">
-      <title>Tester qu'une méthode est appelée avec un nombre de paramètres contraints de différentes manières</title>
+      <title>Tester qu'une méthode est appelée avec un nombre de paramètres
+      contraints de différentes manières</title>
       <programlisting><![CDATA[<?php
-class SubjectTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class SubjectTest extends TestCase
 {
-    public function testRapportErreur()
+    public function testErrorReported()
     {
-        // Créer un simulacre pour la classe Observateur, en simulant
-        // la méthode rapportErreur()
-        $observateur = $this->getMock('Observateur', array('rapportErreur'));
+        // Créer un mock pour la classe Observer, en simulant
+        // la méthode reportError()
+        $observer = $this->getMockBuilder(Observer::class)
+                         ->setMethods(['reportError'])
+                         ->getMock();
 
-        $observateur->expects($this->once())
-                 ->method('rapportErreur')
-                 ->with($this->greaterThan(0),
-                        $this->stringContains('Quelquechose'),
-                        $this->anything());
+        $observer->expects($this->once())
+                 ->method('reportError')
+                 ->with(
+                       $this->greaterThan(0),
+                       $this->stringContains('Something'),
+                       $this->anything()
+                   );
 
-        $sujet = new Subject;
-        $sujet->attach($observateur);
+        $subject = new Subject('My subject');
+        $subject->attach($observer);
 
-        // La méthode faireQuelquechoseDeMal doit rapporter une erreur à l'observateur
-        // via la méthode rapportErreur()
-        $sujet->faireQuelquechoseDeMal();
+        // La méthode doSomethingBad() doit rapporter une erreur à l'observateur
+        // via la méthode reportError()
+        $subject->doSomethingBad();
     }
 }
 ?>]]></programlisting>
     </example>
 
     <para>
-      <xref linkend="writing-tests-for-phpunit.assertions.assertThat.tables.constraints"/>
+      La méthode <literal>withConsecutive()</literal> peut prendre n'importe quel
+      nombre de tableau de paramètres, selon les appels que vous souhaitez tester.
+      Chaque tableau est une liste de contraintes correspondant aux paramètres de la
+      méthode mockée, comme avec <literal>with()</literal>.
+    </para>
+
+    <example id="test-doubles.mock-objects.examples.with-consecutive.php">
+      <title>Tester qu'une méthode est appelée deux fois avec des arguments spécifiques.</title>
+      <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
+
+class FooTest extends TestCase
+{
+    public function testFunctionCalledTwoTimesWithSpecificArguments()
+    {
+        $mock = $this->getMockBuilder(stdClass::class)
+                     ->setMethods(['set'])
+                     ->getMock();
+
+        $mock->expects($this->exactly(2))
+             ->method('set')
+             ->withConsecutive(
+                 [$this->equalTo('foo'), $this->greaterThan(0)],
+                 [$this->equalTo('bar'), $this->greaterThan(0)]
+             );
+
+        $mock->set('foo', 21);
+        $mock->set('bar', 48);
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      La contrainte <literal>callback()</literal> peut être utilisée pour une vérification
+      plus complexe d'un argument. Cette contrainte prend comme seul paramètre une fonction de
+      rappel PHP (callback). La fonctione de rappel PHP recevra l'argument à vérifier comme son seul
+      paramètre et devrait renvoyer <literal>true</literal> si l'argument
+      passe la vérification et <literal>false</literal> sinon.
+    </para>
+
+    <example id="test-doubles.mock-objects.examples.SubjectTest3.php">
+      <title>Vérification de paramètre plus complexe</title>
+      <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
+
+class SubjectTest extends TestCase
+{
+    public function testErrorReported()
+    {
+        // Crée un mock pour la classe Observer, mock de la
+        // méthode reportError()
+        $observer = $this->getMockBuilder(Observer::class)
+                         ->setMethods(['reportError'])
+                         ->getMock();
+
+        $observer->expects($this->once())
+                 ->method('reportError')
+                 ->with($this->greaterThan(0),
+                        $this->stringContains('Something'),
+                        $this->callback(function($subject){
+                          return is_callable([$subject, 'getName']) &&
+                                 $subject->getName() == 'My subject';
+                        }));
+
+        $subject = new Subject('My subject');
+        $subject->attach($observer);
+
+        // La méthode doSomethingBad() devrait rapporter une erreur a l'observeur
+        // via la methode reportError()
+        $subject->doSomethingBad();
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <example id="test-doubles.mock-objects.examples.clone-object-parameters-usecase.php">
+      <title>Tester qu'une méthode est appelée une seule fois avec le même objet qui a été passé</title>
+      <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
+
+class FooTest extends TestCase
+{
+    public function testIdenticalObjectPassed()
+    {
+        $expectedObject = new stdClass;
+
+        $mock = $this->getMockBuilder(stdClass::class)
+                     ->setMethods(['foo'])
+                     ->getMock();
+
+        $mock->expects($this->once())
+             ->method('foo')
+             ->with($this->identicalTo($expectedObject));
+
+        $mock->foo($expectedObject);
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <example id="test-doubles.mock-objects.examples.enable-clone-object-parameters.php">
+      <title>Créer un OBJET mock avec les paramètres de clonnage activés</title>
+      <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
+
+class FooTest extends TestCase
+{
+    public function testIdenticalObjectPassed()
+    {
+        $cloneArguments = true;
+
+        $mock = $this->getMockBuilder(stdClass::class)
+                     ->enableArgumentCloning()
+                     ->getMock();
+
+        // maintenant votre mock clone les paramètres, ainsi la contrainte identicalTo
+        // échouera.
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      <xref linkend="appendixes.assertions.assertThat.tables.constraints"/>
       montre les contraintes qui peuvent être appliquées aux paramètres de méthode et
       <xref linkend="test-doubles.mock-objects.tables.matchers"/>
-      montre les matchers qui sont disponibles pour indiquer le nombre d'
-      invocations.
+      montre les matchers qui sont disponibles pour indiquer le nombre
+      d'invocations.
     </para>
 
     <table id="test-doubles.mock-objects.tables.matchers">
@@ -671,8 +824,8 @@ class SubjectTest extends PHPUnit_Framework_TestCase
             <entry>Retourne un matcher qui correspond quand la méthode pour laquelle il est évalué est exécutée exactement une fois.</entry>
           </row>
           <row>
-            <entry><literal>PHPUnit_Framework_MockObject_Matcher_InvokedCount exactly(int $nombre)</literal></entry>
-            <entry>Retourne un matcher qui correspond quand la méthode pour laquelle il est évalué est exécutée exactement <literal>$nombre</literal> fois.</entry>
+            <entry><literal>PHPUnit_Framework_MockObject_Matcher_InvokedCount exactly(int $count)</literal></entry>
+            <entry>Retourne un matcher qui correspond quand la méthode pour laquelle il est évalué est exécutée exactement <literal>$count</literal> fois.</entry>
           </row>
           <row>
             <entry><literal>PHPUnit_Framework_MockObject_Matcher_InvokedAtIndex at(int $index)</literal></entry>
@@ -682,42 +835,34 @@ class SubjectTest extends PHPUnit_Framework_TestCase
       </tgroup>
     </table>
 
-    <para>
-      <indexterm><primary>getMockForAbstractClass()</primary></indexterm>
+    <note>
+      <para>
+        Le paramètre <literal>$index</literal> du matcher <literal>at()</literal>
+        fait référence à l'index, démarrant à zero, dans <emphasis>toutes les invocations de
+        la méthode</emphasis> pour un objet mock. Faites preuve de prudence
+        lors de l'utilisation de ce matcher car cela peut conduire à des tests
+        fragiles qui seront trop étroitement liés aux détails d'implémentation spécifiques.
+      </para>
+    </note>
 
-      La méthode <literal>getMockForAbstractClass()</literal> retourne un simulacre
-      pour une classe abstraite. Toutes les méthodes abstraites d'une classe simulacre
-      donnée sont simulées. Ceci permet de tester les méthodes concrètes d'une classe
-      abstraite.
+    <para>
+      <indexterm><primary>getMockBuilder()</primary></indexterm>
+
+      Comme mentionné au début, quand le comportement par défaut utilisé par la méthode
+      <literal>createMock()</literal> pour générer la doublure de test ne
+      correspond pas a vos besoins alors vous pouvez utiliser la méthode <literal>getMockBuilder($type)</literal>
+      pour personnaliser la génération de la doublure de test en utilisant une interface souple.
+      Voici une liste des méthodes fournies par le constructeur de mock:
     </para>
 
-    <example id="test-doubles.mock-objects.examples.AbstractClassTest.php">
-      <title>Tester les méthodes concrêtes d'une classe abstraite</title>
-      <programlisting><![CDATA[<?php
-abstract class ClasseAbstraite
-{
-    public function methodeConcrete()
-    {
-        return $this->methodeAbstraite();
-    }
-
-    public abstract function methodeAbstraite();
-}
-
-class ClasseAbstraiteTest extends PHPUnit_Framework_TestCase
-{
-    public function testConcreteMethod()
-    {
-        $stub = $this->getMockForAbstractClass('ClasseAbstraite');
-        $stub->expects($this->any())
-             ->method('methodeAbstraite')
-             ->will($this->returnValue(TRUE));
-
-        $this->assertTrue($stub->methodeConcrete());
-    }
-}
-?>]]></programlisting>
-    </example>
+    <itemizedlist>
+      <listitem><para><literal>setMethods(array $methods)</literal> peut être appelé sur l'objet Mock Builder pour spécifier les méthodes qui doivent être remplacées par une une doublure de test configurable. Le comportement des autres méthodes n'est pas changé. Si vous appelez <literal>setMethods(null)</literal>, alors aucune méthode ne sera remplacé.</para></listitem>
+      <listitem><para><literal>setConstructorArgs(array $args)</literal> peut être appeler pour fournir un tableau de paramètres qui est passé au constructeur de la classe originale (qui n'est pas remplacé par une implémentation factice par défaut).</para></listitem>
+      <listitem><para><literal>setMockClassName($name)</literal> peut être utilisé pour spécifier un nom de classe pour la classe de la doublure de test générée.</para></listitem>
+      <listitem><para><literal>disableOriginalConstructor()</literal> peut être utilisé pour désactiver l'appel au constructeur de la classe originale.</para></listitem>
+      <listitem><para><literal>disableOriginalClone()</literal> peut être utilisé pour désactiver l'appel au constructeur de clonage de la classe originale.</para></listitem>
+      <listitem><para><literal>disableAutoload()</literal> peut être utilisé pour désactiver <literal>__autoload()</literal> pendant la génération de la classe de la doublure de test.</para></listitem>
+    </itemizedlist>
   </section>
 
   <section id="test-doubles.prophecy">
@@ -725,43 +870,46 @@ class ClasseAbstraiteTest extends PHPUnit_Framework_TestCase
 
     <para>
       <ulink url="https://github.com/phpspec/prophecy">Prophecy</ulink> est un
-      "framework de librairie de mock pour object PHP fortement arrêtée dans
-      ses options mais tout du moins très puissant et flexible. Créé en premier
-      lieu pour satisfaire les besoins de phpspec2, il est assez flexible pour
-      être utilisé dans n'importe quel framework de test, avec très peu
-      d'efforts".
+      "framework de simulation d'objets PHP fortement arrêtée dans ses options mais tout
+      du moins très puissant et flexible. Bien qu'il ait été initialement créé pour satisfaire les besoins de phpspec2, il est
+      suffisamment souple pour être utilisé dans n'importe quel framework de test avec un
+      minimum d'effort".
     </para>
 
     <para>
-      PHPUnit supporte nativement l'utilisation de Prophecy pour créer des
-      doublures depuis la version 4.5. <xref linkend="test-doubles.prophecy.examples.SubjectTest.php"/>
-      montre comment le même test peut écrit dans <xref linkend="test-doubles.mock-objects.examples.SubjectTest.php"/>
-      en utilisant la philosophy des prophéties et des révélations:
+      PHPUnit dispose d'un support intégré pour utiliser Prophecy pour créer des doublures de test.
+      <xref linkend="test-doubles.prophecy.examples.SubjectTest.php"/>
+      montre comment le même test montré dans <xref linkend="test-doubles.mock-objects.examples.SubjectTest.php"/>
+      peut être exprimé en utilisant la philosophie de Prophecy de prophéties et de
+      révélations:
     </para>
 
     <example id="test-doubles.prophecy.examples.SubjectTest.php">
-      <title>Tester qu'une méthode est appelée une fois avec un argument spécifique</title>
+      <title>Tester qu'une méthode est appelée une fois et avec un paramètre indiqué</title>
       <programlisting><![CDATA[<?php
-class SubjectTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class SubjectTest extends TestCase
 {
     public function testObserversAreUpdated()
     {
         $subject = new Subject('My subject');
 
-        // Créer une prohétie pour une classe Observer.
-        $observer = $this->prophesize('Observer');
+        // Crée une prophecy pour la classe Observer.
+        $observer = $this->prophesize(Observer::class);
 
-        // Configurer le comportement attendu pour la méthode update()
-        // afin qu'elle soit appellée qu'une fois, avec la string 'something'
-        // comme paramètre.
+        // Configure l'attente pour que la méthode update()
+        // soit appelée une seule fois avec la chaine 'something'
+        // en paramètre.
         $observer->update('something')->shouldBeCalled();
 
-        // Révéler la prophetie et attacher le mock à l'object Subject.
+        // Révèle la prophecie et attache l'objet mock
+        // à $subjet
         $subject->attach($observer->reveal());
 
-        // Appeler la méthode doSomething() sur l'object $subject
-        // qui s'attend à appeler sur le mock d'objet Observer
-        // la méthod update() avec la string 'something'.
+        // Appelle la méthode doSomething() sur l'objet $subject
+        // dont on s'attend a ce qu'il appelle la méthode update()l'objet mocké Observer
+        // avec la chaine 'something'.
         $subject->doSomething();
     }
 }
@@ -769,11 +917,93 @@ class SubjectTest extends PHPUnit_Framework_TestCase
     </example>
 
     <para>
-      Référez-vous s'il vous plait à la <ulink url="https://github.com/phpspec/prophecy#how-to-use-it">documentation</ulink>
-      pour Prophecy pour plus de détails concernant la création, la configuration,
-      et l'utilisation de stubs (doublures), spies (espions) et mocks (bouchons)
-      en utilisation cette alternative de framework de doublure de test.
+      Reportez-vous a la <ulink url="https://github.com/phpspec/prophecy#how-to-use-it">documentation</ulink>
+      de Prophecy pour  pour plus de détails sur la création, la configuration et l'utilisation de
+      stubs, espions, et mocks en utilisant ce framework alternatif de doublure de test.
     </para>
+  </section>
+
+  <section id="test-doubles.mocking-traits-and-abstract-classes">
+    <title>Mocker les Traits et les classes abstraites</title>
+
+    <para>
+      <indexterm><primary>getMockForTrait()</primary></indexterm>
+
+      La méthode <literal>getMockForTrait()</literal> renvoie un objet mock
+      qui utilise un Trait spécifié. Toutes les méthodes abstraites du Trait donné
+      sont mockées. Cela permet de tester les méthodes concrètes d'un Trait.
+    </para>
+
+    <example id="test-doubles.mock-objects.examples.TraitClassTest.php">
+      <title>Tester les méthodes concrètes d'un trait</title>
+      <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
+
+trait AbstractTrait
+{
+    public function concreteMethod()
+    {
+        return $this->abstractMethod();
+    }
+
+    public abstract function abstractMethod();
+}
+
+class TraitClassTest extends TestCase
+{
+    public function testConcreteMethod()
+    {
+        $mock = $this->getMockForTrait(AbstractTrait::class);
+
+        $mock->expects($this->any())
+             ->method('abstractMethod')
+             ->will($this->returnValue(true));
+
+        $this->assertTrue($mock->concreteMethod());
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      <indexterm><primary>getMockForAbstractClass()</primary></indexterm>
+
+      La méthode <literal>getMockForAbstractClass()</literal> retourne un mock
+      pour une classe abstraite. Toutes les méthodes abstraites d'une classe mock
+      donnée sont simulées. Ceci permet de tester les méthodes concrètes d'une classe
+      abstraite.
+    </para>
+
+    <example id="test-doubles.mock-objects.examples.AbstractClassTest.php">
+      <title>Tester les méthodes concrêtes d'une classe abstraite</title>
+      <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
+
+abstract class AbstractClass
+{
+    public function concreteMethod()
+    {
+        return $this->abstractMethod();
+    }
+
+    public abstract function abstractMethod();
+}
+
+class AbstractClassTest extends TestCase
+{
+    public function testConcreteMethod()
+    {
+        $stub = $this->getMockForAbstractClass(AbstractClass::class);
+
+        $stub->expects($this->any())
+             ->method('abstractMethod')
+             ->will($this->returnValue(true));
+
+        $this->assertTrue($stub->concreteMethod());
+    }
+}
+?>]]></programlisting>
+    </example>
   </section>
 
   <section id="test-doubles.stubbing-and-mocking-web-services">
@@ -784,10 +1014,9 @@ class SubjectTest extends PHPUnit_Framework_TestCase
 
       Quand votre application interagit avec un web service, vous voulez le
       tester sans vraiment interagir avec le web service. Pour rendre facile
-      la création de bouchon ou de simulacre de web services,
-      <literal>getMockFromWsdl()</literal> peut être utilisée de la même façon que
-      <literal>getMock()</literal> (voir plus haut). La seule différence est que
-      <literal>getMockFromWsdl()</literal> retourne un bouchon ou un simulacre
+      la création de bouchon ou de simulacre de web services, <literal>getMockFromWsdl()</literal>
+      peut être utilisée de la même façon que <literal>getMock()</literal> (voir plus haut). La seule
+      différence est que <literal>getMockFromWsdl()</literal> retourne un stub ou un basé
       basé sur la description en WSDL d'un web service tandis que <literal>getMock()</literal>
       retourne un bouchon ou un simulacre basé sur une classe ou une interface PHP.
     </para>
@@ -801,7 +1030,9 @@ class SubjectTest extends PHPUnit_Framework_TestCase
     <example id="test-doubles.stubbing-and-mocking-web-services.examples.GoogleTest.php">
       <title>Bouchonner un web service</title>
       <programlisting><![CDATA[<?php
-class GoogleTest extends PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class GoogleTest extends TestCase
 {
     public function testSearch()
     {
@@ -815,26 +1046,26 @@ class GoogleTest extends PHPUnit_Framework_TestCase
 
         $element = new stdClass;
         $element->summary = '';
-        $element->URL = 'http://www.phpunit.de/';
+        $element->URL = 'https://phpunit.de/';
         $element->snippet = '...';
         $element->title = '<b>PHPUnit</b>';
         $element->cachedSize = '11k';
-        $element->relatedInformationPresent = TRUE;
-        $element->hostName = 'www.phpunit.de';
+        $element->relatedInformationPresent = true;
+        $element->hostName = 'phpunit.de';
         $element->directoryCategory = $directoryCategory;
         $element->directoryTitle = '';
 
         $result = new stdClass;
-        $result->documentFiltering = FALSE;
+        $result->documentFiltering = false;
         $result->searchComments = '';
         $result->estimatedTotalResultsCount = 3.9000;
-        $result->estimateIsExact = FALSE;
-        $result->resultElements = array($element);
+        $result->estimateIsExact = false;
+        $result->resultElements = [$element];
         $result->searchQuery = 'PHPUnit';
         $result->startIndex = 1;
         $result->endIndex = 1;
         $result->searchTips = '';
-        $result->directoryCategories = array();
+        $result->directoryCategories = [];
         $result->searchTime = 0.248822;
 
         $googleSearch->expects($this->any())
@@ -842,8 +1073,8 @@ class GoogleTest extends PHPUnit_Framework_TestCase
                      ->will($this->returnValue($result));
 
         /**
-         * $googleSearch->doGoogleSearch() va maintenant retourner un result bouchon et
-         * la méthode doGoogleSearch() du web service ne sera pas invoquée.
+         * $googleSearch->doGoogleSearch() will now return a stubbed result and
+         * the web service's doGoogleSearch() method will not be invoked.
          */
         $this->assertEquals(
           $result,
@@ -852,9 +1083,9 @@ class GoogleTest extends PHPUnit_Framework_TestCase
             'PHPUnit',
             0,
             1,
-            FALSE,
+            false,
             '',
-            FALSE,
+            false,
             '',
             '',
             ''
@@ -878,19 +1109,20 @@ class GoogleTest extends PHPUnit_Framework_TestCase
     </para>
 
     <para>
-      Pour installer vfsStream, le canal PEAR
-      (<systemitem role="URL">pear.bovigo.org</systemitem>) qui est utilisé pour
-      sa distribution doit être enregistré dans l'environnement local PEAR:
+      Ajoutez simplement une dépendance a <literal>mikey179/vfsStream</literal> dans le
+      fichier <literal>composer.json</literal> de votre projet si vous utilisez
+      <ulink url="https://getcomposer.org/">Composer</ulink> pour gérer les
+      dépendances de votre project. Vous trouverez ci-dessous un exemple minimal de fichier
+      <literal>composer.json</literal> qui définie en dépendence de développement
+      PHPUnit 4.6 et vfsStream:
     </para>
 
-    <screen><userinput>pear channel-discover pear.bovigo.org</userinput></screen>
-
-    <para>
-      Ceci ne doit être fait qu'une seule fois. Maintenant, l'installeur PEAR
-      peut être utilisé pour installer vfsStream.
-    </para>
-
-    <screen><userinput>pear install bovigo/vfsStream-beta</userinput></screen>
+    <programlisting><![CDATA[{
+    "require-dev": {
+        "phpunit/phpunit": "~4.6",
+        "mikey179/vfsStream": "~1"
+    }
+}]]></programlisting>
 
     <para>
       <xref linkend="test-doubles.mocking-the-filesystem.examples.Example.php"/>
@@ -900,22 +1132,24 @@ class GoogleTest extends PHPUnit_Framework_TestCase
     <example id="test-doubles.mocking-the-filesystem.examples.Example.php">
       <title>Une classe qui interagit avec le système de fichiers</title>
       <programlisting><![CDATA[<?php
-class Exemple
+use PHPUnit\Framework\TestCase;
+
+class Example
 {
     protected $id;
-    protected $repertoire;
+    protected $directory;
 
     public function __construct($id)
     {
         $this->id = $id;
     }
 
-    public function setRepertoire($repertoire)
+    public function setDirectory($directory)
     {
-        $this->repertoire = $repertoire . DIRECTORY_SEPARATOR . $this->id;
+        $this->directory = $directory . DIRECTORY_SEPARATOR . $this->id;
 
-        if (!file_exists($this->repertoire)) {
-            mkdir($this->repertoire, 0700, TRUE);
+        if (!file_exists($this->directory)) {
+            mkdir($this->directory, 0700, true);
         }
     }
 }?>]]></programlisting>
@@ -929,11 +1163,11 @@ class Exemple
     </para>
 
     <example id="test-doubles.mocking-the-filesystem.examples.ExampleTest.php">
-      <title>Tester une classe qui interagoit avec le système de fichiers</title>
+      <title>Tester une classe qui interagit avec le système de fichiers</title>
       <programlisting><![CDATA[<?php
-require_once 'Exemple.php';
+use PHPUnit\Framework\TestCase;
 
-class ExempleTest extends PHPUnit_Framework_TestCase
+class ExampleTest extends TestCase
 {
     protected function setUp()
     {
@@ -942,12 +1176,12 @@ class ExempleTest extends PHPUnit_Framework_TestCase
         }
     }
 
-    public function testReprtoireEstCree()
+    public function testDirectoryIsCreated()
     {
-        $example = new Exemple('id');
+        $example = new Example('id');
         $this->assertFalse(file_exists(dirname(__FILE__) . '/id'));
 
-        $example->setRepertoire(dirname(__FILE__));
+        $example->setDirectory(dirname(__FILE__));
         $this->assertTrue(file_exists(dirname(__FILE__) . '/id'));
     }
 
@@ -980,23 +1214,22 @@ class ExempleTest extends PHPUnit_Framework_TestCase
     <example id="test-doubles.mocking-the-filesystem.examples.ExampleTest2.php">
       <title>Simuler le système de fichiers dans un test pour une classe qui interagit avec le système de fichiers</title>
       <programlisting><![CDATA[<?php
-require_once 'vfsStream/vfsStream.php';
-require_once 'Exemple.php';
+use PHPUnit\Framework\TestCase;
 
-class ExempleTest extends PHPUnit_Framework_TestCase
+class ExampleTest extends TestCase
 {
     public function setUp()
     {
         vfsStreamWrapper::register();
-        vfsStreamWrapper::setRoot(new vfsStreamDirectory('exempleRepertoire'));
+        vfsStreamWrapper::setRoot(new vfsStreamDirectory('exampleDir'));
     }
 
-    public function testRepertoireEstCree()
+    public function testDirectoryIsCreated()
     {
-        $exemple = new Exemple('id');
+        $example = new Example('id');
         $this->assertFalse(vfsStreamWrapper::getRoot()->hasChild('id'));
 
-        $exemple->setRepertoire(vfsStream::url('exempleRepertoire'));
+        $example->setDirectory(vfsStream::url('exampleDir'));
         $this->assertTrue(vfsStreamWrapper::getRoot()->hasChild('id'));
     }
 }

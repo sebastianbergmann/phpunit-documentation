@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="risky-tests">
+  <title>Tests risqués</title>
+
+  <para>
+    PHPUnit peut effectuer les vérifications supplémentaires documentées ci-dessous pendant qu'il exécute
+    les tests.
+  </para>
+
+  <section id="risky-tests.useless-tests">
+    <title>Tests inutiles</title>
+
+    <para>
+      PHPUnit peut être strict sur les tests qui ne testent rien. Cette vérification
+      peut être activée en utilisant l'option <literal>--report-useless-tests</literal>
+      de la ligne de commande ou en définissant
+      <literal>beStrictAboutTestsThatDoNotTestAnything="true"</literal> dans
+      le fichier de configuration XML de PHPUnit.
+    </para>
+
+    <para>
+      Un test qui n'effectue pas d'assertion sera marqué comme risqué
+      lorsque cette vérification est activée. Les attentes sur les objets bouchonnés ou les annotations
+      telles que <code>@expectedException</code> comptent comme une assertion.
+    </para>
+  </section>
+
+  <section id="risky-tests.unintentionally-covered-code">
+    <title>Code non-intentionnellement couvert</title>
+
+    <para>
+      PHPUnit peut être strict sur le code couvert non-intentionnellement. Cette vérification
+      peut être activée en utilisant l'option <literal>--strict-coverage</literal>
+      de la ligne de commande ou en définissant
+      <literal>checkForUnintentionallyCoveredCode="true"</literal> dans
+      le fichier de configuration XML de PHPUnit.
+    </para>
+
+    <para>
+      Un test qui est annoté avec <code>@covers</code> et execute du code qui
+      n'est pas listé avec les annotations <code>@covers</code> ou <code>@uses</code>
+      sera marqué comme risqué quand cette vérification est activée.
+    </para>
+  </section>
+
+  <section id="risky-tests.output-during-test-execution">
+    <title>Sortie d'écran lors de l'exécution d'un test</title>
+
+    <para>
+      PHPUnit peut être strict sur la sortie écran pendant les tests. Cette vérification
+      peut être activée en utilisant l'option <literal>--disallow-test-output</literal>
+      de la ligne de commande ou en définissant
+      <literal>beStrictAboutOutputDuringTests="true"</literal> dans
+      le fichier de configuration XML de PHPUnit.
+    </para>
+
+    <para>
+      Un test qui émet une sortie écran, par exemple en appelant <code>print</code> dans
+      dans le code du test ou dans le code testé, sera marqué comme risqué quand
+      cette vérification est activée.
+    </para>
+  </section>
+
+  <section id="risky-tests.test-execution-timeout">
+    <title>Délai d'execution des tests</title>
+
+    <para>
+      Une limite de temps peut être appliquée pour l'exécution d'un test si le
+      paquet <literal>PHP_Invoker</literal> est installé et que
+      l'extension <literal>pcntl</literal> est disponible. L'application de cette
+      limite de temps peut être activée en utilisant
+      l'option <literal>--enforce-time-limit</literal> sur la ligne de commande ou en
+      définissant <literal>beStrictAboutTestSize="true"</literal> dans le fichier de
+      configuration XML de PHPUnit.
+    </para>
+
+    <para>
+      Un test annoté avec <literal>@large</literal> échouera s'il prend
+      plus de 60 secondes à s'executer. Ce délai d'execution est configurable via l'attribut
+      <literal>timeoutForLargeTests</literal> dans le fichier
+      de configuration XML.
+    </para>
+
+    <para>
+      Un test annoté avec <literal>@medium</literal> échouera s'il prend
+      plus de 10 secondes à s'executer. Ce délai d'execution est configurable via l'attribut
+      <literal>timeoutForMediumTests</literal> dans le fichier
+      de configuration XML.
+    </para>
+
+    <para>
+      Un test qui n'est pas annoté avec <literal>@medium</literal> ou
+      <literal>@large</literal> sera traité comme s'il était annoté avec
+      <literal>@small</literal>. Un test "small" échouera s'il prend
+      plus de 1 seconde à s'executer. Ce délai d'execution est configurable via
+      l'attribut <literal>timeoutForMediumTests</literal> dans le fichier de
+      configuration XML.
+    </para>
+  </section>
+
+  <section id="risky-tests.global-state-manipulation">
+    <title>Manipulation d'états globaux</title>
+
+    <para>
+      PHPUnit peut être strict sur les tests qui manipulent l'état global. Cette vérification
+      peut être activé en utilisant l'option <literal>--strict-global-state</literal>
+      de la ligne de commande ou en définissant
+      <literal>beStrictAboutChangesToGlobalState="true"</literal> dans le fichier de
+      configuration XML de PHPUnit.
+    </para>
+  </section>
+</chapter>
+
