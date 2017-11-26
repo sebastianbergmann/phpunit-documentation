@@ -10,9 +10,9 @@ Pour compiler la documentation en français, les pré-requis sont les suivants :
 Pour compiler la documentation en français :
 
     cd build
-    ant build-fr-6.1
+    ant build-fr-6.0
 
-Attention, la documentation est en cours de traduction (cf. tableau ci dessous)
+Attention, la documentation est en cours de traduction (cf. tableau ci-dessous)
 
 
 ## Contributions attendues

@@ -12,7 +12,7 @@ Pour compiler la documentation en français :
     cd build
     ant build-fr-5.7
 
-Attention, la documentation est en cours de traduction (cf. tableau ci dessous)
+Attention, la documentation est en cours de traduction (cf. tableau ci-dessous)
 
 
 ## Contributions attendues
