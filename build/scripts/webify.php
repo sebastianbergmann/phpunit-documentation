@@ -21,7 +21,7 @@ function webify_directory($directory, $language, $version)
 
     $editions  = array(
       'en'    => array('6.5', '6.4', '5.7'),
-      //'fr'    => array('4.2', '4.1'),
+      'fr'    => array('6.5', '6.4', '5.7'),
       'ja'    => array('6.5', '6.4', '5.7'),
       'pt_br' => array('6.5', '6.4', '5.7'),
       'zh_cn' => array('6.5', '6.4', '5.7')
@@ -128,6 +128,7 @@ function webify_file($file, $toc, $languageList, $versionList, $language, $versi
     //i18n for title
     $title_text = array(
         'en' => 'PHPUnit Manual',
+        'fr' => 'Manuel PHPUnit',
         'zh_cn' => 'PHPUnit 手册',
         'ja' => 'PHPUnit マニュアル',
         'pt_br' => 'Manual PHPUnit',
@@ -142,6 +143,7 @@ function webify_file($file, $toc, $languageList, $versionList, $language, $versi
     // i18n for text on page.
     $prev_text = array(
         'en' => 'Prev',
+        'fr' => 'Précédent',
         'zh_cn' => '上一章',
         'ja' => '戻る',
         'pt_br' => 'Anterior',
@@ -149,6 +151,7 @@ function webify_file($file, $toc, $languageList, $versionList, $language, $versi
 
     $next_text = array(
         'en' => 'Next',
+        'fr' => 'Suivant',
         'zh_cn' => '下一章',
         'ja' => '次へ',
         'pt_br' => 'Próximo',
@@ -156,6 +159,7 @@ function webify_file($file, $toc, $languageList, $versionList, $language, $versi
 
     $suggestions_text = array(
         'en' => 'Please <a href="https://github.com/sebastianbergmann/phpunit-documentation/issues">open a ticket</a> on GitHub to suggest improvements to this page. Thanks!',
+        'fr' => '<a href="https://github.com/sebastianbergmann/phpunit-documentation/issues">Ouvrez un ticket</a> sur GitHub pour proposer des améliorations à cette page. Merci!',
         'zh_cn' => '如果对本页有改进建议，请 <a href="https://github.com/sebastianbergmann/phpunit-documentation/issues">在 GitHub 上开启任务单</a>。万分感谢！',
         'ja' => 'このページの改善案を<a href="https://github.com/sebastianbergmann/phpunit-documentation/issues">GitHubで提案</a>してください!',
         'pt_br' => 'Por favor, <a href="https://github.com/sebastianbergmann/phpunit-documentation/issues">abra um chamado</a> no GitHub para sugerir melhorias para esta página. Obrigado!',
