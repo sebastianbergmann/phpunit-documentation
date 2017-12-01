@@ -20,7 +20,7 @@ function webify_directory($directory, $language, $version)
     );
 
     $editions  = array(
-      'en'    => array('7.0', '6.4', '5.7'),
+      'en'    => array('7.0', '6.5', '5.7'),
       'fr'    => array('7.0', '6.5', '5.7'),
       'ja'    => array('7.0', '6.5', '5.7'),
       'pt_br' => array('7.0', '6.5', '5.7'),
