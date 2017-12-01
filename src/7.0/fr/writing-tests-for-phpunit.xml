@@ -1,0 +1,1069 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<chapter id="writing-tests-for-phpunit">
+  <title>Écrire des tests pour PHPUnit</title>
+
+  <para>
+    <indexterm><primary>PHPUnit\Framework\TestCase</primary></indexterm>
+
+    <xref linkend="writing-tests-for-phpunit.examples.StackTest.php" /> montre
+    comment nous pouvons écrire des tests en utilisant PHPUnit pour contrôler
+    les opérations PHP sur les tableaux. L'exemple introduit les conventions
+    et les étapes de base pour écrire des tests avec PHPUnit:
+  </para>
+
+  <orderedlist>
+    <listitem><para>Les tests pour une classe <literal>Class</literal> vont dans une classe <literal>ClassTest</literal>.</para></listitem>
+    <listitem><para><literal>ClassTest</literal> hérite (la plupart du temps) de <literal>PHPUnit\Framework\TestCase</literal>.</para></listitem>
+    <listitem><para>Les tests sont des méthodes publiques qui sont appelées <literal>test*</literal>.</para><para><indexterm><primary>Annotation</primary></indexterm>Alternativement, vous pouvez utiliser l'annotation <literal>@test</literal> dans le bloc de documentation d'une méthode pour la marquer comme étant une méthode de test.</para></listitem>
+    <listitem><para>A l'intérieur des méthodes de test, des méthodes d'assertion telles que <literal>assertEquals()</literal> (voir <xref linkend="appendixes.assertions" />) sont utilisées pour affirmer qu'une valeur constatée correspond à une valeur attendue.</para></listitem>
+  </orderedlist>
+
+  <example id="writing-tests-for-phpunit.examples.StackTest.php">
+    <title>Tester des opérations de tableau avec PHPUnit</title>
+    <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
+
+class StackTest extends TestCase
+{
+    public function testPushAndPop()
+    {
+        $stack = [];
+        $this->assertEquals(0, count($stack));
+
+        array_push($stack, 'foo');
+        $this->assertEquals('foo', $stack[count($stack)-1]);
+        $this->assertEquals(1, count($stack));
+
+        $this->assertEquals('foo', array_pop($stack));
+        $this->assertEquals(0, count($stack));
+    }
+}
+?>]]></programlisting>
+  </example>
+
+  <blockquote>
+    <attribution>Martin Fowler</attribution>
+    <para>
+      A chaque fois que vous avez la tentation de saisir quelque chose dans une
+      instruction <literal>print</literal> ou dans une expression de débogage,
+      écrivez le plutôt dans un test.
+    </para>
+  </blockquote>
+
+  <section id="writing-tests-for-phpunit.test-dependencies">
+    <title>Dépendances des tests</title>
+
+    <blockquote>
+      <attribution>Adrian Kuhn et. al.</attribution>
+      <para>
+        Les tests unitaires sont avant tout écrits comme étant une bonne pratique destinée à aider les développeurs
+        à identifier et corriger les bugs, à refactoriser le code et à servir de documentation
+        pour une unité du logiciel testé. Pour obtenir ces avantages, les tests unitaires
+        doivent idéalement couvrir tous les chemins possibles du programme. Un test unitaire
+        couvre usuellement un unique chemin particulier d'une seule fonction ou méthode. Cependant, une
+        méthode de test n'est pas obligatoirement une entité encapsulée et indépendante. Souvent,
+        il existe des dépendances implicites entre les méthodes de test, cachées
+        dans l'implémentation du scénario d'un test.
+      </para>
+    </blockquote>
+
+    <para>
+      <indexterm><primary>Dépendances des tests</primary></indexterm>
+
+      PHPUnit gère la déclaration de dépendances explicites entre les
+      méthodes de test. De telles dépendances ne définissent pas l'ordre dans lequel les méthodes de test
+      doivent être exécutées mais elles permettent de renvoyer une instance de
+      la fixture de test par un producteur à des consommateurs qui en dépendent.
+    </para>
+
+    <itemizedlist>
+      <listitem><para>Un producteur est une méthode de test qui produit ses éléments testées comme valeur de retour.</para></listitem>
+      <listitem><para>Un consommateur est une méthode de test qui dépend d'un ou plusieurs producteurs et de leurs valeurs de retour.</para></listitem>
+    </itemizedlist>
+
+    <para>
+      <indexterm><primary>Annotation</primary></indexterm>
+      <indexterm><primary>@depends</primary></indexterm>
+
+      <xref linkend="writing-tests-for-phpunit.examples.StackTest2.php" /> montre comment
+      utiliser l'annotation <literal>@depends</literal> pour exprimer des dépendances
+      entre des méthodes de test.
+    </para>
+
+    <example id="writing-tests-for-phpunit.examples.StackTest2.php">
+      <title>Utiliser l'annotation <literal>@depends</literal> pour exprimer des dépendances</title>
+      <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
+
+class StackTest extends TestCase
+{
+    public function testEmpty()
+    {
+        $stack = [];
+        $this->assertEmpty($stack);
+
+        return $stack;
+    }
+
+    /**
+     * @depends testEmpty
+     */
+    public function testPush(array $stack)
+    {
+        array_push($stack, 'foo');
+        $this->assertEquals('foo', $stack[count($stack)-1]);
+        $this->assertNotEmpty($stack);
+
+        return $stack;
+    }
+
+    /**
+     * @depends testPush
+     */
+    public function testPop(array $stack)
+    {
+        $this->assertEquals('foo', array_pop($stack));
+        $this->assertEmpty($stack);
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      Dans l'exemple ci-dessus, le premier test, <literal>testEmpty()</literal>,
+      crée un nouveau tableau et affirme qu'il est vide. Le test renvoie ensuite
+      la fixture comme résultat. Le deuxième test, <literal>testPush()</literal>,
+      dépend de <literal>testEmpty()</literal> et reçoit le résultat de ce test
+      dont il dépend comme argument. Enfin, <literal>testPop()</literal>
+      dépend de <literal>testPush()</literal>.
+    </para>
+
+    <note>
+      <para>
+        <indexterm><primary>Annotation</primary></indexterm>
+        <indexterm><primary>@depends</primary></indexterm>
+
+        La valeur de retour produite par un producteur est passée "telle quelle" à son
+        consommateur par défaut. Cela signifie que lorsqu'un producteur renvoie un objet,
+        une référence vers cet objet est passée a son consommateur. Lorsqu'une copie
+        doit être utilisée au lieu d'une référence, alors <code>@depends clone</code>
+        doit être utilisé au lieu de <code>@depends</code>.
+      </para>
+    </note>
+
+    <para>
+      <indexterm><primary>Localisation des défauts</primary></indexterm>
+
+      Pour localiser rapidement les défauts, nous voulons que notre attention soit
+      retenue par les tests en échecs pertinents. C'est pourquoi PHPUnit saute
+      l'exécution d'un test quand un test dont il dépend a échoué. Ceci améliore la
+      localisation des défauts en exploitant les dépendances entre les tests comme montré dans
+      <xref linkend="writing-tests-for-phpunit.examples.DependencyFailureTest.php" />.
+    </para>
+
+    <example id="writing-tests-for-phpunit.examples.DependencyFailureTest.php">
+      <title>Exploiter les dépendances entre les tests</title>
+      <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
+
+class DependencyFailureTest extends TestCase
+{
+    public function testOne()
+    {
+        $this->assertTrue(false);
+    }
+
+    /**
+     * @depends testOne
+     */
+    public function testTwo()
+    {
+    }
+}
+?>]]></programlisting>
+
+      <screen><userinput>phpunit --verbose DependencyFailureTest</userinput><![CDATA[
+PHPUnit 7.0.0 by Sebastian Bergmann and contributors.
+
+FS
+
+Time: 0 seconds, Memory: 5.00Mb
+
+There was 1 failure:
+
+1) DependencyFailureTest::testOne
+Failed asserting that false is true.
+
+/home/sb/DependencyFailureTest.php:6
+
+There was 1 skipped test:
+
+1) DependencyFailureTest::testTwo
+This test depends on "DependencyFailureTest::testOne" to pass.
+
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1, Skipped: 1.]]></screen>
+    </example>
+
+    <para>
+      Un test peut avoir plusieurs annotations <literal>@depends</literal>.
+      PHPUnit ne change pas l'ordre dans lequel les tests sont exécutés, vous
+      devez donc vous assurer que les dépendances d'un test peuvent effectivement
+      être utilisables avant que le test ne soit lancé.
+    </para>
+
+    <para>
+      Un test qui a plusieurs annotations <literal>@depends</literal>
+      prendra une fixture du premier producteur en premier argument, une fixture
+      du second producteur en second argument, et ainsi de suite.
+      Voir <xref linkend="writing-tests-for-phpunit.examples.MultipleDependencies.php" />
+    </para>
+
+    <example id="writing-tests-for-phpunit.examples.MultipleDependencies.php">
+      <title>Test avec plusieurs dépendances</title>
+      <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
+
+class MultipleDependenciesTest extends TestCase
+{
+    public function testProducerFirst()
+    {
+        $this->assertTrue(true);
+        return 'first';
+    }
+
+    public function testProducerSecond()
+    {
+        $this->assertTrue(true);
+        return 'second';
+    }
+
+    /**
+     * @depends testProducerFirst
+     * @depends testProducerSecond
+     */
+    public function testConsumer()
+    {
+        $this->assertEquals(
+            ['first', 'second'],
+            func_get_args()
+        );
+    }
+}
+?>]]></programlisting>
+
+      <screen><userinput>phpunit --verbose MultipleDependenciesTest</userinput><![CDATA[
+PHPUnit 7.0.0 by Sebastian Bergmann and contributors.
+
+...
+
+Time: 0 seconds, Memory: 3.25Mb
+
+OK (3 tests, 3 assertions)]]></screen>
+    </example>
+  </section>
+
+  <section id="writing-tests-for-phpunit.data-providers">
+    <title>Fournisseur de données</title>
+
+    <para>
+      <indexterm><primary>Annotation</primary></indexterm>
+      <indexterm><primary>@dataProvider</primary></indexterm>
+      Une méthode de test peut recevoir des arguments arbitraires. Ces arguments doivent
+      être fournis par une méthode fournisseuse de données (<literal>additionProvider()</literal> dans
+      <xref linkend="writing-tests-for-phpunit.data-providers.examples.DataTest.php" />).
+      La méthode fournisseuse de données à utiliser est indiquée dans l'annotation
+      <literal>@dataProvider</literal>.
+    </para>
+
+    <para>
+      Une méthode fournisseuse de données doit être <literal>public</literal> et retourne, soit
+      un tableau de tableaux, soit un objet qui implémente l'interface <literal>Iterator</literal>
+      et renvoie un tableau pour chaque itération. Pour chaque tableau qui est une partie de
+      l'ensemble, la méthode de test sera appelée avec comme arguments le contenu
+      du tableau.
+    </para>
+
+    <example id="writing-tests-for-phpunit.data-providers.examples.DataTest.php">
+      <title>Utiliser un fournisseur de données qui renvoie un tableau de tableaux</title>
+      <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
+
+class DataTest extends TestCase
+{
+    /**
+     * @dataProvider additionProvider
+     */
+    public function testAdd($a, $b, $expected)
+    {
+        $this->assertEquals($expected, $a + $b);
+    }
+
+    public function additionProvider()
+    {
+        return [
+            [0, 0, 0],
+            [0, 1, 1],
+            [1, 0, 1],
+            [1, 1, 3]
+        ];
+    }
+}
+?>]]></programlisting>
+
+    <screen><userinput>phpunit DataTest</userinput><![CDATA[
+PHPUnit 7.0.0 by Sebastian Bergmann and contributors.
+
+...F
+
+Time: 0 seconds, Memory: 5.75Mb
+
+There was 1 failure:
+
+1) DataTest::testAdd with data set #3 (1, 1, 3)
+Failed asserting that 2 matches expected 3.
+
+/home/sb/DataTest.php:9
+
+FAILURES!
+Tests: 4, Assertions: 4, Failures: 1.]]></screen>
+    </example>
+
+    <para>
+      Lorsque vous utilisez un grand nombre de jeux de données, il est utile de nommer chacun avec une clé en chaine de caractère au lieu de la valeur numérique par défaut.
+      La sortie sera plus verbeuse car elle contiendra le nom du jeu de données qui casse un test.
+    </para>
+
+    <example id="writing-tests-for-phpunit.data-providers.examples.DataTest1.php">
+      <title>Utiliser un fournisseur de données avec des jeux de données nommés</title>
+      <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
+
+class DataTest extends TestCase
+{
+    /**
+     * @dataProvider additionProvider
+     */
+    public function testAdd($a, $b, $expected)
+    {
+        $this->assertEquals($expected, $a + $b);
+    }
+
+    public function additionProvider()
+    {
+        return [
+            'adding zeros'  => [0, 0, 0],
+            'zero plus one' => [0, 1, 1],
+            'one plus zero' => [1, 0, 1],
+            'one plus one'  => [1, 1, 3]
+        ];
+    }
+}
+?>]]></programlisting>
+
+    <screen><userinput>phpunit DataTest</userinput><![CDATA[
+PHPUnit 7.0.0 by Sebastian Bergmann and contributors.
+
+...F
+
+Time: 0 seconds, Memory: 5.75Mb
+
+There was 1 failure:
+
+1) DataTest::testAdd with data set "one plus one" (1, 1, 3)
+Failed asserting that 2 matches expected 3.
+
+/home/sb/DataTest.php:9
+
+FAILURES!
+Tests: 4, Assertions: 4, Failures: 1.]]></screen>
+    </example>
+
+    <example id="writing-tests-for-phpunit.data-providers.examples.DataTest2.php">
+      <title>Utiliser un fournisseur de données qui renvoie un objet Iterator</title>
+      <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
+
+require 'CsvFileIterator.php';
+
+class DataTest extends TestCase
+{
+    /**
+     * @dataProvider additionProvider
+     */
+    public function testAdd($a, $b, $expected)
+    {
+        $this->assertEquals($expected, $a + $b);
+    }
+
+    public function additionProvider()
+    {
+        return new CsvFileIterator('data.csv');
+    }
+}
+?>]]></programlisting>
+
+    <screen><userinput>phpunit DataTest</userinput><![CDATA[
+PHPUnit 7.0.0 by Sebastian Bergmann and contributors.
+
+...F
+
+Time: 0 seconds, Memory: 5.75Mb
+
+There was 1 failure:
+
+1) DataTest::testAdd with data set #3 ('1', '1', '3')
+Failed asserting that 2 matches expected '3'.
+
+/home/sb/DataTest.php:11
+
+FAILURES!
+Tests: 4, Assertions: 4, Failures: 1.]]></screen>
+    </example>
+
+    <example id="writing-tests-for-phpunit.data-providers.examples.CsvFileIterator.php">
+      <title>La classe CsvFileIterator</title>
+      <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
+
+class CsvFileIterator implements Iterator {
+    protected $file;
+    protected $key = 0;
+    protected $current;
+
+    public function __construct($file) {
+        $this->file = fopen($file, 'r');
+    }
+
+    public function __destruct() {
+        fclose($this->file);
+    }
+
+    public function rewind() {
+        rewind($this->file);
+        $this->current = fgetcsv($this->file);
+        $this->key = 0;
+    }
+
+    public function valid() {
+        return !feof($this->file);
+    }
+
+    public function key() {
+        return $this->key;
+    }
+
+    public function current() {
+        return $this->current;
+    }
+
+    public function next() {
+        $this->current = fgetcsv($this->file);
+        $this->key++;
+    }
+}
+?>]]></programlisting>
+    </example>
+
+    <para>
+      <indexterm><primary>Annotation</primary></indexterm>
+      <indexterm><primary>@dataProvider</primary></indexterm>
+      <indexterm><primary>@depends</primary></indexterm>
+
+      Quand un test reçoit des entrées à la fois d'une méthode <literal>@dataProvider</literal>
+      et d'un ou plusieurs tests dont il <literal>@depends</literal>,
+      les arguments provenant du fournisseur de données arriveront avant
+      ceux des tests dont il dépend. Les arguments des tests dépendants seront les
+      mêmes pour chaque jeux de données
+      Voir <xref linkend="writing-tests-for-phpunit.data-providers.examples.DependencyAndDataProviderCombo.php"/>
+    </para>
+
+    <example id="writing-tests-for-phpunit.data-providers.examples.DependencyAndDataProviderCombo.php">
+      <title>Combinaison de @depends et @dataProvider dans le même test</title>
+      <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
+
+class DependencyAndDataProviderComboTest extends TestCase
+{
+    public function provider()
+    {
+        return [['provider1'], ['provider2']];
+    }
+
+    public function testProducerFirst()
+    {
+        $this->assertTrue(true);
+        return 'first';
+    }
+
+    public function testProducerSecond()
+    {
+        $this->assertTrue(true);
+        return 'second';
+    }
+
+    /**
+     * @depends testProducerFirst
+     * @depends testProducerSecond
+     * @dataProvider provider
+     */
+    public function testConsumer()
+    {
+        $this->assertEquals(
+            ['provider1', 'first', 'second'],
+            func_get_args()
+        );
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit --verbose DependencyAndDataProviderComboTest</userinput><![CDATA[
+PHPUnit 7.0.0 by Sebastian Bergmann and contributors.
+
+...F
+
+Time: 0 seconds, Memory: 3.50Mb
+
+There was 1 failure:
+
+1) DependencyAndDataProviderComboTest::testConsumer with data set #1 ('provider2')
+Failed asserting that two arrays are equal.
+--- Expected
++++ Actual
+@@ @@
+Array (
+-    0 => 'provider1'
++    0 => 'provider2'
+1 => 'first'
+2 => 'second'
+)
+
+/home/sb/DependencyAndDataProviderComboTest.php:31
+
+FAILURES!
+Tests: 4, Assertions: 4, Failures: 1.
+]]></screen>
+    </example>
+
+    <note>
+      <para>
+        <indexterm><primary>Annotation</primary></indexterm>
+        <indexterm><primary>@dataProvider</primary></indexterm>
+        <indexterm><primary>@depends</primary></indexterm>
+
+        Quand un test dépend d'un test qui utilise des fournisseurs de données,
+        le test dépendant sera exécuté quand le test dont il dépend réussira pour
+        au moins un jeu de données. Le résultat d'un test qui utilise des fournisseurs
+        de données ne peut pas être injecté dans un test dépendant.
+      </para>
+    </note>
+
+    <note>
+      <para>
+        <indexterm><primary>Annotation</primary></indexterm>
+        <indexterm><primary>@dataProvider</primary></indexterm>
+        <indexterm><primary>@depends</primary></indexterm>
+
+        Tous les fournisseurs de données sont exécutés avant le premier appel à la méthode statique <literal>setUpBeforeClass</literal>
+        et le premier appel à la méthode <literal>setUp</literal>.
+        De ce fait, vous ne pouvez accéder à aucune variable créée à ces endroits
+        depuis un fournisseur de données. Ceci est requis pour que PHPUnit puisse
+        calculer le nombre total de tests.
+      </para>
+    </note>
+  </section>
+
+  <section id="writing-tests-for-phpunit.exceptions">
+    <title>Tester des exceptions</title>
+
+    <para>
+      <indexterm><primary>Exception</primary></indexterm>
+      <indexterm><primary>expectException()</primary></indexterm>
+
+      <xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest.php" />
+      montre comment utiliser la méthode <literal>expectException()</literal> pour tester
+      si une exception est levée par le code testé.
+    </para>
+
+    <example id="writing-tests-for-phpunit.exceptions.examples.ExceptionTest.php">
+      <title>Utiliser la méthode expectException()</title>
+      <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
+
+class ExceptionTest extends TestCase
+{
+    public function testException()
+    {
+        $this->expectException(InvalidArgumentException::class);
+    }
+}
+?>]]></programlisting>
+      <screen><userinput>phpunit ExceptionTest</userinput>
+PHPUnit 7.0.0 by Sebastian Bergmann and contributors.
+
+F
+
+Time: 0 seconds, Memory: 4.75Mb
+
+There was 1 failure:
+
+1) ExceptionTest::testException
+Expected exception InvalidArgumentException
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.</screen>
+    </example>
+
+    <para>
+      <indexterm><primary>expectExceptionCode()</primary></indexterm>
+      <indexterm><primary>expectExceptionMessage()</primary></indexterm>
+      <indexterm><primary>expectExceptionMessageRegExp()</primary></indexterm>
+
+      En complément à la méthode <literal>expectException()</literal> les méthodes
+      <literal>expectExceptionCode()</literal>,
+      <literal>expectExceptionMessage()</literal> et
+      <literal>expectExceptionMessageRegExp()</literal> existent pour établir
+      des attentes pour les exceptions levées par le code testé.
+    </para>
+
+    <para>
+      <indexterm><primary>Annotation</primary></indexterm>
+      <indexterm><primary>@expectedException</primary></indexterm>
+
+      Alternativement, vous pouvez utiliser les annotations <literal>@expectedException</literal>,
+      <literal>@expectedExceptionCode</literal>,
+      <literal>@expectedExceptionMessage</literal> et
+      <literal>@expectedExceptionMessageRegExp</literal> pour établir
+      des attentes pour les exceptions levées par le code testé.
+      <xref linkend="writing-tests-for-phpunit.exceptions.examples.ExceptionTest2.php" />
+      montre un exemple.
+    </para>
+
+    <example id="writing-tests-for-phpunit.exceptions.examples.ExceptionTest2.php">
+      <title>Utiliser l'annotation @expectedException</title>
+      <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
+
+class ExceptionTest extends TestCase
+{
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testException()
+    {
+    }
+}
+?>]]></programlisting>
+      <screen><userinput>phpunit ExceptionTest</userinput>
+PHPUnit 7.0.0 by Sebastian Bergmann and contributors.
+
+F
+
+Time: 0 seconds, Memory: 4.75Mb
+
+There was 1 failure:
+
+1) ExceptionTest::testException
+Expected exception InvalidArgumentException
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.</screen>
+    </example>
+  </section>
+
+  <section id="writing-tests-for-phpunit.errors">
+    <title>Tester les erreurs PHP</title>
+    <para>
+      <indexterm><primary>Gestionnaire d'erreur</primary></indexterm>
+      <indexterm><primary>Erreur PHP</primary></indexterm>
+      <indexterm><primary>Remarque PHP</primary></indexterm>
+      <indexterm><primary>Avertissement PHP</primary></indexterm>
+      <indexterm><primary>PHPUnit\Framework\Error</primary></indexterm>
+
+      Par défaut, PHPUnit convertit les erreurs, avertissements et remarques PHP
+      qui sont émises lors de l'exécution d'un test en exception. En utilisant ces
+      exceptions, vous pouvez, par exemple, attendre d'un test qu'il produise une erreur
+      PHP comme montré dans <xref linkend="writing-tests-for-phpunit.exceptions.examples.ErrorTest.php" />.
+    </para>
+
+    <note>
+      <para>
+        La configuration d'exécution PHP <literal>error_reporting</literal> peut
+        limiter les erreurs que PHPUnit convertira en exceptions. Si vous rencontrez
+        des problèmes avec cette fonctionnalité, assurez-vous que PHP n'est pas configuré
+        pour supprimer le type d'erreurs que vous testez.
+      </para>
+    </note>
+
+    <example id="writing-tests-for-phpunit.exceptions.examples.ErrorTest.php">
+      <title>Attendre une erreur PHP en utilisant @expectedException</title>
+      <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
+
+class ExpectedErrorTest extends TestCase
+{
+    /**
+      @expectedException PHPUnit\Framework\Error
+     */
+    public function testFailingInclude()
+    {
+        include 'not_existing_file.php';
+    }
+}
+?>]]></programlisting>
+      <screen><userinput>phpunit -d error_reporting=2 ExpectedErrorTest</userinput>
+PHPUnit 7.0.0 by Sebastian Bergmann and contributors.
+
+.
+
+Time: 0 seconds, Memory: 5.25Mb
+
+OK (1 test, 1 assertion)</screen>
+    </example>
+
+    <para>
+      <indexterm><primary>PHPUnit\Framework\Error\Notice</primary></indexterm>
+      <indexterm><primary>PHPUnit\Framework\Error\Warning</primary></indexterm>
+
+      <literal>PHPUnit\Framework\Error\Notice</literal> et
+      <literal>PHPUnit\Framework\Error\Warning</literal> représentent respectivement
+      les remarques et les avertissements PHP.
+    </para>
+
+    <note>
+      <para>
+        Vous devriez être aussi précis que possible lorsque vous testez des exceptions.
+        Tester avec des classes qui sont trop génériques peut conduire à des effets de
+        bord indésirables. C'est pourquoi tester la présence de la classe
+        <literal>Exception</literal> avec <literal>@expectedException</literal> ou
+        <literal>setExpectedException()</literal> n'est plus autorisé.
+      </para>
+    </note>
+
+    <para>
+        Quand les tests s'appuient sur des fonctions php qui déclenchent des erreurs
+        comme <literal>fopen</literal>, il peut parfois être utile d'utiliser la
+        suppression d'erreur lors du test. Ceci permet de contrôler les valeurs de retour
+        en supprimant les remarques qui auraient conduit à une
+        <literal>PHPUnit\Framework\Error\Notice</literal> de phpunit.
+        <example id="writing-tests-for-phpunit.exceptions.examples.TriggerErrorReturnValue.php">
+
+            <title>Tester des valeurs de retour d'un code source qui utilise des erreurs PHP</title>
+            <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
+
+class ErrorSuppressionTest extends TestCase
+{
+    public function testFileWriting() {
+        $writer = new FileWriter;
+        $this->assertFalse(@$writer->write('/is-not-writeable/file', 'stuff'));
+    }
+}
+class FileWriter
+{
+    public function write($file, $content) {
+        $file = fopen($file, 'w');
+        if($file == false) {
+            return false;
+        }
+        // ...
+    }
+}
+
+?>]]></programlisting>
+      <screen><userinput>phpunit ErrorSuppressionTest</userinput>
+PHPUnit 7.0.0 by Sebastian Bergmann and contributors.
+
+.
+
+Time: 1 seconds, Memory: 5.25Mb
+
+OK (1 test, 1 assertion)</screen>
+        </example>
+    Sans la suppression d'erreur, le test échouerait à rapporter
+    <literal>fopen(/is-not-writeable/file): failed to open stream:
+    No such file or directory</literal>.
+
+    </para>
+  </section>
+
+  <section id="writing-tests-for-phpunit.output">
+    <title>Tester la sortie écran</title>
+
+    <para>
+      Quelquefois, vous voulez confirmer que l'exécution d'une méthode, par
+      exemple, produit une sortie écran donnée (via <literal>echo</literal> ou
+      <literal>print</literal>, par exemple). La classe
+      <literal>PHPUnit\Framework\TestCase</literal> utilise la fonctionnalité de
+      <ulink url="http://www.php.net/manual/en/ref.outcontrol.php">mise en tampon de la sortie écran
+      </ulink> de PHP pour fournir la fonctionnalité qui est
+      nécessaire pour cela.
+    </para>
+
+    <para>
+      <xref linkend="writing-tests-for-phpunit.output.examples.OutputTest.php" />
+      montre comment utiliser la méthode <literal>expectOutputString()</literal> pour
+      indiquer la sortie écran attendue. Si la sortie écran attendue n'est pas générée, le test
+      sera compté comme étant en échec.
+    </para>
+
+    <example id="writing-tests-for-phpunit.output.examples.OutputTest.php">
+      <title>Tester la sortie écran d'une fonction ou d'une méthode</title>
+      <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
+
+class OutputTest extends TestCase
+{
+    public function testExpectFooActualFoo()
+    {
+        $this->expectOutputString('foo');
+        print 'foo';
+    }
+
+    public function testExpectBarActualBaz()
+    {
+        $this->expectOutputString('bar');
+        print 'baz';
+    }
+}
+?>]]></programlisting>
+      <screen><userinput>phpunit OutputTest</userinput>
+PHPUnit 7.0.0 by Sebastian Bergmann and contributors.
+
+.F
+
+Time: 0 seconds, Memory: 5.75Mb
+
+There was 1 failure:
+
+1) OutputTest::testExpectBarActualBaz
+Failed asserting that two strings are equal.
+--- Expected
++++ Actual
+@@ @@
+-'bar'
++'baz'
+
+
+FAILURES!
+Tests: 2, Assertions: 2, Failures: 1.</screen>
+    </example>
+
+    <para>
+      <xref linkend="writing-tests-for-phpunit.output.tables.api" />
+      montre les méthodes fournies pour tester les sorties écran
+    </para>
+
+    <table id="writing-tests-for-phpunit.output.tables.api">
+      <title>Méthodes pour tester les sorties écran</title>
+
+      <tgroup cols="2" align="left" colsep="1" rowsep="1">
+        <thead>
+          <row>
+            <entry>Méthode</entry>
+            <entry>Signification</entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry><literal>void expectOutputRegex(string $regularExpression)</literal></entry>
+            <entry>Indique que l'on s'attend à ce que la sortie écran corresponde à une expression régulière <literal>$regularExpression</literal>.</entry>
+          </row>
+          <row>
+            <entry><literal>void expectOutputString(string $attenduString)</literal></entry>
+            <entry>Indique que l'on s'attend que la sortie écran soit égale à une chaine de caractère <literal>$expectedString</literal>.</entry>
+          </row>
+          <row>
+            <entry><literal>bool setOutputCallback(callable $callback)</literal></entry>
+            <entry>Configure une fonction de rappel (callback) qui est utilisée, par exemple, formater la sortie écran effective.</entry>
+          </row>
+          <row>
+            <entry><literal>string getActualOutput()</literal></entry>
+            <entry>Renvoi la sortie écran courrante.</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <note>
+      <para>
+        En mode strict, un test qui produit une sortie écran échouera.
+      </para>
+    </note>
+  </section>
+
+  <section id="writing-tests-for-phpunit.error-output">
+    <title>Sortie d'erreur</title>
+
+    <para>
+      Chaque fois qu'un test échoue, PHPUnit essaie de vous fournir le plus
+      de contexte possible pour identifier le problème.
+    </para>
+
+    <example id="writing-tests-for-phpunit.error-output.examples.ArrayDiffTest.php">
+      <title>Sortie d'erreur générée lorsqu'un échec de comparaison de tableau</title>
+      <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
+
+class ArrayDiffTest extends TestCase
+{
+    public function testEquality() {
+        $this->assertEquals(
+            [1, 2,  3, 4, 5, 6],
+            [1, 2, 33, 4, 5, 6]
+        );
+    }
+}
+?>]]></programlisting>
+      <screen><userinput>phpunit ArrayDiffTest</userinput><![CDATA[
+PHPUnit 7.0.0 by Sebastian Bergmann and contributors.
+
+F
+
+Time: 0 seconds, Memory: 5.25Mb
+
+There was 1 failure:
+
+1) ArrayDiffTest::testEquality
+Failed asserting that two arrays are equal.
+--- Expected
++++ Actual
+@@ @@
+ Array (
+     0 => 1
+     1 => 2
+-    2 => 3
++    2 => 33
+     3 => 4
+     4 => 5
+     5 => 6
+ )
+
+/home/sb/ArrayDiffTest.php:7
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+    </example>
+    <para>
+      Dans cet exemple, une seule des valeurs du tableau diffère et les autres valeurs
+      sont affichées pour fournir un contexte sur l'endroit où l'erreur s'est produite.
+    </para>
+
+    <para>
+      Lorsque la sortie générée serait longue à lire, PHPUnit la divisera
+      et fournira quelques lignes de contexte autour de chaque différence.
+    </para>
+    <example id="writing-tests-for-phpunit.error-output.examples.LongArrayDiffTest.php">
+      <title>Sortie d'erreur quand une comparaison de long tableaux échoue</title>
+      <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
+
+class LongArrayDiffTest extends TestCase
+{
+    public function testEquality() {
+        $this->assertEquals(
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2,  3, 4, 5, 6],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 33, 4, 5, 6]
+        );
+    }
+}
+?>]]></programlisting>
+      <screen><userinput>phpunit LongArrayDiffTest</userinput><![CDATA[
+PHPUnit 7.0.0 by Sebastian Bergmann and contributors.
+
+F
+
+Time: 0 seconds, Memory: 5.25Mb
+
+There was 1 failure:
+
+1) LongArrayDiffTest::testEquality
+Failed asserting that two arrays are equal.
+--- Expected
++++ Actual
+@@ @@
+     13 => 2
+-    14 => 3
++    14 => 33
+     15 => 4
+     16 => 5
+     17 => 6
+ )
+
+
+/home/sb/LongArrayDiffTest.php:7
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+    </example>
+    <section id="writing-tests-for-phpunit.error-output.edge-cases">
+      <title>Cas limite</title>
+
+      <para>
+        Quand une comparaison échoue, PHPUnit crée une représentation textuel des
+        valeurs d'entrées et les compare. A cause de cette implémentation un diff
+        peut montrer plus de problèmes qu'il n'en existe réellement.
+      </para>
+
+      <para>
+        Cela arrive seulement lors de l'utilisation de assetEquals ou d'autres fonction
+        de comparaison "faible" sur les tableaux ou les objets.
+      </para>
+
+      <example id="writing-tests-for-phpunit.error-output.edge-cases.examples.ArrayWeakComparisonTest.php">
+        <title>Cas limite dans la génération de la différence lors de l'utilisation de comparaison faible</title>
+        <programlisting><![CDATA[<?php
+use PHPUnit\Framework\TestCase;
+
+class ArrayWeakComparisonTest extends TestCase
+{
+    public function testEquality() {
+        $this->assertEquals(
+            [1, 2, 3, 4, 5, 6],
+            ['1', 2, 33, 4, 5, 6]
+        );
+    }
+}
+?>]]></programlisting>
+        <screen><userinput>phpunit ArrayWeakComparisonTest</userinput><![CDATA[
+PHPUnit 7.0.0 by Sebastian Bergmann and contributors.
+
+F
+
+Time: 0 seconds, Memory: 5.25Mb
+
+There was 1 failure:
+
+1) ArrayWeakComparisonTest::testEquality
+Failed asserting that two arrays are equal.
+--- Expected
++++ Actual
+@@ @@
+ Array (
+-    0 => 1
++    0 => '1'
+     1 => 2
+-    2 => 3
++    2 => 33
+     3 => 4
+     4 => 5
+     5 => 6
+ )
+
+
+/home/sb/ArrayWeakComparisonTest.php:7
+
+FAILURES!
+Tests: 1, Assertions: 1, Failures: 1.]]></screen>
+
+      </example>
+      <para>
+        Dans cet exemple, la différence dans le premier indice entre
+        <literal>1</literal> et <literal>'1'</literal>
+        est signalée même si AssertEquals considère les valeurs comme une correspondance.
+      </para>
+
+    </section>
+  </section>
+</chapter>

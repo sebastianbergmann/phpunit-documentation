@@ -1,0 +1,393 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<appendix id="appendixes.configuration">
+  <title>Le fichier de configuration XML</title>
+
+  <section id="appendixes.configuration.phpunit">
+    <title>PHPUnit</title>
+
+    <para>
+      Les attributs d'un élément <literal><![CDATA[<phpunit>]]></literal> peuvent être
+      utilisés pour configurer les fonctionnalités du coeur de PHPUnit.
+    </para>
+
+    <screen><![CDATA[<phpunit
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/6.3/phpunit.xsd"
+         backupGlobals="true"
+         backupStaticAttributes="false"
+         <!--bootstrap="/path/to/bootstrap.php"-->
+         cacheTokens="false"
+         colors="false"
+         convertErrorsToExceptions="true"
+         convertNoticesToExceptions="true"
+         convertWarningsToExceptions="true"
+         forceCoversAnnotation="false"
+         mapTestClassNameToCoveredClassName="false"
+         printerClass="PHPUnit_TextUI_ResultPrinter"
+         <!--printerFile="/path/to/ResultPrinter.php"-->
+         processIsolation="false"
+         stopOnError="false"
+         stopOnFailure="false"
+         stopOnIncomplete="false"
+         stopOnSkipped="false"
+         stopOnRisky="false"
+         testSuiteLoaderClass="PHPUnit_Runner_StandardTestSuiteLoader"
+         <!--testSuiteLoaderFile="/path/to/StandardTestSuiteLoader.php"-->
+         timeoutForSmallTests="1"
+         timeoutForMediumTests="10"
+         timeoutForLargeTests="60"
+         verbose="false">
+  <!-- ... -->
+</phpunit>]]></screen>
+
+    <para>
+      Le fichier de configuration XML ci-dessus correspond au comportement par
+      défaut du lanceur de tests TextUI documenté dans <xref linkend="textui.clioptions" />.
+    </para>
+
+    <para>
+      Des options supplémentaires qui ne sont pas disponibles en tant qu'option de ligne de commandes sont :
+    </para>
+
+    <variablelist>
+
+      <varlistentry>
+        <term><literal>convertErrorsToExceptions</literal></term>
+        <listitem>
+          <para>
+            Par défaut, PHPUnit va installer un gestionnaire d'erreur qui converti
+            les erreurs suivantes en exceptions :
+          </para>
+
+          <itemizedlist>
+            <listitem><literal>E_WARNING</literal></listitem>
+            <listitem><literal>E_NOTICE</literal></listitem>
+            <listitem><literal>E_USER_ERROR</literal></listitem>
+            <listitem><literal>E_USER_WARNING</literal></listitem>
+            <listitem><literal>E_USER_NOTICE</literal></listitem>
+            <listitem><literal>E_STRICT</literal></listitem>
+            <listitem><literal>E_RECOVERABLE_ERROR</literal></listitem>
+            <listitem><literal>E_DEPRECATED</literal></listitem>
+            <listitem><literal>E_USER_DEPRECATED</literal></listitem>
+          </itemizedlist>
+
+          <para>
+            Mettre <literal>convertErrorsToExceptions</literal> à
+            <literal>false</literal> désactivera cette fonctionnalité.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>convertNoticesToExceptions</literal></term>
+        <listitem>
+          <para>
+            Si défini à <literal>false</literal>, le gestionnaire d'erreurs installé
+            par <literal>convertErrorsToExceptions</literal> ne convertira pas les erreurs
+            <literal>E_NOTICE</literal>, <literal>E_USER_NOTICE</literal>, ou
+            <literal>E_STRICT</literal> en exceptions.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>convertWarningsToExceptions</literal></term>
+        <listitem>
+          <para>
+            Si défini à <literal>false</literal>, le gestionnaire d'erreurs installé
+            par <literal>convertErrorsToExceptions</literal> ne convertira pas les erreurs
+            <literal>E_WARNING</literal> ou <literal>E_USER_WARNING</literal>
+            en exceptions.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>forceCoversAnnotation</literal></term>
+        <listitem>
+          <para>
+            La couverture de code ne sera enregistrée que pour les tests qui
+            utilisent l'annotation <literal>@covers</literal> documentée dans
+            <xref linkend="appendixes.annotations.covers" />.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>timeoutForLargeTests</literal></term>
+        <listitem>
+          <para>
+            Si les limites de temps basées sur la taille du test sont appliquées alors cet attribut
+            défini le délai pour tous les tests marqués comme <literal>@large</literal>.
+            Si un test ne se termine pas dans le délai configuré, il
+            échouera.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>timeoutForMediumTests</literal></term>
+        <listitem>
+          <para>
+            Si les limites de temps basées sur la taille du test sont appliquées alors cet attribut
+            défini le délai pour tous les tests marqués comme <literal>@medium</literal>.
+            Si un test ne se termine pas dans le délai configuré, il
+            échouera.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><literal>timeoutForSmallTests</literal></term>
+        <listitem>
+          <para>
+            Si les limites de temps basées sur la taille du test sont appliquées alors cet attribut
+            défini le délai pour tous les tests qui ne sont pas marqués comme
+            <literal>@medium</literal> or <literal>@large</literal>. Si un test
+            ne se termine pas dans le délai configuré, il échouera.
+          </para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+  </section>
+
+  <section id="appendixes.configuration.testsuites">
+    <title>Série de tests</title>
+
+    <para>
+      <indexterm><primary>Série de tests</primary></indexterm>
+
+      L'élément <literal><![CDATA[<testsuites>]]></literal> et son ou ses
+      enfants <literal><![CDATA[<testsuite>]]></literal> peuvent être utilisés pour
+      composer une série de tests à partir des séries de test et des cas de test.
+    </para>
+
+    <screen><![CDATA[<testsuites>
+  <testsuite name="My Test Suite">
+    <directory>/path/to/*Test.php files</directory>
+    <file>/path/to/MyTest.php</file>
+    <exclude>/path/to/exclude</exclude>
+  </testsuite>
+</testsuites>]]></screen>
+
+    <para>
+      En utilisant les attributs <literal>phpVersion</literal> et
+      <literal>phpVersionOperator</literal>, une version requise de PHP
+      peut être indiquée. L'exemple ci-dessous ne va ajouter que
+      les fichiers <filename>/path/to/*Test.php</filename> et
+      <filename>/path/to/MyTest.php</filename> si la version de PHP est
+      au moins 5.3.0.
+    </para>
+
+    <screen><![CDATA[  <testsuites>
+    <testsuite name="My Test Suite">
+      <directory suffix="Test.php" phpVersion="5.3.0" phpVersionOperator=">=">/path/to/files</directory>
+      <file phpVersion="5.3.0" phpVersionOperator=">=">/path/to/MyTest.php</file>
+    </testsuite>
+  </testsuites>]]></screen>
+
+    <para>
+      L'attribut <literal>phpVersionOperator</literal> est facultatif et vaut par
+      défaut <literal><![CDATA[>=]]></literal>.
+    </para>
+  </section>
+
+  <section id="appendixes.configuration.groups">
+    <title>Groupes</title>
+
+    <para>
+      <indexterm><primary>Groupes de tests</primary></indexterm>
+
+      L'élément <literal><![CDATA[<groups>]]></literal> et ses enfants
+      <literal><![CDATA[<include>]]></literal>,
+      <literal><![CDATA[<exclude>]]></literal> et
+      <literal><![CDATA[<group>]]></literal> peuvent être utilisés pour choisir
+      des groupes de tests marqués avec l'annotation <literal>@group</literal>
+      (documenté dans <xref linkend="appendixes.annotations.group" />)
+      qui doivent (ou ne doivent pas) être exécutés.
+    </para>
+
+    <screen><![CDATA[<groups>
+  <include>
+    <group>name</group>
+  </include>
+  <exclude>
+    <group>name</group>
+  </exclude>
+</groups>]]></screen>
+
+    <para>
+      La configuration XML ci-dessus revient à appeler le lanceur de test TextUI
+      avec les options suivantes:
+    </para>
+
+    <itemizedlist>
+      <listitem><para><literal>--group name</literal></para></listitem>
+      <listitem><para><literal>--exclude-group name</literal></para></listitem>
+    </itemizedlist>
+  </section>
+
+  <section id="appendixes.configuration.whitelisting-files">
+    <title>Inclure des fichiers de la couverture de code</title>
+
+    <para>
+      <indexterm><primary>Couverture de code</primary></indexterm>
+      <indexterm><primary>Liste blanche</primary></indexterm>
+
+      L'élément <literal><![CDATA[<filter>]]></literal> et ses enfants peuvent être
+      utilisés pour configurer les listes blanches pour les rapports de couverture de code.
+    </para>
+
+    <screen><![CDATA[<filter>
+  <whitelist processUncoveredFilesFromWhitelist="true">
+    <directory suffix=".php">/path/to/files</directory>
+    <file>/path/to/file</file>
+    <exclude>
+      <directory suffix=".php">/path/to/files</directory>
+      <file>/path/to/file</file>
+    </exclude>
+  </whitelist>
+</filter>]]></screen>
+  </section>
+
+  <section id="appendixes.configuration.logging">
+    <title>Journalisation</title>
+
+    <para>
+      <indexterm><primary>Journalisation</primary></indexterm>
+
+      L'élément <literal><![CDATA[<logging>]]></literal> et ses enfants
+      <literal><![CDATA[<log>]]></literal> peuvent être utilisés pour configurer
+      la journalisation de l'exécution des tests.
+    </para>
+
+    <screen><![CDATA[<logging>
+  <log type="coverage-html" target="/tmp/report" lowUpperBound="35"
+       highLowerBound="70"/>
+  <log type="coverage-clover" target="/tmp/coverage.xml"/>
+  <log type="coverage-php" target="/tmp/coverage.serialized"/>
+  <log type="coverage-text" target="php://stdout" showUncoveredFiles="false"/>
+  <log type="junit" target="/tmp/logfile.xml" logIncompleteSkipped="false"/>
+  <log type="testdox-html" target="/tmp/testdox.html"/>
+  <log type="testdox-text" target="/tmp/testdox.txt"/>
+</logging>]]></screen>
+
+    <para>
+      La configuration XML ci-dessus revient à invoquer le lanceur de tests TextUI
+      avec les options suivantes :
+    </para>
+
+    <itemizedlist>
+      <listitem><para><literal>--coverage-html /tmp/report</literal></para></listitem>
+      <listitem><para><literal>--coverage-clover /tmp/coverage.xml</literal></para></listitem>
+      <listitem><para><literal>--coverage-php /tmp/coverage.serialized</literal></para></listitem>
+      <listitem><para><literal>--coverage-text</literal></para></listitem>
+      <listitem><para><literal><![CDATA[>]]> /tmp/logfile.txt</literal></para></listitem>
+      <listitem><para><literal>--log-junit /tmp/logfile.xml</literal></para></listitem>
+      <listitem><para><literal>--testdox-html /tmp/testdox.html</literal></para></listitem>
+      <listitem><para><literal>--testdox-text /tmp/testdox.txt</literal></para></listitem>
+    </itemizedlist>
+
+    <para>
+      Les attributs <literal>lowUpperBound</literal>, <literal>highLowerBound</literal>,
+      <literal>logIncompleteSkipped</literal> et
+      <literal>showUncoveredFiles</literal> n'ont pas d'options équivalentes pour le lanceur de
+      tests TextUI.
+    </para>
+
+    <itemizedlist>
+      <listitem><para><literal>lowUpperBound: pourcentage de couverture maximum considérée comme étant faible.</literal></para></listitem>
+      <listitem><para><literal>highLowerBound: pourcentage de couverture minimum considérée comme étant forte.</literal></para></listitem>
+      <listitem><para><literal>showUncoveredFiles: Montre tous les fichiers en liste blanche dans la sortie <literal>--coverage-text</literal> et pas seulement ceux possédant des informations de couverture.</literal> </para></listitem>
+      <listitem><para><literal>showOnlySummary</literal>: Montre seulement le résumé dans la sortie <literal>--coverage-text</literal>.</para></listitem>
+    </itemizedlist>
+  </section>
+
+  <section id="appendixes.configuration.test-listeners">
+    <title>Écouteurs de tests</title>
+
+    <para>
+      <indexterm><primary>PHPUnit\Framework\TestListener</primary></indexterm>
+      <indexterm><primary>Écouteurs de tests</primary></indexterm>
+
+      L'élément <literal><![CDATA[<listeners>]]></literal> et ses enfants
+      <literal><![CDATA[<listener>]]></literal> peuvent être utilisés pour brancher des
+      écouteurs de tests additionnels lors de l'exécution des tests.
+    </para>
+
+    <screen><![CDATA[<listeners>
+  <listener class="MyListener" file="/optional/path/to/MyListener.php">
+    <arguments>
+      <array>
+        <element key="0">
+          <string>Sebastian</string>
+        </element>
+      </array>
+      <integer>22</integer>
+      <string>April</string>
+      <double>19.78</double>
+      <null/>
+      <object class="stdClass"/>
+    </arguments>
+  </listener>
+</listeners>]]></screen>
+
+    <para>
+      La configuration XML ci-dessus revient à brancher l'objet
+      <literal>$listener</literal> (voir ci-dessous) à l'exécution des tests :
+    </para>
+
+    <screen><![CDATA[$listener = new MyListener(
+    ['Sebastian'],
+    22,
+    'April',
+    19.78,
+    null,
+    new stdClass
+);]]></screen>
+  </section>
+
+  <section id="appendixes.configuration.php-ini-constants-variables">
+    <title>Configurer les réglages de PHP INI, les constantes et les variables globales</title>
+
+    <para>
+      <indexterm><primary>Constante</primary></indexterm>
+      <indexterm><primary>Variable globale</primary></indexterm>
+      <indexterm><primary><literal>php.ini</literal></primary></indexterm>
+
+      L'élément <literal><![CDATA[<php>]]></literal> et ses enfants peuvent être utilisés
+      pour configurer les réglages PHP, les constantes et les variables globales. Il peut
+      également être utilisé pour préfixer l'<literal>include_path</literal>.
+    </para>
+
+    <screen><![CDATA[<php>
+  <includePath>.</includePath>
+  <ini name="foo" value="bar"/>
+  <const name="foo" value="bar"/>
+  <var name="foo" value="bar"/>
+  <env name="foo" value="bar"/>
+  <post name="foo" value="bar"/>
+  <get name="foo" value="bar"/>
+  <cookie name="foo" value="bar"/>
+  <server name="foo" value="bar"/>
+  <files name="foo" value="bar"/>
+  <request name="foo" value="bar"/>
+</php>]]></screen>
+
+    <para>
+      La configuration XML ci-dessus correspond au code PHP suivant :
+    </para>
+
+    <screen><![CDATA[ini_set('foo', 'bar');
+define('foo', 'bar');
+$GLOBALS['foo'] = 'bar';
+$_ENV['foo'] = 'bar';
+$_POST['foo'] = 'bar';
+$_GET['foo'] = 'bar';
+$_COOKIE['foo'] = 'bar';
+$_SERVER['foo'] = 'bar';
+$_FILES['foo'] = 'bar';
+$_REQUEST['foo'] = 'bar';]]></screen>
+  </section>
+</appendix>
