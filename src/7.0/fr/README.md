@@ -12,7 +12,7 @@ Pour compiler la documentation en français :
     cd build
     ant build-fr-6.5
 
-Attention, la documentation est en cours de traduction (cf. tableau ci dessous)
+Attention, la documentation est en cours de traduction (cf. tableau ci-dessous)
 
 
 ## Contributions attendues
@@ -55,20 +55,24 @@ Attention, la documentation est en cours de traduction (cf. tableau ci dessous)
 Dans ce fichier sont recensées les règles de traductions utilisées de manière à garantir la cohérence d'ensemble.
 Sont notamment visés les termes techniques.
 
-actual:			constatée (valeur)
-array:			traduit par tableau sauf quand on fait explicitement référence à PHP
-assertion:		traduit par asssertion, plus parlant que affirmation
-composable:		composable (rien trouvé de mieux)
-expected:		attendue (valeur)
-framework:		framework
-isolated:		indépendant (isolé est ambigu, étanche un peu moins...)
-notice:			remarque
-return:			retourne plutôt que renvoie
-requirements:	pré-requis
-extension:		extensions
-code coverage:	couverture de code
-appendix:       annexe
-fixture:        fixture (pas trouvé mieux en français)
-stub:           bouchon
 
-verbe ing: 	traduits par l'infinitif dans les titres: testing => tester
+| Anglais       | Français                                                                  |
+| :------------ | :------------------------------------------------------------------------ |
+| actual        | constatée (valeur)                                                        |
+| array         | traduit par tableau sauf quand on fait explicitement référence à PHP      |
+| assertion     | traduit par asssertion, plus parlant que affirmation                      |
+| composable    | composable (rien trouvé de mieux)                                         |
+| expected      | attendue (valeur)                                                         |
+| framework     | framework                                                                 |
+| isolated      | indépendant (isolé est ambigu, étanche un peu moins...)                   |
+| notice        | remarque                                                                  |
+| return        | retourne plutôt que renvoie                                               |
+| requirements  | pré-requis                                                                |
+| extension     | extensions                                                                |
+| code coverage | couverture de code                                                        |
+| appendix      | annexe                                                                    |
+| fixture       | fixture (pas trouvé mieux en français)                                    |
+| stub          | bouchon                                                                   |
+| verbe ing     | traduits par l'infinitif dans les titres : testing => tester              |
+
+

@@ -72,7 +72,7 @@ Sont notamment visés les termes techniques.
 | appendix      | annexe                                                                    |
 | fixture       | fixture (pas trouvé mieux en français)                                    |
 | stub          | bouchon                                                                   |
-| verbe ing     | traduits par l'infinitif dans les titres: testing => tester               |
+| verbe ing     | traduits par l'infinitif dans les titres : testing => tester              |
 
 ## Historique du projet de traduction
 
