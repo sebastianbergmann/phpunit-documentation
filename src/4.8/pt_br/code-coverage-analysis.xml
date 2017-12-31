@@ -8,7 +8,7 @@
     <para>
       Na ciência da computação, cobertura de código é um mensuração usada para descrever o
       grau em que um código fonte de um programa é testado por uma suíte
-      de testes particular. Um programa com cobertura de código alta foi mais exaustivamente 
+      de testes particular. Um programa com cobertura de código alta foi mais exaustivamente
       testado e tem uma menor chance de conter erros de software do que um programa
       com baixa cobertura de código.
     </para>
@@ -18,39 +18,39 @@
     <indexterm><primary>Cobertura de Código</primary></indexterm>
     <indexterm><primary>Xdebug</primary></indexterm>
 
-    Neste capítulo você aprenderá tudo sobre a funcionalidade de cobertura de código 
-    do PHPUnit que lhe dará uma perspicácia sobre quais partes do código de produção 
+    Neste capítulo você aprenderá tudo sobre a funcionalidade de cobertura de código
+    do PHPUnit que lhe dará uma perspicácia sobre quais partes do código de produção
     são executadas quando os testes são executados. Ele faz uso do componente
     <ulink url="https://github.com/sebastianbergmann/php-code-coverage">PHP_CodeCoverage</ulink>,
-    que por sua vez utiliza a funcionalidade de cobertura de código fornecido 
+    que por sua vez utiliza a funcionalidade de cobertura de código fornecido
     pela extensão <ulink url="http://xdebug.org/">Xdebug</ulink> para PHP.
   </para>
-  
+
   <note>
     <para>
-      Xdebug não é distribuído como parte do PHPUnit. Se você receber um aviso 
-      durante a execução de testes que a extensão Xdebug não está carregada, isso significa 
+      Xdebug não é distribuído como parte do PHPUnit. Se você receber um aviso
+      durante a execução de testes que a extensão Xdebug não está carregada, isso significa
       que Xdebug ou não está instalada ou não está configurada corretamente. Antes
       que você possa usar as funcionalidades de análise de cobertura de código no PHPUnit, você deve
       ler <ulink url="http://xdebug.org/docs/install">o manual de instalação Xdebug</ulink>.
     </para>
   </note>
-  
+
   <para>
-    PHPUnit pode gerar um relatório de cobertura de código baseado em HTML, tal como 
+    PHPUnit pode gerar um relatório de cobertura de código baseado em HTML, tal como
     arquivos de registros baseado em XML com informações de cobertura de código em vários formatos
-    (Clover, Crap4J, PHPUnit). Informação de cobertura de código também pode ser relatado 
-    como texto (e impresso na STDOUT) e exportado como código PHP para futuro 
+    (Clover, Crap4J, PHPUnit). Informação de cobertura de código também pode ser relatado
+    como texto (e impresso na STDOUT) e exportado como código PHP para futuro
     processamento.
   </para>
-  
+
   <para>
     Por favor, consulte o <xref linkend="textui"/> para uma lista de opções de linha de comando
     que controlam a funcionalidade de cobertura de código, bem como em <xref
-    linkend="appendixes.configuration.logging"/> para as definições de 
+    linkend="appendixes.configuration.logging"/> para as definições de
     configurações relevantes.
   </para>
-  
+
   <section id="code-coverage-analysis.metrics">
     <title>Métricas de Software para  Cobertura de Código</title>
 
@@ -75,9 +75,9 @@
         <term><emphasis>Cobertura de Função e Método</emphasis></term>
         <listitem>
           <para>
-            A métrica de software <emphasis>Cobertura de Função e Método</emphasis> 
+            A métrica de software <emphasis>Cobertura de Função e Método</emphasis>
             mensura se cada função ou método foi invocado.
-            PHP_CodeCoverage só considera uma função ou método como coberto quando 
+            PHP_CodeCoverage só considera uma função ou método como coberto quando
             todas suas linhas executáveis são cobertas.
           </para>
         </listitem>
@@ -101,10 +101,10 @@
         <term><emphasis>Cobertura de Código de Operação</emphasis></term>
         <listitem>
           <para>
-            A métrica de software <emphasis>Cobertura de Código de Operação</emphasis> mensura 
-            se cada código de operação de uma função ou método foi  executado enquanto 
-            executa a suíte de teste. Uma linha de código geralmente compila em mais 
-            de um código de operação. Cobertura de Linha considera uma linha de código como coberta 
+            A métrica de software <emphasis>Cobertura de Código de Operação</emphasis> mensura
+            se cada código de operação de uma função ou método foi  executado enquanto
+            executa a suíte de teste. Uma linha de código geralmente compila em mais
+            de um código de operação. Cobertura de Linha considera uma linha de código como coberta
             logo que um dos seus códigos de operações é executado.
           </para>
         </listitem>
@@ -116,7 +116,7 @@
         <listitem>
           <para>
             A métrica de software <emphasis>Cobertura de Ramo</emphasis> mensura
-            se cada expressão booleana de cada estrutura de controle avaliada 
+            se cada expressão booleana de cada estrutura de controle avaliada
             a <literal>true</literal> e <literal>false</literal> enquanto
             executa a suíte de teste.
           </para>
@@ -129,9 +129,9 @@
         <listitem>
           <para>
             A métrica de software <emphasis>Cobertura de Caminho</emphasis> mensura
-            se cada um dos caminhos de execução possíveis em uma função ou método 
-            foi seguido durante a execução da suíte de teste. Um caminho de execução é 
-            uma sequência única de ramos a partir da entrada de uma função ou 
+            se cada um dos caminhos de execução possíveis em uma função ou método
+            foi seguido durante a execução da suíte de teste. Um caminho de execução é
+            uma sequência única de ramos a partir da entrada de uma função ou
             método para a sua saída.
           </para>
         </listitem>
@@ -142,11 +142,11 @@
         <term><emphasis>Índice de Anti-Patterns de Mudança de Risco (CRAP - Change Risk Anti-Patterns)</emphasis></term>
         <listitem>
           <para>
-            O <emphasis>Índice de Anti-Patterns de Mudança de Risco (CRAP - Change Risk Anti-Patterns)</emphasis> é 
-            calculado baseado na complexidade ciclomática e cobertura de código de uma 
-            unidade de código. Código que não é muito complexo e tem uma cobertura de teste 
+            O <emphasis>Índice de Anti-Patterns de Mudança de Risco (CRAP - Change Risk Anti-Patterns)</emphasis> é
+            calculado baseado na complexidade ciclomática e cobertura de código de uma
+            unidade de código. Código que não é muito complexo e tem uma cobertura de teste
             adequada terá um baixo índice CRAP. O índice CRAP pode ser reduzido
-            escrevendo testes e refatorando o código para reduzir sua 
+            escrevendo testes e refatorando o código para reduzir sua
             complexidade.
           </para>
         </listitem>
@@ -162,16 +162,16 @@
       </para>
     </note>
   </section>
-  
+
   <section id="code-coverage-analysis.including-excluding-files">
     <title>Incluindo e Excluindo Arquivos</title>
 
     <para>
-      Por padrão, todos os arquivos de código-fonte que contém pelo menos uma linha de código que 
-      tenha sido executada (e apenas esses arquivos) são incluídos no relatório 
+      Por padrão, todos os arquivos de código-fonte que contém pelo menos uma linha de código que
+      tenha sido executada (e apenas esses arquivos) são incluídos no relatório
       de cobertura de código.
     </para>
-    
+
     <para>
       <indexterm><primary>Cobertura de código</primary><secondary>Lista-negra</secondary></indexterm>
 
@@ -179,23 +179,23 @@
       relatório de cobertura de código. Essa lista-negra é previamente preenchida com os
       arquivos-fonte do PHPUnit e suas dependências.
     </para>
-    
+
     <para>
       <indexterm><primary>Cobertura de código</primary><secondary>Lista-branca</secondary></indexterm>
 
-      É uma boa prática usar um <emphasis>lista-branca</emphasis> ao invés da 
+      É uma boa prática usar um <emphasis>lista-branca</emphasis> ao invés da
       lista-negra mencionada acima.
     </para>
-    
+
     <para>
       Opcionalmente, todos arquivos da lista-branca pode ser adicionados ao relatório
       de cobertura de código pela definição <literal>addUncoveredFilesFromWhitelist="true"</literal>
       em suas configurações do PHPUnit (veja <xref
-      linkend="appendixes.configuration.blacklist-whitelist"/>). Isso permite a 
-      inclusão de arquivos que ainda não são testados em tudo. Se você quer obter 
+      linkend="appendixes.configuration.blacklist-whitelist"/>). Isso permite a
+      inclusão de arquivos que ainda não são testados em tudo. Se você quer obter
       informação sobre quais linhas de um tal arquivo descoberto são executadas,
-      por exemplo, você também precisa definir 
-      <literal>processUncoveredFilesFromWhitelist="true"</literal> em suas 
+      por exemplo, você também precisa definir
+      <literal>processUncoveredFilesFromWhitelist="true"</literal> em suas
       configurações do PHPUnit (veja <xref
       linkend="appendixes.configuration.blacklist-whitelist"/>).
     </para>
@@ -203,13 +203,13 @@
     <note>
       <para>
         Por favor, note que o carregamento de arquivos de código-fonte que é realizado, quando
-        <literal>processUncoveredFilesFromWhitelist="true"</literal> é definido, pode 
-        causar problemas quando um arquivo de código-fonte contém código fora do escopo de 
+        <literal>processUncoveredFilesFromWhitelist="true"</literal> é definido, pode
+        causar problemas quando um arquivo de código-fonte contém código fora do escopo de
         uma classe ou função, por exemplo.
       </para>
     </note>
   </section>
-  
+
   <section id="code-coverage-analysis.ignoring-code-blocks">
     <title>Ignorando Blocos de Código</title>
 
@@ -219,11 +219,11 @@
       <indexterm><primary>@codeCoverageIgnoreStart</primary></indexterm>
       <indexterm><primary>@codeCoverageIgnoreEnd</primary></indexterm>
 
-      Às vezes você tem blocos de código que não pode testar e que pode 
-      querer ignorar durante a análise de cobertura de código. O PHPUnit permite que você o faça 
+      Às vezes você tem blocos de código que não pode testar e que pode
+      querer ignorar durante a análise de cobertura de código. O PHPUnit permite que você o faça
       usando as anotações <literal>@codeCoverageIgnore</literal>,
       <literal>@codeCoverageIgnoreStart</literal> e
-      <literal>@codeCoverageIgnoreEnd</literal> como mostrado em 
+      <literal>@codeCoverageIgnoreEnd</literal> como mostrado em
       <xref linkend="code-coverage-analysis.ignoring-code-blocks.examples.Sample.php"/>.
     </para>
 
@@ -262,11 +262,11 @@ exit; // @codeCoverageIgnore
 
     <para>
       As linhas de código ignoradas (marcadas como ignoradas usando as anotações)
-      são contadas como executadas (se forem executáveis) e não serão 
+      são contadas como executadas (se forem executáveis) e não serão
       destacadas.
     </para>
   </section>
-  
+
   <section id="code-coverage-analysis.specifying-covered-methods">
     <title>Especificando métodos cobertos</title>
 
@@ -275,9 +275,9 @@ exit; // @codeCoverageIgnore
       <indexterm><primary>@covers</primary></indexterm>
 
       A anotação <literal>@covers</literal> (veja
-      <xref linkend="appendixes.annotations.covers.tables.annotations"/>) pode ser 
-      usada em um código de teste para especificar qual(is) método(s) um método de teste quer 
-      testar. Se fornecido, apenas a informação de cobertura de código para o(s) método(s) 
+      <xref linkend="appendixes.annotations.covers.tables.annotations"/>) pode ser
+      usada em um código de teste para especificar qual(is) método(s) um método de teste quer
+      testar. Se fornecido, apenas a informação de cobertura de código para o(s) método(s)
       especificado(s) será considerada.
       <xref linkend="code-coverage-analysis.specifying-covered-methods.examples.BankAccountTest.php"/>
       mostra um exemplo.
@@ -363,8 +363,8 @@ class BankAccountTest extends PHPUnit_Framework_TestCase
       Também é possível especificar que um teste não deve cobrir
       <emphasis>qualquer</emphasis> método usando a anotação
       <literal>@coversNothing</literal> (veja
-      <xref linkend="appendixes.annotations.coversNothing"/>). Isso pode ser 
-      útil quando escrever testes de integração para certificar-se de que você só 
+      <xref linkend="appendixes.annotations.coversNothing"/>). Isso pode ser
+      útil quando escrever testes de integração para certificar-se de que você só
       gerará cobertura de código com testes unitários.
     </para>
 
@@ -395,7 +395,7 @@ class GuestbookIntegrationTest extends PHPUnit_Extensions_Database_TestCase
       </programlisting>
     </example>
   </section>
-  
+
   <section id="code-coverage-analysis.edge-cases">
     <title>Casos Extremos</title>
 

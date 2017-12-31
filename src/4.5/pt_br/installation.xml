@@ -13,27 +13,27 @@
     <para>
       PHPUnit requer as extensões <ulink
       url="http://php.net/manual/en/dom.setup.php">dom</ulink> e <ulink
-      url="http://php.net/manual/en/json.installation.php">json</ulink>, 
+      url="http://php.net/manual/en/json.installation.php">json</ulink>,
       que são normalmente habilitadas por padrão.
     </para>
 
     <para>
-      PHPUnit também requer as extensões 
+      PHPUnit também requer as extensões
       <ulink
       url="http://php.net/manual/en/pcre.installation.php">pcre</ulink>,
       <ulink
-      url="http://php.net/manual/en/reflection.installation.php">reflection</ulink> 
+      url="http://php.net/manual/en/reflection.installation.php">reflection</ulink>
       e <ulink url="http://php.net/manual/en/spl.installation.php">spl</ulink>.
-      Elas são requeridas pelo núcleo do PHP desde 5.3.0 e normalmente não podem 
+      Elas são requeridas pelo núcleo do PHP desde 5.3.0 e normalmente não podem
       ser desabilitadas.
     </para>
 
     <para>
-      A funcionalidade de relatório de cobertura de código requer as extensões  
+      A funcionalidade de relatório de cobertura de código requer as extensões
       <ulink url="http://xdebug.org/">Xdebug</ulink> (2.1.3 ou superior) e
       <ulink url="http://php.net/manual/en/tokenizer.installation.php">tokenizer</ulink>.
 
-      Geração de relatórios XML requer a extensão 
+      Geração de relatórios XML requer a extensão
       <ulink url="http://php.net/manual/en/xmlwriter.installation.php">xmlwriter</ulink>.
     </para>
   </section>
@@ -44,7 +44,7 @@
     <para>
       A maneira mais fácil de obter o PHPUnit é baixar um <ulink
       url="http://php.net/phar">PHP Archive (PHAR)</ulink> que tem todas dependências
-      requeridas (assim como algumas opcionais) do PHPUnit empacotados em um único 
+      requeridas (assim como algumas opcionais) do PHPUnit empacotados em um único
       arquivo.
     </para>
 
@@ -52,9 +52,9 @@
       A extensão <ulink url="http://php.net/manual/en/phar.installation.php">phar</ulink>
       é requerida para usar PHP Archives (PHAR).
     </para>
-    
+
     <para>
-        A extensão 
+        A extensão
         <ulink url="http://php.net/manual/en/openssl.installation.php">openssl</ulink>
         é requerida para usar a funcionalidade <literal>--self-update</literal>
         do PHAR.
@@ -69,7 +69,7 @@
 suhosin.executor.include.whitelist = phar
 </screen>
     </para>
-    
+
     <note>
       <para>
         Para baixar de <literal>https://phar.phpunit.de/</literal> você precisa de um
@@ -118,7 +118,7 @@ suhosin.executor.include.whitelist = phar
         </listitem>
         <listitem>
           <para>
-            Acrescente <userinput>;C:\bin</userinput> à sua variável de ambiente 
+            Acrescente <userinput>;C:\bin</userinput> à sua variável de ambiente
             <varname>PATH</varname>
             (<ulink url="http://stackoverflow.com/questions/6318156/adding-python-path-on-windows-7">ajuda relacionada</ulink>)
           </para>
@@ -182,10 +182,10 @@ suhosin.executor.include.whitelist = phar
 
       <para>
         O exemplo a seguir detalha como a verificação de lançamento funciona. Começamos
-        baixando <filename>phpunit.phar</filename> bem como sua 
+        baixando <filename>phpunit.phar</filename> bem como sua
         assinatura PGP independente <filename>phpunit.phar.asc</filename>:
       </para>
-      
+
       <screen><userinput>wget https://phar.phpunit.de/phpunit.phar</userinput>
 <userinput>wget https://phar.phpunit.de/phpunit.phar.asc</userinput></screen>
 
@@ -193,16 +193,16 @@ suhosin.executor.include.whitelist = phar
         Queremos verificar o PHP Archive do PHPUnit (<filename>phpunit.phar</filename>)
         contra sua assinatura independente (<filename>phpunit.phar.asc</filename>):
       </para>
-      
+
       <screen><userinput>gpg phpunit.phar.asc</userinput>
 gpg: Signature made Sat 19 Jul 2014 01:28:02 PM CEST using RSA key ID 6372C20A
 gpg: Can't check signature: public key not found</screen>
 
       <para>
         Nós não temos a chave pública do gerenciador de lançamento (<literal>6372C20A</literal>)
-        no próprio sistema local. A fim de prosseguir com a verificação nós precisamos 
-        recuperar a chave pública do gerenciador de lançamentos a partir de um servidor de chaves. 
-        Um tal servidor é <filename>pgp.uni-mainz.de</filename>. Os servidores de chaves públicas 
+        no próprio sistema local. A fim de prosseguir com a verificação nós precisamos
+        recuperar a chave pública do gerenciador de lançamentos a partir de um servidor de chaves.
+        Um tal servidor é <filename>pgp.uni-mainz.de</filename>. Os servidores de chaves públicas
         são conectados entre si, então você deve ser capaz de se conectar a qualquer servidor de chaves.
       </para>
 
@@ -235,24 +235,24 @@ Primary key fingerprint: D840 6D0D 8294 7747 2937  7831 4AA3 9408 6372 C20A]]></
         Neste ponto, a assinatura é boa, mas não confiamos nesta chave. Uma
         boa assinatura significa que o arquivo não foi adulterado. Porém, devido
         a natureza da criptografia de chave pública, você precisa adicionalmente
-        verificar que a chave <literal>6372C20A</literal> foi criada pelo verdadeiro 
+        verificar que a chave <literal>6372C20A</literal> foi criada pelo verdadeiro
         Sebastian Bergmann.
       </para>
 
       <para>
-        Qualquer invasor pode criar uma chave pública e enviá-la para os servidores 
-        de chave pública. Eles podem, então, criar um lançamento malicioso assinado pela 
-        chave fake. Então, se você tentar verificar a assinatura desse lançamento corrompido, 
+        Qualquer invasor pode criar uma chave pública e enviá-la para os servidores
+        de chave pública. Eles podem, então, criar um lançamento malicioso assinado pela
+        chave fake. Então, se você tentar verificar a assinatura desse lançamento corrompido,
         terá sucesso por quê a chave não é a chave "verdadeira". Portanto, você
-        precisa validar o autenticidade dessa chave. Validar a autenticidade da 
+        precisa validar o autenticidade dessa chave. Validar a autenticidade da
         chave pública, no entanto, está fora do escopo desta documentação.
       </para>
 
       <para>
-        Pode ser prudente criar um script shell para gerenciar a instalação do PHPUnit 
-        que verifica a assinatura GnuPG antes de rodar sua suíte de teste. Por exemplo: 
+        Pode ser prudente criar um script shell para gerenciar a instalação do PHPUnit
+        que verifica a assinatura GnuPG antes de rodar sua suíte de teste. Por exemplo:
       </para>
-      
+
       <screen><![CDATA[
 #!/usr/bin/env bash
 clean=1 # Delete phpunit.phar after the tests are complete?
@@ -316,11 +316,11 @@ fi
     <title>Composer</title>
 
     <para>
-      Simplesmente adicione uma dependência <literal>phpunit/phpunit</literal> ao  
-      arquivo <literal>composer.json</literal> do projeto se você usa o 
+      Simplesmente adicione uma dependência <literal>phpunit/phpunit</literal> ao
+      arquivo <literal>composer.json</literal> do projeto se você usa o
       <ulink url="https://getcomposer.org/">Composer</ulink> para gerenciar as
-      dependências do seu projeto. Aqui está um exemplo mínimo de um arquivo 
-      <literal>composer.json</literal> que define apenas uma dependência em desenvolvimento 
+      dependências do seu projeto. Aqui está um exemplo mínimo de um arquivo
+      <literal>composer.json</literal> que define apenas uma dependência em desenvolvimento
       do PHPUnit 4.5:
     </para>
 
@@ -337,7 +337,7 @@ fi
     <screen><userinput>composer global require "phpunit/phpunit=4.5.*"</userinput></screen>
 
     <para>
-      Certifique-se de que você tem <literal>~/.composer/vendor/bin/</literal> em seu 
+      Certifique-se de que você tem <literal>~/.composer/vendor/bin/</literal> em seu
       path.
     </para>
   </section>
@@ -363,7 +363,7 @@ fi
 
           <para>
             Este pacote está incluso na distribuição PHAR do PHPUnit. Ele pode ser
-            instalado via Composer adicionando a seguinte dependência 
+            instalado via Composer adicionando a seguinte dependência
             <literal>"require-dev"</literal>:
           </para>
 
@@ -380,10 +380,10 @@ fi
           <para>
             DbUnit porta para PHP/PHPUnit suportar teste de interação de banco de dados.
           </para>
-          
+
           <para>
             Este pacote está incluso na distribuição PHAR do PHPUnit. Ele pode ser
-            instalado via Composer adicionando a seguinte dependência 
+            instalado via Composer adicionando a seguinte dependência
             <literal>"require-dev"</literal>:
           </para>
 
@@ -403,7 +403,7 @@ fi
 
           <para>
             Este pacote está incluso na distribuição PHAR do PHPUnit. Ele pode ser
-            instalado via Composer adicionando a seguinte dependência 
+            instalado via Composer adicionando a seguinte dependência
             <literal>"require-dev"</literal>:
           </para>
 
