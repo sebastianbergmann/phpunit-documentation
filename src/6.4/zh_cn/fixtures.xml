@@ -236,7 +236,11 @@ class DatabaseTest extends TestCase
 
     <para>
       <indexterm><primary>Global Variable （全局变量）</primary></indexterm>
-      <indexterm><primary>Test Isolation （测试隔离）</primary></indexterm>默认情况下，PHPUnit 用一种更改全局变量与超全局变量(<literal>$GLOBALS</literal>、<literal>$_ENV</literal>、<literal>$_POST</literal>、<literal>$_GET</literal>、<literal>$_COOKIE</literal>、<literal>$_SERVER</literal>、<literal>$_FILES</literal>、<literal>$_REQUEST</literal>)不会影响到其他测试的方式来运行所有测试。同时，还可以选择将这种隔离扩展到类的静态属性。</para>
+      <indexterm><primary>Test Isolation （测试隔离）</primary></indexterm>在版本 6 之前，默认情况下，PHPUnit 用一种更改全局变量与超全局变量(<literal>$GLOBALS</literal>、<literal>$_ENV</literal>、<literal>$_POST</literal>、<literal>$_GET</literal>、<literal>$_COOKIE</literal>、<literal>$_SERVER</literal>、<literal>$_FILES</literal>、<literal>$_REQUEST</literal>)不会影响到其他测试的方式来运行所有测试。</para>
+
+    <para>在版本 6 中，默认情况下 PHPUnit 不再对全局变量和超全局变量进行这种备份与恢复的操作。可以用 <literal>--globals-backup</literal> 选项或在 XML 配置文件中用 <literal>backupGlobals=&quot;true&quot;</literal> 将其激活。</para>
+
+    <para>通过用 <literal>--static-backup</literal> 选项或在 XML 配置文件中设置option or setting <literal>backupStaticAttributes=&quot;true&quot;</literal>，可以将此隔离扩展到类的静态属性。</para>
 
     <note>
       <para>对全局变量和类的静态属性的备份与还原操作使用了 <literal>serialize()</literal> 与 <literal>unserialize()</literal>。</para>
