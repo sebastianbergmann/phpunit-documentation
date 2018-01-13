@@ -235,7 +235,7 @@ class StubTest extends TestCase
 
         // Configure the stub.
         $stub->method('doSomething')
-             ->will($this->returnArgument(0));
+             ->willReturnArgument(0);
 
         // $stub->doSomething('foo') returns 'foo'
         $this->assertEquals('foo', $stub->doSomething('foo'));
@@ -272,7 +272,7 @@ class StubTest extends TestCase
 
         // Configure the stub.
         $stub->method('doSomething')
-             ->will($this->returnSelf());
+             ->willReturnSelf();
 
         // $stub->doSomething() returns $stub
         $this->assertSame($stub, $stub->doSomething());
@@ -314,7 +314,7 @@ class StubTest extends TestCase
 
         // Configure the stub.
         $stub->method('doSomething')
-             ->will($this->returnValueMap($map));
+             ->willReturnMap($map);
 
         // $stub->doSomething() returns different values depending on
         // the provided arguments.
@@ -352,10 +352,12 @@ class StubTest extends TestCase
 
         // Configure the stub.
         $stub->method('doSomething')
-             ->will($this->returnCallback('str_rot13'));
+             ->willReturnCallback(function($string) {
+                 return strtoupper($string);
+             });
 
-        // $stub->doSomething($argument) returns str_rot13($argument)
-        $this->assertEquals('fbzrguvat', $stub->doSomething('something'));
+        // $stub->doSomething($argument) returns strtoupper($argument)
+        $this->assertEquals('SOMETHING', $stub->doSomething('something'));
     }
 }
 ?>]]></programlisting>
