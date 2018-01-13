@@ -852,6 +852,29 @@ public function initialBalanceShouldBe0()
     <programlisting></programlisting>
   </section>
 
+  <section id="appendixes.annotations.testWith">
+    <title>@testWith</title>
+
+    <para>
+      <indexterm><primary>@testWith</primary></indexterm>
+
+      Instead of implementing a method for use with <literal>@dataProvider</literal>,
+      you can define a data set using the <literal>@testWith</literal> annotation.
+    </para>
+
+    <programlisting><![CDATA[/**
+ * @param string    $input
+ * @param int       $expectedLength
+ *
+ * @testWith        ["test", 4]
+ *                  ["longer-string", 13]
+ */
+public function testStringLength(string $input, int $expectedLength)
+{
+    $this->assertEquals($expectedLength, strlen($input));
+}]]></programlisting>
+  </section>
+
   <section id="appendixes.annotations.ticket">
     <title>@ticket</title>
 
