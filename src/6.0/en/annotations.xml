@@ -847,6 +847,31 @@ public function initialBalanceShouldBe0()
     <para>
       <indexterm><primary>TestDox</primary></indexterm>
       <indexterm><primary>@testdox</primary></indexterm>
+
+      Specifies an alternative description used when generating the agile
+      documentation sentences (see <xref linkend="other-uses-for-tests.agile-documentation"/>).
+      The <literal>@testdox</literal> annotation can be applied to both test classes and test methods.
+      <programlisting>/**
+ * @testdox A bank account
+ */
+class BankAccountTest extends TestCase
+{
+    /**
+     * @testdox has an initial balance of zero
+     */
+    public function balanceIsInitiallyZero()
+    {
+        $this->assertEquals(0, $this->ba->getBalance());
+    }
+}</programlisting>
+
+      <note>
+        <para>
+          Prior to PHPUnit 7.0 (due to a bug in the annotation parsing), using
+          the <literal>@testdox</literal> annotation also activated the behaviour
+          of the <literal>@test</literal> annotation.
+        </para>
+      </note>
     </para>
 
     <programlisting></programlisting>
