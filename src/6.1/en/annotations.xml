@@ -847,7 +847,7 @@ public function initialBalanceShouldBe0()
     <para>
       <indexterm><primary>TestDox</primary></indexterm>
       <indexterm><primary>@testdox</primary></indexterm>
-      
+
       Specifies an alternative description used when generating the agile
       documentation sentences (see <xref linkend="other-uses-for-tests.agile-documentation"/>).
       The <literal>@testdox</literal> annotation can be applied to both test classes and test methods.
@@ -864,10 +864,14 @@ class BankAccountTest extends TestCase
         $this->assertEquals(0, $this->ba->getBalance());
     }
 }</programlisting>
-      
-      <emphasis role="strong">Note:</emphasis> Using the <literal>@testdox</literal> leads to
-      the <literal>@test</literal> annotation to be infered. As a concequence, the annotated
-      method name does not need to be prefixed with <literal>test</literal>.
+
+      <note>
+        <para>
+          Prior to PHPUnit 7.0 (due to a bug in the annotation parsing), using
+          the <literal>@testdox</literal> annotation also activated the behaviour
+          of the <literal>@test</literal> annotation.
+        </para>
+      </note>
     </para>
 
     <programlisting></programlisting>
