@@ -6,6 +6,7 @@
 - PHP 5 (with DOM, PCRE, SPL, and Tokenizer extensions enabled)
 - Ruby
 - xsltproc
+- libxml2-utils
 
 ## Building the Documentation
 
