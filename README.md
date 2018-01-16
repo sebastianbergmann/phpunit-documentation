@@ -5,8 +5,8 @@
 - Apache Ant
 - PHP 5 (with DOM, PCRE, SPL, and Tokenizer extensions enabled)
 - Ruby
+- xmllint
 - xsltproc
-- libxml2-utils
 
 ## Building the Documentation
 
